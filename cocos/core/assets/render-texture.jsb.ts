@@ -77,7 +77,16 @@ renderTextureProto._deserialize = function (serializedData: any, handle: any) {
     this._height = data.h;
     this._name = data.n;
     textureBaseProto._deserialize.call(this, data.base, handle);
-}
+};
+
+const oldReadPixels = renderTextureProto.readPixels;
+renderTextureProto.readPixels = function readPixels (x: number, y: number, width: number, height: number) {
+    x = x || 0;
+    y = y || 0;
+    width = width || this.width;
+    height = width || this.height;
+    return oldReadPixels.call(this, x, y, width, height);
+};
 
 clsDecorator(RenderTexture);
 
