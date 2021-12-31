@@ -32,11 +32,11 @@ import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 
 export type SimpleTexture = jsb.SimpleTexture;
-export const SimpleTexture = jsb.SimpleTexture;
+export const SimpleTexture: any = jsb.SimpleTexture;
 
-(SimpleTexture as any).Filter = Filter;
-(SimpleTexture as any).PixelFormat = PixelFormat;
-(SimpleTexture as any).WrapMode = WrapMode;
+SimpleTexture.Filter = Filter;
+SimpleTexture.PixelFormat = PixelFormat;
+SimpleTexture.WrapMode = WrapMode;
 
 const simpleTextureProto = jsb.SimpleTexture.prototype;
 const oldUpdateDataFunc = simpleTextureProto.uploadData;

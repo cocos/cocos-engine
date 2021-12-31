@@ -33,13 +33,18 @@ import { ImageAsset } from './image-asset';
 import { SimpleTexture } from './simple-texture';
 import { TextureBase } from './texture-base.jsb';
 import { js } from '../utils/js';
+import { Filter, PixelFormat, WrapMode } from './asset-enum';
 
 const texture2DProto: any = jsb.Texture2D.prototype;
 
 texture2DProto.createNode = null!;
 
 export type Texture2D = jsb.Texture2D;
-export const Texture2D = jsb.Texture2D;
+export const Texture2D: any = jsb.Texture2D;
+
+Texture2D.Filter = Filter;
+Texture2D.PixelFormat = PixelFormat;
+Texture2D.WrapMode = WrapMode;
 
 export interface ITexture2DSerializeData {
     base: string;

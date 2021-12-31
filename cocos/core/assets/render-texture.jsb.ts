@@ -29,6 +29,7 @@ import {
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
+import { Filter, PixelFormat, WrapMode } from './asset-enum';
 
 const renderTextureProto: any = jsb.RenderTexture.prototype;
 const textureBaseProto: any = jsb.TextureBase.prototype;
@@ -36,7 +37,11 @@ const textureBaseProto: any = jsb.TextureBase.prototype;
 renderTextureProto.createNode = null!;
 
 export type RenderTexture = jsb.RenderTexture;
-export const RenderTexture = jsb.RenderTexture;
+export const RenderTexture: any = jsb.RenderTexture;
+
+RenderTexture.Filter = Filter;
+RenderTexture.PixelFormat = PixelFormat;
+RenderTexture.WrapMode = WrapMode;
 
 const clsDecorator = ccclass('cc.RenderTexture');
 
@@ -77,7 +82,16 @@ renderTextureProto._deserialize = function (serializedData: any, handle: any) {
     this._height = data.h;
     this._name = data.n;
     textureBaseProto._deserialize.call(this, data.base, handle);
-}
+};
+
+const oldReadPixels = renderTextureProto.readPixels;
+renderTextureProto.readPixels = function readPixels (x: number, y: number, width: number, height: number) {
+    x = x || 0;
+    y = y || 0;
+    width = width || this.width;
+    height = width || this.height;
+    return oldReadPixels.call(this, x, y, width, height);
+};
 
 clsDecorator(RenderTexture);
 

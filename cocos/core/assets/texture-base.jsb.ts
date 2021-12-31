@@ -78,11 +78,11 @@ textureBaseProto._getGFXPixelFormat = function (format) {
 textureBaseProto.createNode = null!;
 
 export type TextureBase = jsb.TextureBase;
-export const TextureBase = jsb.TextureBase;
+export const TextureBase: any = jsb.TextureBase;
 
-(TextureBase as any).Filter = Filter;
-(TextureBase as any).PixelFormat = PixelFormat;
-(TextureBase as any).WrapMode = WrapMode;
+TextureBase.Filter = Filter;
+TextureBase.PixelFormat = PixelFormat;
+TextureBase.WrapMode = WrapMode;
 
 const clsDecorator = ccclass('cc.TextureBase');
 
