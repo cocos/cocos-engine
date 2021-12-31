@@ -533,7 +533,7 @@ let RichText = cc.Class({
         labelSegment.active = this.node.active;
 
         labelSegment.setAnchorPoint(0, 0);
-        this._applyTextAttribute(labelSegment, stringToken, true);
+        this._applyTextAttribute(labelSegment, stringToken, CC_EDITOR ? true : false);
 
         this.node.addChild(labelSegment);
         this._labelSegments.push(labelSegment);
