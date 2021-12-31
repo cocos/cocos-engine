@@ -31,52 +31,52 @@ describe(`Decorators`, () => {
         const withVisibleFalseSerializableTrue = <T>(v: T) => ({ visible: false, serializable: true, ...v });
 
         test.each([
-            ['@property', [() => property], { /*visible: true, serializable: true*/ }],
+            ['@property', [property], { /*visible: true, serializable: true*/ }],
 
-            ['@property({})', [() => property({})], { /*visible: true, serializable: true*/ }],
+            ['@property({})', [property({})], { /*visible: true, serializable: true*/ }],
 
-            ['@property({ visible: true })', [() => property({ visible: true })], { visible: true, /* serializable: true */ }],
+            ['@property({ visible: true })', [property({ visible: true })], { visible: true, /* serializable: true */ }],
 
-            ['@property({ visible: false })', [() => property({ visible: false })], { visible: false, /* serializable: true */ }],
+            ['@property({ visible: false })', [property({ visible: false })], { visible: false, /* serializable: true */ }],
 
-            ['@property({ visible: [[Function]] })', [() => property({ visible: visibleFn })], { visible: visibleFn }],
+            ['@property({ visible: [[Function]] })', [property({ visible: visibleFn })], { visible: visibleFn }],
 
-            ['@property({ serializable: false })', [() => property({ serializable: false })], { serializable: false, /* visible: true */ }],
+            ['@property({ serializable: false })', [property({ serializable: false })], { serializable: false, /* visible: true */ }],
 
-            ['@type(a)', [() => type(Dummy)], { type: 'Object', ctor: Dummy }],
+            ['@type(a)', [type(Dummy)], { type: 'Object', ctor: Dummy }],
 
-            ['@editable', [() => editable], withVisibleTrueSerializableFalse({})],
-            ['@readOnly', [() => readOnly], withVisibleTrueSerializableFalse({ readonly: true })],
-            ['@displayName(a)', [() => displayName('d')], withVisibleTrueSerializableFalse({ displayName: 'd' })],
-            ['@tooltip(a)', [() => tooltip('t')], withVisibleTrueSerializableFalse({ tooltip: 't' })],
-            ['@group(a)', [() => group('g')], withVisibleTrueSerializableFalse({ group: 'g' })],
-            ['@range([a, b])', [() => range([2, 3])], withVisibleTrueSerializableFalse({ min: 2, max: 3 })],
-            ['@range([a, b, c])', [() => range([2, 3, 4])], withVisibleTrueSerializableFalse({ min: 2, max: 3, step: 4 })],
-            ['@rangeMin(a)', [() => rangeMin(6)], withVisibleTrueSerializableFalse({ min: 6 })],
-            ['@rangeMax(a)', [() => rangeMax(6)], withVisibleTrueSerializableFalse({ max: 6 })],
-            ['@rangeStep(a)', [() => rangeStep(6)], withVisibleTrueSerializableFalse({ step: 6 })],
-            ['@slide', [() => slide], withVisibleTrueSerializableFalse({ slide: true })],
-            ['@displayOrder(a)', [() => displayOrder(6)], withVisibleTrueSerializableFalse({ displayOrder: 6 })],
-            ['@unit(a)', [() => unit('cd/m²')], withVisibleTrueSerializableFalse({ unit: 'cd/m²' })],
-            ['@radian', [() => radian], withVisibleTrueSerializableFalse({ radian: true })],
-            ['@multiline', [() => multiline], withVisibleTrueSerializableFalse({ multiline: true })],
-            ['@disallowAnimation', [() => disallowAnimation], withVisibleTrueSerializableFalse({ animatable: false })],
+            ['@editable', [editable], withVisibleTrueSerializableFalse({})],
+            ['@readOnly', [readOnly], withVisibleTrueSerializableFalse({ readonly: true })],
+            ['@displayName(a)', [displayName('d')], withVisibleTrueSerializableFalse({ displayName: 'd' })],
+            ['@tooltip(a)', [tooltip('t')], withVisibleTrueSerializableFalse({ tooltip: 't' })],
+            ['@group(a)', [group('g')], withVisibleTrueSerializableFalse({ group: 'g' })],
+            ['@range([a, b])', [range([2, 3])], withVisibleTrueSerializableFalse({ min: 2, max: 3 })],
+            ['@range([a, b, c])', [range([2, 3, 4])], withVisibleTrueSerializableFalse({ min: 2, max: 3, step: 4 })],
+            ['@rangeMin(a)', [rangeMin(6)], withVisibleTrueSerializableFalse({ min: 6 })],
+            ['@rangeMax(a)', [rangeMax(6)], withVisibleTrueSerializableFalse({ max: 6 })],
+            ['@rangeStep(a)', [rangeStep(6)], withVisibleTrueSerializableFalse({ step: 6 })],
+            ['@slide', [slide], withVisibleTrueSerializableFalse({ slide: true })],
+            ['@displayOrder(a)', [displayOrder(6)], withVisibleTrueSerializableFalse({ displayOrder: 6 })],
+            ['@unit(a)', [unit('cd/m²')], withVisibleTrueSerializableFalse({ unit: 'cd/m²' })],
+            ['@radian', [radian], withVisibleTrueSerializableFalse({ radian: true })],
+            ['@multiline', [multiline], withVisibleTrueSerializableFalse({ multiline: true })],
+            ['@disallowAnimation', [disallowAnimation], withVisibleTrueSerializableFalse({ animatable: false })],
 
-            ['@serializable', [() => serializable], withVisibleFalseSerializableTrue({})],
-            ['@editorOnly', [() => editorOnly], withVisibleFalseSerializableTrue({ editorOnly: true })],
-            ['@formerlySerializedAs(a)', [() => formerlySerializedAs('xx')], withVisibleFalseSerializableTrue({ formerlySerializedAs: 'xx' })],
+            ['@serializable', [serializable], withVisibleFalseSerializableTrue({})],
+            ['@editorOnly', [editorOnly], withVisibleFalseSerializableTrue({ editorOnly: true })],
+            ['@formerlySerializedAs(a)', [formerlySerializedAs('xx')], withVisibleFalseSerializableTrue({ formerlySerializedAs: 'xx' })],
 
             ['@visible, @serializable', [
-                () => visible(true),
-                () => serializable,
+                visible(true),
+                serializable,
             ], {
                 visible: true,
                 serializable: true,
             }],
 
             ['@visible, implicit visible', [
-                () => tooltip('t'),
-                () => visible(visibleFn),
+                visible(visibleFn),
+                tooltip('t'),
             ], {
                 tooltip: 't',
                 visible: visibleFn,
@@ -84,8 +84,8 @@ describe(`Decorators`, () => {
             }],
 
             ['implicit visible, @visible', [
-                () => tooltip('t'),
-                () => visible(visibleFn),
+                tooltip('t'),
+                visible(visibleFn),
             ], {
                 tooltip: 't',
                 visible: visibleFn,
@@ -93,8 +93,8 @@ describe(`Decorators`, () => {
             }],
 
             ['Implicit visible, implicit serializable', [
-                () => tooltip('t'),
-                () => formerlySerializedAs('ABC'),
+                tooltip('t'),
+                formerlySerializedAs('ABC'),
             ], {
                 tooltip: 't',
                 formerlySerializedAs: 'ABC',
@@ -103,8 +103,8 @@ describe(`Decorators`, () => {
             }],
 
             ['Implicit serializable, implicit visible', [
-                () => formerlySerializedAs('ABC'),
-                () => tooltip('t'),
+                formerlySerializedAs('ABC'),
+                tooltip('t'),
             ], {
                 tooltip: 't',
                 formerlySerializedAs: 'ABC',
@@ -113,8 +113,8 @@ describe(`Decorators`, () => {
             }],
 
             ['@type, implicit visible', [
-                () => type(Dummy),
-                () => tooltip('t'),
+                type(Dummy),
+                tooltip('t'),
             ], {
                 tooltip: 't',
                 visible: true,
@@ -124,8 +124,8 @@ describe(`Decorators`, () => {
             }],
 
             ['@type, implicit serializable', [
-                () => type(Dummy),
-                () => formerlySerializedAs('t'),
+                type(Dummy),
+                formerlySerializedAs('t'),
             ], {
                 formerlySerializedAs: 't',
                 visible: false,
@@ -135,12 +135,12 @@ describe(`Decorators`, () => {
             }],
         ] as Array<[
             title: string,
-            decorators: Array<() => PropertyDecorator>,
+            decorators: Array<PropertyDecorator>,
             expected: Record<string, unknown>,
         ]>)(`%s`, (_title, decorators, expected) => {
             const empty: PropertyDecorator = () => {};
 
-            const tryApplyNthDecorator = (index: number) => decorators.length > index ? decorators[index]() : empty;
+            const tryApplyNthDecorator = (index: number) => decorators.length > index ? decorators[index] : empty;
             
             @ccclass
             class Foo {
