@@ -83,7 +83,16 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public set capacity (val) {
+        const lastCapacity = this._capacity;
+
         this._capacity = Math.floor(val);
+        if (this._capacity <= 0) {
+            this._detachFromScene();
+            return;
+        } else if (this._capacity > 0 && lastCapacity <= 0) {
+            this._attachToScene();
+        }
+
         // @ts-expect-error private property access
         if (this.processor && this.processor._model) {
             // @ts-expect-error private property access
