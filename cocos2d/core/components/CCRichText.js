@@ -359,7 +359,7 @@ let RichText = cc.Class({
         if (this.handleTouchEvent) {
             this._addEventListeners();
         }
-        this._updateRichText();
+        this._updateRichTextStatus();
         this._activateChildren(true);
     },
 
@@ -501,11 +501,7 @@ let RichText = cc.Class({
         // we need call onEnable/onDisable manually to active/disactive children nodes.
         if (this.enabledInHierarchy) {
             this._layoutDirty = true;
-            if (this.handleTouchEvent) {
-                this._addEventListeners();
-            }
-            this._updateRichTextStatus();
-            this._activateChildren(true);
+            this.onEnable();
         }
         else {
             this.onDisable();
@@ -533,7 +529,7 @@ let RichText = cc.Class({
         labelSegment.active = this.node.active;
 
         labelSegment.setAnchorPoint(0, 0);
-        this._applyTextAttribute(labelSegment, stringToken, CC_EDITOR ? true : false);
+        this._applyTextAttribute(labelSegment, stringToken, !!CC_EDITOR);
 
         this.node.addChild(labelSegment);
         this._labelSegments.push(labelSegment);
