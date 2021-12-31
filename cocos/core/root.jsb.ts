@@ -41,12 +41,21 @@ Object.defineProperty(rootProto, 'dataPoolManager', {
     },
 });
 
+Object.defineProperty(rootProto, 'pipeline', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._pipeline;
+    }
+});
+
 rootProto._ctor = function (device: Device) {
     this._device = device;
     this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
     this._modelPools = new Map();
     this._lightPools = new Map();
     this._batcher = null;
+    this._pipeline = null;
     this._registerListeners();
 };
 
@@ -149,5 +158,6 @@ rootProto.setRenderPipeline = function (pipeline) {
         pipeline = new nr.ForwardPipeline();
         pipeline.initialize({});
     }
+    this._pipeline = pipeline;
     return oldSetPipeline.call(this, pipeline);
 }
