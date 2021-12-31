@@ -29,6 +29,7 @@ import {
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
+import { Filter, PixelFormat, WrapMode } from './asset-enum';
 
 const renderTextureProto: any = jsb.RenderTexture.prototype;
 const textureBaseProto: any = jsb.TextureBase.prototype;
@@ -36,7 +37,11 @@ const textureBaseProto: any = jsb.TextureBase.prototype;
 renderTextureProto.createNode = null!;
 
 export type RenderTexture = jsb.RenderTexture;
-export const RenderTexture = jsb.RenderTexture;
+export const RenderTexture: any = jsb.RenderTexture;
+
+RenderTexture.Filter = Filter;
+RenderTexture.PixelFormat = PixelFormat;
+RenderTexture.WrapMode = WrapMode;
 
 const clsDecorator = ccclass('cc.RenderTexture');
 

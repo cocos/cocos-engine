@@ -58,11 +58,11 @@ enum FaceIndex {
 textureCubeProto.createNode = null!;
 
 export type TextureCube = jsb.TextureCube;
-export const TextureCube = jsb.TextureCube;
+export const TextureCube: any = jsb.TextureCube;
 
-(TextureCube as any).Filter = Filter;
-(TextureCube as any).PixelFormat = PixelFormat;
-(TextureCube as any).WrapMode = WrapMode;
+TextureCube.Filter = Filter;
+TextureCube.PixelFormat = PixelFormat;
+TextureCube.WrapMode = WrapMode;
 
 const clsDecorator = ccclass('cc.TextureCube');
 
