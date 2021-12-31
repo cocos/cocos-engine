@@ -359,7 +359,7 @@ let RichText = cc.Class({
         if (this.handleTouchEvent) {
             this._addEventListeners();
         }
-        this._updateRichTextStatus();
+        this._onTTFLoaded();
         this._activateChildren(true);
     },
 
@@ -368,10 +368,6 @@ let RichText = cc.Class({
             this._removeEventListeners();
         }
         this._activateChildren(false);
-    },
-
-    start () {
-        this._onTTFLoaded();
     },
 
     _onColorChanged (parentColor) {
@@ -405,19 +401,19 @@ let RichText = cc.Class({
         if (this.font instanceof cc.TTFFont) {
             if (this.font._nativeAsset) {
                 this._layoutDirty = true;
-                this._updateRichText();
+                this._updateRichTextStatus();
             }
             else {
                 let self = this;
                 cc.assetManager.postLoadNative(this.font, function (err) {
                     self._layoutDirty = true;
-                    self._updateRichText();
+                    self._updateRichTextStatus();
                 });
             }
         }
         else {
             this._layoutDirty = true;
-            this._updateRichText();
+            this._updateRichTextStatus();
         }
     },
 
@@ -499,7 +495,6 @@ let RichText = cc.Class({
         // Because undo/redo will not call onEnable/onDisable,
         // we need call onEnable/onDisable manually to active/disactive children nodes.
         if (this.enabledInHierarchy) {
-            this._layoutDirty = true;
             this.onEnable();
         }
         else {
