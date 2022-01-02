@@ -117,6 +117,10 @@ export const bmfont: IAssembler = {
         dataList[dataOffset + 3].x = x + rectWidth * scale;
         dataList[dataOffset + 3].y = y;
     },
+
+    updateColor (comp: Label) {
+
+    },
 };
 
 js.addon(bmfont, bmfontUtils);

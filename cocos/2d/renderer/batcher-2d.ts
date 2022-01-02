@@ -49,6 +49,7 @@ import { IBatcher } from './i-batcher';
 import { StaticVBAccessor } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
+import { updateOpacity } from '../assembler/utils';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -125,6 +126,8 @@ export class Batcher2D implements IBatcher {
 
     private _drawBatchPool: Pool<DrawBatch2D>;
     private _batches: CachedArray<DrawBatch2D>;
+    private _currBID = -1;
+    private _indexStart = 0;
 
     private _emptyMaterial = new Material();
     private _currMaterial: Material = this._emptyMaterial;
@@ -140,8 +143,9 @@ export class Batcher2D implements IBatcher {
     private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
     private _currHash = 0;
-    private _currBID = -1;
-    private _indexStart = 0;
+
+    private _pOpacity = 1;
+    private _opacityDirty = 0;
 
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
@@ -233,6 +237,9 @@ export class Batcher2D implements IBatcher {
             if (!screen.enabledInHierarchy || !scene) {
                 continue;
             }
+            // Reset state and walk
+            this._opacityDirty = 0;
+            this._pOpacity = 1;
             this.walk(screen.node);
             this.autoMergeBatches(this._currComponent!);
 
@@ -638,51 +645,55 @@ export class Batcher2D implements IBatcher {
     }
 
     public walk (node: Node, level = 0) {
-        const len = node.children.length;
-        this._preProcess(node);
-        if (len > 0 && !node._static) {
-            const children = node.children;
+        const children = node.children;
+        const uiProps = node._uiProps;
+        const render = uiProps.uiComp as Renderable2D;
+        // Save opacity
+        const parentOpacity = this._pOpacity;
+        let opacity = parentOpacity;
+        // TODO Always cascade ui property's local opacity before remove it
+        if (uiProps.colorDirty) {
+            const selfOpacity = render ? render.color.a / 255 : 1;
+            this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
+            // TODO Set opacity to ui property's opacity before remove it
+            // @ts-expect-error temporary force set, will be removed with ui property's opacity
+            uiProps._opacity = opacity;
+            // Cascade color dirty state
+            this._opacityDirty++;
+        }
+        // Update cascaded opacity to vertex buffer
+        if (this._opacityDirty && render && render.renderData) {
+            // HARD COUPLING
+            updateOpacity(render.renderData, opacity);
+        }
+
+        // Render assembler update logic
+        if (render && render.enabledInHierarchy) {
+            render.updateAssembler(this);
+        }
+
+        if (children.length > 0 && !node._static) {
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
                 this.walk(child, level);
             }
         }
 
-        this._postProcess(node);
-
-        level += 1;
-    }
-
-    private _preProcess (node: Node) {
-        // update opacity
-        if (node._uiProps.opacityDirty) {
-            let opacity = 1.0;
-            if (node.parent?._uiProps) {
-                opacity = node.parent._uiProps.opacity;
-                const render = node._uiProps.uiComp as Renderable2D;
-                if (render && render.markColorDirty) {
-                    opacity *= (render.color.a / 255);
-                    render.markColorDirty();
-                }
-            }
-            node._uiProps.opacityDirty = false;
-            node._uiProps.applyOpacity(opacity);
+        if (uiProps.colorDirty) {
+            // Reduce cascaded color dirty state
+            this._opacityDirty--;
+            // Reset color dirty
+            uiProps.colorDirty = false;
         }
-
-        const render = node._uiProps.uiComp;
-        if (!node._uiProps.uiTransformComp) {
-            return;
-        }
-        if (render && render.enabledInHierarchy) {
-            render.updateAssembler(this);
-        }
-    }
-
-    private _postProcess (node: Node) {
-        const render = node._uiProps.uiComp;
+        // Restore opacity
+        this._pOpacity = parentOpacity;
+        // Post render assembler update logic
+        // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
         }
+
+        level += 1;
     }
 
     private _screenSort (a: RenderRoot2D, b: RenderRoot2D) {

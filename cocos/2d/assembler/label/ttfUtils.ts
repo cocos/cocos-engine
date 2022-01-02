@@ -114,7 +114,6 @@ export const ttfUtils =  {
             this._calculateLabelFont();
             this._updateLabelDimensions();
             this._updateTexture(comp);
-            this.updateOpacity(comp);
             this._calDynamicAtlas(comp);
 
             comp.actualFontSize = _fontSize;
@@ -140,18 +139,6 @@ export const ttfUtils =  {
     },
 
     updateUVs (comp: Label) {
-    },
-
-    updateOpacity (comp: Label) {
-        const vData = comp.renderData!.chunk.vb;
-
-        let colorOffset = 5;
-        const colorA = comp.node._uiProps.opacity;
-        for (let i = 0; i < 4; i++) {
-            vData[colorOffset + 3] = colorA;
-
-            colorOffset += 9;
-        }
     },
 
     _updateFontFamily (comp: Label) {

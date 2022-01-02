@@ -1602,7 +1602,7 @@ export class Skeleton extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = Skeleton.Assembler!.getAssembler(this);
+        const assembler = Skeleton.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
@@ -1610,7 +1610,6 @@ export class Skeleton extends Renderable2D {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
-                this._colorDirty = true;
                 this._updateColor();
             }
         }

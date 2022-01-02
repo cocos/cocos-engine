@@ -1261,7 +1261,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = ArmatureDisplay.Assembler!.getAssembler(this);
+        const assembler = ArmatureDisplay.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
@@ -1269,7 +1269,6 @@ export class ArmatureDisplay extends Renderable2D {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
-                this._colorDirty = true;
                 this._updateColor();
             }
         }

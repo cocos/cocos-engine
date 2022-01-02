@@ -32,6 +32,8 @@ import { Color, Mat4, Vec3 } from '../../core/math';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../core/scene-graph/node';
+import { assertIsTrue } from '../../core/data/utils/asserts';
+import { vfmtPosColor, vfmtPosUvColor } from '../renderer/vertex-format';
 
 const vec3_temp = new Vec3();
 const _worldMatrix = new Mat4();
@@ -73,4 +75,14 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
     }
     meshBuffer.indexOffset += renderData.indexCount;
     meshBuffer.setDirty();
+}
+
+export function updateOpacity (renderData: RenderData, opacity: number) {
+    const vfmt = renderData.vertexFormat;
+    assertIsTrue(vfmt && (vfmt === vfmtPosColor || vfmt === vfmtPosUvColor));
+    const vb = renderData.chunk.vb;
+    const floatStride = renderData.floatStride;
+    for (let offset = floatStride - 1; offset < vb.length; offset += floatStride) {
+        vb[offset] = opacity;
+    }
 }

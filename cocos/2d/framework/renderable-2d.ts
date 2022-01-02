@@ -45,10 +45,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
-import { director } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
-import { NodeUIProperties } from '../../core/scene-graph/node-ui-properties';
-import { StaticVBChunk } from '../renderer/static-vb-accessor';
 
 // hack
 ccenum(BlendFactor);
@@ -119,6 +116,23 @@ export enum InstanceMaterialType {
 @disallowMultiple
 @executeInEditMode
 export class Renderable2D extends RenderableComponent {
+    /**
+     * @en The blend factor enums
+     * @zh 混合模式枚举类型
+     * @see [[BlendFactor]]
+     */
+    public static BlendState = BlendFactor;
+    /**
+     * @en The render data assembler
+     * @zh 渲染数据组装器
+     */
+    public static Assembler: IAssemblerManager = null!;
+    /**
+     * @en The post render data assembler
+     * @zh 后置渲染数据组装器
+     */
+    public static PostAssembler: IAssemblerManager | null = null;
+
     @override
     protected _materials: (Material | null)[] = [];
 
@@ -161,30 +175,6 @@ export class Renderable2D extends RenderableComponent {
     set customMaterial (val) {
         this._customMaterial = val;
         this.updateMaterial();
-    }
-
-    // macro.UI_GPU_DRIVEN
-    protected updateMaterial () {
-        if (this._customMaterial) {
-            this.setMaterial(this._customMaterial, 0);
-            if (this._renderData) {
-                this._renderData.material = this._customMaterial;
-                this.markForUpdateRenderData();
-                this._renderData.passDirty = true;
-            }
-            this._blendHash = -1; // a flag to check merge
-            if (UI_GPU_DRIVEN) {
-                this._canDrawByFourVertex = false;
-            }
-            return;
-        }
-        const mat = this._updateBuiltinMaterial();
-        this.setMaterial(mat, 0);
-        if (this._renderData) {
-            this._renderData.material = mat;
-            this.markForUpdateRenderData();
-        }
-        this._updateBlendFunc();
     }
 
     /**
@@ -254,17 +244,12 @@ export class Renderable2D extends RenderableComponent {
     get color (): Readonly<Color> {
         return this._color;
     }
-
     set color (value) {
         if (this._color.equals(value)) {
             return;
         }
-        const oldAlpha = this._color.a;
         this._color.set(value);
-        if (oldAlpha !== this.color.a) {
-            NodeUIProperties.markOpacityTree(this.node);
-        }
-        this._colorDirty = true;
+        this._updateColor();
         if (EDITOR) {
             const clone = value.clone();
             this.node.emit(NodeEventType.COLOR_CHANGED, clone);
@@ -286,23 +271,6 @@ export class Renderable2D extends RenderableComponent {
      */
     public stencilStage : Stage = Stage.DISABLED;
 
-    /**
-     * @en The blend factor enums
-     * @zh 混合模式枚举类型
-     * @see [[BlendFactor]]
-     */
-    public static BlendState = BlendFactor;
-    /**
-     * @en The render data assembler
-     * @zh 渲染数据组装器
-     */
-    public static Assembler: IAssemblerManager = null!;
-    /**
-     * @en The post render data assembler
-     * @zh 后置渲染数据组装器
-     */
-    public static PostAssembler: IAssemblerManager | null = null;
-
     @serializable
     protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
     @serializable
@@ -321,8 +289,6 @@ export class Renderable2D extends RenderableComponent {
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
 
-    protected _colorDirty = true;
-
     // macro.UI_GPU_DRIVEN
     protected declare _canDrawByFourVertex: boolean;
 
@@ -333,6 +299,9 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
+    /**
+     * TODO mark internal
+     */
     get blendHash () {
         return this._blendHash;
     }
@@ -361,7 +330,8 @@ export class Renderable2D extends RenderableComponent {
     // For Redo, Undo
     public onRestore () {
         this.updateMaterial();
-        this._renderFlag = this._canRender();
+        // restore render data
+        this.markForUpdateRenderData();
     }
 
     public onDisable () {
@@ -377,7 +347,8 @@ export class Renderable2D extends RenderableComponent {
         this.destroyRenderData();
         if (this._materialInstances) {
             for (let i = 0; i < this._materialInstances.length; i++) {
-                this._materialInstances[i] && this._materialInstances[i]!.destroy();
+                const instance = this._materialInstances[i];
+                if (instance) { instance.destroy(); }
             }
         }
         this._renderData = null;
@@ -437,9 +408,11 @@ export class Renderable2D extends RenderableComponent {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
     public updateAssembler (render: IBatcher) {
-        this._updateColor();
+        if (this._renderDataFlag) {
+            this._assembler!.updateRenderData(this);
+            this._renderDataFlag = false;
+        }
         if (this._renderFlag) {
-            this._checkAndUpdateRenderData();
             this._render(render);
         }
     }
@@ -453,7 +426,7 @@ export class Renderable2D extends RenderableComponent {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
     public postUpdateAssembler (render: IBatcher) {
-        if (this._renderFlag) {
+        if (this._postAssembler && this._renderFlag) {
             this._postRender(render);
         }
     }
@@ -462,42 +435,54 @@ export class Renderable2D extends RenderableComponent {
 
     protected _postRender (render: IBatcher) {}
 
-    protected _checkAndUpdateRenderData () {
-        if (this._renderDataFlag) {
-            this._assembler!.updateRenderData!(this);
-            this._renderDataFlag = false;
-        }
-    }
-
     protected _canRender () {
         return this.isValid
                && this.getMaterial(0) !== null
                && this.enabled
                && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
-               && this.node._uiProps.opacity > 0;
+               && this._color.a > 0;
     }
 
     protected _postCanRender () {}
 
-    protected _updateColor () {
-        if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
-            if (this._colorDirty) {
-                this._renderFlag = this._canRender();
-                this._colorDirty = false;
+    // macro.UI_GPU_DRIVEN
+    protected updateMaterial () {
+        if (this._customMaterial) {
+            this.setMaterial(this._customMaterial, 0);
+            if (this._renderData) {
+                this._renderData.material = this._customMaterial;
+                this.markForUpdateRenderData();
+                this._renderData.passDirty = true;
+            }
+            this._blendHash = -1; // a flag to check merge
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
             }
             return;
         }
-        // Need update rendFlag when opacity changes from 0 to !0
-        if (this._colorDirty && this._assembler && this._assembler.updateColor) {
+        const mat = this._updateBuiltinMaterial();
+        this.setMaterial(mat, 0);
+        if (this._renderData) {
+            this._renderData.material = mat;
+            this.markForUpdateRenderData();
+        }
+        this._updateBlendFunc();
+    }
+
+    protected _updateColor () {
+        if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
+            if (this.node._uiProps.colorDirty) {
+                this._renderFlag = this._canRender();
+                this.node._uiProps.colorDirty = false;
+            }
+            return;
+        }
+        this.node._uiProps.colorDirty = true;
+        if (this._assembler) {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             this._renderFlag = this._canRender();
-            this._colorDirty = false;
         }
-    }
-
-    public markColorDirty () {
-        this._colorDirty = true;
     }
 
     public _updateBlendFunc () {

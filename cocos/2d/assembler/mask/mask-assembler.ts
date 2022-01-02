@@ -28,7 +28,6 @@
  * @module ui-assembler
  */
 
-import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Mask, MaskType } from '../../components/mask';
 import { IAssembler, IAssemblerManager } from '../../renderer/base';
@@ -57,8 +56,7 @@ export const maskAssembler: IAssembler = {
     createData (mask: Mask) {
         const renderData = mask.requestRenderData();
         renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indexCount = 6;
+        renderData.resize(4, 6);
         return renderData;
     },
 

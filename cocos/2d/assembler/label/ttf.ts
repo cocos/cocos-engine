@@ -120,7 +120,6 @@ export const ttf: IAssembler = {
         if (!renderData) {
             return;
         }
-
         const uiTrans = comp.node._uiProps.uiTransformComp!;
         const width = uiTrans.width;
         const height = uiTrans.height;
@@ -149,6 +148,10 @@ export const ttf: IAssembler = {
         vData[22] = uv[5];
         vData[30] = uv[6];
         vData[31] = uv[7];
+    },
+
+    updateColor (comp: Label) {
+
     },
 };
 

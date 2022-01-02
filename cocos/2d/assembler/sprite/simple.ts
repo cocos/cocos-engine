@@ -242,20 +242,19 @@ export const simple: IAssembler = {
     },
 
     updateColor (sprite: Sprite) {
-        const vData = sprite.renderData!.chunk.vb;
-
+        const renderData = sprite.renderData!;
+        const vData = renderData.chunk.vb;
         let colorOffset = 5;
         const color = sprite.color;
         const colorR = color.r / 255;
         const colorG = color.g / 255;
         const colorB = color.b / 255;
-        const colorA = sprite.node._uiProps.opacity;
-        for (let i = 0; i < 4; i++) {
+        const colorA = color.a / 255;
+        for (let i = 0; i < 4; i++, colorOffset += renderData.floatStride) {
             vData[colorOffset] = colorR;
             vData[colorOffset + 1] = colorG;
             vData[colorOffset + 2] = colorB;
             vData[colorOffset + 3] = colorA;
-            colorOffset += 9;
         }
     },
 };

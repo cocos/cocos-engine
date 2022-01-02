@@ -1420,7 +1420,7 @@ export class TiledLayer extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = TiledLayer.Assembler!.getAssembler(this);
+        const assembler = TiledLayer.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }

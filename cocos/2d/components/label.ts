@@ -755,10 +755,8 @@ export class Label extends Renderable2D {
 
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
     protected _updateColor () {
-        if (this._colorDirty) {
-            this.updateRenderData(false);
-            this._colorDirty = false;
-        }
+        super._updateColor();
+        this.updateRenderData(false);
     }
 
     protected _canRender () {

@@ -85,10 +85,10 @@ export class NodeUIProperties {
     get localOpacity () { return this._localOpacity; }
     set localOpacity (val) {
         this._localOpacity = val;
-        NodeUIProperties.markOpacityTree(this._node);
+        this.colorDirty = true;
     }
 
-    public opacityDirty = true;
+    public colorDirty = true;
     protected _uiTransformComp: UITransform | null = null;
     private _node: any;
 
@@ -96,19 +96,17 @@ export class NodeUIProperties {
         this._node = node;
     }
 
+    /**
+     * @deprecated since v3.4
+     */
     public applyOpacity (effectOpacity) {
         this._opacity = this._localOpacity * effectOpacity;
     }
 
     /**
-     * @en Make the opacity state of node tree is dirty
-     * @zh 为结点树的透明度状态设置脏标签
+     * @en Make the opacity state of node tree is dirty, not effect anymore
+     * @zh 为结点树的透明度状态设置脏标签，不再有效果
+     * @deprecated since v3.4
      */
-    public static markOpacityTree (node, isDirty = true) {
-        node._uiProps.opacityDirty = isDirty;
-        for (let i = 0, l = node.children.length; i < l; i++) {
-            const c = node.children[i];
-            NodeUIProperties.markOpacityTree(c, isDirty);
-        }
-    }
+    public static markOpacityTree (node, isDirty = true) {}
 }
