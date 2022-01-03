@@ -114,7 +114,7 @@ export class AnimationController extends Component {
 
     /**
      * @zh 获取动画图实例中当前正在进行的过渡的运行状况。
-     * @en Gets the status of the current transition.
+     * @en Gets the running status of the transition currently in progress in the animation graph instance.
      * @param layer 层级索引。（必须为 `0`）
      * @returns 当前正在进行的过渡，若没有进行任何过渡，则返回 `null`。
      */
