@@ -149,8 +149,10 @@ export class StaticVBAccessor extends BufferAccessor {
                     entry = freeList[e];
                     bid = i;
                     eid = e;
+                    break;
                 }
             }
+            if (entry) break;
         }
         // Allocation fail
         if (!entry) {
