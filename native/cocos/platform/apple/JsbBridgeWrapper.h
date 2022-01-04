@@ -22,17 +22,34 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-
 #pragma once
-
 #import <Foundation/Foundation.h>
 
-typedef void (^ICallback)(NSString*, NSString*);
+typedef void (^eventCallback)(NSString*);
 
-@interface JsbBridge : NSObject
+@interface JsbBridgeWrapper : NSObject
+/**
+ * Get the instance of JsbBridgetWrapper
+ */
 + (instancetype)sharedInstance;
-- (void)setCallback:(ICallback)cb;
-- (bool)callByScript:(NSString*)arg0 arg1:(NSString*)arg1;
-- (void)sendToScript:(NSString*)arg0 arg1:(NSString*)arg1;
-- (void)sendToScript:(NSString*)arg0;
+/**
+ * add a callback to specified event, if the event does not exist, the wrapper will create one
+ */
+- (void)addCallback:(NSString*)event callback:(eventCallback)callback;
+/**
+ * remove callback for specified event, concurrent event will be deleted.
+ */
+- (bool)removeCallback:(NSString*)event callback:(eventCallback)callback;
+/**
+ * Return true if successfully remove the callback, false if event does not exist
+ */
+- (void)removeEvent:(NSString*)event;
+/**
+ * Dispatch the event with argument, the event should be regiestered in javascript, or other script language in future.
+ */
+- (void)dispatchScriptEvent:(NSString*)name arg:(NSString*)arg;
+/**
+ * Dispatch the event which is regiestered in javascript, or other script language in future.
+ */
+- (void)dispatchScriptEvent:(NSString*)name;
 @end
