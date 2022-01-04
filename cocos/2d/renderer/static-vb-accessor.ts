@@ -159,8 +159,6 @@ export class StaticVBAccessor extends BufferAccessor {
             if (buf && buf.checkCapacity(vertexCount, indexCount)) {
                 eid = 0;
                 entry = this._freeLists[bid][eid];
-                // Update entry with new capacity
-                entry.length = buf.vData.byteLength;
             }
         }
         // Allocation succeed

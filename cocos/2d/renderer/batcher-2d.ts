@@ -648,6 +648,12 @@ export class Batcher2D implements IBatcher {
         const children = node.children;
         const uiProps = node._uiProps;
         const render = uiProps.uiComp as Renderable2D;
+
+        // Render assembler update logic
+        if (render && render.enabledInHierarchy) {
+            render.updateAssembler(this);
+        }
+
         // Save opacity
         const parentOpacity = this._pOpacity;
         let opacity = parentOpacity;
@@ -662,14 +668,9 @@ export class Batcher2D implements IBatcher {
             this._opacityDirty++;
         }
         // Update cascaded opacity to vertex buffer
-        if (this._opacityDirty && render && render.renderData) {
+        if (this._opacityDirty && render && render.renderData && render.renderData.vertexCount > 0) {
             // HARD COUPLING
             updateOpacity(render.renderData, opacity);
-        }
-
-        // Render assembler update logic
-        if (render && render.enabledInHierarchy) {
-            render.updateAssembler(this);
         }
 
         if (children.length > 0 && !node._static) {
