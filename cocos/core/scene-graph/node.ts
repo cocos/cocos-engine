@@ -158,13 +158,12 @@ export class Node extends BaseNode implements CustomSerializable {
     public static TransformBit = TransformBit;
 
     /**
-     * @internal
+     * @legacyPublic
      */
     public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
-    // UI 部分的脏数据
     /**
-     * @private
+     * @legacyPublic
      */
     public _uiProps = new NodeUIProperties(this);
 
@@ -175,6 +174,9 @@ export class Node extends BaseNode implements CustomSerializable {
     private static ClearFrame = 0;
     private static ClearRound = 1000;
 
+    /**
+     * @legacyPublic
+     */
     public _static = false;
 
     // world transform, don't access this directly
@@ -549,6 +551,9 @@ export class Node extends BaseNode implements CustomSerializable {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
         if (keepWorldTransform) {
@@ -573,6 +578,9 @@ export class Node extends BaseNode implements CustomSerializable {
         super._onHierarchyChangedBase(oldParent);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
@@ -587,11 +595,17 @@ export class Node extends BaseNode implements CustomSerializable {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onBeforeSerialize () {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onPostActivated (active: boolean) {
         if (active) { // activated
             this._eventProcessor.setEnabled(true);
@@ -1328,6 +1342,24 @@ export class Node extends BaseNode implements CustomSerializable {
             dirtyNodes.length = 0;
             nativeDirtyNodes.length = 0;
         }
+    }
+
+    /**
+     * @en
+     * Get the complete path of the current node in the hierarchy.
+     *
+     * @zh
+     * 获得当前节点在 hierarchy 中的完整路径。
+     */
+    public getPathInHierarchy (): string {
+        let result = this.name;
+        let curNode: BaseNode | null = this.parent;
+        while (curNode && curNode instanceof Node) {
+            result = `${curNode.name}/${result}`;
+            curNode = curNode.parent;
+        }
+
+        return result;
     }
 }
 

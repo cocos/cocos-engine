@@ -42,6 +42,7 @@ import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
 import { Root } from '../root';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
@@ -221,6 +222,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         return this._profiler;
     }
 
+    get geometryRenderer () {
+        return this._geometryRenderer;
+    }
+
     set clusterEnabled (value) {
         this._clusterEnabled = value;
     }
@@ -245,6 +250,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
     protected _profiler: Model | null = null;
+    protected _geometryRenderer = new GeometryRenderer();
     protected declare _pipelineSceneData: PipelineSceneData;
     protected _pipelineRenderData: PipelineRenderData | null = null;
     protected _renderPasses = new Map<ClearFlags, RenderPass>();
@@ -376,6 +382,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
         this._generateConstantMacros();
         this._pipelineSceneData.activate(this._device, this);
+        this._geometryRenderer.activate(this._device, this);
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);
@@ -628,6 +635,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this._commandBuffers.length = 0;
         this._pipelineUBO.destroy();
         this._pipelineSceneData?.destroy();
+        this._geometryRenderer.destroy();
 
         return super.destroy();
     }

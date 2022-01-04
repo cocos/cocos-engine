@@ -1,11 +1,19 @@
 // TODO: some interface need to be designed in a module called 'Application' and 'Network'
 declare module 'pal/system-info' {
+    type Feature = import('../../pal/system-info/enum-type').Feature;
+    type NetworkType = import('../../pal/system-info/enum-type').NetworkType;
+    type Platform = import('../../pal/system-info/enum-type').Platform;
+    type Language = import('../../pal/system-info/enum-type').Language;
+    type OS = import('../../pal/system-info/enum-type').OS;
+    type BrowserType = import('../../pal/system-info/enum-type').BrowserType;
+    type PalSystemEvent = import('../../pal/system-info/enum-type').PalSystemEvent;
+
     export type IFeatureMap = {
-        [feature in import('pal/system-info/enum-type').Feature]: boolean;
+        [feature in Feature]: boolean;
     };
 
     class SystemInfo {
-        public get networkType (): import('pal/system-info/enum-type/network-type').NetworkType;
+        public get networkType (): NetworkType;
         public get isNative (): boolean;
         public get isBrowser (): boolean;
         public get isMobile (): boolean;
@@ -16,22 +24,22 @@ declare module 'pal/system-info' {
          * It may point to a phone brand like vivo or OPPO.
          * Also it may point to an app channel like WeChat or ByteDance.
          */
-        public get platform (): import('pal/system-info/enum-type').Platform;
+        public get platform (): Platform;
         /**
          * This is the language code typed as `Language`.
          */
-        public get language (): import('pal/system-info/enum-type').Language;
+        public get language (): Language;
         /**
          * This is the native value return by platform
          * The valid value can be 'zh-tw','en','en-us','fr','fr-fr','es-es' and so on.
          */
         public get nativeLanguage (): string;
-        public get os (): import('pal/system-info/enum-type').OS;
+        public get os (): OS;
         public get osVersion (): string;
         public get osMainVersion (): number;
-        public get browserType (): import('pal/system-info/enum-type').BrowserType;
+        public get browserType (): BrowserType;
         public get browserVersion (): string;
-        public hasFeature (feature: import('pal/system-info/enum-type').Feature): boolean;
+        public hasFeature (feature: Feature): boolean;
         public getBatteryLevel (): number;
 
         public triggerGC (): void;
@@ -39,10 +47,10 @@ declare module 'pal/system-info' {
         public now (): number;
         public restartJSVM (): void;
 
-        public close ();
+        public close (): void;
 
-        on (event: import('pal/system-info/enum-type').PalSystemEvent, cb: (...args: any)=>void, target?: any);
-        off (event: import('pal/system-info/enum-type').PalSystemEvent, cb?: (...args: any)=>void, target?: any);
+        on (event: PalSystemEvent, cb: (...args: any)=>void, target?: any): void;
+        off (event: PalSystemEvent, cb?: (...args: any)=>void, target?: any): void;
         // TODO: support onError
     }
 

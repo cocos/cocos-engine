@@ -70,6 +70,9 @@ module.exports = {
             Spine: ``,
             OctreeCulling: `${url}/${version}/manual/zh/advanced-topics/native-scene-culling.html`,
         },
+        assets: {
+            javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
+        },
     },
     ambient: {
         skyLightingColor: '天空颜色（上半球光照）',

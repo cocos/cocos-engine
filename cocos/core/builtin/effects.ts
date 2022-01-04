@@ -75,6 +75,159 @@ export const effects = [
     ]
   },
   {
+    "name": "geometry-renderer",
+    "techniques": [
+      { "passes": [{ "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|line-vs:vert|line-fs:front", "priority": 245, "depthStencilState": { "depthTest": false, "depthWrite": false } }] },
+      { "passes": [{ "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|line-vs:vert|line-fs:front", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false } }, { "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|line-vs:vert|line-fs:back", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false, "depthFunc": 4 } }] },
+      { "passes": [{ "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:front", "priority": 245, "depthStencilState": { "depthTest": false, "depthWrite": false } }] },
+      { "passes": [{ "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:front", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false } }, { "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:back", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false, "depthFunc": 4 } }] },
+      { "passes": [{ "rasterizerState": { "cullMode": 2 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|triangle-vs:vert|triangle-fs:front", "priority": 245, "depthStencilState": { "depthTest": false, "depthWrite": false } }] },
+      { "passes": [{ "rasterizerState": { "cullMode": 2 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|triangle-vs:vert|triangle-fs:front", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false } }, { "rasterizerState": { "cullMode": 2 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|triangle-vs:vert|triangle-fs:back", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false, "depthFunc": 4 } }] }
+    ],
+    "shaders": [
+      {
+        "name": "geometry-renderer|line-vs:vert|line-fs:front",
+        "hash": 3617431000,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 1 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|line-vs:vert|line-fs:back",
+        "hash": 4168905198,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 1 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:front",
+        "hash": 4034582016,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 1 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:back",
+        "hash": 1762165009,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 1 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|triangle-vs:vert|triangle-fs:front",
+        "hash": 4143142643,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_normal", "defines": [], "format": 44, "location": 1 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 2 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|triangle-vs:vert|triangle-fs:back",
+        "hash": 826026446,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_normal", "defines": [], "format": 44, "location": 1 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 2 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      }
+    ]
+  },
+  {
     "name": "graphics",
     "techniques": [
       { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 1, "blendDst": 4, "blendSrcAlpha": 1, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "graphics|vs:vert|fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
@@ -140,7 +293,7 @@ export const effects = [
     "shaders": [
       {
         "name": "particle-gpu|particle-vs-gpu:gpvs_main|tinted-fs:add",
-        "hash": 1813246314,
+        "hash": 1250077034,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 63, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -148,6 +301,7 @@ export const effects = [
         },
         "defines": [
           { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 4] },
+          { "name": "USE_VK_SHADER", "type": "boolean" },
           { "name": "COLOR_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
           { "name": "ROTATION_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
           { "name": "SIZE_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
@@ -447,7 +601,7 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 2864919663,
+        "hash": 3766912558,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 221, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 64 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -540,7 +694,7 @@ export const effects = [
       },
       {
         "name": "standard|shadow-caster-vs:vert|shadow-caster-fs:frag",
-        "hash": 1774012115,
+        "hash": 562915181,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 182, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 64 },
           "globals": { "blocks": [{ "name": "CCShadow", "defines": [] }, { "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }], "buffers": [], "images": [] },
@@ -610,7 +764,7 @@ export const effects = [
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 1017881636,
+        "hash": 2118438798,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 69, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 60 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -703,7 +857,7 @@ export const effects = [
     "shaders": [
       {
         "name": "unlit|unlit-vs:vert|unlit-fs:frag",
-        "hash": 3319190198,
+        "hash": 3062078908,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 197, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -774,7 +928,7 @@ export const effects = [
     "shaders": [
       {
         "name": "bloom|bloom-vs|prefilter-fs",
-        "hash": 2185821616,
+        "hash": 3493244111,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -817,7 +971,7 @@ export const effects = [
       },
       {
         "name": "bloom|bloom-vs|downsample-fs",
-        "hash": 1780231359,
+        "hash": 3733277754,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -860,7 +1014,7 @@ export const effects = [
       },
       {
         "name": "bloom|bloom-vs|upsample-fs",
-        "hash": 3580425335,
+        "hash": 4151134822,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -903,7 +1057,7 @@ export const effects = [
       },
       {
         "name": "bloom|bloom-vs|combine-fs",
-        "hash": 3457196798,
+        "hash": 1122355486,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -955,7 +1109,7 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 3340914951,
+        "hash": 3554643824,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 58 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -1008,7 +1162,7 @@ export const effects = [
     "shaders": [
       {
         "name": "planar-shadow|planar-shadow-vs:vert|planar-shadow-fs:frag",
-        "hash": 2954155677,
+        "hash": 517317966,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 215, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 58 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -1060,7 +1214,7 @@ export const effects = [
     "shaders": [
       {
         "name": "post-process|post-process-vs|post-process-fs",
-        "hash": 3237848814,
+        "hash": 3535122263,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },

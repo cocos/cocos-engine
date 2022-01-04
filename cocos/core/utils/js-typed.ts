@@ -470,7 +470,13 @@ function isTempClassId (id) {
 }
 
 // id registration
+/**
+ * @legacyPublic
+ */
 export const _idToClass: Record<string, Constructor> = createMap(true);
+/**
+ * @legacyPublic
+ */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
 function setup (tag: string, table: object) {
@@ -506,7 +512,7 @@ js.unregisterClass to remove the id of unused class';
  * @method _setClassId
  * @param classId
  * @param constructor
- * @private
+ * @legacyPublic
  */
 export const _setClassId = setup('__cid__', _idToClass);
 
@@ -600,7 +606,7 @@ export function unregisterClass (...constructors: Function[]) {
  * Get the registered class by id
  * @param classId
  * @return constructor
- * @private
+ * @legacyPublic
  */
 export function _getClassById (classId) {
     return _idToClass[classId];
@@ -620,7 +626,7 @@ export function getClassByName (classname) {
  * @param obj - instance or constructor
  * @param [allowTempId = true]   - can return temp id in editor
  * @return
- * @private
+ * @legacyPublic
  */
 export function _getClassId (obj, allowTempId?: boolean) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);

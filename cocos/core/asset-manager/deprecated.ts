@@ -106,9 +106,15 @@ export class CCLoader {
         setDefaultProgressCallback(val);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _autoReleaseSetting: Record<string, boolean> = Object.create(null);
     private _parseLoadResArgs = parseLoadResArgs;
 
+    /**
+     * @legacyPublic
+     */
     public get _cache (): Record<string, Asset> {
         if (assets instanceof Cache) {
             // @ts-expect-error return private property

@@ -54,8 +54,13 @@ export class AudioPlayer implements OperationQueueable {
     private _id: number = INVALID_AUDIO_ID;
     private _state: AudioState = AudioState.INIT;
 
-    // NOTE: the implemented interface properties need to be public access
+    /**
+     * @legacyPublic
+     */
     public _eventTarget: EventTarget = new EventTarget();
+    /**
+     * @legacyPublic
+     */
     public _operationQueue: OperationInfo[] = [];
 
     // NOTE: we need to cache the state in case the audio id is invalid.

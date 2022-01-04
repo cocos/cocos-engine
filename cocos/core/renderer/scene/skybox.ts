@@ -282,14 +282,6 @@ export class Skybox {
     }
 
     protected _updatePipeline () {
-        if (this.enabled && skybox_material) {
-            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
-        }
-
-        if (this._model) {
-            this._model.setSubModelMaterial(0, skybox_material!);
-        }
-
         if (JSB) {
             this._nativeObj!.isRGBE = this.isRGBE;
         }
@@ -311,6 +303,14 @@ export class Skybox {
         pipeline.macros.CC_USE_HDR = useHDRValue;
 
         root.onGlobalPipelineStateChanged();
+
+        if (this.enabled && skybox_material) {
+            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+        }
+
+        if (this._model) {
+            this._model.setSubModelMaterial(0, skybox_material!);
+        }
     }
 
     protected _updateGlobalBinding () {

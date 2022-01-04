@@ -217,6 +217,9 @@ export class SkinningModel extends MorphModel {
         return myPatches;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         if (JSB) {
@@ -230,7 +233,7 @@ export class SkinningModel extends MorphModel {
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
         if (pass.batchingScheme !== BatchingSchemes.NONE) {
             // TODO(holycanvas): #9203 better to print the complete path instead of only the current node
-            warnID(3936, this.node.name);
+            warnID(3936, this.node.getPathInHierarchy());
         }
         super._updateInstancedAttributes(attributes, pass);
     }

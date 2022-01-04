@@ -160,8 +160,13 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _state: AudioState = AudioState.INIT;
     private _audioTimer: AudioTimer;
 
-    // NOTE: the implemented interface properties need to be public access
+    /**
+     * @legacyPublic
+     */
     public _eventTarget: EventTarget = new EventTarget();
+    /**
+     * @legacyPublic
+     */
     public _operationQueue: OperationInfo[] = [];
 
     constructor (audioBuffer: AudioBuffer, url: string) {

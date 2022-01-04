@@ -1195,6 +1195,14 @@ Loading texture with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEX
 
 Can't find a texture format supported by the current platform! Please add a fallback format in the editor.
 
+### 3122
+
+Error Texture in %s.
+
+### 3123
+
+Set same texture %s.
+
 ### 3200
 
 <!-- DEPRECATED -->
@@ -3140,6 +3148,14 @@ Pass already destroyed.
 ### 12007
 
 This is old usage, please swap the parameters.
+
+### 12008
+
+GeometryRenderer: too many lines.
+
+### 12009
+
+GeometryRenderer: too many triangles.
 
 ### 12100
 

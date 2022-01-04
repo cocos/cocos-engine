@@ -71,6 +71,9 @@ const orientationMap = {
 
 export class View extends EventTarget {
     public static instance: View;
+    /**
+     * @legacyPublic
+     */
     public _designResolutionSize: Size;
 
     private _scaleX: number;
@@ -714,6 +717,9 @@ class ContentStrategy {
     public postApply (_view: View) {
     }
 
+    /**
+     * @legacyPublic
+     */
     public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY): AdaptResult {
         // Makes content fit better the canvas
         if (Math.abs(containerW - contentW) < 2) {

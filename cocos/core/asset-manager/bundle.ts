@@ -595,6 +595,9 @@ export default class Bundle {
         });
     }
 
+    /**
+     * @legacyPublic
+     */
     public _destroy () {
         this._config.destroy();
     }

@@ -327,7 +327,13 @@ export class Mask extends Renderable2D {
 
     public static Type = MaskType;
 
+    /**
+     * @legacyPublic
+     */
     public _clearStencilMtl: Material | null = null;
+    /**
+     * @legacyPublic
+     */
     public _clearModel: Model | null = null;
 
     @serializable

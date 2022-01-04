@@ -24,8 +24,7 @@
  */
 
 import { CachedArray } from '../../memop/cached-array';
-import { error, errorID } from '../../platform';
-import { debug } from '../../platform/debug';
+import { error, errorID, debug } from '../../platform/debug';
 import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
@@ -635,7 +634,7 @@ export abstract class WebGL2CmdObject {
         this.cmdType = type;
     }
 
-    public abstract clear ();
+    public abstract clear (): void;
 }
 
 export class WebGL2CmdBeginRenderPass extends WebGL2CmdObject {

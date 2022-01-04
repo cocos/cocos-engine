@@ -55,7 +55,7 @@ export class CachedArray<T> extends ScalableContainer {
      */
     public length = 0;
 
-    private _compareFn;
+    private _compareFn?: (a: T, b: T) => number;
     private _initSize = 0;
 
     /**
@@ -67,12 +67,7 @@ export class CachedArray<T> extends ScalableContainer {
         this.array = new Array(length);
         this._initSize = length;
         this.length = 0;
-
-        if (compareFn !== undefined) {
-            this._compareFn = compareFn;
-        } else {
-            this._compareFn = (a: number, b: number) => a - b;
-        }
+        this._compareFn = compareFn;
     }
 
     /**

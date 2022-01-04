@@ -289,6 +289,9 @@ export class MeshRenderer extends RenderableComponent {
     // Redo, Undo, Prefab restore, etc.
     public onRestore () {
         this._updateModels();
+        if (this.enabledInHierarchy) {
+            this._attachToScene();
+        }
         this._updateCastShadow();
         this._updateReceiveShadow();
     }
@@ -395,6 +398,9 @@ export class MeshRenderer extends RenderableComponent {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this.lightmapSettings.texture = lightmap;
         this.lightmapSettings.uvParam.x = uOff;
