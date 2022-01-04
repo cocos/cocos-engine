@@ -545,14 +545,16 @@ var Layout = cc.Class({
             newChildWidth = (baseWidth - (this.paddingLeft + this.paddingRight) - (activeChildCount - 1) * this.spacingX) / activeChildCount;
         }
 
+        var hasCalculatedcontainerResizeBoundaryOnce = false;
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
             let childScaleX = this._getUsedScaleValue(child.scaleX);
             let childScaleY = this._getUsedScaleValue(child.scaleY);
             // Ensure that containerResizeBoundary is calculated at least once.
-            if (!child.activeInHierarchy && children.length > 1) {
+            if (!child.activeInHierarchy && (hasCalculatedcontainerResizeBoundaryOnce || i !== children.length-1)) {
                 continue;
             }
+
             //for resizing children
             if (this._resize === ResizeMode.CHILDREN) {
                 child.width = newChildWidth / childScaleX;
@@ -631,6 +633,7 @@ var Layout = cc.Class({
                     containerResizeBoundary = tempFinalPositionY;
                 }
             }
+            hasCalculatedcontainerResizeBoundaryOnce = true;
 
             nextX += rightBoundaryOfChild;
         }
@@ -692,12 +695,13 @@ var Layout = cc.Class({
             newChildHeight = (baseHeight - (this.paddingTop + this.paddingBottom) - (activeChildCount - 1) * this.spacingY) / activeChildCount;
         }
 
+        var hasCalculatedcontainerResizeBoundaryOnce = false;
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
             let childScaleX = this._getUsedScaleValue(child.scaleX);
             let childScaleY = this._getUsedScaleValue(child.scaleY);
             // Ensure that containerResizeBoundary is calculated at least once.
-            if (!child.activeInHierarchy && children.length > 1) {
+            if (!child.activeInHierarchy && (hasCalculatedcontainerResizeBoundaryOnce || i !== children.length-1)) {
                 continue;
             }
 
@@ -778,8 +782,8 @@ var Layout = cc.Class({
                 if (tempFinalPositionX > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
-
             }
+            hasCalculatedcontainerResizeBoundaryOnce = true;
 
             nextY += topBoundaryOfChild;
         }
