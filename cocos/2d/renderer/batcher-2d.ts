@@ -30,7 +30,7 @@ import { JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
-import { RenderRoot2D, Renderable2D, UIComponent } from '../framework';
+import { RenderRoot2D, Renderable2D } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../core/gfx';
 import { Pool } from '../../core/memop';
@@ -50,6 +50,7 @@ import { StaticVBAccessor } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
+import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -445,7 +446,7 @@ export class Batcher2D implements IBatcher {
      * @param model - 提交渲染的 model 数据。
      * @param mat - 提交渲染的材质。
      */
-    public commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null) {
+    public commitModel (comp: UIMeshRenderer | Renderable2D, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
@@ -661,7 +662,7 @@ export class Batcher2D implements IBatcher {
         let opacity = parentOpacity;
         // TODO Always cascade ui property's local opacity before remove it
         if (uiProps.colorDirty) {
-            const selfOpacity = render ? render.color.a / 255 : 1;
+            const selfOpacity = render && render.color ? render.color.a / 255 : 1;
             this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
             // TODO Set opacity to ui property's opacity before remove it
             // @ts-expect-error temporary force set, will be removed with ui property's opacity

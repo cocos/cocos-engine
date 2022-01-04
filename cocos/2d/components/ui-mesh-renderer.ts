@@ -31,10 +31,11 @@
 
 import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { RenderableComponent } from '../../core/components/renderable-component';
-import { UIComponent } from '../framework/ui-component';
 import { RenderPriority } from '../../core/pipeline/define';
 import { IBatcher } from '../renderer/i-batcher';
 import { scene } from '../../core/renderer';
+import { Stage } from '../renderer/stencil-manager';
+import { Component } from '../../core/components';
 
 /**
  * @en
@@ -50,7 +51,7 @@ import { scene } from '../../core/renderer';
 @help('i18n:cc.UIMeshRenderer')
 @executionOrder(110)
 @menu('UI/UIMeshRenderer')
-export class UIMeshRenderer extends UIComponent {
+export class UIMeshRenderer extends Component {
     private _models: scene.Model[] | null = null;
 
     public get modelComponent () {
@@ -58,6 +59,10 @@ export class UIMeshRenderer extends UIComponent {
     }
 
     private _modelComponent: RenderableComponent | null = null;
+
+    public __preload () {
+        this.node._uiProps.uiComp = this;
+    }
 
     public onLoad () {
         if (!this.node._uiProps.uiTransformComp) {
@@ -73,16 +78,10 @@ export class UIMeshRenderer extends UIComponent {
         this._models = this._modelComponent._collectModels();
     }
 
-    public onEnable () {
-        super.onEnable();
-    }
-
-    public onDisable () {
-        super.onDisable();
-    }
-
     public onDestroy () {
-        super.onDestroy();
+        if (this.node._uiProps.uiComp === this) {
+            this.node._uiProps.uiComp = null;
+        }
         this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
         if (!this._modelComponent) {
             return;
@@ -92,6 +91,14 @@ export class UIMeshRenderer extends UIComponent {
         this._models = null;
     }
 
+    /**
+     * @en Render data submission procedure, it update and assemble the render data to 2D data buffers before all children submission process.
+     * Usually called each frame when the ui flow assemble all render data to geometry buffers.
+     * Don't call it unless you know what you are doing.
+     * @zh 渲染数据组装程序，这个方法会在所有子节点数据组装之前更新并组装当前组件的渲染数据到 UI 的顶点数据缓冲区中。
+     * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
+     * 注意：不要手动调用该函数，除非你理解整个流程。
+     */
     public updateAssembler (render: IBatcher) {
         if (this._models) {
             // @ts-expect-error: UIMeshRenderer do not attachToScene
@@ -103,6 +110,17 @@ export class UIMeshRenderer extends UIComponent {
         }
 
         return false;
+    }
+
+    /**
+     * @en Post render data submission procedure, it's executed after assembler updated for all children.
+     * It may assemble some extra render data to the geometry buffers, or it may only change some render states.
+     * Don't call it unless you know what you are doing.
+     * @zh 后置渲染数据组装程序，它会在所有子节点的渲染数据组装完成后被调用。
+     * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
+     * 注意：不要手动调用该函数，除非你理解整个流程。
+     */
+    public postUpdateAssembler (render: IBatcher) {
     }
 
     public update () {
@@ -131,5 +149,17 @@ export class UIMeshRenderer extends UIComponent {
                 material.recompileShaders({ CC_FORCE_FORWARD_SHADING: true }, j);
             }
         }
+    }
+
+    // interface
+    public markForUpdateRenderData (enable = true) {
+    }
+
+    public stencilStage : Stage = Stage.DISABLED;
+
+    public setNodeDirty () {
+    }
+
+    public setTextureDirty () {
     }
 }

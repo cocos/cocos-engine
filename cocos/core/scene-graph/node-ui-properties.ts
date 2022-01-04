@@ -28,10 +28,10 @@
  * @module scene-graph
  */
 
-import { UIComponent } from '../../2d/framework/ui-component';
 import { Renderable2D } from '../../2d/framework/renderable-2d';
 import { UITransform } from '../../2d/framework/ui-transform';
 import { warnID } from '../platform/debug';
+import { UIMeshRenderer } from '../../2d';
 
 /**
  * @en Node's UI properties abstraction
@@ -60,7 +60,7 @@ export class NodeUIProperties {
     get uiComp () {
         return this._uiComp;
     }
-    set uiComp (comp: UIComponent | Renderable2D | null) {
+    set uiComp (comp: UIMeshRenderer | Renderable2D | null) {
         if (this._uiComp && comp) {
             warnID(12002);
             return;
@@ -68,7 +68,7 @@ export class NodeUIProperties {
         this._uiComp = comp;
     }
 
-    private _uiComp: UIComponent | Renderable2D | null = null;
+    private _uiComp: UIMeshRenderer | Renderable2D | null = null;
 
     /**
      * @en The opacity of the UI node for final rendering

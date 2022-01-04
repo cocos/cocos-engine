@@ -81,7 +81,7 @@ export class BaseRenderData {
     }
 
     public resize (vertexCount: number, indexCount: number) {
-        if (vertexCount === this._vc && indexCount === this._ic) return;
+        if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
         this._vc = vertexCount;
         this._ic = indexCount;
         const batcher = director.root!.batcher2D;
@@ -269,7 +269,7 @@ export class MeshRenderData extends BaseRenderData {
 
     constructor (vertexFormat = vfmtPosUvColor) {
         super(vertexFormat);
-        this.vData = new Float32Array(256 * this.stride);
+        this.vData = new Float32Array(256 * this.stride); // 长度可取宏
         this.iData = new Uint16Array(256 * 6);
     }
 

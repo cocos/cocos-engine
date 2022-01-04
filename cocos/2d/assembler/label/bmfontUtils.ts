@@ -100,6 +100,7 @@ export const bmfontUtils = {
 
             _comp.actualFontSize = _fontSize;
             _uiTrans.setContentSize(_contentSize);
+            this.updateUVs(comp);
 
             _comp.renderData!.vertDirty = false;
             // fix bmfont run updateRenderData twice bug
@@ -113,6 +114,20 @@ export const bmfontUtils = {
         if (comp.spriteFrame) {
             const renderData = comp.renderData;
             renderData.updateRenderData(comp, comp.spriteFrame);
+        }
+    },
+
+    updateUVs (label: Label) {
+        const renderData = label.renderData!;
+        const vData = renderData.chunk.vb;
+        const vertexCount = renderData.vertexCount;
+        const dataList = renderData.data;
+        let vertexOffset = 3;
+        for (let i = 0; i < vertexCount; i++) {
+            const vert = dataList[i];
+            vData[vertexOffset] = vert.u;
+            vData[vertexOffset + 1] = vert.v;
+            vertexOffset += 9;
         }
     },
 

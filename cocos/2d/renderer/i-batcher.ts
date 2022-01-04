@@ -6,9 +6,10 @@ import { Camera } from '../../core/renderer/scene/camera';
 import { Model } from '../../core/renderer/scene/model';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIStaticBatch } from '../components/ui-static-batch';
-import { Renderable2D, RenderRoot2D, UIComponent } from '../framework';
+import { Renderable2D, RenderRoot2D } from '../framework';
 import { StaticVBAccessor } from './static-vb-accessor';
 import { DrawBatch2D } from './draw-batch';
+import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
 export interface IBatcher {
     currBufferAccessor: StaticVBAccessor;
@@ -37,7 +38,7 @@ export interface IBatcher {
     switchBufferAccessor (attributes?: Attribute[]): StaticVBAccessor;
 
     commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
-    commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null);
+    commitModel (comp: UIMeshRenderer | Renderable2D, model: Model | null, mat: Material | null);
 
     setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor);
     endStaticBatch ();
