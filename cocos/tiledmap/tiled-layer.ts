@@ -1434,7 +1434,7 @@ export class TiledLayer extends Renderable2D {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _meshRenderDataArrayIdx = 0;
     protected _render (ui: IBatcher) {

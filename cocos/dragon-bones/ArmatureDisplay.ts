@@ -437,7 +437,7 @@ export class ArmatureDisplay extends Renderable2D {
     /* protected */ _debugDraw: Graphics | null = null;
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     @serializable
     public _enableBatch = false;
@@ -561,7 +561,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _meshRenderDataArrayIdx = 0;
     protected _render (ui: IBatcher) {

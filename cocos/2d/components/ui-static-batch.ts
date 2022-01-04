@@ -160,7 +160,7 @@ export class UIStaticBatch extends Renderable2D {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _requireDrawBatch () {
         const batch = new DrawBatch2D();

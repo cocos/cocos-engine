@@ -56,11 +56,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _readyToHandleOnShow = false;
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _eventTarget: EventTarget = new EventTarget();
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _operationQueue: OperationInfo[] = [];
 

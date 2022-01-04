@@ -301,7 +301,7 @@ export class Color extends ValueType {
     set w (value) { this.a = value * 255; }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _val = 0;
 
@@ -652,7 +652,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _set_r_unsafe (red) {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
@@ -660,7 +660,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _set_g_unsafe (green) {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
@@ -668,7 +668,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _set_b_unsafe (blue) {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
@@ -676,7 +676,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _set_a_unsafe (alpha) {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
