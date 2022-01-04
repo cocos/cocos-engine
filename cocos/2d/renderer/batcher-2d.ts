@@ -511,18 +511,19 @@ export class Batcher2D implements IBatcher {
      * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
-        const accessor = this._staticVBBuffer;
         const mat = this._currMaterial;
-        if (!mat || !accessor) {
+        if (!mat) {
             return;
         }
         let ia;
         const rd = this._currRenderData as MeshRenderData;
+        const accessor = this._staticVBBuffer;
         // Previous batch using mesh buffer
         if (rd && rd.isMeshBuffer) {
             ia = rd.requestIA(this.device);
             rd.uploadBuffers();
-        } else {
+        } else if (accessor) {
+        // Previous batch using static vb buffer
             const bid = this._currBID;
             const buf = accessor.getMeshBuffer(bid);
             if (!buf) {
@@ -569,7 +570,7 @@ export class Batcher2D implements IBatcher {
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
-        curDrawBatch.fillPasses(this._currMaterial, depthStencil, dssHash, blendState, bsHash, null, this);
+        curDrawBatch.fillPasses(mat, depthStencil, dssHash, blendState, bsHash, null, this);
         curDrawBatch.fillDrawCallAssembler();
 
         this._batches.push(curDrawBatch);
@@ -639,6 +640,9 @@ export class Batcher2D implements IBatcher {
     }
 
     public walk (node: Node, level = 0) {
+        if (!node.activeInHierarchy) {
+            return;
+        }
         const children = node.children;
         const uiProps = node._uiProps;
         const render = uiProps.uiComp as Renderable2D;

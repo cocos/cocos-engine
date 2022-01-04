@@ -1322,7 +1322,7 @@ export class Skeleton extends Renderable2D {
                 }],
             },
         });
-        inst.recompileShaders({ TWO_COLORED: useTwoColor });
+        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
         return inst;
     }
 
@@ -1372,7 +1372,7 @@ export class Skeleton extends Renderable2D {
                     this.material = m.renderData.material;
                 }
                 if (m.texture) {
-                    ui.commitComp(this, m.renderData, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.renderData, m.texture, this._assembler, this.node);
                 }
                 this.material = mat;
             }

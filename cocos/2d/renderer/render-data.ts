@@ -372,6 +372,8 @@ export class MeshRenderData extends BaseRenderData {
             const iaInfo = new InputAssemblerInfo(this.vertexFormat, vbs, this._indexBuffer);
             this._ia = device.createInputAssembler(iaInfo);
         }
+        this._ia.firstIndex = 0;
+        this._ia.indexCount = this.indexCount;
         return this._ia;
     }
 
@@ -380,9 +382,8 @@ export class MeshRenderData extends BaseRenderData {
             return;
         }
 
-        const indexOffset = this.indicesStart << 1;
         const verticesData = new Float32Array(this.vData.buffer, this.byteStart, this.byteCount >> 2);
-        const indicesData = new Uint16Array(this.iData.buffer, indexOffset, this.indexCount);
+        const indicesData = new Uint16Array(this.iData.buffer, this.indicesStart << 1, this.indexCount);
 
         const vertexBuffer = this._vertexBuffers[0];
         if (this.byteCount > vertexBuffer.size) {
@@ -390,8 +391,9 @@ export class MeshRenderData extends BaseRenderData {
         }
         vertexBuffer.update(verticesData);
 
-        if (indexOffset > this._indexBuffer.size) {
-            this._indexBuffer.resize(indexOffset);
+        const indexBytes = this.indexCount << 1;
+        if (indexBytes > this._indexBuffer.size) {
+            this._indexBuffer.resize(indexBytes);
         }
         this._indexBuffer.update(indicesData);
     }

@@ -177,49 +177,6 @@ export const simple: IAssembler = {
     },
 
     fillBuffers (comp: Skeleton, renderer: IBatcher) {
-        if (!comp || !comp.meshRenderDataArray) return;
-        _comp = comp;
-        const dataArray = comp.meshRenderDataArray;
-        const node = comp.node;
-
-        // 当前渲染的数据
-        const data = dataArray[comp._meshRenderDataArrayIdx];
-        const renderData = data.renderData;
-        const accessor = renderer.switchBufferAccessor(renderData.vertexFormat);
-
-        const vertexCount = renderData.vertexCount;
-        const indexCount = renderData.indexCount;
-        accessor.request(vertexCount, indexCount);
-
-        const vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
-        const indexOffset = accessor.indexOffset - indexCount;
-        const vertexId = accessor.vertexOffset - vertexCount;
-        const buffer = accessor.currentBuffer;
-
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-        const matrix = node.worldMatrix;
-
-        const srcVBuf = renderData.vData;
-        const srcVIdx = renderData.vertexStart;
-        const srcIBuf = renderData.iData;
-
-        // copy all vertexData
-        const strideFloat = renderData.floatStride;
-        vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + renderData.vertexCount * strideFloat), vertexOffset);
-        for (let i = 0; i < renderData.vertexCount; i++) {
-            const pOffset = vertexOffset + i * strideFloat;
-            _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
-            _vec3u_temp.transformMat4(matrix);
-            vBuf[pOffset] = _vec3u_temp.x;
-            vBuf[pOffset + 1] = _vec3u_temp.y;
-            vBuf[pOffset + 2] = _vec3u_temp.z;
-        }
-
-        const srcIOffset = renderData.indicesStart;
-        for (let i = 0; i < renderData.indexCount; i += 1) {
-            iBuf[i + indexOffset] = srcIBuf[i + srcIOffset] + vertexId;
-        }
     },
 };
 
@@ -517,7 +474,7 @@ function realTimeTraverse (worldMat?: Mat4) {
         if (_mustFlush || material.hash !== _currentMaterial.hash || (texture && _currentTexture !== texture)) {
             _mustFlush = false;
 
-            _buffer = _comp!.requestMeshRenderData(_perVertexSize);
+            _buffer = _comp!.requestMeshRenderData(_useTint ? vfmtPosUvTwoColor : vfmtPosUvColor);
             _currentMaterial = material;
             _currentTexture = texture;
             _buffer.texture = texture!;
