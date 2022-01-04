@@ -384,7 +384,7 @@ export class Batcher2D implements IBatcher {
             || this._currDepthStencilStateStage !== depthStencilStateStage || this._currBID !== bufferID) {
             // Merge all previous data to a render batch, and update buffer for next render data
             this.autoMergeBatches(this._currComponent!);
-            if (renderData) {
+            if (renderData && !renderData.isMeshBuffer) {
                 this.updateBuffer(renderData.vertexFormat, bufferID);
             }
 
