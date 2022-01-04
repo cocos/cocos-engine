@@ -38,8 +38,9 @@ describe('NewGen Anim', () => {
 
         const animState = layerGraph.addMotion();
         expect(animState.name).toBe('');
-        expect(animState.speed.variable).toBe('');
-        expect(animState.speed.value).toBe(1.0);
+        expect(animState.speed).toBe(1.0);
+        expect(animState.speedMultiplierEnabled).toBe(false);
+        expect(animState.speedMultiplier).toBe('');
         expect(animState.motion).toBeNull();
 
         testGraphDefaults(layerGraph.addSubStateMachine().stateMachine);
@@ -1749,7 +1750,7 @@ describe('NewGen Anim', () => {
     });
 
     describe('Animation properties', () => {
-        describe('Speed', () => {
+        describe('Speed & Speed Multiplier', () => {
             test(`Constant`, () => {
                 const graph = new AnimationGraph();
                 expect(graph.layers).toHaveLength(0);
@@ -1757,7 +1758,10 @@ describe('NewGen Anim', () => {
                 const layerGraph = layer.stateMachine;
                 const animState = layerGraph.addMotion();
                 animState.motion = createClipMotionPositionXLinear(1.0, 0.3, 1.7);
-                animState.speed.value = 1.2;
+                animState.speed = 1.2;
+                animState.speedMultiplierEnabled = false;
+                animState.speedMultiplier = 'speed';
+                graph.addVariable('speed', VariableType.FLOAT, 0.5);
                 layerGraph.connect(layerGraph.entryState, animState);
 
                 const node = new Node();
@@ -1775,8 +1779,9 @@ describe('NewGen Anim', () => {
                 const layerGraph = layer.stateMachine;
                 const animState = layerGraph.addMotion();
                 animState.motion = createClipMotionPositionXLinear(1.0, 0.3, 1.7);
-                animState.speed.variable = 'speed';
-                animState.speed.value = 1.2;
+                animState.speed = 0.9;
+                animState.speedMultiplierEnabled = true;
+                animState.speedMultiplier = 'speed';
                 graph.addVariable('speed', VariableType.FLOAT, 0.5);
                 layerGraph.connect(layerGraph.entryState, animState);
 
@@ -1784,13 +1789,13 @@ describe('NewGen Anim', () => {
                 const animationGraphEval = createAnimationGraphEval(graph, node);
                 animationGraphEval.update(0.2);
                 expect(node.position.x).toBeCloseTo(
-                    0.3 + (1.7 - 0.3) * (0.2 * 0.5 / 1.0),
+                    0.3 + (1.7 - 0.3) * (0.2 * (0.5 * 0.9) / 1.0),
                 );
 
                 animationGraphEval.setValue('speed', 1.2);
                 animationGraphEval.update(0.2);
                 expect(node.position.x).toBeCloseTo(
-                    0.3 + (1.7 - 0.3) * ((0.2 * 0.5 + 0.2 * 1.2) / 1.0),
+                    0.3 + (1.7 - 0.3) * ((0.2 * (0.5 * 0.9) + 0.2 * (0.9 * 1.2)) / 1.0),
                 );
             });
         });
