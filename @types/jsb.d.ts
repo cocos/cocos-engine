@@ -149,18 +149,8 @@ declare namespace jsb {
     export namespace jsbBridgeWrapper {
         /** If there's no event registerred, the wrapper will create one  */
         export function addCallback(event: string, callback: JsCallback);
-        /**
-         * Dispatch the event registered on Objective-C, Java etc.
-         * No return value in JS to tell you if it works.
-         */
         export function dispatchNativeEvent(event: string, arg?: string);
-        /**
-         * remove an event and all callbacks relative.
-         */
         export function removeEvent(event: string);
-        /**
-         * remove the callback specified.
-         */
         export function removeCallback(event: string, callback: JsCallback);
     }
     /**
