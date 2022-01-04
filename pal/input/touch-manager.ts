@@ -2,22 +2,17 @@ import { macro } from '../../cocos/core/platform/macro';
 import { Touch } from '../../cocos/input/types';
 import { Vec2 } from '../../cocos/core/math/vec2';
 
-interface TouchMap {
-    [touchID: number]: number;
-}
-
 const tempVec2 = new Vec2();
 
 class TouchManager {
     /**
-     * A map from touch ID to available touch index in _touches array.
+     * A map from touch.
      */
-    private _touchMap: TouchMap = {};
-    private _touches: (Touch|undefined)[];
+    private _touchMap: Map<number, Touch>;
     private readonly _maxTouches = 8;
 
     constructor () {
-        this._touches = new Array(this._maxTouches);
+        this._touchMap = new Map();
     }
 
     /**
@@ -48,18 +43,17 @@ class TouchManager {
      * @returns
      */
     private _createTouch (touchID: number, x: number, y: number): Touch | undefined {
-        if (touchID in this._touchMap) {
+        if (this._touchMap.has(touchID)) {
             console.log('Cannot create the same touch object.');
             return undefined;
         }
-        const availableTouchIndex = this._getAvailableTouchIndex(touchID);
-        if (availableTouchIndex === -1) {
+        const checkResult = this._checkTouchMapSizeMoreThanMax(touchID);
+        if (checkResult) {
             console.log('The touches is more than MAX_TOUCHES.');  // TODO: logID 2300
             return undefined;
         }
         const touch = new Touch(x, y, touchID);
-        this._touches[availableTouchIndex] = touch;
-        this._touchMap[touchID] = availableTouchIndex;
+        this._touchMap.set(touchID, touch);
         this._updateTouch(touch, x, y);
         return this._cloneTouch(touch);
     }
@@ -70,12 +64,10 @@ class TouchManager {
      * @returns
      */
     public releaseTouch (touchID: number) {
-        if (!(touchID in this._touchMap)) {
+        if (!this._touchMap.has(touchID)) {
             return;
         }
-        const availableTouchIndex = this._touchMap[touchID];
-        this._touches[availableTouchIndex] = undefined;
-        delete this._touchMap[touchID];
+        this._touchMap.delete(touchID);
     }
 
     /**
@@ -84,8 +76,7 @@ class TouchManager {
      * @returns
      */
     public getTouch (touchID: number, x: number, y: number): Touch | undefined {
-        const availableTouchIndex = this._touchMap[touchID];
-        let touch = this._touches[availableTouchIndex];
+        let touch = this._touchMap.get(touchID);
         if (!touch) {
             touch = this._createTouch(touchID, x, y);
         } else {
@@ -100,7 +91,7 @@ class TouchManager {
      */
     public getAllTouches (): Touch[] {
         const touches: Touch[] = [];
-        this._touches.forEach((touch) => {
+        this._touchMap.forEach((touch) => {
             if (touch) {
                 const clonedTouch = this._cloneTouch(touch);
                 touches.push(clonedTouch);
@@ -121,30 +112,30 @@ class TouchManager {
         touch.setPoint(x, y);
     }
 
-    private _getAvailableTouchIndex (touchID: number) {
-        const availableTouchIndex = this._touchMap[touchID];
-        if (typeof availableTouchIndex !== 'undefined') {
-            return availableTouchIndex;
+    /**
+     *
+     *
+     * @param touchID
+     * @memberof TouchManager
+     */
+    private _checkTouchMapSizeMoreThanMax (touchID: number) {
+        if (this._touchMap.has(touchID)) {
+            return false;
         }
-        for (let i = 0; i < this._maxTouches; i++) {
-            if (!this._touches[i]) {
-                return i;
-            }
+        const maxSize = macro.ENABLE_MULTI_TOUCH ? this._maxTouches : 1;
+        if (this._touchMap.size < maxSize) {
+            return false;
         }
-
         // Handle when exceed the max number of touches
         const now = performance.now();
-        const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
-        for (let i = 0; i < this._maxTouches; i++) {
-            const touch = this._touches[i]!;
-            if (now - touch.lastModified > TOUCH_TIMEOUT) {
+        this._touchMap.forEach((touch) => {
+            if (now - touch.lastModified > macro.TOUCH_TIMEOUT) {
                 console.log(`The touches is more than MAX_TOUCHES, release touch id ${touch.getID()}.`);
                 // TODO: need to handle touch cancel event when exceed the max number of touches ?
                 this.releaseTouch(touch.getID());
-                return i;
             }
-        }
-        return -1;
+        });
+        return maxSize >= this._touchMap.size;
     }
 }
 
