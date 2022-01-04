@@ -6,6 +6,7 @@ CCEffect %{
       frag: genmipmap-fs:frag
       priority: max - 12
       depthStencilState:
+        depthFunc: always
         depthTest: false
         depthWrite: false
       blendState:
@@ -36,18 +37,17 @@ CCProgram genmipmap-fs %{
   in vec2 v_uv;
   uniform sampler2D mainTexture;
 
-  layout(set = 1, binding = 1, rgba8) writeOnly uniform image2D LODTex0;
-  layout(set = 1, binding = 2, rgba8) writeOnly uniform image2D LODTex1;
-  layout(set = 1, binding = 3, rgba8) writeOnly uniform image2D LODTex2;
-  layout(set = 1, binding = 4, rgba8) writeOnly uniform image2D LODTex3;
-
   vec4 frag () {
-    ivec2 mainSize = textureSize(mainTexture, 0);
-    ivec2 mainCoord = ivec2(int((float)mainSize.x * v_uv.x), int((float)mainSize.y * v_uv.y));
+    //ivec2 mainSize = textureSize(mainTexture, 0);
+    //ivec2 mainCoord = ivec2(int((float)mainSize.x * v_uv.x), int((float)mainSize.y * v_uv.y));
 
-    imageStore(LODTex0, mainCoord * 0.5, texture(mainTexture, v_uv));
-    imageStore(LODTex1, mainCoord * 0.25, texture(mainTexture, v_uv));
-    imageStore(LODTex2, mainCoord * 0.125, texture(mainTexture, v_uv));
-    imageStore(LODTex3, mainCoord * 0.0625, texture(mainTexture, v_uv));
+    //TODO_Zeqiang: bake it / filter it
+    //gl_FragData[0] = texture(mainTexture, v_uv);
+    //gl_FragData[1] = texture(mainTexture, v_uv);
+    //gl_FragData[2] = texture(mainTexture, v_uv);
+    //gl_FragData[3] = texture(mainTexture, v_uv);
+
+    vec4 color = texture(mainTexture, v_uv);
+    return color;
   }
 }%

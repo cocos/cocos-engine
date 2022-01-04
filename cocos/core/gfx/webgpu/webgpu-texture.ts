@@ -37,7 +37,7 @@ export class WebGPUTexture extends Texture {
             this._levelCount = info.layerCount;
 
             const texViewInfo = new nativeLib.TextureViewInfoInstance();
-            texViewInfo.setTexture((info.texture as WebGPUTexture).nativeTexture());
+            texViewInfo.setTexture((info.texture as WebGPUTexture).nativeTexture);
             const typeStr = TextureType[info.type];
             texViewInfo.setType(nativeLib.TextureType[typeStr]);
             const formatStr = Format[info.format];

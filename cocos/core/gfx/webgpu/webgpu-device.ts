@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-empty */
 /* eslint-disable new-cap */
 /* eslint-disable dot-notation */
@@ -8,7 +9,7 @@ import {
     SamplerInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo, ShaderInfo,
     InputAssemblerInfo, CommandBufferInfo, QueueInfo, QueueType, CommandBufferType, FormatInfos,
     BufferUsageBit, MemoryUsageBit, Format, Attribute, ShaderStage, ShaderStageFlagBit, UniformSamplerTexture,
-    Type, TextureFlagBit, TextureBlit, TextureSubresLayers, Filter,
+    Type, TextureFlagBit, TextureBlit, TextureSubresLayers, Filter, TextureType, TextureUsageBit,
 } from '../base/define';
 import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { RenderPass } from '../base/render-pass';
@@ -39,9 +40,10 @@ import { WebGPUCommandBuffer } from './webgpu-command-buffer';
 import { Queue } from '../base/queue';
 import { WebGPUQueue } from './webgpu-queue';
 import wasmDevice from './lib/webgpu_wasm.js';
-import { mipMapVert, mipmapFrag, mipmapPipeline, genMipmap, WebGPUDeviceManager } from './webgpu-commands';
+import { mipMapVert, mipmapFrag, genMipmap, MipmapPipelineCache, WebGPUDeviceManager } from './webgpu-commands';
 import { quadIn } from '../../animation/easing';
 import { attr } from '../../data/utils/attribute';
+import { murmurhash2_32_gc } from '../..';
 
 function getChromeVersion () {
     const raw = /Chrom(e|ium)\/([0-9]+)\./.exec(navigator.userAgent);
@@ -54,7 +56,6 @@ function getChromeVersion () {
 // }
 export class WebGPUDevice extends Device {
     private _nativeDevice = undefined;
-    private _swapchain = undefined;
 
     get nativeDevice () {
         return this._nativeDevice;
@@ -158,7 +159,6 @@ export class WebGPUDevice extends Device {
     public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
         const swapchain = new WebGPUSwapchain();
         swapchain.initialize(info);
-        (this._swapchain as any) = swapchain;
         return swapchain;
     }
 
@@ -405,47 +405,93 @@ export class WebGPUDevice extends Device {
         (this._nativeDevice as any).copyBuffersToTexture(buffers, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
 
         if (texture.flags & TextureFlagBit.GEN_MIPMAP) {
-            const cmdBuffInfo = new CommandBufferInfo(this._queue!, CommandBufferType.PRIMARY);
-            const cmdBuff = this.createCommandBuffer(cmdBuffInfo);
-            const minPassNum = Math.ceil(texture.levelCount / 4);
-            let lods: Texture[] = [];
-            let lodIndex = 0;
-            const region = new nativeLib.TextureBlit();
-            for (let i = 0; i < minPassNum; ++i) {
-                lods = genMipmap(this, texture as WebGPUTexture);
-                //gen 4 mipmaps perpass
-                for (let j = 0; j < 4; j++) {
+            const textureInfo = new TextureInfo(
+                TextureType.TEX2D, TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+                texture.format,
+                texture.width,
+                texture.height,
+                TextureFlagBit.NONE,
+                1, 1, SampleCount.ONE, 1,
+            );
+
+            const hashStr = `${textureInfo.type}-${textureInfo.format}-${textureInfo.width}-${textureInfo.height}`;
+            const hash = murmurhash2_32_gc(hashStr, 999);
+            let baseTex;
+
+            if (!MipmapPipelineCache.mipmapTexCache.has(hash)) {
+                baseTex = this.createTexture(textureInfo);
+                MipmapPipelineCache.mipmapTexCache.set(hash, baseTex);
+            } else {
+                baseTex = MipmapPipelineCache.mipmapTexCache.get(hash);
+            }
+
+            const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
+            bufferTextureCopy.buffStride = 0;
+            bufferTextureCopy.buffTexHeight = 0;
+            bufferTextureCopy.texOffset.x = 0;
+            bufferTextureCopy.texOffset.y = 0;
+            bufferTextureCopy.texOffset.z = 0;
+            bufferTextureCopy.texExtent.width = texture.width;
+            bufferTextureCopy.texExtent.height = texture.height;
+            bufferTextureCopy.texExtent.depth = 1;
+            bufferTextureCopy.texSubres.mipLevel = 0;
+            bufferTextureCopy.texSubres.baseArrayLayer = 0;
+            bufferTextureCopy.texSubres.layerCount = 1;
+
+            const copyList = new nativeLib.BufferTextureCopyList();
+            copyList.push_back(bufferTextureCopy);
+
+            (this._nativeDevice as any).copyBuffersToTexture(buffers, (baseTex as unknown as WebGPUTexture).nativeTexture, copyList);
+
+            const cmdBuff = this._cmdBuff;
+            cmdBuff?.begin();
+            let tmpTex = baseTex;
+            for (let i = 0; i < regions.length; ++i) {
+                for (let j = 0; j < texture.levelCount - 1; ++j) {
+                    const lodTex = genMipmap(this, tmpTex as unknown as WebGPUTexture);
+
+                    const regionList = new nativeLib.TextureBlitList();
+                    const region = new nativeLib.TextureBlit();
                     region.srcSubres.mipLevel = 0;
                     region.srcSubres.baseArrayLayer = 0;
                     region.srcSubres.layerCount = 1;
                     region.srcOffset.x = 0;
                     region.srcOffset.y = 0;
                     region.srcOffset.z = 0;
-                    region.srcExtent.width = lods[i].width;
-                    region.srcExtent.height = lods[i].height;
-                    region.srcExtent.depth = 1;
+                    region.srcExtent.width = lodTex.width;
+                    region.srcExtent.height = lodTex.height;
+                    region.srcExtent.depth = lodTex.depth;
 
-                    region.dstSubres.mipLevel = lodIndex;
-                    region.dstSubres.baseArrayLayer = 0;
+                    region.dstSubres.mipLevel = 1 + j;
+                    region.dstSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
                     region.dstSubres.layerCount = 1;
                     region.dstOffset.x = 0;
                     region.dstOffset.y = 0;
                     region.dstOffset.z = 0;
-                    region.dstExtent.width = lods[0].width;
-                    region.dstExtent.height = lods[0].height;
-                    region.dstExtent.depth = 1;
+                    region.dstExtent.width = lodTex.width;
+                    region.dstExtent.height = lodTex.height;
+                    region.dstExtent.depth = lodTex.depth;
 
-                    ++lodIndex;
+                    regionList.push_back(region);
 
                     const filterStr = Filter[Filter.LINEAR];
                     const filter = nativeLib.Filter[filterStr];
-                    ((cmdBuff as WebGPUCommandBuffer) as any).blitTexture(lods[0], texture, region, filter);
 
-                    if (lodIndex >= texture.levelCount) {
-                        break;
-                    }
+                    (cmdBuff as WebGPUCommandBuffer).nativeCommandBuffer.blitTexture2(
+                        (lodTex as WebGPUTexture).nativeTexture,
+                        (texture as WebGPUTexture).nativeTexture,
+                        regionList,
+                        filter,
+                    );
+
+                    // (this._mipmapCacheTex as unknown as WebGPUTexture).destroy();
+                    tmpTex = lodTex;
                 }
             }
+
+            // (this._mipmapCacheTex as unknown as WebGPUTexture).destroy();
+            cmdBuff?.end();
+            this._queue?.submit([cmdBuff!]);
         }
     }
 

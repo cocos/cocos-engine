@@ -130,6 +130,12 @@ export const glsl1 = [
   ],
   [
     {
+      "vert": "\nprecision mediump float;\nattribute vec2 a_position;\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\nvec4 vert () {\nv_uv = a_texCoord;\nreturn vec4(a_position, 0.0, 1.0);\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nvarying vec2 v_uv;\nuniform sampler2D mainTexture;\nvec4 frag () {\nvec4 color = texture2D(mainTexture, v_uv);\nreturn color;\n}\nvoid main() { gl_FragColor = frag(); }",
+    }
+  ],
+  [
+    {
       "vert": "\nprecision mediump float;\nuniform highp mat4 cc_matProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying vec2 v_uv;\nuniform vec4 offset;\nuniform vec4 digits[20];\nfloat getComponent(vec4 v, float i) {\nif (i < 1.0) { return v.x; }\nelse if (i < 2.0) { return v.y; }\nelse if (i < 3.0) { return v.z; }\nelse { return v.w; }\n}\nvec4 vert () {\nmat2 proj = mat2(cc_matProj[0].xy, cc_matProj[1].xy);\nproj /= abs(proj[1].x + proj[1].y);\nvec2 position = proj * a_position.xy + offset.xy;\nv_uv = a_color.xy;\nif (a_color.z >= 0.0) {\nfloat n = getComponent(digits[int(a_color.z)], a_color.w);\nv_uv += vec2(offset.z * n, 0.0);\n}\nreturn vec4(position, 0.0, 1.0);\n}\nvoid main() { gl_Position = vert(); }",
       "frag": "\nprecision mediump float;\nvec4 CCFragOutput (vec4 color) {\nreturn color;\n}\nvarying vec2 v_uv;\nuniform sampler2D mainTexture;\nvec4 frag () {\nreturn CCFragOutput(texture2D(mainTexture, v_uv));\n}\nvoid main() { gl_FragColor = frag(); }",
     }

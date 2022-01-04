@@ -956,7 +956,7 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 1741755773,
+        "hash": 3282783042,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 58 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -1128,6 +1128,37 @@ export const effects = [
         ],
         "blocks": [],
         "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      }
+    ]
+  },
+  {
+    "name": "genmipmap",
+    "techniques": [
+      { "passes": [{ "blendState": { "targets": [{ "blend": false, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "genmipmap|genmipmap-vs:vert|genmipmap-fs:frag", "priority": 243, "depthStencilState": { "depthFunc": 7, "depthTest": false, "depthWrite": false } }] }
+    ],
+    "shaders": [
+      {
+        "name": "genmipmap|genmipmap-vs:vert|genmipmap-fs:frag",
+        "hash": 1314976526,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 0, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "globals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 21, "location": 0 },
+          { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 }
+        ],
+        "blocks": [],
+        "samplerTextures": [
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 }
+        ],
         "buffers": [],
         "images": [],
         "textures": [],

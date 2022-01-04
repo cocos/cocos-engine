@@ -7,7 +7,7 @@ import { boolean } from '../../data/decorators';
 import {
     Format, ComparisonFunc, Address, Filter, TextureType,
     TextureUsageBit, TextureFlagBit, SampleCount, BufferUsageBit, MemoryUsageBit, BufferFlagBit, DescriptorType, ShaderStageFlagBit, BufferInfo, Attribute, InputAssemblerInfo, ShaderInfo, ShaderStage, UniformSamplerTexture, Type, TextureInfo, SamplerInfo, RenderPassInfo, FramebufferInfo,
-    Rect, Color,
+    Rect, Color, ColorAttachment, LoadOp, StoreOp, TextureViewInfo,
 } from '../base/define';
 import { Device } from '../base/device';
 import { Texture } from '../base/texture';
@@ -16,9 +16,10 @@ import { nativeLib } from './webgpu-utils';
 import { InputAssembler } from '../base/input-assembler';
 import { Shader } from '../base/shader';
 import { Pipeline } from '../../asset-manager/pipeline';
-import { Material, PipelineStateManager } from '../..';
-import { Framebuffer, RenderPass, Sampler } from '..';
+import { Material, murmurhash2_32_gc, PipelineStateManager } from '../..';
+import { Framebuffer, PipelineState, RenderPass, Sampler } from '..';
 import { SetIndex } from '../../pipeline/define';
+import load from '../../asset-manager/load';
 
 export function toWGPUNativeFormat (format: Format) {
     switch (format) {
@@ -303,57 +304,60 @@ void main () {
 }
 `;
 
-class GenMipmapPipelineCache {
+export class MipmapPipelineCache {
     declare private _token: never;
-
+    public static mipmapTexCache: Map<number, Texture> = new Map();
     constructor (
-        public vertBUffer: Buffer = null!,
+        public vertBuffer: Buffer = null!,
         public indicesBuffer: Buffer = null!,
         public inputAssembler: InputAssembler = null!,
         public shader: Shader = null!,
-        public pipeline: Pipeline = null!,
+        public pipelineState: PipelineState = null!,
         public material: Material = null!,
-        public mipmaps: Texture[] = [],
         public renderPass: RenderPass = null!,
         public sampler: Sampler = null!,
-        public frameBuffer: Framebuffer = null!,
+        // public frameBuffer: Framebuffer = null!,
     ) {}
 }
 
-const mipmapPipeline = new GenMipmapPipelineCache();
+const mipmapCache = new MipmapPipelineCache();
 
-export function genMipmap (device: Device, srcTex: Texture): Texture[] {
+export function genMipmap (device: Device, srcTex: Texture): Texture {
     const quadVert = new Float32Array([-1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 0.0, 1.0]);
     const vertStride = Float32Array.BYTES_PER_ELEMENT * 4;
     const vertSize = quadVert.byteLength;
-    mipmapPipeline.vertBUffer = device.createBuffer(new BufferInfo(
-        BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-        MemoryUsageBit.DEVICE, vertSize, vertStride,
-    ));
-    mipmapPipeline.vertBUffer.update(quadVert);
+    if (!mipmapCache.vertBuffer) {
+        mipmapCache.vertBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE, vertSize, vertStride,
+        ));
+        mipmapCache.vertBuffer.update(quadVert);
 
-    const quadIndex = new Uint16Array([0, 1, 2, 0, 2, 3]);
-    const indexStride = Uint16Array.BYTES_PER_ELEMENT;
-    const indexSize = quadIndex.byteLength;
-    mipmapPipeline.indicesBuffer = device.createBuffer(new BufferInfo(
-        BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-        MemoryUsageBit.DEVICE, indexSize, indexStride,
-    ));
-    mipmapPipeline.indicesBuffer.update(quadIndex);
+        const quadIndex = new Uint16Array([0, 1, 2, 0, 2, 3]);
+        const indexStride = Uint16Array.BYTES_PER_ELEMENT;
+        const indexSize = quadIndex.byteLength;
+        mipmapCache.indicesBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE, indexSize, indexStride,
+        ));
+        mipmapCache.indicesBuffer.update(quadIndex);
 
-    const attributes: Attribute[] = [
-        new Attribute('a_position', Format.RG32F),
-        new Attribute('a_texCoord', Format.RG32F),
-    ];
-    const IAInfo = new InputAssemblerInfo(attributes, [mipmapPipeline.vertBUffer], (mipmapPipeline.indicesBuffer));
-    mipmapPipeline.inputAssembler = device.createInputAssembler(IAInfo);
+        const attributes: Attribute[] = [
+            new Attribute('a_position', Format.RG32F),
+            new Attribute('a_texCoord', Format.RG32F),
+        ];
+        const IAInfo = new InputAssemblerInfo(attributes, [mipmapCache.vertBuffer], (mipmapCache.indicesBuffer));
+        mipmapCache.inputAssembler = device.createInputAssembler(IAInfo);
 
-    mipmapPipeline.material = new Material();
-    mipmapPipeline.material.initialize({ effectName: 'genmipmap' });
+        mipmapCache.material = new Material();
+        mipmapCache.material.initialize({ effectName: 'genmipmap' });
 
-    const pass = mipmapPipeline.material.passes[0];
+        const rpInfo = new RenderPassInfo([new ColorAttachment(Format.RGBA8, SampleCount.ONE, LoadOp.CLEAR, StoreOp.STORE)]);
+        mipmapCache.renderPass = device.createRenderPass(rpInfo);
+    }
 
-    mipmapPipeline.shader = pass.getShaderVariant()!;
+    const pass = mipmapCache.material.passes[0];
+    mipmapCache.shader = pass.getShaderVariant()!;
 
     const mainTexBinding = pass.getBinding('mainTexture');
     const samplerInfo = new SamplerInfo(
@@ -364,55 +368,64 @@ export function genMipmap (device: Device, srcTex: Texture): Texture[] {
         Address.WRAP,
         Address.WRAP,
     );
-    mipmapPipeline.sampler = device.getSampler(samplerInfo);
-    pass.bindSampler(mainTexBinding, mipmapPipeline.sampler);
+    mipmapCache.sampler = device.getSampler(samplerInfo);
+
+    pass.bindSampler(mainTexBinding, mipmapCache.sampler);
     pass.bindTexture(mainTexBinding, srcTex);
 
     const lodInfo = new TextureInfo(
         TextureType.TEX2D,
-        TextureUsageBit.SAMPLED | TextureUsageBit.STORAGE,
+        TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.TRANSFER_SRC | TextureUsageBit.SAMPLED,
         Format.RGBA8,
         srcTex.width / 2,
         srcTex.height / 2,
     );
-    const lod0Tex = device.createTexture(lodInfo);
 
-    lodInfo.width = srcTex.width / 4;
-    lodInfo.height = srcTex.height / 4;
-    const lod1Tex = device.createTexture(lodInfo);
+    const hashStr = `${lodInfo.type}-${lodInfo.format}-${lodInfo.width}-${lodInfo.height}`;
+    const hash = murmurhash2_32_gc(hashStr, 999);
+    let lodTex;
 
-    lodInfo.width = srcTex.width / 8;
-    lodInfo.height = srcTex.height / 8;
-    const lod2Tex = device.createTexture(lodInfo);
+    if (!MipmapPipelineCache.mipmapTexCache.has(hash)) {
+        lodTex = device.createTexture(lodInfo);
+        MipmapPipelineCache.mipmapTexCache.set(hash, lodTex);
+    } else {
+        lodTex = MipmapPipelineCache.mipmapTexCache.get(hash);
+    }
 
-    lodInfo.width = srcTex.width / 16;
-    lodInfo.height = srcTex.height / 16;
-    const lod3Tex = device.createTexture(lodInfo);
+    // lodInfo.width = srcTex.width / 4;
+    // lodInfo.height = srcTex.height / 4;
+    // const lod1Tex = device.createTexture(lodInfo);
 
-    const lod0binding = pass.getBinding('LODTex0');
-    const lod1binding = pass.getBinding('LODTex1');
-    const lod2binding = pass.getBinding('LODTex2');
-    const lod3binding = pass.getBinding('LODTex3');
+    // lodInfo.width = srcTex.width / 8;
+    // lodInfo.height = srcTex.height / 8;
+    // const lod2Tex = device.createTexture(lodInfo);
 
-    pass.bindTexture(lod0binding, lod0Tex);
-    pass.bindTexture(lod1binding, lod1Tex);
-    pass.bindTexture(lod2binding, lod2Tex);
-    pass.bindTexture(lod3binding, lod3Tex);
+    // lodInfo.width = srcTex.width / 16;
+    // lodInfo.height = srcTex.height / 16;
+    // const lod3Tex = device.createTexture(lodInfo);
+
+    // const lod0binding = pass.getBinding('mainTexture');
+    // const lod1binding = pass.getBinding('LODTex1');
+    // const lod2binding = pass.getBinding('LODTex2');
+    // const lod3binding = pass.getBinding('LODTex3');
+
+    // pass.bindTexture(lod0binding, lod0Tex);
+    // pass.bindTexture(lod1binding, lod1Tex);
+    // pass.bindTexture(lod2binding, lod2Tex);
+    // pass.bindTexture(lod3binding, lod3Tex);
 
     pass.descriptorSet.update();
 
-    mipmapPipeline.renderPass = device.createRenderPass(new RenderPassInfo());
-
-    const fbInfo = new FramebufferInfo(mipmapPipeline.renderPass);
-    mipmapPipeline.frameBuffer = device.createFramebuffer(fbInfo);
+    const fbInfo = new FramebufferInfo(mipmapCache.renderPass, [lodTex]);
+    const frameBuffer = device.createFramebuffer(fbInfo);
 
     const clearColor = new Color();
     const renderArea = new Rect(0, 0, srcTex.width, srcTex.height);
     const cmdBuff = device.commandBuffer;
-    cmdBuff.begin();
+    // cmdBuff.begin();
     cmdBuff.beginRenderPass(
-        mipmapPipeline.renderPass,
-        mipmapPipeline.frameBuffer,
+        mipmapCache.renderPass,
+        frameBuffer,
         renderArea,
         [clearColor],
         1,
@@ -421,20 +434,22 @@ export function genMipmap (device: Device, srcTex: Texture): Texture[] {
     const pso = PipelineStateManager.getOrCreatePipelineState(
         device,
         pass,
-        mipmapPipeline.shader,
-        mipmapPipeline.renderPass,
-        mipmapPipeline.inputAssembler,
+        mipmapCache.shader,
+        mipmapCache.renderPass,
+        mipmapCache.inputAssembler,
     );
     cmdBuff.bindPipelineState(pso);
     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-    cmdBuff.bindInputAssembler(mipmapPipeline.inputAssembler);
-    cmdBuff.draw(mipmapPipeline.inputAssembler);
+    cmdBuff.bindInputAssembler(mipmapCache.inputAssembler);
+    cmdBuff.draw(mipmapCache.inputAssembler);
     cmdBuff.endRenderPass();
-    cmdBuff.end();
+    // cmdBuff.end();
     device.flushCommands([cmdBuff]);
     device.queue.submit([cmdBuff]);
 
-    return [lod0Tex, lod1Tex, lod2Tex, lod3Tex];
+    frameBuffer.destroy();
+
+    return lodTex;
 }
 
 export function removeCombinedSamplerTexture (shaderSource: string) {
