@@ -68,6 +68,7 @@ export const simple: IAssembler = {
         //     }
         // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+        this.updateUVs(sprite);
         // @ts-expect-error hack
         if (UI_GPU_DRIVEN && sprite._canDrawByFourVertex) {
             sprite._updateUVWithTrim();

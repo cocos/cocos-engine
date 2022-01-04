@@ -542,12 +542,14 @@ export class Batcher2D implements IBatcher {
         if (!mat || !buf) {
             return;
         }
+        const indexCount = buf.indexOffset - this._indexStart;
+        if (indexCount <= 0) return;
         assertIsTrue(this._indexStart < buf.indexOffset);
         buf.setDirty();
         // Request ia
         const ia = buf.requireFreeIA(this.device);
         ia.firstIndex = this._indexStart;
-        ia.indexCount = buf.indexOffset - this._indexStart;
+        ia.indexCount = indexCount;
         // Update index tracker and bid
         this._indexStart = buf.indexOffset;
         this._currBID = -1;

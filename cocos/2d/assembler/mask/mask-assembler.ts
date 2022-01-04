@@ -55,7 +55,7 @@ function applyAreaMask (mask: Mask, renderer: IBatcher) {
 export const maskAssembler: IAssembler = {
     createData (mask: Mask) {
         const renderData = mask.requestRenderData();
-        renderData.dataLength = 4;
+        renderData.dataLength = 2;
         renderData.resize(4, 6);
         return renderData;
     },
