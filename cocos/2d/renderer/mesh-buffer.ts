@@ -57,14 +57,14 @@ export class MeshBuffer {
     private _iaInfo: InputAssemblerInfo = null!;
     private _nextFreeIAHandle = 0;
 
-    private _preVertexUsed = 4; // ib 和 vb 的长度比 // 默认值存疑
+    private _ibScale = 4; // ib size scale based on vertex count
 
     public initialize (device: Device, attrs: Attribute[]) {
         const floatCount = getComponentPerVertex(attrs);
         const vbStride = this._vertexFormatBytes = floatCount * Float32Array.BYTES_PER_ELEMENT;
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-        this._initVDataCount = macro.BYTE_LENGTH_PRE_MASHBUFFER * 1024 / Float32Array.BYTES_PER_ELEMENT;
-        this._initIDataCount = this._initVDataCount * this._preVertexUsed;
+        this._initVDataCount = macro.BYTE_LENGTH_PER_MESH_BUFFER * 1024 / Float32Array.BYTES_PER_ELEMENT;
+        this._initIDataCount = this._initVDataCount * this._ibScale;
         this._attributes = attrs;
 
         this._vertexBuffers[0] = device.createBuffer(new BufferInfo(

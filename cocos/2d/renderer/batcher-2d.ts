@@ -50,6 +50,7 @@ import { StaticVBAccessor } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
+import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
 const _dsInfo = new DescriptorSetInfo(null!);
@@ -121,8 +122,6 @@ export class Batcher2D implements IBatcher {
     private _screens: RenderRoot2D[] = [];
     private _staticVBBuffer: StaticVBAccessor | null = null;
     private _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
-    // private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(), 128, (obj) => obj.destroy());
-    // private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
 
     private _drawBatchPool: Pool<DrawBatch2D>;
@@ -131,6 +130,7 @@ export class Batcher2D implements IBatcher {
     private _indexStart = 0;
 
     private _emptyMaterial = new Material();
+    private _currRenderData: BaseRenderData | null = null;
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
@@ -139,7 +139,6 @@ export class Batcher2D implements IBatcher {
     private _currTransform: Node | null = null;
     private _currTextureHash = 0;
     private _currSamplerHash = 0;
-    private _currBlendTargetHash = 0;
     private _currLayer = 0;
     private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
@@ -306,6 +305,7 @@ export class Batcher2D implements IBatcher {
         this._indexStart = 0;
         this._currHash = 0;
         this._currLayer = 0;
+        this._currRenderData = null;
         this._currMaterial = this._emptyMaterial;
         this._currTexture = null;
         this._currSampler = null;
@@ -367,70 +367,49 @@ export class Batcher2D implements IBatcher {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
-        const renderComp = comp;
-        const renderData = comp.renderData;
+    public commitComp (comp: Renderable2D, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null) {
         let dataHash = 0;
         let mat;
         let bufferID = -1;
-        if (renderData) {
+        if (renderData && renderData.chunk) {
             if (!renderData.isValid()) return;
             dataHash = renderData.dataHash;
             mat = renderData.material;
             bufferID = renderData.chunk.bufferId;
         }
-        renderComp.stencilStage = StencilManager.sharedManager!.stage;
-        const depthStencilStateStage = renderComp.stencilStage;
+        comp.stencilStage = StencilManager.sharedManager!.stage;
+        const depthStencilStateStage = comp.stencilStage;
 
         if (this._currHash !== dataHash || dataHash === 0 || this._currMaterial !== mat
             || this._currDepthStencilStateStage !== depthStencilStateStage || this._currBID !== bufferID) {
+            // Merge all previous data to a render batch, and update buffer for next render data
             this.autoMergeBatches(this._currComponent!);
             if (renderData) {
                 this.updateBuffer(renderData.vertexFormat, bufferID);
-                this._currHash = renderData.dataHash;
-                this._currComponent = renderComp;
-                this._currTransform = transform;
-                this._currMaterial = renderData.material!;
-                this._currBlendTargetHash = renderData.blendHash;
-                this._currDepthStencilStateStage = depthStencilStateStage;
-                this._currLayer = renderData.layer;
-                const frame = renderData.frame;
-                if (frame) {
-                    this._currTexture = frame.getGFXTexture();
-                    this._currSampler = frame.getGFXSampler();
-                    this._currTextureHash = renderData.textureHash;
-                    this._currSamplerHash = this._currSampler!.hash;
-                } else {
-                    this._currTexture = null;
-                    this._currSampler = null;
-                    this._currTextureHash = 0;
-                    this._currSamplerHash = 0;
-                }
+            }
+
+            this._currRenderData = renderData;
+            this._currHash = renderData ? renderData.dataHash : 0;
+            this._currComponent = comp;
+            this._currTransform = transform;
+            this._currMaterial = comp.getRenderMaterial(0)!;
+            // this._currBlendTargetHash = comp.blendHash;
+            this._currDepthStencilStateStage = depthStencilStateStage;
+            this._currLayer = comp.node.layer;
+            if (frame) {
+                this._currTexture = frame.getGFXTexture();
+                this._currSampler = frame.getGFXSampler();
+                this._currTextureHash = frame.getHash();
+                this._currSamplerHash = this._currSampler.hash;
             } else {
-                // for Mask & spine
-                this._currHash = dataHash;
-                this._currComponent = renderComp;
-                this._currTransform = transform;
-                this._currMaterial = renderComp.getRenderMaterial(0)!;
-                this._currBlendTargetHash = renderComp.blendHash;
-                this._currDepthStencilStateStage = depthStencilStateStage;
-                this._currLayer = renderComp.node.layer;
-                if (frame) {
-                    this._currTexture = frame.getGFXTexture();
-                    this._currSampler = frame.getGFXSampler();
-                    this._currTextureHash = frame.getHash();
-                    this._currSamplerHash = this._currSampler.hash;
-                } else {
-                    this._currTexture = null;
-                    this._currSampler = null;
-                    this._currTextureHash = 0;
-                    this._currSamplerHash = 0;
-                }
+                this._currTexture = null;
+                this._currSampler = null;
+                this._currTextureHash = 0;
+                this._currSamplerHash = 0;
             }
         }
 
-        assembler.fillBuffers(renderComp, this);
-        // comp._renderDataDirty = false;
+        assembler.fillBuffers(comp, this);
     }
 
     /**
@@ -533,27 +512,39 @@ export class Batcher2D implements IBatcher {
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
         const accessor = this._staticVBBuffer;
-        const VBChunk = renderComp;
-        if (!accessor || !VBChunk) {
-            return;
-        }
-        const bid = this._currBID;
-        const buf = accessor.getMeshBuffer(bid);
         const mat = this._currMaterial;
-        if (!mat || !buf) {
+        if (!mat || !accessor) {
             return;
         }
-        const indexCount = buf.indexOffset - this._indexStart;
-        if (indexCount <= 0) return;
-        assertIsTrue(this._indexStart < buf.indexOffset);
-        buf.setDirty();
-        // Request ia
-        const ia = buf.requireFreeIA(this.device);
-        ia.firstIndex = this._indexStart;
-        ia.indexCount = indexCount;
-        // Update index tracker and bid
-        this._indexStart = buf.indexOffset;
+        let ia;
+        const rd = this._currRenderData as MeshRenderData;
+        // Previous batch using mesh buffer
+        if (rd && rd.isMeshBuffer) {
+            ia = rd.requestIA(this.device);
+            rd.uploadBuffers();
+        } else {
+            const bid = this._currBID;
+            const buf = accessor.getMeshBuffer(bid);
+            if (!buf) {
+                return;
+            }
+            const indexCount = buf.indexOffset - this._indexStart;
+            if (indexCount <= 0) return;
+            assertIsTrue(this._indexStart < buf.indexOffset);
+            buf.setDirty();
+            // Request ia
+            ia = buf.requireFreeIA(this.device);
+            ia.firstIndex = this._indexStart;
+            ia.indexCount = indexCount;
+            // Update index tracker and bid
+            this._indexStart = buf.indexOffset;
+        }
         this._currBID = -1;
+
+        // Request ia failed
+        if (!ia) {
+            return;
+        }
 
         let blendState;
         let depthStencil;

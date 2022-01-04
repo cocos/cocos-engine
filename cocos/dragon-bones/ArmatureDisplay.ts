@@ -569,7 +569,7 @@ export class ArmatureDisplay extends Renderable2D {
                     this.material = m.renderData.material;
                 }
                 if (m.texture) {
-                    ui.commitComp(this, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.renderData, m.texture, this._assembler, null);
                 }
                 this.material = mat;
             }

@@ -38,6 +38,7 @@ import { SpriteFrame } from '../assets/sprite-frame';
 import { Renderable2D } from '../framework/renderable-2d';
 import { StaticVBChunk } from './static-vb-accessor';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
+import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 
 export interface IRenderData {
     x: number;
@@ -66,6 +67,8 @@ export class BaseRenderData {
     }
     public chunk: StaticVBChunk = null!;
     public vertexFormat = vfmtPosUvColor;
+    public dataHash = 0;
+    public isMeshBuffer = false;
 
     protected _vc = 0;
     protected _ic = 0;
@@ -150,7 +153,6 @@ export class RenderData extends BaseRenderData {
     public layer = 0;
     public blendHash = -1;
     public textureHash = 0;
-    public dataHash = 0;
 
     public nodeDirty = true;
     public passDirty = true;
@@ -251,6 +253,34 @@ export class RenderData extends BaseRenderData {
 }
 
 export class MeshRenderData extends BaseRenderData {
+    public static add () {
+        return _meshDataPool.add();
+    }
+
+    public static remove (data: MeshRenderData) {
+        const idx = _meshDataPool.data.indexOf(data);
+        if (idx === -1) {
+            return;
+        }
+
+        _meshDataPool.data[idx].reset();
+        _meshDataPool.removeAt(idx);
+    }
+
+    /**
+     * @deprecated
+     */
+    set formatByte (value: number) {}
+    get formatByte () { return this.stride; }
+
+    get floatStride () { return this._floatStride; }
+
+    /**
+     * Index of Float32Array: vData
+     */
+    get vDataOffset () { return this.byteCount >>> 2; }
+
+    public isMeshBuffer = true;
     public vData: Float32Array;
     public iData: Uint16Array;
     /**
@@ -267,37 +297,14 @@ export class MeshRenderData extends BaseRenderData {
     public lastFilledIndices = 0;
     public lastFilledVertex = 0;
 
+    private _vertexBuffers: Buffer[] = [];
+    private _indexBuffer: Buffer = null!;
+    private _ia: InputAssembler = null!;
+
     constructor (vertexFormat = vfmtPosUvColor) {
         super(vertexFormat);
         this.vData = new Float32Array(256 * this.stride); // 长度可取宏
         this.iData = new Uint16Array(256 * 6);
-    }
-
-    /**
-     * @deprecated
-     */
-    set formatByte (value: number) {}
-    get formatByte () { return this.stride; }
-
-    get floatStride () { return this._floatStride; }
-
-    /**
-     * Index of Float32Array: vData
-     */
-    get vDataOffset () { return this.byteCount >>> 2; }
-
-    public static add () {
-        return _meshDataPool.add();
-    }
-
-    public static remove (data: MeshRenderData) {
-        const idx = _meshDataPool.data.indexOf(data);
-        if (idx === -1) {
-            return;
-        }
-
-        _meshDataPool.data[idx].reset();
-        _meshDataPool.removeAt(idx);
     }
 
     public request (vertexCount: number, indexCount: number) {
@@ -339,6 +346,54 @@ export class MeshRenderData extends BaseRenderData {
         this._vc += vertexCount; // vertexOffset
         this._ic += indexCount; // indicesOffset
         this.byteCount += vertexCount * this.stride;
+    }
+
+    public requestIA (device: Device) {
+        if (!this._ia) {
+            const vbStride = this.stride;
+            const vbs = this._vertexBuffers;
+            if (!vbs.length) {
+                vbs.push(device.createBuffer(new BufferInfo(
+                    BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                    vbStride,
+                    vbStride,
+                )));
+            }
+            const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+            if (!this._indexBuffer) {
+                this._indexBuffer = device.createBuffer(new BufferInfo(
+                    BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                    ibStride,
+                    ibStride,
+                ));
+            }
+            const iaInfo = new InputAssemblerInfo(this.vertexFormat, vbs, this._indexBuffer);
+            this._ia = device.createInputAssembler(iaInfo);
+        }
+        return this._ia;
+    }
+
+    public uploadBuffers () {
+        if (this.byteCount === 0) {
+            return;
+        }
+
+        const indexOffset = this.indicesStart << 1;
+        const verticesData = new Float32Array(this.vData.buffer, this.byteStart, this.byteCount >> 2);
+        const indicesData = new Uint16Array(this.iData.buffer, indexOffset, this.indexCount);
+
+        const vertexBuffer = this._vertexBuffers[0];
+        if (this.byteCount > vertexBuffer.size) {
+            vertexBuffer.resize(this.byteCount);
+        }
+        vertexBuffer.update(verticesData);
+
+        if (indexOffset > this._indexBuffer.size) {
+            this._indexBuffer.resize(indexOffset);
+        }
+        this._indexBuffer.update(indicesData);
     }
 
     public reset () {
