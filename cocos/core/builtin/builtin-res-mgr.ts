@@ -53,10 +53,6 @@ class BuiltinResMgr {
         const greyValueView    = new Uint8Array(len * len * numChannels);
         const whiteValueView   = new Uint8Array(len * len * numChannels);
         const normalValueView  = new Uint8Array(len * len * numChannels);
-        const defaultValueView = new Uint8Array(len * len * numChannels);
-
-        const defaultSize = 16;
-        const halfDefaultSize = defaultSize / 2;
 
         let offset = 0;
         for (let i = 0; i < len * len; i++) {
@@ -87,6 +83,10 @@ class BuiltinResMgr {
 
             offset += numChannels;
         }
+
+        const defaultSize = 16;
+        const halfDefaultSize = defaultSize / 2;
+        const defaultValueView = new Uint8Array(defaultSize * defaultSize * numChannels);
 
         offset = 0;
         for (let i = 0; i < defaultSize * defaultSize; i++) {
