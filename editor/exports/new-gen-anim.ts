@@ -110,6 +110,45 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
     public destroy() {
     }
 
+    public getTimelineStats() {
+        const {
+            _source: source,
+            _target: target,
+            _exitCondition: exitCondition,
+            _exitConditionEnabled: exitConditionEnabled,
+            _transitionDuration: transitionDuration,
+            _relativeDuration: relativeDuration,
+        } = this;
+
+        const sourceMotionDuration = source.duration;
+        const exitTimeRelative = exitConditionEnabled ? exitCondition * sourceMotionDuration : 0.0;
+        const exitTimeAbsolute = sourceMotionDuration * exitTimeRelative;
+        const transitionDurationAbsolute = relativeDuration
+            ? sourceMotionDuration * transitionDuration
+            : transitionDuration;
+        const sourceMotionStart = 0.0;
+        const sourceMotionRepeatCount = Math.max(1.0, exitTimeRelative);
+        const targetMotionStart = exitTimeAbsolute;
+        const targetMotionRepeatCount = Math.max(1.0, transitionDurationAbsolute / target.duration);
+        const targetMotionDuration = target.duration;
+        const timeLineLength = Math.max(1.0, exitCondition) * sourceMotionDuration
+            + Math.max(transitionDurationAbsolute, targetMotionDuration);
+
+        return {
+            timeLineLength,
+            sourceMotionStart,
+            sourceMotionRepeatCount,
+            sourceMotionDuration,
+            targetMotionStart,
+            targetMotionRepeatCount,
+            targetMotionDuration,
+            exitTimesStart: 0,
+            exitTimesLength: exitTimeAbsolute,
+            transitionDurationStart: exitTimeAbsolute,
+            transitionDurationLength: transitionDurationAbsolute,
+        };
+    }
+
     public setSourceMotion(motion: Motion) {
         this._source = super.createMotionEval(motion);
     }
@@ -122,16 +161,24 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
         this._transitionDuration = value;
     }
 
-    public setRelativeDuration(value: boolean) {
+    public setRelativeTransitionDuration(value: boolean) {
         this._relativeDuration = value;
     }
 
-    public setExitCondition(value: number) {
+    public calculateTransitionDurationFromTimelineLength(value: number) {
+        return this._relativeDuration ? value / this._source.duration : value;
+    }
+
+    public setExitTimes(value: number) {
         this._exitCondition = value;
     }
 
-    public setExitConditionEnabled(value: boolean) {
+    public setExitTimeEnabled(value: boolean) {
         this._exitConditionEnabled = value;
+    }
+
+    public calculateExitTimesFromTimelineLength(value: number) {
+        return value / this._source.duration;
     }
 
     /**
