@@ -41,6 +41,7 @@ const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
 const _matShadowViewProj = new Mat4();
 const _vec4ShadowInfo = new Vec4();
+const _lightDir = new Vec4(0.0, 0.0, 1.0, 0.0);
 
 export class PipelineUBO {
     public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array) {
@@ -90,7 +91,11 @@ export class PipelineUBO {
         cv[UBOCamera.EXPOSURE_OFFSET + 3] = 0.0;
 
         if (mainLight) {
-            Vec3.toArray(cv, mainLight.direction, UBOCamera.MAIN_LIT_DIR_OFFSET);
+            const shadowEnable = (root.pipeline.pipelineSceneData.shadows.enabled
+                && root.pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
+            const mainLightDir = mainLight.direction;
+            _lightDir.set(mainLightDir.x, mainLightDir.y, mainLightDir.z, shadowEnable);
+            Vec4.toArray(cv, _lightDir, UBOCamera.MAIN_LIT_DIR_OFFSET);
             Vec3.toArray(cv, mainLight.color, UBOCamera.MAIN_LIT_COLOR_OFFSET);
             if (mainLight.useColorTemperature) {
                 const colorTempRGB = mainLight.colorTemperatureRGB;
@@ -105,7 +110,8 @@ export class PipelineUBO {
                 cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance;
             }
         } else {
-            Vec3.toArray(cv, Vec3.UNIT_Z, UBOCamera.MAIN_LIT_DIR_OFFSET);
+            _lightDir.set(0, 0, 1, 0);
+            Vec4.toArray(cv, _lightDir, UBOCamera.MAIN_LIT_DIR_OFFSET);
             Vec4.toArray(cv, Vec4.ZERO, UBOCamera.MAIN_LIT_COLOR_OFFSET);
         }
 

@@ -118,8 +118,9 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   vec3 dirlightContrib = (diffuseContrib + specularContrib);
 
   float shadow = 1.0;
-  #if CC_RECEIVE_SHADOW && CC_ENABLE_DIR_SHADOW
-    if (NL > 0.0) {
+  float enableShadow = cc_mainLitDir.w;
+  #if CC_RECEIVE_SHADOW
+    if (NL > 0.0 && enableShadow > 0.0) {
       CC_SHADOW_FACTOR_BASE(shadow, shadowPos, N, NL);
     }
   #endif
