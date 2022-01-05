@@ -550,8 +550,7 @@ var Layout = cc.Class({
             var child = children[i];
             let childScaleX = this._getUsedScaleValue(child.scaleX);
             let childScaleY = this._getUsedScaleValue(child.scaleY);
-            // Ensure that containerResizeBoundary is calculated at least once.
-            if (!child.activeInHierarchy && (hasCalculatedcontainerResizeBoundaryOnce || i !== children.length-1)) {
+            if (!child.activeInHierarchy) {
                 continue;
             }
 
@@ -699,7 +698,6 @@ var Layout = cc.Class({
             var child = children[i];
             let childScaleX = this._getUsedScaleValue(child.scaleX);
             let childScaleY = this._getUsedScaleValue(child.scaleY);
-            // Ensure that containerResizeBoundary is calculated at least once.
             if (!child.activeInHierarchy) {
                 continue;
             }
