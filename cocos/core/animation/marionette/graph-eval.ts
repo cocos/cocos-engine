@@ -5,7 +5,7 @@ import { MotionEval, MotionEvalContext } from './motion';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
 import { Value } from './variable';
-import { BindContext, bindOr, VariableType } from './parametric';
+import { BindContext, bindOr, validateVariableExistence, validateVariableType, VariableType } from './parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import { MotionState } from './motion-state';
@@ -1062,14 +1062,21 @@ interface StateMachineInfo {
 export class MotionStateEval extends StateEval {
     constructor (node: MotionState, context: LayerContext) {
         super(node);
-        const speed = bindOr(
-            context,
-            node.speed,
-            VariableType.FLOAT,
-            this._setSpeed,
-            this,
-        );
-        this._speed = speed;
+
+        this._baseSpeed = node.speed;
+        this._setSpeedMultiplier(1.0);
+
+        if (node.speedMultiplierEnabled && node.speedMultiplier) {
+            const speedMultiplierVarName = node.speedMultiplier;
+            const varInstance = context.getVar(speedMultiplierVarName);
+            if (validateVariableExistence(varInstance, speedMultiplierVarName)) {
+                validateVariableType(varInstance.type, VariableType.FLOAT, speedMultiplierVarName);
+                varInstance.bind(this._setSpeedMultiplier, this);
+                const initialSpeedMultiplier = varInstance.value as number;
+                this._setSpeedMultiplier(initialSpeedMultiplier);
+            }
+        }
+
         const sourceEvalContext: MotionEvalContext = {
             ...context,
         };
@@ -1163,6 +1170,7 @@ export class MotionStateEval extends StateEval {
     }
 
     private _source: MotionEval | null = null;
+    private _baseSpeed = 1.0;
     private _speed = 1.0;
     private _fromPort: MotionEvalPort = {
         progress: 0.0,
@@ -1173,8 +1181,8 @@ export class MotionStateEval extends StateEval {
         statusCache: createStateStatusCache(),
     };
 
-    private _setSpeed (value: number) {
-        this._speed = value;
+    private _setSpeedMultiplier (value: number) {
+        this._speed = this._baseSpeed * value;
     }
 }
 
