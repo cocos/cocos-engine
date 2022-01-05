@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { AttributeName, Buffer, BufferUsageBit, Device, Feature, MemoryUsageBit, DescriptorSet, BufferInfo } from '../../core/gfx';
+import { AttributeName, Buffer, BufferUsageBit, Device, Feature, MemoryUsageBit, DescriptorSet, BufferInfo, FormatFeatureBit, Format } from '../../core/gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { ImageAsset } from '../../core/assets/image-asset';
@@ -473,7 +473,8 @@ class MorphUniforms {
  * @param vec4Capacity Capacity of vec4.
  */
 function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
-    const hasFeatureFloatTexture = gfxDevice.hasFeature(Feature.TEXTURE_FLOAT);
+    // gfxDevice.hasFeature(Feature.TEXTURE_FLOAT);
+    const hasFeatureFloatTexture = gfxDevice.formatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET;
 
     let pixelRequired: number;
     let pixelFormat: PixelFormat;

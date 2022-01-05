@@ -32,7 +32,8 @@ import {
     API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
-    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo, SwapchainInfo, BindingMappingInfo,
+    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo, SwapchainInfo,
+    BindingMappingInfo, Format, FormatFeature,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -148,6 +149,8 @@ export abstract class Device {
     protected _renderer = '';
     protected _vendor = '';
     protected _features = new Array<boolean>(Feature.COUNT);
+    protected _formatFeatures = new Array<FormatFeature>(Format.COUNT);
+    protected _textureExclusive = new Array<boolean>(Format.COUNT);
     protected _queue: Queue | null = null;
     protected _cmdBuff: CommandBuffer | null = null;
     protected _numDrawCalls = 0;
@@ -312,7 +315,7 @@ export abstract class Device {
      * @param buffers The buffer to copy to.
      * @param regions The region descriptions
      */
-    public abstract copyTextureToBuffers(texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void;
+    public abstract copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void;
 
     /**
      * @en Copy texture images to texture.
@@ -330,5 +333,23 @@ export abstract class Device {
      */
     public hasFeature (feature: Feature): boolean {
         return this._features[feature];
+    }
+
+    /**
+     * @en The extent a specific format is supported by the backend.
+     * @zh 后端对特定格式的支持程度。
+     * @param format The GFX format to be queried.
+     */
+    public formatFeature (format: Format): FormatFeature {
+        return this._formatFeatures[format];
+    }
+
+    /**
+     * @en Whether a specific format is color renderable or not.
+     * @zh 该格式是否支持 renderBuffer。
+     * @param format The GFX format to be queried.
+     */
+    public getTextureExclusive (format: Format): boolean {
+        return this._textureExclusive[format];
     }
 }

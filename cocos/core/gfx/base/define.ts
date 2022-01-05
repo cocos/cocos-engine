@@ -89,6 +89,7 @@ export enum API {
     GLES3,
     METAL,
     VULKAN,
+    NVN,
     WEBGL,
     WEBGL2,
     WEBGPU,
@@ -102,20 +103,6 @@ export enum SurfaceTransform {
 }
 
 export enum Feature {
-    COLOR_FLOAT,
-    COLOR_HALF_FLOAT,
-    TEXTURE_FLOAT,
-    TEXTURE_HALF_FLOAT,
-    TEXTURE_FLOAT_LINEAR,
-    TEXTURE_HALF_FLOAT_LINEAR,
-    FORMAT_R11G11B10F,
-    FORMAT_SRGB,
-    FORMAT_ETC1,
-    FORMAT_ETC2,
-    FORMAT_DXT,
-    FORMAT_PVRTC,
-    FORMAT_ASTC,
-    FORMAT_RGB8,
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
@@ -238,11 +225,11 @@ export enum Format {
 
     // Ericsson Texture Compression Format
     ETC_RGB8,
-    ETC2_RGB8,
+    ETC2_RGB8, // exists
     ETC2_SRGB8,
     ETC2_RGB8_A1,
     ETC2_SRGB8_A1,
-    ETC2_RGBA8,
+    ETC2_RGBA8, // exists
     ETC2_SRGB8_A8,
     EAC_R11,
     EAC_R11SN,
@@ -410,6 +397,15 @@ export enum TextureFlagBit {
     NONE           = 0,
     GEN_MIPMAP     = 0x1, // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+}
+
+export enum FormatFeatureBit {
+    NONE             = 0,
+    RENDER_TARGET    = 0x1,  // Texture or renderBuffer
+    SAMPLED_TEXTURE  = 0x2,  // allow shaders to read a texture through a sampler
+    LINEAR_FILTER    = 0x4,  // allow using linear filter and copy from texture to texture linearly
+    STORAGE_TEXTURE  = 0x8,  // allow performing texture reads without sampling and store to arbitrary positions in shaders
+    VERTEX_ATTRIBUTE = 0x10, // use this format as vertex inputs
 }
 
 export enum SampleCount {
@@ -681,6 +677,7 @@ export type MemoryAccess = MemoryAccessBit;
 export type MemoryUsage = MemoryUsageBit;
 export type TextureUsage = TextureUsageBit;
 export type TextureFlags = TextureFlagBit;
+export type FormatFeature = FormatFeatureBit;
 export type ShaderStageFlags = ShaderStageFlagBit;
 export type DynamicStateFlags = DynamicStateFlagBit;
 export type ClearFlags = ClearFlagBit;
@@ -1712,7 +1709,7 @@ export class QueryPoolInfo {
 
     constructor (
         public type: QueryType = QueryType.OCCLUSION,
-        public maxQueryObjects: number = 65536,
+        public maxQueryObjects: number = 32767,
         public forceWait: boolean = true,
     ) {}
 
