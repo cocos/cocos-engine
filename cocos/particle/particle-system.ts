@@ -1047,7 +1047,7 @@ export class ParticleSystem extends RenderableComponent {
                 }
             }
             if (culled) {
-                if (this._cullingMode !== CullingMode.AlwaysSimulate) {
+                if (this._cullingMode !== CullingMode.AlwaysSimulate && !this._isStopped) {
                     this.pause();
                 }
                 if (!this._isCulled) {
