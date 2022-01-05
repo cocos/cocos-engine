@@ -85,6 +85,7 @@ import type { Node } from '../scene-graph';
 // }
 
 export function syncNodeValues (node: Node) {
+    // @ts-expect-error: jsb related codes.
     const lpos = node._lpos;
     let x = lpos.x;
     let y = lpos.y;
@@ -93,11 +94,13 @@ export function syncNodeValues (node: Node) {
         lpos.x = x = x || 0;
         lpos.y = y = y || 0;
         lpos.z = z = z || 0;
+        // @ts-expect-error: jsb related codes.
         node.setPositionForJS(x, y, z);
     } else {
         lpos.x = lpos.y = lpos.z = 0;
     }
 
+    // @ts-expect-error: jsb related codes.
     const lscale = node._lscale;
     x = lscale.x;
     y = lscale.y;
@@ -106,11 +109,13 @@ export function syncNodeValues (node: Node) {
         lscale.x = x = x || 1;
         lscale.y = y = y || 1;
         lscale.z = z = z || 1;
+        // @ts-expect-error: jsb related codes.
         node.setScaleForJS(x, y, z);
     } else {
         lscale.x = lscale.y = lscale.z = 1;
     }
 
+    // @ts-expect-error: jsb related codes.
     const lrot = node._lrot;
     x = lrot.x;
     y = lrot.y;
@@ -121,12 +126,14 @@ export function syncNodeValues (node: Node) {
         lrot.y = y = y || 0;
         lrot.z = z = z || 0;
         lrot.w = w = w || 1;
+        // @ts-expect-error: jsb related codes.
         node.setRotationForJS(x, y, z, w);
     } else {
         lrot.x = lrot.y = lrot.z = 0;
         lrot.w = 1;
     }
 
+    // @ts-expect-error: jsb related codes.
     const euler = node._euler;
     x = euler.x;
     y = euler.y;
@@ -135,6 +142,7 @@ export function syncNodeValues (node: Node) {
         euler.x = x = x || 0;
         euler.y = y = y || 0;
         euler.z = z = z || 0;
+        // @ts-expect-error: jsb related codes.
         node.setRotationFromEulerForJS(x, y, z);
     } else {
         euler.x = euler.y = euler.z = 0;
@@ -145,8 +153,11 @@ export function updateChildrenForDeserialize (node: Node) {
     if (!node) {
         return;
     }
+    // @ts-expect-error: jsb related codes.
     node._setChildren(node._children);
+    // @ts-expect-error: jsb related codes.
     for (let i = 0, len = node._children.length; i < len; ++i) {
+        // @ts-expect-error: jsb related codes.
         const child = node._children[i];
         // jsb.registerNativeRef(node, child);
         updateChildrenForDeserialize(child);

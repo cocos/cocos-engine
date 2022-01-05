@@ -110,6 +110,7 @@ export function instantiate (original: any, internalForce?: boolean) {
     let isCCObject = original instanceof CCObject;
     if (JSB) {
         if (!isCCObject) {
+            // @ts-expect-error: jsb related codes.
             isCCObject = original instanceof jsb.CCObject;
         }
     }

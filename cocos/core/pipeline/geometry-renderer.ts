@@ -29,7 +29,6 @@ import { Color } from '../math/color';
 import { Mat4 } from '../math/mat4';
 import { Vec3 } from '../math/vec3';
 import { Vec4 } from '../math/vec4';
-import { NativeGeometryRenderer } from '../renderer/scene';
 import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPipeline } from './render-pipeline';
@@ -158,18 +157,9 @@ export class GeometryRenderer {
     private _device: Device | null = null;
     private _pipeline: RenderPipeline | null = null;
     private _buffers: GeometryVertexBuffers;
-    private _nativeObj: NativeGeometryRenderer | null = null;
 
     public constructor () {
         this._buffers = new GeometryVertexBuffers();
-
-        if (JSB) {
-            this._nativeObj = new NativeGeometryRenderer();
-        }
-    }
-
-    public get native (): NativeGeometryRenderer | null {
-        return this._nativeObj;
     }
 
     public activate (device: Device, pipeline: RenderPipeline, config?: IGeometryConfig) {
@@ -205,19 +195,16 @@ export class GeometryRenderer {
             for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
                 const lines = this._buffers.lines[i];
                 if (!lines.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.LINE, i, lines._vertices, lines._vertexCount);
                     lines.reset();
                 }
 
                 const dashedLines = this._buffers.dashedLines[i];
                 if (!dashedLines.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.DASHED_LINE, i, dashedLines._vertices, dashedLines._vertexCount);
                     dashedLines.reset();
                 }
 
                 const triangles = this._buffers.triangles[i];
                 if (!triangles.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.TRIANGLE, i, triangles._vertices, triangles._vertexCount);
                     triangles.reset();
                 }
             }
@@ -298,11 +285,6 @@ export class GeometryRenderer {
     }
 
     public destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-            return;
-        }
-
         for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
             this._buffers.lines[i].destroy();
             this._buffers.dashedLines[i].destroy();

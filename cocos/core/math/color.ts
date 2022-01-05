@@ -697,7 +697,3 @@ export function color (r?: number | Color | string, g?: number, b?: number, a?: 
 }
 
 legacyCC.color = color;
-
-if (JSB) {
-    mixin(jsb.Color.prototype, Color.prototype);
-}
