@@ -41,7 +41,6 @@ export const ForwardFlow = nr.ForwardFlow;
 export const ShadowFlow = nr.ShadowFlow;
 export const ForwardStage = nr.ForwardStage;
 export const ShadowStage = nr.ShadowStage;
-export const RenderQueueDesc = nr.RenderQueueDesc;
 export const DeferredPipeline = nr.DeferredPipeline;
 export const MainFlow = nr.MainFlow;
 export const LightingStage = nr.LightingStage;
@@ -145,14 +144,20 @@ shadowStageProto.init = function(pipeline) {
     this.initialize(info);
 }
 
-const renderQueueProto = RenderQueueDesc.prototype;
-renderQueueProto._ctor = function() {
-    this.isTransparent = false;
-    this.sortMode = 0;
-    this.stages = [];
-}
-renderQueueProto.init = function() {
-    return new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
+export class RenderQueueDesc {
+  public isTransparent = false;
+  public sortMode = 0;
+  public stages = [];
+
+  constructor() {
+      this.isTransparent = false;
+      this.sortMode = 0;
+      this.stages = [];
+  }
+
+  public init() {
+      return new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
+  }
 }
 
 const deferredPipelineProto = DeferredPipeline.prototype;
