@@ -27,4 +27,5 @@ module.exports = {
     text: join(__dirname, './assets/text.js'),
     texture: join(__dirname, './assets/texture/index.js'),
     typescript: join(__dirname, './assets/typescript.js'),
+    prefab: join(__dirname, './assets/prefab.js'),
 };
