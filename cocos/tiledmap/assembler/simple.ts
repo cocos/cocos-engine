@@ -80,7 +80,8 @@ export const simple: IAssembler = {
         _moveY = comp.leftDownToCenterY;
         _renderData = renderData;
 
-        if (comp.colorChanged || comp.isCullingDirty() || comp.isUserNodeDirty() || comp.hasAnimation() || comp.hasTiledNode()) {
+        if (comp.colorChanged || comp.isCullingDirty() || comp.isUserNodeDirty() || comp.hasAnimation()
+            || comp.hasTiledNode() || comp.node.hasChangedFlags) {
             comp.colorChanged = false;
 
             comp.destroyRenderData();
@@ -146,41 +147,14 @@ export const simple: IAssembler = {
         if (!layer || !layer.meshRenderDataArray) return;
 
         const dataArray = layer.meshRenderDataArray;
-        const node = layer.node;
-
-        const accessor = renderer.switchBufferAccessor();
 
         // 当前渲染的数据
         const data = dataArray[layer._meshRenderDataArrayIdx] as TiledMeshData;
         const renderData = data.renderData;
+        const iBuf = renderData.iData;
 
-        const vertexCount = renderData.vertexCount;
-        const indexCount = renderData.indexCount;
-        accessor.request(vertexCount, indexCount);
-
-        const vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
-        let indexOffset = accessor.indexOffset - indexCount;
-        let vertexId = accessor.vertexOffset - vertexCount;
-        const buffer = accessor.currentBuffer;
-
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-        const matrix = node.worldMatrix;
-
-        const srcVBuf = renderData.vData;
-        const srcVIdx = renderData.vertexStart;
-
-        // copy all vertexData
-        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * 9), vertexOffset);
-        for (let i = 0; i < renderData.vertexCount; i++) {
-            const pOffset = vertexOffset + i * 9;
-            _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
-            _vec3u_temp.transformMat4(matrix);
-            vBuf[pOffset] = _vec3u_temp.x;
-            vBuf[pOffset + 1] = _vec3u_temp.y;
-            vBuf[pOffset + 2] = _vec3u_temp.z;
-        }
-
+        let indexOffset = 0;
+        let vertexId = 0;
         const quadCount = renderData.vertexCount / 4;
         for (let i = 0; i < quadCount; i += 1) {
             iBuf[indexOffset] = vertexId;
@@ -343,6 +317,8 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     let vertexBuf: Float32Array = _renderData.renderData.vData;
     // let idxBuf: Uint16Array = _renderData!.renderData.iData;
 
+    const matrix = comp.node.worldMatrix;
+
     _fillGrids = 0;
     _vfOffset = 0;
 
@@ -487,6 +463,30 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
                     vertexBuf[_vfOffset + vertStep3 + 1] = bottom;
                 }
 
+                _vec3u_temp.set(vertexBuf[_vfOffset], vertexBuf[_vfOffset + 1], vertexBuf[_vfOffset + 2]);
+                _vec3u_temp.transformMat4(matrix);
+                vertexBuf[_vfOffset] = _vec3u_temp.x;
+                vertexBuf[_vfOffset + 1] = _vec3u_temp.y;
+                vertexBuf[_vfOffset + 2] = _vec3u_temp.z;
+
+                _vec3u_temp.set(vertexBuf[_vfOffset + vertStep], vertexBuf[_vfOffset + vertStep + 1], vertexBuf[_vfOffset + vertStep + 2]);
+                _vec3u_temp.transformMat4(matrix);
+                vertexBuf[_vfOffset + vertStep] = _vec3u_temp.x;
+                vertexBuf[_vfOffset + vertStep + 1] = _vec3u_temp.y;
+                vertexBuf[_vfOffset + vertStep + 2] = _vec3u_temp.z;
+
+                _vec3u_temp.set(vertexBuf[_vfOffset + vertStep2], vertexBuf[_vfOffset + vertStep2 + 1], vertexBuf[_vfOffset + vertStep2 + 2]);
+                _vec3u_temp.transformMat4(matrix);
+                vertexBuf[_vfOffset + vertStep2] = _vec3u_temp.x;
+                vertexBuf[_vfOffset + vertStep2 + 1] = _vec3u_temp.y;
+                vertexBuf[_vfOffset + vertStep2 + 2] = _vec3u_temp.z;
+
+                _vec3u_temp.set(vertexBuf[_vfOffset + vertStep3], vertexBuf[_vfOffset + vertStep3 + 1], vertexBuf[_vfOffset + vertStep3 + 2]);
+                _vec3u_temp.transformMat4(matrix);
+                vertexBuf[_vfOffset + vertStep3] = _vec3u_temp.x;
+                vertexBuf[_vfOffset + vertStep3 + 1] = _vec3u_temp.y;
+                vertexBuf[_vfOffset + vertStep3 + 2] = _vec3u_temp.z;
+
                 vertexBuf.set(color, _vfOffset + 5);
                 vertexBuf.set(color, _vfOffset + vertStep + 5);
                 vertexBuf.set(color, _vfOffset + vertStep2 + 5);
@@ -515,7 +515,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 
             _fillGrids++;
 
-            _renderData!.renderData.advance(4, 6);
+            _renderData!.renderData.relocate(4, 6);
 
             // check render users node
             // if (colNodesCount > 0) _renderNodes(row, col);

@@ -203,45 +203,43 @@ export const MotionStreakAssembler: IAssembler = {
 
     fillBuffers (comp: MotionStreak, renderer: IBatcher) {
         const renderData = comp.renderData!;
+        const chunk = renderData.chunk;
         const dataList = renderData.data;
-        const node = comp.node;
-
-        const accessor = renderer.switchBufferAccessor();
 
         const vertexCount = renderData.vertexCount;
         const indexCount = renderData.indexCount;
 
-        accessor.request(vertexCount, indexCount);
-        let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
-        let indexOffset = accessor.indexOffset - indexCount;
-        const vertexId = accessor.vertexOffset - vertexCount;
-        const buffer = accessor.currentBuffer;
-
-        // buffer data may be reallocated, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-
+        const vData = chunk.vb;
+        let vertexOffset = 0;
         for (let i = 0; i < vertexCount; i++) {
             const vert = dataList[i];
-            vBuf[vertexOffset++] = vert.x;
-            vBuf[vertexOffset++] = vert.y;
-            vBuf[vertexOffset++] = vert.z;
-            vBuf[vertexOffset++] = vert.u;
-            vBuf[vertexOffset++] = vert.v;
-            Color.toArray(vBuf, vert.color, vertexOffset);
+            vData[vertexOffset++] = vert.x;
+            vData[vertexOffset++] = vert.y;
+            vData[vertexOffset++] = vert.z;
+            vData[vertexOffset++] = vert.u;
+            vData[vertexOffset++] = vert.v;
+            Color.toArray(vData, vert.color, vertexOffset);
             vertexOffset += 4;
         }
 
         // fill index data
+        const bid = chunk.bufferId;
+        const vid = chunk.vertexOffset;
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        let indexOffset = meshBuffer.indexOffset;
         for (let i = 0, l = indexCount; i < l; i += 2) {
-            const start = vertexId + i;
-            iBuf[indexOffset++] = start;
-            iBuf[indexOffset++] = start + 2;
-            iBuf[indexOffset++] = start + 1;
-            iBuf[indexOffset++] = start + 1;
-            iBuf[indexOffset++] = start + 2;
-            iBuf[indexOffset++] = start + 3;
+            const start = vid + i;
+            ib[indexOffset++] = start;
+            ib[indexOffset++] = start + 2;
+            ib[indexOffset++] = start + 1;
+            ib[indexOffset++] = start + 1;
+            ib[indexOffset++] = start + 2;
+            ib[indexOffset++] = start + 3;
         }
+
+        meshBuffer.indexOffset += renderData.indexCount;
+        meshBuffer.setDirty();
     },
 };
 

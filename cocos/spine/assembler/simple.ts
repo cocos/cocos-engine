@@ -589,7 +589,7 @@ function realTimeTraverse (worldMat?: Mat4) {
                     vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
                 }
             }
-            _buffer!.renderData.advance(_vertexFloatCount / _perVertexSize, _indexCount);
+            _buffer!.renderData.relocate(_vertexFloatCount / _perVertexSize, _indexCount);
         }
 
         clipper.clipEndWithSlot(slot);
@@ -735,7 +735,7 @@ function cacheTraverse (worldMat?: Mat4) {
             }
         }
 
-        _buffer!.renderData.advance(_vertexCount, _indexCount);
+        _buffer!.renderData.relocate(_vertexCount, _indexCount);
 
         if (!_needColor) continue;
 

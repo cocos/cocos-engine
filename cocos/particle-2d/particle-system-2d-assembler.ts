@@ -46,41 +46,6 @@ export const ParticleAssembler: IAssembler = {
     updateRenderData () {
     },
     fillBuffers (comp: ParticleSystem2D, renderer: IBatcher) {
-        if (comp === null) {
-            return;
-        }
-
-        const renderData = comp._simulator.renderData;
-        if (renderData.vertexCount === 0 || renderData.indexCount === 0) {
-            return;
-        }
-        const accessor = renderer.switchBufferAccessor();
-
-        const vertexCount = renderData.vertexCount;
-        const indexCount = renderData.indexCount;
-
-        accessor.request(vertexCount, indexCount);
-        let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
-        let indexOffset = accessor.indexOffset - indexCount;
-        const vertexId = accessor.vertexOffset - vertexCount;
-        const buffer = accessor.currentBuffer;
-
-        // buffer data may be realloc, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-
-        const vData = renderData.vData;
-        const iData = renderData.iData as number[];
-
-        const vLen = renderData.vertexCount * 9;
-        for (let i = 0; i < vLen; i++) {
-            vBuf[vertexOffset++] = vData[i];
-        }
-
-        const iLen = renderData.indexCount;
-        for (let i = 0; i < iLen; i++) {
-            iBuf[indexOffset++] = iData[i] + vertexId;
-        }
     },
 };
 

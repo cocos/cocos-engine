@@ -611,7 +611,7 @@ export class TiledMap extends Component {
         texture._image = null;
     }
 
-    update (dt: number) {
+    lateUpdate (dt: number) {
         const animations = this._animations;
         const texGrids = this._texGrids;
         for (const aniGID of animations.keys()) {
@@ -630,7 +630,7 @@ export class TiledMap extends Component {
             texGrids.set(aniGID, frame.grid!);
         }
         for (const layer of this.getLayers()) {
-            if (layer.hasAnimation()) {
+            if (layer.hasAnimation() || layer.node.hasChangedFlags) {
                 layer.markForUpdateRenderData();
             }
         }

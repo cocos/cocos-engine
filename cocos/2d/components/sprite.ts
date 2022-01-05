@@ -586,7 +586,7 @@ export class Sprite extends Renderable2D {
     }
 
     protected _render (render: IBatcher) {
-        render.commitComp(this, this.renderData, this._spriteFrame, this._assembler!, null);
+        render.commitComp(this, this.renderData, this._spriteFrame, this._assembler, null);
     }
 
     protected _canRender () {
@@ -615,7 +615,9 @@ export class Sprite extends Renderable2D {
                 this._renderData = this._assembler.createData(this);
                 this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
-                this._assembler.updateUVs(this);
+                if (this.spriteFrame) {
+                    this._assembler.updateUVs(this);
+                }
                 this._updateColor();
             }
         }

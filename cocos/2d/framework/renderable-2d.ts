@@ -478,7 +478,7 @@ export class Renderable2D extends RenderableComponent {
             return;
         }
         this.node._uiProps.colorDirty = true;
-        if (this._assembler) {
+        if (this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             this._renderFlag = this._canRender();

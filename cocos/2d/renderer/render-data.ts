@@ -93,9 +93,8 @@ export class BaseRenderData {
             accessor.recycleChunk(this.chunk);
             this.chunk = null!;
         }
-        if (vertexCount) {
-            this.chunk = accessor.allocateChunk(vertexCount, indexCount)!;
-        }
+        // renderData always have chunk
+        this.chunk = accessor.allocateChunk(vertexCount, indexCount)!;
     }
 }
 
@@ -303,7 +302,7 @@ export class MeshRenderData extends BaseRenderData {
 
     constructor (vertexFormat = vfmtPosUvColor) {
         super(vertexFormat);
-        this.vData = new Float32Array(256 * this.stride); // 长度可取宏
+        this.vData = new Float32Array(256 * this.stride);
         this.iData = new Uint16Array(256 * 6);
     }
 
@@ -342,7 +341,7 @@ export class MeshRenderData extends BaseRenderData {
         return true;
     }
 
-    public advance (vertexCount: number, indexCount: number) {
+    public relocate (vertexCount: number, indexCount: number) {
         this._vc += vertexCount; // vertexOffset
         this._ic += indexCount; // indicesOffset
         this.byteCount += vertexCount * this.stride;
@@ -417,6 +416,10 @@ export class MeshRenderData extends BaseRenderData {
         const oldIData = this.iData;
         this.iData = new Uint16Array(iCount);
         this.iData.set(oldIData, 0);
+    }
+
+    // overload
+    public resize (vertexCount: number, indexCount: number) {
     }
 }
 
