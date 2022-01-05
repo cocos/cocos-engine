@@ -69,12 +69,12 @@ export class PipelineUBO {
 
     public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array,
         camera: Camera) {
-        const root = legacyCC.director.root;
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
         const sceneData = pipeline.pipelineSceneData;
         const ambient = sceneData.ambient;
         const fog = sceneData.fog;
+        const shadowInfo = sceneData.shadows;
         const cv = bufferView;
         const exposure = camera.exposure;
         const isHDR = sceneData.isHDR;
@@ -91,8 +91,7 @@ export class PipelineUBO {
         cv[UBOCamera.EXPOSURE_OFFSET + 3] = 0.0;
 
         if (mainLight) {
-            const shadowEnable = (root.pipeline.pipelineSceneData.shadows.enabled
-                && root.pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
+            const shadowEnable = (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
             const mainLightDir = mainLight.direction;
             _lightDir.set(mainLightDir.x, mainLightDir.y, mainLightDir.z, shadowEnable);
             Vec4.toArray(cv, _lightDir, UBOCamera.MAIN_LIT_DIR_OFFSET);
