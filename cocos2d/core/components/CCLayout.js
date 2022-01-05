@@ -545,7 +545,6 @@ var Layout = cc.Class({
             newChildWidth = (baseWidth - (this.paddingLeft + this.paddingRight) - (activeChildCount - 1) * this.spacingX) / activeChildCount;
         }
 
-        var hasCalculatedcontainerResizeBoundaryOnce = false;
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
             let childScaleX = this._getUsedScaleValue(child.scaleX);
@@ -632,7 +631,6 @@ var Layout = cc.Class({
                     containerResizeBoundary = tempFinalPositionY;
                 }
             }
-            hasCalculatedcontainerResizeBoundaryOnce = true;
 
             nextX += rightBoundaryOfChild;
         }
