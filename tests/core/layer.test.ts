@@ -22,7 +22,7 @@ test('make mask', () => {
     expect(layerMask2).toBe(Layers.Enum.ALL ^ (Layers.Enum.UI_3D | Layers.Enum.PROFILER));
 
     const layerMask3 = Layers.makeMaskExclude([ 0x0300f105, 0x2000a420, 0x000a4001, 0x5001c234 ]);
-    expect(layerMask3).toBe(0x8CF408CA);
+    expect(layerMask3).toBe(0x0CF408CA);
 });
 
 test('layer operate', () => {
