@@ -61,6 +61,7 @@ import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
+import { clampf } from '../core/utils/misc';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -76,6 +77,7 @@ export class ParticleSystem extends RenderableComponent {
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(1)
     @tooltip('i18n:particle_system.capacity')
     public get capacity () {
@@ -83,16 +85,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public set capacity (val) {
-        const lastCapacity = this._capacity;
-
-        this._capacity = Math.floor(val);
-        if (this._capacity <= 0) {
-            this._detachFromScene();
-            return;
-        } else if (this._capacity > 0 && lastCapacity <= 0) {
-            this._attachToScene();
-        }
-
+        this._capacity = Math.floor(clampf(val, 0, Number.POSITIVE_INFINITY));
         // @ts-expect-error private property access
         if (this.processor && this.processor._model) {
             // @ts-expect-error private property access
