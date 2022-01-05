@@ -695,13 +695,12 @@ var Layout = cc.Class({
             newChildHeight = (baseHeight - (this.paddingTop + this.paddingBottom) - (activeChildCount - 1) * this.spacingY) / activeChildCount;
         }
 
-        var hasCalculatedcontainerResizeBoundaryOnce = false;
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
             let childScaleX = this._getUsedScaleValue(child.scaleX);
             let childScaleY = this._getUsedScaleValue(child.scaleY);
             // Ensure that containerResizeBoundary is calculated at least once.
-            if (!child.activeInHierarchy && (hasCalculatedcontainerResizeBoundaryOnce || i !== children.length-1)) {
+            if (!child.activeInHierarchy) {
                 continue;
             }
 
@@ -783,7 +782,6 @@ var Layout = cc.Class({
                     containerResizeBoundary = tempFinalPositionX;
                 }
             }
-            hasCalculatedcontainerResizeBoundaryOnce = true;
 
             nextY += topBoundaryOfChild;
         }
@@ -945,7 +943,6 @@ var Layout = cc.Class({
     },
 
     _doLayout: function () {
-
         if (this.type === Type.HORIZONTAL) {
             var newWidth = this._getHorizontalBaseWidth(this.node.children);
 
@@ -997,8 +994,17 @@ var Layout = cc.Class({
      */
     updateLayout: function () {
         if (this._layoutDirty && this.node.children.length > 0) {
-            this._doLayout();
-            this._layoutDirty = false;
+            var needToLayout = false;
+            for(let i = 0; i < this.node.children.length; i++) {
+                if(this.node.children[i].activeInHierarchy) {
+                    needToLayout = true;
+                    break;
+                }
+            }
+            if(needToLayout) {
+                this._doLayout();
+                this._layoutDirty = false;
+            }
         }
     }
 });
