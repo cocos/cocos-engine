@@ -385,10 +385,6 @@ export class Model {
                 descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
                 descriptorSet.update();
             }
-
-            if (JSB) {
-                this._nativeObj!.updateLightingmap(uvParam, sampler, gfxTexture);
-            }
         }
     }
 
