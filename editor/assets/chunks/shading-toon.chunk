@@ -98,7 +98,7 @@ struct ToonSurface {
     float shadow = 1.0;
     float enableShadow = cc_mainLitDir.w;
     #if CC_RECEIVE_SHADOW
-    if(s.shadowCover < NL && enableShadow) {
+    if(s.shadowCover < NL && enableShadow > 0.0) {
         CC_SHADOW_FACTOR(shadow, N, NL);
     }
     #endif
