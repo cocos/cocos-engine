@@ -1,9 +1,7 @@
-
-
 import { Layers } from '../../cocos/core/scene-graph';
 
 test('Layer', () => {
-    expect(Layers.Enum.ALL).toBe(0xffffffff);
+    expect(Layers.Enum.ALL).toBe(0x7fffffff);
     expect(Layers.Enum.UI_2D).toBe(1 << 25);
     expect(Layers.Enum.GIZMOS | Layers.Enum.DEFAULT).toBe(1 << 30 | 1 << 21);
     expect(Layers.BitMask.IGNORE_RAYCAST).toBe(1 << 20);
@@ -21,7 +19,6 @@ test('make mask', () => {
     expect(customLayerMask).toBe(0x77fffefe);
 
     const layerMask2 = Layers.makeMaskExclude([ Layers.Enum.UI_3D, Layers.Enum.PROFILER ]);
-    expect(layerMask2).toBe(~(Layers.Enum.UI_3D | Layers.Enum.PROFILER));
     expect(layerMask2).toBe(Layers.Enum.ALL ^ (Layers.Enum.UI_3D | Layers.Enum.PROFILER));
 
     const layerMask3 = Layers.makeMaskExclude([ 0x0300f105, 0x2000a420, 0x000a4001, 0xb001c234 ]);
