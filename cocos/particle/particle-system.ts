@@ -1068,7 +1068,7 @@ export class ParticleSystem extends RenderableComponent {
                     this._attachToScene();
                     this._isCulled = false;
                 }
-                if (!this._isPlaying) {
+                if (!this._isPlaying && !this._isStopped) {
                     this.play();
                 }
             }
