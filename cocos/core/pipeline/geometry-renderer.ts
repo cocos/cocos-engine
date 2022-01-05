@@ -157,9 +157,15 @@ export class GeometryRenderer {
     private _device: Device | null = null;
     private _pipeline: RenderPipeline | null = null;
     private _buffers: GeometryVertexBuffers;
+    private _nativeObj: any = null;
 
     public constructor () {
         this._buffers = new GeometryVertexBuffers();
+
+        if (JSB) {
+            // @ts-expect-error: jsb related codes.
+            this._nativeObj = new nr.GeometryRenderer();
+        }
     }
 
     public activate (device: Device, pipeline: RenderPipeline, config?: IGeometryConfig) {
@@ -195,16 +201,19 @@ export class GeometryRenderer {
             for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
                 const lines = this._buffers.lines[i];
                 if (!lines.empty()) {
+                    this._nativeObj!.flushFromJSB(GeometryType.LINE, i, lines._vertices, lines._vertexCount);
                     lines.reset();
                 }
 
                 const dashedLines = this._buffers.dashedLines[i];
                 if (!dashedLines.empty()) {
+                    this._nativeObj!.flushFromJSB(GeometryType.DASHED_LINE, i, dashedLines._vertices, dashedLines._vertexCount);
                     dashedLines.reset();
                 }
 
                 const triangles = this._buffers.triangles[i];
                 if (!triangles.empty()) {
+                    this._nativeObj!.flushFromJSB(GeometryType.TRIANGLE, i, triangles._vertices, triangles._vertexCount);
                     triangles.reset();
                 }
             }
@@ -285,6 +294,11 @@ export class GeometryRenderer {
     }
 
     public destroy () {
+        if (JSB) {
+            this._nativeObj = null;
+            return;
+        }
+
         for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
             this._buffers.lines[i].destroy();
             this._buffers.dashedLines[i].destroy();

@@ -71,14 +71,6 @@ interface IProfilerState {
     bufferMemory: ICounterOption;
 }
 
-// FIXME: remove this after v3.3.0-native is stable.
-let fpsPrefix = '';
-if (JSB) {
-    const osStr: string = (window as any).__getOS();
-    fpsPrefix = `${osStr}: `;
-}
-//
-
 const _profileInfo = {
     fps: { desc: `${fpsPrefix}Framerate (FPS)`, below: 30, average: _average, isInteger: true },
     draws: { desc: 'Draw call', isInteger: true },
