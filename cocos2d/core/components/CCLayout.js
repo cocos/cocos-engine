@@ -990,14 +990,8 @@ var Layout = cc.Class({
      */
     updateLayout: function () {
         if (this._layoutDirty && this.node.children.length > 0) {
-            var needToLayout = false;
-            for(let i = 0; i < this.node.children.length; i++) {
-                if(this.node.children[i].activeInHierarchy) {
-                    needToLayout = true;
-                    break;
-                }
-            }
-            if(needToLayout) {
+            var activeChild = this.node.children.find((node) => node.activeInHierarchy);
+            if(activeChild) {
                 this._doLayout();
                 this._layoutDirty = false;
             }
