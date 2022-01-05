@@ -144,6 +144,7 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
         {"cc_shadowWHPBInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowLPNNInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowColor", gfx::Type::FLOAT4, 1},
+        {"cc_planarNDInfo", gfx::Type::FLOAT4, 1},
     },
     1,
 };

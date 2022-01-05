@@ -303,6 +303,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 // update planar PROJ
                 if (mainLight) {
                     updateDirLight(shadowInfo, mainLight, &_shadowUBO);
+                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 // Reserve sphere light shadow interface
@@ -317,6 +318,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 // update planar PROJ
                 if (mainLight) {
                     updateDirLight(shadowInfo, mainLight, &_shadowUBO);
+                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 const auto &matShadowCamera = light->getNode()->getWorldMatrix();

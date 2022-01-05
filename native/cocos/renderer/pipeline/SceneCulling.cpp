@@ -143,6 +143,12 @@ void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::arra
     memcpy(shadowUBO->data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(color));
 }
 
+void updatePlanarNormalAndDistance(scene::Shadow *shadows, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+    const Vec3 normal = shadows->normal.getNormalized();
+    const float planarNDInfo[4] = {normal.x, normal.y, normal.z, shadows->distance};
+    memcpy(shadowUBO->data() + UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET, &planarNDInfo, sizeof(planarNDInfo));
+}
+
 void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera) {
     const auto *const            scene               = camera->scene;
     PipelineSceneData *          sceneData           = pipeline->getPipelineSceneData();
