@@ -509,9 +509,12 @@ export class TiffReader {
                 const numPixels = strips[i].length;
                 const yPadding = numRowsInPreviousStrip * i;
 
+                const imageData = ctx.createImageData(imageWidth, numRowsInStrip);
+
                 // Loop through the rows in the strip.
                 for (let y = 0, j = 0; y < numRowsInStrip && j < numPixels; y++) {
                     // Loop through the pixels in the row.
+                    const indexRowStart = y * imageWidth * 4;
                     for (let x = 0; x < imageWidth; x++, j++) {
                         const pixelSamples = strips[i][j];
 
@@ -545,17 +548,32 @@ export class TiffReader {
                                 samples[index] = invertValue - sample;
                             });
 
+                            imageData.data[indexRowStart + x * 4    ] = pixelSamples[0] * opacity;
+                            imageData.data[indexRowStart + x * 4 + 1] = pixelSamples[0] * opacity;
+                            imageData.data[indexRowStart + x * 4 + 2] = pixelSamples[0] * opacity;
+                            imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
+
                             // Bilevel or Grayscale
                             // BlackIsZero
                         case 1:
                             red = green = blue = this.clampColorSample(pixelSamples[0], (sampleProperties[0] as any).bitsPerSample);
+                            imageData.data[indexRowStart + x * 4    ] = red   * opacity;
+                            imageData.data[indexRowStart + x * 4 + 1] = green * opacity;
+                            imageData.data[indexRowStart + x * 4 + 2] = blue  * opacity;
+                            imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
                             break;
 
                             // RGB Full Color
                         case 2:
-                            red = this.clampColorSample(pixelSamples[0], (sampleProperties[0] as any).bitsPerSample);
+                            red   = this.clampColorSample(pixelSamples[0], (sampleProperties[0] as any).bitsPerSample);
                             green = this.clampColorSample(pixelSamples[1], (sampleProperties[1] as any).bitsPerSample);
-                            blue = this.clampColorSample(pixelSamples[2], (sampleProperties[2] as any).bitsPerSample);
+                            blue  = this.clampColorSample(pixelSamples[2], (sampleProperties[2] as any).bitsPerSample);
+
+                            imageData.data[indexRowStart + x * 4    ] = red   * opacity;
+                            imageData.data[indexRowStart + x * 4 + 1] = green * opacity;
+                            imageData.data[indexRowStart + x * 4 + 2] = blue  * opacity;
+                            imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
+
                             break;
 
                             // RGB Color Palette
@@ -566,20 +584,24 @@ export class TiffReader {
 
                             const colorMapIndex = pixelSamples[0];
 
-                            red = this.clampColorSample(colorMapValues[colorMapIndex], 16);
+                            red   = this.clampColorSample(colorMapValues[colorMapIndex], 16);
                             green = this.clampColorSample(colorMapValues[colorMapSampleSize + colorMapIndex], 16);
-                            blue = this.clampColorSample(colorMapValues[(2 * colorMapSampleSize) + colorMapIndex], 16);
+                            blue  = this.clampColorSample(colorMapValues[(2 * colorMapSampleSize) + colorMapIndex], 16);
+
+                            imageData.data[indexRowStart + x * 4    ] = red   * opacity;
+                            imageData.data[indexRowStart + x * 4 + 1] = green * opacity;
+                            imageData.data[indexRowStart + x * 4 + 2] = blue  * opacity;
+                            imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
+
                             break;
 
                             // Unknown Photometric Interpretation
                         default:
                             throw RangeError(getError(6028, photometricInterpretation));
                         }
-
-                        ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
-                        ctx.fillRect(x, yPadding + y, 1, 1);
                     }
                 }
+                ctx.putImageData(imageData, 0, yPadding);
 
                 numRowsInPreviousStrip = numRowsInStrip;
             }
