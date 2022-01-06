@@ -796,3 +796,5 @@ if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !
  * ```
  * @return {Boolean} whether it is the first time the destroy being called
  */
+
+legacyCC.internal.EditBox = EditBox;
