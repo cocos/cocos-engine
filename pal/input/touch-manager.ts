@@ -6,7 +6,7 @@ const tempVec2 = new Vec2();
 
 class TouchManager {
     /**
-     * A map from touch.
+     * A map from touch ID to touch object.
      */
     private _touchMap: Map<number, Touch>;
     private readonly _maxTouches = 8;
