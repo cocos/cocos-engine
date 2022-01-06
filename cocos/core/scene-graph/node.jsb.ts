@@ -589,16 +589,11 @@ nodeProto.setPosition = function setPosition (val: Readonly<Vec3> | number, y?: 
 };
 
 nodeProto.getRotation = function (out?: Quat): Quat {
-    // const r = oldGetRotation.call(this);
-    // if (out) {
-    //     return Quat.set(out, r.x, r.y, r.z, r.w);
-    // }
-    // return Quat.copy(this._rotationCache || (this._rotationCache = new Quat()), r);
-
+    const lrot = this._lrot;
     if (out) {
-        return Quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z, this._lrot.w);
+        return Quat.set(out, lrot.x, lrot.y, lrot.z, lrot.w);
     }
-    return Quat.copy(this._rotationCache, this._lrot);
+    return Quat.copy(this._rotationCache, lrot);
 };
 
 nodeProto.setRotation = function (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
@@ -1312,16 +1307,10 @@ nodeProto._ctor = function (name?: string) {
     this._lrot = new Quat();
     this._lscale = new Vec3(1, 1, 1);
     this._euler = new Vec3();
-    const lpos = this._lpos;
-    lpos.x = lpos.y = lpos.z = null;
-    const lrot = this._lrot;
-    lrot.x = lrot.y = lrot.z = lrot.w = null;
-    const lscale = this._lscale;
-    lscale.x = lscale.y = lscale.z = null;
-    const euler = this._euler;
-    euler.x = euler.y = euler.z = null;
 
-    //inner use properties
+    // inner use properties
+    // FIXME: The following variables for cache will cost more memory per node.
+    // Do we really need to achieve it in this way?
     this._positionCache = new Vec3();
     this._rotationCache = new Quat();
     this._scaleCache = new Vec3();
