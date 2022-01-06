@@ -431,61 +431,57 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
                     const centerX = (left + right) / 2;
                     const centerY = (top + bottom) / 2;
                     // ct
-                    vertexBuf[_vfOffset] = centerX;
-                    vertexBuf[_vfOffset + 1] = top;
+                    vec3_temps[0].x = centerX;
+                    vec3_temps[0].y = top;
 
                     // lc
-                    vertexBuf[_vfOffset + vertStep] = left;
-                    vertexBuf[_vfOffset + vertStep + 1] = centerY;
+                    vec3_temps[1].x = left;
+                    vec3_temps[1].y = centerY;
 
                     // rc
-                    vertexBuf[_vfOffset + vertStep2] = right;
-                    vertexBuf[_vfOffset + vertStep2 + 1] = centerY;
+                    vec3_temps[2].x = right;
+                    vec3_temps[2].y = centerY;
 
                     // cb
-                    vertexBuf[_vfOffset + vertStep3] = centerX;
-                    vertexBuf[_vfOffset + vertStep3 + 1] = bottom;
+                    vec3_temps[3].x = centerX;
+                    vec3_temps[3].y = bottom;
                 } else {
                     // lt
-                    vertexBuf[_vfOffset] = left;
-                    vertexBuf[_vfOffset + 1] = top;
+                    vec3_temps[0].x = left;
+                    vec3_temps[0].y = top;
 
                     // lb
-                    vertexBuf[_vfOffset + vertStep] = left;
-                    vertexBuf[_vfOffset + vertStep + 1] = bottom;
+                    vec3_temps[1].x = left;
+                    vec3_temps[1].y = bottom;
 
                     // rt
-                    vertexBuf[_vfOffset + vertStep2] = right;
-                    vertexBuf[_vfOffset + vertStep2 + 1] = top;
+                    vec3_temps[2].x = right;
+                    vec3_temps[2].y = top;
 
                     // rb
-                    vertexBuf[_vfOffset + vertStep3] = right;
-                    vertexBuf[_vfOffset + vertStep3 + 1] = bottom;
+                    vec3_temps[3].x = right;
+                    vec3_temps[3].y = bottom;
                 }
 
-                _vec3u_temp.set(vertexBuf[_vfOffset], vertexBuf[_vfOffset + 1], vertexBuf[_vfOffset + 2]);
-                _vec3u_temp.transformMat4(matrix);
-                vertexBuf[_vfOffset] = _vec3u_temp.x;
-                vertexBuf[_vfOffset + 1] = _vec3u_temp.y;
-                vertexBuf[_vfOffset + 2] = _vec3u_temp.z;
+                vec3_temps[0].transformMat4(matrix);
+                vertexBuf[_vfOffset] = vec3_temps[0].x;
+                vertexBuf[_vfOffset + 1] = vec3_temps[0].y;
+                vertexBuf[_vfOffset + 2] = vec3_temps[0].z;
 
-                _vec3u_temp.set(vertexBuf[_vfOffset + vertStep], vertexBuf[_vfOffset + vertStep + 1], vertexBuf[_vfOffset + vertStep + 2]);
-                _vec3u_temp.transformMat4(matrix);
-                vertexBuf[_vfOffset + vertStep] = _vec3u_temp.x;
-                vertexBuf[_vfOffset + vertStep + 1] = _vec3u_temp.y;
-                vertexBuf[_vfOffset + vertStep + 2] = _vec3u_temp.z;
+                vec3_temps[1].transformMat4(matrix);
+                vertexBuf[_vfOffset + vertStep] = vec3_temps[1].x;
+                vertexBuf[_vfOffset + vertStep + 1] = vec3_temps[1].y;
+                vertexBuf[_vfOffset + vertStep + 2] = vec3_temps[1].z;
 
-                _vec3u_temp.set(vertexBuf[_vfOffset + vertStep2], vertexBuf[_vfOffset + vertStep2 + 1], vertexBuf[_vfOffset + vertStep2 + 2]);
-                _vec3u_temp.transformMat4(matrix);
-                vertexBuf[_vfOffset + vertStep2] = _vec3u_temp.x;
-                vertexBuf[_vfOffset + vertStep2 + 1] = _vec3u_temp.y;
-                vertexBuf[_vfOffset + vertStep2 + 2] = _vec3u_temp.z;
+                vec3_temps[2].transformMat4(matrix);
+                vertexBuf[_vfOffset + vertStep2] = vec3_temps[2].x;
+                vertexBuf[_vfOffset + vertStep2 + 1] = vec3_temps[2].y;
+                vertexBuf[_vfOffset + vertStep2 + 2] = vec3_temps[2].z;
 
-                _vec3u_temp.set(vertexBuf[_vfOffset + vertStep3], vertexBuf[_vfOffset + vertStep3 + 1], vertexBuf[_vfOffset + vertStep3 + 2]);
-                _vec3u_temp.transformMat4(matrix);
-                vertexBuf[_vfOffset + vertStep3] = _vec3u_temp.x;
-                vertexBuf[_vfOffset + vertStep3 + 1] = _vec3u_temp.y;
-                vertexBuf[_vfOffset + vertStep3 + 2] = _vec3u_temp.z;
+                vec3_temps[3].transformMat4(matrix);
+                vertexBuf[_vfOffset + vertStep3] = vec3_temps[3].x;
+                vertexBuf[_vfOffset + vertStep3 + 1] = vec3_temps[3].y;
+                vertexBuf[_vfOffset + vertStep3 + 2] = vec3_temps[3].z;
 
                 vertexBuf.set(color, _vfOffset + 5);
                 vertexBuf.set(color, _vfOffset + vertStep + 5);
