@@ -37,7 +37,7 @@ import { legacyCC } from '../core/global-exports';
 import { AudioState, AudioType } from '../../pal/audio/type';
 
 export interface AudioMeta {
-    player: AudioPlayer,
+    player: AudioPlayer | null,
     url: string;
     type: AudioType;
     duration: number;
@@ -60,15 +60,15 @@ export class AudioClip extends Asset {
 
     protected _meta: AudioMeta | null = null;
 
-    private _player?: AudioPlayer;
-
-    constructor () {
-        super();
-    }
+    private _player: AudioPlayer | null = null;
 
     public destroy (): boolean {
         const destroyResult = super.destroy();
         this._player?.destroy();
+        this._player = null;
+        if (this._meta) {
+            this._meta.player = null;
+        }
         return destroyResult;
     }
 

@@ -14,6 +14,7 @@ declare module 'pal/minigame' {
         offShow(callback: () => void): void;
         onHide(callback: () => void): void;
         offHide(callback: () => void): void;
+        onWindowResize?(callback: () => void): void;
         /**
          * This method returns the standardized SafeArea based on the screen coordinate system,
          * which is not affected by the orientation of the screen.

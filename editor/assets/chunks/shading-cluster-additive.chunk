@@ -89,13 +89,16 @@ vec4 CCClusterShadingAdditive (StandardSurface s, vec4 shadowPos) {
   vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
   vec3 diffuseContrib = diffuse / PI;
 
+  vec3 position;
+  HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
+
   vec3 N = normalize(s.normal);
-  vec3 V = normalize(cc_cameraPos.xyz - s.position);
+  vec3 V = normalize(cc_cameraPos.xyz - position);
   float NV = max(abs(dot(N, V)), 0.001);
   specular = BRDFApprox(specular, s.roughness, NV);
   vec3 finalColor = vec3(0.0);
 
-  uint cluster = getClusterIndex(gl_FragCoord, vec4(s.position, 1.0));
+  uint cluster = getClusterIndex(gl_FragCoord, vec4(position, 1.0));
   LightGrid grid = getLightGrid(cluster);
   uint numLights = grid.ccLights;
 
@@ -103,7 +106,7 @@ vec4 CCClusterShadingAdditive (StandardSurface s, vec4 shadowPos) {
     if (i >= numLights) break;
     uint lightIndex = getGridLightIndex(grid.offset, i);
     CCLight light = getCCLight(lightIndex);
-    vec3 SLU = light.cc_lightPos.xyz - s.position;
+    vec3 SLU = light.cc_lightPos.xyz - position;
     vec3 SL = normalize(SLU);
     vec3 SH = normalize(SL + V);
     float SNL = max(dot(N, SL), 0.001);
@@ -131,7 +134,7 @@ vec4 CCClusterShadingAdditive (StandardSurface s, vec4 shadowPos) {
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
       if (light.cc_lightPos.w > 0.0) {
-        shadow = CCSpotShadowFactorBase(shadowPos, s.position);
+        shadow = CCSpotShadowFactorBase(shadowPos, position);
       }
     #endif
 

@@ -29,7 +29,6 @@
  */
 
 import { JSB } from 'internal:constants';
-import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';
 import { Node } from '../../core/scene-graph/node';
@@ -64,8 +63,6 @@ export class SkeletalAnimationState extends AnimationState {
 
     protected _animInfoMgr: JointAnimationInfo;
 
-    protected _comps: SkinnedMeshRenderer[] = [];
-
     protected _parent: SkeletalAnimation | null = null;
 
     protected _curvesInited = false;
@@ -77,14 +74,6 @@ export class SkeletalAnimationState extends AnimationState {
 
     public initialize (root: Node) {
         if (this._curveLoaded) { return; }
-        this._comps.length = 0;
-        const comps = root.getComponentsInChildren(SkinnedMeshRenderer);
-        for (let i = 0; i < comps.length; ++i) {
-            const comp = comps[i];
-            if (comp.skinningRoot === root) {
-                this._comps.push(comp);
-            }
-        }
         this._parent = root.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
         const baked = this._parent.useBakedAnimation;
         this._doNotCreateEval = baked;
@@ -103,9 +92,10 @@ export class SkeletalAnimationState extends AnimationState {
             this._sampleCurves = this._sampleCurvesBaked;
             this.duration = this._bakedDuration;
             this._animInfoMgr.switchClip(this._animInfo!, this.clip);
-            for (let i = 0; i < this._comps.length; ++i) {
-                this._comps[i].uploadAnimation(this.clip);
-            }
+            const users = this._parent!.getUsers();
+            users.forEach((user) => {
+                user.uploadAnimation(this.clip);
+            });
         } else {
             this._sampleCurves = super._sampleCurves;
             this.duration = this.clip.duration;
