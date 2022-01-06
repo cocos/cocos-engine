@@ -2382,8 +2382,8 @@ let NodeDefines = {
     },
 
     _hitTest (point, listener) {
-        let w = this._contentSize.width,
-            h = this._contentSize.height,
+        let w = Math.abs(this._contentSize.width),
+            h = Math.abs(this._contentSize.height),
             cameraPt = _htVec3a,
             testPt = _htVec3b;
 
