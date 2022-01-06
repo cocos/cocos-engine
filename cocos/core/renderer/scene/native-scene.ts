@@ -1,8 +1,7 @@
-import { DrawCall } from '../../../2d/renderer/draw-batch';
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
 import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
-    DescriptorSet, DrawInfo, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
+    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Sampler, Shader, Swapchain, Texture } from '../../gfx';
 import { Color, Mat4, Rect, Vec2, Vec3, Vec4 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
@@ -37,6 +36,7 @@ export const NativeModel: Constructor<{
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
+    updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
 
@@ -58,6 +58,7 @@ export const NativeSkinningModel: Constructor<{
     setIndicesAndJoints(indices: number[], joints: NativeJointInfo[]): void;
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
+    updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
@@ -94,6 +95,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
     setAnimInfoIdx(idx: number): void;
     updateModelBounds(val: NativeAABB | null): void;
+    updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 
@@ -239,20 +241,8 @@ export const NativeDrawBatch2D: Constructor<{
     descriptorSet: DescriptorSet | null;
     passes: NativePass[];
     shaders: Shader[];
-    drawCalls: NativeDrawCall[];
-    pushDrawCall(dc: NativeDrawCall);
-    clearDrawCalls();
 }> = null!;
 export type NativeDrawBatch2D = InstanceType<typeof NativeDrawBatch2D>;
-
-export const NativeDrawCall: Constructor<{
-    bufferView: Buffer | null;
-    descriptorSet: DescriptorSet | null;
-    dynamicOffsets: number[];
-    drawInfo: DrawInfo | null;
-    setDynamicOffsets(value: number);
-}> = null!;
-export type NativeDrawCall = InstanceType<typeof NativeDrawCall>;
 
 export const NativeRenderScene: Constructor<{
     activate (): void;

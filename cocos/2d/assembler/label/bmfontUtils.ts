@@ -216,7 +216,7 @@ export const bmfontUtils = {
         }
     },
 
-    _multilineTextWrap (nextTokenFunc: Function) {
+    _multilineTextWrap (nextTokenFunc: (arg0: string, arg1: number, arg2: number) => number) {
         const textLen = _string.length;
 
         let lineIndex = 0;
@@ -413,7 +413,7 @@ export const bmfontUtils = {
         }
 
         _lettersInfo[letterIndex].char = char;
-        _lettersInfo[letterIndex].hash = char.charCodeAt(0) + shareLabelInfo.hash;
+        _lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${shareLabelInfo.hash}`;
         _lettersInfo[letterIndex].valid = false;
     },
 
@@ -424,7 +424,7 @@ export const bmfontUtils = {
         }
 
         const char = character.charCodeAt(0);
-        const key = char + shareLabelInfo.hash;
+        const key = `${char}${shareLabelInfo.hash}`;
 
         _lettersInfo[letterIndex].line = lineIndex;
         _lettersInfo[letterIndex].char = character;
@@ -473,7 +473,7 @@ export const bmfontUtils = {
         }
     },
 
-    _shrinkLabelToContentSize (lambda: Function) {
+    _shrinkLabelToContentSize (lambda: () => boolean) {
         const fontSize = _fontSize;
 
         let left = 0;
@@ -526,7 +526,7 @@ export const bmfontUtils = {
                     continue;
                 }
 
-                const px = letterInfo.x + letterDef.w / 2 * _bmfontScale;
+                const px = letterInfo.x + letterDef.w * _bmfontScale;
                 const lineIndex = letterInfo.line;
                 if (_labelWidth > 0) {
                     if (!_isWrapText) {

@@ -27,7 +27,7 @@
 const NULL_PTR = BigInt(0);
 // @ts-check
 const isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
-let refMap = {}; // prevent arguments from GC
+let refMap = []; // prevent arguments from GC
 const dataViews = [];
 
 function getDataView (idx) {
@@ -44,7 +44,7 @@ function beginTrans (fn, minBytes) {
 
     if (__fastMQInfo__[0] === 0 && commands === 0) {
         // reset all reference at begining
-        refMap = {};
+        refMap.length = 0;
     }
 
     if (dataView.byteLength <= startPos + minBytes + 12) {
@@ -83,7 +83,9 @@ function beginTrans (fn, minBytes) {
         writePointer (e) {
             if (e) {
                 dataView.setBigUint64(startPos + offset, e.__native_ptr__, isLittleEndian);
-                refMap[e.__native_ptr__] ||= e;
+                if (refMap.indexOf(e) < 0) {
+                     refMap.push(e);
+                }
             } else {
                 dataView.setBigUint64(startPos + offset, NULL_PTR, isLittleEndian);
             }

@@ -94,7 +94,8 @@ CCProgram lighting-fs %{
     #endif
 
     s.albedo = albedoMap;
-    s.position = positionMap.xyz;
+    vec3 position = positionMap.xyz;
+    HIGHP_VALUE_TO_STRUCT_DEFINED(position, s.position);
     s.roughness = positionMap.w;
     s.normal = normalMap.xyz;
     s.metallic = normalMap.w;
@@ -102,10 +103,10 @@ CCProgram lighting-fs %{
     s.occlusion = emissiveMap.w;
     // fixme: default value is 0, and give black result
     float fogFactor;
-    CC_TRANSFER_FOG_BASE(vec4(s.position, 1), fogFactor);
+    CC_TRANSFER_FOG_BASE(vec4(position, 1), fogFactor);
 
     vec4 shadowPos;
-    CC_TRANSFER_SHADOW_BASE(vec4(s.position, 1), shadowPos);
+    CC_TRANSFER_SHADOW_BASE(vec4(position, 1), shadowPos);
 
     vec4 color = CCStandardShadingBase(s, shadowPos) +
 #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1

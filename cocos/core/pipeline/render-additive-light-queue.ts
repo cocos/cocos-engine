@@ -27,14 +27,12 @@
  * @packageDocumentation
  * @module pipeline
  */
-import { BatchedBuffer } from './batched-buffer';
 import { BatchingSchemes, Pass } from '../renderer/core/pass';
 import { RenderPipeline } from './render-pipeline';
-import { InstancedBuffer } from './instanced-buffer';
 import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
-import { Sphere, intersect } from '../geometry';
+import { intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
     BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
 import { Pool } from '../memop';
@@ -45,9 +43,9 @@ import { SpotLight } from '../renderer/scene/spot-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
-import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
+import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
     UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, supportsFloatTexture } from './define';
-import { updatePlanarPROJ } from './scene-culling';
+import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
 import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 
@@ -309,7 +307,10 @@ export class RenderAdditiveLightQueue {
             switch (light.type) {
             case LightType.SPHERE:
                 // planar PROJ
-                if (mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
+                if (mainLight) {
+                    updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
+                    updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
+                }
 
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
@@ -327,7 +328,10 @@ export class RenderAdditiveLightQueue {
             case LightType.SPOT:
 
                 // planar PROJ
-                if (mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
+                if (mainLight) {
+                    updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
+                    updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
+                }
 
                 // light view
                 Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());

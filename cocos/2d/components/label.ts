@@ -213,11 +213,12 @@ export class Label extends Renderable2D {
         return this._string;
     }
     set string (value) {
-        if (value) {
-            value += '';
-        } else {
+        if (value === null || value === undefined) {
             value = '';
+        } else {
+            value = value.toString();
         }
+
         if (this._string === value) {
             return;
         }
@@ -659,6 +660,7 @@ export class Label extends Renderable2D {
     protected _font: Font | null = null;
     @serializable
     protected _isSystemFontUsed = true;
+    @serializable
     protected _spacingX = 0;
     @serializable
     protected _isItalic = false;

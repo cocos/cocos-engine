@@ -39,6 +39,7 @@ import { Root } from '../../core/root';
 import { Node } from '../../core/scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D, DrawCall } from './draw-batch';
+import * as VertexFormat from './vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { SpriteFrame } from '../assets';
@@ -254,9 +255,7 @@ export class Batcher2D implements IBatcher {
                             subModels[j].priority = batchPriority++;
                         }
                     } else {
-                        for (let j = 0; j < batch.drawCalls.length; j++) {
-                            batch.drawCalls[j].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawCalls[j]);
-                        }
+                        batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
                     }
                     scene.addBatch(batch);
                 }
@@ -291,7 +290,6 @@ export class Batcher2D implements IBatcher {
                 continue;
             }
 
-            DrawBatch2D.drawcallPool.freeArray(batch.drawCalls);
             batch.clear();
             this._drawBatchPool.free(batch);
         }
@@ -460,8 +458,7 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.fillPasses(mat, depthStencil, dssHash, null, 0, subModel.patches, this);
             curDrawBatch.inputAssembler = subModel.inputAssembler;
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
-            curDrawBatch.fillDrawCallAssembler();
-            curDrawBatch.drawCalls[0].descriptorSet = subModel.descriptorSet;
+            curDrawBatch.descriptorSet = subModel.descriptorSet;
             this._batches.push(curDrawBatch);
         }
 
@@ -571,7 +568,6 @@ export class Batcher2D implements IBatcher {
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
         curDrawBatch.fillPasses(mat, depthStencil, dssHash, blendState, bsHash, null, this);
-        curDrawBatch.fillDrawCallAssembler();
 
         this._batches.push(curDrawBatch);
 
@@ -815,7 +811,7 @@ class DescriptorSetCache {
         this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16, (obj) => obj.destroy());
     }
 
-    public getDescriptorSet (batch: DrawBatch2D, drawCall: DrawCall): DescriptorSet {
+    public getDescriptorSet (batch: DrawBatch2D): DescriptorSet {
         const root = legacyCC.director.root;
         let hash;
         if (batch.useLocalData) {
@@ -831,7 +827,7 @@ class DescriptorSetCache {
             this._localDescriptorSetCache.push(localDs);
             return localDs.descriptorSet!;
         } else {
-            hash = batch.textureHash ^ batch.samplerHash ^ drawCall.bufferHash;
+            hash = batch.textureHash ^ batch.samplerHash;
             if (this._descriptorSetCache.has(hash)) {
                 return this._descriptorSetCache.get(hash)!;
             } else {

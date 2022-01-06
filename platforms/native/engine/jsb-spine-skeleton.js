@@ -874,10 +874,15 @@ const cacheManager = require('./jsb-cache-manager');
             _tempIndicesOffset = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
-            if (middleware.indicesStart !== _tempIndicesOffset
-                || middleware.preRenderBufferIndex !== _tempBufferIndex
-                || middleware.preRenderBufferType !== _tempVfmt) {
-                ui.autoMergeBatches(middleware.preRenderComponent);
+            if (middleware.indicesStart != _tempIndicesOffset ||
+                middleware.preRenderBufferIndex != _tempBufferIndex ||
+                middleware.preRenderBufferType != _tempVfmt) {
+                // Firstly, when the first spine in the scene excutes this method, the preRenderComponent(the last rendered spine component) of middleware which is a singleton must be null.
+                // Then, autoMergeBatches(null) leads to that the 'indicesStart' is modified as the value of the 'indicesOffset'.
+                // At Last, there is another autoMergeBatches in commmitComp, but this function will not work under condition that 'indicesStart' equals to 'indicesOffset'.
+                if(middleware.preRenderComponent) {
+                    ui.autoMergeBatches(middleware.preRenderComponent);
+                }
                 middleware.resetIndicesStart = true;
             } else {
                 middleware.resetIndicesStart = false;
