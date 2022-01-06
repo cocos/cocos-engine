@@ -911,7 +911,7 @@ export class ParticleSystem extends RenderableComponent {
             this.processor.clear();
             if (this._trailModule) this._trailModule.clear();
         }
-        this._calculateBounding(true);
+        this._calculateBounding(false);
     }
 
     /**
@@ -1049,7 +1049,7 @@ export class ParticleSystem extends RenderableComponent {
                 }
             }
             if (culled) {
-                if (this._cullingMode !== CullingMode.AlwaysSimulate && !this._isStopped) {
+                if (this._cullingMode !== CullingMode.AlwaysSimulate) {
                     this._isSimulating = false;
                 }
                 if (!this._isCulled) {
@@ -1070,7 +1070,7 @@ export class ParticleSystem extends RenderableComponent {
                     this._attachToScene();
                     this._isCulled = false;
                 }
-                if (!this._isSimulating && !this._isStopped) {
+                if (!this._isSimulating) {
                     this._isSimulating = true;
                 }
             }
