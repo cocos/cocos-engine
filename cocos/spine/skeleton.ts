@@ -1267,7 +1267,7 @@ export class Skeleton extends Renderable2D {
             return this._meshRenderDataArray[this._meshRenderDataArray.length - 1];
         }
 
-        const renderData = new MeshRenderData(vertexFormat);
+        const renderData = MeshRenderData.add(vertexFormat);
         const comb: SkeletonMeshData = { renderData };
         renderData.material = null;
         this._meshRenderDataArray.push(comb);
@@ -1276,7 +1276,7 @@ export class Skeleton extends Renderable2D {
 
     public destroyRenderData () {
         if (this._meshRenderDataArray.length > 0) {
-            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
+            this._meshRenderDataArray.forEach((rd) => { MeshRenderData.remove(rd.renderData); });
             this._meshRenderDataArray.length = 0;
         }
     }

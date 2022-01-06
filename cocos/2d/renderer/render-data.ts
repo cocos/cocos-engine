@@ -99,6 +99,23 @@ export class BaseRenderData {
 }
 
 export class RenderData extends BaseRenderData {
+    public static add (vertexFormat = vfmtPosUvColor) {
+        const rd = _pool.add();
+        rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
+        rd.vertexFormat = vertexFormat;
+        return rd;
+    }
+
+    public static remove (data: RenderData) {
+        const idx = _pool.data.indexOf(data);
+        if (idx === -1) {
+            return;
+        }
+
+        _pool.data[idx].clear();
+        _pool.removeAt(idx);
+    }
+
     get dataLength () {
         return this._data.length;
     }
@@ -123,20 +140,6 @@ export class RenderData extends BaseRenderData {
 
     get data () {
         return this._data;
-    }
-
-    public static add () {
-        return _pool.add();
-    }
-
-    public static remove (data: RenderData) {
-        const idx = _pool.data.indexOf(data);
-        if (idx === -1) {
-            return;
-        }
-
-        _pool.data[idx].clear();
-        _pool.removeAt(idx);
     }
 
     public vertDirty = true;
@@ -252,8 +255,11 @@ export class RenderData extends BaseRenderData {
 }
 
 export class MeshRenderData extends BaseRenderData {
-    public static add () {
-        return _meshDataPool.add();
+    public static add (vertexFormat = vfmtPosUvColor) {
+        const rd = _meshDataPool.add();
+        rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
+        rd.vertexFormat = vertexFormat;
+        return rd;
     }
 
     public static remove (data: MeshRenderData) {

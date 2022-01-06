@@ -513,7 +513,7 @@ export class ArmatureDisplay extends Renderable2D {
         if (arr.length > 0 && arr[arr.length - 1].renderData.vertexCount === 0) {
             return arr[arr.length - 1];
         }
-        const renderData = new MeshRenderData();
+        const renderData = MeshRenderData.add();
         const comb = { renderData, texture: null };
         arr.push(comb);
         return comb;
@@ -521,7 +521,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     public destroyRenderData () {
         if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
+            this._meshRenderDataArray.forEach((rd) => { MeshRenderData.remove(rd.renderData); });
             this._meshRenderDataArray.length = 0;
         }
     }

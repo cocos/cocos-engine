@@ -1385,7 +1385,7 @@ export class TiledLayer extends Renderable2D {
             }
         }
 
-        const renderData = new MeshRenderData();
+        const renderData = MeshRenderData.add();
         const comb = { renderData, texture: null };
         Object.defineProperty(renderData, 'material', { get: () => this.getRenderMaterial(0) });
         this._meshRenderDataArray.push(comb);
@@ -1414,7 +1414,10 @@ export class TiledLayer extends Renderable2D {
 
     public destroyRenderData () {
         if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { if ((rd as TiledMeshData).renderData) (rd as TiledMeshData).renderData.reset(); });
+            this._meshRenderDataArray.forEach((rd) => {
+                const renderData = (rd as TiledMeshData).renderData;
+                if (renderData) MeshRenderData.remove(renderData);
+            });
             this._meshRenderDataArray.length = 0;
         }
     }
