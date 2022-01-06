@@ -112,12 +112,6 @@ class TouchManager {
         touch.setPoint(x, y);
     }
 
-    /**
-     *
-     *
-     * @param touchID
-     * @memberof TouchManager
-     */
     private _checkTouchMapSizeMoreThanMax (touchID: number) {
         if (this._touchMap.has(touchID)) {
             return false;
