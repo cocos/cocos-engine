@@ -43,6 +43,7 @@ export const pointerEvent2SystemEvent = {
     [InputEventType.MOUSE_DOWN]: `system-event-${InputEventType.MOUSE_DOWN}`,
     [InputEventType.MOUSE_MOVE]: `system-event-${InputEventType.MOUSE_MOVE}`,
     [InputEventType.MOUSE_UP]: `system-event-${InputEventType.MOUSE_UP}`,
+    [InputEventType.MOUSE_WHEEL]: `system-event-${InputEventType.MOUSE_WHEEL}`,
 };
 
 export declare namespace SystemEvent {

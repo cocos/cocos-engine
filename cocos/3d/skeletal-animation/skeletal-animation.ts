@@ -43,6 +43,7 @@ import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils
 import { legacyCC } from '../../core/global-exports';
 import { AnimationManager } from '../../core/animation/animation-manager';
 import { js } from '../../core/utils/js';
+import type { AnimationState } from '../../core/animation/animation-state';
 
 @ccclass('cc.SkeletalAnimation.Socket')
 export class Socket {
@@ -141,17 +142,22 @@ export class SkeletalAnimation extends Animation {
 
     set useBakedAnimation (val) {
         this._useBakedAnimation = val;
+        this._removeAllUsers();
+
+        // Actively search for potential users and notify them that an animation is usable.
         const comps = this.node.getComponentsInChildren(SkinnedMeshRenderer);
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i];
             if (comp.skinningRoot === this.node) {
-                comp.setUseBakedAnimation(this._useBakedAnimation, true);
+                comp.notifyAnimationUsable(this);
             }
         }
+
         if (this._useBakedAnimation) {
             (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets);
         } else {
             (legacyCC.director.getAnimationManager() as AnimationManager).addSockets(this.node, this._sockets);
+            this._currentBakedState = null;
         }
     }
 
@@ -171,6 +177,31 @@ export class SkeletalAnimation extends Animation {
         this.sockets = this._sockets;
         this.useBakedAnimation = this._useBakedAnimation;
         super.start();
+    }
+
+    public pause () {
+        if (!this._useBakedAnimation) {
+            super.pause();
+        } else {
+            this._currentBakedState?.pause();
+        }
+    }
+
+    public resume () {
+        if (!this._useBakedAnimation) {
+            super.resume();
+        } else {
+            this._currentBakedState?.resume();
+        }
+    }
+
+    public stop () {
+        if (!this._useBakedAnimation) {
+            super.stop();
+        } else if (this._currentBakedState) {
+            this._currentBakedState.stop();
+            this._currentBakedState = null;
+        }
     }
 
     public querySockets () {
@@ -218,6 +249,41 @@ export class SkeletalAnimation extends Animation {
         return target;
     }
 
+    /**
+     * Adds an user which uses this animation.
+     * @internal This method only friends to skinned mesh renderer.
+     */
+    public addUser (user: SkinnedMeshRenderer) {
+        this._users.add(user);
+        const { _useBakedAnimation: useBakedAnimation } = this;
+        user.setUseBakedAnimation(useBakedAnimation, true);
+        if (useBakedAnimation) {
+            const { _currentBakedState: playingState } = this;
+            if (playingState) {
+                user.uploadAnimation(playingState.clip);
+            }
+        }
+    }
+
+    /**
+     * Remove specific user of this animation.
+     * The user should receive an "animation useless" notification.
+     * @internal This method only friends to skinned mesh renderer.
+     */
+    public removeUser (user: SkinnedMeshRenderer) {
+        user.setUseBakedAnimation(false);
+        user.notifyAnimationUnusable();
+        this._users.delete(user);
+    }
+
+    /**
+     * Get all users.
+     * @internal This method only friends to the skeleton animation state.
+     */
+    public getUsers () {
+        return this._users;
+    }
+
     protected _createState (clip: AnimationClip, name?: string) {
         return new SkeletalAnimationState(clip, name);
     }
@@ -226,5 +292,25 @@ export class SkeletalAnimation extends Animation {
         const state = super._doCreateState(clip, name) as SkeletalAnimationState;
         state.rebuildSocketCurves(this._sockets);
         return state;
+    }
+
+    protected doPlayOrCrossFade (state: AnimationState, duration: number) {
+        if (this._useBakedAnimation) {
+            const skeletalAnimationState = state as SkeletalAnimationState;
+            this._currentBakedState = skeletalAnimationState;
+            skeletalAnimationState.play();
+        } else {
+            super.doPlayOrCrossFade(state, duration);
+        }
+    }
+
+    private _users = new Set<SkinnedMeshRenderer>();
+
+    private _currentBakedState: SkeletalAnimationState | null = null;
+
+    private _removeAllUsers () {
+        Array.from(this._users).forEach((user) => {
+            this.removeUser(user);
+        });
     }
 }
