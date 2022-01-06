@@ -57,6 +57,7 @@ class PointerEventDispatcher {
             this._pointerEventProcessorList.push(pointerEventProcessor);
             this._isListDirty = true;
         } else {
+            js.array.remove(this._processorListToRemove, pointerEventProcessor);
             this._processorListToAdd.push(pointerEventProcessor);
         }
     }
@@ -66,6 +67,7 @@ class PointerEventDispatcher {
             js.array.remove(this._pointerEventProcessorList, pointerEventProcessor);
             this._isListDirty = true;
         } else {
+            js.array.remove(this._processorListToAdd, pointerEventProcessor);
             this._processorListToRemove.push(pointerEventProcessor);
         }
     }
