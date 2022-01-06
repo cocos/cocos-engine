@@ -145,10 +145,10 @@ declare namespace jsb {
      * Listener for jsbBridgeWrapper's event.
      * It takes one argument as string which is transferred by jsbBridge.
      */
-    export type onScriptEventListener = (arg: string) => void;
+    export type OnScriptEventListener = (arg: string) => void;
     export namespace jsbBridgeWrapper {
         /** If there's no event registered, the wrapper will create one  */
-        export function addNativeEventListener(eventName: string, listener: onScriptEventListener);
+        export function addNativeEventListener(eventName: string, listener: OnScriptEventListener);
         /**
          * Dispatch the event registered on Objective-C, Java etc.
          * No return value in JS to tell you if it works.
@@ -161,7 +161,7 @@ declare namespace jsb {
         /**
          * Remove the listener specified
          */
-        export function removeNativeEventListener(eventName: string, listener: onScriptEventListener);
+        export function removeNativeEventListener(eventName: string, listener: OnScriptEventListener);
         /**
          * Remove all events, use it carefully!
          */
