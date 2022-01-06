@@ -710,6 +710,7 @@ export class ParticleSystem extends RenderableComponent {
     private _oldPos: Vec3 | null;
     private _curPos: Vec3 | null;
     private _isCulled: boolean;
+    private _isSimulating: boolean;
 
     private _customData1: Vec2;
     private _customData2: Vec2;
@@ -753,6 +754,7 @@ export class ParticleSystem extends RenderableComponent {
         this._oldPos = null;
         this._curPos = null;
         this._isCulled = false;
+        this._isSimulating = true;
 
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
@@ -1048,7 +1050,7 @@ export class ParticleSystem extends RenderableComponent {
             }
             if (culled) {
                 if (this._cullingMode !== CullingMode.AlwaysSimulate && !this._isStopped) {
-                    this.pause();
+                    this._isSimulating = false;
                 }
                 if (!this._isCulled) {
                     this.processor.detachFromScene();
@@ -1068,8 +1070,8 @@ export class ParticleSystem extends RenderableComponent {
                     this._attachToScene();
                     this._isCulled = false;
                 }
-                if (!this._isPlaying && !this._isStopped) {
-                    this.play();
+                if (!this._isSimulating && !this._isStopped) {
+                    this._isSimulating = true;
                 }
             }
         } else {
@@ -1081,7 +1083,10 @@ export class ParticleSystem extends RenderableComponent {
                 this._culler.destroy();
                 this._culler = null;
             }
+            this._isSimulating = true;
         }
+
+        if (!this._isSimulating) return;
 
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
