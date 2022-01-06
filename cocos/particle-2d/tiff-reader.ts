@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /*
  Copyright (c) 2011 Gordon P. Hemsley
  http://gphemsley.org/
@@ -66,13 +67,17 @@ export class TiffReader {
     }
 
     public getUint16 (offset) {
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         if (this._littleEndian) return (this._tiffData[offset + 1] << 8) | (this._tiffData[offset]);
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         else return (this._tiffData[offset] << 8) | (this._tiffData[offset + 1]);
     }
 
     public getUint32 (offset) {
         const a = this._tiffData;
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         if (this._littleEndian) return (a[offset + 3] << 24) | (a[offset + 2] << 16) | (a[offset + 1] << 8) | (a[offset]);
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         else return (a[offset] << 24) | (a[offset + 1] << 16) | (a[offset + 2] << 8) | (a[offset + 3]);
     }
 
@@ -103,6 +108,7 @@ export class TiffReader {
     public getFieldTypeName (fieldType) {
         const typeNames = fieldTypeNames;
         if (fieldType in typeNames) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return typeNames[fieldType];
         }
         return null;
@@ -112,6 +118,7 @@ export class TiffReader {
         const tagNames = fieldTagNames;
 
         if (fieldTag in tagNames) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return tagNames[fieldTag];
         } else {
             logID(6021, fieldTag);
@@ -148,13 +155,16 @@ export class TiffReader {
                 if (fieldTypeLength >= 8) {
                     if (['RATIONAL', 'SRATIONAL'].indexOf(fieldTypeName) !== -1) {
                         // Numerator
+                        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                         fieldValues.push(this.getUint32(valueOffset + indexOffset));
                         // Denominator
+                        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                         fieldValues.push(this.getUint32(valueOffset + indexOffset + 4));
                     } else {
                         logID(8000);
                     }
                 } else {
+                    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                     fieldValues.push(this.getBytes(fieldTypeLength, valueOffset + indexOffset));
                 }
             }
@@ -165,6 +175,7 @@ export class TiffReader {
                 a[i] = String.fromCharCode(e);
             });
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return fieldValues;
     }
 
@@ -189,7 +200,9 @@ export class TiffReader {
     getBits (numBits, byteOffset, bitOffset) {
         bitOffset = bitOffset || 0;
         const extraBytes = Math.floor(bitOffset / 8);
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         const newByteOffset = byteOffset + extraBytes;
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         const totalBits = bitOffset + numBits;
         const shiftRight = 32 - numBits;
         let shiftLeft = 0;
@@ -198,9 +211,11 @@ export class TiffReader {
         if (totalBits <= 0) {
             logID(6023);
         } else if (totalBits <= 8) {
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             shiftLeft = 24 + bitOffset;
             rawBits = this.getUint8(newByteOffset);
         } else if (totalBits <= 16) {
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             shiftLeft = 16 + bitOffset;
             rawBits = this.getUint16(newByteOffset);
         } else if (totalBits <= 32) {
@@ -212,6 +227,7 @@ export class TiffReader {
 
         return {
             bits: ((rawBits << shiftLeft) >>> shiftRight),
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             byteOffset: newByteOffset + Math.floor(totalBits / 8),
             bitOffset: totalBits % 8,
         };
@@ -223,6 +239,7 @@ export class TiffReader {
         let i = 0;
         let entryCount = 0;
 
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         for (i = offset + 2, entryCount = 0; entryCount < numDirEntries; i += 12, entryCount++) {
             const fieldTag = this.getUint16(i);
             const fieldType = this.getUint16(i + 2);
@@ -245,6 +262,7 @@ export class TiffReader {
     }
 
     clampColorSample (colorSample, bitsPerSample) {
+        // eslint-disable-next-line no-restricted-properties
         const multiplier = Math.pow(2, 8 - bitsPerSample);
 
         return Math.floor((colorSample * multiplier) + (multiplier - 1));
@@ -351,8 +369,10 @@ export class TiffReader {
                         if (s.hasBytesPerSample) {
                             // XXX: This is wrong!
                             const sampleOffset = s.bytesPerSample * m;
+                            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                             pixel.push(this.getBytes(s.bytesPerSample, stripOffset + byteOffset + sampleOffset));
                         } else {
+                            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                             const sampleInfo = this.getBits(s.bitsPerSample, stripOffset + byteOffset, bitOffset);
                             pixel.push(sampleInfo.bits);
                             byteOffset = sampleInfo.byteOffset - stripOffset;
@@ -408,9 +428,11 @@ export class TiffReader {
                     if (getHeader) {
                         getHeader = false;
                         // The header byte is signed.
+                        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                         const header = this.getUint8(stripOffset + byteOffset);
 
                         if ((header >= 0) && (header <= 127)) { // Normal pixels.
+                            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                             blockLength = header + 1;
                         } else if ((header >= -127) && (header <= -1)) { // Collapsed pixels.
                             iterations = -header + 1;
@@ -418,6 +440,7 @@ export class TiffReader {
                             getHeader = true;
                         }
                     } else {
+                        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                         const currentByte = this.getUint8(stripOffset + byteOffset);
 
                         // Duplicate bytes, if necessary.
@@ -496,6 +519,7 @@ export class TiffReader {
             let colorMapSampleSize = 0;
             if (fileDirectory.ColorMap) {
                 colorMapValues = fileDirectory.ColorMap.values;
+                // eslint-disable-next-line no-restricted-properties
                 colorMapSampleSize = Math.pow(2, (sampleProperties[0] as any).bitsPerSample);
             }
 
@@ -538,26 +562,30 @@ export class TiffReader {
                         // Bilevel or Grayscale
                         // WhiteIsZero
                         case 0:
-                            let invertValue = 0;
-                            if ((sampleProperties[0] as any).hasBytesPerSample) {
-                                invertValue = Math.pow(0x10, (sampleProperties[0] as any).bytesPerSample * 2);
+                            {
+                                let invertValue = 0;
+                                if ((sampleProperties[0] as any).hasBytesPerSample) {
+                                // eslint-disable-next-line no-restricted-properties
+                                    invertValue = Math.pow(0x10, (sampleProperties[0] as any).bytesPerSample * 2);
+                                }
+
+                                // Invert samples.
+                                pixelSamples.forEach((sample, index, samples) => {
+                                    samples[index] = invertValue - sample;
+                                });
+
+                                imageData.data[indexRowStart + x * 4] = pixelSamples[0] * opacity;
+                                imageData.data[indexRowStart + x * 4 + 1] = pixelSamples[0] * opacity;
+                                imageData.data[indexRowStart + x * 4 + 2] = pixelSamples[0] * opacity;
+                                imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
                             }
+                            break;
 
-                            // Invert samples.
-                            pixelSamples.forEach((sample, index, samples) => {
-                                samples[index] = invertValue - sample;
-                            });
-
-                            imageData.data[indexRowStart + x * 4    ] = pixelSamples[0] * opacity;
-                            imageData.data[indexRowStart + x * 4 + 1] = pixelSamples[0] * opacity;
-                            imageData.data[indexRowStart + x * 4 + 2] = pixelSamples[0] * opacity;
-                            imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
-
-                            // Bilevel or Grayscale
-                            // BlackIsZero
+                        // Bilevel or Grayscale
+                        // BlackIsZero
                         case 1:
                             red = green = blue = this.clampColorSample(pixelSamples[0], (sampleProperties[0] as any).bitsPerSample);
-                            imageData.data[indexRowStart + x * 4    ] = red   * opacity;
+                            imageData.data[indexRowStart + x * 4] = red   * opacity;
                             imageData.data[indexRowStart + x * 4 + 1] = green * opacity;
                             imageData.data[indexRowStart + x * 4 + 2] = blue  * opacity;
                             imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
@@ -569,7 +597,7 @@ export class TiffReader {
                             green = this.clampColorSample(pixelSamples[1], (sampleProperties[1] as any).bitsPerSample);
                             blue  = this.clampColorSample(pixelSamples[2], (sampleProperties[2] as any).bitsPerSample);
 
-                            imageData.data[indexRowStart + x * 4    ] = red   * opacity;
+                            imageData.data[indexRowStart + x * 4] = red   * opacity;
                             imageData.data[indexRowStart + x * 4 + 1] = green * opacity;
                             imageData.data[indexRowStart + x * 4 + 2] = blue  * opacity;
                             imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
@@ -578,20 +606,24 @@ export class TiffReader {
 
                             // RGB Color Palette
                         case 3:
-                            if (colorMapValues === undefined) {
-                                throw Error(getError(6027));
+                            {
+                                if (colorMapValues === undefined) {
+                                    throw Error(getError(6027));
+                                }
+
+                                const colorMapIndex = pixelSamples[0];
+
+                                red   = this.clampColorSample(colorMapValues[colorMapIndex], 16);
+                                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+                                green = this.clampColorSample(colorMapValues[colorMapSampleSize + colorMapIndex], 16);
+                                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+                                blue  = this.clampColorSample(colorMapValues[(2 * colorMapSampleSize) + colorMapIndex], 16);
+
+                                imageData.data[indexRowStart + x * 4] = red   * opacity;
+                                imageData.data[indexRowStart + x * 4 + 1] = green * opacity;
+                                imageData.data[indexRowStart + x * 4 + 2] = blue  * opacity;
+                                imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
                             }
-
-                            const colorMapIndex = pixelSamples[0];
-
-                            red   = this.clampColorSample(colorMapValues[colorMapIndex], 16);
-                            green = this.clampColorSample(colorMapValues[colorMapSampleSize + colorMapIndex], 16);
-                            blue  = this.clampColorSample(colorMapValues[(2 * colorMapSampleSize) + colorMapIndex], 16);
-
-                            imageData.data[indexRowStart + x * 4    ] = red   * opacity;
-                            imageData.data[indexRowStart + x * 4 + 1] = green * opacity;
-                            imageData.data[indexRowStart + x * 4 + 2] = blue  * opacity;
-                            imageData.data[indexRowStart + x * 4 + 3] = opacity * 255;
 
                             break;
 
@@ -607,6 +639,8 @@ export class TiffReader {
             }
         }
 
+        // eslint-disable-next-line consistent-return
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._canvas;
     }
 
