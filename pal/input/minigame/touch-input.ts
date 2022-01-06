@@ -43,9 +43,6 @@ export class TouchInputSource {
                     touchManager.releaseTouch(touchID);
                 }
                 handleTouches.push(touch);
-                if (!macro.ENABLE_MULTI_TOUCH) {
-                    break;
-                }
             }
             if (handleTouches.length > 0) {
                 const eventTouch = new EventTouch(handleTouches, false, eventType,
