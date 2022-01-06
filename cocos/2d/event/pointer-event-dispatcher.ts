@@ -24,7 +24,8 @@
 */
 
 import { Node } from '../../core/scene-graph/node';
-import { Input, input, pointerEvent2SystemEvent } from '../../input';
+import { Input, input } from '../../input';
+import { pointerEvent2SystemEvent } from '../../input/system-event';
 import { EventMouse, EventTouch } from '../../input/types';
 import { DispatcherEventType, NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 import { js } from '../../core/utils/js';
@@ -57,6 +58,7 @@ class PointerEventDispatcher {
             this._pointerEventProcessorList.push(pointerEventProcessor);
             this._isListDirty = true;
         } else {
+            js.array.remove(this._processorListToRemove, pointerEventProcessor);
             this._processorListToAdd.push(pointerEventProcessor);
         }
     }
@@ -66,6 +68,7 @@ class PointerEventDispatcher {
             js.array.remove(this._pointerEventProcessorList, pointerEventProcessor);
             this._isListDirty = true;
         } else {
+            js.array.remove(this._processorListToAdd, pointerEventProcessor);
             this._processorListToRemove.push(pointerEventProcessor);
         }
     }
