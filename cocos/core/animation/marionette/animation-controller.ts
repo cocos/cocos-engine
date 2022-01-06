@@ -68,7 +68,13 @@ export class AnimationController extends Component {
      * @zh 设置动画图实例中变量的值。
      * @en Sets the value of the variable in the animation graph instance.
      * @param name 变量名称。
-     * @param value 设置变量的值。
+     * @param value 变量的值。
+     * @example
+     * ```ts
+     * animationController.setValue('speed', 3.14);
+     * animationController.setValue('crouching', true);
+     * animationController.setValue('attack', true);
+     * ```
      */
     public setValue (name: string, value: Value) {
         const { _graphEval: graphEval } = this;
