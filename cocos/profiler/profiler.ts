@@ -72,7 +72,7 @@ interface IProfilerState {
 }
 
 const _profileInfo = {
-    fps: { desc: `${fpsPrefix}Framerate (FPS)`, below: 30, average: _average, isInteger: true },
+    fps: { desc: `Framerate (FPS)`, below: 30, average: _average, isInteger: true },
     draws: { desc: 'Draw call', isInteger: true },
     frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: _average },
     instances: { desc: 'Instance Count', isInteger: true },
