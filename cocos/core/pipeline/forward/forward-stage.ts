@@ -171,9 +171,8 @@ export class ForwardStage extends RenderStage {
         }
         pipeline.generateRenderArea(camera, this._renderArea);
 
-        const swapchain = camera.window.swapchain;
         const framebuffer = camera.window.framebuffer;
-        const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain) : framebuffer.renderPass;
+        const renderPass = pipeline.getRenderPass(camera.clearFlag & this._clearFlag, framebuffer);
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
