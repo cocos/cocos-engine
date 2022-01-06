@@ -72,14 +72,15 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, std::array<fl
 }
 
 void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera) {
-    const auto *const              scene               = camera->scene;
-    const scene::DirectionalLight *mainLight           = scene->getMainLight();
-    auto *                         sceneData           = pipeline->getPipelineSceneData();
-    auto *const                    sharedData          = sceneData->getSharedData();
-    auto *const                    descriptorSet       = pipeline->getDescriptorSet();
-    auto *                         ambient             = sharedData->ambient;
-    auto *                         fog                 = sharedData->fog;
-    const auto                     isHDR               = sharedData->isHDR;
+    const auto *                   scene         = camera->scene;
+    const scene::DirectionalLight *mainLight     = scene->getMainLight();
+    const auto *                   sceneData     = pipeline->getPipelineSceneData();
+    const auto *                   sharedData    = sceneData->getSharedData();
+    const auto *                   descriptorSet = pipeline->getDescriptorSet();
+    const auto *                   ambient       = sharedData->ambient;
+    const auto *                   fog           = sharedData->fog;
+    const auto *                   shadowInfo    = sharedData->shadow;
+    const auto                     isHDR         = sharedData->isHDR;
 
     auto *device = gfx::Device::getInstance();
 
@@ -98,7 +99,9 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::EXPOSURE_OFFSET + 3] = 0.0F;
 
     if (mainLight) {
-        TO_VEC3(output, mainLight->getDirection(), UBOCamera::MAIN_LIT_DIR_OFFSET)
+        const float shadowEnable = (shadowInfo->enabled && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) ? 1.0F : 0.0F;
+        const Vec4  lightDir(mainLight->getDirection().x, mainLight->getDirection().y, mainLight->getDirection().z, shadowEnable);
+        TO_VEC4(output, lightDir, UBOCamera::MAIN_LIT_DIR_OFFSET)
         TO_VEC3(output, mainLight->getColor(), UBOCamera::MAIN_LIT_COLOR_OFFSET)
         if (mainLight->getUseColorTemperature()) {
             const auto &colorTempRGB = mainLight->getColorTemperatureRGB();
@@ -114,7 +117,8 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
             output[UBOCamera::MAIN_LIT_COLOR_OFFSET + 3] = mainLight->getIlluminanceLDR();
         }
     } else {
-        TO_VEC3(output, Vec3::UNIT_Z, UBOCamera::MAIN_LIT_DIR_OFFSET);
+        const Vec4 lightDir(0.0F, 0.0F, 1.0F, 0.0F);
+        TO_VEC4(output, lightDir, UBOCamera::MAIN_LIT_DIR_OFFSET);
         TO_VEC4(output, Vec4::ZERO, UBOCamera::MAIN_LIT_COLOR_OFFSET);
     }
 
