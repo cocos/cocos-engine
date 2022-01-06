@@ -30,7 +30,7 @@
 
 @implementation JsbBridgeWrapper {
     JsbBridge* jb;
-    NSMutableDictionary<NSString*, NSMutableArray<eventCallback>*>* cbDictionnary;
+    NSMutableDictionary<NSString*, NSMutableArray<OnScriptEventListener>*>* cbDictionnary;
 }
 
 static JsbBridgeWrapper* instance = nil;
@@ -53,48 +53,51 @@ static ICallback         cb       = ^void(NSString* _event, NSString* _arg) {
     return [JsbBridgeWrapper sharedInstance];
 }
 
-- (void)addCallback:(NSString*)event callback:(eventCallback)callback {
-    if (![cbDictionnary objectForKey:event]) {
-        [cbDictionnary setValue:[NSMutableArray<eventCallback> new] forKey:event];
+- (void)addScriptEventListener:(NSString*)eventName listener:(OnScriptEventListener)listener {
+    if (![cbDictionnary objectForKey:eventName]) {
+        [cbDictionnary setValue:[NSMutableArray<OnScriptEventListener> new] forKey:eventName];
     }
-    NSMutableArray* arr = [cbDictionnary objectForKey:event];
-    if (![arr containsObject:callback]) {
-        [arr addObject:callback];
+    NSMutableArray* arr = [cbDictionnary objectForKey:eventName];
+    if (![arr containsObject:listener]) {
+        [arr addObject:listener];
     }
-    [callback release];
+    [listener release];
 }
 
-- (void)triggerEvent:(NSString*)event arg:(NSString*)arg {
-    NSMutableArray<eventCallback>* arr = [cbDictionnary objectForKey:event];
+- (void)triggerEvent:(NSString*)eventName arg:(NSString*)arg {
+    NSMutableArray<OnScriptEventListener>* arr = [cbDictionnary objectForKey:eventName];
     if (!arr) {
         return;
     }
-    for (eventCallback cb : arr) {
-        cb(arg);
+    for (OnScriptEventListener listener : arr) {
+        listener(arg);
     }
 }
-- (void)removeEvent:(NSString*)event {
-    if (![cbDictionnary objectForKey:event]) {
+- (void)removeAllListenersForEvent:(NSString *)eventName {
+    if (![cbDictionnary objectForKey:eventName]) {
         return;
     }
-    [cbDictionnary removeObjectForKey:event];
+    //same as release all listeners.
+    [cbDictionnary removeObjectForKey:eventName];
 }
 
-- (bool)removeCallback:(NSString*)event callback:(eventCallback)callback {
-    NSMutableArray<eventCallback>* arr = [cbDictionnary objectForKey:event];
+- (bool)removeScriptEventListener:(NSString*)eventName listener:(OnScriptEventListener)listener {
+    NSMutableArray<OnScriptEventListener>* arr = [cbDictionnary objectForKey:eventName];
     if (!arr) {
         return false;
     }
-    [arr removeObject:callback];
+    [arr removeObject:listener];
     return true;
 }
-
-- (void)dispatchScriptEvent:(NSString*)event arg:(NSString*)arg {
-    [jb sendToScript:event arg1:arg];
+- (void)removeAllListeners {
+    [cbDictionnary removeAllObjects];
+}
+- (void)dispatchEventToScript:(NSString*)eventName arg:(NSString*)arg {
+    [jb sendToScript:eventName arg1:arg];
 }
 
-- (void)dispatchScriptEvent:(NSString*)event {
-    [jb sendToScript:event];
+- (void)dispatchEventToScript:(NSString*)eventName {
+    [jb sendToScript:eventName];
 }
 - (id)init {
     self          = [super init];

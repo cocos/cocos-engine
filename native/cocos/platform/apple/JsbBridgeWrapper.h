@@ -25,7 +25,7 @@
 #pragma once
 #import <Foundation/Foundation.h>
 
-typedef void (^eventCallback)(NSString*);
+typedef void (^OnScriptEventListener)(NSString*);
 
 @interface JsbBridgeWrapper : NSObject
 /**
@@ -33,23 +33,27 @@ typedef void (^eventCallback)(NSString*);
  */
 + (instancetype)sharedInstance;
 /**
- * add a callback to specified event, if the event does not exist, the wrapper will create one
+ * Add a listener to specified event, if the event does not exist, the wrapper will create one. Concurrent listener will be ignored
  */
-- (void)addCallback:(NSString*)event callback:(eventCallback)callback;
+- (void)addScriptEventListener:(NSString*)eventName listener:(OnScriptEventListener)listener;
 /**
- * remove callback for specified event, concurrent event will be deleted.
+ * Remove listener for specified event, concurrent event will be deleted. Return false only if the event does not exist
  */
-- (bool)removeCallback:(NSString*)event callback:(eventCallback)callback;
+- (bool)removeScriptEventListener:(NSString*)eventName listener:(OnScriptEventListener)listener;
 /**
- * Return true if successfully remove the callback, false if event does not exist
+ * Remove all listener for event specified.
  */
-- (void)removeEvent:(NSString*)event;
+- (void)removeAllListenersForEvent:(NSString*)eventName;
 /**
- * Dispatch the event with argument, the event should be regiestered in javascript, or other script language in future.
+ * Remove all event registered. Use it carefully!
  */
-- (void)dispatchScriptEvent:(NSString*)name arg:(NSString*)arg;
+- (void)removeAllListeners;
 /**
- * Dispatch the event which is regiestered in javascript, or other script language in future.
+ * Dispatch the event with argument, the event should be registered in javascript, or other script language in future.
  */
-- (void)dispatchScriptEvent:(NSString*)name;
+- (void)dispatchEventToScript:(NSString*)eventName arg:(NSString*)arg;
+/**
+ * Dispatch the event which is registered in javascript, or other script language in future.
+ */
+- (void)dispatchEventToScript:(NSString*)eventName;
 @end
