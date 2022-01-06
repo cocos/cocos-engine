@@ -24,41 +24,44 @@
  ****************************************************************************/
 const JsbBridgeWrapper = {
     eventMap: new Map(),
-    addCallback (event, callback) {
-        if (!this.eventMap.get(event)) {
-            this.eventMap.set(event, []);
+    addNativeEventListener (eventName, listener) {
+        if (!this.eventMap.get(eventName)) {
+            this.eventMap.set(eventName, []);
         }
-        const arr = this.eventMap.get(event);
-        if (!arr.find(callback)) {
-            arr.push(callback);
+        const arr = this.eventMap.get(eventName);
+        if (!arr.find(listener)) {
+            arr.push(listener);
         }
     },
-    dispatchNativeEvent (event, arg) {
-        jsb.bridge.sendToNative(event, arg);
+    dispatchNativeEvent (eventName, arg) {
+        jsb.bridge.sendToNative(eventName, arg);
     },
-    removeEvent (event) {
-        return this.eventMap.delete(event);
+    removeAllListenersForEvent (eventName) {
+        return this.eventMap.delete(eventName);
     },
-    removeCallback (event, cb) {
-        const arr = this.eventMap.get(event);
+    removeNativeEventListener (eventName, listener) {
+        const arr = this.eventMap.get(eventName);
         if (!arr) {
             return false;
         }
         for (let i = 0, l = arr.length; i < l; i++) {
-            if (arr[i] === cb) {
+            if (arr[i] === listener) {
                 arr.splice(i, 1);
                 return true;
             }
         }
         return true;
     },
-    triggerEvent (event, arg) {
-        const arr = this.eventMap.get(event);
+    removeAllEvents () {
+        this.eventMap.clear();
+    },
+    triggerEvent (eventName, arg) {
+        const arr = this.eventMap.get(eventName);
         if (!arr) {
-            console.error(`${event} does not exist`);
+            console.error(`${eventName} does not exist`);
             return;
         }
-        arr.map((f) => f.call(null, arg));
+        arr.map((listener) => listener.call(null, arg));
     },
 };
 
