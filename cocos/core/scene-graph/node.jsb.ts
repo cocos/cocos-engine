@@ -995,6 +995,11 @@ nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
         _tempFloatArray[0] = 4;
     }
     this.rotateForJS();
+    const lrot = this._lrot;
+    lrot.x = _tempFloatArray[0];
+    lrot.y = _tempFloatArray[1];
+    lrot.z = _tempFloatArray[2];
+    lrot.w = _tempFloatArray[3];
 };
 
 nodeProto.addChild = function (child: Node): void {
