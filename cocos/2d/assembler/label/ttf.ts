@@ -135,11 +135,11 @@ export const ttf: IAssembler = {
 
     updateUVs (comp: Label) {
         const renderData = comp.renderData;
-        if (!renderData) {
+        if (!renderData || !comp.ttfSpriteFrame) {
             return;
         }
         const vData = renderData.chunk.vb;
-        const uv = comp.ttfSpriteFrame!.uv;
+        const uv = comp.ttfSpriteFrame.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
         vData[12] = uv[2];

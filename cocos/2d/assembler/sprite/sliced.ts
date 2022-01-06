@@ -167,10 +167,11 @@ export const sliced: IAssembler = {
     },
 
     updateUVs (sprite: Sprite) {
+        if (!sprite.spriteFrame) return;
         const renderData = sprite.renderData!;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
-        const uv = sprite.spriteFrame!.uvSliced;
+        const uv = sprite.spriteFrame.uvSliced;
         let uvOffset = 3;
         for (let i = 0; i < 16; i++) {
             vData[uvOffset] = uv[i].u;

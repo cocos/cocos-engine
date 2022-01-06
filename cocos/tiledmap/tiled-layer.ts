@@ -1387,7 +1387,7 @@ export class TiledLayer extends Renderable2D {
 
         const renderData = MeshRenderData.add();
         const comb = { renderData, texture: null };
-        Object.defineProperty(renderData, 'material', { get: () => this.getRenderMaterial(0) });
+        renderData.material = this.getRenderMaterial(0);
         this._meshRenderDataArray.push(comb);
         return comb;
     }

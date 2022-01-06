@@ -229,9 +229,10 @@ export const simple: IAssembler = {
     },
 
     updateUVs (sprite: Sprite) {
+        if (!sprite.spriteFrame) return;
         const renderData = sprite.renderData!;
         const vData = renderData.chunk.vb;
-        const uv = sprite.spriteFrame!.uv;
+        const uv = sprite.spriteFrame.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
         vData[12] = uv[2];

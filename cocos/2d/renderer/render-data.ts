@@ -412,6 +412,12 @@ export class MeshRenderData extends BaseRenderData {
         this.byteStart = 0;
         this.lastFilledIndices = 0;
         this.lastFilledVertex = 0;
+        this.material = null;
+        this._ia = null!;
+        if (this._vertexBuffers[0]) {
+            this._vertexBuffers[0].destroy();
+            this._vertexBuffers = [];
+        }
     }
 
     protected _reallocBuffer (vCount, iCount) {

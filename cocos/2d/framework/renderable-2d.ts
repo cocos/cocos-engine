@@ -318,7 +318,6 @@ export class Renderable2D extends RenderableComponent {
         if (this._flushAssembler) {
             this._flushAssembler();
         }
-        NodeUIProperties.markOpacityTree(this.node);
     }
 
     public onEnable () {
