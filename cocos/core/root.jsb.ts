@@ -6,6 +6,9 @@ import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
 import { builtinResMgr } from './builtin';
 
+declare const nr: any;
+declare const jsb: any;
+
 export const Root = jsb.Root;
 
 enum LightType {
@@ -144,6 +147,7 @@ rootProto._onBatch2DReset = function () {
 
 rootProto._onDirectorBeforeCommit = function () {
     legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
+    this._pipeline.geometryRenderer.flush();
 };
 
 const oldFrameMove = rootProto.frameMove;
@@ -156,8 +160,9 @@ rootProto.setRenderPipeline = function (pipeline) {
     if (!pipeline) {
         // pipeline should not be created in C++, ._ctor need to be triggered
         pipeline = new nr.ForwardPipeline();
-        pipeline.initialize({});
+        pipeline.init();
     }
     this._pipeline = pipeline;
+    this._pipeline.geometryRenderer.activate(this._device, this._pipeline);
     return oldSetPipeline.call(this, pipeline);
 }

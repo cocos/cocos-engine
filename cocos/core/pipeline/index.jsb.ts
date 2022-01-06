@@ -28,6 +28,7 @@ declare const nr: any;
 import { getPhaseID } from './pass-phase';
 import { setClassName } from '../../core/utils/js';
 import { PipelineEventType } from './pipeline-event';
+import { GeometryRenderer } from './geometry-renderer';
 
 nr.getPhaseID = getPhaseID;
 
@@ -59,15 +60,19 @@ const forwardPipelineProto = ForwardPipeline.prototype;
 forwardPipelineProto._ctor = function() {
     this._tag = 0;
     this._flows = [];
-}
+    // noinspection JSConstantReassignment
+    this.geometryRenderer = new GeometryRenderer();
+};
+
 forwardPipelineProto.init = function () {
-      this.setPipelineSharedSceneData(this.pipelineSceneData.native);
+      this.setGeometryRenderer(this.geometryRenderer.native);
       for (let i = 0; i < this._flows.length; i++) {
           this._flows[i].init(this);
       }
       const info = new nr.RenderPipelineInfo(this._tag, this._flows);
       this.initialize(info);
-}
+};
+
 forwardPipelineProto.on = function(type: PipelineEventType, callback: any, target?: any, once?: boolean){}
 forwardPipelineProto.once = function(type: PipelineEventType, callback: any, target?: any) {}
 forwardPipelineProto.off = function(type: PipelineEventType, callback?: any, target?: any) {}
@@ -127,6 +132,7 @@ forwardStageProto._ctor = function() {
 forwardStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
+        // @ts-ignore
         queues.push(this.renderQueues[i].init());
     }
     const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
@@ -166,6 +172,8 @@ deferredPipelineProto._ctor = function() {
     this._flows = [];
     this.renderTextures = [];
     this.materials = [];
+    // noinspection JSConstantReassignment
+    this.geometryRenderer = new GeometryRenderer();
 }
 deferredPipelineProto.on = function(type: PipelineEventType, callback: any, target?: any, once?: boolean){}
 deferredPipelineProto.once = function(type: PipelineEventType, callback: any, target?: any) {}
@@ -179,8 +187,10 @@ const oldDeferredOnLoaded = deferredPipelineProto.onLoaded;
 // hook to invoke init after deserialization
 deferredPipelineProto.onLoaded = function () {
     if (oldDeferredOnLoaded) oldDeferredOnLoaded.call(this);
+
+    this.setGeometryRenderer(this.geometryRenderer.native);
     for (let i = 0; i < this._flows.length; i++) {
-      this._flows[i].init(this);
+        this._flows[i].init(this);
     }
     let info = new nr.RenderPipelineInfo(this._tag, this._flows);
     this.initialize(info);
@@ -206,12 +216,13 @@ gbufferStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
-    this.renderQueues = []
+    this.renderQueues = [];
 }
 gbufferStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
-      queues.push(this.renderQueues[i].init());
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
     }
     let info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
@@ -229,11 +240,11 @@ lightingStageProto._ctor = function() {
 lightingStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
-      queues.push(this.renderQueues[i].init());
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
     }
     pipeline.pipelineSceneData.deferredLightingMaterial = this._deferredMaterial;
-    let info =
-        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    let info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
 }
 
@@ -248,7 +259,8 @@ bloomStageProto._ctor = function() {
 bloomStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
-      queues.push(this.renderQueues[i].init());
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
     }
     pipeline.pipelineSceneData.bloomMaterial = this._bloomMaterial;
     let info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
@@ -261,17 +273,18 @@ postProcessStageProto._ctor = function() {
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
-    this._postProcessMaterial = null; 
+    this._postProcessMaterial = null;
 }
 postProcessStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
-      queues.push(this.renderQueues[i].init());
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
     }
     pipeline.pipelineSceneData.postProcessMaterial = this._postProcessMaterial;
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
-    this.initialize(info); 
+    this.initialize(info);
 }
 
 setClassName('DeferredPipeline', DeferredPipeline);
