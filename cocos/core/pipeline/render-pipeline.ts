@@ -33,7 +33,7 @@ import { systemInfo } from 'pal/system-info';
 import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
 import { Asset } from '../assets/asset';
 import { AccessType, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
-    DepthStencilAttachment, DescriptorSet, Device, Feature, Format, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
+    DepthStencilAttachment, DescriptorSet, Device, Feature, Format, FormatFeatureBit, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
     LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
     TextureType, TextureUsageBit, Viewport } from '../gfx';
 import { legacyCC } from '../global-exports';
@@ -645,7 +645,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
     protected _generateConstantMacros () {
         let str = '';
-        str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.hasFeature(Feature.TEXTURE_FLOAT) ? 1 : 0}\n`;
+        str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.formatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET ? 1 : 0}\n`;
         str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${this._clusterEnabled ? 1 : 0}\n`;
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;

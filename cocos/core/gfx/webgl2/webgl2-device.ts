@@ -291,7 +291,7 @@ export class WebGL2Device extends Device {
         }
 
         let compressedFormat = '';
-        const compressedFeature: FormatFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+        const compressedFeature: FormatFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         if (exts.WEBGL_compressed_texture_etc1) {
             this._formatFeatures[Format.ETC_RGB8] = compressedFeature;

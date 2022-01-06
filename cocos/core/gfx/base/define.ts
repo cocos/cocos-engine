@@ -225,11 +225,11 @@ export enum Format {
 
     // Ericsson Texture Compression Format
     ETC_RGB8,
-    ETC2_RGB8, // exists
+    ETC2_RGB8,
     ETC2_SRGB8,
     ETC2_RGB8_A1,
     ETC2_SRGB8_A1,
-    ETC2_RGBA8, // exists
+    ETC2_RGBA8,
     ETC2_SRGB8_A8,
     EAC_R11,
     EAC_R11SN,
