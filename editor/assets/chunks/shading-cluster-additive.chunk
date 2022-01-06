@@ -76,8 +76,8 @@ uint getClusterZIndex(vec4 worldPos)
 uint getClusterIndex(vec4 fragCoord, vec4 worldPos)
 {
   uint zIndex = getClusterZIndex(worldPos);
-  float clusterSizeX = ceil(cc_screenSize.x / float(CLUSTERS_X));
-  float clusterSizeY = ceil(cc_screenSize.y / float(CLUSTERS_Y));
+  float clusterSizeX = ceil(cc_viewPort.z / float(CLUSTERS_X));
+  float clusterSizeY = ceil(cc_viewPort.w / float(CLUSTERS_Y));
   uvec3 indices = uvec3(uvec2(fragCoord.xy / vec2(clusterSizeX, clusterSizeY)), zIndex);
   uint cluster = (16u * 8u) * indices.z + 16u * indices.y + indices.x;
   return cluster;
