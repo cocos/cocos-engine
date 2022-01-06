@@ -708,6 +708,7 @@ export class Game extends EventTarget {
 
     private _initEngine () {
         return Promise.resolve(this._initDeviceAsync()).then(() => {
+            legacyCC.view.init();
             // Log engine version
             debug.log(`Cocos Creator v${VERSION}`);
             this.emit(Game.EVENT_ENGINE_INITED);
@@ -902,6 +903,7 @@ export class Game extends EventTarget {
                 if (legacyCC.WebGPUDevice) {
                     deviceCtors.push(legacyCC.WebGPUDevice);
                 }
+                Device.canvas = this.canvas!;
                 for (let i = 0; i < deviceCtors.length; i++) {
                     this._gfxDevice = new deviceCtors[i]();
                     // eslint-disable-next-line no-await-in-loop
