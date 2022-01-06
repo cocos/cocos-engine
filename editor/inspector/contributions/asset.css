@@ -3,6 +3,7 @@
     flex-direction: column;
     overflow: hidden;
 }
+
 :host > .container {
     display: flex;
     flex: 1;
@@ -13,24 +14,29 @@
 :host > .container[whole] {
     max-height: 100%;
 }
+
 :host > .container > .header {
     display: flex;
     flex: 1;
 }
+
 :host > .container > .header > .icon {
     width: 20px;
     font-size: 14px;
     cursor: pointer;
 }
+
 :host > .container > .header > .image {
     width: 20px;
     height: 24px;
     cursor: pointer;
 }
+
 :host > .container > .header > .icon:hover,
 :host > .container > .header > .image:hover {
     opacity: 0.8;
 }
+
 :host > .container > .header > .name {
     flex: 1;
     padding-left: 5px;
@@ -38,6 +44,12 @@
     overflow: hidden;
     white-space: nowrap;
 }
+
+:host > .container > .header > .help {
+    display: none;
+    margin-right: 10px;
+}
+
 :host > .container > .header > .lock {
     display: none;
     font-size: 12px;
@@ -46,6 +58,7 @@
     margin-right: 12px;
     cursor: auto;
 }
+
 :host > .container > .header > ui-button {
     display: none;
     padding: 0 6px;
@@ -53,28 +66,34 @@
     margin-left: 6px;
     margin-right: 6px;
 }
+
 :host > .container > .header[dirty] > ui-button {
     display: inline-block;
 }
+
 :host > .container > .content {
     display: flex;
     padding-top: 5px;
     flex: 1;
     flex-direction: column;
 }
+
 :host > .container > .content > section {
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
+
 :host > .container > .content > .content-section {
     flex: 1;
     overflow: auto;
 }
+
 :host > .container > .content > section > ui-panel {
     display: flex;
     flex-direction: column;
 }
+
 :host > .container > .content > section > ui-panel:only-child {
     flex: 1;
 }
@@ -94,8 +113,4 @@
     left: 0;
     top: 0;
     z-index: 1;
-}
-
-.document {
-    margin-right: 10px;
 }
