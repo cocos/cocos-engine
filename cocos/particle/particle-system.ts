@@ -76,6 +76,7 @@ export class ParticleSystem extends RenderableComponent {
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(1)
     @tooltip('i18n:particle_system.capacity')
     public get capacity () {
@@ -83,7 +84,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public set capacity (val) {
-        this._capacity = Math.floor(val);
+        this._capacity = Math.floor(val > 0 ? val : 0);
         // @ts-expect-error private property access
         if (this.processor && this.processor._model) {
             // @ts-expect-error private property access
