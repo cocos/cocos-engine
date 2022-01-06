@@ -33,7 +33,7 @@ const JsbBridgeWrapper = {
             arr.push(listener);
         }
     },
-    dispatchNativeEvent (eventName, arg) {
+    dispatchEventToNative (eventName, arg) {
         jsb.bridge.sendToNative(eventName, arg);
     },
     removeAllListenersForEvent (eventName) {

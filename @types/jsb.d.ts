@@ -153,7 +153,7 @@ declare namespace jsb {
          * Dispatch the event registered on Objective-C, Java etc.
          * No return value in JS to tell you if it works.
          */
-        export function dispatchNativeEvent(eventName: string, arg?: string);
+        export function dispatchEventToNative(eventName: string, arg?: string);
         /**
          * Remove all listeners relative.
          */
