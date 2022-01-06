@@ -168,6 +168,11 @@ export class GeometryRenderer {
         }
     }
 
+    public get native () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return this._nativeObj;
+    }
+
     public activate (device: Device, pipeline: RenderPipeline, config?: IGeometryConfig) {
         this._device = device;
         this._pipeline = pipeline;
@@ -201,19 +206,19 @@ export class GeometryRenderer {
             for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
                 const lines = this._buffers.lines[i];
                 if (!lines.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.LINE, i, lines._vertices, lines._vertexCount);
+                    this._nativeObj.flushFromJSB(GeometryType.LINE, i, lines._vertices, lines._vertexCount);
                     lines.reset();
                 }
 
                 const dashedLines = this._buffers.dashedLines[i];
                 if (!dashedLines.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.DASHED_LINE, i, dashedLines._vertices, dashedLines._vertexCount);
+                    this._nativeObj.flushFromJSB(GeometryType.DASHED_LINE, i, dashedLines._vertices, dashedLines._vertexCount);
                     dashedLines.reset();
                 }
 
                 const triangles = this._buffers.triangles[i];
                 if (!triangles.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.TRIANGLE, i, triangles._vertices, triangles._vertexCount);
+                    this._nativeObj.flushFromJSB(GeometryType.TRIANGLE, i, triangles._vertices, triangles._vertexCount);
                     triangles.reset();
                 }
             }
