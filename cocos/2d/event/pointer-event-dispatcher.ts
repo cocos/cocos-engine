@@ -24,7 +24,8 @@
 */
 
 import { Node } from '../../core/scene-graph/node';
-import { Input, input, pointerEvent2SystemEvent } from '../../input';
+import { Input, input } from '../../input';
+import { pointerEvent2SystemEvent } from '../../input/system-event';
 import { EventMouse, EventTouch } from '../../input/types';
 import { DispatcherEventType, NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 import { js } from '../../core/utils/js';
