@@ -52,7 +52,7 @@ const JsbBridgeWrapper = {
         }
         return true;
     },
-    removeAllEvents () {
+    removeAllListeners () {
         this.eventMap.clear();
     },
     triggerEvent (eventName, arg) {
