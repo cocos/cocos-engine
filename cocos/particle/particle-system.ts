@@ -61,7 +61,6 @@ import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
-import { clampf } from '../core/utils/misc';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
