@@ -379,6 +379,6 @@ export enum InputEventType {
     DEVICEMOTION = 'devicemotion',
 }
 
-export type SystemEventTypeUnion = SystemEventType | NodeEventType | InputEventType;
+export type SystemEventTypeUnion = SystemEventType | NodeEventType | InputEventType | string;
 
 legacyCC.SystemEventType = SystemEventType;
