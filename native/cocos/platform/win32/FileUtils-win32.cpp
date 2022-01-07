@@ -26,7 +26,6 @@
 ****************************************************************************/
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-
     #include "platform/win32/FileUtils-win32.h"
     #include "platform/win32/Utils-win32.h"
     #include "base/Log.h"
@@ -48,8 +47,8 @@ static std::string s_resourcePath = "";
 // D:\aaa\bbb\ccc\ddd\abc.txt --> D:/aaa/bbb/ccc/ddd/abc.txt
 static inline std::string convertPathFormatToUnixStyle(const std::string &path) {
     std::string ret = path;
-    int len = ret.length();
-    for (int i = 0; i < len; ++i) {
+    size_t len = ret.length();
+    for (size_t i = 0; i < len; ++i) {
         if (ret[i] == '\\') {
             ret[i] = '/';
         }
@@ -67,7 +66,7 @@ static void _checkPath() {
         WCHAR *pUtf16DirEnd = wcsrchr(pUtf16ExePath, L'\\');
 
         char utf8ExeDir[CC_MAX_PATH] = {0};
-        int nNum = WideCharToMultiByte(CP_UTF8, 0, pUtf16ExePath, pUtf16DirEnd - pUtf16ExePath + 1, utf8ExeDir, sizeof(utf8ExeDir), nullptr, nullptr);
+        int nNum = WideCharToMultiByte(CP_UTF8, 0, pUtf16ExePath, static_cast<int>(pUtf16DirEnd - pUtf16ExePath + 1), utf8ExeDir, sizeof(utf8ExeDir), nullptr, nullptr);
 
         s_resourcePath = convertPathFormatToUnixStyle(utf8ExeDir);
     }
