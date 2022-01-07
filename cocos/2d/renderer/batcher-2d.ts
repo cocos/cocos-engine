@@ -713,10 +713,6 @@ class LocalDescriptorSet  {
         return this._transform === transform && this._textureHash === textureHash && this._samplerHash === samplerHash;
     }
 
-    public textureEquals (textureHash) {
-        return this._textureHash === textureHash;
-    }
-
     public reset () {
         this._transform = null;
         this._textureHash = 0;
