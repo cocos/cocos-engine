@@ -88,10 +88,11 @@ class PointerEventDispatcher {
                 shouldDispatchToSystemEvent = false;
                 if (!eventMouse.preventSwallow) {
                     break;
+                } else {
+                    // reset swallow state
+                    eventMouse.preventSwallow = false;
                 }
             }
-            // reset swallow state
-            eventMouse.preventSwallow = false;
         }
         const type = pointerEvent2SystemEvent[eventMouse.type];
         if (shouldDispatchToSystemEvent && type) {
@@ -120,6 +121,9 @@ class PointerEventDispatcher {
                         shouldDispatchToSystemEvent = false;
                         if (!eventTouch.preventSwallow) {
                             break;
+                        } else {
+                            // reset swallow state
+                            eventTouch.preventSwallow = false;
                         }
                     }
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
@@ -133,12 +137,13 @@ class PointerEventDispatcher {
                         shouldDispatchToSystemEvent = false;
                         if (!eventTouch.preventSwallow) {
                             break;
+                        } else {
+                            // reset swallow state
+                            eventTouch.preventSwallow = false;
                         }
                     }
                 }
             }
-            // reset swallow state
-            eventTouch.preventSwallow = false;
         }
         const type = pointerEvent2SystemEvent[eventTouch.type];
         if (shouldDispatchToSystemEvent && type) {
