@@ -88,6 +88,8 @@ class PointerEventDispatcher {
                 shouldDispatchToSystemEvent = false;
                 if (!eventMouse.preventSwallow) {
                     break;
+                } else {
+                    eventMouse.preventSwallow = false;  // reset swallow state
                 }
             }
         }
@@ -118,6 +120,8 @@ class PointerEventDispatcher {
                         shouldDispatchToSystemEvent = false;
                         if (!eventTouch.preventSwallow) {
                             break;
+                        } else {
+                            eventTouch.preventSwallow = false;  // reset swallow state
                         }
                     }
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
@@ -131,6 +135,8 @@ class PointerEventDispatcher {
                         shouldDispatchToSystemEvent = false;
                         if (!eventTouch.preventSwallow) {
                             break;
+                        } else {
+                            eventTouch.preventSwallow = false;  // reset swallow state
                         }
                     }
                 }

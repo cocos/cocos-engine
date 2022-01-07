@@ -40,6 +40,7 @@ import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
+import { director } from '../../core/director';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -192,6 +193,15 @@ ccenum(CacheMode);
 @executionOrder(110)
 @menu('2D/Label')
 export class Label extends Renderable2D {
+    public static HorizontalAlign = HorizontalTextAlignment;
+    public static VerticalAlign = VerticalTextAlignment;
+    public static Overflow = Overflow;
+    public static CacheMode = CacheMode;
+    /**
+     * @internal
+     */
+    public static _canvasPool = CanvasPool.getInstance();
+
     /**
      * @en
      * Content string of label.
@@ -233,7 +243,6 @@ export class Label extends Renderable2D {
     get horizontalAlign () {
         return this._horizontalAlign;
     }
-
     set horizontalAlign (value) {
         if (this._horizontalAlign === value) {
             return;
@@ -256,7 +265,6 @@ export class Label extends Renderable2D {
     get verticalAlign () {
         return this._verticalAlign;
     }
-
     set verticalAlign (value) {
         if (this._verticalAlign === value) {
             return;
@@ -276,7 +284,6 @@ export class Label extends Renderable2D {
     get actualFontSize () {
         return this._actualFontSize;
     }
-
     set actualFontSize (value) {
         this._actualFontSize = value;
     }
@@ -293,7 +300,6 @@ export class Label extends Renderable2D {
     get fontSize () {
         return this._fontSize;
     }
-
     set fontSize (value) {
         if (this._fontSize === value) {
             return;
@@ -316,7 +322,6 @@ export class Label extends Renderable2D {
     get fontFamily () {
         return this._fontFamily;
     }
-
     set fontFamily (value) {
         if (this._fontFamily === value) {
             return;
@@ -362,7 +367,6 @@ export class Label extends Renderable2D {
     get spacingX () {
         return this._spacingX;
     }
-
     set spacingX (value) {
         if (this._spacingX === value) {
             return;
@@ -385,7 +389,6 @@ export class Label extends Renderable2D {
     get overflow () {
         return this._overflow;
     }
-
     set overflow (value) {
         if (this._overflow === value) {
             return;
@@ -431,7 +434,6 @@ export class Label extends Renderable2D {
         // return this._N$file;
         return this._font;
     }
-
     set font (value) {
         if (this._font === value) {
             return;
@@ -470,7 +472,6 @@ export class Label extends Renderable2D {
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
-
     set useSystemFont (value) {
         if (this._isSystemFontUsed === value) {
             return;
@@ -508,7 +509,6 @@ export class Label extends Renderable2D {
     get cacheMode () {
         return this._cacheMode;
     }
-
     set cacheMode (value) {
         if (this._cacheMode === value) {
             return;
@@ -533,14 +533,6 @@ export class Label extends Renderable2D {
         this.updateRenderData(true);
     }
 
-    get spriteFrame () {
-        return this._texture;
-    }
-
-    get ttfSpriteFrame () {
-        return this._ttfSpriteFrame;
-    }
-
     /**
      * @en
      * Whether the font is bold.
@@ -553,7 +545,6 @@ export class Label extends Renderable2D {
     get isBold () {
         return this._isBold;
     }
-
     set isBold (value) {
         if (this._isBold === value) {
             return;
@@ -575,7 +566,6 @@ export class Label extends Renderable2D {
     get isItalic () {
         return this._isItalic;
     }
-
     set isItalic (value) {
         if (this._isItalic === value) {
             return;
@@ -597,7 +587,6 @@ export class Label extends Renderable2D {
     get isUnderline () {
         return this._isUnderline;
     }
-
     set isUnderline (value) {
         if (this._isUnderline === value) {
             return;
@@ -618,11 +607,18 @@ export class Label extends Renderable2D {
     public get underlineHeight () {
         return this._underlineHeight;
     }
-
     public set underlineHeight (value) {
         if (this._underlineHeight === value) return;
         this._underlineHeight = value;
         this.updateRenderData();
+    }
+
+    get spriteFrame () {
+        return this._texture;
+    }
+
+    get ttfSpriteFrame () {
+        return this._ttfSpriteFrame;
     }
 
     get assemblerData () {
@@ -644,12 +640,6 @@ export class Label extends Renderable2D {
             return -1;
         }
     }
-
-    public static HorizontalAlign = HorizontalTextAlignment;
-    public static VerticalAlign = VerticalTextAlignment;
-    public static Overflow = Overflow;
-    public static CacheMode = CacheMode;
-    public static _canvasPool = CanvasPool.getInstance();
 
     @serializable
     protected _string = 'label';
@@ -754,7 +744,8 @@ export class Label extends Renderable2D {
 
         if (force) {
             this._flushAssembler();
-            // Hack: Fixed the bug that richText wants to get the label length by _measureText, _assembler.updateRenderData will update the content size immediately.
+            // Hack: Fixed the bug that richText wants to get the label length by _measureText,
+            // _assembler.updateRenderData will update the content size immediately.
             if (this.renderData) this.renderData.vertDirty = true;
             this._applyFontTexture();
             if (this._assembler) {
@@ -764,15 +755,13 @@ export class Label extends Renderable2D {
     }
 
     protected _render (render: IBatcher) {
-        render.commitComp(this, this._texture, this._assembler!, null);
+        render.commitComp(this, this.renderData, this._texture, this._assembler!, null);
     }
 
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
     protected _updateColor () {
-        if (this._colorDirty) {
-            this.updateRenderData(false);
-            this._colorDirty = false;
-        }
+        super._updateColor();
+        this.updateRenderData(false);
     }
 
     protected _canRender () {
@@ -796,7 +785,7 @@ export class Label extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = Label.Assembler!.getAssembler(this);
+        const assembler = Label.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();

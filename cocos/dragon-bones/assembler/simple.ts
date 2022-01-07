@@ -124,53 +124,6 @@ export const simple: IAssembler = {
     },
 
     fillBuffers (comp: ArmatureDisplay, renderer: IBatcher) {
-        if (!comp || comp.meshRenderDataArray.length === 0) return;
-
-        const dataArray = comp.meshRenderDataArray;
-        const node = comp.node;
-
-        let buffer = renderer.acquireBufferBatch()!;
-        let floatOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexOffset = buffer.vertexOffset;
-
-        // 当前渲染的数据
-        const data = dataArray[comp._meshRenderDataArrayIdx];
-        const renderData = data.renderData;
-
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            floatOffset = 0;
-            indicesOffset = 0;
-            vertexOffset = 0;
-        }
-
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-        const matrix = node.worldMatrix;
-
-        const srcVBuf = renderData.vData;
-        const srcVIdx = renderData.vertexStart;
-        const srcIBuf = renderData.iData;
-
-        // copy all vertexData
-        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * STRIDE_FLOAT), floatOffset);
-        if (!comp._enableBatch) {
-            for (let i = 0; i < renderData.vertexCount; i++) {
-                const pOffset = floatOffset + i * STRIDE_FLOAT;
-                _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
-                _vec3u_temp.transformMat4(matrix);
-                vBuf[pOffset] = _vec3u_temp.x;
-                vBuf[pOffset + 1] = _vec3u_temp.y;
-                vBuf[pOffset + 2] = _vec3u_temp.z;
-            }
-        }
-
-        const srcIOffset = renderData.indicesStart;
-        for (let i = 0; i < renderData.indicesCount; i += 1) {
-            iBuf[i + indicesOffset] = srcIBuf[i + srcIOffset] + vertexOffset;
-        }
     },
 };
 
@@ -237,7 +190,7 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
         const rd = _buffer!.renderData;
         rd.reserve(_vertexCount, _indexCount);
 
-        _indexOffset = rd.indicesCount;
+        _indexOffset = rd.indexCount;
         _vfOffset = rd.vDataOffset;
         _vertexOffset = rd.vertexCount;
         vbuf = _buffer!.renderData.vData;
@@ -269,7 +222,7 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
             ibuf[_indexOffset++] = _vertexOffset + indices[ii];
         }
 
-        _buffer!.renderData.advance(_vertexCount, _indexCount);
+        _buffer!.renderData.updateRange(_vertexCount, _indexCount);
     }
 }
 
@@ -329,7 +282,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
         const rd = _buffer!.renderData;
         rd.reserve(_vertexCount, _indexCount);
 
-        _indexOffset = rd.indicesCount;
+        _indexOffset = rd.indexCount;
         _vfOffset = rd.vDataOffset;
         _vertexOffset = rd.vertexCount;
         vbuf = _buffer!.renderData.vData;
@@ -353,21 +306,16 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
 
         frameVFOffset += segVFCount;
 
-        if (calcTranslate) {
-            for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il; ii += STRIDE_FLOAT) {
-                vbuf[ii] += _m12;
-                vbuf[ii + 1] += _m13;
-            }
-        } else if (needBatch) {
-            for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il; ii += STRIDE_FLOAT) {
-                _x = vbuf[ii];
-                _y = vbuf[ii + 1];
-                vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
-                vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
-            }
+        let offset = 0;
+        for (let ii = 0, il = _vertexCount; ii < il; ii++) {
+            _x = vbuf[offset];
+            _y = vbuf[offset + 1];
+            vbuf[offset] = _x * _m00 + _y * _m04 + _m12;
+            vbuf[offset + 1] = _x * _m01 + _y * _m05 + _m13;
+            offset += STRIDE_FLOAT;
         }
 
-        _buffer!.renderData.advance(_vertexCount, _indexCount);
+        _buffer!.renderData.updateRange(_vertexCount, _indexCount);
 
         if (!(_handleVal & NEED_COLOR)) continue;
 
@@ -411,9 +359,8 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: IBatcher) {
         _handleVal |= NEED_COLOR;
     }
 
-    let worldMat: Mat4 | undefined;
+    const worldMat: Mat4 = _node.worldMatrix;
     if (_comp._enableBatch) {
-        worldMat = _node.worldMatrix as Mat4;
         _mustFlush = false;
         _handleVal |= NEED_BATCH;
     }
