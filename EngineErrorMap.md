@@ -621,6 +621,7 @@ Invalid index in MultiplexLayer switchTo message
 cc.Layer.addLayer(): layer should be non-null
 
 ### 2104
+
 Layer collision. The name of layer (%s) is collided with the name or value of some layer
 
 ### 2200
@@ -3058,6 +3059,18 @@ Stencil manager does not support level bigger than %d in this device.
 ### 9001
 
 Stencil manager is already empty, cannot pop any mask
+
+### 9002
+
+Failed to request any buffer from a mesh buffer without accessor
+
+### 9003
+
+The internal state of LinearBufferAccessor have severe issue and irreversible, please check the reason
+
+### 9004
+
+Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too large: %d bytes
 
 ### 9100
 

@@ -28,14 +28,18 @@
  * @hidden
  */
 
+import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Color } from '../../core/math';
 import { Pool, RecyclePool } from '../../core/memop';
-import { RenderScene } from '../../core/renderer/scene';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Renderable2D } from '../framework/renderable-2d';
+import { StaticVBChunk } from './static-vb-accessor';
+import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
+import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 
 export interface IRenderData {
     x: number;
@@ -46,13 +50,73 @@ export interface IRenderData {
     color: Color;
 }
 
+const DEFAULT_STRIDE = getAttributeStride(vfmtPosUvColor) >> 2;
+
 export class BaseRenderData {
     public material: Material | null = null;
-    public vertexCount = 0;
-    public indicesCount = 0;
+    get vertexCount () {
+        return this._vc;
+    }
+    get indexCount () {
+        return this._ic;
+    }
+    get stride () {
+        return this._floatStride << 2;
+    }
+    get floatStride () {
+        return this._floatStride;
+    }
+    public chunk: StaticVBChunk = null!;
+    public vertexFormat = vfmtPosUvColor;
+    public dataHash = 0;
+    public isMeshBuffer = false;
+
+    protected _vc = 0;
+    protected _ic = 0;
+    protected _floatStride = 0;
+
+    constructor (vertexFormat = vfmtPosUvColor) {
+        this._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
+        this.vertexFormat = vertexFormat;
+    }
+
+    public isValid () {
+        return this._ic > 0 && this.chunk.vertexAccessor;
+    }
+
+    public resize (vertexCount: number, indexCount: number) {
+        if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
+        this._vc = vertexCount;
+        this._ic = indexCount;
+        const batcher = director.root!.batcher2D;
+        const accessor = batcher.switchBufferAccessor(this.vertexFormat);
+        if (this.chunk) {
+            accessor.recycleChunk(this.chunk);
+            this.chunk = null!;
+        }
+        // renderData always have chunk
+        this.chunk = accessor.allocateChunk(vertexCount, indexCount)!;
+    }
 }
 
 export class RenderData extends BaseRenderData {
+    public static add (vertexFormat = vfmtPosUvColor) {
+        const rd = _pool.add();
+        rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
+        rd.vertexFormat = vertexFormat;
+        return rd;
+    }
+
+    public static remove (data: RenderData) {
+        const idx = _pool.data.indexOf(data);
+        if (idx === -1) {
+            return;
+        }
+
+        _pool.data[idx].clear();
+        _pool.removeAt(idx);
+    }
+
     get dataLength () {
         return this._data.length;
     }
@@ -79,23 +143,6 @@ export class RenderData extends BaseRenderData {
         return this._data;
     }
 
-    public static add () {
-        return _pool.add();
-    }
-
-    public static remove (data: RenderData) {
-        const idx = _pool.data.indexOf(data);
-        if (idx === -1) {
-            return;
-        }
-
-        _pool.data[idx].clear();
-        _pool.removeAt(idx);
-    }
-
-    public vData: Float32Array | null = null;
-
-    public uvDirty = true;
     public vertDirty = true;
 
     private _data: IRenderData[] = [];
@@ -105,22 +152,22 @@ export class RenderData extends BaseRenderData {
     private _width = 0;
     private _height = 0;
 
-    public renderScene: RenderScene | null = null;
-    public layer = 0;
-    public nodeDirty = true;
-
-    public blendHash = -1;
-    public passDirty = true;
-
     public frame;
+    public layer = 0;
+    public blendHash = -1;
     public textureHash = 0;
-    public textureDirty = true;
 
+    public nodeDirty = true;
+    public passDirty = true;
+    public textureDirty = true;
     public hashDirty = true;
-    public dataHash = 0;
+
+    public resize (vertexCount: number, indexCount: number) {
+        super.resize(vertexCount, indexCount);
+        this.updateHash();
+    }
 
     public updateNode (comp: Renderable2D) {
-        this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
         this.layer = comp.node.layer;
         this.nodeDirty = false;
         this.hashDirty = true;
@@ -141,7 +188,8 @@ export class RenderData extends BaseRenderData {
     }
 
     public updateHash () {
-        const hashString = ` ${this.layer} ${this.blendHash} ${this.textureHash}`;
+        const bid = this.chunk ? this.chunk.bufferId : -1;
+        const hashString = `${bid}${this.layer} ${this.blendHash} ${this.textureHash}`;
         this.dataHash = murmurhash2_32_gc(hashString, 666);
         this.hashDirty = false;
     }
@@ -154,10 +202,10 @@ export class RenderData extends BaseRenderData {
             this.hashDirty = true;
         }
         if (this.nodeDirty) {
-            this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
+            const renderScene = comp.node.scene ? comp._getRenderScene() : null;
             this.layer = comp.node.layer;
             // Hack for updateRenderData when node not add to scene
-            if (this.renderScene !== null) {
+            if (renderScene !== null) {
                 this.nodeDirty = false;
             }
             this.hashDirty = true;
@@ -189,33 +237,62 @@ export class RenderData extends BaseRenderData {
     }
 
     public clear () {
+        this.resize(0, 0);
         this._data.length = 0;
         this._indices.length = 0;
         this._pivotX = 0;
         this._pivotY = 0;
         this._width = 0;
         this._height = 0;
-        this.uvDirty = true;
         this.vertDirty = true;
         this.material = null;
-        this.vertexCount = 0;
-        this.indicesCount = 0;
 
         this.nodeDirty = true;
         this.passDirty = true;
         this.textureDirty = true;
         this.hashDirty = true;
 
-        this.renderScene = null;
         this.layer = 0;
         this.blendHash = -1;
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
+        this.vertexFormat = vfmtPosUvColor;
     }
 }
 
 export class MeshRenderData extends BaseRenderData {
+    public static add (vertexFormat = vfmtPosUvColor) {
+        const rd = _meshDataPool.add();
+        rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
+        rd.vertexFormat = vertexFormat;
+        return rd;
+    }
+
+    public static remove (data: MeshRenderData) {
+        const idx = _meshDataPool.data.indexOf(data);
+        if (idx === -1) {
+            return;
+        }
+
+        _meshDataPool.data[idx].clear();
+        _meshDataPool.removeAt(idx);
+    }
+
+    /**
+     * @deprecated
+     */
+    set formatByte (value: number) {}
+    get formatByte () { return this.stride; }
+
+    get floatStride () { return this._floatStride; }
+
+    /**
+     * Index of Float32Array: vData
+     */
+    get vDataOffset () { return this.byteCount >>> 2; }
+
+    public isMeshBuffer = true;
     public vData: Float32Array;
     public iData: Uint16Array;
     /**
@@ -225,59 +302,35 @@ export class MeshRenderData extends BaseRenderData {
     /**
      * Number of indices
      */
-    public indicesStart = 0;
+    public indexStart = 0;
     public byteStart = 0;
     public byteCount = 0;
     // only for graphics
-    public lastFilledIndices = 0;
+    public lastFilledIndex = 0;
     public lastFilledVertex = 0;
 
-    private _formatByte:number;
+    private _vertexBuffers: Buffer[] = [];
+    private _indexBuffer: Buffer = null!;
+    private _ia: InputAssembler = null!;
 
-    constructor (vertexFloatCnt = 9) {
-        super();
-        this._formatByte = vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT;
-        this.vData = new Float32Array(256 * vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT);
+    constructor (vertexFormat = vfmtPosUvColor) {
+        super(vertexFormat);
+        this.vData = new Float32Array(256 * this.stride);
         this.iData = new Uint16Array(256 * 6);
     }
 
-    set formatByte (value: number) { this._formatByte = value; }
-
-    get formatByte () { return this._formatByte; }
-
-    get floatStride () { return this._formatByte >> 2; }
-
-    /**
-     * Index of Float32Array: vData
-     */
-    get vDataOffset () { return this.byteCount >>> 2; }
-
-    public static add () {
-        return _meshDataPool.add();
-    }
-
-    public static remove (data: MeshRenderData) {
-        const idx = _meshDataPool.data.indexOf(data);
-        if (idx === -1) {
-            return;
-        }
-
-        _meshDataPool.data[idx].reset();
-        _meshDataPool.removeAt(idx);
-    }
-
-    public request (vertexCount: number, indicesCount: number) {
-        const byteOffset = this.byteCount + vertexCount * this._formatByte;
-        this.reserve(vertexCount, indicesCount);
-        this.vertexCount += vertexCount; // vertexOffset
-        this.indicesCount += indicesCount; // indicesOffset
+    public request (vertexCount: number, indexCount: number) {
+        const byteOffset = this.byteCount + vertexCount * this.stride;
+        this.reserve(vertexCount, indexCount);
+        this._vc += vertexCount; // vertexOffset
+        this._ic += indexCount; // indicesOffset
         this.byteCount = byteOffset; // byteOffset
         return true;
     }
 
-    public reserve (vertexCount: number, indicesCount: number) {
-        const newVBytes = this.byteCount + vertexCount * this._formatByte;
-        const newICount = this.indicesCount + indicesCount;
+    public reserve (vertexCount: number, indexCount: number) {
+        const newVBytes = this.byteCount + vertexCount * this.stride;
+        const newICount = this.indexCount + indexCount;
 
         if (vertexCount + this.vertexCount > 65535) {
             return false;
@@ -301,31 +354,104 @@ export class MeshRenderData extends BaseRenderData {
         return true;
     }
 
-    public advance (vertexCount: number, indicesCount: number) {
-        this.vertexCount += vertexCount; // vertexOffset
-        this.indicesCount += indicesCount; // indicesOffset
-        this.byteCount += vertexCount * this._formatByte;
+    public updateRange (vertexCount: number, indexCount: number) {
+        const vc = this._vc + vertexCount;
+        const ic = this._ic + indexCount;
+        assertIsTrue(vc >= 0 && ic >= 0);
+        this._vc = vc; // vertexOffset
+        this._ic = ic; // indicesOffset
+        this.byteCount += vertexCount * this.stride;
+    }
+
+    public requestIA (device: Device) {
+        if (!this._ia) {
+            const vbStride = this.stride;
+            const vbs = this._vertexBuffers;
+            if (!vbs.length) {
+                vbs.push(device.createBuffer(new BufferInfo(
+                    BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.DEVICE,
+                    vbStride,
+                    vbStride,
+                )));
+            }
+            const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+            if (!this._indexBuffer) {
+                this._indexBuffer = device.createBuffer(new BufferInfo(
+                    BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.DEVICE,
+                    ibStride,
+                    ibStride,
+                ));
+            }
+            const iaInfo = new InputAssemblerInfo(this.vertexFormat, vbs, this._indexBuffer);
+            this._ia = device.createInputAssembler(iaInfo);
+        }
+        this._ia.firstIndex = 0;
+        this._ia.indexCount = this.indexCount;
+        return this._ia;
+    }
+
+    public uploadBuffers () {
+        if (this.byteCount === 0 || !this._vertexBuffers[0] || !this._indexBuffer) {
+            return;
+        }
+
+        const verticesData = new Float32Array(this.vData.buffer, this.byteStart, this.byteCount >> 2);
+        const indicesData = new Uint16Array(this.iData.buffer, this.indexStart << 1, this.indexCount);
+
+        const vertexBuffer = this._vertexBuffers[0];
+        if (this.byteCount > vertexBuffer.size) {
+            vertexBuffer.resize(this.byteCount);
+        }
+        vertexBuffer.update(verticesData);
+
+        const indexBytes = this.indexCount << 1;
+        if (indexBytes > this._indexBuffer.size) {
+            this._indexBuffer.resize(indexBytes);
+        }
+        this._indexBuffer.update(indicesData);
     }
 
     public reset () {
-        this.vertexCount = 0;
-        this.indicesCount = 0;
+        this._vc = 0;
+        this._ic = 0;
         this.byteCount = 0;
         this.vertexStart = 0;
-        this.indicesStart = 0;
+        this.indexStart = 0;
         this.byteStart = 0;
-        this.lastFilledIndices = 0;
+        this.lastFilledIndex = 0;
         this.lastFilledVertex = 0;
+        this.material = null;
+        this._ia = null!;
+        if (this._vertexBuffers[0]) {
+            this._vertexBuffers[0].destroy();
+            this._vertexBuffers = [];
+        }
+    }
+
+    public clear () {
+        this.reset();
+        this.vData = new Float32Array(256 * this.stride);
+        this.iData = new Uint16Array(256 * 6);
     }
 
     protected _reallocBuffer (vCount, iCount) {
         // copy old data
         const oldVData = this.vData;
         this.vData = new Float32Array(vCount);
-        this.vData.set(oldVData, 0);
+        if (oldVData) {
+            this.vData.set(oldVData, 0);
+        }
         const oldIData = this.iData;
         this.iData = new Uint16Array(iCount);
-        this.iData.set(oldIData, 0);
+        if (oldIData) {
+            this.iData.set(oldIData, 0);
+        }
+    }
+
+    // overload
+    public resize (vertexCount: number, indexCount: number) {
     }
 }
 

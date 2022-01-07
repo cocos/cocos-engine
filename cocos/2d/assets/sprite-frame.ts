@@ -33,9 +33,7 @@
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD, UI_GPU_DRIVEN } from 'internal:constants';
 import { Rect, Size, Vec2 } from '../../core/math';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { Asset } from '../../core/assets/asset';
-import { RenderTexture } from '../../core/assets/render-texture';
 import { TextureBase } from '../../core/assets/texture-base';
 import { legacyCC } from '../../core/global-exports';
 import { ImageAsset, ImageSource } from '../../core/assets/image-asset';
@@ -239,6 +237,12 @@ export class SpriteFrame extends Asset {
         spf.texture = tex;
         return spf;
     }
+
+    /**
+     * @en
+     * @zh
+     */
+    public static EVENT_UV_UPDATED = 'uv_updated';
 
     /**
      * @en Top border distance of sliced 9 rect.
@@ -495,7 +499,6 @@ export class SpriteFrame extends Asset {
      * @zh 矩形的顶点 UV
      */
     public uv: number[] = [];
-    public uvHash = 0;
 
     // macro.UI_GPU_DRIVEN
     public declare tillingOffset: number[];
@@ -859,6 +862,10 @@ export class SpriteFrame extends Asset {
                 }
             }
         }
+
+        // UV update event for components to update uv buffer
+        // CalculateUV will trigger _calculateSlicedUV so it's enough to emit here
+        this.emit(SpriteFrame.EVENT_UV_UPDATED, this);
     }
 
     // Calculate UV
@@ -1080,12 +1087,6 @@ export class SpriteFrame extends Asset {
             }
         }
 
-        let uvHashStr = '';
-        for (let i = 0; i < uv.length; i++) {
-            uvHashStr += uv[i];
-        }
-        this.uvHash = murmurhash2_32_gc(uvHashStr, 666);
-
         const vertices = this.vertices;
         if (vertices) {
             vertices.nu.length = 0;
@@ -1253,7 +1254,6 @@ export class SpriteFrame extends Asset {
             v: v.v?.slice(0),
         } : null as any;
         sp.uv.splice(0, sp.uv.length, ...this.uv);
-        sp.uvHash = this.uvHash;
         sp.unbiasUV.splice(0, sp.unbiasUV.length, ...this.unbiasUV);
         sp.uvSliced.splice(0, sp.uvSliced.length, ...this.uvSliced);
         sp._rect.set(this._rect);

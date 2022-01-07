@@ -114,14 +114,13 @@ export const ttfUtils =  {
             this._calculateLabelFont();
             this._updateLabelDimensions();
             this._updateTexture(comp);
-            this.updateOpacity(comp);
             this._calDynamicAtlas(comp);
 
             comp.actualFontSize = _fontSize;
             trans.setContentSize(_canvasSize);
 
             this.updateVertexData(comp);
-            this.updateUvs(comp);
+            this.updateUVs(comp);
 
             comp.markForUpdateRenderData(false);
 
@@ -139,19 +138,7 @@ export const ttfUtils =  {
     updateVertexData (comp: Label) {
     },
 
-    updateUvs (comp: Label) {
-    },
-
-    updateOpacity (comp: Label) {
-        const vData = comp.renderData!.vData;
-
-        let colorOffset = 5;
-        const colorA = comp.node._uiProps.opacity;
-        for (let i = 0; i < 4; i++) {
-            vData![colorOffset + 3] = colorA;
-
-            colorOffset += 9;
-        }
+    updateUVs (comp: Label) {
     },
 
     _updateFontFamily (comp: Label) {
@@ -366,7 +353,7 @@ export const ttfUtils =  {
         if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
-        comp.renderData!.uvDirty = true;
+        // TODO update material and uv
     },
 
     _setupOutline () {

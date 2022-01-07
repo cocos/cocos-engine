@@ -11,7 +11,7 @@ import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
 import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
 import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
-import { Color, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
+import { Color, Mat4, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 
@@ -177,52 +177,6 @@ export const simple: IAssembler = {
     },
 
     fillBuffers (comp: Skeleton, renderer: IBatcher) {
-        if (!comp || !comp.meshRenderDataArray) return;
-        _comp = comp;
-        const dataArray = comp.meshRenderDataArray;
-        const node = comp.node;
-
-        // 当前渲染的数据
-        const data = dataArray[comp._meshRenderDataArrayIdx];
-        const renderData = data.renderData;
-
-        let buffer = renderer.acquireBufferBatch(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor)!;
-        let floatOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexOffset = buffer.vertexOffset;
-
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            floatOffset = 0;
-            indicesOffset = 0;
-            vertexOffset = 0;
-        }
-
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-        const matrix = node.worldMatrix;
-
-        const srcVBuf = renderData.vData;
-        const srcVIdx = renderData.vertexStart;
-        const srcIBuf = renderData.iData;
-
-        // copy all vertexData
-        const strideFloat = renderData.floatStride;
-        vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + renderData.vertexCount * strideFloat), floatOffset);
-        for (let i = 0; i < renderData.vertexCount; i++) {
-            const pOffset = floatOffset + i * strideFloat;
-            _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
-            _vec3u_temp.transformMat4(matrix);
-            vBuf[pOffset] = _vec3u_temp.x;
-            vBuf[pOffset + 1] = _vec3u_temp.y;
-            vBuf[pOffset + 2] = _vec3u_temp.z;
-        }
-
-        const srcIOffset = renderData.indicesStart;
-        for (let i = 0; i < renderData.indicesCount; i += 1) {
-            iBuf[i + indicesOffset] = srcIBuf[i + srcIOffset] + vertexOffset;
-        }
     },
 };
 
@@ -244,7 +198,7 @@ function updateComponentRenderData (comp: Skeleton, ui: IBatcher) {
     // huge performance impact
     comp.destroyRenderData();
 
-    _buffer = comp.requestMeshRenderData(_perVertexSize);
+    _buffer = comp.requestMeshRenderData(_useTint ? vfmtPosUvTwoColor : vfmtPosUvColor);
     _comp = comp;
 
     _currentMaterial = null;
@@ -361,7 +315,7 @@ function fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color,
         _vertexFloatCount = clippedVertices.length / _perClipVertexSize * _perVertexSize;
 
         _buffer!.renderData.reserve(_vertexFloatCount / _perVertexSize, _indexCount);
-        _indexOffset = _buffer!.renderData.indicesCount;
+        _indexOffset = _buffer!.renderData.indexCount;
         _vertexOffset = _buffer!.renderData.vertexCount;
         _vertexFloatOffset = _buffer!.renderData.vDataOffset;
         vbuf = _buffer!.renderData.vData;
@@ -520,7 +474,7 @@ function realTimeTraverse (worldMat?: Mat4) {
         if (_mustFlush || material.hash !== _currentMaterial.hash || (texture && _currentTexture !== texture)) {
             _mustFlush = false;
 
-            _buffer = _comp!.requestMeshRenderData(_perVertexSize);
+            _buffer = _comp!.requestMeshRenderData(_useTint ? vfmtPosUvTwoColor : vfmtPosUvColor);
             _currentMaterial = material;
             _currentTexture = texture;
             _buffer.texture = texture!;
@@ -535,7 +489,7 @@ function realTimeTraverse (worldMat?: Mat4) {
             _indexCount = 6;
 
             _buffer!.renderData.reserve(4, 6);
-            _indexOffset = _buffer!.renderData.indicesCount;
+            _indexOffset = _buffer!.renderData.indexCount;
             _vertexOffset = _buffer!.renderData.vertexCount;
             _vertexFloatOffset = _buffer!.renderData.vDataOffset;
             vbuf = _buffer!.renderData.vData;
@@ -564,7 +518,7 @@ function realTimeTraverse (worldMat?: Mat4) {
 
             _buffer!.renderData.reserve(mattachment.worldVerticesLength >> 1, _indexCount);
 
-            _indexOffset = _buffer!.renderData.indicesCount;
+            _indexOffset = _buffer!.renderData.indexCount;
             _vertexOffset = _buffer!.renderData.vertexCount;
             _vertexFloatOffset = _buffer!.renderData.vDataOffset;
 
@@ -635,7 +589,7 @@ function realTimeTraverse (worldMat?: Mat4) {
                     vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
                 }
             }
-            _buffer!.renderData.advance(_vertexFloatCount / _perVertexSize, _indexCount);
+            _buffer!.renderData.updateRange(_vertexFloatCount / _perVertexSize, _indexCount);
         }
 
         clipper.clipEndWithSlot(slot);
@@ -718,7 +672,7 @@ function cacheTraverse (worldMat?: Mat4) {
             if (!_buffer!.texture) {
                 _buffer!.texture = segInfo.tex!;
             }
-            _buffer = _comp!.requestMeshRenderData(_vfmtFloatSize(_useTint));
+            _buffer = _comp!.requestMeshRenderData(_useTint ? vfmtPosUvTwoColor : vfmtPosUvColor);
             _currentMaterial = material;
             _currentTexture = segInfo.tex!;
             _buffer.texture = segInfo.tex!;
@@ -730,7 +684,7 @@ function cacheTraverse (worldMat?: Mat4) {
 
         _buffer!.renderData.reserve(_vertexCount, _indexCount);
 
-        _indexOffset = _buffer!.renderData.indicesCount;
+        _indexOffset = _buffer!.renderData.indexCount;
         _vertexOffset = _buffer!.renderData.vertexCount;
         _vfOffset = _buffer!.renderData.vDataOffset;
         vbuf = _buffer!.renderData.vData;
@@ -781,7 +735,7 @@ function cacheTraverse (worldMat?: Mat4) {
             }
         }
 
-        _buffer!.renderData.advance(_vertexCount, _indexCount);
+        _buffer!.renderData.updateRange(_vertexCount, _indexCount);
 
         if (!_needColor) continue;
 
