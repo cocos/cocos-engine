@@ -142,11 +142,16 @@ void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::arra
     memcpy(shadowUBO->data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(color));
 }
 
+void updatePlanarNormalAndDistance(scene::Shadow *shadows, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+    const Vec3  normal          = shadows->normal.getNormalized();
+    const float planarNDInfo[4] = {normal.x, normal.y, normal.z, shadows->distance};
+    memcpy(shadowUBO->data() + UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET, &planarNDInfo, sizeof(planarNDInfo));
+}
+
 void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera) {
-    const auto *const            scene               = camera->scene;
-    PipelineSceneData *          sceneData           = pipeline->getPipelineSceneData();
-    vector<const scene::Light *> validPunctualLights = sceneData->getValidPunctualLights();
-    validPunctualLights.clear();
+    const auto *const  scene     = camera->scene;
+    PipelineSceneData *sceneData = pipeline->getPipelineSceneData();
+    sceneData->clearValidPunctualLights();
 
     scene::Sphere sphere;
     for (auto *light : scene->getSpotLights()) {
@@ -157,7 +162,7 @@ void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera)
         sphere.setCenter(light->getPosition());
         sphere.setRadius(light->getRange());
         if (sphere.sphereFrustum(camera->frustum)) {
-            validPunctualLights.emplace_back(static_cast<scene::Light *>(light));
+            sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
         }
     }
 
@@ -169,11 +174,9 @@ void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera)
         sphere.setCenter(light->getPosition());
         sphere.setRadius(light->getRange());
         if (sphere.sphereFrustum(camera->frustum)) {
-            validPunctualLights.emplace_back(static_cast<scene::Light *>(light));
+            sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
         }
     }
-
-    sceneData->setValidPunctualLights(std::move(validPunctualLights));
 }
 
 Mat4 getCameraWorldMatrix(const scene::Camera *camera) {
@@ -217,85 +220,109 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
     const float                           shadowMapWidth          = shadowInfo->size.x;
     const auto *                          node                    = mainLight->getNode();
     const Quaternion &                    rotation                = node->getWorldRotation();
+    const bool                            fixedArea               = shadowInfo->fixedArea;
 
-    // Raw data.
-    const Mat4     matWorldTrans = getCameraWorldMatrix(camera);
-    scene::Frustum validFrustum;
-    validFrustum.type = scene::ShapeEnums::SHAPE_FRUSTUM_ACCURATE;
-    validFrustum.split(0.1F, shadowInfo->shadowDistance, camera->aspect, camera->fov, matWorldTrans);
-    scene::Frustum lightViewFrustum = validFrustum.clone();
+    if (fixedArea) {
+        const float x         = shadowInfo->orthoSize;
+        const float y         = shadowInfo->orthoSize;
+        const float nearClamp = shadowInfo->nearValue;
+        const float farClamp  = shadowInfo->farValue;
 
-    // view matrix with range back.
-    Mat4 matShadowTrans;
-    Mat4::fromRT(rotation, Vec3::ZERO, &matShadowTrans);
-    Mat4 matShadowView    = matShadowTrans.getInversed();
-    Mat4 matShadowViewInv = matShadowTrans.clone();
+        Mat4 matShadowTrans;
+        Mat4::fromRT(rotation, node->getWorldPosition(), &matShadowTrans);
+        Mat4        matShadowView    = matShadowTrans.getInversed();
+        Mat4        matShadowViewInv = matShadowTrans.clone();
+        const float projectionSinY   = device->getCapabilities().clipSpaceSignY;
+        const float clipSpaceMinZ    = device->getCapabilities().clipSpaceMinZ;
+        Mat4        matShadowProj;
+        Mat4::createOrthographicOffCenter(-x, x, -y, y, -nearClamp,
+                                          farClamp, clipSpaceMinZ, projectionSinY, &matShadowProj);
+        Mat4 matShadowViewProj = matShadowProj * matShadowView;
+        sceneData->setMatShadowView(matShadowView);
+        sceneData->setMatShadowProj(matShadowProj);
+        sceneData->setMatShadowViewProj(matShadowViewProj);
 
-    const Mat4 shadowViewArbitraryPos = matShadowView.clone();
-    lightViewFrustum.transform(matShadowView);
-    // bounding box in light space.
-    scene::AABB castLightViewBounds;
-    scene::AABB::fromPoints(Vec3(10000000.0F, 10000000.0F, 10000000.0F), Vec3(-10000000.0F, -10000000.0F, -10000000.0F), &castLightViewBounds);
-    castLightViewBounds.merge(lightViewFrustum);
+        out->createOrtho(x * 2.0F, y * 2.0F, nearClamp, farClamp, matShadowViewInv);
+    } else {
+        // Raw data.
+        const Mat4     matWorldTrans = getCameraWorldMatrix(camera);
+        scene::Frustum validFrustum;
+        validFrustum.type = scene::ShapeEnums::SHAPE_FRUSTUM_ACCURATE;
+        validFrustum.split(0.1F, shadowInfo->shadowDistance, camera->aspect, camera->fov, matWorldTrans);
+        scene::Frustum lightViewFrustum = validFrustum.clone();
 
-    const float r = castLightViewBounds.getHalfExtents().z * 2.0F;
-    Vec3        shadowPos(castLightViewBounds.getCenter().x, castLightViewBounds.getCenter().y,
-                   castLightViewBounds.getCenter().z + castLightViewBounds.getHalfExtents().z + invisibleOcclusionRange);
-    shadowPos.transformMat4(shadowPos, matShadowViewInv);
+        // view matrix with range back.
+        Mat4 matShadowTrans;
+        Mat4::fromRT(rotation, Vec3::ZERO, &matShadowTrans);
+        Mat4 matShadowView    = matShadowTrans.getInversed();
+        Mat4 matShadowViewInv = matShadowTrans.clone();
 
-    Mat4::fromRT(rotation, shadowPos, &matShadowTrans);
-    matShadowView    = matShadowTrans.getInversed();
-    matShadowViewInv = matShadowTrans.clone();
+        const Mat4 shadowViewArbitraryPos = matShadowView.clone();
+        lightViewFrustum.transform(matShadowView);
+        // bounding box in light space.
+        scene::AABB castLightViewBounds;
+        scene::AABB::fromPoints(Vec3(10000000.0F, 10000000.0F, 10000000.0F), Vec3(-10000000.0F, -10000000.0F, -10000000.0F), &castLightViewBounds);
+        castLightViewBounds.merge(lightViewFrustum);
 
-    // calculate projection matrix params.
-    // min value may lead to some shadow leaks.
-    const float orthoSizeMin = validFrustum.vertices[0].distance(validFrustum.vertices[6]);
-    // max value is accurate but poor usage for shadowMap
-    scene::Sphere cameraBoundingSphere;
-    cameraBoundingSphere.setCenter(Vec3(0.0F, 0.0F, 0.0F));
-    cameraBoundingSphere.setRadius(-1.0F);
-    cameraBoundingSphere.merge(validFrustum);
-    const float orthoSizeMax = cameraBoundingSphere.getRadius() * 2.0F;
-    // use lerp(min, accurate_max) to save shadowMap usage
-    const float orthoSize = orthoSizeMin * 0.8F + orthoSizeMax * 0.2F;
-    sceneData->setShadowCameraFar(r + invisibleOcclusionRange);
+        const float r = castLightViewBounds.getHalfExtents().z * 2.0F;
+        Vec3        shadowPos(castLightViewBounds.getCenter().x, castLightViewBounds.getCenter().y,
+                       castLightViewBounds.getCenter().z + castLightViewBounds.getHalfExtents().z + invisibleOcclusionRange);
+        shadowPos.transformMat4(shadowPos, matShadowViewInv);
 
-    // snap to whole texels
-    const float halfOrthoSize = orthoSize * 0.5F;
-    Mat4        matShadowProj;
-    const float projectionSinY = device->getCapabilities().clipSpaceSignY;
-    const float clipSpaceMinZ  = device->getCapabilities().clipSpaceMinZ;
-    Mat4::createOrthographicOffCenter(-halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1F, sceneData->getShadowCameraFar(),
-                                      clipSpaceMinZ, projectionSinY, &matShadowProj);
-
-    if (shadowMapWidth > 0.0F) {
-        const Mat4 matShadowViewProjArbitraryPos = matShadowProj * shadowViewArbitraryPos;
-        Vec3       projPos;
-        projPos.transformMat4(shadowPos, matShadowViewProjArbitraryPos);
-        const float invActualSize = 2.0F / shadowMapWidth;
-        const Vec2  texelSize(invActualSize, invActualSize);
-        const float modX = fmodf(projPos.x, texelSize.x);
-        const float modY = fmodf(projPos.y, texelSize.y);
-        const Vec3  projSnap(projPos.x - modX, projPos.y - modY, projPos.z);
-
-        const Mat4 matShadowViewProjArbitaryPosInv = matShadowViewProjArbitraryPos.getInversed();
-        Vec3       snap;
-        snap.transformMat4(projSnap, matShadowViewProjArbitaryPosInv);
-        Mat4::fromRT(rotation, snap, &matShadowTrans);
+        Mat4::fromRT(rotation, shadowPos, &matShadowTrans);
         matShadowView    = matShadowTrans.getInversed();
         matShadowViewInv = matShadowTrans.clone();
-        out->createOrtho(orthoSize, orthoSize, 0.1F, sceneData->getShadowCameraFar(), matShadowViewInv);
-    } else {
-        for (uint i = 0; i < 8; i++) {
-            out->vertices[i].setZero();
-        }
-        out->updatePlanes();
-    }
 
-    const Mat4 matShadowViewProj = matShadowProj * matShadowView;
-    sceneData->setMatShadowView(matShadowView);
-    sceneData->setMatShadowProj(matShadowProj);
-    sceneData->setMatShadowViewProj(matShadowViewProj);
+        // calculate projection matrix params.
+        // min value may lead to some shadow leaks.
+        const float orthoSizeMin = validFrustum.vertices[0].distance(validFrustum.vertices[6]);
+        // max value is accurate but poor usage for shadowMap
+        scene::Sphere cameraBoundingSphere;
+        cameraBoundingSphere.setCenter(Vec3(0.0F, 0.0F, 0.0F));
+        cameraBoundingSphere.setRadius(-1.0F);
+        cameraBoundingSphere.merge(validFrustum);
+        const float orthoSizeMax = cameraBoundingSphere.getRadius() * 2.0F;
+        // use lerp(min, accurate_max) to save shadowMap usage
+        const float orthoSize = orthoSizeMin * 0.8F + orthoSizeMax * 0.2F;
+        sceneData->setShadowCameraFar(r + invisibleOcclusionRange);
+
+        // snap to whole texels
+        const float halfOrthoSize = orthoSize * 0.5F;
+        Mat4        matShadowProj;
+        const float projectionSinY = device->getCapabilities().clipSpaceSignY;
+        const float clipSpaceMinZ  = device->getCapabilities().clipSpaceMinZ;
+        Mat4::createOrthographicOffCenter(-halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1F, sceneData->getShadowCameraFar(),
+                                          clipSpaceMinZ, projectionSinY, &matShadowProj);
+
+        if (shadowMapWidth > 0.0F) {
+            const Mat4 matShadowViewProjArbitraryPos = matShadowProj * shadowViewArbitraryPos;
+            Vec3       projPos;
+            projPos.transformMat4(shadowPos, matShadowViewProjArbitraryPos);
+            const float invActualSize = 2.0F / shadowMapWidth;
+            const Vec2  texelSize(invActualSize, invActualSize);
+            const float modX = fmodf(projPos.x, texelSize.x);
+            const float modY = fmodf(projPos.y, texelSize.y);
+            const Vec3  projSnap(projPos.x - modX, projPos.y - modY, projPos.z);
+
+            const Mat4 matShadowViewProjArbitaryPosInv = matShadowViewProjArbitraryPos.getInversed();
+            Vec3       snap;
+            snap.transformMat4(projSnap, matShadowViewProjArbitaryPosInv);
+            Mat4::fromRT(rotation, snap, &matShadowTrans);
+            matShadowView    = matShadowTrans.getInversed();
+            matShadowViewInv = matShadowTrans.clone();
+            out->createOrtho(orthoSize, orthoSize, 0.1F, sceneData->getShadowCameraFar(), matShadowViewInv);
+        } else {
+            for (uint i = 0; i < 8; i++) {
+                out->vertices[i].setZero();
+            }
+            out->updatePlanes();
+        }
+
+        const Mat4 matShadowViewProj = matShadowProj * matShadowView;
+        sceneData->setMatShadowView(matShadowView);
+        sceneData->setMatShadowProj(matShadowProj);
+        sceneData->setMatShadowViewProj(matShadowViewProj);
+    }
 }
 void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
     PipelineSceneData *const              sceneData  = pipeline->getPipelineSceneData();
@@ -322,11 +349,12 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         }
     }
 
-    RenderObjectList renderObjects;
+    sceneData->clearRenderObjects();
+
     RenderObjectList castShadowObject;
 
     if (skyBox->enabled && skyBox->model && (camera->clearFlag & skyboxFlag)) {
-        renderObjects.emplace_back(genRenderObject(skyBox->model, camera));
+        sceneData->addRenderObject(genRenderObject(skyBox->model, camera));
     }
 
     const scene::Octree *octree = scene->getOctree();
@@ -345,7 +373,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
                     (visibility & model->getVisFlags())) {
                     const auto *modelWorldBounds = model->getWorldBounds();
                     if (!modelWorldBounds && skyBox->model != model) {
-                        renderObjects.emplace_back(genRenderObject(model, camera));
+                        sceneData->addRenderObject(genRenderObject(model, camera));
                     }
                 }
             }
@@ -354,11 +382,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         if (isShadowMap) {
             std::vector<scene::Model *> casters;
             casters.reserve(scene->getModels().size() / 4);
-            if (shadowInfo->fixedArea) {
-                octree->queryVisibility(camera, camera->frustum, true, casters);
-            } else {
-                octree->queryVisibility(camera, dirLightFrustum, true, casters);
-            }
+            octree->queryVisibility(camera, dirLightFrustum, true, casters);
             for (const auto *model : casters) {
                 dirShadowObjects.emplace_back(genRenderObject(model, camera));
             }
@@ -368,7 +392,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         models.reserve(scene->getModels().size() / 4);
         octree->queryVisibility(camera, camera->frustum, false, models);
         for (const auto *model : models) {
-            renderObjects.emplace_back(genRenderObject(model, camera));
+            sceneData->addRenderObject(genRenderObject(model, camera));
         }
     } else {
         scene::AABB ab;
@@ -387,27 +411,20 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
                     (visibility & model->getVisFlags())) {
                     const auto *modelWorldBounds = model->getWorldBounds();
                     if (!modelWorldBounds) {
-                        renderObjects.emplace_back(genRenderObject(model, camera));
+                        sceneData->addRenderObject(genRenderObject(model, camera));
                         continue;
                     }
 
                     // dir shadow render Object
                     if (isShadowMap && model->getCastShadow()) {
-                        if (shadowInfo->fixedArea) {
-                            model->getWorldBounds()->transform(shadowInfo->matLight, &ab);
-                            if (ab.aabbFrustum(camera->frustum)) {
-                                dirShadowObjects.emplace_back(genRenderObject(model, camera));
-                            }
-                        } else {
-                            if (modelWorldBounds->aabbFrustum(dirLightFrustum)) {
-                                dirShadowObjects.emplace_back(genRenderObject(model, camera));
-                            }
+                        if (modelWorldBounds->aabbFrustum(dirLightFrustum)) {
+                            dirShadowObjects.emplace_back(genRenderObject(model, camera));
                         }
                     }
 
                     // frustum culling
                     if (modelWorldBounds->aabbFrustum(camera->frustum)) {
-                        renderObjects.emplace_back(genRenderObject(model, camera));
+                        sceneData->addRenderObject(genRenderObject(model, camera));
                     }
                 }
             }
@@ -418,8 +435,6 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         sceneData->setDirShadowObjects(std::move(dirShadowObjects));
         sceneData->setCastShadowObjects(std::move(castShadowObject));
     }
-
-    sceneData->setRenderObjects(std::move(renderObjects));
 }
 
 } // namespace pipeline

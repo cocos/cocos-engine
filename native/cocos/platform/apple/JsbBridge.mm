@@ -23,15 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "JsbBridge.h"
+#include <Application.h>
 #import <Foundation/Foundation.h>
 #include <string>
-#include "JsbBridge.h"
 #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 
-bool callPlatformStringMethod(const std::string &arg0, const std::string &arg1){
-    NSString *oc_arg0 = [NSString stringWithCString:arg0.c_str() encoding:NSUTF8StringEncoding];
-    NSString *oc_arg1 = [NSString stringWithCString:arg1.c_str() encoding:NSUTF8StringEncoding];
-    JsbBridge * m = [JsbBridge sharedInstance];
+bool callPlatformStringMethod(const std::string &arg0, const std::string &arg1) {
+    NSString  *oc_arg0 = [NSString stringWithCString:arg0.c_str() encoding:NSUTF8StringEncoding];
+    NSString  *oc_arg1 = [NSString stringWithCString:arg1.c_str() encoding:NSUTF8StringEncoding];
+    JsbBridge *m       = [JsbBridge sharedInstance];
     [m callByScript:oc_arg0 arg1:oc_arg1];
     return true;
 }
@@ -40,51 +41,50 @@ bool callPlatformStringMethod(const std::string &arg0, const std::string &arg1){
     ICallback callback;
 }
 
-static JsbBridge* instance = nil;
+static JsbBridge *instance = nil;
 
-+(instancetype)sharedInstance{
++ (instancetype)sharedInstance {
     static dispatch_once_t pred = 0;
     dispatch_once(&pred, ^{
-        instance = [[super allocWithZone:NULL]init];
+        instance = [[super allocWithZone:NULL] init];
     });
     return instance;
 }
 
-+(id)allocWithZone:(struct _NSZone *)zone{
++ (id)allocWithZone:(struct _NSZone *)zone {
     return [JsbBridge sharedInstance];
 }
 
--(id)copyWithZone:(struct _NSZone *)zone{
+- (id)copyWithZone:(struct _NSZone *)zone {
     return [JsbBridge sharedInstance];
 }
 
--(id)init{
+- (id)init {
     self = [super init];
     return self;
 }
 
--(void)setCallback:(ICallback)cb{
+- (void)setCallback:(ICallback)cb {
     callback = cb;
 }
 
--(bool)callByScript:(NSString*)arg0 arg1:(NSString *)arg1{
-    if(callback != nil){
+- (bool)callByScript:(NSString *)arg0 arg1:(NSString *)arg1 {
+    if (callback != nil) {
         callback(arg0, arg1);
         return true;
     }
     return false;
 }
 
--(void)sendToScript:(NSString *)arg0 arg1:(NSString *)arg1{
+- (void)sendToScript:(NSString *)arg0 arg1:(NSString *)arg1 {
     const std::string c_arg0{[arg0 UTF8String]};
     const std::string c_arg1{[arg1 UTF8String]};
     callScript(c_arg0, c_arg1);
 }
 
--(void)sendToScript:(NSString *)arg0{
+- (void)sendToScript:(NSString *)arg0 {
     const std::string c_arg0{[arg0 UTF8String]};
     callScript(c_arg0, "");
 }
 
 @end
-

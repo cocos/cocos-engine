@@ -106,7 +106,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
     while (jsTouchObjPool.size() < touchEvent.touches.size()) {
         se::Object *touchObj = se::Object::createPlainObject();
         touchObj->root();
-        jsTouchObjPool.push_back(touchObj);
+        jsTouchObjPool.emplace_back(touchObj);
     }
 
     uint32_t touchIndex = 0;
@@ -143,7 +143,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
     }
 
     se::ValueArray args;
-    args.push_back(se::Value(jsTouchObjArray));
+    args.emplace_back(se::Value(jsTouchObjArray));
     EventDispatcher::doDispatchEvent(nullptr, eventName, args);
 }
 
@@ -194,7 +194,7 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
     }
 
     se::ValueArray args;
-    args.push_back(se::Value(jsMouseEventObj));
+    args.emplace_back(se::Value(jsMouseEventObj));
     EventDispatcher::doDispatchEvent(eventName, jsFunctionName, args);
 }
 
@@ -226,7 +226,7 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
     jsKeyboardEventObj->setProperty("repeat", se::Value(keyboardEvent.action == KeyboardEvent::Action::REPEAT));
     jsKeyboardEventObj->setProperty("keyCode", se::Value(keyboardEvent.key));
     se::ValueArray args;
-    args.push_back(se::Value(jsKeyboardEventObj));
+    args.emplace_back(se::Value(jsKeyboardEventObj));
     EventDispatcher::doDispatchEvent(nullptr, eventName, args);
 }
 
@@ -245,7 +245,7 @@ void EventDispatcher::dispatchTickEvent(float /*dt*/) {
 
     se::ValueArray args;
     int64_t        milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
-    args.push_back(se::Value(static_cast<double>(milliSeconds)));
+    args.emplace_back(se::Value(static_cast<double>(milliSeconds)));
 
     tickVal.toObject()->call(args, nullptr);
 }
@@ -260,7 +260,7 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
     jsResizeEventObj->setProperty("width", se::Value(width));
     jsResizeEventObj->setProperty("height", se::Value(height));
     se::ValueArray args;
-    args.push_back(se::Value(jsResizeEventObj));
+    args.emplace_back(se::Value(jsResizeEventObj));
     EventDispatcher::doDispatchEvent(EVENT_RESIZE, "onResize", args);
 }
 
@@ -283,7 +283,7 @@ void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
         jsOrientationEventObj->setProperty("orientation", se::Value(orientation));
 
         se::ValueArray args;
-        args.push_back(se::Value(jsOrientationEventObj));
+        args.emplace_back(se::Value(jsOrientationEventObj));
         func.toObject()->call(args, nullptr);
     }
 }

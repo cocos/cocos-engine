@@ -38,7 +38,6 @@
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 
-
 extern "C" {
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *env, jobject obj, jobject activity,

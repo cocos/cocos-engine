@@ -22,17 +22,38 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-
 #pragma once
-
 #import <Foundation/Foundation.h>
 
-typedef void (^ICallback)(NSString*, NSString*);
+typedef void (^OnScriptEventListener)(NSString*);
 
-@interface JsbBridge : NSObject
+@interface JsbBridgeWrapper : NSObject
+/**
+ * Get the instance of JsbBridgetWrapper
+ */
 + (instancetype)sharedInstance;
-- (void)setCallback:(ICallback)cb;
-- (bool)callByScript:(NSString*)arg0 arg1:(NSString*)arg1;
-- (void)sendToScript:(NSString*)arg0 arg1:(NSString*)arg1;
-- (void)sendToScript:(NSString*)arg0;
+/**
+ * Add a listener to specified event, if the event does not exist, the wrapper will create one. Concurrent listener will be ignored
+ */
+- (void)addScriptEventListener:(NSString*)eventName listener:(OnScriptEventListener)listener;
+/**
+ * Remove listener for specified event, concurrent event will be deleted. Return false only if the event does not exist
+ */
+- (bool)removeScriptEventListener:(NSString*)eventName listener:(OnScriptEventListener)listener;
+/**
+ * Remove all listener for event specified.
+ */
+- (void)removeAllListenersForEvent:(NSString*)eventName;
+/**
+ * Remove all event registered. Use it carefully!
+ */
+- (void)removeAllListeners;
+/**
+ * Dispatch the event with argument, the event should be registered in javascript, or other script language in future.
+ */
+- (void)dispatchEventToScript:(NSString*)eventName arg:(NSString*)arg;
+/**
+ * Dispatch the event which is registered in javascript, or other script language in future.
+ */
+- (void)dispatchEventToScript:(NSString*)eventName;
 @end

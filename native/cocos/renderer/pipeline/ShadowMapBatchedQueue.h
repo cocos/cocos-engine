@@ -26,10 +26,10 @@
 #pragma once
 
 #include "Define.h"
+#include "scene/Camera.h"
 #include "scene/Light.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
-#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {
@@ -48,7 +48,7 @@ public:
 
     void clear();
     void gatherLightPasses(const scene::Camera *, const scene::Light *, gfx::CommandBuffer *);
-    void add(const scene::Model *, gfx::CommandBuffer *);
+    void add(const scene::Model *);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
 private:

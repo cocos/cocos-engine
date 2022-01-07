@@ -106,17 +106,16 @@ protected:
     Framebuffer *        createFramebuffer() override;
     DescriptorSet *      createDescriptorSet() override;
     DescriptorSetLayout *createDescriptorSetLayout() override;
-    PipelineLayout      *createPipelineLayout() override;
-    PipelineState       *createPipelineState() override;
-    Sampler             *createSampler(const SamplerInfo& info) override;
-    Swapchain           *createSwapchain() override;
+    PipelineLayout *     createPipelineLayout() override;
+    PipelineState *      createPipelineState() override;
+    Sampler *            createSampler(const SamplerInfo &info) override;
+    Swapchain *          createSwapchain() override;
     void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
     void                 copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
     void                 getQueryPoolResults(QueryPool *queryPool) override;
 
     void onMemoryWarning();
 
-    void *                     _autoreleasePool                             = nullptr;
     void *                     _mtlCommandQueue                             = nullptr;
     void *                     _mtlDevice                                   = nullptr;
     void *                     _activeDrawable                              = nullptr;
