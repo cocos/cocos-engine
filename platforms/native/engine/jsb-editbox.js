@@ -24,11 +24,11 @@
  ****************************************************************************/
 
 (function () {
-    if (!(cc && cc.EditBoxComponent)) {
+    if (!(cc && cc.internal && cc.internal.EditBox)) {
         return;
     }
 
-    const EditBox = cc.EditBoxComponent;
+    const EditBox = cc.internal.EditBox;
     const KeyboardReturnType = EditBox.KeyboardReturnType;
     const InputMode = EditBox.InputMode;
     const InputFlag = EditBox.InputFlag;
