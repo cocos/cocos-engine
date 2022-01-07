@@ -702,6 +702,10 @@ class LocalDescriptorSet  {
 
     public updateLocal () {
         if (!this._transform) return;
+        if (!this._transform.isValid) {
+            this.reset();
+            return;
+        }
         this.uploadLocalData();
     }
 
@@ -825,13 +829,6 @@ class DescriptorSetCache {
             this._descriptorSetCache.delete(key);
             this._dsCacheHashByTexture.delete(textureHash);
         }
-
-        const localDS = this._localDescriptorSetCache;
-        localDS.forEach((value) => {
-            if (value.textureEquals(textureHash)) {
-                value.reset();
-            }
-        });
     }
 
     public destroy () {
