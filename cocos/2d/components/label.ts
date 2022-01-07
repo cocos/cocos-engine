@@ -197,6 +197,9 @@ export class Label extends Renderable2D {
     public static VerticalAlign = VerticalTextAlignment;
     public static Overflow = Overflow;
     public static CacheMode = CacheMode;
+    /**
+     * @internal
+     */
     public static _canvasPool = CanvasPool.getInstance();
 
     /**

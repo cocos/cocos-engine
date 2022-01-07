@@ -331,7 +331,7 @@ export class Batcher2D implements IBatcher {
         const depthStencilStateStage = comp.stencilStage;
 
         if (this._currHash !== dataHash || dataHash === 0 || this._currMaterial !== mat
-            || this._currDepthStencilStateStage !== depthStencilStateStage || this._currBID !== bufferID) {
+            || this._currDepthStencilStateStage !== depthStencilStateStage) {
             // Merge all previous data to a render batch, and update buffer for next render data
             this.autoMergeBatches(this._currComponent!);
             if (renderData && !renderData.isMeshBuffer) {

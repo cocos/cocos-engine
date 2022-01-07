@@ -136,9 +136,9 @@ export const sliced: IAssembler = {
                 ib[indexOffset++] = start + 1;
                 ib[indexOffset++] = start + 5;
                 ib[indexOffset++] = start + 4;
-                meshBuffer.indexOffset += 6;
             }
         }
+        meshBuffer.indexOffset = indexOffset;
     },
 
     updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk) {

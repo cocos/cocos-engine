@@ -161,6 +161,11 @@ export class RenderData extends BaseRenderData {
     public textureDirty = true;
     public hashDirty = true;
 
+    public resize (vertexCount: number, indexCount: number) {
+        super.resize(vertexCount, indexCount);
+        this.updateHash();
+    }
+
     public updateNode (comp: Renderable2D) {
         this.layer = comp.node.layer;
         this.nodeDirty = false;
@@ -182,7 +187,8 @@ export class RenderData extends BaseRenderData {
     }
 
     public updateHash () {
-        const hashString = ` ${this.layer} ${this.blendHash} ${this.textureHash}`;
+        const bid = this.chunk ? this.chunk.bufferId : -1;
+        const hashString = `${bid}${this.layer} ${this.blendHash} ${this.textureHash}`;
         this.dataHash = murmurhash2_32_gc(hashString, 666);
         this.hashDirty = false;
     }
