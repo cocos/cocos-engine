@@ -26,20 +26,27 @@
 #pragma once
 
 #include <cstdint>
+#include <unordered_map>
+#include "base/Macros.h"
 
-
-using uint     = std::uint32_t;
-using ushort   = std::uint16_t;
+using uint   = std::uint32_t;
+using ushort = std::uint16_t;
 
 #if (CC_PLATFORM != CC_PLATFORM_LINUX && CC_PLATFORM != CC_PLATFORM_QNX) // linux has typedef ulong
-using ulong    = std::uint32_t;
+using ulong = std::uint32_t;
 #endif
 using FlagBits = std::uint32_t;
+
+using index_t = int32_t;
+#define CC_INVALID_INDEX (-1)
+
+#define Record std::unordered_map // NOLINT(readability-identifier-naming)
 
 #define CC_ENUM_CONVERSION_OPERATOR(T) \
     inline std::underlying_type<T>::type toNumber(const T v) { return static_cast<std::underlying_type<T>::type>(v); }
 
 #define CC_ENUM_BITWISE_OPERATORS(T)                                                                                                                                              \
+    inline bool operator!(const T v) { return !static_cast<std::underlying_type<T>::type>(v); }                                                                                   \
     inline T    operator~(const T v) { return static_cast<T>(~static_cast<std::underlying_type<T>::type>(v)); }                                                                   \
     inline bool operator||(const T lhs, const T rhs) { return (static_cast<std::underlying_type<T>::type>(lhs) || static_cast<std::underlying_type<T>::type>(rhs)); }             \
     inline bool operator&&(const T lhs, const T rhs) { return (static_cast<std::underlying_type<T>::type>(lhs) && static_cast<std::underlying_type<T>::type>(rhs)); }             \

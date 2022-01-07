@@ -36,6 +36,7 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/Shadow.h"
 #include "scene/SpotLight.h"
 
 namespace cc {
@@ -52,10 +53,10 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
     clear();
 
     const PipelineSceneData *sceneData         = _pipeline->getPipelineSceneData();
-    const scene::Shadow *    shadowInfo        = sceneData->getSharedData()->shadow;
+    const scene::Shadows *   shadows           = sceneData->getShadows();
     const RenderObjectList & dirShadowObjects  = sceneData->getDirShadowObjects();
-    const RenderObjectList & castShadowObjects = sceneData->getCastShadowObjects();
-    if (light && shadowInfo->enabled && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
+    const RenderObjectList & castShadowObjects = sceneData->isCastShadowObjects();
+    if (light && shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP) {
         switch (light->getType()) {
             case scene::LightType::DIRECTIONAL: {
                 for (const auto ro : dirShadowObjects) {
@@ -69,17 +70,17 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                 const Mat4  matShadowView = light->getNode()->getWorldMatrix().getInversed();
                 Mat4        matShadowProj;
                 Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowProj);
-                const Mat4  matShadowViewProj = matShadowProj * matShadowView;
-                scene::AABB ab;
+                const Mat4     matShadowViewProj = matShadowProj * matShadowView;
+                geometry::AABB ab;
                 for (const auto ro : castShadowObjects) {
                     const auto *model = ro.model;
-                    if (!model->getEnabled() || !model->getCastShadow() || !model->getNode()) {
+                    if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
                         continue;
                     }
 
                     if (model->getWorldBounds()) {
                         model->getWorldBounds()->transform(matShadowViewProj, &ab);
-                        if (ab.aabbFrustum(camera->frustum)) {
+                        if (ab.aabbFrustum(camera->getFrustum())) {
                             add(model, cmdBuffer);
                         }
                     }
@@ -113,7 +114,7 @@ void ShadowMapBatchedQueue::add(const scene::Model *model, gfx::CommandBuffer *c
         return;
     }
 
-    for (auto *subModel : model->getSubModels()) {
+    for (const auto &subModel : model->getSubModels()) {
         const auto *pass           = subModel->getPass(shadowPassIdx);
         const auto  batchingScheme = pass->getBatchingScheme();
 
@@ -164,9 +165,9 @@ void ShadowMapBatchedQueue::destroy() {
 }
 
 int ShadowMapBatchedQueue::getShadowPassIndex(const scene::Model *model) const {
-    for (const scene::SubModel *subModel : model->getSubModels()) {
+    for (const auto &subModel : model->getSubModels()) {
         int i = 0;
-        for (const scene::Pass *pass : subModel->getPasses()) {
+        for (const auto &pass : subModel->getPasses()) {
             if (pass->getPhase() == _phaseID) {
                 return i;
             }

@@ -33,7 +33,7 @@ class Object;
 class Value;
 } // namespace se
 
-class JsbWebSocketDelegate : public cc::Ref, public cc::network::WebSocket::Delegate {
+class JsbWebSocketDelegate : public cc::RefCounted, public cc::network::WebSocket::Delegate {
 public:
     JsbWebSocketDelegate() = default;
 

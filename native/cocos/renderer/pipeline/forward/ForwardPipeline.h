@@ -40,11 +40,11 @@ struct UBOShadow;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
-    ForwardPipeline()           = default;
+    ForwardPipeline();
     ~ForwardPipeline() override = default;
 
     bool initialize(const RenderPipelineInfo &info) override;
-    void destroy() override;
+    bool destroy() override;
     bool activate(gfx::Swapchain *swapchain) override;
     void render(const vector<scene::Camera *> &cameras) override;
 
@@ -63,11 +63,11 @@ private:
     bool activeRenderer(gfx::Swapchain *swapchain);
     void updateUBO(scene::Camera *);
 
-    gfx::Buffer *                                     _lightsUBO = nullptr;
-    LightList                                         _validLights;
-    gfx::BufferList                                   _lightBuffers;
-    UintList                                          _lightIndexOffsets;
-    UintList                                          _lightIndices;
+    gfx::Buffer *   _lightsUBO = nullptr;
+    LightList       _validLights;
+    gfx::BufferList _lightBuffers;
+    UintList        _lightIndexOffsets;
+    UintList        _lightIndices;
 };
 
 } // namespace pipeline

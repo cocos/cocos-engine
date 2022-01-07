@@ -25,9 +25,9 @@
 
 #pragma once
 
+#include "core/scene-graph/Node.h"
 #include "math/Vec3.h"
 #include "physics/spec/ILifecycle.h"
-#include "scene/Node.h"
 
 namespace cc {
 namespace physics {
@@ -41,9 +41,9 @@ enum class ERigidBodyType : uint8_t {
 class IRigidBody : public ILifecycle {
 public:
     ~IRigidBody() override                                                                       = default;
-    virtual uintptr_t getImpl()                                                                  = 0;    
+    virtual uintptr_t getImpl()                                                                  = 0;
     virtual uintptr_t getNodeHandle()                                                            = 0;
-    virtual void      initialize(scene::Node *node, ERigidBodyType t, uint32_t g)                = 0;
+    virtual void      initialize(Node *node, ERigidBodyType t, uint32_t g)                       = 0;
     virtual bool      isAwake()                                                                  = 0;
     virtual bool      isSleepy()                                                                 = 0;
     virtual bool      isSleeping()                                                               = 0;
@@ -51,7 +51,7 @@ public:
     virtual void      setMass(float v)                                                           = 0;
     virtual void      setLinearDamping(float v)                                                  = 0;
     virtual void      setAngularDamping(float v)                                                 = 0;
-    virtual void      useGravity(bool v)                                                         = 0;    
+    virtual void      useGravity(bool v)                                                         = 0;
     virtual void      useCCD(bool v)                                                             = 0;
     virtual void      setLinearFactor(float x, float y, float z)                                 = 0;
     virtual void      setAngularFactor(float x, float y, float z)                                = 0;

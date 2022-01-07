@@ -30,7 +30,7 @@
 namespace cc {
 namespace pipeline {
 
-unordered_map<size_t, gfx::PipelineState *> PipelineStateManager::psoHashMap;
+unordered_map<size_t, IntrusivePtr<gfx::PipelineState>> PipelineStateManager::psoHashMap;
 
 gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::Pass *  pass,
                                                                    gfx::Shader *        shader,
@@ -46,7 +46,7 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
         hash = hash << subpass;
     }
 
-    auto *pso = psoHashMap[hash];
+    auto *pso = psoHashMap[static_cast<size_t>(hash)].get();
     if (!pso) {
         auto *pipelineLayout = pass->getPipelineLayout();
 
@@ -58,11 +58,11 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
                                                                *(pass->getDepthStencilState()),
                                                                *(pass->getBlendState()),
                                                                pass->getPrimitive(),
-                                                               pass->getDynamicState(),
+                                                               pass->getDynamicStates(),
                                                                gfx::PipelineBindPoint::GRAPHICS,
                                                                subpass});
 
-        psoHashMap[hash] = pso;
+        psoHashMap[static_cast<size_t>(hash)] = pso;
     }
 
     return pso;
@@ -70,7 +70,7 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
 
 void PipelineStateManager::destroyAll() {
     for (auto &pair : psoHashMap) {
-        CC_SAFE_DESTROY(pair.second);
+        CC_SAFE_DESTROY_NULL(pair.second);
     }
     psoHashMap.clear();
 }

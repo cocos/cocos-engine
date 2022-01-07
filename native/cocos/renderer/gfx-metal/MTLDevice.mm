@@ -170,9 +170,9 @@ void CCMTLDevice::doDestroy() {
         _autoreleasePool = nullptr;
     }
     
-    CC_SAFE_DESTROY(_queryPool)
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_cmdBuff);
+    CC_SAFE_DESTROY_AND_DELETE(_queryPool)
+    CC_SAFE_DESTROY_AND_DELETE(_queue);
+    CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
 

@@ -25,49 +25,54 @@
 
 #pragma once
 
+#include "core/geometry/AABB.h"
 #include "math/Vec3.h"
-#include "scene/AABB.h"
 #include "scene/Light.h"
 
 namespace cc {
 namespace scene {
 
-class SphereLight : public Light {
+class SphereLight final : public Light {
 public:
-    SphereLight()                    = default;
-    SphereLight(const SphereLight &) = delete;
-    SphereLight(SphereLight &&)      = delete;
-    ~SphereLight() override          = default;
-    SphereLight &operator=(const SphereLight &) = delete;
-    SphereLight &operator=(SphereLight &&) = delete;
+    SphereLight();
+    ~SphereLight() override = default;
 
+    void initialize() override;
     void update() override;
 
-    inline void setAABB(AABB *aabb) { _aabb = aabb; }
-    inline void setLuminanceHDR(float illum) { _luminanceHDR = illum; }
-    inline void setLuminanceLDR(float illum) { _luminanceLDR = illum; }
-    inline void setPosition(const Vec3 &pos) { _pos = pos; }
-    inline void setRange(float range) {
+    inline const Vec3 &getPosition() const { return _pos; }
+    inline void        setPosition(const Vec3 &pos) { _pos = pos; }
+
+    inline float getSize() const { return _size; }
+    inline void  setSize(float size) { _size = size; }
+
+    inline float getRange() const { return _range; }
+    inline void  setRange(float range) {
         _range      = range;
         _needUpdate = true;
     }
-    inline void setSize(float size) { _size = size; }
 
-    inline AABB *      getAABB() const { return _aabb; }
-    inline float       getLuminanceHDR() const { return _luminanceHDR; }
-    inline float       getLuminanceLDR() const { return _luminanceLDR; }
-    inline const Vec3 &getPosition() const { return _pos; }
-    inline float       getRange() const { return _range; }
-    inline float       getSize() const { return _size; }
+    float getLuminance() const;
+    void  setLuminance(float);
+
+    inline void  setLuminanceHDR(float illum) { _luminanceHDR = illum; }
+    inline float getLuminanceHDR() const { return _luminanceHDR; }
+
+    inline void  setLuminanceLDR(float illum) { _luminanceLDR = illum; }
+    inline float getLuminanceLDR() const { return _luminanceLDR; }
+
+    inline const geometry::AABB &getAABB() const { return _aabb; }
 
 private:
-    bool  _needUpdate{false};
-    float _luminanceHDR{0.F};
-    float _luminanceLDR{0.F};
-    float _range{0.F};
-    float _size{0.F};
-    Vec3  _pos;
-    AABB *_aabb{nullptr};
+    bool           _needUpdate{false};
+    float          _luminanceHDR{0.F};
+    float          _luminanceLDR{0.F};
+    float          _range{0.F};
+    float          _size{0.F};
+    Vec3           _pos;
+    geometry::AABB _aabb;
+
+    CC_DISALLOW_COPY_MOVE_ASSIGN(SphereLight);
 };
 
 } // namespace scene

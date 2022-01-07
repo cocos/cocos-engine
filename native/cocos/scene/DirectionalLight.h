@@ -25,35 +25,50 @@
 
 #pragma once
 
+#include "core/Root.h"
 #include "math/Vec3.h"
+#include "scene/Ambient.h"
 #include "scene/Light.h"
 
 namespace cc {
 namespace scene {
 
-class DirectionalLight : public Light {
+class DirectionalLight final : public Light {
 public:
-    DirectionalLight()                         = default;
-    DirectionalLight(const DirectionalLight &) = delete;
-    DirectionalLight(DirectionalLight &&)      = delete;
-    ~DirectionalLight() override               = default;
-    DirectionalLight &operator=(const DirectionalLight &) = delete;
-    DirectionalLight &operator=(DirectionalLight &&) = delete;
+    DirectionalLight() { _type = LightType::DIRECTIONAL; }
+    ~DirectionalLight() override = default;
 
+    void initialize() override;
     void update() override;
 
-    inline void setDirection(const Vec3 &dir) { _dir = dir; }
-    inline void setIlluminanceHDR(float illum) { _illuminanceHDR = illum; }
-    inline void setIlluminanceLDR(float illum) { _illuminanceLDR = illum; }
-
     inline const Vec3 &getDirection() const { return _dir; }
+    inline void        setDirection(const Vec3 &dir) { _dir = dir; }
+    inline void        setIlluminanceHDR(float value) { _illuminanceHDR = value; }
+    inline void        setIlluminanceLDR(float value) { _illuminanceLDR = value; }
     inline float       getIlluminanceHDR() const { return _illuminanceHDR; }
     inline float       getIlluminanceLDR() const { return _illuminanceLDR; }
+    inline float       getIlluminance() const {
+        const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+        if (isHDR) {
+            return _illuminanceHDR;
+        }
+        return _illuminanceLDR;
+    }
+    inline void setIlluminance(float value) {
+        const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+        if (isHDR) {
+            _illuminanceHDR = value;
+        } else {
+            _illuminanceLDR = value;
+        }
+    }
 
 private:
-    float _illuminanceHDR{0.F};
-    float _illuminanceLDR{0.F};
-    Vec3  _dir;
+    float _illuminanceHDR{Ambient::SUN_ILLUM};
+    float _illuminanceLDR{1.F};
+    Vec3  _dir{1.0F, -1.0F, -1.0F};
+
+    CC_DISALLOW_COPY_MOVE_ASSIGN(DirectionalLight);
 };
 
 } // namespace scene

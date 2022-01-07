@@ -25,11 +25,11 @@
 
 #include "ForwardPipeline.h"
 #include "../SceneCulling.h"
+#include "../helper/Utils.h"
 #include "../shadow/ShadowFlow.h"
 #include "ForwardFlow.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/RenderScene.h"
-#include "../helper/Utils.h"
 
 namespace cc {
 namespace pipeline {
@@ -44,6 +44,10 @@ namespace {
     (dst)[(offset) + 2] = (src).z; \
     (dst)[(offset) + 3] = (src).w;
 } // namespace
+
+ForwardPipeline::ForwardPipeline() {
+    _pipelineSceneData = new PipelineSceneData();
+}
 
 framegraph::StringHandle ForwardPipeline::fgStrHandleForwardColorTexture = framegraph::FrameGraph::stringToHandle("forwardColorTexture");
 framegraph::StringHandle ForwardPipeline::fgStrHandleForwardDepthTexture = framegraph::FrameGraph::stringToHandle("forwardDepthTexture");
@@ -66,7 +70,7 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
 }
 
 bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
-    _macros.setValue("CC_PIPELINE_TYPE", 0.F);
+    _macros["CC_PIPELINE_TYPE"] = 0;
 
     if (!RenderPipeline::activate(swapchain)) {
         CC_LOG_ERROR("RenderPipeline active failed.");
@@ -83,7 +87,7 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
 
 void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
     auto *     device               = gfx::Device::getInstance();
-    const bool enableOcclusionQuery = getOcclusionQueryEnabled();
+    const bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {
         device->getQueryPoolResults(_queryPools[0]);
     }
@@ -125,7 +129,6 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
 bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _commandBuffers.push_back(_device->getCommandBuffer());
     _queryPools.push_back(_device->getQueryPool());
-    const auto *sharedData = _pipelineSceneData->getSharedData();
 
     gfx::Sampler *const sampler = getGlobalDSManager()->getPointSampler();
 
@@ -135,8 +138,8 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _descriptorSet->update();
 
     // update global defines when all states initialized.
-    _macros.setValue("CC_USE_HDR", static_cast<bool>(sharedData->isHDR));
-    _macros.setValue("CC_SUPPORT_FLOAT_TEXTURE", _device->hasFeature(gfx::Feature::TEXTURE_FLOAT));
+    _macros["CC_USE_HDR"]               = static_cast<bool>(_pipelineSceneData->isHDR());
+    _macros["CC_SUPPORT_FLOAT_TEXTURE"] = _device->hasFeature(gfx::Feature::TEXTURE_FLOAT);
 
     // step 2 create index buffer
     uint ibStride = 4;
@@ -158,17 +161,17 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     return true;
 }
 
-void ForwardPipeline::destroy() {
+bool ForwardPipeline::destroy() {
     destroyQuadInputAssembler();
     for (auto &it : _renderPasses) {
-        CC_SAFE_DESTROY(it.second);
+        CC_SAFE_DESTROY_AND_DELETE(it.second);
     }
     _renderPasses.clear();
 
     _queryPools.clear();
     _commandBuffers.clear();
 
-    RenderPipeline::destroy();
+    return RenderPipeline::destroy();
 }
 
 } // namespace pipeline

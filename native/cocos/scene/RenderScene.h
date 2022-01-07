@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,31 +25,54 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
-#include "scene/BakedSkinningModel.h"
-#include "scene/DirectionalLight.h"
-#include "scene/DrawBatch2D.h"
-#include "scene/Model.h"
-#include "scene/SkinningModel.h"
-#include "scene/SphereLight.h"
-#include "scene/SpotLight.h"
+#include "base/Macros.h"
+#include "base/Ptr.h"
+#include "base/TypeDef.h"
+#include "scene/Camera.h"
 
 namespace cc {
+
+class Node;
+class SkinningModel;
+class BakedSkinningModel;
+
 namespace scene {
 
 class Octree;
+struct DrawBatch2D;
+class DirectionalLight;
+class SphereLight;
+class SpotLight;
 
-class RenderScene final {
+struct IRaycastResult {
+    Node *node{nullptr};
+    float distance{0.F};
+};
+
+struct IRenderSceneInfo {
+    std::string name;
+};
+
+class RenderScene : public RefCounted {
 public:
-    RenderScene()                    = default;
-    RenderScene(const RenderScene &) = delete;
-    RenderScene(RenderScene &&)      = delete;
-    ~RenderScene();
-    RenderScene &operator=(const RenderScene &) = delete;
-    RenderScene &operator=(RenderScene &&) = delete;
+    RenderScene() = default;
+    ~RenderScene() override;
+
+    bool initialize(const IRenderSceneInfo &info);
+    void update(uint32_t stamp);
+    void destroy();
 
     void activate();
-    void update(uint32_t stamp);
+
+    void addCamera(Camera *camera);
+    void removeCamera(Camera *camera);
+    void removeCameras();
+
+    void unsetMainLight(DirectionalLight *dl);
+    void addDirectionalLight(DirectionalLight *dl);
+    void removeDirectionalLight(DirectionalLight *dl);
 
     void addSphereLight(SphereLight *);
     void removeSphereLight(SphereLight *);
@@ -60,34 +83,44 @@ public:
     void removeSpotLights();
 
     void addModel(Model *);
-    void addSkinningModel(SkinningModel *);
-    void addBakedSkinningModel(BakedSkinningModel *);
-    void removeModel(uint32_t);
+    void removeModel(index_t idx);
+    void removeModel(Model *model);
     void removeModels();
 
-    void updateBatches(std::vector<DrawBatch2D *> &&);
     void addBatch(DrawBatch2D *);
     void removeBatch(DrawBatch2D *);
-    void removeBatch(uint32_t index);
     void removeBatches();
 
-    inline void setMainLight(DirectionalLight *light) { _directionalLight = light; }
+    void onGlobalPipelineStateChanged();
 
-    inline const std::vector<DrawBatch2D *> &getDrawBatch2Ds() const { return _drawBatch2Ds; }
-    inline DirectionalLight *                getMainLight() const { return _directionalLight; }
-    inline const std::vector<Model *> &      getModels() const { return _models; }
-    inline const std::vector<SphereLight *> &getSphereLights() const { return _sphereLights; }
-    inline const std::vector<SpotLight *> &  getSpotLights() const { return _spotLights; }
-    inline Octree *                          getOctree() const { return _octree; }
-    void                                     updateOctree(Model *model);
+    inline DirectionalLight *getMainLight() const { return _mainLight.get(); }
+    void                     setMainLight(DirectionalLight *dl);
+
+    inline uint64_t                                      generateModelId() { return _modelId++; }
+    inline const std::string &                           getName() const { return _name; }
+    inline const std::vector<IntrusivePtr<Camera>> &     getCameras() const { return _cameras; }
+    inline const std::vector<IntrusivePtr<SphereLight>> &getSphereLights() const { return _sphereLights; }
+    inline const std::vector<IntrusivePtr<SpotLight>> &  getSpotLights() const { return _spotLights; }
+    inline const std::vector<IntrusivePtr<Model>> &      getModels() const { return _models; }
+    inline Octree *                                      getOctree() const { return _octree; }
+    void                                                 updateOctree(Model *model);
+    // FIXME: remove getDrawBatch2Ds
+    inline const std::vector<DrawBatch2D *> &getBatches() const { return _batches; }
+    inline const std::vector<DrawBatch2D *> &getDrawBatch2Ds() const { return _batches; }
 
 private:
-    DirectionalLight *         _directionalLight{nullptr};
-    std::vector<Model *>       _models;
-    std::vector<SphereLight *> _sphereLights;
-    std::vector<SpotLight *>   _spotLights;
-    std::vector<DrawBatch2D *> _drawBatch2Ds;
-    Octree *                   _octree{nullptr};
+    std::string                                 _name;
+    uint64_t                                    _modelId{0};
+    IntrusivePtr<DirectionalLight>              _mainLight;
+    std::vector<IntrusivePtr<Model>>            _models;
+    std::vector<IntrusivePtr<Camera>>           _cameras;
+    std::vector<IntrusivePtr<DirectionalLight>> _directionalLights;
+    std::vector<IntrusivePtr<SphereLight>>      _sphereLights;
+    std::vector<IntrusivePtr<SpotLight>>        _spotLights;
+    std::vector<DrawBatch2D *>                  _batches;
+    Octree *                                    _octree{nullptr};
+
+    CC_DISALLOW_COPY_MOVE_ASSIGN(RenderScene);
 };
 
 } // namespace scene

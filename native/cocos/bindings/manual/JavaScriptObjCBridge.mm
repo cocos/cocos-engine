@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "JavaScriptObjCBridge.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 
@@ -106,7 +107,7 @@ private:
 };
 ScriptNativeBridge* ScriptNativeBridge::bridgeCxxInstance{nullptr};
 bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Value &rval) {
-    NSString *className = [NSString stringWithCString:_className.c_str() encoding:NSUTF8StringEncoding];
+    NSString *className  = [NSString stringWithCString:_className.c_str() encoding:NSUTF8StringEncoding];
     NSString *methodName = [NSString stringWithCString:_methodName.c_str() encoding:NSUTF8StringEncoding];
 
     if (!className || !methodName) {
@@ -125,7 +126,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
         _error = JSO_ERR_METHOD_NOT_FOUND;
         return false;
     }
-    methodSel = NSSelectorFromString(methodName);
+    methodSel                    = NSSelectorFromString(methodName);
     NSMethodSignature *methodSig = [targetClass methodSignatureForSelector:(SEL)methodSel];
     if (methodSig == nil) {
         _error = JSO_ERR_METHOD_NOT_FOUND;
@@ -133,7 +134,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
         return false;
     }
     @try {
-        int argc = (int)argv.size();
+        int        argc          = (int)argv.size();
         NSUInteger argumentCount = [methodSig numberOfArguments];
         if (argumentCount != argc) {
             _error = JSO_ERR_INVALID_ARGUMENTS;
@@ -145,8 +146,8 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
         [invocation setSelector:methodSel];
 
         for (int i = 2; i < argc; ++i) {
-            std::string argumentType = [methodSig getArgumentTypeAtIndex:i];
-            const se::Value &arg = argv[i];
+            std::string      argumentType = [methodSig getArgumentTypeAtIndex:i];
+            const se::Value &arg          = argv[i];
 
             /* - (void)setArgument:(void *)argumentLocation atIndex:(NSInteger)idx;
              *
@@ -219,8 +220,8 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
             }
         }
 
-        NSUInteger returnLength = [methodSig methodReturnLength];
-        std::string returnType = [methodSig methodReturnType];
+        NSUInteger  returnLength = [methodSig methodReturnLength];
+        std::string returnType   = [methodSig methodReturnType];
         [invocation invoke];
 
         if (returnLength > 0) {
@@ -295,8 +296,6 @@ void ScriptNativeBridge::callByNative(const std::string& arg0, const std::string
 se::Class *__jsb_JavaScriptObjCBridge_class = nullptr;
 
 static bool JavaScriptObjCBridge_finalize(se::State &s) {
-    JavaScriptObjCBridge *cobj = (JavaScriptObjCBridge *)s.nativeThisObject();
-    delete cobj;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JavaScriptObjCBridge_finalize)
@@ -310,15 +309,15 @@ SE_BIND_CTOR(JavaScriptObjCBridge_constructor, __jsb_JavaScriptObjCBridge_class,
 
 static bool JavaScriptObjCBridge_callStaticMethod(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
 
     if (argc >= 2) {
-        bool ok = false;
+        bool        ok = false;
         std::string clsName, methodName;
-        ok = seval_to_std_string(args[0], &clsName);
+        ok = sevalue_to_native(args[0], &clsName);
         SE_PRECONDITION2(ok, false, "Converting class name failed!");
 
-        ok = seval_to_std_string(args[1], &methodName);
+        ok = sevalue_to_native(args[1], &methodName);
         SE_PRECONDITION2(ok, false, "Converting method name failed!");
 
         JavaScriptObjCBridge::CallInfo call(clsName.c_str(), methodName.c_str());
@@ -377,11 +376,11 @@ static bool ScriptNativeBridge_sendToNative(se::State &s) { //NOLINT
     if (argc >= 1 && argc < 3) {
         bool        ok = false;
         std::string arg0;
-        ok = seval_to_std_string(args[0], &arg0);
+        ok = sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "Converting first argument failed!");
         std::string arg1;
         if (argc == 2) {
-            ok = seval_to_std_string(args[1], &arg1);
+            ok = sevalue_to_native(args[1], &arg1);
             SE_PRECONDITION2(ok, false, "Converting second argument failed!");
         }
         ok = callPlatformStringMethod(arg0, arg1);

@@ -41,7 +41,7 @@ public:
     static void                destroyAll();
 
 private:
-    static unordered_map<size_t, gfx::PipelineState *> psoHashMap;
+    static unordered_map<size_t, IntrusivePtr<gfx::PipelineState>> psoHashMap;
 };
 
 } // namespace pipeline

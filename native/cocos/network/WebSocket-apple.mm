@@ -78,7 +78,7 @@ static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
 
 - (void)close {
     _isDestroyed = true;
-    _ccws->retain();
+    _ccws->addRef();
     _delegate->onClose(_ccws);
     [_ws close];
     _ccws->release();

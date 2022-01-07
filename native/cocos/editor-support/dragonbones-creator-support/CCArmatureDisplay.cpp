@@ -24,30 +24,26 @@
 #include "dragonbones-creator-support/CCArmatureDisplay.h"
 #include "MiddlewareMacro.h"
 #include "SharedBufferManager.h"
+#include "base/DeferredReleasePool.h"
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
 #include "dragonbones-creator-support/CCSlot.h"
+#include "gfx-base/GFXDef.h"
 #include "math/Math.h"
 #include "math/Vec3.h"
-#include "gfx-base/GFXDef.h"
 
-USING_NS_MW;
-using namespace cc;
-using namespace cc::gfx;
+USING_NS_MW;        // NOLINT(google-build-using-namespace)
+using namespace cc; // NOLINT(google-build-using-namespace)
 
-static const std::string techStage = "opaque";
-static const std::string textureKey = "texture";
+static const std::string TECH_STAGE  = "opaque";
+static const std::string TEXTURE_KEY = "texture";
+namespace cc {
 
+}
 DRAGONBONES_NAMESPACE_BEGIN
 
 CCArmatureDisplay *CCArmatureDisplay::create() {
-    CCArmatureDisplay *displayContainer = new (std::nothrow) CCArmatureDisplay();
-    if (displayContainer) {
-        displayContainer->autorelease();
-    } else {
-        CC_SAFE_DELETE(displayContainer);
-    }
-    return displayContainer;
+    return new (std::nothrow) CCArmatureDisplay();
 }
 
 CCArmatureDisplay::CCArmatureDisplay() {
@@ -58,11 +54,11 @@ CCArmatureDisplay::CCArmatureDisplay() {
     // set render order to 0
     _paramsBuffer->writeFloat32(0);
     // set world transform to identity
-    _paramsBuffer->writeBytes((const char *)&cc::Mat4::IDENTITY, sizeof(float) * 16);
+    _paramsBuffer->writeBytes(reinterpret_cast<const char *>(&cc::Mat4::IDENTITY), sizeof(float) * 16);
 }
 
 CCArmatureDisplay::~CCArmatureDisplay() {
-    dispose();
+    dispose(true);
 
     if (_debugBuffer) {
         delete _debugBuffer;
@@ -80,7 +76,7 @@ CCArmatureDisplay::~CCArmatureDisplay() {
     }
 }
 
-void CCArmatureDisplay::dispose(bool disposeProxy) {
+void CCArmatureDisplay::dispose(bool /*disposeProxy*/) {
     if (_armature != nullptr) {
         _armature->dispose();
         _armature = nullptr;
@@ -102,24 +98,25 @@ void CCArmatureDisplay::dbRender() {
     _sharedBufferOffset->reset();
     _sharedBufferOffset->clear();
 
-    if (this->_armature->getParent())
+    if (this->_armature->getParent()) {
         return;
+    }
 
-    auto mgr = MiddlewareManager::getInstance();
+    auto *mgr = MiddlewareManager::getInstance();
     if (!mgr->isRendering) return;
 
-    auto renderMgr = mgr->getRenderInfoMgr();
-    auto renderInfo = renderMgr->getBuffer();
+    auto *renderMgr  = mgr->getRenderInfoMgr();
+    auto *renderInfo = renderMgr->getBuffer();
     if (!renderInfo) return;
 
-    auto attachMgr = mgr->getAttachInfoMgr();
-    auto attachInfo = attachMgr->getBuffer();
+    auto *attachMgr  = mgr->getAttachInfoMgr();
+    auto *attachInfo = attachMgr->getBuffer();
     if (!attachInfo) return;
 
     //  store render info offset
-    _sharedBufferOffset->writeUint32((uint32_t)renderInfo->getCurPos() / sizeof(uint32_t));
+    _sharedBufferOffset->writeUint32(static_cast<uint32_t>(renderInfo->getCurPos()) / sizeof(uint32_t));
     // store attach info offset
-    _sharedBufferOffset->writeUint32((uint32_t)attachInfo->getCurPos() / sizeof(uint32_t));
+    _sharedBufferOffset->writeUint32(static_cast<uint32_t>(attachInfo->getCurPos()) / sizeof(uint32_t));
 
     // check enough space
     renderInfo->checkSpace(sizeof(uint32_t) * 2, true);
@@ -131,20 +128,20 @@ void CCArmatureDisplay::dbRender() {
     renderInfo->writeUint32(0);
 
     // render not ready
-    auto paramsBuffer = _paramsBuffer->getBuffer();
-    float renderOrder = *(float *)paramsBuffer;
+    auto *paramsBuffer = _paramsBuffer->getBuffer();
+    float renderOrder  = *reinterpret_cast<float *>(paramsBuffer);
     if (renderOrder < 0) {
         return;
     }
 
-    _preBlendMode = -1;
+    _preBlendMode    = -1;
     _preTextureIndex = -1;
     _curTextureIndex = -1;
     _preISegWritePos = -1;
-    _curISegLen = 0;
+    _curISegLen      = 0;
 
     _debugSlotsLen = 0;
-    _materialLen = 0;
+    _materialLen   = 0;
 
     // Traverse all aramture to fill vertex and index buffer.
     traverseArmature(_armature);
@@ -155,7 +152,7 @@ void CCArmatureDisplay::dbRender() {
     }
 
     if (_useAttach || _debugDraw) {
-        auto &bones = _armature->getBones();
+        const auto &bones = _armature->getBones();
         std::size_t count = bones.size();
 
         cc::Mat4 boneMat = cc::Mat4::IDENTITY;
@@ -166,29 +163,29 @@ void CCArmatureDisplay::dbRender() {
                 _debugBuffer = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, MAX_DEBUG_BUFFER_SIZE);
             }
             _debugBuffer->reset();
-            _debugBuffer->writeFloat32(count * 4);
+            _debugBuffer->writeFloat32(static_cast<float>(count) * 4);
         }
 
         for (int i = 0; i < count; i++) {
-            Bone *bone = (Bone *)bones[i];
+            Bone *bone = static_cast<Bone *>(bones[i]);
 
             float boneLen = 5;
             if (bone->_boneData->length > boneLen) {
                 boneLen = bone->_boneData->length;
             }
 
-            boneMat.m[0] = bone->globalTransformMatrix.a;
-            boneMat.m[1] = bone->globalTransformMatrix.b;
-            boneMat.m[4] = -bone->globalTransformMatrix.c;
-            boneMat.m[5] = -bone->globalTransformMatrix.d;
+            boneMat.m[0]  = bone->globalTransformMatrix.a;
+            boneMat.m[1]  = bone->globalTransformMatrix.b;
+            boneMat.m[4]  = -bone->globalTransformMatrix.c;
+            boneMat.m[5]  = -bone->globalTransformMatrix.d;
             boneMat.m[12] = bone->globalTransformMatrix.tx;
             boneMat.m[13] = bone->globalTransformMatrix.ty;
             attachInfo->checkSpace(sizeof(boneMat), true);
-            attachInfo->writeBytes((const char *)&boneMat, sizeof(boneMat));
+            attachInfo->writeBytes(reinterpret_cast<const char *>(&boneMat), sizeof(boneMat));
 
             if (_debugDraw) {
-                float bx = bone->globalTransformMatrix.tx;
-                float by = bone->globalTransformMatrix.ty;
+                float bx   = bone->globalTransformMatrix.tx;
+                float by   = bone->globalTransformMatrix.ty;
                 float endx = bx + bone->globalTransformMatrix.a * boneLen;
                 float endy = by + bone->globalTransformMatrix.b * boneLen;
                 _debugBuffer->writeFloat32(bx);
@@ -206,17 +203,18 @@ void CCArmatureDisplay::dbRender() {
     }
 }
 
-cc::Vec2 CCArmatureDisplay::convertToRootSpace(float x, float y) const {
-    CCSlot *slot = (CCSlot *)_armature->getParent();
+const cc::Vec2 &CCArmatureDisplay::convertToRootSpace(float x, float y) const {
+    auto *slot = reinterpret_cast<CCSlot *>(_armature->getParent());
     if (!slot) {
-        return cc::Vec2(x, y);
+        _tmpVec2.set(x, y);
+        return _tmpVec2;
     }
-    cc::Vec2 newPos;
+
     slot->updateWorldMatrix();
     cc::Mat4 &worldMatrix = slot->worldMatrix;
-    newPos.x = x * worldMatrix.m[0] + y * worldMatrix.m[4] + worldMatrix.m[12];
-    newPos.y = x * worldMatrix.m[1] + y * worldMatrix.m[5] + worldMatrix.m[13];
-    return newPos;
+    _tmpVec2.x            = x * worldMatrix.m[0] + y * worldMatrix.m[4] + worldMatrix.m[12];
+    _tmpVec2.y            = x * worldMatrix.m[1] + y * worldMatrix.m[5] + worldMatrix.m[13];
+    return _tmpVec2;
 }
 
 CCArmatureDisplay *CCArmatureDisplay::getRootDisplay() {
@@ -227,40 +225,43 @@ CCArmatureDisplay *CCArmatureDisplay::getRootDisplay() {
 
     Slot *parentSlot = slot->_armature->getParent();
     while (parentSlot) {
-        slot = parentSlot;
+        slot       = parentSlot;
         parentSlot = parentSlot->_armature->getParent();
     }
-    return (CCArmatureDisplay *)slot->_armature->getDisplay();
+    return static_cast<CCArmatureDisplay *>(slot->_armature->getDisplay());
 }
 
 void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity) {
     static cc::Mat4 matrixTemp;
 
-    auto paramsBuffer = _paramsBuffer->getBuffer();
+    auto *paramsBuffer = _paramsBuffer->getBuffer();
     // data store in buffer which 0 to 3 is render order, left data is node world matrix
-    const cc::Mat4 &nodeWorldMat = *(cc::Mat4 *)&paramsBuffer[4];
+    const cc::Mat4 &nodeWorldMat = *reinterpret_cast<cc::Mat4 *>(&paramsBuffer[4]);
 
-    auto &slots = armature->getSlots();
-    auto mgr = MiddlewareManager::getInstance();
+    const auto &slots = armature->getSlots();
+    auto *      mgr   = MiddlewareManager::getInstance();
 
     middleware::MeshBuffer *mb = mgr->getMeshBuffer(VF_XYZUVC);
-    IOBuffer &vb = mb->getVB();
-    IOBuffer &ib = mb->getIB();
+    IOBuffer &              vb = mb->getVB();
+    IOBuffer &              ib = mb->getIB();
 
     float realOpacity = _nodeColor.a;
-    auto renderMgr = mgr->getRenderInfoMgr();
-    auto renderInfo = renderMgr->getBuffer();
+    auto *renderMgr   = mgr->getRenderInfoMgr();
+    auto *renderInfo  = renderMgr->getBuffer();
     if (!renderInfo) return;
 
-    auto attachMgr = mgr->getAttachInfoMgr();
-    auto attachInfo = attachMgr->getBuffer();
+    auto *attachMgr  = mgr->getAttachInfoMgr();
+    auto *attachInfo = attachMgr->getBuffer();
     if (!attachInfo) return;
 
     // range [0.0, 255.0]
-    float r, g, b, a;
-    CCSlot *slot = nullptr;
+    float                  r;
+    float                  g;
+    float                  b;
+    float                  a;
+    CCSlot *               slot    = nullptr;
     middleware::Texture2D *texture = nullptr;
-    int isFull = 0;
+    int                    isFull  = 0;
 
     auto flush = [&]() {
         // fill pre segment count field
@@ -272,20 +273,20 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         // prepare to fill new segment field
         switch (slot->_blendMode) {
             case BlendMode::Add:
-                _curBlendSrc = (int)(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
-                _curBlendDst = (int)BlendFactor::ONE;
+                _curBlendSrc = static_cast<int>(_premultipliedAlpha ? gfx::BlendFactor::ONE : gfx::BlendFactor::SRC_ALPHA);
+                _curBlendDst = static_cast<int>(gfx::BlendFactor::ONE);
                 break;
             case BlendMode::Multiply:
-                _curBlendSrc = (int)BlendFactor::DST_COLOR;
-                _curBlendDst = (int)BlendFactor::ONE_MINUS_SRC_ALPHA;
+                _curBlendSrc = static_cast<int>(gfx::BlendFactor::DST_COLOR);
+                _curBlendDst = static_cast<int>(gfx::BlendFactor::ONE_MINUS_SRC_ALPHA);
                 break;
             case BlendMode::Screen:
-                _curBlendSrc = (int)BlendFactor::ONE;
-                _curBlendDst = (int)BlendFactor::ONE_MINUS_SRC_COLOR;
+                _curBlendSrc = static_cast<int>(gfx::BlendFactor::ONE);
+                _curBlendDst = static_cast<int>(gfx::BlendFactor::ONE_MINUS_SRC_COLOR);
                 break;
             default:
-                _curBlendSrc = (int)(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
-                _curBlendDst = (int)BlendFactor::ONE_MINUS_SRC_ALPHA;
+                _curBlendSrc = static_cast<int>(_premultipliedAlpha ? gfx::BlendFactor::ONE : gfx::BlendFactor::SRC_ALPHA);
+                _curBlendDst = static_cast<int>(gfx::BlendFactor::ONE_MINUS_SRC_ALPHA);
                 break;
         }
 
@@ -302,16 +303,16 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         renderInfo->writeUint32(bufferIndex);
 
         // fill new index offset
-        renderInfo->writeUint32((uint32_t)ib.getCurPos() / sizeof(unsigned short));
+        renderInfo->writeUint32(static_cast<uint32_t>(ib.getCurPos()) / sizeof(uint16_t));
 
         // save new segment indices count pos field
-        _preISegWritePos = (int)renderInfo->getCurPos();
+        _preISegWritePos = static_cast<int>(renderInfo->getCurPos());
 
         // reserve indice segamentation count
         renderInfo->writeUint32(0);
 
         // reset pre blend mode to current
-        _preBlendMode = (int)slot->_blendMode;
+        _preBlendMode = static_cast<int>(slot->_blendMode);
         // reset pre texture index to current
         _preTextureIndex = _curTextureIndex;
 
@@ -321,9 +322,12 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         _materialLen++;
     };
 
-    for (std::size_t i = 0, len = slots.size(); i < len; i++) {
+    for (auto *i : slots) {
         isFull = 0;
-        slot = (CCSlot *)slots[i];
+        slot   = dynamic_cast<CCSlot *>(i); //TODO(zhakasi): refine the logic
+        if (slot == nullptr) {
+            return;
+        }
         if (!slot->getVisible()) {
             continue;
         }
@@ -333,31 +337,31 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         // If slots has child armature,will traverse child first.
         Armature *childArmature = slot->getChildArmature();
         if (childArmature != nullptr) {
-            traverseArmature(childArmature, parentOpacity * slot->color.a / 255.0f);
+            traverseArmature(childArmature, parentOpacity * static_cast<float>(slot->color.a) / 255.0F);
             continue;
         }
 
         texture = slot->getTexture();
         if (!texture) continue;
         _curTextureIndex = texture->getRealTextureIndex();
-        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4F);
+        auto vbSize      = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4F);
         isFull |= vb.checkSpace(vbSize, true);
 
         // If texture or blendMode change,will change material.
-        if (_preTextureIndex != _curTextureIndex || _preBlendMode != (int)slot->_blendMode || isFull) {
+        if (_preTextureIndex != _curTextureIndex || _preBlendMode != static_cast<int>(slot->_blendMode) || isFull) {
             flush();
         }
 
         // Calculation vertex color.
-        a = realOpacity * slot->color.a * parentOpacity / 255.0f;
-        float multiplier = _premultipliedAlpha ? a / 255.0f : 1.0f / 255.0f;
-        r = _nodeColor.r * slot->color.r * multiplier;
-        g = _nodeColor.g * slot->color.g * multiplier;
-        b = _nodeColor.b * slot->color.b * multiplier;
+        a                = realOpacity * static_cast<float>(slot->color.a) * parentOpacity / 255.0F;
+        float multiplier = _premultipliedAlpha ? a / 255.0F : 1.0F / 255.0F;
+        r                = _nodeColor.r * static_cast<float>(slot->color.r) * multiplier;
+        g                = _nodeColor.g * static_cast<float>(slot->color.g) * multiplier;
+        b                = _nodeColor.b * static_cast<float>(slot->color.b) * multiplier;
 
         // Transform component matrix to global matrix
-        middleware::Triangles &triangles = slot->triangles;
-        cc::Mat4 *worldMatrix = &slot->worldMatrix;
+        middleware::Triangles &triangles   = slot->triangles;
+        cc::Mat4 *             worldMatrix = &slot->worldMatrix;
         if (_batch) {
             cc::Mat4::multiply(nodeWorldMat, *worldMatrix, &matrixTemp);
             worldMatrix = &matrixTemp;
@@ -366,10 +370,10 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         middleware::V2F_T2F_C4F *worldTriangles = slot->worldVerts;
 
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2) {
-            middleware::V2F_T2F_C4F *vertex = triangles.verts + v;
+            middleware::V2F_T2F_C4F *vertex      = triangles.verts + v;
             middleware::V2F_T2F_C4F *worldVertex = worldTriangles + v;
 
-            vertex->vertex.z = 0;//reset for z value
+            vertex->vertex.z = 0; //reset for z value
             worldVertex->vertex.transformMat4(vertex->vertex, *worldMatrix);
 
             worldVertex->color.r = r;
@@ -380,9 +384,9 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
 
         // Fill MiddlewareManager vertex buffer
         auto vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4F);
-        vb.writeBytes((char *)worldTriangles, vbSize);
+        vb.writeBytes(reinterpret_cast<char *>(worldTriangles), vbSize);
 
-        auto ibSize = triangles.indexCount * sizeof(unsigned short);
+        auto ibSize = triangles.indexCount * sizeof(uint16_t);
         ib.checkSpace(ibSize, true);
         // If vertex buffer current offset is zero,fill it directly or recalculate vertex offset.
         if (vertexOffset > 0) {
@@ -390,7 +394,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
                 ib.writeUint16(triangles.indices[ii] + vertexOffset);
             }
         } else {
-            ib.writeBytes((char *)triangles.indices, ibSize);
+            ib.writeBytes(reinterpret_cast<char *>(triangles.indices), ibSize);
         }
 
         // Record this turn index segmentation count,it will store in material buffer in the end.
@@ -403,7 +407,7 @@ bool CCArmatureDisplay::hasDBEventListener(const std::string &type) const {
     return it != _listenerIDMap.end();
 }
 
-void CCArmatureDisplay::addDBEventListener(const std::string &type, const std::function<void(EventObject *)> &callback) {
+void CCArmatureDisplay::addDBEventListener(const std::string &type, const std::function<void(EventObject *)> & /*listener*/) {
     _listenerIDMap[type] = true;
 }
 
@@ -418,7 +422,7 @@ void CCArmatureDisplay::dispatchDBEvent(const std::string &type, EventObject *va
     }
 }
 
-void CCArmatureDisplay::removeDBEventListener(const std::string &type, const std::function<void(EventObject *)> &callback) {
+void CCArmatureDisplay::removeDBEventListener(const std::string &type, const std::function<void(EventObject *)> & /*listener*/) {
     auto it = _listenerIDMap.find(type);
     if (it != _listenerIDMap.end()) {
         _listenerIDMap.erase(it);
@@ -433,10 +437,10 @@ se_object_ptr CCArmatureDisplay::getDebugData() const {
 }
 
 void CCArmatureDisplay::setColor(float r, float g, float b, float a) {
-    _nodeColor.r = r / 255.0f;
-    _nodeColor.g = g / 255.0f;
-    _nodeColor.b = b / 255.0f;
-    _nodeColor.a = a / 255.0f;
+    _nodeColor.r = r / 255.0F;
+    _nodeColor.g = g / 255.0F;
+    _nodeColor.b = b / 255.0F;
+    _nodeColor.a = a / 255.0F;
 }
 
 se_object_ptr CCArmatureDisplay::getSharedBufferOffset() const {
@@ -455,8 +459,8 @@ se_object_ptr CCArmatureDisplay::getParamsBuffer() const {
 
 uint32_t CCArmatureDisplay::getRenderOrder() const {
     if (_paramsBuffer) {
-        auto buffer = _paramsBuffer->getBuffer();
-        return (uint32_t)buffer[0];
+        auto *buffer = _paramsBuffer->getBuffer();
+        return static_cast<uint32_t>(buffer[0]);
     }
     return 0;
 }

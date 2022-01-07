@@ -32,8 +32,8 @@
 #include "base/Log.h"
 #include "math/Mat4.h"
 #include "math/Math.h"
-#include "scene/AABB.h"
-#include "scene/Frustum.h"
+#include "core/geometry/AABB.h"
+#include "core/geometry/Frustum.h"
 
 namespace cc {
 namespace pipeline {
@@ -199,9 +199,8 @@ void GeometryRenderer::render(gfx::RenderPass* renderPass, gfx::CommandBuffer* c
     update();
 
     const auto* sceneData  = _pipeline->getPipelineSceneData();
-    const auto* sharedData = sceneData->getSharedData();
-    const auto& passes     = sharedData->geometryRendererPasses;
-    const auto& shaders    = sharedData->geometryRendererShaders;
+    const auto& passes     = sceneData->getGeometryRendererPasses();
+    const auto& shaders    = sceneData->getGeometryRendererShaders();
 
     uint32_t       offset                               = 0U;
     const uint32_t passCount[GEOMETRY_DEPTH_TYPE_COUNT] = {GEOMETRY_NO_DEPTH_TEST_PASS_NUM, GEOMETRY_DEPTH_TEST_PASS_NUM};
@@ -372,7 +371,7 @@ void GeometryRenderer::addQuad(const Vec3& v0, const Vec3& v1, const Vec3& v2, c
     }
 }
 
-void GeometryRenderer::addBoundingBox(const scene::AABB* aabb, gfx::Color color, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4& transform) {
+void GeometryRenderer::addBoundingBox(const geometry::AABB* aabb, gfx::Color color, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4& transform) {
     /**
     *     2---3
     *    /   /
@@ -438,7 +437,7 @@ void GeometryRenderer::addCross(const Vec3& center, float size, gfx::Color color
     addLine(Vec3(center.x, center.y, center.z - halfSize), Vec3(center.x, center.y, center.z + halfSize), color, depthTest);
 }
 
-void GeometryRenderer::addFrustum(const scene::Frustum* frustum, gfx::Color color, bool depthTest) {
+void GeometryRenderer::addFrustum(const geometry::Frustum* frustum, gfx::Color color, bool depthTest) {
     const auto& vertices = frustum->vertices;
 
     addLine(vertices[0], vertices[1], color, depthTest);

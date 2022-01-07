@@ -24,36 +24,31 @@
 ****************************************************************************/
 
 #include "middleware-adapter.h"
+#include "base/DeferredReleasePool.h"
 #include "base/Macros.h"
 
 MIDDLEWARE_BEGIN
 
-const Color4F Color4F::WHITE(1.0f, 1.0f, 1.0f, 1.0f);
+const Color4F Color4F::WHITE(1.0F, 1.0F, 1.0F, 1.0F);
 const Color4B Color4B::WHITE(255, 255, 255, 255);
 
-Color4F::Color4F(float _r, float _g, float _b, float _a)
-: r(_r), g(_g), b(_b), a(_a) {}
-Color4F::Color4F() {}
+Color4F::Color4F(float r, float g, float b, float a)
+: r(r), g(g), b(b), a(a) {}
+Color4F::Color4F() = default;
 
-Color4F& Color4F::operator=(const Color4B &right) {
-    r = right.r / 255.0f;
-    g = right.g / 255.0f;
-    b = right.b / 255.0f;
-    a = right.a / 255.0f;
+Color4F &Color4F::operator=(const Color4B &right) {
+    r = static_cast<float>(right.r) / 255.0F;
+    g = static_cast<float>(right.g) / 255.0F;
+    b = static_cast<float>(right.b) / 255.0F;
+    a = static_cast<float>(right.a) / 255.0F;
     return *this;
 }
 
-Color4B::Color4B() {}
-Color4B::Color4B(uint32_t _r, uint32_t _g, uint32_t _b, uint32_t _a)
-: r(_r), g(_g), b(_b), a(_a) {}
+Color4B::Color4B() = default;
+Color4B::Color4B(uint32_t r, uint32_t g, uint32_t b, uint32_t a)
+: r(r), g(g), b(b), a(a) {}
 
-Color4B& Color4B::operator=(const Color4B &right) {
-    r = right.r;
-    g = right.g;
-    b = right.b;
-    a = right.a;
-    return *this;
-}
+Color4B &Color4B::operator=(const Color4B &right) = default;
 
 bool Color4B::operator==(const Color4B &right) const {
     return (r == right.r && g == right.g && b == right.b && a == right.a);
@@ -71,8 +66,7 @@ bool Color4F::operator!=(const Color4F &right) const {
     return (r != right.r || g != right.g || b != right.b || a != right.a);
 }
 
-Texture2D::Texture2D() {
-}
+Texture2D::Texture2D() = default;
 
 Texture2D::~Texture2D() {
     _texParamCallback = nullptr;
@@ -113,17 +107,15 @@ void Texture2D::setTexParameters(const TexParams &texParams) {
 }
 
 SpriteFrame *SpriteFrame::createWithTexture(Texture2D *texture, const cc::Rect &rect) {
-    SpriteFrame *spriteFrame = new (std::nothrow) SpriteFrame();
+    auto *spriteFrame = new (std::nothrow) SpriteFrame();
     spriteFrame->initWithTexture(texture, rect);
-    spriteFrame->autorelease();
 
     return spriteFrame;
 }
 
 SpriteFrame *SpriteFrame::createWithTexture(Texture2D *texture, const cc::Rect &rect, bool rotated, const cc::Vec2 &offset, const cc::Size &originalSize) {
-    SpriteFrame *spriteFrame = new (std::nothrow) SpriteFrame();
+    auto *spriteFrame = new (std::nothrow) SpriteFrame();
     spriteFrame->initWithTexture(texture, rect, rotated, offset, originalSize);
-    spriteFrame->autorelease();
 
     return spriteFrame;
 }
@@ -136,20 +128,19 @@ bool SpriteFrame::initWithTexture(Texture2D *texture, const cc::Rect &rect, bool
     _texture = texture;
 
     if (texture) {
-        texture->retain();
+        texture->addRef();
     }
 
-    _rectInPixels = rect;
-    _offsetInPixels = offset;
+    _rectInPixels         = rect;
+    _offsetInPixels       = offset;
     _originalSizeInPixels = originalSize;
-    _rotated = rotated;
-    _anchorPoint = cc::Vec2(NAN, NAN);
+    _rotated              = rotated;
+    _anchorPoint          = cc::Vec2(NAN, NAN);
 
     return true;
 }
 
-SpriteFrame::SpriteFrame() {
-}
+SpriteFrame::SpriteFrame() = default;
 
 SpriteFrame::~SpriteFrame() {
     CC_SAFE_RELEASE(_texture);
@@ -158,7 +149,7 @@ SpriteFrame::~SpriteFrame() {
 void SpriteFrame::setTexture(Texture2D *texture) {
     if (_texture != texture) {
         CC_SAFE_RELEASE(_texture);
-        CC_SAFE_RETAIN(texture);
+        CC_SAFE_ADD_REF(texture);
         _texture = texture;
     }
 }

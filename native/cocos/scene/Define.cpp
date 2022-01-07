@@ -28,7 +28,5 @@
 namespace cc {
 namespace scene {
 
-Root* Root::instance = nullptr;
-
 } // namespace scene
 } // namespace cc

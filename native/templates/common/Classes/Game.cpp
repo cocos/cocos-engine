@@ -30,6 +30,7 @@
 #include "cocos/bindings/manual/jsb_classtype.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/bindings/manual/jsb_module_register.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 
 Game::Game() : cc::CocosApplication() {}
 
@@ -46,6 +47,11 @@ int Game::init() {
     }
 
     setXXTeaKey("");
+    //TODO: Is here the correct place to invoke setDescriptorSetLayout?
+    cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
+    //
+
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
     runJsScript("jsb-adapter/jsb-builtin.js");
     runJsScript("main.js");

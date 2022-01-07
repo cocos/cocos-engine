@@ -25,23 +25,39 @@
 
 #pragma once
 
-#include "../PipelineStateManager.h"
-#include "gfx-base/GFXCommandBuffer.h"
-#include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
-#include "gfx-base/GFXSwapchain.h"
-#include "pipeline/Define.h"
-#include "scene/Model.h"
-#include "scene/SubModel.h"
-#include "scene/Camera.h"
+#include "math/Vec4.h"
 
 namespace cc {
+
+namespace scene {
+class Camera;
+class Model;
+} // namespace scene
+
+namespace gfx {
+class CommandBuffer;
+class RenderPass;
+} // namespace gfx
+
 namespace pipeline {
+
+inline void srgbToLinear(cc::Vec4 *out, const cc::Vec4 &gamma) {
+    out->x = gamma.x * gamma.x;
+    out->y = gamma.y * gamma.y;
+    out->z = gamma.z * gamma.z;
+}
 
 inline void srgbToLinear(gfx::Color *out, const gfx::Color &gamma) {
     out->x = gamma.x * gamma.x;
     out->y = gamma.y * gamma.y;
     out->z = gamma.z * gamma.z;
+}
+
+inline void linearToSrgb(cc::Vec4 *out, const cc::Vec4 &linear) {
+    out->x = std::sqrt(linear.x);
+    out->y = std::sqrt(linear.y);
+    out->z = std::sqrt(linear.z);
 }
 
 inline void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
@@ -52,37 +68,8 @@ inline void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
 
 extern const scene::Camera *profilerCamera;
 
-inline void decideProfilerCamera(const vector<scene::Camera *> &cameras) {
-    for (int i = static_cast<int>(cameras.size() - 1); i >= 0; --i) {
-        if (cameras[i]->window->swapchain) {
-            profilerCamera = cameras[i];
-            return;
-        }
-    }
-    profilerCamera = nullptr;
-}
-
-inline void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera) {
-    if (profiler && profiler->getEnabled() && camera == profilerCamera) {
-        auto *submodel = profiler->getSubModels()[0];
-        auto *pass     = submodel->getPass(0);
-        auto *ia       = submodel->getInputAssembler();
-        auto *pso      = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
-
-        gfx::Viewport profilerViewport;
-        gfx::Rect     profilerScissor;
-        profilerViewport.width = profilerScissor.width = camera->window->getWidth();
-        profilerViewport.height = profilerScissor.height = camera->window->getHeight();
-        cmdBuff->setViewport(profilerViewport);
-        cmdBuff->setScissor(profilerScissor);
-
-        cmdBuff->bindPipelineState(pso);
-        cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
-        cmdBuff->bindDescriptorSet(localSet, submodel->getDescriptorSet());
-        cmdBuff->bindInputAssembler(ia);
-        cmdBuff->draw(ia);
-    }
-}
+void decideProfilerCamera(const vector<scene::Camera *> &cameras);
+void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera);
 
 } // namespace pipeline
 } // namespace cc

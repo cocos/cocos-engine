@@ -46,10 +46,10 @@ GLES2Swapchain::~GLES2Swapchain() {
     destroy();
 }
 
-void GLES2Swapchain::doInit(const SwapchainInfo& info) {
-    const auto* context = GLES2Device::getInstance()->context();
+void GLES2Swapchain::doInit(const SwapchainInfo &info) {
+    const auto *context = GLES2Device::getInstance()->context();
     _gpuSwapchain       = CC_NEW(GLES2GPUSwapchain);
-    auto window        = reinterpret_cast<EGLNativeWindowType>(info.windowHandle); //NOLINT[readability-qualified-auto]
+    auto window         = reinterpret_cast<EGLNativeWindowType>(info.windowHandle); //NOLINT[readability-qualified-auto]
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     EGLint nFmt;
@@ -99,7 +99,7 @@ void GLES2Swapchain::doInit(const SwapchainInfo& info) {
     textureInfo.format = Format::DEPTH_STENCIL;
     initTexture(textureInfo, _depthStencilTexture);
 
-    _gpuSwapchain->gpuColorTexture = static_cast<GLES2Texture*>(_colorTexture)->gpuTexture();
+    _gpuSwapchain->gpuColorTexture = static_cast<GLES2Texture *>(_colorTexture.get())->gpuTexture();
 }
 
 void GLES2Swapchain::doDestroy() {
@@ -121,16 +121,16 @@ void GLES2Swapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform 
 
 void GLES2Swapchain::doDestroySurface() {
     if (_gpuSwapchain->eglSurface != EGL_NO_SURFACE) {
-        auto* context = GLES2Device::getInstance()->context();
+        auto *context = GLES2Device::getInstance()->context();
         eglDestroySurface(context->eglDisplay, _gpuSwapchain->eglSurface);
         _gpuSwapchain->eglSurface = EGL_NO_SURFACE;
         context->bindContext(false);
     }
 }
 
-void GLES2Swapchain::doCreateSurface(void* windowHandle) {
-    auto* context = GLES2Device::getInstance()->context();
-    auto window  = reinterpret_cast<EGLNativeWindowType>(windowHandle); //NOLINT [readability-qualified-auto]
+void GLES2Swapchain::doCreateSurface(void *windowHandle) {
+    auto *context = GLES2Device::getInstance()->context();
+    auto  window  = reinterpret_cast<EGLNativeWindowType>(windowHandle); //NOLINT [readability-qualified-auto]
 
     EGLint nFmt = 0;
     if (eglGetConfigAttrib(context->eglDisplay, context->eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {

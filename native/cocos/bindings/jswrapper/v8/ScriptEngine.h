@@ -305,7 +305,24 @@ public:
          */
     uint32_t getVMId() const { return _vmId; }
 
+    /**
+     * @brief Fast version of call script function, faster than Object::call
+     */
+    bool callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval = nullptr);
+
     // Private API used in wrapper
+    class VMStringPool final {
+    public:
+        VMStringPool();
+        ~VMStringPool();
+        v8::MaybeLocal<v8::String> get(v8::Isolate *isolate, const char *name);
+        void                       clear();
+
+    private:
+        std::unordered_map<std::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
+    };
+
+    inline VMStringPool &  _getStringPool() { return _stringPool; }         //NOLINT(readability-identifier-naming)
     void                   _retainScriptObject(void *owner, void *target);  //NOLINT(readability-identifier-naming)
     void                   _releaseScriptObject(void *owner, void *target); //NOLINT(readability-identifier-naming)
     v8::Local<v8::Context> _getContext() const;                             //NOLINT(readability-identifier-naming)
@@ -314,8 +331,7 @@ public:
 private:
     ScriptEngine();
     ~ScriptEngine();
-    static void privateDataFinalize(void *nativeObj);
-
+    static void privateDataFinalize(PrivateObjectBase *nativeObj);
     static void onFatalErrorCallback(const char *location, const char *message);
     static void onOOMErrorCallback(const char *location, bool isHeapOom);
     static void onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
@@ -354,6 +370,7 @@ private:
     node::Environment *_env;
     node::IsolateData *_isolateData;
     #endif
+    VMStringPool _stringPool;
 
     std::thread::id _engineThreadId;
 

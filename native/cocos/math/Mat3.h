@@ -1,7 +1,7 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
  
- http://www.cocos2d-x.org
+ http://www.cocos.com
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -29,10 +29,10 @@
 
 #include "base/Macros.h"
 
+#include "math/Mat4.h"
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
-#include "math/Mat4.h"
 
 /**
  * @addtogroup base
@@ -84,7 +84,7 @@ public:
      *
      * @param mat An array containing 16 elements in column-major order.
      */
-    Mat3(const float *mat);
+    explicit Mat3(const float *mat);
 
     /**
      * Constructs a new matrix by copying the values from the specified matrix.
@@ -96,7 +96,7 @@ public:
     /**
      * Destructor.
      */
-    ~Mat3();
+    ~Mat3() = default;
 
     /**
      * Sets the values of this matrix.
@@ -141,7 +141,7 @@ public:
     /**
      * Transposes a matrix.
      */
-    static void transpose(Mat3 &out, const Mat3 &mat);
+    static void transpose(const Mat3 &mat, Mat3 *out);
 
     /**
      * Inverts a matrix.
@@ -151,7 +151,7 @@ public:
     /**
      * Calculates the adjugate of a matrix.
      */
-    static void adjoint(Mat3 &out, const Mat3 &mat);
+    static void adjoint(const Mat3 &mat, Mat3 *out);
 
     /**
      * Calculates the determinant of a matrix.
@@ -161,58 +161,64 @@ public:
     /**
      * Multiply two matrices explicitly.
      */
-    static void multiply(Mat3 &out, const Mat3 &a, const Mat3 &b);
+    static void multiply(const Mat3 &a, const Mat3 &b, Mat3 *out);
 
     /**
      * Multiply a matrix with a translation matrix given by a translation offset.
      */
-    static void translate(Mat3 &out, const Mat3 &mat, const Vec2 &vec);
+    static void translate(const Mat3 &mat, const Vec2 &vec, Mat3 *out);
 
     /**
      * Rotates a matrix by the given angle.
      */
-    static void rotate(Mat3 &out, const Mat3 &mat, float rad);
+    static void rotate(const Mat3 &mat, float rad, Mat3 *out);
 
     /**
      * Multiply a matrix with a scale matrix given by a scale vector.
      */
-    static void scale(Mat3 &out, const Mat3 &mat, const Vec2 &vec);
+    static void scale(const Mat3 &mat, const Vec2 &vec, Mat3 *out);
 
     /**
      * Copies the upper-left 3x3 values of a 4x4 matrix into a 3x3 matrix.
      */
-    static void fromMat4(Mat3 &out, const Mat4 &mat);
+    static void fromMat4(const Mat4 &mat, Mat3 *out);
 
     /**
      * Creates a matrix from a translation offset.
      */
-    static void fromTranslation(Mat3 &out, const Vec2 &vec);
+    static void fromTranslation(const Vec2 &vec, Mat3 *out);
 
     /**
      * Creates a matrix from a given angle.
      */
-    static void fromRotation(Mat3 &out, float rad);
+    static void fromRotation(float rad, Mat3 *out);
 
     /**
      * Creates a matrix from a scale vector.
      */
-    static void fromScaling(Mat3 &out, const Vec2 &vec);
+    static void fromScaling(const Vec2 &vec, Mat3 *out);
+
+    /**
+     * Sets a third order matrix with view direction and up direction. Then save the results to out matrix
+     */
+    static void fromViewUp(const Vec3 &view, Mat3 *out);
+    static void fromViewUp(const Vec3 &view, const Vec3 &up, Mat3 *out);
 
     /**
      * Calculates a 3x3 matrix from the given quaternion.
      */
 
-    static void fromQuat(Mat3 &out, const Quaternion &quat);
+    static void fromQuat(const Quaternion &quat, Mat3 *out);
 
     /**
      * Adds two matrices.
      */
-    static void add(Mat3 &out, const Mat3 &a, const Mat3 &b);
+    static void add(const Mat3 &a, const Mat3 &b, Mat3 *out);
 
     /**
      * Subtracts matrix b from matrix a.
      */
-    static void subtract(Mat3 &out, const Mat3 &a, const Mat3 &b);
+    static void subtract(const Mat3 &a, const Mat3 &b, Mat3 *out);
 
     /** equals to a matrix full of zeros */
     static const Mat3 ZERO;

@@ -73,7 +73,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
                                     "level": 2})};
         SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
             #if $generator.should_obtain_return_value($class_name, $func_name)
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
             #end if
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         #else
@@ -87,10 +87,14 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
 #end if
     return false;
 }
-#if $current_class is not None and $current_class.is_getter_method($func_name)
-SE_BIND_PROP_GET(${signature_name})
-#elif $current_class is not None and $current_class.is_setter_method($func_name)
-SE_BIND_PROP_SET(${signature_name})
-#else
+#if $current_class is not None
+#if $current_class.is_getter_attribute($func_name)
+SE_BIND_FUNC_AS_PROP_GET(${signature_name})
+#end if
+#if $current_class.is_setter_attribute($func_name)
+SE_BIND_FUNC_AS_PROP_SET(${signature_name})
+#end if
+#if not $current_class.skip_bind_function({"name":$func_name})
 SE_BIND_FUNC(${signature_name})
+#end if
 #end if

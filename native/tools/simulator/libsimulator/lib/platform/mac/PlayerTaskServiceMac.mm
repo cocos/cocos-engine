@@ -27,6 +27,7 @@
 #include "PlayerTaskServiceMac.h"
 #include "cocos/base/Log.h"
 #include "cocos/base/UTF8.h"
+#include "cocos/base/DeferredReleasePool.h"
 @implementation PlayerTaskPrivate
 
 @synthesize buildTask = _buildTask;
@@ -130,7 +131,8 @@ PLAYER_NS_BEGIN
 PlayerTaskMac *PlayerTaskMac::create(const std::string &name, const std::string &executePath, const std::string &commandLineArguments)
 {
     PlayerTaskMac *task = new PlayerTaskMac(name, executePath, commandLineArguments);
-    task->autorelease();
+    task->addRef();
+    cc::DeferredReleasePool::add(task);
     return task;
 }
 

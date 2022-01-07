@@ -26,6 +26,7 @@
 #pragma once
 
 #include "GFXTexture.h"
+#include "base/Ptr.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -65,11 +66,11 @@ public:
     inline uint32_t         getHeight() const { return _colorTexture->getHeight(); }
 
 protected:
-    virtual void doInit(const SwapchainInfo &info)         = 0;
-    virtual void doDestroy()                               = 0;
+    virtual void doInit(const SwapchainInfo &info)                                     = 0;
+    virtual void doDestroy()                                                           = 0;
     virtual void doResize(uint32_t width, uint32_t height, SurfaceTransform transform) = 0;
-    virtual void doDestroySurface()                        = 0;
-    virtual void doCreateSurface(void *windowHandle)       = 0;
+    virtual void doDestroySurface()                                                    = 0;
+    virtual void doCreateSurface(void *windowHandle)                                   = 0;
 
     static inline void initTexture(const SwapchainTextureInfo &info, Texture *texture);
 
@@ -78,8 +79,8 @@ protected:
     SurfaceTransform _transform{SurfaceTransform::IDENTITY};
     bool             _preRotationEnabled{false};
 
-    Texture *_colorTexture{nullptr};
-    Texture *_depthStencilTexture{nullptr};
+    IntrusivePtr<Texture> _colorTexture;
+    IntrusivePtr<Texture> _depthStencilTexture;
 };
 
 ///////////////////////////////////////////////////////////

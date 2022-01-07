@@ -35,8 +35,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "base/Ref.h"
-//#include "base/Vector.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 
@@ -47,7 +46,7 @@ using ccSchedulerFunc = std::function<void(float)>;
 /**
  * @cond
  */
-class CC_DLL Timer : public Ref {
+class CC_DLL Timer : public RefCounted {
 public:
     /** get interval in seconds */
     inline float getInterval() const { return _interval; };
@@ -65,15 +64,14 @@ public:
 protected:
     Timer() = default;
 
-protected:
     Scheduler *  _scheduler     = nullptr;
-    float        _elapsed       = 0.f;
+    float        _elapsed       = 0.F;
     bool         _runForever    = false;
     bool         _useDelay      = false;
     unsigned int _timesExecuted = 0;
     unsigned int _repeat        = 0; //0 = once, 1 is 2 x executed
-    float        _delay         = 0.f;
-    float        _interval      = 0.f;
+    float        _delay         = 0.F;
+    float        _interval      = 0.F;
 };
 
 class CC_DLL TimerTargetCallback final : public Timer {

@@ -1,3 +1,5 @@
+
+// clang-format off
 #include "cocos/bindings/auto/jsb_network_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -10,8 +12,8 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cc_network_DownloaderHints_proto = nullptr;
-se::Class* __jsb_cc_network_DownloaderHints_class = nullptr;
+se::Object* __jsb_cc_network_DownloaderHints_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_network_DownloaderHints_class = nullptr;  // NOLINT
 
 static bool js_network_DownloaderHints_get_countOfMaxProcessingTasks(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -107,15 +109,15 @@ bool sevalue_to_native(const se::Value &from, cc::network::DownloaderHints * to,
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("countOfMaxProcessingTasks", &field);
+    json->getProperty("countOfMaxProcessingTasks", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->countOfMaxProcessingTasks), ctx);
     }
-    json->getProperty("timeoutInSeconds", &field);
+    json->getProperty("timeoutInSeconds", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->timeoutInSeconds), ctx);
     }
-    json->getProperty("tempFileNameSuffix", &field);
+    json->getProperty("tempFileNameSuffix", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->tempFileNameSuffix), ctx);
     }
@@ -132,9 +134,8 @@ static bool js_network_DownloaderHints_constructor(se::State& s) // NOLINT(reada
 
     if(argc == 0)
     {
-        cc::network::DownloaderHints* cobj = JSB_ALLOC(cc::network::DownloaderHints);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::network::DownloaderHints);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -142,21 +143,19 @@ static bool js_network_DownloaderHints_constructor(se::State& s) // NOLINT(reada
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::network::DownloaderHints* cobj = JSB_ALLOC(cc::network::DownloaderHints);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::network::DownloaderHints);
+        auto cobj = ptr->get<cc::network::DownloaderHints>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::network::DownloaderHints* cobj = JSB_ALLOC(cc::network::DownloaderHints);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::network::DownloaderHints);
+    auto cobj = ptr->get<cc::network::DownloaderHints>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->countOfMaxProcessingTasks), nullptr);
     }
@@ -168,28 +167,17 @@ static bool js_network_DownloaderHints_constructor(se::State& s) // NOLINT(reada
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_network_DownloaderHints_constructor, __jsb_cc_network_DownloaderHints_class, js_cc_network_DownloaderHints_finalize)
 
-
-
 static bool js_cc_network_DownloaderHints_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::network::DownloaderHints>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_network_DownloaderHints_finalize)
@@ -208,11 +196,12 @@ bool js_register_network_DownloaderHints(se::Object* obj) // NOLINT(readability-
     __jsb_cc_network_DownloaderHints_proto = cls->getProto();
     __jsb_cc_network_DownloaderHints_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_network_Downloader_proto = nullptr;
-se::Class* __jsb_cc_network_Downloader_class = nullptr;
+se::Object* __jsb_cc_network_Downloader_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_network_Downloader_class = nullptr;  // NOLINT
 
 static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -229,6 +218,7 @@ static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(read
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=](const cc::network::DownloadTask & larg0, int64_t larg1, int64_t larg2, int64_t larg3) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -241,7 +231,6 @@ static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(read
                     ok &= nativevalue_to_se(larg2, args[2], nullptr /*ctx*/);
                     ok &= nativevalue_to_se(larg3, args[3], nullptr /*ctx*/);
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -277,17 +266,15 @@ static bool js_network_Downloader_constructor(se::State& s) // NOLINT(readabilit
             HolderType<cc::network::DownloaderHints, true> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::network::Downloader* cobj = JSB_ALLOC(cc::network::Downloader, arg0.value());
-            s.thisObject()->setPrivateData(cobj);
-            se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::network::Downloader, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
             return true;
         }
     } while(false);
     do {
         if (argc == 0) {
-            cc::network::Downloader* cobj = JSB_ALLOC(cc::network::Downloader);
-            s.thisObject()->setPrivateData(cobj);
-            se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::network::Downloader);
+            s.thisObject()->setPrivateObject(ptr);
             return true;
         }
     } while(false);
@@ -296,17 +283,8 @@ static bool js_network_Downloader_constructor(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_CTOR(js_network_Downloader_constructor, __jsb_cc_network_Downloader_class, js_cc_network_Downloader_finalize)
 
-
-
 static bool js_cc_network_Downloader_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::network::Downloader>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::network::Downloader>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_network_Downloader_finalize)
@@ -323,14 +301,15 @@ bool js_register_network_Downloader(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_network_Downloader_proto = cls->getProto();
     __jsb_cc_network_Downloader_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_network(se::Object* obj)
+bool register_all_network(se::Object* obj)    // NOLINT
 {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("jsb", &nsVal))
+    if (!obj->getProperty("jsb", &nsVal, true))
     {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
@@ -338,8 +317,9 @@ bool register_all_network(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_network_DownloaderHints(ns);
     js_register_network_Downloader(ns);
+    js_register_network_DownloaderHints(ns);
     return true;
 }
 
+// clang-format on

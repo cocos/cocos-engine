@@ -1,3 +1,5 @@
+
+// clang-format off
 #include "cocos/bindings/auto/jsb_video_auto.h"
 #if (USE_VIDEO > 0)
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -11,8 +13,8 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cc_VideoPlayer_proto = nullptr;
-se::Class* __jsb_cc_VideoPlayer_class = nullptr;
+se::Object* __jsb_cc_VideoPlayer_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_VideoPlayer_class = nullptr;  // NOLINT
 
 static bool js_video_VideoPlayer_addEventListener(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -31,12 +33,12 @@ static bool js_video_VideoPlayer_addEventListener(se::State& s) // NOLINT(readab
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=]() -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(se::EmptyValueArray, thisObj, &rval);
                     if (!succeed) {
@@ -305,29 +307,24 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_VideoPlayer_finalize)
 
 static bool js_video_VideoPlayer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::VideoPlayer* cobj = JSB_ALLOC(cc::VideoPlayer);
-    s.thisObject()->setPrivateData(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::VideoPlayer);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_video_VideoPlayer_constructor, __jsb_cc_VideoPlayer_class, js_cc_VideoPlayer_finalize)
 
-
-
 static bool js_cc_VideoPlayer_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    // destructor is skipped
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_VideoPlayer_finalize)
-
 static bool js_cc_VideoPlayer_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
-    cobj->release();
     auto objIter = se::NativePtrToObjectMap::find(SE_THIS_OBJECT<cc::VideoPlayer>(s));
     if(objIter != se::NativePtrToObjectMap::end())
     {
         objIter->second->clearPrivateData(true);
+        objIter->second->decRef();
     }
     return true;
 }
@@ -359,14 +356,15 @@ bool js_register_video_VideoPlayer(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_VideoPlayer_proto = cls->getProto();
     __jsb_cc_VideoPlayer_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_video(se::Object* obj)
+bool register_all_video(se::Object* obj)    // NOLINT
 {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("jsb", &nsVal))
+    if (!obj->getProperty("jsb", &nsVal, true))
     {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
@@ -379,3 +377,4 @@ bool register_all_video(se::Object* obj)
 }
 
 #endif //#if (USE_VIDEO > 0)
+// clang-format on

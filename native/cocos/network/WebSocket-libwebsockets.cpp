@@ -53,10 +53,10 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
-#include "application/ApplicationManager.h"
 
 #include "platform/FileUtils.h"
 #include "platform/StdC.h"
@@ -148,7 +148,7 @@ static void wsLog(const char *format, ...) {
 #define QUOTEME(x)    DO_QUOTEME(x)
 
 // Since CC_LOG_DEBUG isn't thread safe, we uses LOGD for multi-thread logging.
-#ifdef ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     #if CC_DEBUG > 0
         #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
     #else
@@ -436,15 +436,6 @@ bool WsThreadHelper::createWebSocketThread() {
 
 void WsThreadHelper::quitWebSocketThread() {
     _needQuit = true;
-#if WS_ENABLE_LIBUV
-    // stop libuv loop
-    if (wsContext && wsPolling) {
-        auto *loop = lws_uv_getloop(wsContext, 0);
-        if (loop) {
-            uv_stop(loop);
-        }
-    }
-#endif
 }
 
 void WsThreadHelper::onSubThreadLoop() {

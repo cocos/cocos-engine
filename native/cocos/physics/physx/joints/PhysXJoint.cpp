@@ -31,10 +31,10 @@
 namespace cc {
 namespace physics {
 
-physx::PxRigidActor* PhysXJoint::tempRigidActor = nullptr;
+physx::PxRigidActor *PhysXJoint::tempRigidActor = nullptr;
 
-void PhysXJoint::initialize(scene::Node* node) {
-    auto& ins    = PhysXWorld::getInstance();
+void PhysXJoint::initialize(Node *node) {
+    auto &ins    = PhysXWorld::getInstance();
     _mSharedBody = ins.getSharedBody(node);
     _mSharedBody->reference(true);
     onComponentSet();
@@ -62,8 +62,8 @@ void PhysXJoint::onDestroy() {
 
 void PhysXJoint::setConnectedBody(uintptr_t v) {
     if (v) {
-        auto& ins       = PhysXWorld::getInstance();
-        _mConnectedBody = ins.getSharedBody(reinterpret_cast<scene::Node*>(v));
+        auto &ins       = PhysXWorld::getInstance();
+        _mConnectedBody = ins.getSharedBody(reinterpret_cast<Node *>(v));
     } else {
         _mConnectedBody = nullptr;
     }
@@ -79,7 +79,7 @@ void PhysXJoint::setEnableCollision(const bool v) {
     }
 }
 
-physx::PxRigidActor& PhysXJoint::getTempRigidActor() {
+physx::PxRigidActor &PhysXJoint::getTempRigidActor() {
     if (!PhysXJoint::tempRigidActor) {
         PhysXJoint::tempRigidActor = PxGetPhysics().createRigidDynamic(physx::PxTransform{physx::PxIdentity});
     }

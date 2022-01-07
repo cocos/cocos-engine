@@ -48,7 +48,7 @@ void CCTextureAtlasData::setRenderTexture(middleware::Texture2D *value) {
     _renderTexture = value;
 
     if (_renderTexture != nullptr) {
-        _renderTexture->retain();
+        _renderTexture->addRef();
 
         for (const auto &pair : textures) {
             const auto textureData = static_cast<CCTextureData *>(pair.second);
@@ -61,7 +61,7 @@ void CCTextureAtlasData::setRenderTexture(middleware::Texture2D *value) {
                 cc::Vec2 offset(0.0f, 0.0f);
                 cc::Size originSize(rect.size.width, rect.size.height);
                 textureData->spriteFrame = middleware::SpriteFrame::createWithTexture(_renderTexture, rect, textureData->rotated, offset, originSize); // TODO multiply textureAtlas
-                textureData->spriteFrame->retain();
+                textureData->spriteFrame->addRef();
             }
         }
     } else {

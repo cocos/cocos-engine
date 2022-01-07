@@ -24,16 +24,46 @@
  ****************************************************************************/
 
 #include "scene/SphereLight.h"
+#include "core/Root.h"
+#include "core/scene-graph/Node.h"
 
 namespace cc {
 namespace scene {
+SphereLight::SphereLight() {
+    _type = LightType::SPHERE;
+}
+
+void SphereLight::initialize() {
+    Light::initialize();
+
+    _size  = 0.15F;
+    _range = 1.0F;
+    setLuminance(1700 / Light::nt2lm(_size));
+    _luminanceLDR = 1.0;
+}
 
 void SphereLight::update() {
-    if (_node && (_node->getFlagsChanged() || _needUpdate)) {
+    if (_node && (_node->getChangedFlags() || _needUpdate)) {
         _node->updateWorldTransform();
         _pos = _node->getWorldPosition();
-        _aabb->set(_pos, {_range, _range, _range});
+        _aabb.set(_pos, {_range, _range, _range});
         _needUpdate = false;
+    }
+}
+
+float SphereLight::getLuminance() const {
+    auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
+    auto  isHDR     = sceneData->isHDR();
+    return isHDR ? _luminanceHDR : _luminanceLDR;
+}
+
+void SphereLight::setLuminance(float value) {
+    auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
+    auto  isHDR     = sceneData->isHDR();
+    if (isHDR) {
+        _luminanceHDR = value;
+    } else {
+        _luminanceLDR = value;
     }
 }
 

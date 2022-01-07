@@ -27,6 +27,7 @@
 
 #include "GLES2Commands.h"
 #include "GLES2Device.h"
+#include "cocos/renderer/gfx-base/GFXDef.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
@@ -1004,7 +1005,7 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
                 gpuUniform.binding = INVALID_BINDING;
                 gpuUniform.name    = uniform.name;
                 gpuUniform.type    = uniform.type;
-                gpuUniform.stride  = GFX_TYPE_SIZES[static_cast<int>(uniform.type)];
+                gpuUniform.stride  = cc::gfx::GFX_TYPE_SIZES[static_cast<int>(uniform.type)];
                 gpuUniform.count   = uniform.count;
                 gpuUniform.size    = gpuUniform.stride * gpuUniform.count;
                 gpuUniform.glType  = mapGLType(gpuUniform.type);

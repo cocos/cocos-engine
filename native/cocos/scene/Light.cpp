@@ -24,9 +24,14 @@
  ****************************************************************************/
 
 #include "scene/Light.h"
+#include "math/Math.h"
 
 namespace cc {
 namespace scene {
+
+float Light::nt2lm(float size) {
+    return 4 * math::PI * math::PI * size * size;
+}
 
 } // namespace scene
 } // namespace cc

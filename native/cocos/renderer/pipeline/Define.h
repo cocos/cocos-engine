@@ -25,16 +25,22 @@
 
 #pragma once
 
-#include <functional>
 #include <cmath>
+#include <functional>
 #include "base/Object.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
+#include "gfx-base/GFXDef-common.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "scene/Light.h"
-#include "scene/Model.h"
 
 namespace cc {
+
+namespace scene {
+class Model;
+class SubModel;
+} // namespace scene
+
 namespace pipeline {
 
 class RenderStage;
@@ -132,8 +138,8 @@ struct CC_DLL InternalBindingInst : public InternalBindingDesc {
 };
 
 struct CC_DLL RenderQueueCreateInfo {
-    bool                                                          isTransparent     = false;
-    uint                                                          phases            = 0;
+    bool                                                          isTransparent = false;
+    uint                                                          phases        = 0;
     std::function<bool(const RenderPass &a, const RenderPass &b)> sortFunc;
 };
 
@@ -151,8 +157,8 @@ enum class CC_DLL RenderQueueSortMode {
 CC_ENUM_CONVERSION_OPERATOR(RenderQueueSortMode)
 
 struct CC_DLL RenderQueueDesc {
-    bool                isTransparent     = false;
-    RenderQueueSortMode sortMode          = RenderQueueSortMode::FRONT_TO_BACK;
+    bool                isTransparent = false;
+    RenderQueueSortMode sortMode      = RenderQueueSortMode::FRONT_TO_BACK;
     StringArray         stages;
 };
 using RenderQueueDescList = std::vector<RenderQueueDesc>;
@@ -253,6 +259,7 @@ enum class CC_DLL SetIndex {
     GLOBAL,
     MATERIAL,
     LOCAL,
+    COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(SetIndex)
 

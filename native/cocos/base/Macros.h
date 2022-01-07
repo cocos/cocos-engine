@@ -106,6 +106,9 @@ typedef SSIZE_T ssize_t;
     #define FLT_EPSILON 1.192092896e-07F
 #endif // FLT_EPSILON
 
+#define CC_MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define CC_MAX(a, b) (((a) < (b)) ? (b) : (a))
+
 /**
 Helper macros which converts 4-byte little/big endian
 integral number to the machine native number representation
@@ -162,10 +165,10 @@ It should work same as apples CFSwapInt32LittleToHost(..)
             (p) = nullptr;      \
         }                       \
     } while (0)
-#define CC_SAFE_RETAIN(p)  \
+#define CC_SAFE_ADD_REF(p) \
     do {                   \
         if (p) {           \
-            (p)->retain(); \
+            (p)->addRef(); \
         }                  \
     } while (0)
 #define CC_BREAK_IF(cond) \
@@ -301,9 +304,9 @@ It should work same as apples CFSwapInt32LittleToHost(..)
         #include <Endian.h>
     #else
         #if !defined(__QNX__)
-        #include <endian.h>
+            #include <endian.h>
         #else
-        #define CC_ENDIAN CC_ENDIAN_LITTLE
+            #define CC_ENDIAN CC_ENDIAN_LITTLE
         #endif
     #endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     #
@@ -406,25 +409,34 @@ It should work same as apples CFSwapInt32LittleToHost(..)
         _Pragma("clang diagnostic pop")
 #endif
 
-#define CC_ENABLE_COPY_SEMANTICS(cls) \
+#define CC_DISALLOW_ASSIGN(TypeName)                \
+    TypeName &operator=(const TypeName &) = delete; \
+    TypeName &operator=(TypeName &&) = delete
+
+#define CC_DISALLOW_COPY_MOVE_ASSIGN(TypeName) \
+    TypeName(const TypeName &) = delete;       \
+    TypeName(TypeName &&)      = delete;       \
+    CC_DISALLOW_ASSIGN(TypeName)
+
+#define ENABLE_COPY_SEMANTICS(cls) \
     cls(const cls &) = default;    \
     cls &operator=(const cls &) = default;
 
 #define CC_DISABLE_COPY_SEMANTICS(cls) \
-    cls(const cls &) = delete;      \
+    cls(const cls &) = delete;         \
     cls &operator=(const cls &) = delete;
 
 #define CC_ENABLE_MOVE_SEMANTICS(cls) \
-    cls(cls &&) noexcept = default; \
+    cls(cls &&) noexcept = default;   \
     cls &operator=(cls &&) noexcept = default;
 
 #define CC_DISABLE_MOVE_SEMANTICS(cls) \
-    cls(cls &&) noexcept = delete;  \
+    cls(cls &&) noexcept = delete;     \
     cls &operator=(cls &&) noexcept = delete;
 
 #define CC_DISABLE_COPY_AND_MOVE_SEMANTICS(cls) \
-  CC_DISABLE_COPY_SEMANTICS(cls)         \
-  CC_DISABLE_MOVE_SEMANTICS(cls)
+    CC_DISABLE_COPY_SEMANTICS(cls)              \
+    CC_DISABLE_MOVE_SEMANTICS(cls)
 
 #if (CC_COMPILER == CC_COMPILER_MSVC)
     #define CC_ALIGN(N)        __declspec(align(N))
@@ -620,3 +632,31 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_PREDICT_TRUE(x)  (x)
     #define CC_PREDICT_FALSE(x) (x)
 #endif
+
+#if defined(_MSC_VER)
+    #define CC_FORCE_INLINE __forceinline
+#elif defined(__GNUC__) || defined(__clang__)
+    #define CC_FORCE_INLINE inline __attribute__((always_inline))
+#else
+    #if defined(__cplusplus) || defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L /* C99 */
+        #define CC_FORCE_INLINE static inline
+    #elif
+        #define CC_FORCE_INLINE inline
+    #endif
+#endif
+
+/// @name namespace cc { namespace event {
+/// @{
+#ifdef __cplusplus
+    #define NS_CC_EVENT_BEGIN \
+        namespace cc {        \
+        namespace event {
+    #define NS_CC_EVENT_END \
+        }                   \
+        }
+#else
+    #define NS_CC_EVENT_BEGIN
+    #define NS_CC_EVENT_END
+#endif
+//  end of namespace group
+/// @}

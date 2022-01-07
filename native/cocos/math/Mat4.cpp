@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,12 +22,24 @@
 
 #include "math/Mat4.h"
 
+#include <array>
 #include <cmath>
 #include "base/Log.h"
 #include "math/MathUtil.h"
 #include "math/Quaternion.h"
 
 NS_CC_MATH_BEGIN
+
+namespace {
+
+const std::array<std::array<float, 4>, 4> PRE_TRANSFORMS = {{
+    {{1, 0, 0, 1}},   // SurfaceTransform.IDENTITY
+    {{0, 1, -1, 0}},  // SurfaceTransform.ROTATE_90
+    {{-1, 0, 0, -1}}, // SurfaceTransform.ROTATE_180
+    {{0, -1, 1, 0}}   // SurfaceTransform.ROTATE_270
+}};
+
+}
 
 Mat4::Mat4() {
     // As JS defautl mat4 is zero, so change it to zero.
@@ -95,22 +107,19 @@ void Mat4::createLookAt(float eyePositionX, float eyePositionY, float eyePositio
     dst->m[15] = 1.0F;
 }
 
-void Mat4::createPerspective(float fieldOfView, float aspectRatio,
-                             float zNearPlane, float zFarPlane, Mat4 *dst) {
+void Mat4::createPerspective(float fieldOfView, float aspectRatio, float zNearPlane, float zFarPlane,
+                             bool isFieldOfViewY, float minClipZ, float projectionSignY, int orientation, Mat4 *dst) {
     GP_ASSERT(dst);
     GP_ASSERT(zFarPlane != zNearPlane);
-    GP_ASSERT(fieldOfView != 0.0F);
-
-    const float minClipZ        = -1.0F;
-    const float projectionSignY = 1.0F;
+    GP_ASSERT(fieldOfView != 0.0f);
 
     const float f  = 1.0F / tanf(fieldOfView / 2.0F);
     const float nf = 1.0F / (zNearPlane - zFarPlane);
 
-    const float x = f / aspectRatio;
-    const float y = f * projectionSignY;
+    const float x = isFieldOfViewY ? f / aspectRatio : f;
+    const float y = (isFieldOfViewY ? f : f * aspectRatio) * projectionSignY;
 
-    float const preTransform[] = {1.0, 0.0F, 0.0F, 1.0F};
+    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[orientation];
 
     dst->m[0]  = x * preTransform[0];
     dst->m[1]  = x * preTransform[1];
@@ -136,23 +145,41 @@ void Mat4::createOrthographic(float left, float right, float bottom, float top, 
 
 void Mat4::createOrthographicOffCenter(float left, float right, float bottom, float top,
                                        float zNearPlane, float zFarPlane, Mat4 *dst) {
-    createOrthographicOffCenter(left, right, bottom, top, zNearPlane, zFarPlane, -1.0F, 1.0F, dst);
+    createOrthographicOffCenter(left, right, bottom, top, zNearPlane, zFarPlane, -1.0F, 1.0F, 0, dst);
 }
 
-void Mat4::createOrthographicOffCenter(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane, float minClipZ, float projectionSignY, Mat4 *dst) {
+void Mat4::createOrthographicOffCenter(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane, float minClipZ, float projectionSignY, int orientation, Mat4 *dst) {
     GP_ASSERT(dst);
     GP_ASSERT(right != left);
     GP_ASSERT(top != bottom);
     GP_ASSERT(zFarPlane != zNearPlane);
 
-    memset(dst->m, 0, MATRIX_SIZE);
-    dst->m[0]  = 2.0F / (right - left);
-    dst->m[5]  = 2.0F / (top - bottom) * projectionSignY;
-    dst->m[10] = (1.0F - minClipZ) / (zNearPlane - zFarPlane);
-    dst->m[12] = (left + right) / (left - right);
-    dst->m[13] = (top + bottom) / (bottom - top);
-    dst->m[14] = (zNearPlane - minClipZ * zFarPlane) / (zNearPlane - zFarPlane);
-    dst->m[15] = 1.0F;
+    const std::array<float, 4> &preTransform = PRE_TRANSFORMS[orientation];
+    const float                 lr           = 1.F / (left - right);
+    const float                 bt           = 1.F / (bottom - top) * projectionSignY;
+    const float                 nf           = 1.F / (zNearPlane - zFarPlane);
+
+    const float x  = -2 * lr;
+    const float y  = -2 * bt;
+    const float dx = (left + right) * lr;
+    const float dy = (top + bottom) * bt;
+
+    dst->m[0]  = x * preTransform[0];
+    dst->m[1]  = x * preTransform[1];
+    dst->m[2]  = 0;
+    dst->m[3]  = 0;
+    dst->m[4]  = y * preTransform[2];
+    dst->m[5]  = y * preTransform[3];
+    dst->m[6]  = 0;
+    dst->m[7]  = 0;
+    dst->m[8]  = 0;
+    dst->m[9]  = 0;
+    dst->m[10] = nf * (1 - minClipZ);
+    dst->m[11] = 0;
+    dst->m[12] = dx * preTransform[0] + dy * preTransform[2];
+    dst->m[13] = dx * preTransform[1] + dy * preTransform[3];
+    dst->m[14] = (zNearPlane - minClipZ * zFarPlane) * nf;
+    dst->m[15] = 1.F;
 }
 
 void Mat4::createBillboard(const Vec3 &objectPosition, const Vec3 &cameraPosition,
@@ -455,7 +482,7 @@ void Mat4::fromRT(const Quaternion &rotation, const Vec3 &translation, Mat4 *dst
     dst->m[15] = 1;
 }
 
-void Mat4::fromRTS(const Quaternion& rotation, const Vec3& translation, const Vec3& scale, Mat4* dst) {
+void Mat4::fromRTS(const Quaternion &rotation, const Vec3 &translation, const Vec3 &scale, Mat4 *dst) {
     const float x  = rotation.x;
     const float y  = rotation.y;
     const float z  = rotation.z;
@@ -477,22 +504,29 @@ void Mat4::fromRTS(const Quaternion& rotation, const Vec3& translation, const Ve
     const float sy = scale.y;
     const float sz = scale.z;
 
-    dst->m[0] = (1 - (yy + zz)) * sx;
-    dst->m[1] = (xy + wz) * sx;
-    dst->m[2] = (xz - wy) * sx;
-    dst->m[3] = 0;
-    dst->m[4] = (xy - wz) * sy;
-    dst->m[5] = (1 - (xx + zz)) * sy;
-    dst->m[6] = (yz + wx) * sy;
-    dst->m[7] = 0;
-    dst->m[8] = (xz + wy) * sz;
-    dst->m[9] = (yz - wx) * sz;
+    dst->m[0]  = (1 - (yy + zz)) * sx;
+    dst->m[1]  = (xy + wz) * sx;
+    dst->m[2]  = (xz - wy) * sx;
+    dst->m[3]  = 0;
+    dst->m[4]  = (xy - wz) * sy;
+    dst->m[5]  = (1 - (xx + zz)) * sy;
+    dst->m[6]  = (yz + wx) * sy;
+    dst->m[7]  = 0;
+    dst->m[8]  = (xz + wy) * sz;
+    dst->m[9]  = (yz - wx) * sz;
     dst->m[10] = (1 - (xx + yy)) * sz;
     dst->m[11] = 0;
     dst->m[12] = translation.x;
     dst->m[13] = translation.y;
     dst->m[14] = translation.z;
     dst->m[15] = 1;
+}
+
+void Mat4::toRTS(Quaternion &rotation, Vec3 &translation, Vec3 &scale, Mat4 *dst) {
+    if (dst == nullptr) {
+        return;
+    }
+    dst->decompose(&scale, &rotation, &translation);
 }
 
 bool Mat4::decompose(Vec3 *scale, Quaternion *rotation, Vec3 *translation) const {
@@ -614,11 +648,23 @@ float Mat4::determinant() const {
     return (a0 * b5 - a1 * b4 + a2 * b3 + a3 * b2 - a4 * b1 + a5 * b0);
 }
 
-void Mat4::inverseTranspose(const Mat4& mat, Mat4 *dst) {
-    float a00 = mat.m[0]; float a01 = mat.m[1]; float a02 = mat.m[2]; float a03 = mat.m[3];
-    float a10 = mat.m[4]; float a11 = mat.m[5]; float a12 = mat.m[6]; float a13 = mat.m[7];
-    float a20 = mat.m[8]; float a21 = mat.m[9]; float a22 = mat.m[10]; float a23 = mat.m[11];
-    float a30 = mat.m[12]; float a31 = mat.m[13]; float a32 = mat.m[14]; float a33 = mat.m[15];
+void Mat4::inverseTranspose(const Mat4 &mat, Mat4 *dst) {
+    float a00 = mat.m[0];
+    float a01 = mat.m[1];
+    float a02 = mat.m[2];
+    float a03 = mat.m[3];
+    float a10 = mat.m[4];
+    float a11 = mat.m[5];
+    float a12 = mat.m[6];
+    float a13 = mat.m[7];
+    float a20 = mat.m[8];
+    float a21 = mat.m[9];
+    float a22 = mat.m[10];
+    float a23 = mat.m[11];
+    float a30 = mat.m[12];
+    float a31 = mat.m[13];
+    float a32 = mat.m[14];
+    float a33 = mat.m[15];
 
     float b00 = a00 * a11 - a01 * a10;
     float b01 = a00 * a12 - a02 * a10;
@@ -651,8 +697,8 @@ void Mat4::inverseTranspose(const Mat4& mat, Mat4 *dst) {
     dst->m[6] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
     dst->m[7] = 0;
 
-    dst->m[8] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
-    dst->m[9] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+    dst->m[8]  = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+    dst->m[9]  = (a32 * b02 - a30 * b05 - a33 * b01) * det;
     dst->m[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
     dst->m[11] = 0;
 

@@ -52,11 +52,11 @@ static bool JSB_loadFont(se::State &s) { //NOLINT
         s.rval().setNull();
 
         std::string originalFamilyName;
-        ok &= seval_to_std_string(args[0], &originalFamilyName);
+        ok &= sevalue_to_native(args[0], &originalFamilyName);
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: originalFamilyName");
 
         std::string source;
-        ok &= seval_to_std_string(args[1], &source);
+        ok &= sevalue_to_native(args[1], &source);
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: source");
 
         std::string                                     fontFilePath;

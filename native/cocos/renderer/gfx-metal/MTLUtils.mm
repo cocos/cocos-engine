@@ -838,6 +838,8 @@ MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {
 #endif
         }
     }
+
+    return MTLSamplerAddressModeClampToEdge;
 }
 
 int mu::toMTLSamplerBorderColor(const Color &color) {
@@ -850,6 +852,8 @@ int mu::toMTLSamplerBorderColor(const Color &color) {
     else
         return MTLSamplerBorderColorOpaqueWhite;
 #endif
+
+    return 0;
 }
 
 MTLSamplerMinMagFilter mu::toMTLSamplerMinMagFilter(Filter filter) {

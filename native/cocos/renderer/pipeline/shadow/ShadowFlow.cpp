@@ -33,6 +33,7 @@
 #include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXRenderPass.h"
 #include "gfx-base/GFXTexture.h"
+#include "scene/DirectionalLight.h"
 #include "scene/RenderScene.h"
 
 namespace cc {
@@ -65,9 +66,11 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 }
 
 void ShadowFlow::render(scene::Camera *camera) {
-    const auto *sceneData  = _pipeline->getPipelineSceneData();
-    auto *      shadowInfo = sceneData->getSharedData()->shadow;
-    if (!shadowInfo->enabled || shadowInfo->shadowType != scene::ShadowType::SHADOWMAP) return;
+    const auto *sceneData = _pipeline->getPipelineSceneData();
+    auto *      shadows   = sceneData->getShadows();
+    if (shadows == nullptr || !shadows->isEnabled() || shadows->getType() != scene::ShadowType::SHADOW_MAP) {
+        return;
+    }
 
     lightCollecting();
 
@@ -76,12 +79,12 @@ void ShadowFlow::render(scene::Camera *camera) {
         return;
     }
 
-    if (shadowInfo->shadowMapDirty) {
-        resizeShadowMap(&shadowInfo);
+    if (shadows->isShadowMapDirty()) {
+        resizeShadowMap();
     }
 
     const auto &                   shadowFramebufferMap = sceneData->getShadowFramebufferMap();
-    const scene::DirectionalLight *mainLight            = camera->scene->getMainLight();
+    const scene::DirectionalLight *mainLight            = camera->getScene()->getMainLight();
     if (mainLight) {
         gfx::DescriptorSet *globalDS = _pipeline->getDescriptorSet();
         if (!shadowFramebufferMap.count(mainLight)) {
@@ -97,8 +100,8 @@ void ShadowFlow::render(scene::Camera *camera) {
     }
 
     for (uint l = 0; l < _validLights.size(); ++l) {
-        const scene::Light *light      = _validLights[l];
-        gfx::DescriptorSet *globalDS   = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
+        const scene::Light *light    = _validLights[l];
+        gfx::DescriptorSet *globalDS = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
 
         if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(_pipeline, light);
@@ -117,7 +120,7 @@ void ShadowFlow::render(scene::Camera *camera) {
 void ShadowFlow::lightCollecting() {
     _validLights.clear();
 
-    const vector<const scene::Light*> validPunctualLights = _pipeline->getPipelineSceneData()->getValidPunctualLights();
+    const vector<const scene::Light *> validPunctualLights = _pipeline->getPipelineSceneData()->getValidPunctualLights();
     for (const scene::Light *light : validPunctualLights) {
         if (light->getType() == scene::LightType::SPOT) {
             _validLights.emplace_back(light);
@@ -128,7 +131,7 @@ void ShadowFlow::lightCollecting() {
 void ShadowFlow::clearShadowMap(scene::Camera *camera) {
     const auto *                   sceneData            = _pipeline->getPipelineSceneData();
     const auto &                   shadowFramebufferMap = sceneData->getShadowFramebufferMap();
-    const scene::DirectionalLight *mainLight            = camera->scene->getMainLight();
+    const scene::DirectionalLight *mainLight            = camera->getScene()->getMainLight();
 
     if (mainLight) {
         gfx::DescriptorSet *globalDS = _pipeline->getDescriptorSet();
@@ -145,8 +148,8 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
     }
 
     for (uint l = 0; l < _validLights.size(); ++l) {
-        const scene::Light *light      = _validLights[l];
-        gfx::DescriptorSet *globalDS   = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
+        const scene::Light *light    = _validLights[l];
+        gfx::DescriptorSet *globalDS = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
 
         if (!shadowFramebufferMap.count(light)) {
             continue;
@@ -161,12 +164,13 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
     }
 }
 
-void ShadowFlow::resizeShadowMap(scene::Shadow **shadowInfo) {
-    const auto *sceneData = _pipeline->getPipelineSceneData();
-    auto *      device    = gfx::Device::getInstance();
-    const auto  width     = static_cast<uint>((*shadowInfo)->size.x);
-    const auto  height    = static_cast<uint>((*shadowInfo)->size.y);
-    const auto  format    = supportsFloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
+void ShadowFlow::resizeShadowMap() {
+    auto *     sceneData = _pipeline->getPipelineSceneData();
+    auto *     shadows   = sceneData->getShadows();
+    auto *     device    = gfx::Device::getInstance();
+    const auto width     = static_cast<uint>(shadows->getSize().x);
+    const auto height    = static_cast<uint>(shadows->getSize().y);
+    const auto format    = supportsFloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
 
     for (const auto &pair : sceneData->getShadowFramebufferMap()) {
         gfx::Framebuffer *framebuffer = pair.second;
@@ -210,14 +214,14 @@ void ShadowFlow::resizeShadowMap(scene::Shadow **shadowInfo) {
         });
     }
 
-    (*shadowInfo)->shadowMapDirty = false;
+    shadows->setShadowMapDirty(false);
 }
 
 void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Light *light) {
     auto *      device        = gfx::Device::getInstance();
     const auto *sceneData     = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo    = sceneData->getSharedData()->shadow;
-    const auto  shadowMapSize = shadowInfo->size;
+    const auto *shadows       = sceneData->getShadows();
+    const auto  shadowMapSize = shadows->getSize();
     const auto  width         = static_cast<uint>(shadowMapSize.x);
     const auto  height        = static_cast<uint>(shadowMapSize.y);
     const auto  format        = supportsFloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
@@ -247,7 +251,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
     rpInfo.depthStencilAttachment = depthStencilAttachment;
 
     size_t rpHash = cc::gfx::RenderPass::computeHash(rpInfo);
-    auto iter   = renderPassHashMap.find(rpHash);
+    auto   iter   = renderPassHashMap.find(rpHash);
     if (iter != renderPassHashMap.end()) {
         _renderPass = iter->second;
     } else {
@@ -293,7 +297,7 @@ void ShadowFlow::destroy() {
     renderPassHashMap.clear();
 
     for (auto *texture : _usedTextures) {
-        CC_SAFE_DESTROY(texture);
+        CC_SAFE_DESTROY_AND_DELETE(texture);
     }
     _usedTextures.clear();
 

@@ -30,9 +30,9 @@
     #include "../MappingUtils.h"
     #include "../State.h"
     #include "Class.h"
+    #include "MissingSymbols.h"
     #include "Object.h"
     #include "Utils.h"
-    #include "MissingSymbols.h"
     #include "platform/FileUtils.h"
 
     #include <sstream>
@@ -44,7 +44,7 @@
 
     #endif
 
-    #include <sstream>
+    #include <array>
 
     #define EXPOSE_GC "__jsb_gc__"
 
@@ -339,8 +339,8 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
         // prepend error object to stack message
         v8::MaybeLocal<v8::String> maybeStr = value->ToString(isolate->GetCurrentContext());
         v8::Local<v8::String>      str      = maybeStr.IsEmpty() ? v8::String::NewFromUtf8(isolate, "[empty string]").ToLocalChecked() : maybeStr.ToLocalChecked();
-        v8::String::Utf8Value valueUtf8(isolate, str);
-        auto *                strp = *valueUtf8;
+        v8::String::Utf8Value      valueUtf8(isolate, str);
+        auto *                     strp = *valueUtf8;
         if (strp == nullptr) {
             ss << "value: null" << std::endl;
             auto                  tn = value->TypeOf(isolate);
@@ -398,8 +398,8 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
     getInstance()->callExceptionCallback("", eventName, ss.str().c_str());
 }
 
-void ScriptEngine::privateDataFinalize(void *nativeObj) {
-    auto *p = static_cast<internal::PrivateData *>(nativeObj);
+void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateData) {
+    auto *p = static_cast<internal::PrivateData *>(privateData->getRaw());
 
     Object::nativeObjectFinalizeHook(p->data);
 
@@ -478,7 +478,6 @@ bool ScriptEngine::init() {
     _context.Get(_isolate)->Enter();
 
     NativePtrToObjectMap::init();
-    NonRefNativePtrCreatedByCtorMap::init();
 
     Object::setup();
     Class::setIsolate(_isolate);
@@ -551,6 +550,8 @@ void ScriptEngine::cleanup() {
         }
         _beforeCleanupHookArray.clear();
 
+        _stringPool.clear();
+
         SAFE_DEC_REF(_globalObj);
         Object::cleanup();
         Class::cleanup();
@@ -601,7 +602,6 @@ void ScriptEngine::cleanup() {
 
     _isInCleanup = false;
     NativePtrToObjectMap::destroy();
-    NonRefNativePtrCreatedByCtorMap::destroy();
     _gcFunc = nullptr;
     SE_LOGD("ScriptEngine::cleanup end ...\n");
 }
@@ -741,12 +741,6 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
     if (prefixPos != std::string::npos) {
         sourceUrl = sourceUrl.substr(prefixPos + PREFIX_KEY.length());
     }
-
-    #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    if (strncmp("(no filename)", sourceUrl.c_str(), sizeof("(no filename)")) != 0) {
-        sourceUrl = cc::FileUtils::getInstance()->fullPathForFilename(sourceUrl);
-    }
-    #endif
 
     // It is needed, or will crash if invoked from non C++ context, such as invoked from objective-c context(for example, handler of UIKit).
     v8::HandleScope handleScope(_isolate);
@@ -894,8 +888,7 @@ bool ScriptEngine::runByteCodeFile(const std::string &pathBc, Value *ret /* = nu
 
     // setup ScriptOrigin
     v8::Local<v8::Value> scriptPath = v8::String::NewFromUtf8(_isolate, pathBc.data(), v8::NewStringType::kNormal).ToLocalChecked();
-
-    v8::ScriptOrigin origin(_isolate, scriptPath, 0, 0, true);
+    v8::ScriptOrigin     origin(_isolate, scriptPath, 0, 0, true);
 
     // restore CacheData
     auto *                v8CacheData = new v8::ScriptCompiler::CachedData(cachedData.getBytes(), static_cast<int>(cachedData.getSize()));
@@ -1013,6 +1006,104 @@ bool ScriptEngine::isDebuggerEnabled() const {
 
 void ScriptEngine::mainLoopUpdate() {
     // empty implementation
+}
+
+bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval /* = nullptr*/) {
+    v8::HandleScope handleScope(_isolate);
+
+    v8::MaybeLocal<v8::String> nameValue = _getStringPool().get(_isolate, funcName);
+
+    if (nameValue.IsEmpty()) {
+        if (rval != nullptr) {
+            rval->setUndefined();
+        }
+        return false;
+    }
+
+    v8::Local<v8::String>  nameValToLocal = nameValue.ToLocalChecked();
+    v8::Local<v8::Context> context        = _isolate->GetCurrentContext();
+    v8::Local<v8::Object>  localObj       = targetObj->_obj.handle(_isolate);
+
+    v8::MaybeLocal<v8::Value> funcVal = localObj->Get(context, nameValToLocal);
+    if (funcVal.IsEmpty()) {
+        if (rval != nullptr) {
+            rval->setUndefined();
+        }
+        return false;
+    }
+
+    SE_ASSERT(argc < 11, "Only support argument count that less than 11");
+    std::array<v8::Local<v8::Value>, 10> argv;
+
+    for (size_t i = 0; i < argc; ++i) {
+        internal::seToJsValue(_isolate, args[i], &argv[i]);
+    }
+
+    #if CC_DEBUG
+    v8::TryCatch tryCatch(_isolate);
+    #endif
+
+    assert(!funcVal.IsEmpty());
+    if (!funcVal.ToLocalChecked()->IsFunction()) {
+        v8::String::Utf8Value funcStr(_isolate, funcVal.ToLocalChecked());
+        SE_REPORT_ERROR("%s is not a function: %s", funcName, *funcStr);
+        return false;
+    }
+
+    v8::MaybeLocal<v8::Object> funcObj = funcVal.ToLocalChecked()->ToObject(context);
+    v8::MaybeLocal<v8::Value>  result  = funcObj.ToLocalChecked()->CallAsFunction(_getContext(), localObj, argc, argv.data());
+
+    #if CC_DEBUG
+    if (tryCatch.HasCaught()) {
+        v8::String::Utf8Value stack(_isolate, tryCatch.StackTrace(context).ToLocalChecked());
+        SE_REPORT_ERROR("Invoking function failed, %s", *stack);
+        if (rval != nullptr) {
+            rval->setUndefined();
+        }
+        tryCatch.ReThrow();
+        return false;
+    }
+    #endif
+
+    if (!result.IsEmpty()) {
+        if (rval != nullptr) {
+            internal::jsToSeValue(_isolate, result.ToLocalChecked(), rval);
+        }
+    }
+    return true;
+}
+
+// VMStringPool
+ScriptEngine::VMStringPool::VMStringPool() {
+}
+
+ScriptEngine::VMStringPool::~VMStringPool() {
+}
+
+v8::MaybeLocal<v8::String> ScriptEngine::VMStringPool::get(v8::Isolate *isolate, const char *name) {
+    v8::Local<v8::String> ret;
+    auto                  iter = _vmStringPoolMap.find(name);
+    if (iter == _vmStringPoolMap.end()) {
+        v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kNormal);
+        if (!nameValue.IsEmpty()) {
+            v8::Persistent<v8::String> *persistentName = new v8::Persistent<v8::String>();
+            persistentName->Reset(isolate, nameValue.ToLocalChecked());
+            _vmStringPoolMap.emplace(name, persistentName);
+            ret = v8::Local<v8::String>::New(isolate, *persistentName);
+        }
+    } else {
+        ret = v8::Local<v8::String>::New(isolate, *iter->second);
+    }
+
+    return ret;
+}
+
+void ScriptEngine::VMStringPool::clear() {
+    for (auto &e : _vmStringPoolMap) {
+        e.second->Reset();
+        delete e.second;
+    }
+    _vmStringPoolMap.clear();
 }
 
 } // namespace se

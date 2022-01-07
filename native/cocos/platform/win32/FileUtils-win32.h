@@ -53,7 +53,7 @@ public:
     virtual std::string getWritablePath() const override;
     virtual bool isAbsolutePath(const std::string &strPath) const override;
     virtual std::string getSuitableFOpen(const std::string &filenameUtf8) const override;
-    virtual long getFileSize(const std::string &filepath);
+    virtual long        getFileSize(const std::string &filepath);
 
 protected:
     virtual bool isFileExistInternal(const std::string &strFilePath) const override;

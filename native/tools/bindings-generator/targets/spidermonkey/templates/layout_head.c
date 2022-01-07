@@ -1,3 +1,5 @@
+
+// clang-format off
 \#include "${os.path.relpath(os.path.join($outdir, $out_file + '.h'), $search_path+'/..').replace(os.path.sep, '/')}"
 #if $macro_judgement
 $macro_judgement

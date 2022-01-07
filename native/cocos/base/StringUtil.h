@@ -25,10 +25,11 @@
 
 #pragma once
 
+#include <cstdarg>
+#include <cstddef>
 #include "Macros.h"
 #include "TypeDef.h"
 #include "memory/Memory.h"
-#include <cstdarg>
 
 namespace cc {
 
@@ -38,6 +39,41 @@ public:
     static int         printf(char *buf, const char *last, const char *fmt, ...);
     static String      format(const char *fmt, ...);
     static StringArray split(const String &str, const String &delims, uint maxSplits = 0);
+    static String &    replace(String &str, const String &findStr, const String &replaceStr);
+    static String &    replaceAll(String &str, const String &findStr, const String &replaceStr);
+    static String &    tolower(String &str);
+    static String &    toupper(String &str);
+};
+
+/**
+ * Store compressed text which compressed with gzip & base64
+ * fetch plain-text with `value()`.
+ */
+class CC_DLL GzipedString {
+public:
+    explicit GzipedString(std::string &&dat) : _str(dat) {}
+    explicit GzipedString(const char *dat) : _str(dat) {}
+    GzipedString(const GzipedString &o) = default;
+    GzipedString &operator=(const GzipedString &d) = default;
+
+    GzipedString(GzipedString &&o) noexcept {
+        _str = std::move(o._str);
+    }
+    GzipedString &operator=(std::string &&d) {
+        _str = std::move(d);
+        return *this;
+    }
+    GzipedString &operator=(GzipedString &&d) noexcept {
+        _str = std::move(d._str);
+        return *this;
+    }
+    /**
+    * return text decompress with base64decode | un-gzip
+    */
+    std::string value() const;
+
+private:
+    std::string _str{};
 };
 
 } // namespace cc

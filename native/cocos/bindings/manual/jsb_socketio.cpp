@@ -24,13 +24,12 @@
 ****************************************************************************/
 
 #include "jsb_socketio.h"
-
+#include "application/ApplicationManager.h"
+#include "base/UTF8.h"
+#include "cocos/base/DeferredReleasePool.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
-
-#include "application/ApplicationManager.h"
-#include "base/UTF8.h"
 #include "cocos/network/SocketIO.h"
 
 // using namespace cc;
@@ -38,7 +37,7 @@
 
 se::Class *__jsb_SocketIO_class = nullptr; // NOLINT
 
-class JSB_SocketIODelegate : public cc::Ref, public cc::network::SocketIO::SIODelegate { // NOLINT(readability-identifier-naming)
+class JSB_SocketIODelegate : public cc::RefCounted, public cc::network::SocketIO::SIODelegate {
 public:
     //c++11 map to callbacks
     using JSB_SIOCallbackRegistry = std::unordered_map<std::string /* eventName */, se::ValueArray /* 0:callbackFunc, 1:target */>;
@@ -64,14 +63,14 @@ public:
             iter->second->unroot();
         }
 
-        if (getReferenceCount() == 1) {
-            autorelease();
+        if (getRefCount() == 1) {
+            cc::DeferredReleasePool::add(this);
         } else {
             release();
         }
     }
 
-    void onError(cc::network::SIOClient *client, const std::string &data) override {// NOLINT
+    void onError(cc::network::SIOClient *client, const std::string &data) override { // NOLINT
         CC_LOG_DEBUG("JSB SocketIO::SIODelegate->onError method called from native with data: %s", data.c_str());
         this->fireEventToScript(client, "error", data);
 
@@ -81,7 +80,7 @@ public:
         }
     }
 
-    void fireEventToScript(cc::network::SIOClient * client, const std::string & eventName, const std::string & data) override { // NOLINT
+    void fireEventToScript(cc::network::SIOClient *client, const std::string &eventName, const std::string &data) override { // NOLINT
         CC_LOG_DEBUG("JSB SocketIO::SIODelegate->fireEventToScript method called from native with name '%s' data: %s", eventName.c_str(), data.c_str());
 
         se::ScriptEngine::getInstance()->clearException();
@@ -140,12 +139,11 @@ static bool SocketIO_finalize(se::State &s) { // NOLINT(readability-identifier-n
     CC_LOG_INFO("jsbindings: finalizing JS object %p (SocketIO)", cobj);
     cobj->disconnect();
     auto *delegate = static_cast<JSB_SocketIODelegate *>(cobj->getDelegate());
-    if (delegate->getReferenceCount() == 1) {
-        delegate->autorelease();
+    if (delegate->getRefCount() == 1) {
+        cc::DeferredReleasePool::add(delegate);
     } else {
         delegate->release();
     }
-    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(SocketIO_finalize) // NOLINT(readability-identifier-naming)
@@ -171,7 +169,7 @@ static bool SocketIO_send(se::State &s) { // NOLINT(readability-identifier-namin
 
     if (argc == 1) {
         std::string payload;
-        bool        ok = seval_to_std_string(args[0], &payload);
+        bool        ok = sevalue_to_native(args[0], &payload);
         SE_PRECONDITION2(ok, false, "Converting payload failed!");
 
         cobj->send(payload);
@@ -191,7 +189,7 @@ static bool SocketIO_emit(se::State &s) { // NOLINT(readability-identifier-namin
     if (argc >= 1) {
         bool        ok = false;
         std::string eventName;
-        ok = seval_to_std_string(args[0], &eventName);
+        ok = sevalue_to_native(args[0], &eventName);
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
 
         std::string payload;
@@ -202,7 +200,7 @@ static bool SocketIO_emit(se::State &s) { // NOLINT(readability-identifier-namin
             // while seval_to_std_string since 1.7.2 follows JS standard to return "null" or "undefined".
             // Therefore, we need a workaround to make it be compatible with versions lower than v1.7.
             if (!arg1.isNullOrUndefined()) {
-                ok = seval_to_std_string(arg1, &payload);
+                ok = sevalue_to_native(arg1, &payload);
                 SE_PRECONDITION2(ok, false, "Converting payload failed!");
             }
         }
@@ -239,7 +237,7 @@ static bool SocketIO_on(se::State &s) { // NOLINT(readability-identifier-naming)
     if (argc == 2) {
         bool        ok = false;
         std::string eventName;
-        ok = seval_to_std_string(args[0], &eventName);
+        ok = sevalue_to_native(args[0], &eventName);
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
 
         CC_LOG_DEBUG("JSB SocketIO eventName to: '%s'", eventName.c_str());
@@ -264,7 +262,7 @@ static bool SocketIO_connect(se::State &s) { // NOLINT(readability-identifier-na
         std::string caFilePath;
         bool        ok = false;
 
-        ok = seval_to_std_string(args[0], &url);
+        ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         if (argc == 2) {
@@ -272,7 +270,7 @@ static bool SocketIO_connect(se::State &s) { // NOLINT(readability-identifier-na
                 // Just ignore the option argument
             } else if (args[1].isString()) {
                 // Assume it's CA root file path
-                ok = seval_to_std_string(args[1], &caFilePath);
+                ok = sevalue_to_native(args[1], &caFilePath);
                 SE_PRECONDITION2(ok, false, "Error processing arguments");
             }
         }
@@ -282,7 +280,7 @@ static bool SocketIO_connect(se::State &s) { // NOLINT(readability-identifier-na
 
             if (args[2].isString()) {
                 // Assume it's CA root file path
-                ok = seval_to_std_string(args[2], &caFilePath);
+                ok = sevalue_to_native(args[2], &caFilePath);
                 SE_PRECONDITION2(ok, false, "Error processing arguments");
             }
         }
@@ -292,8 +290,8 @@ static bool SocketIO_connect(se::State &s) { // NOLINT(readability-identifier-na
         CC_LOG_DEBUG("Calling native SocketIO.connect method");
         cc::network::SIOClient *ret = cc::network::SocketIO::connect(url, *siodelegate, caFilePath);
         if (ret != nullptr) {
-            ret->retain();
-            siodelegate->retain();
+            ret->addRef();
+            siodelegate->addRef();
 
             se::Object *obj = se::Object::createObjectWithClass(__jsb_SocketIO_class);
             obj->setPrivateData(ret);

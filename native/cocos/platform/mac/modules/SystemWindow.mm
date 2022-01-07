@@ -49,6 +49,8 @@ bool SystemWindow::createWindow(const char *title,
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *   aString  = [NSString stringWithUTF8String:title];
     [delegate createWindow:aString xPos:x yPos:y width:w height:h];
+
+    return true;
 }
 
 void SystemWindow::setCursorEnabled(bool value) {

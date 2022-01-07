@@ -30,6 +30,7 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "math/Vec2.h"
+#include "scene/Shadow.h"
 
 namespace cc {
 namespace pipeline {
@@ -56,9 +57,8 @@ void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 }
 
 void ShadowStage::render(scene::Camera *camera) {
-    const auto *sceneData  = _pipeline->getPipelineSceneData();
-    const auto *sharedData = sceneData->getSharedData();
-    const auto *shadowInfo = sceneData->getSharedData()->shadow;
+    const auto *sceneData = _pipeline->getPipelineSceneData();
+    const auto *shadows   = sceneData->getShadows();
 
     if (!_light || !_framebuffer) {
         return;
@@ -68,18 +68,18 @@ void ShadowStage::render(scene::Camera *camera) {
     _pipeline->getPipelineUBO()->updateShadowUBOLight(_globalDS, _light);
     _additiveShadowQueue->gatherLightPasses(camera, _light, cmdBuffer);
 
-    const auto  shadowMapSize = shadowInfo->size;
-    const auto &viewport      = camera->viewPort;
+    const auto &shadowMapSize = shadows->getSize();
+    const auto &viewport      = camera->getViewport();
     _renderArea.x             = static_cast<int>(viewport.x * shadowMapSize.x);
     _renderArea.y             = static_cast<int>(viewport.y * shadowMapSize.y);
-    _renderArea.width         = static_cast<uint>(viewport.z * shadowMapSize.x * sharedData->shadingScale);
-    _renderArea.height        = static_cast<uint>(viewport.w * shadowMapSize.y * sharedData->shadingScale);
+    _renderArea.width         = static_cast<uint>(viewport.z * shadowMapSize.x * sceneData->getShadingScale());
+    _renderArea.height        = static_cast<uint>(viewport.w * shadowMapSize.y * sceneData->getShadingScale());
 
     _clearColors[0]  = {1.0F, 1.0F, 1.0F, 1.0F};
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
-                               _clearColors, camera->clearDepth, camera->clearStencil);
+                               _clearColors, camera->getClearDepth(), camera->getClearStencil());
 
     const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
     cmdBuffer->bindDescriptorSet(globalSet, _globalDS, utils::toUint(globalOffsets.size()), globalOffsets.data());
@@ -93,7 +93,7 @@ void ShadowStage::destroy() {
     _globalDS    = nullptr;
     _light       = nullptr;
 
-    CC_SAFE_DESTROY(_additiveShadowQueue);
+    CC_SAFE_DESTROY_AND_DELETE(_additiveShadowQueue);
 
     RenderStage::destroy();
 }
@@ -109,7 +109,7 @@ void ShadowStage::clearFramebuffer(scene::Camera *camera) {
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
-                               _clearColors, camera->clearDepth, camera->clearStencil);
+                               _clearColors, camera->getClearDepth(), camera->getClearStencil());
 
     cmdBuffer->endRenderPass();
 }

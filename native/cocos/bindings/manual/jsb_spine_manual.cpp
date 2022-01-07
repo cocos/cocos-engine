@@ -25,28 +25,30 @@
 
 #include "jsb_spine_manual.h"
 #include "base/Config.h"
+#include "platform/FileUtils.h"
 
 #if USE_SPINE > 0
 
-#include "cocos/bindings/auto/jsb_spine_auto.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/bindings/manual/jsb_global.h"
-#include "cocos/bindings/manual/jsb_helper.h"
+    #include "base/Data.h"
+    #include "cocos/bindings/auto/jsb_spine_auto.h"
+    #include "cocos/bindings/jswrapper/SeApi.h"
+    #include "cocos/bindings/manual/jsb_conversions.h"
+    #include "cocos/bindings/manual/jsb_global.h"
+    #include "cocos/bindings/manual/jsb_helper.h"
 
-#include "middleware-adapter.h"
-#include "spine-creator-support/SkeletonDataMgr.h"
-#include "spine-creator-support/SkeletonRenderer.h"
-#include "spine-creator-support/spine-cocos2dx.h"
+    #include "middleware-adapter.h"
+    #include "spine-creator-support/SkeletonDataMgr.h"
+    #include "spine-creator-support/SkeletonRenderer.h"
+    #include "spine-creator-support/spine-cocos2dx.h"
 
-#include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
-#include "cocos/editor-support/spine/spine.h"
+    #include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
+    #include "cocos/editor-support/spine/spine.h"
 
 using namespace cc;
 
-static spine::Cocos2dTextureLoader textureLoader;
+static spine::Cocos2dTextureLoader                    textureLoader;
 static cc::Map<std::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
-static middleware::Texture2D *_getPreloadedAtlasTexture(const char *path) {
+static middleware::Texture2D *                        _getPreloadedAtlasTexture(const char *path) {
     assert(_preloadedAtlasTextures);
     auto it = _preloadedAtlasTextures->find(path);
     return it != _preloadedAtlasTextures->end() ? it->second : nullptr;
@@ -54,7 +56,7 @@ static middleware::Texture2D *_getPreloadedAtlasTexture(const char *path) {
 
 static bool js_register_spine_initSkeletonData(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     if (argc != 5) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 5);
         return false;
@@ -62,10 +64,10 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     bool ok = false;
 
     std::string uuid;
-    ok = seval_to_std_string(args[0], &uuid);
+    ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr             = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         spine::SkeletonData *skeletonData = mgr->retainByUUID(uuid);
@@ -74,11 +76,11 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     }
 
     std::string skeletonDataFile;
-    ok = seval_to_std_string(args[1], &skeletonDataFile);
+    ok = sevalue_to_native(args[1], &skeletonDataFile);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid json path!");
 
     std::string atlasText;
-    ok = seval_to_std_string(args[2], &atlasText);
+    ok = sevalue_to_native(args[2], &atlasText);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid atlas content!");
 
     cc::Map<std::string, middleware::Texture2D *> textures;
@@ -86,7 +88,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid textures!");
 
     float scale = 1.0f;
-    ok = seval_to_float(args[4], &scale);
+    ok          = sevalue_to_native(args[4], &scale);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid scale!");
 
     // create atlas from preloaded texture
@@ -100,16 +102,16 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     spine::spAtlasPage_setCustomTextureLoader(nullptr);
 
     spine::AttachmentLoader *attachmentLoader = new (__FILE__, __LINE__) spine::Cocos2dAtlasAttachmentLoader(atlas);
-    spine::SkeletonData *skeletonData = nullptr;
+    spine::SkeletonData *    skeletonData     = nullptr;
 
     std::size_t length = skeletonDataFile.length();
-    auto binPos = skeletonDataFile.find(".skel", length - 5);
+    auto        binPos = skeletonDataFile.find(".skel", length - 5);
     if (binPos == std::string::npos) binPos = skeletonDataFile.find(".bin", length - 4);
 
     if (binPos != std::string::npos) {
         auto fileUtils = cc::FileUtils::getInstance();
         if (fileUtils->isFileExist(skeletonDataFile)) {
-            cc::Data cocos2dData;
+            cc::Data   cocos2dData;
             const auto fullpath = fileUtils->fullPathForFilename(skeletonDataFile);
             fileUtils->getContents(fullpath, &cocos2dData);
 
@@ -148,7 +150,7 @@ SE_BIND_FUNC(js_register_spine_initSkeletonData)
 
 static bool js_register_spine_disposeSkeletonData(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     if (argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 5);
         return false;
@@ -156,10 +158,10 @@ static bool js_register_spine_disposeSkeletonData(se::State &s) {
     bool ok = false;
 
     std::string uuid;
-    ok = seval_to_std_string(args[0], &uuid);
+    ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_disposeSkeletonData: Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr             = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (!hasSkeletonData) return true;
     mgr->releaseByUUID(uuid);
@@ -170,7 +172,7 @@ SE_BIND_FUNC(js_register_spine_disposeSkeletonData)
 static bool js_register_spine_initSkeletonRenderer(se::State &s) {
     // renderer, jsonPath, atlasText, textures, scale
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     if (argc != 2) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 5);
         return false;
@@ -178,14 +180,14 @@ static bool js_register_spine_initSkeletonRenderer(se::State &s) {
     bool ok = false;
 
     spine::SkeletonRenderer *node = nullptr;
-    ok = seval_to_native_ptr(args[0], &node);
+    ok                            = seval_to_native_ptr(args[0], &node);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Converting SpineRenderer failed!");
 
     std::string uuid;
-    ok = seval_to_std_string(args[1], &uuid);
+    ok = sevalue_to_native(args[1], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr             = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         node->initWithUUID(uuid);
@@ -196,7 +198,7 @@ SE_BIND_FUNC(js_register_spine_initSkeletonRenderer)
 
 static bool js_register_spine_retainSkeletonData(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     if (argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
         return false;
@@ -204,10 +206,10 @@ static bool js_register_spine_retainSkeletonData(se::State &s) {
     bool ok = false;
 
     std::string uuid;
-    ok = seval_to_std_string(args[0], &uuid);
+    ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_hasSkeletonData: Invalid uuid content!");
 
-    auto mgr = spine::SkeletonDataMgr::getInstance();
+    auto mgr             = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
         spine::SkeletonData *skeletonData = mgr->retainByUUID(uuid);

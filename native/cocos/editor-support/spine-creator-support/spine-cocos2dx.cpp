@@ -34,31 +34,31 @@
 #include "spine-creator-support/AttachmentVertices.h"
 
 namespace spine {
-static CustomTextureLoader _customTextureLoader = nullptr;
-void spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader) {
-    _customTextureLoader = texLoader;
+static CustomTextureLoader customTextureLoader = nullptr;
+void                       spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader) {
+    customTextureLoader = texLoader;
 }
 
-static SpineObjectDisposeCallback _spineObjectDisposeCallback = 0;
-void setSpineObjectDisposeCallback(SpineObjectDisposeCallback callback) {
-    _spineObjectDisposeCallback = callback;
+static SpineObjectDisposeCallback spineObjectDisposeCallback = nullptr;
+void                              setSpineObjectDisposeCallback(SpineObjectDisposeCallback callback) {
+    spineObjectDisposeCallback = callback;
 }
 } // namespace spine
 
-USING_NS_MW;
-using namespace cc;
-using namespace spine;
+USING_NS_MW;           // NOLINT(google-build-using-namespace)
+using namespace cc;    // NOLINT(google-build-using-namespace)
+using namespace spine; // NOLINT(google-build-using-namespace)
 
 static void deleteAttachmentVertices(void *vertices) {
-    delete (AttachmentVertices *)vertices;
+    delete static_cast<AttachmentVertices *>(vertices);
 }
 
-static unsigned short quadTriangles[6] = {0, 1, 2, 2, 3, 0};
+static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
 
 static void setAttachmentVertices(RegionAttachment *attachment) {
-    AtlasRegion *region = (AtlasRegion *)attachment->getRendererObject();
-    AttachmentVertices *attachmentVertices = new AttachmentVertices((Texture2D *)region->page->getRendererObject(), 4, quadTriangles, 6);
-    V2F_T2F_C4F *vertices = attachmentVertices->_triangles->verts;
+    auto *       region             = static_cast<AtlasRegion *>(attachment->getRendererObject());
+    auto *       attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()), 4, quadTriangles, 6);
+    V2F_T2F_C4F *vertices           = attachmentVertices->_triangles->verts;
     for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
         vertices[i].texCoord.u = attachment->getUVs()[ii];
         vertices[i].texCoord.v = attachment->getUVs()[ii + 1];
@@ -67,10 +67,10 @@ static void setAttachmentVertices(RegionAttachment *attachment) {
 }
 
 static void setAttachmentVertices(MeshAttachment *attachment) {
-    AtlasRegion *region = (AtlasRegion *)attachment->getRendererObject();
-    AttachmentVertices *attachmentVertices = new AttachmentVertices((Texture2D *)region->page->getRendererObject(),
-                                                                    attachment->getWorldVerticesLength() >> 1, attachment->getTriangles().buffer(), attachment->getTriangles().size());
-    V2F_T2F_C4F *vertices = attachmentVertices->_triangles->verts;
+    auto *       region             = static_cast<AtlasRegion *>(attachment->getRendererObject());
+    auto *       attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()),
+                                                      static_cast<int32_t>(attachment->getWorldVerticesLength() >> 1), attachment->getTriangles().buffer(), static_cast<int32_t>(attachment->getTriangles().size()));
+    V2F_T2F_C4F *vertices           = attachmentVertices->_triangles->verts;
     for (size_t i = 0, ii = 0, nn = attachment->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
         vertices[i].texCoord.u = attachment->getUVs()[ii];
         vertices[i].texCoord.v = attachment->getUVs()[ii + 1];
@@ -81,64 +81,64 @@ static void setAttachmentVertices(MeshAttachment *attachment) {
 Cocos2dAtlasAttachmentLoader::Cocos2dAtlasAttachmentLoader(Atlas *atlas) : AtlasAttachmentLoader(atlas) {
 }
 
-Cocos2dAtlasAttachmentLoader::~Cocos2dAtlasAttachmentLoader() {}
+Cocos2dAtlasAttachmentLoader::~Cocos2dAtlasAttachmentLoader() = default;
 
 void Cocos2dAtlasAttachmentLoader::configureAttachment(Attachment *attachment) {
     if (attachment->getRTTI().isExactly(RegionAttachment::rtti)) {
-        setAttachmentVertices((RegionAttachment *)attachment);
+        setAttachmentVertices(dynamic_cast<RegionAttachment *>(attachment));
     } else if (attachment->getRTTI().isExactly(MeshAttachment::rtti)) {
-        setAttachmentVertices((MeshAttachment *)attachment);
+        setAttachmentVertices(dynamic_cast<MeshAttachment *>(attachment));
     }
 }
 
-uint32_t wrap(TextureWrap _wrap) {
-    return (uint32_t)_wrap;
+uint32_t wrap(TextureWrap wrap) {
+    return static_cast<uint32_t>(wrap);
 }
 
-uint32_t filter(TextureFilter _filter) {
-    return (uint32_t)_filter;
+uint32_t filter(TextureFilter filter) {
+    return static_cast<uint32_t>(filter);
 }
 
-Cocos2dTextureLoader::Cocos2dTextureLoader() : TextureLoader() {}
-Cocos2dTextureLoader::~Cocos2dTextureLoader() {}
+Cocos2dTextureLoader::Cocos2dTextureLoader()  = default;
+Cocos2dTextureLoader::~Cocos2dTextureLoader() = default;
 
 void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
     Texture2D *texture = nullptr;
-    if (spine::_customTextureLoader) {
-        texture = spine::_customTextureLoader(path.buffer());
+    if (spine::customTextureLoader) {
+        texture = spine::customTextureLoader(path.buffer());
     }
     CCASSERT(texture != nullptr, "Invalid image");
 
     if (texture) {
-        texture->retain();
+        texture->addRef();
 
         Texture2D::TexParams textureParams = {filter(page.minFilter), filter(page.magFilter), wrap(page.uWrap), wrap(page.vWrap)};
         texture->setTexParameters(textureParams);
 
         page.setRendererObject(texture);
-        page.width = texture->getPixelsWide();
+        page.width  = texture->getPixelsWide();
         page.height = texture->getPixelsHigh();
     }
 }
 
 void Cocos2dTextureLoader::unload(void *texture) {
     if (texture) {
-        ((Texture2D *)texture)->release();
+        (static_cast<Texture2D *>(texture))->release();
     }
 }
 
-Cocos2dExtension::Cocos2dExtension() : DefaultSpineExtension() {}
+Cocos2dExtension::Cocos2dExtension() = default;
 
-Cocos2dExtension::~Cocos2dExtension() {}
+Cocos2dExtension::~Cocos2dExtension() = default;
 
 char *Cocos2dExtension::_readFile(const spine::String &path, int *length) {
-    *length = 0;
+    *length   = 0;
     Data data = FileUtils::getInstance()->getDataFromFile(FileUtils::getInstance()->fullPathForFilename(path.buffer()));
-    if (data.isNull()) return 0;
+    if (data.isNull()) return nullptr;
 
-    char *ret = (char *)malloc(sizeof(unsigned char) * data.getSize());
-    memcpy(ret, (char *)data.getBytes(), data.getSize());
-    *length = (int)data.getSize();
+    char *ret = static_cast<char *>(malloc(sizeof(unsigned char) * data.getSize()));
+    memcpy(ret, reinterpret_cast<char *>(data.getBytes()), data.getSize());
+    *length = static_cast<int>(data.getSize());
     return ret;
 }
 
@@ -147,6 +147,6 @@ SpineExtension *spine::getDefaultExtension() {
 }
 
 void Cocos2dExtension::_free(void *mem, const char *file, int line) {
-    _spineObjectDisposeCallback(mem);
+    spineObjectDisposeCallback(mem);
     DefaultSpineExtension::_free(mem, file, line);
 }

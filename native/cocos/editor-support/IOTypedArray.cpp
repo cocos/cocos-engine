@@ -73,7 +73,7 @@ void IOTypedArray::resize(std::size_t newLen, bool needCopy) {
 
     uint8_t *newBuffer = nullptr;
     se::AutoHandleScope hs;
-    newTypeBuffer->getTypedArrayData(&newBuffer, (size_t *)&newLen);
+    newTypeBuffer->getTypedArrayData(&newBuffer, static_cast<size_t *>(&newLen));
 
     if (needCopy) {
         memcpy(newBuffer, _buffer, _bufferSize);

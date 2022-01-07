@@ -25,15 +25,17 @@
 
 #pragma once
 
+#include <string>
 #include <unordered_map>
 #include "Define.h"
 #include "GlobalDescriptorSetManager.h"
 #include "PipelineSceneData.h"
 #include "PipelineUBO.h"
 #include "base/CoreStd.h"
+#include "core/assets/Asset.h"
 #include "frame-graph/FrameGraph.h"
 #include "frame-graph/Handle.h"
-#include "helper/DefineMap.h"
+#include "renderer/core/PassUtils.h"
 #include "scene/Camera.h"
 #include "scene/Model.h"
 
@@ -47,7 +49,7 @@ namespace scene {
 class SubModel;
 } // namespace scene
 namespace pipeline {
-class DefineMap;
+
 class GlobalDSManager;
 class RenderStage;
 class GeometryRenderer;
@@ -57,8 +59,9 @@ struct CC_DLL RenderPipelineInfo {
     RenderFlowList flows;
 };
 
-class CC_DLL RenderPipeline : public Object {
+class CC_DLL RenderPipeline : public Asset {
 public:
+    using Super = Asset;
     static RenderPipeline *         getInstance();
     static framegraph::StringHandle fgStrHandleOutDepthTexture;
     static framegraph::StringHandle fgStrHandleOutColorTexture;
@@ -70,17 +73,18 @@ public:
     ~RenderPipeline() override;
 
     virtual bool activate(gfx::Swapchain *swapchain);
-    virtual void destroy();
+    bool         destroy() override;
     virtual bool initialize(const RenderPipelineInfo &info);
     virtual void render(const vector<scene::Camera *> &cameras);
-
-    void setPipelineSharedSceneData(scene::PipelineSharedSceneData *data);
 
     inline const RenderFlowList &                  getFlows() const { return _flows; }
     inline uint                                    getTag() const { return _tag; }
     inline const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
-    inline const DefineMap &                       getMacros() const { return _macros; }
-    inline void                                    setValue(const String &name, bool value) { _macros.setValue(name, value); }
+    inline const MacroRecord &                     getMacros() const { return _macros; }
+    inline void                                    setValue(const String &name, int32_t value) { _macros[name] = value; }
+    inline void                                    setValue(const String &name, bool value) { _macros[name] = value; }
+    inline void                                    setValue(const String &name, const std::string &value) { _macros[name] = value; }
+    inline void                                    setValue(const String &name, float value) { _macros[name] = value; }
     inline GlobalDSManager *                       getGlobalDSManager() const { return _globalDSManager; }
     inline gfx::DescriptorSet *                    getDescriptorSet() const { return _descriptorSet; }
     inline gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
@@ -92,7 +96,7 @@ public:
     inline gfx::Device *                           getDevice() const { return _device; }
     RenderStage *                                  getRenderstageByName(const String &name) const;
     bool                                           isOccluded(const scene::Camera *camera, const scene::SubModel *subModel);
-    bool                                           getOcclusionQueryEnabled() const { return _occlusionQueryEnabled && _device->getCapabilities().supportQuery; }
+    bool                                           isOcclusionQueryEnabled() const { return _occlusionQueryEnabled && _device->getCapabilities().supportQuery; }
     void                                           setOcclusionQueryEnabled(bool enable) { _occlusionQueryEnabled = enable; }
     bool                                           isEnvmapEnabled() const;
 
@@ -114,10 +118,10 @@ public:
     inline GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer; }
     inline void              setGeometryRenderer(GeometryRenderer *geometryRenderer) { _geometryRenderer = geometryRenderer; }
 
-    inline bool getClusterEnabled() const { return _clusterEnabled; }
+    inline bool isClusterEnabled() const { return _clusterEnabled; }
     inline void setClusterEnabled(bool enable) { _clusterEnabled = enable; }
 
-    inline bool getBloomEnabled() const { return _bloomEnabled; }
+    inline bool isBloomEnabled() const { return _bloomEnabled; }
     inline void setBloomEnabled(bool enable) { _bloomEnabled = enable; }
 
 protected:
@@ -132,18 +136,17 @@ protected:
     gfx::QueryPoolList               _queryPools;
     RenderFlowList                   _flows;
     map<String, InternalBindingInst> _globalBindings;
-    DefineMap                        _macros;
+    MacroRecord                      _macros;
     uint                             _tag = 0;
     String                           _constantMacros;
 
-    gfx::Device *       _device{nullptr};
-    GlobalDSManager *   _globalDSManager{nullptr};
-    gfx::DescriptorSet *_descriptorSet{nullptr};
-    PipelineUBO *       _pipelineUBO{nullptr};
-    scene::Model *      _profiler{nullptr};
-    PipelineSceneData * _pipelineSceneData{nullptr};
-    GeometryRenderer *  _geometryRenderer{nullptr};
-
+    gfx::Device *                   _device{nullptr};
+    GlobalDSManager *               _globalDSManager{nullptr};
+    gfx::DescriptorSet *            _descriptorSet{nullptr};
+    PipelineUBO *                   _pipelineUBO{nullptr};
+    scene::Model *                  _profiler{nullptr};
+    IntrusivePtr<PipelineSceneData> _pipelineSceneData;
+    IntrusivePtr<GeometryRenderer>  _geometryRenderer;
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
     uint                                                          _width{0};

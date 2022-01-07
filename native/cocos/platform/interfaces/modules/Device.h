@@ -50,27 +50,8 @@ struct FontDefinition;
  */
 class CC_DLL Device {
 public:
-    // https://developer.mozilla.org/en-US/docs/Web/API/Window/orientation
-    enum class Orientation {
-        PORTRAIT             = 0,
-        LANDSCAPE_LEFT       = -90,
-        PORTRAIT_UPSIDE_DOWN = 180,
-        LANDSCAPE_RIGHT      = 90
-    };
-
-    struct MotionValue {
-        float accelerationX = 0.0F;
-        float accelerationY = 0.0F;
-        float accelerationZ = 0.0F;
-
-        float accelerationIncludingGravityX = 0.0F;
-        float accelerationIncludingGravityY = 0.0F;
-        float accelerationIncludingGravityZ = 0.0F;
-
-        float rotationRateAlpha = 0.0F;
-        float rotationRateBeta  = 0.0F;
-        float rotationRateGamma = 0.0F;
-    };
+    using Orientation = IScreen::Orientation;
+    using MotionValue = IAccelerometer::MotionValue;
 
     /**
      *  Gets the DPI of device

@@ -25,44 +25,41 @@
 
 #pragma once
 
-
+#include "PlayerEditBoxServiceWin.h"
+#include "PlayerFileDialogServiceWin.h"
 #include "PlayerMacros.h"
-#include "PlayerProtocol.h"
 #include "PlayerMenuServiceWin.h"
 #include "PlayerMessageBoxServiceWin.h"
-#include "PlayerFileDialogServiceWin.h"
-#include "PlayerEditBoxServiceWin.h"
+#include "PlayerProtocol.h"
 #include "PlayerTaskServiceWin.h"
 #include "SimulatorExport.h"
 
 PLAYER_NS_BEGIN
 
-class CC_LIBSIM_DLL PlayerWin : public PlayerProtocol, public cc::Ref
-{
+class CC_LIBSIM_DLL PlayerWin : public PlayerProtocol, public cc::RefCounted {
 public:
     static PlayerWin *createWithHwnd(HWND hWnd);
     virtual ~PlayerWin();
 
     virtual PlayerFileDialogServiceProtocol *getFileDialogService();
     virtual PlayerMessageBoxServiceProtocol *getMessageBoxService();
-    virtual PlayerMenuServiceProtocol *getMenuService();
-    virtual PlayerEditBoxServiceProtocol *getEditBoxService();
-    virtual PlayerTaskServiceProtocol *getTaskService();
+    virtual PlayerMenuServiceProtocol *      getMenuService();
+    virtual PlayerEditBoxServiceProtocol *   getEditBoxService();
+    virtual PlayerTaskServiceProtocol *      getTaskService();
 
 protected:
     PlayerWin();
-    
+
     // services
     void initServices();
 
-    PlayerMenuServiceWin *_menuService;
+    PlayerMenuServiceWin *      _menuService;
     PlayerMessageBoxServiceWin *_messageBoxService;
     PlayerFileDialogServiceWin *_fileDialogService;
-    PlayerEditBoxServiceWin *_editboxService;
-    PlayerTaskServiceWin *_taskService;
+    PlayerEditBoxServiceWin *   _editboxService;
+    PlayerTaskServiceWin *      _taskService;
 
     HWND _hwnd;
 };
-
 
 PLAYER_NS_END

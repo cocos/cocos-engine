@@ -25,6 +25,12 @@
 
 #include "JniImp.h"
 
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include <android/log.h>
+#else
+    #include <hilog/log.h>
+#endif
+
 #include <jni.h>
 #include "JniHelper.h"
 

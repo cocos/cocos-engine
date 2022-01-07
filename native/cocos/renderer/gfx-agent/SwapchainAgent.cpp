@@ -40,9 +40,6 @@ SwapchainAgent::SwapchainAgent(Swapchain *actor)
 }
 
 SwapchainAgent::~SwapchainAgent() {
-    CC_SAFE_DELETE(_depthStencilTexture);
-    CC_SAFE_DELETE(_colorTexture);
-
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(), SwapchainDestruct,
         actor, _actor,
@@ -84,8 +81,8 @@ void SwapchainAgent::doInit(const SwapchainInfo &info) {
 }
 
 void SwapchainAgent::doDestroy() {
-    CC_SAFE_DELETE(_depthStencilTexture);
-    CC_SAFE_DELETE(_colorTexture);
+    _depthStencilTexture = nullptr;
+    _colorTexture        = nullptr;
 
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(), SwapchainDestroy,
@@ -110,8 +107,8 @@ void SwapchainAgent::doResize(uint32_t width, uint32_t height, SurfaceTransform 
 
     mq->kickAndWait();
 
-    auto *colorTexture        = static_cast<TextureAgent *>(_colorTexture);
-    auto *depthStencilTexture = static_cast<TextureAgent *>(_depthStencilTexture);
+    auto *colorTexture        = static_cast<TextureAgent *>(_colorTexture.get());
+    auto *depthStencilTexture = static_cast<TextureAgent *>(_depthStencilTexture.get());
     colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
     colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();
 

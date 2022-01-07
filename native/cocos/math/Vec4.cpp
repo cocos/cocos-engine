@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -107,34 +107,34 @@ void Vec4::clamp(const Vec4 &min, const Vec4 &max) {
     // Clamp the x value.
     if (x < min.x) {
         x = min.x;
-}
+    }
     if (x > max.x) {
         x = max.x;
-}
+    }
 
     // Clamp the y value.
     if (y < min.y) {
         y = min.y;
-}
+    }
     if (y > max.y) {
         y = max.y;
-}
+    }
 
     // Clamp the z value.
     if (z < min.z) {
         z = min.z;
-}
+    }
     if (z > max.z) {
         z = max.z;
-}
+    }
 
     // Clamp the z value.
     if (w < min.w) {
         w = min.w;
-}
+    }
     if (w > max.w) {
         w = max.w;
-}
+    }
 }
 
 void Vec4::clamp(const Vec4 &v, const Vec4 &min, const Vec4 &max, Vec4 *dst) {
@@ -145,37 +145,37 @@ void Vec4::clamp(const Vec4 &v, const Vec4 &min, const Vec4 &max, Vec4 *dst) {
     dst->x = v.x;
     if (dst->x < min.x) {
         dst->x = min.x;
-}
+    }
     if (dst->x > max.x) {
         dst->x = max.x;
-}
+    }
 
     // Clamp the y value.
     dst->y = v.y;
     if (dst->y < min.y) {
         dst->y = min.y;
-}
+    }
     if (dst->y > max.y) {
         dst->y = max.y;
-}
+    }
 
     // Clamp the z value.
     dst->z = v.z;
     if (dst->z < min.z) {
         dst->z = min.z;
-}
+    }
     if (dst->z > max.z) {
         dst->z = max.z;
-}
+    }
 
     // Clamp the w value.
     dst->w = v.w;
     if (dst->w < min.w) {
         dst->w = min.w;
-}
+    }
     if (dst->w > max.w) {
         dst->w = max.w;
-}
+    }
 }
 
 float Vec4::distance(const Vec4 &v) const {
@@ -224,13 +224,13 @@ void Vec4::normalize() {
     // Already normalized.
     if (n == 1.0F) {
         return;
-}
+    }
 
     n = std::sqrt(n);
     // Too close to zero.
     if (n < MATH_TOLERANCE) {
         return;
-}
+    }
 
     n = 1.0F / n;
     x *= n;
@@ -296,6 +296,14 @@ void Vec4::subtract(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
     dst->y = v1.y - v2.y;
     dst->z = v1.z - v2.z;
     dst->w = v1.w - v2.w;
+}
+
+void Vec4::lerp(const Vec4 &a, const Vec4 &b, float t, Vec4 *dst) {
+    GP_ASSERT(dst);
+    dst->x = a.x + t * (b.x - a.x);
+    dst->y = a.y + t * (b.y - a.y);
+    dst->z = a.z + t * (b.z - a.z);
+    dst->w = a.w + t * (b.w - a.w);
 }
 
 const Vec4 Vec4::ZERO   = Vec4(0.0F, 0.0F, 0.0F, 0.0F);

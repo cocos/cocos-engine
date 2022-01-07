@@ -38,7 +38,7 @@
 
 #include "base/Log.h"
 #include "base/Random.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 
@@ -85,26 +85,26 @@ public:
     /** Default constructor */
     Map<K, V>()
     : _data() {
-        static_assert(std::is_convertible<V, Ref *>::value, "Invalid Type for cc::Map<K, V>!");
+        static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
     }
 
     /** Constructor with capacity. */
     explicit Map<K, V>(ssize_t capacity)
     : _data() {
-        static_assert(std::is_convertible<V, Ref *>::value, "Invalid Type for cc::Map<K, V>!");
+        static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
         _data.reserve(capacity);
     }
 
     /** Copy constructor. */
     Map<K, V>(const Map<K, V> &other) {
-        static_assert(std::is_convertible<V, Ref *>::value, "Invalid Type for cc::Map<K, V>!");
+        static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
         _data = other._data;
         addRefForAllObjects();
     }
 
     /** Move constructor. */
     Map<K, V>(Map<K, V> &&other) noexcept {
-        static_assert(std::is_convertible<V, Ref *>::value, "Invalid Type for cc::Map<K, V>!");
+        static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
         _data = std::move(other._data);
     }
 
@@ -237,7 +237,7 @@ public:
      */
     void insert(const K &key, V object) {
         CCASSERT(object != nullptr, "Object is nullptr!");
-        object->retain();
+        object->addRef();
         erase(key);
         _data.insert(std::make_pair(key, object));
     }
@@ -301,7 +301,7 @@ public:
      */
     V getRandomObject() const {
         if (!_data.empty()) {
-            auto randIdx = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
+            auto           randIdx  = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
             const_iterator randIter = _data.begin();
             std::advance(randIter, randIdx);
             return randIter->second;
@@ -332,7 +332,7 @@ protected:
     /** Retains all the objects in the map */
     void addRefForAllObjects() {
         for (auto iter = _data.begin(); iter != _data.end(); ++iter) {
-            iter->second->retain();
+            iter->second->addRef();
         }
     }
 

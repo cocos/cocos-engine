@@ -29,7 +29,7 @@
 
 namespace cc {
 namespace scene {
-struct Camera;
+class Camera;
 }
 namespace pipeline {
 

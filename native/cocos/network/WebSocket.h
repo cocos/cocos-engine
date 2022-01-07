@@ -28,12 +28,12 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "platform/StdC.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
-#include <algorithm>
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
         #define OBJC_CLASS(name) @class name
@@ -57,7 +57,7 @@ namespace network {
  * WebSocket is wrapper of the libwebsockets-protocol, let the develop could call the websocket easily.
  * Please note that all public methods of WebSocket have to be invoked on Cocos Thread.
  */
-class CC_DLL WebSocket : public Ref {
+class CC_DLL WebSocket : public RefCounted {
 public:
     /**
      * Close all connections and wait for all websocket threads to exit
@@ -87,10 +87,10 @@ public:
      */
     struct Data {
         Data() = default;
-        char *bytes{nullptr};
+        char *  bytes{nullptr};
         ssize_t len{0}, issued{0};
-        bool isBinary{false};
-        void *ext{nullptr};
+        bool    isBinary{false};
+        void *  ext{nullptr};
         ssize_t getRemain() const { return std::max(static_cast<ssize_t>(0), len - issued); }
     };
 
@@ -166,10 +166,10 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate &delegate,
-              const std::string &url,
-              const std::vector<std::string> *protocols = nullptr,
-              const std::string &caFilePath = "");
+    bool init(const Delegate &                delegate,
+              const std::string &             url,
+              const std::vector<std::string> *protocols  = nullptr,
+              const std::string &             caFilePath = "");
 
     /**
      *  @brief Sends string data to websocket server.

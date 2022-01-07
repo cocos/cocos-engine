@@ -29,7 +29,7 @@
 
 MIDDLEWARE_BEGIN
 
-MiddlewareManager *MiddlewareManager::_instance = nullptr;
+MiddlewareManager *MiddlewareManager::instance = nullptr;
 
 MiddlewareManager::MiddlewareManager() : _renderInfo(se::Object::TypedArrayType::UINT32),
                                          _attachInfo(se::Object::TypedArrayType::FLOAT32) {
@@ -37,10 +37,10 @@ MiddlewareManager::MiddlewareManager() : _renderInfo(se::Object::TypedArrayType:
 
 MiddlewareManager::~MiddlewareManager() {
     for (auto it : _mbMap) {
-        auto buffer = it.second;
-        if (buffer) {
+        auto *buffer = it.second;
+        
             delete buffer;
-        }
+        
     }
     _mbMap.clear();
 }
@@ -54,9 +54,8 @@ MeshBuffer *MiddlewareManager::getMeshBuffer(int format) {
     return mb;
 }
 
-void MiddlewareManager::_clearRemoveList() {
-    for (std::size_t i = 0; i < _removeList.size(); i++) {
-        auto editor = _removeList[i];
+void MiddlewareManager::clearRemoveList() {
+    for (auto *editor : _removeList) {
         auto it = std::find(_updateList.begin(), _updateList.end(), editor);
         if (it != _updateList.end()) {
             _updateList.erase(it);
@@ -70,23 +69,22 @@ void MiddlewareManager::update(float dt) {
     isUpdating = true;
 
     _renderInfo.reset();
-    auto renderBuffer = _renderInfo.getBuffer();
+    auto *renderBuffer = _renderInfo.getBuffer();
     if (renderBuffer) {
         renderBuffer->writeUint32(0);
     }
 
     _attachInfo.reset();
-    auto attachBuffer = _attachInfo.getBuffer();
+    auto *attachBuffer = _attachInfo.getBuffer();
     if (attachBuffer) {
         attachBuffer->writeUint32(0);
     }
 
     auto isOrderDirty = false;
     uint32_t maxRenderOrder = 0;
-    for (std::size_t i = 0, n = _updateList.size(); i < n; i++) {
-        auto editor = _updateList[i];
+    for (auto *editor : _updateList) {
         uint32_t renderOrder = maxRenderOrder;
-        if (_removeList.size() > 0) {
+        if (!_removeList.empty()) {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
             if (removeIt == _removeList.end()) {
                 editor->update(dt);
@@ -106,7 +104,7 @@ void MiddlewareManager::update(float dt) {
 
     isUpdating = false;
 
-    _clearRemoveList();
+    clearRemoveList();
 
     if (isOrderDirty) {
         std::sort(_updateList.begin(), _updateList.end(), [](IMiddleware *it1, IMiddleware *it2) {
@@ -117,7 +115,7 @@ void MiddlewareManager::update(float dt) {
 
 void MiddlewareManager::render(float dt) {
     for (auto it : _mbMap) {
-        auto buffer = it.second;
+        auto *buffer = it.second;
         if (buffer) {
             buffer->reset();
         }
@@ -125,9 +123,8 @@ void MiddlewareManager::render(float dt) {
 
     isRendering = true;
 
-    for (std::size_t i = 0, n = _updateList.size(); i < n; i++) {
-        auto editor = _updateList[i];
-        if (_removeList.size() > 0) {
+    for (auto *editor : _updateList) {
+        if (!_removeList.empty()) {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
             if (removeIt == _removeList.end()) {
                 editor->render(dt);
@@ -140,14 +137,14 @@ void MiddlewareManager::render(float dt) {
     isRendering = false;
 
     for (auto it : _mbMap) {
-        auto buffer = it.second;
+        auto *buffer = it.second;
         if (buffer) {
             buffer->uploadIB();
             buffer->uploadVB();
         }
     }
 
-    _clearRemoveList();
+    clearRemoveList();
 }
 
 void MiddlewareManager::addTimer(IMiddleware *editor) {

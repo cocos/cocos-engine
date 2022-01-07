@@ -25,7 +25,9 @@
 
 #include "DeferredPipeline.h"
 #include "../SceneCulling.h"
+#include "../helper/Utils.h"
 #include "../shadow/ShadowFlow.h"
+#include "DeferredPipelineSceneData.h"
 #include "MainFlow.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -34,10 +36,11 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
-#include "../helper/Utils.h"
+#include "scene/RenderWindow.h"
 
 namespace cc {
 namespace pipeline {
+
 #define TO_VEC3(dst, src, offset)  \
     dst[offset]         = (src).x; \
     (dst)[(offset) + 1] = (src).y; \
@@ -47,6 +50,10 @@ namespace pipeline {
     (dst)[(offset) + 1] = (src).y; \
     (dst)[(offset) + 2] = (src).z; \
     (dst)[(offset) + 3] = (src).w;
+
+DeferredPipeline::DeferredPipeline() {
+    _pipelineSceneData = new DeferredPipelineSceneData();
+}
 
 framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferTexture[GBUFFER_COUNT] = {
     framegraph::FrameGraph::stringToHandle("gbufferAlbedoTexture"),
@@ -75,7 +82,7 @@ bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
 }
 
 bool DeferredPipeline::activate(gfx::Swapchain *swapchain) {
-    _macros.setValue("CC_PIPELINE_TYPE", static_cast<float>(1.0));
+    _macros["CC_PIPELINE_TYPE"] = 1;
 
     if (!RenderPipeline::activate(swapchain)) {
         CC_LOG_ERROR("RenderPipeline active failed.");
@@ -92,7 +99,7 @@ bool DeferredPipeline::activate(gfx::Swapchain *swapchain) {
 
 void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
     auto *device               = gfx::Device::getInstance();
-    bool  enableOcclusionQuery = getOcclusionQueryEnabled();
+    bool  enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {
         device->getQueryPoolResults(_queryPools[0]);
     }
@@ -139,7 +146,6 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
 bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _commandBuffers.push_back(_device->getCommandBuffer());
     _queryPools.push_back(_device->getQueryPool());
-    auto *const sharedData = _pipelineSceneData->getSharedData();
 
     gfx::Sampler *const sampler = getGlobalDSManager()->getPointSampler();
 
@@ -149,8 +155,8 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _descriptorSet->update();
 
     // update global defines when all states initialized.
-    _macros.setValue("CC_USE_HDR", static_cast<bool>(sharedData->isHDR));
-    _macros.setValue("CC_SUPPORT_FLOAT_TEXTURE", _device->hasFeature(gfx::Feature::TEXTURE_FLOAT));
+    _macros["CC_USE_HDR"]               = static_cast<bool>(_pipelineSceneData->isHDR());
+    _macros["CC_SUPPORT_FLOAT_TEXTURE"] = _device->hasFeature(gfx::Feature::TEXTURE_FLOAT);
 
     // step 2 create index buffer
     uint ibStride = 4;
@@ -179,7 +185,7 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     return true;
 }
 
-void DeferredPipeline::destroy() {
+bool DeferredPipeline::destroy() {
     destroyQuadInputAssembler();
 
     for (auto &it : _renderPasses) {
@@ -192,7 +198,7 @@ void DeferredPipeline::destroy() {
 
     CC_SAFE_DELETE(_clusterComp);
 
-    RenderPipeline::destroy();
+    return RenderPipeline::destroy();
 }
 
 } // namespace pipeline

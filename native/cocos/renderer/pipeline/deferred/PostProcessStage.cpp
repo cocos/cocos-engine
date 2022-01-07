@@ -24,11 +24,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "PostProcessStage.h"
-#include "../PipelineStateManager.h"
-#include "../RenderPipeline.h"
-#include "../RenderQueue.h"
-#include "pipeline/UIPhase.h"
+#include "renderer/pipeline/deferred/PostProcessStage.h"
 #include "frame-graph/DevicePass.h"
 #include "frame-graph/PassNodeBuilder.h"
 #include "frame-graph/Resource.h"
@@ -37,6 +33,12 @@
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/Define.h"
 #include "pipeline/helper/Utils.h"
+#include "renderer/pipeline/PipelineStateManager.h"
+#include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/RenderQueue.h"
+#include "renderer/pipeline/UIPhase.h"
+#include "renderer/pipeline/deferred/DeferredPipelineSceneData.h"
+#include "scene/RenderWindow.h"
 #include "scene/SubModel.h"
 
 namespace cc {
@@ -103,18 +105,18 @@ void PostProcessStage::render(scene::Camera *camera) {
         framegraph::TextureHandle depth;
     };
 
-    if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
-        _clearColors[0].x = camera->clearColor.x;
-        _clearColors[0].y = camera->clearColor.y;
-        _clearColors[0].z = camera->clearColor.z;
+    if (hasFlag(static_cast<gfx::ClearFlags>(camera->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
+        _clearColors[0].x = camera->getClearColor().x;
+        _clearColors[0].y = camera->getClearColor().y;
+        _clearColors[0].z = camera->getClearColor().z;
     }
-    _clearColors[0].w = camera->clearColor.w;
+    _clearColors[0].w = camera->getClearColor().w;
     _renderArea       = RenderPipeline::getRenderArea(camera);
     _inputAssembler   = _pipeline->getIAByRenderArea(_renderArea);
-    auto *pipeline = _pipeline;
-    float shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
+    auto *pipeline    = _pipeline;
+    float shadingScale{_pipeline->getPipelineSceneData()->getShadingScale()};
     auto  postSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
-        if (pipeline->getBloomEnabled()) {
+        if (pipeline->isBloomEnabled()) {
             data.outColorTex = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleBloomOutTexture));
         } else {
             data.outColorTex = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture));
@@ -124,8 +126,8 @@ void PostProcessStage::render(scene::Camera *camera) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = gfx::Format::RGBA16F;
             colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-            colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
-            colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
+            colorTexInfo.width  = static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale);
+            colorTexInfo.height = static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale);
 
             data.outColorTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         }
@@ -138,7 +140,7 @@ void PostProcessStage::render(scene::Camera *camera) {
         colorAttachmentInfo.clearColor = _clearColors[0];
         colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
 
-        auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->clearFlag);
+        auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->getClearFlag());
         if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
             if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
@@ -147,7 +149,7 @@ void PostProcessStage::render(scene::Camera *camera) {
             }
         }
 
-        gfx::AccessType accessType{camera->window->swapchain ? gfx::AccessType::COLOR_ATTACHMENT_WRITE : gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        gfx::AccessType accessType{camera->getWindow()->getSwapchain() ? gfx::AccessType::COLOR_ATTACHMENT_WRITE : gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
         colorAttachmentInfo.beginAccesses.push_back(accessType);
         colorAttachmentInfo.endAccesses.push_back(accessType);
 
@@ -155,8 +157,8 @@ void PostProcessStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT,
             gfx::Format::RGBA8,
-            static_cast<uint>(camera->window->getWidth() * shadingScale),
-            static_cast<uint>(camera->window->getHeight() * shadingScale),
+            static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale),
+            static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale),
         };
         if (shadingScale != 1.F) {
             textureInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
@@ -178,8 +180,8 @@ void PostProcessStage::render(scene::Camera *camera) {
                 gfx::TextureType::TEX2D,
                 gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
                 gfx::Format::DEPTH_STENCIL,
-                static_cast<uint>(pipeline->getWidth() * shadingScale),
-                static_cast<uint>(pipeline->getHeight() * shadingScale),
+                static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+                static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
             };
             data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         }
@@ -199,10 +201,10 @@ void PostProcessStage::render(scene::Camera *camera) {
 
         if (!pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
             // post process
-            auto *const  sceneData = pipeline->getPipelineSceneData();
-            scene::Pass *pv        = sceneData->getSharedData()->pipelinePostPass;
-            gfx::Shader *sd        = sceneData->getSharedData()->pipelinePostPassShader;
-            float        shadingScale{sceneData->getSharedData()->shadingScale};
+            auto *const  sceneData = static_cast<DeferredPipelineSceneData *>(pipeline->getPipelineSceneData());
+            scene::Pass *pv        = sceneData->getPostPass();
+            gfx::Shader *sd        = sceneData->getPostPassShader();
+            float        shadingScale{sceneData->getShadingScale()};
             // get pso and draw quad
             gfx::PipelineState *       pso      = PipelineStateManager::getOrCreatePipelineState(pv, sd, _inputAssembler, renderPass);
             pipeline::GlobalDSManager *globalDS = pipeline->getGlobalDSManager();
@@ -224,7 +226,7 @@ void PostProcessStage::render(scene::Camera *camera) {
 
     // add pass
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(CommonInsertPoint::DIP_POSTPROCESS), RenderPipeline::fgStrHandlePostprocessPass, postSetup, postExec);
-    pipeline->getFrameGraph().presentFromBlackboard(fgStrHandlePostProcessOutTexture, camera->window->frameBuffer->getColorTextures()[0], shadingScale == 1.F);
+    pipeline->getFrameGraph().presentFromBlackboard(fgStrHandlePostProcessOutTexture, camera->getWindow()->getFramebuffer()->getColorTextures()[0], shadingScale == 1.F);
 }
 
 } // namespace pipeline

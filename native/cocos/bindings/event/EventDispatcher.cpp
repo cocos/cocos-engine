@@ -33,6 +33,7 @@
 #endif
 namespace {
 se::Value                 tickVal;
+se::ValueArray            tickArgsValArr(1);
 std::vector<se::Object *> jsTouchObjPool;
 se::Object *              jsTouchObjArray       = nullptr;
 se::Object *              jsMouseEventObj       = nullptr;
@@ -243,11 +244,12 @@ void EventDispatcher::dispatchTickEvent(float /*dt*/) {
     static std::chrono::steady_clock::time_point prevTime;
     prevTime = std::chrono::steady_clock::now();
 
-    se::ValueArray args;
-    int64_t        milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
-    args.push_back(se::Value(static_cast<double>(milliSeconds)));
+    int64_t milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
+    tickArgsValArr[0].setDouble(static_cast<double>(milliSeconds));
 
-    tickVal.toObject()->call(args, nullptr);
+    if (!tickVal.isUndefined()) {
+        tickVal.toObject()->call(tickArgsValArr, nullptr);
+    }
 }
 
 void EventDispatcher::dispatchResizeEvent(int width, int height) {

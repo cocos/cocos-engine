@@ -67,8 +67,8 @@ InstancedBuffer::~InstancedBuffer() = default;
 
 void InstancedBuffer::destroy() {
     for (auto &instance : _instances) {
-        CC_SAFE_DESTROY(instance.vb);
-        CC_SAFE_DESTROY(instance.ia);
+        CC_SAFE_DESTROY_AND_DELETE(instance.vb);
+        CC_SAFE_DESTROY_AND_DELETE(instance.ia);
         CC_FREE(instance.data);
     }
     _instances.clear();
@@ -141,8 +141,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
             attribute.isNormalized,
             static_cast<uint>(vertexBuffers.size()), // stream
             true,
-            attribute.location
-            });
+            attribute.location});
     }
 
     auto *data = static_cast<uint8_t *>(CC_MALLOC(newSize));

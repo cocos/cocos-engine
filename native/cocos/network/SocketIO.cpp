@@ -30,12 +30,12 @@
 #include <iterator>
 #include <sstream>
 #include <utility>
+#include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/UTF8.h"
 #include "network/HttpClient.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
-#include "application/ApplicationManager.h"
 
 #include "json/document-wrapper.h"
 #include "json/rapidjson.h"
@@ -296,7 +296,7 @@ SocketIOPacket *SocketIOPacket::createPacketWithTypeIndex(int type, SocketIOPack
  *  @brief The implementation of the socket.io connection
  *         Clients/endpoints may share the same impl to accomplish multiplexing on the same websocket
  */
-class SIOClientImpl : public cc::Ref,
+class SIOClientImpl : public cc::RefCounted,
                       public WebSocket::Delegate {
 private:
     int                             _heartbeat, _timeout;
@@ -392,8 +392,8 @@ void SIOClientImpl::handshakeResponse(HttpClient * /*sender*/, HttpResponse *res
         CC_LOG_INFO("%s completed", response->getHttpRequest()->getTag());
     }
 
-    int32_t statusCode       = response->getResponseCode();
-    char statusString[64] = {};
+    int32_t statusCode       = static_cast<int32_t>(response->getResponseCode());
+    char    statusString[64] = {};
     sprintf(statusString, "HTTP Status Code: %d, tag = %s", statusCode, response->getHttpRequest()->getTag());
     CC_LOG_INFO("response code: %ld", statusCode);
 
@@ -654,7 +654,7 @@ void SIOClientImpl::onOpen(WebSocket * /*ws*/) {
         _ws->send(s);
     }
 
-     CC_CURRENT_ENGINE()->getScheduler()->schedule([this](auto &&pH1) { this->heartbeat(std::forward<decltype(pH1)>(pH1)); }, this, (static_cast<float>(_heartbeat) * .9F), false, "heartbeat");
+    CC_CURRENT_ENGINE()->getScheduler()->schedule([this](auto &&pH1) { this->heartbeat(std::forward<decltype(pH1)>(pH1)); }, this, (static_cast<float>(_heartbeat) * .9F), false, "heartbeat");
 
     for (auto &client : _clients) {
         client.second->onOpen();
@@ -746,7 +746,7 @@ void SIOClientImpl::onMessage(WebSocket * /*ws*/, const WebSocket::Data &data) {
                         pos2      = sData.find(',');
                         if (pos2 > pos) {
                             eventname = sData.substr(pos + 2, pos2 - (pos + 3));
-                            sData    = sData.substr(pos2 + 9, sData.size() - (pos2 + 11));
+                            sData     = sData.substr(pos2 + 9, sData.size() - (pos2 + 11));
                         }
 
                         c->fireEvent(eventname, sData);

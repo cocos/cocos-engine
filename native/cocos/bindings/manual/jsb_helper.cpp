@@ -24,12 +24,13 @@
 ****************************************************************************/
 
 #include "jsb_helper.h"
+#include "base/DeferredReleasePool.h"
 
 /* static */
 void CleanupTask::pushTaskToAutoReleasePool(const std::function<void()> &cb) {
-    auto ret = new (std::nothrow) CleanupTask();
+    auto *ret = new (std::nothrow) CleanupTask();
     ret->_cb = cb;
-    ret->autorelease();
+    cc::DeferredReleasePool::add(ret);
 }
 
 CleanupTask::CleanupTask()

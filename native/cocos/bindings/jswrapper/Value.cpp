@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "Value.h"
+#include <cctype>
 #include <cmath>
 #include <cstdint>
 #include <sstream>
@@ -56,6 +57,19 @@ inline
 }
 
 #define CONVERT_TO_TYPE(type) fromDoubleToIntegral<type>(toDouble())
+
+namespace {
+
+bool isInteger(const std::string &str) {
+    for (const char &c : str) { // NOLINT //remvoe after using c++20
+        if (std::isdigit(c) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+} // namespace
 
 ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
@@ -442,14 +456,20 @@ float Value::toFloat() const {
 }
 
 double Value::toDouble() const {
-    assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt);
-    if(LIKELY(_type == Type::Number)) {
+    assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt || (_type == Type::String && isInteger(*_u._string)));
+    if (LIKELY(_type == Type::Number)) {
         return _u._number;
     }
     if (_type == Type::BigInt) {
         // CC_LOG_WARNING("convert int64 to double");
         return static_cast<double>(_u._bigint);
     }
+
+    // TODO(): Only supports to convert integer string to integer now.
+    if (_type == Type::String && isInteger(*_u._string)) {
+        return atoi(_u._string->c_str());
+    }
+
     return _u._boolean ? 1.0 : 0.0;
 }
 
@@ -550,11 +570,11 @@ unsigned int Value::toUint() const {
     return CONVERT_TO_TYPE(unsigned int);
 }
 
-long Value::toLong() const {              // NOLINT(google-runtime-int)
+long Value::toLong() const { // NOLINT(google-runtime-int)
     return CONVERT_TO_TYPE(long);
 }
 
-unsigned long Value::toUlong() const {                                // NOLINT(google-runtime-int)
+unsigned long Value::toUlong() const { // NOLINT(google-runtime-int)
     return CONVERT_TO_TYPE(unsigned long);
 }
 

@@ -139,6 +139,7 @@ jobs:
           touch build-mac/proj/cfg.cmake
           echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
@@ -146,7 +147,7 @@ jobs:
 
           RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
           cd build-mac
-          cmake ../ -GXcode -DCC_USE_GLES3=ON -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
           set +e
           cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch x86_64
           retcode=$?
@@ -162,7 +163,7 @@ jobs:
           cd ..
           mkdir build-mac-apple-silicon
           cd build-mac-apple-silicon
-          cmake ../ -GXcode -DCC_USE_GLES3=OFF -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+          cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
           cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch arm64
           echo "Compile MacOSX ARM64 Release Done!"
 

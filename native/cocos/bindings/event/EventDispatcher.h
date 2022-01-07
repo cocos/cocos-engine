@@ -236,7 +236,7 @@ public:
         int16_t shortVal;
         char    charVal;
         bool    boolVal;
-    } args[10];
+    } args[10] = {0};
 
     virtual ~CustomEvent() = default;
 };
@@ -256,7 +256,7 @@ public:
         int16_t shortVal;
         char    charVal;
         bool    boolVal;
-    } args[3];
+    } args[3] = {0};
     Type type = Type::DEVICE_MEMORY;
 };
 

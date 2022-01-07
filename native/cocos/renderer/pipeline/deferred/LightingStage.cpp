@@ -34,6 +34,7 @@
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
 #include "DeferredPipeline.h"
+#include "DeferredPipelineSceneData.h"
 #include "base/Utils.h"
 #include "frame-graph/Blackboard.h"
 #include "frame-graph/Handle.h"
@@ -44,8 +45,8 @@
 #include "gfx-base/GFXQueue.h"
 #include "pipeline/Define.h"
 #include "scene/RenderScene.h"
-#include "scene/Sphere.h"
 #include "scene/SphereLight.h"
+#include "scene/SpotLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -96,8 +97,8 @@ const RenderStageInfo &LightingStage::getInitializeInfo() { return LightingStage
 LightingStage::LightingStage() = default;
 
 LightingStage::~LightingStage() {
-    CC_SAFE_DESTROY(_deferredLitsBufs);
-    CC_SAFE_DESTROY(_deferredLitsBufView);
+    CC_SAFE_DESTROY_AND_DELETE(_deferredLitsBufs);
+    CC_SAFE_DESTROY_AND_DELETE(_deferredLitsBufView);
 }
 
 bool LightingStage::initialize(const RenderStageInfo &info) {
@@ -111,22 +112,21 @@ bool LightingStage::initialize(const RenderStageInfo &info) {
 }
 
 void LightingStage::gatherLights(scene::Camera *camera) {
-    auto *      pipeline   = static_cast<DeferredPipeline *>(_pipeline);
-    auto *const sceneData  = _pipeline->getPipelineSceneData();
-    auto *const sharedData = sceneData->getSharedData();
+    auto *      pipeline  = static_cast<DeferredPipeline *>(_pipeline);
+    auto *const sceneData = _pipeline->getPipelineSceneData();
 
     gfx::CommandBuffer *cmdBuf = pipeline->getCommandBuffers()[0];
-    const auto *        scene  = camera->scene;
+    const auto *        scene  = camera->getScene();
 
-    scene::Sphere sphere;
-    auto          exposure   = camera->exposure;
-    uint          idx        = 0;
-    int           elementLen = sizeof(cc::Vec4) / sizeof(float);
-    uint          fieldLen   = elementLen * _maxDeferredLights;
-    uint          offset     = 0;
-    cc::Vec4      tmpArray;
+    geometry::Sphere sphere;
+    auto             exposure   = camera->getExposure();
+    uint             idx        = 0;
+    int              elementLen = sizeof(cc::Vec4) / sizeof(float);
+    uint             fieldLen   = elementLen * _maxDeferredLights;
+    uint             offset     = 0;
+    cc::Vec4         tmpArray;
 
-    for (auto *light : scene->getSphereLights()) {
+    for (const auto &light : scene->getSphereLights()) {
         if (idx >= _maxDeferredLights) {
             break;
         }
@@ -134,7 +134,7 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         const auto &position = light->getPosition();
         sphere.setCenter(position);
         sphere.setRadius(light->getRange());
-        if (!sphere.sphereFrustum(camera->frustum)) {
+        if (!sphere.sphereFrustum(camera->getFrustum())) {
             continue;
         }
         // position
@@ -148,14 +148,14 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         const auto &color = light->getColor();
         offset            = idx * elementLen + fieldLen;
         tmpArray.set(color.x, color.y, color.z, 0);
-        if (light->getUseColorTemperature()) {
+        if (light->isUseColorTemperature()) {
             const auto &colorTemperatureRGB = light->getColorTemperatureRGB();
             tmpArray.x *= colorTemperatureRGB.x;
             tmpArray.y *= colorTemperatureRGB.y;
             tmpArray.z *= colorTemperatureRGB.z;
         }
 
-        if (sharedData->isHDR) {
+        if (sceneData->isHDR()) {
             tmpArray.w = light->getLuminanceHDR() * exposure * _lightMeterScale;
         } else {
             tmpArray.w = light->getLuminanceLDR();
@@ -175,7 +175,7 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         ++idx;
     }
 
-    for (auto *light : scene->getSpotLights()) {
+    for (const auto &light : scene->getSpotLights()) {
         if (idx >= _maxDeferredLights) {
             break;
         }
@@ -183,7 +183,7 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         const auto &position = light->getPosition();
         sphere.setCenter(position);
         sphere.setRadius(light->getRange());
-        if (!sphere.sphereFrustum(camera->frustum)) {
+        if (!sphere.sphereFrustum(camera->getFrustum())) {
             continue;
         }
         // position
@@ -197,14 +197,14 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         offset            = idx * elementLen + fieldLen;
         const auto &color = light->getColor();
         tmpArray.set(color.x, color.y, color.z, 0);
-        if (light->getUseColorTemperature()) {
+        if (light->isUseColorTemperature()) {
             const auto &colorTemperatureRGB = light->getColorTemperatureRGB();
             tmpArray.x *= colorTemperatureRGB.x;
             tmpArray.y *= colorTemperatureRGB.y;
             tmpArray.z *= colorTemperatureRGB.z;
         }
 
-        if (sharedData->isHDR) {
+        if (sceneData->isHDR()) {
             tmpArray.w = light->getLuminanceHDR() * exposure * _lightMeterScale;
         } else {
             tmpArray.w = light->getLuminanceLDR();
@@ -276,7 +276,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     }
 
     // not use cluster shading, go normal deferred render path
-    if (!pipeline->getClusterEnabled()) {
+    if (!pipeline->isClusterEnabled()) {
         // create descriptor set/layout
         gfx::DescriptorSetLayoutInfo layoutInfo = {localDescriptorSetLayout.bindings};
         _descLayout                             = device->createDescriptorSetLayout(layoutInfo);
@@ -301,9 +301,9 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 }
 
 void LightingStage::destroy() {
-    CC_SAFE_DESTROY(_descriptorSet);
-    CC_SAFE_DESTROY(_descLayout);
-    CC_SAFE_DESTROY(_planarShadowQueue);
+    CC_SAFE_DESTROY_AND_DELETE(_descriptorSet);
+    CC_SAFE_DESTROY_AND_DELETE(_descLayout);
+    CC_SAFE_DESTROY_AND_DELETE(_planarShadowQueue);
     CC_SAFE_DELETE(_reflectionRenderQueue);
     RenderStage::destroy();
 
@@ -313,7 +313,7 @@ void LightingStage::destroy() {
 void LightingStage::fgLightingPass(scene::Camera *camera) {
     // lights info and ubo are updated in ClusterLightCulling::update()
     // if using cluster lighting.
-    if (!_pipeline->getClusterEnabled()) {
+    if (!_pipeline->isClusterEnabled()) {
         // lighting info, ubo
         gatherLights(camera);
         _descriptorSet->update();
@@ -330,7 +330,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
     auto *     pipeline   = static_cast<DeferredPipeline *>(_pipeline);
     gfx::Color clearColor = pipeline->getClearcolor(camera);
-    float      shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
+    float      shadingScale{_pipeline->getPipelineSceneData()->getShadingScale()};
     _renderArea     = RenderPipeline::getRenderArea(camera);
     _inputAssembler = pipeline->getIAByRenderArea(_renderArea);
     _planarShadowQueue->gatherShadowPasses(camera, pipeline->getCommandBuffers()[0]);
@@ -354,7 +354,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
 
-        if (_pipeline->getClusterEnabled()) {
+        if (_pipeline->isClusterEnabled()) {
             // read cluster and light info
             data.lightBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterLightBuffer));
             builder.read(data.lightBuffer);
@@ -368,8 +368,8 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = gfx::Format::RGBA16F;
         colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-        colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
-        colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
+        colorTexInfo.width  = static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale);
+        colorTexInfo.height = static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale);
         data.outputTex      = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
@@ -386,12 +386,12 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
     auto lightingExec = [this, camera](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
         auto *      pipeline  = static_cast<DeferredPipeline *>(_pipeline);
-        auto *const sceneData = pipeline->getPipelineSceneData();
+        auto *const sceneData = static_cast<DeferredPipelineSceneData *>(pipeline->getPipelineSceneData());
 
         auto *cmdBuff = pipeline->getCommandBuffers()[0];
 
         // no need to bind localSet in cluster
-        if (!_pipeline->getClusterEnabled()) {
+        if (!_pipeline->isClusterEnabled()) {
             vector<uint> dynamicOffsets = {0};
             cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
         }
@@ -399,8 +399,8 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
         // get PSO and draw quad
-        scene::Pass *       pass   = sceneData->getSharedData()->deferredLightPass;
-        gfx::Shader *       shader = sceneData->getSharedData()->deferredLightPassShader;
+        scene::Pass *       pass   = sceneData->getLightPass();
+        gfx::Shader *       shader = sceneData->getLightPassShader();
         gfx::PipelineState *pso    = PipelineStateManager::getOrCreatePipelineState(pass, shader, _inputAssembler, table.getRenderPass(), table.getSubpassIndex());
 
         for (uint i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
@@ -408,7 +408,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
             pass->getDescriptorSet()->bindSampler(i, _defaultSampler);
         }
 
-        if (_pipeline->getClusterEnabled()) {
+        if (_pipeline->isClusterEnabled()) {
             // cluster buffer bind
             pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_BINDING, table.getRead(data.lightBuffer));
             pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_INDEX_BINDING, table.getRead(data.lightIndexBuffer));
@@ -436,7 +436,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
 
     auto *     pipeline   = static_cast<DeferredPipeline *>(_pipeline);
     gfx::Color clearColor = pipeline->getClearcolor(camera);
-    float      shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
+    float      shadingScale{_pipeline->getPipelineSceneData()->getShadingScale()};
     auto       transparentSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         // write to lighting output
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
@@ -451,8 +451,8 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = gfx::Format::RGBA16F;
             colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-            colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
-            colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
+            colorTexInfo.width  = static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale);
+            colorTexInfo.height = static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale);
 
             colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
             colorAttachmentInfo.clearColor = clearColor;
@@ -475,8 +475,8 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
                 gfx::TextureType::TEX2D,
                 gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
                 gfx::Format::DEPTH_STENCIL,
-                static_cast<uint>(pipeline->getWidth() * shadingScale),
-                static_cast<uint>(pipeline->getHeight() * shadingScale),
+                static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+                static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
             };
             data.depth                 = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
             depthAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
@@ -528,9 +528,9 @@ void LightingStage::putTransparentObj2Queue() {
     for (auto ro : renderObjects) {
         m                       = 0;
         const auto *const model = ro.model;
-        for (auto *subModel : model->getSubModels()) {
+        for (const auto &subModel : model->getSubModels()) {
             p = 0;
-            for (auto *pass : subModel->getPasses()) {
+            for (const auto &pass : subModel->getPasses()) {
                 // TODO(xwx): need to fallback unlit and gizmo material.
                 if (pass->getPhase() != _phaseID) continue;
                 for (k = 0; k < _renderQueues.size(); k++) {
@@ -558,7 +558,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
     auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
 
     _denoiseIndex = 0;
-    _matViewProj  = camera->matViewProj;
+    _matViewProj  = camera->getMatViewProj();
     _reflectionElems.clear();
 
     // step 1 prepare clear model's reflection texture pass. should switch to image clear command after available
@@ -649,8 +649,8 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         gfx::Viewport vp    = pipeline->getViewport(camera);
         Vec4          value = Vec4(static_cast<float>(vp.left), static_cast<float>(vp.top),
                           static_cast<float>(vp.width), static_cast<float>(vp.height));
-        _reflectionComp->applyTexSize(_ssprTexWidth, _ssprTexHeight, camera->matView, camera->matViewProj,
-                                      camera->matViewProjInv, camera->matProjInv, value);
+        _reflectionComp->applyTexSize(_ssprTexWidth, _ssprTexHeight, camera->getMatView(), camera->getMatViewProj(),
+                                      camera->getMatViewProjInv(), camera->getMatProjInv(), value);
 
         auto *texReflection  = static_cast<gfx::Texture *>(table.getWrite(data.reflection));
         auto *texLightingOut = static_cast<gfx::Texture *>(table.getRead(data.lightingOut));
@@ -748,7 +748,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_reflectionComp->getDenoisePipelineState(useEnvmap)));
         cmdBuff->bindDescriptorSet(globalSet, const_cast<gfx::DescriptorSet *>(_reflectionComp->getDenoiseDescriptorSet()));
         cmdBuff->bindDescriptorSet(materialSet, elem.set);
-        cmdBuff->dispatch(_reflectionComp->getDenioseDispatchInfo());
+        cmdBuff->dispatch(_reflectionComp->getDenoiseDispatchInfo());
 
         // pipeline barrier
         // dispatch -> fragment
@@ -830,7 +830,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
             const auto &passes    = subModel->getPasses();
             auto        passCount = passes.size();
             for (p = 0; p < passCount; ++p) {
-                auto *pass = passes[p];
+                const auto &pass = passes[p];
                 if (pass->getPhase() == _reflectionPhaseID) {
                     RenderElem elem = {ro, subModel->getDescriptorSet(), m, p};
                     _reflectionElems.push_back(elem);

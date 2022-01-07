@@ -99,7 +99,7 @@ public:
     }
 
     static void destroy() {
-        CC_SAFE_DESTROY(Device::instance);
+        CC_SAFE_DESTROY_AND_DELETE(Device::instance);
     }
 
     static void addSurfaceEventListener() {

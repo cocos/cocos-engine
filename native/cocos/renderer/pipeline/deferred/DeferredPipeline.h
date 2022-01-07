@@ -31,8 +31,8 @@
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXInputAssembler.h"
 #include "pipeline/ClusterLightCulling.h"
-#include "pipeline/RenderPipeline.h"
 #include "pipeline/Enum.h"
+#include "pipeline/RenderPipeline.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {
@@ -43,11 +43,11 @@ struct UBOShadow;
 
 class CC_DLL DeferredPipeline : public RenderPipeline {
 public:
-    DeferredPipeline()           = default;
+    DeferredPipeline();
     ~DeferredPipeline() override = default;
 
     bool initialize(const RenderPipelineInfo &info) override;
-    void destroy() override;
+    bool destroy() override;
     bool activate(gfx::Swapchain *swapchain) override;
     void render(const vector<scene::Camera *> &cameras) override;
 

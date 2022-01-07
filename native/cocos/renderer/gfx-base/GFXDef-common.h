@@ -1082,6 +1082,27 @@ struct Attribute {
 
 using AttributeList = vector<Attribute>;
 
+constexpr const char *ATTR_NAME_POSITION   = "a_position";
+constexpr const char *ATTR_NAME_NORMAL     = "a_normal";
+constexpr const char *ATTR_NAME_TANGENT    = "a_tangent";
+constexpr const char *ATTR_NAME_BITANGENT  = "a_bitangent";
+constexpr const char *ATTR_NAME_WEIGHTS    = "a_weights";
+constexpr const char *ATTR_NAME_JOINTS     = "a_joints";
+constexpr const char *ATTR_NAME_COLOR      = "a_color";
+constexpr const char *ATTR_NAME_COLOR1     = "a_color1";
+constexpr const char *ATTR_NAME_COLOR2     = "a_color2";
+constexpr const char *ATTR_NAME_TEX_COORD  = "a_texCoord";
+constexpr const char *ATTR_NAME_TEX_COORD1 = "a_texCoord1";
+constexpr const char *ATTR_NAME_TEX_COORD2 = "a_texCoord2";
+constexpr const char *ATTR_NAME_TEX_COORD3 = "a_texCoord3";
+constexpr const char *ATTR_NAME_TEX_COORD4 = "a_texCoord4";
+constexpr const char *ATTR_NAME_TEX_COORD5 = "a_texCoord5";
+constexpr const char *ATTR_NAME_TEX_COORD6 = "a_texCoord6";
+constexpr const char *ATTR_NAME_TEX_COORD7 = "a_texCoord7";
+constexpr const char *ATTR_NAME_TEX_COORD8 = "a_texCoord8";
+constexpr const char *ATTR_NAME_BATCH_ID   = "a_batch_id";
+constexpr const char *ATTR_NAME_BATCH_UV   = "a_batch_uv";
+
 struct ShaderInfo {
     String                     name;
     ShaderStageList            stages;
@@ -1175,7 +1196,7 @@ using TextureBarrierInfoList = vector<TextureBarrierInfo>;
 
 struct FramebufferInfo {
     RenderPass *renderPass{nullptr};
-    TextureList colorTextures;
+    TextureList colorTextures;                // @ts-overrides { type: '(Texture | null)[]' }
     Texture *   depthStencilTexture{nullptr}; // @ts-nullable
 };
 
@@ -1218,6 +1239,21 @@ struct RasterizerState {
     uint32_t    isDepthClip{1U};
     uint32_t    isMultisample{0U};
     float       lineWidth{1.F};
+
+    void reset() {
+        isDiscard        = 0;
+        polygonMode      = PolygonMode::FILL;
+        shadeModel       = ShadeModel::GOURAND;
+        cullMode         = CullMode::BACK;
+        isFrontFaceCCW   = 1;
+        depthBiasEnabled = 0;
+        depthBias        = 0.0F;
+        depthBiasClamp   = 0.0F;
+        depthBiasSlop    = 0.0F;
+        isDepthClip      = 1;
+        isMultisample    = 0;
+        lineWidth        = 1.0F;
+    }
 };
 
 // Use uint32_t for all boolean values to convert memory to DepthStencilState* in shared memory.
@@ -1241,6 +1277,28 @@ struct DepthStencilState {
     StencilOp      stencilZFailOpBack{StencilOp::KEEP};
     StencilOp      stencilPassOpBack{StencilOp::KEEP};
     uint32_t       stencilRefBack{1U};
+
+    void reset() {
+        depthTest             = 1;
+        depthWrite            = 1;
+        depthFunc             = ComparisonFunc::LESS;
+        stencilTestFront      = 0;
+        stencilFuncFront      = ComparisonFunc::ALWAYS;
+        stencilReadMaskFront  = 0xffffffff;
+        stencilWriteMaskFront = 0xffffffff;
+        stencilFailOpFront    = StencilOp::KEEP;
+        stencilZFailOpFront   = StencilOp::KEEP;
+        stencilPassOpFront    = StencilOp::KEEP;
+        stencilRefFront       = 1;
+        stencilTestBack       = 0;
+        stencilFuncBack       = ComparisonFunc::ALWAYS;
+        stencilReadMaskBack   = 0xffffffff;
+        stencilWriteMaskBack  = 0xffffffff;
+        stencilFailOpBack     = StencilOp::KEEP;
+        stencilZFailOpBack    = StencilOp::KEEP;
+        stencilPassOpBack     = StencilOp::KEEP;
+        stencilRefBack        = 1;
+    }
 };
 
 // Use uint32_t for all boolean values to do convert memory to BlendTarget* in shared memory.
@@ -1263,6 +1321,26 @@ struct BlendState {
     uint32_t        isIndepend{0U};
     Color           blendColor;
     BlendTargetList targets{1U};
+
+    void setTarget(index_t index, const BlendTarget &target) {
+        if (index >= targets.size()) {
+            targets.resize(index + 1);
+        }
+        targets[index] = target;
+    }
+
+    void reset() {
+        isA2C        = 0;
+        isIndepend   = 0;
+        blendColor.x = 0;
+        blendColor.y = 0;
+        blendColor.z = 0;
+        blendColor.w = 0;
+        targets.clear();
+        targets.resize(1);
+    }
+
+    void destroy() {}
 };
 
 struct PipelineStateInfo {

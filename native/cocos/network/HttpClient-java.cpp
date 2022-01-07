@@ -545,8 +545,8 @@ private:
             return nullptr;
         }
         std::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, jstr);
-        size_t size = strValue.size() + 1;
-        char* retVal = static_cast<char *>(malloc(size));
+        size_t      size     = strValue.size() + 1;
+        char *      retVal   = static_cast<char *>(malloc(size));
         if (retVal == nullptr) {
             return nullptr;
         }
@@ -634,7 +634,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     if (0 != suc) {
         response->setSucceed(false);
         response->setErrorBuffer("connect failed");
-        response->setResponseCode(responseCode);
+        response->setResponseCode(static_cast<long>(responseCode));
         return;
     }
 
@@ -684,7 +684,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     urlConnection.disconnect();
 
     // write data to HttpResponse
-    response->setResponseCode(responseCode);
+    response->setResponseCode(static_cast<long>(responseCode));
 
     if (responseCode == -1) {
         response->setSucceed(false);
@@ -721,6 +721,7 @@ void HttpClient::networkThread() {
 
         // Create a HttpResponse object, the default setting is http access failed
         auto *response = new (std::nothrow) HttpResponse(request);
+        response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
         processResponse(response, _responseMessage);
 
         // add response packet into queue
@@ -863,7 +864,7 @@ void HttpClient::send(HttpRequest *request) {
         return;
     }
 
-    request->retain();
+    request->addRef();
 
     _requestQueueMutex.lock();
     _requestQueue.pushBack(request);
@@ -878,10 +879,10 @@ void HttpClient::sendImmediate(HttpRequest *request) {
         return;
     }
 
-    request->retain();
+    request->addRef();
     // Create a HttpResponse object, the default setting is http access failed
     auto *response = new (std::nothrow) HttpResponse(request);
-
+    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
     auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
     t.detach();
 }

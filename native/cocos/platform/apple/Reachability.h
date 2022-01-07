@@ -25,17 +25,17 @@
 
 #pragma once
 
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
-#include <string>
-#include <functional>
 #include <SystemConfiguration/SystemConfiguration.h>
+#include <functional>
+#include <string>
 
 struct sockaddr;
 
 namespace cc {
 
-class Reachability final : public Ref {
+class Reachability final : public RefCounted {
 public:
     enum class NetworkStatus : uint8_t {
         NOT_REACHABLE,
@@ -79,8 +79,8 @@ private:
 
     static void onReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info);
 
-    ReachabilityCallback _callback;
-    void *_userData;
+    ReachabilityCallback     _callback;
+    void *                   _userData;
     SCNetworkReachabilityRef _reachabilityRef;
 };
 

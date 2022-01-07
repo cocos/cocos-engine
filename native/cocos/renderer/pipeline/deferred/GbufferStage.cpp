@@ -79,7 +79,7 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 void GbufferStage::destroy() {
     CC_SAFE_DELETE(_batchedQueue);
     CC_SAFE_DELETE(_instancedQueue);
-    CC_SAFE_DESTROY(_planarShadowQueue);
+    CC_SAFE_DESTROY_AND_DELETE(_planarShadowQueue);
     RenderStage::destroy();
 }
 
@@ -146,8 +146,8 @@ void GbufferStage::render(scene::Camera *camera) {
         framegraph::TextureHandle depth;
     };
 
-    auto  *pipeline = static_cast<DeferredPipeline *>(_pipeline);
-    float  shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
+    auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
+    float shadingScale{_pipeline->getPipelineSceneData()->getShadingScale()};
     _renderArea = RenderPipeline::getRenderArea(camera);
 
     auto gbufferSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
@@ -158,15 +158,15 @@ void GbufferStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::INPUT_ATTACHMENT,
             gfx::Format::RGBA8,
-            static_cast<uint>(pipeline->getWidth() * shadingScale),
-            static_cast<uint>(pipeline->getHeight() * shadingScale),
+            static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+            static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
         gfx::TextureInfo gbufferInfoFloat = {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::INPUT_ATTACHMENT,
             gfx::Format::RGBA16F,
-            static_cast<uint>(pipeline->getWidth() * shadingScale),
-            static_cast<uint>(pipeline->getHeight() * shadingScale),
+            static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+            static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
         for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT - 1; ++i) {
             if (i != 0) { // positions & normals need more precision
@@ -202,16 +202,16 @@ void GbufferStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
             gfx::Format::DEPTH_STENCIL,
-            static_cast<uint>(pipeline->getWidth() * shadingScale),
-            static_cast<uint>(pipeline->getHeight() * shadingScale),
+            static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+            static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
         data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor depthInfo;
         depthInfo.usage        = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
         depthInfo.loadOp       = gfx::LoadOp::CLEAR;
-        depthInfo.clearDepth   = camera->clearDepth;
-        depthInfo.clearStencil = camera->clearStencil;
+        depthInfo.clearDepth   = camera->getClearDepth();
+        depthInfo.clearStencil = camera->getClearStencil();
         depthInfo.endAccesses  = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
         data.depth             = builder.write(data.depth, depthInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);

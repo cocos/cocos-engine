@@ -1,3 +1,5 @@
+
+// clang-format off
 #include "cocos/bindings/auto/jsb_extension_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -10,8 +12,8 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cc_extension_EventAssetsManagerEx_proto = nullptr;
-se::Class* __jsb_cc_extension_EventAssetsManagerEx_class = nullptr;
+se::Object* __jsb_cc_extension_EventAssetsManagerEx_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_extension_EventAssetsManagerEx_class = nullptr;  // NOLINT
 
 static bool js_extension_EventAssetsManagerEx_getAssetId(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -273,18 +275,14 @@ static bool js_extension_EventAssetsManagerEx_constructor(se::State& s) // NOLIN
     ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
     ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_constructor : Error processing arguments");
-    cc::extension::EventAssetsManagerEx* cobj = JSB_ALLOC(cc::extension::EventAssetsManagerEx, arg0, arg1, arg2);
-    s.thisObject()->setPrivateData(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::extension::EventAssetsManagerEx, arg0, arg1, arg2);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_extension_EventAssetsManagerEx_constructor, __jsb_cc_extension_EventAssetsManagerEx_class, js_cc_extension_EventAssetsManagerEx_finalize)
 
-
-
 static bool js_cc_extension_EventAssetsManagerEx_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj =SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_extension_EventAssetsManagerEx_finalize)
@@ -313,11 +311,12 @@ bool js_register_extension_EventAssetsManagerEx(se::Object* obj) // NOLINT(reada
     __jsb_cc_extension_EventAssetsManagerEx_proto = cls->getProto();
     __jsb_cc_extension_EventAssetsManagerEx_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_extension_Manifest_proto = nullptr;
-se::Class* __jsb_cc_extension_Manifest_class = nullptr;
+se::Object* __jsb_cc_extension_Manifest_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_extension_Manifest_class = nullptr;  // NOLINT
 
 static bool js_extension_Manifest_getManifestFileUrl(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -564,15 +563,15 @@ static bool js_extension_Manifest_constructor(se::State& s) // NOLINT(readabilit
             HolderType<std::string, true> arg1 = {};
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::extension::Manifest* cobj = JSB_ALLOC(cc::extension::Manifest, arg0.value(), arg1.value());
-            s.thisObject()->setPrivateData(cobj);
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::extension::Manifest, arg0.value(), arg1.value());
+            s.thisObject()->setPrivateObject(ptr);
             return true;
         }
     } while(false);
     do {
         if (argc == 0) {
-            cc::extension::Manifest* cobj = JSB_ALLOC(cc::extension::Manifest);
-            s.thisObject()->setPrivateData(cobj);
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::extension::Manifest);
+            s.thisObject()->setPrivateObject(ptr);
             return true;
         }
     } while(false);
@@ -581,8 +580,8 @@ static bool js_extension_Manifest_constructor(se::State& s) // NOLINT(readabilit
             HolderType<std::string, true> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::extension::Manifest* cobj = JSB_ALLOC(cc::extension::Manifest, arg0.value());
-            s.thisObject()->setPrivateData(cobj);
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::extension::Manifest, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
             return true;
         }
     } while(false);
@@ -591,12 +590,8 @@ static bool js_extension_Manifest_constructor(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_CTOR(js_extension_Manifest_constructor, __jsb_cc_extension_Manifest_class, js_cc_extension_Manifest_finalize)
 
-
-
 static bool js_cc_extension_Manifest_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj =SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_extension_Manifest_finalize)
@@ -624,11 +619,12 @@ bool js_register_extension_Manifest(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_extension_Manifest_proto = cls->getProto();
     __jsb_cc_extension_Manifest_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_extension_AssetsManagerEx_proto = nullptr;
-se::Class* __jsb_cc_extension_AssetsManagerEx_class = nullptr;
+se::Object* __jsb_cc_extension_AssetsManagerEx_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_extension_AssetsManagerEx_class = nullptr;  // NOLINT
 
 static bool js_extension_AssetsManagerEx_checkUpdate(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -725,7 +721,7 @@ static bool js_extension_AssetsManagerEx_getMaxConcurrentTask(se::State& s) // N
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const int result = cobj->getMaxConcurrentTask();
+        int result = cobj->getMaxConcurrentTask();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getMaxConcurrentTask : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -945,6 +941,7 @@ static bool js_extension_AssetsManagerEx_setEventCallback(se::State& s) // NOLIN
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=](cc::extension::EventAssetsManagerEx* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -954,7 +951,6 @@ static bool js_extension_AssetsManagerEx_setEventCallback(se::State& s) // NOLIN
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -1012,6 +1008,7 @@ static bool js_extension_AssetsManagerEx_setVerifyCallback(se::State& s) // NOLI
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=](const std::string larg0, cc::extension::ManifestAsset larg1) -> bool {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -1022,7 +1019,6 @@ static bool js_extension_AssetsManagerEx_setVerifyCallback(se::State& s) // NOLI
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -1065,6 +1061,7 @@ static bool js_extension_AssetsManagerEx_setVersionCompareHandle(se::State& s) /
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=](const std::string larg0, const std::string larg1) -> int {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -1075,7 +1072,6 @@ static bool js_extension_AssetsManagerEx_setVersionCompareHandle(se::State& s) /
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -1118,7 +1114,7 @@ static bool js_extension_AssetsManagerEx_update(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_update)
 
-static bool js_extension_AssetsManagerEx_create(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_extension_AssetsManagerEx_create_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1128,18 +1124,17 @@ static bool js_extension_AssetsManagerEx_create(se::State& s) // NOLINT(readabil
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_create : Error processing arguments");
-        auto result = cc::extension::AssetsManagerEx::create(arg0.value(), arg1.value());
-        result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cc_extension_AssetsManagerEx_class);
-        obj->setPrivateData(result);
-        s.rval().setObject(obj);
+        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_create_static : Error processing arguments");
+        cc::extension::AssetsManagerEx* result = cc::extension::AssetsManagerEx::create(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_create_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_extension_AssetsManagerEx_create)
+SE_BIND_FUNC(js_extension_AssetsManagerEx_create_static)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_extension_AssetsManagerEx_finalize)
 
@@ -1156,13 +1151,14 @@ static bool js_extension_AssetsManagerEx_constructor(se::State& s) // NOLINT(rea
             HolderType<std::string, true> arg1 = {};
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
-            HolderType<std::function<int (const std::string, const std::string)>, true> arg2 = {};
+            HolderType<std::function<int (const std::string, const std::string)>, false> arg2 = {};
             do {
                 if (args[2].isObject() && args[2].toObject()->isFunction())
                 {
                     se::Value jsThis(s.thisObject());
                     se::Value jsFunc(args[2]);
                     jsThis.toObject()->attachObject(jsFunc.toObject());
+                    auto * thisObj = s.thisObject();
                     auto lambda = [=](const std::string larg0, const std::string larg1) -> int {
                         se::ScriptEngine::getInstance()->clearException();
                         se::AutoHandleScope hs;
@@ -1173,7 +1169,6 @@ static bool js_extension_AssetsManagerEx_constructor(se::State& s) // NOLINT(rea
                         ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                         ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
                         se::Value rval;
-                        se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                         se::Object* funcObj = jsFunc.toObject();
                         bool succeed = funcObj->call(args, thisObj, &rval);
                         if (!succeed) {
@@ -1193,8 +1188,8 @@ static bool js_extension_AssetsManagerEx_constructor(se::State& s) // NOLINT(rea
             } while(false)
             ;
             if (!ok) { ok = true; break; }
-            cc::extension::AssetsManagerEx* cobj = JSB_ALLOC(cc::extension::AssetsManagerEx, arg0.value(), arg1.value(), arg2.value());
-            s.thisObject()->setPrivateData(cobj);
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::extension::AssetsManagerEx, arg0.value(), arg1.value(), arg2.value());
+            s.thisObject()->setPrivateObject(ptr);
             return true;
         }
     } while(false);
@@ -1206,8 +1201,8 @@ static bool js_extension_AssetsManagerEx_constructor(se::State& s) // NOLINT(rea
             HolderType<std::string, true> arg1 = {};
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::extension::AssetsManagerEx* cobj = JSB_ALLOC(cc::extension::AssetsManagerEx, arg0.value(), arg1.value());
-            s.thisObject()->setPrivateData(cobj);
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::extension::AssetsManagerEx, arg0.value(), arg1.value());
+            s.thisObject()->setPrivateObject(ptr);
             return true;
         }
     } while(false);
@@ -1216,12 +1211,8 @@ static bool js_extension_AssetsManagerEx_constructor(se::State& s) // NOLINT(rea
 }
 SE_BIND_CTOR(js_extension_AssetsManagerEx_constructor, __jsb_cc_extension_AssetsManagerEx_class, js_cc_extension_AssetsManagerEx_finalize)
 
-
-
 static bool js_cc_extension_AssetsManagerEx_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj =SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_extension_AssetsManagerEx_finalize)
@@ -1250,7 +1241,7 @@ bool js_register_extension_AssetsManagerEx(se::Object* obj) // NOLINT(readabilit
     cls->defineFunction("setVerifyCallback", _SE(js_extension_AssetsManagerEx_setVerifyCallback));
     cls->defineFunction("setVersionCompareHandle", _SE(js_extension_AssetsManagerEx_setVersionCompareHandle));
     cls->defineFunction("update", _SE(js_extension_AssetsManagerEx_update));
-    cls->defineStaticFunction("create", _SE(js_extension_AssetsManagerEx_create));
+    cls->defineStaticFunction("create", _SE(js_extension_AssetsManagerEx_create_static));
     cls->defineFinalizeFunction(_SE(js_cc_extension_AssetsManagerEx_finalize));
     cls->install();
     JSBClassType::registerClass<cc::extension::AssetsManagerEx>(cls);
@@ -1258,14 +1249,15 @@ bool js_register_extension_AssetsManagerEx(se::Object* obj) // NOLINT(readabilit
     __jsb_cc_extension_AssetsManagerEx_proto = cls->getProto();
     __jsb_cc_extension_AssetsManagerEx_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_extension(se::Object* obj)
+bool register_all_extension(se::Object* obj)    // NOLINT
 {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("jsb", &nsVal))
+    if (!obj->getProperty("jsb", &nsVal, true))
     {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
@@ -1273,9 +1265,10 @@ bool register_all_extension(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_extension_AssetsManagerEx(ns);
     js_register_extension_EventAssetsManagerEx(ns);
     js_register_extension_Manifest(ns);
-    js_register_extension_AssetsManagerEx(ns);
     return true;
 }
 
+// clang-format on

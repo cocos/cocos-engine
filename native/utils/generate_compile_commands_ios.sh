@@ -8,4 +8,6 @@ cmake -Sbuild -Bbuild -DCC_USE_GLES2=OFF -DCC_USE_VULKAN=OFF -DCC_USE_GLES3=OFF 
     -DCMAKE_OSX_SYSROOT=iphoneos \
     -DCMAKE_SYSTEM_NAME=iOS \
     -GXcode
-cp build/compile_commands.json .
+if [[ -f build/compile_commands.json ]]; then
+   cp build/compile_commands.json .
+fi

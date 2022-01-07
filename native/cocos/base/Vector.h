@@ -28,21 +28,25 @@
 
 #pragma once
 
+#include <sys/types.h>
 #include <algorithm> // for std::find
+#include <cstdint>
 #include <functional>
 #include <vector>
 
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "base/Random.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
+#include "base/TypeDef.h"
+#include "core/TypedArray.h"
 
 namespace cc {
 
 /*
  * Similar to std::vector, but it will manage reference count automatically internally.
- * Which means it will invoke Ref::retain() when adding an element, and invoke Ref::release() when removing an element.
- * @warn The element should be `Ref` or its sub-class.
+ * Which means it will invoke RefCounted::addRef() when adding an element, and invoke RefCounted::release() when removing an element.
+ * @warn The element should be `RefCounted` or its sub-class.
  */
 template <class T>
 class Vector {
@@ -108,17 +112,17 @@ public:
     /** Constructor. */
     Vector<T>()
     : _data() {
-        static_assert(std::is_convertible<T, Ref *>::value, "Invalid Type for cc::Vector<T>!");
+        static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
     }
 
     /**
      * Constructor with a capacity.
      * @param capacity Capacity of the Vector.
      */
-    explicit Vector<T>(ssize_t capacity)
+    explicit Vector<T>(uint32_t capacity)
     : _data() {
-        static_assert(std::is_convertible<T, Ref *>::value, "Invalid Type for cc::Vector<T>!");
-        CC_LOG_INFO("In the default constructor with capacity of Vector.");
+        static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
+        //        CC_LOG_INFO("In the default constructor with capacity of Vector.");
         reserve(capacity);
     }
 
@@ -131,29 +135,44 @@ public:
 
     /** Destructor. */
     ~Vector<T>() {
-        CC_LOG_INFO("In the destructor of Vector.");
+        //        CC_LOG_INFO("In the destructor of Vector.");
         clear();
     }
 
     /** Copy constructor. */
     Vector<T>(const Vector<T> &other) {
-        static_assert(std::is_convertible<T, Ref *>::value, "Invalid Type for cc::Vector<T>!");
-        CC_LOG_INFO("In the copy constructor!");
+        static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
+        //        CC_LOG_INFO("In the copy constructor!");
         _data = other._data;
+        addRefForAllObjects();
+    }
+
+    /** Copy constructor. */
+    explicit Vector<T>(const std::vector<T> &other) {
+        static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
+        //        CC_LOG_INFO("In the copy constructor!");
+        _data = other;
         addRefForAllObjects();
     }
 
     /** Constructor with std::move semantic. */
     Vector<T>(Vector<T> &&other) noexcept {
-        static_assert(std::is_convertible<T, Ref *>::value, "Invalid Type for cc::Vector<T>!");
-        CC_LOG_INFO("In the move constructor of Vector!");
+        static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
+        //        CC_LOG_INFO("In the move constructor of Vector!");
         _data = std::move(other._data);
+    }
+
+    /** Constructor with std::move semantic. */
+    explicit Vector<T>(std::vector<T> &&other) noexcept {
+        static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
+        //        CC_LOG_INFO("In the move constructor of Vector!");
+        _data = std::move(other);
     }
 
     /** Copy assignment operator. */
     Vector<T> &operator=(const Vector<T> &other) {
         if (this != &other) {
-            CC_LOG_INFO("In the copy assignment operator!");
+            //            CC_LOG_INFO("In the copy assignment operator!");
             clear();
             _data = other._data;
             addRefForAllObjects();
@@ -164,7 +183,7 @@ public:
     /** Copy assignment operator with std::move semantic. */
     Vector<T> &operator=(Vector<T> &&other) noexcept {
         if (this != &other) {
-            CC_LOG_INFO("In the move assignment operator!");
+            //            CC_LOG_INFO("In the move assignment operator!");
             clear();
             _data = std::move(other._data);
         }
@@ -175,7 +194,7 @@ public:
      * Requests that the vector capacity be at least enough to contain n elements.
      * @param capacity Minimum capacity requested of the Vector.
      */
-    void reserve(ssize_t n) {
+    void reserve(uint32_t n) {
         _data.reserve(n);
     }
 
@@ -184,7 +203,7 @@ public:
      *        It can be equal or greater, with the extra space allowing to accommodate for growth without the need to reallocate on each insertion.
      *  @return The size of the currently allocated storage capacity in the Vector, measured in terms of the number elements it can hold.
      */
-    ssize_t capacity() const {
+    uint32_t capacity() const {
         return _data.capacity();
     }
 
@@ -192,8 +211,8 @@ public:
      *  @note This is the number of actual objects held in the Vector, which is not necessarily equal to its storage capacity.
      *  @return The number of elements in the Vector.
      */
-    ssize_t size() const {
-        return _data.size();
+    uint32_t size() const {
+        return static_cast<uint32_t>(_data.size());
     }
 
     /** @brief Returns whether the Vector is empty (i.e. whether its size is 0).
@@ -204,12 +223,12 @@ public:
     }
 
     /** Returns the maximum number of elements that the Vector can hold. */
-    ssize_t maxSize() const {
+    uint32_t maxSize() const {
         return _data.max_size();
     }
 
     /** Returns index of a certain object, return UINT_MAX if doesn't contain the object */
-    ssize_t getIndex(T object) const {
+    uint32_t getIndex(T object) const {
         auto iter = std::find(_data.begin(), _data.end(), object);
         if (iter != _data.end()) {
             return iter - _data.begin();
@@ -237,8 +256,8 @@ public:
     }
 
     /** Returns the element at position 'index' in the Vector. */
-    T at(ssize_t index) const {
-        CCASSERT(index >= 0 && index < size(), "index out of range in getObjectAtIndex()");
+    T at(uint32_t index) const {
+        CC_ASSERT(index < size());
         return _data[index];
     }
 
@@ -255,7 +274,7 @@ public:
     /** Returns a random element of the Vector. */
     T getRandomObject() const {
         if (!_data.empty()) {
-            auto randIdx = static_cast<ssize_t>(RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1));
+            auto randIdx = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
             return *(_data.begin() + randIdx);
         }
         return nullptr;
@@ -276,12 +295,12 @@ public:
      * @return True if two vectors are equal, false if not.
      */
     bool equals(const Vector<T> &other) const {
-        ssize_t s = this->size();
+        uint32_t s = this->size();
         if (s != other.size()) {
             return false;
         }
 
-        for (ssize_t i = 0; i < s; i++) {
+        for (uint32_t i = 0; i < s; i++) {
             if (this->at(i) != other.at(i)) {
                 return false;
             }
@@ -293,16 +312,16 @@ public:
 
     /** Adds a new element at the end of the Vector. */
     void pushBack(T object) {
-        CCASSERT(object != nullptr, "The object should not be nullptr");
+        CC_ASSERT(object != nullptr);
         _data.push_back(object);
-        object->retain();
+        object->addRef();
     }
 
     /** Push all elements of an existing Vector to the end of current Vector. */
     void pushBack(const Vector<T> &other) {
         for (const auto &obj : other) {
             _data.push_back(obj);
-            obj->retain();
+            obj->addRef();
         }
     }
 
@@ -311,18 +330,18 @@ public:
      * @param index The index to be inserted at.
      * @param object The object to be inserted.
      */
-    void insert(ssize_t index, T object) {
-        CCASSERT(index >= 0 && index <= size(), "Invalid index!");
-        CCASSERT(object != nullptr, "The object should not be nullptr");
+    void insert(uint32_t index, T object) {
+        CC_ASSERT(index <= size());
+        CC_ASSERT(object != nullptr);
         _data.insert((std::begin(_data) + index), object);
-        object->retain();
+        object->addRef();
     }
 
     // Removes Objects
 
     /** Removes the last element in the Vector. */
     void popBack() {
-        CCASSERT(!_data.empty(), "no objects added");
+        CC_ASSERT(!_data.empty());
         auto last = _data.back();
         _data.pop_back();
         last->release();
@@ -334,7 +353,7 @@ public:
      *                   If its value is 'false', it will just erase the first occurrence.
      */
     void eraseObject(T object, bool removeAll = false) {
-        CCASSERT(object != nullptr, "The object should not be nullptr");
+        CC_ASSERT(object != nullptr);
 
         if (removeAll) {
             for (auto iter = _data.begin(); iter != _data.end();) {
@@ -360,7 +379,7 @@ public:
      *          This is the container end if the operation erased the last element in the sequence.
      */
     iterator erase(iterator position) {
-        CCASSERT(position >= _data.begin() && position < _data.end(), "Invalid position!");
+        CC_ASSERT(position >= _data.begin() && position < _data.end());
         (*position)->release();
         return _data.erase(position);
     }
@@ -383,8 +402,8 @@ public:
      *  @param index The index of the element to be removed from the Vector.
      *  @return An iterator pointing to the successor of Vector[index].
      */
-    iterator erase(ssize_t index) {
-        CCASSERT(!_data.empty() && index >= 0 && index < size(), "Invalid index!");
+    iterator erase(uint32_t index) {
+        CC_ASSERT(!_data.empty() && index < size());
         auto it = std::next(begin(), index);
         (*it)->release();
         return _data.erase(it);
@@ -404,29 +423,25 @@ public:
 
     /** Swap the values object1 and object2. */
     void swap(T object1, T object2) {
-        ssize_t idx1 = getIndex(object1);
-        ssize_t idx2 = getIndex(object2);
-
-        CCASSERT(idx1 >= 0 && idx2 >= 0, "invalid object index");
-
+        uint32_t idx1 = getIndex(object1);
+        uint32_t idx2 = getIndex(object2);
         std::swap(_data[idx1], _data[idx2]);
     }
 
     /** Swap two elements by indexes. */
-    void swap(ssize_t index1, ssize_t index2) {
-        CCASSERT(index1 >= 0 && index1 < size() && index2 >= 0 && index2 < size(), "Invalid indices");
-
+    void swap(uint32_t index1, uint32_t index2) {
+        CC_ASSERT(index1 < size() && index2 < size());
         std::swap(_data[index1], _data[index2]);
     }
 
     /** Replace value at index with given object. */
-    void replace(ssize_t index, T object) {
-        CCASSERT(index >= 0 && index < size(), "Invalid index!");
-        CCASSERT(object != nullptr, "The object should not be nullptr");
+    void replace(uint32_t index, T object) {
+        CC_ASSERT(index < size());
+        CC_ASSERT(object != nullptr);
 
-        _data[index]->release();
+        CC_SAFE_RELEASE(_data[index]);
         _data[index] = object;
-        object->retain();
+        CC_SAFE_ADD_REF(object);
     }
 
     /** Reverses the Vector. */
@@ -439,11 +454,19 @@ public:
         _data.shrink_to_fit();
     }
 
+    const std::vector<T> &get() const {
+        return _data;
+    }
+
+    void resize(uint32_t size) {
+        _data.resize(size);
+    }
+
 protected:
     /** Retains all the objects in the vector */
     void addRefForAllObjects() {
         for (const auto &obj : _data) {
-            obj->retain();
+            obj->addRef();
         }
     }
 

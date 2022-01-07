@@ -42,9 +42,9 @@ public:
 
     static Map::iterator find(void *nativeObj);
     static Map::iterator erase(Map::iterator iter);
-    static void erase(void *nativeObj);
-    static void clear();
-    static size_t size();
+    static void          erase(void *nativeObj);
+    static void          clear();
+    static size_t        size();
 
     static const Map &instance();
 
@@ -57,29 +57,4 @@ private:
 
     friend class Object;
 };
-
-class NonRefNativePtrCreatedByCtorMap {
-public:
-    // key: native ptr, value: non-ref object created by ctor
-    using Map = std::unordered_map<void *, bool>;
-
-    static bool init();
-    static void destroy();
-
-    static void emplace(void *nativeObj);
-    static Map::iterator find(void *nativeObj);
-    static Map::iterator erase(Map::iterator iter);
-    static void erase(void *nativeObj);
-    static void clear();
-    static size_t size();
-
-    static const Map &instance();
-
-    static Map::iterator begin();
-    static Map::iterator end();
-
-private:
-    static Map *__nonRefNativeObjectCreatedByCtorMap;
-};
-
 } // namespace se

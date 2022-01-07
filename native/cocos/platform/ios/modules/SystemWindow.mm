@@ -39,6 +39,7 @@ bool SystemWindow::createWindow(const char* title,
                                 int h, int flags) {
     _width  = w;
     _height = h;
+    return true;
 }
 
 void SystemWindow::setCursorEnabled(bool value) {

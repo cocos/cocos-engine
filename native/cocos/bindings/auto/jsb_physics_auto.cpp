@@ -1,3 +1,5 @@
+
+// clang-format off
 #include "cocos/bindings/auto/jsb_physics_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -10,8 +12,8 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cc_physics_World_proto = nullptr;
-se::Class* __jsb_cc_physics_World_class = nullptr;
+se::Object* __jsb_cc_physics_World_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_World_class = nullptr;  // NOLINT
 
 static bool js_physics_World_createConvex(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -377,24 +379,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_World_finalize)
 
 static bool js_physics_World_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::World* cobj = JSB_ALLOC(cc::physics::World);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::World);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_World_constructor, __jsb_cc_physics_World_class, js_cc_physics_World_finalize)
 
-
-
 static bool js_cc_physics_World_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::World>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::World>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_World_finalize)
@@ -428,11 +420,12 @@ bool js_register_physics_World(se::Object* obj) // NOLINT(readability-identifier
     __jsb_cc_physics_World_proto = cls->getProto();
     __jsb_cc_physics_World_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_RigidBody_proto = nullptr;
-se::Class* __jsb_cc_physics_RigidBody_class = nullptr;
+se::Object* __jsb_cc_physics_RigidBody_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_RigidBody_class = nullptr;  // NOLINT
 
 static bool js_physics_RigidBody_applyForce(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -782,7 +775,7 @@ static bool js_physics_RigidBody_initialize(se::State& s) // NOLINT(readability-
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 3) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         HolderType<cc::physics::ERigidBodyType, false> arg1 = {};
         HolderType<unsigned int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1215,24 +1208,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_RigidBody_finalize)
 
 static bool js_physics_RigidBody_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::RigidBody* cobj = JSB_ALLOC(cc::physics::RigidBody);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::RigidBody);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_RigidBody_constructor, __jsb_cc_physics_RigidBody_class, js_cc_physics_RigidBody_finalize)
 
-
-
 static bool js_cc_physics_RigidBody_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::RigidBody>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_RigidBody_finalize)
@@ -1287,11 +1270,12 @@ bool js_register_physics_RigidBody(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_physics_RigidBody_proto = cls->getProto();
     __jsb_cc_physics_RigidBody_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_SphereShape_proto = nullptr;
-se::Class* __jsb_cc_physics_SphereShape_class = nullptr;
+se::Object* __jsb_cc_physics_SphereShape_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_SphereShape_class = nullptr;  // NOLINT
 
 static bool js_physics_SphereShape_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1301,7 +1285,7 @@ static bool js_physics_SphereShape_getAABB(se::State& s) // NOLINT(readability-i
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::AABB& result = cobj->getAABB();
+        cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_SphereShape_getAABB : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1320,7 +1304,7 @@ static bool js_physics_SphereShape_getBoundingSphere(se::State& s) // NOLINT(rea
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::Sphere& result = cobj->getBoundingSphere();
+        cc::geometry::Sphere& result = cobj->getBoundingSphere();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_SphereShape_getBoundingSphere : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1396,7 +1380,7 @@ static bool js_physics_SphereShape_initialize(se::State& s) // NOLINT(readabilit
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_SphereShape_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -1603,24 +1587,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_SphereShape_finalize)
 
 static bool js_physics_SphereShape_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::SphereShape* cobj = JSB_ALLOC(cc::physics::SphereShape);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::SphereShape);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_SphereShape_constructor, __jsb_cc_physics_SphereShape_class, js_cc_physics_SphereShape_finalize)
 
-
-
 static bool js_cc_physics_SphereShape_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::SphereShape>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_SphereShape_finalize)
@@ -1652,11 +1626,12 @@ bool js_register_physics_SphereShape(se::Object* obj) // NOLINT(readability-iden
     __jsb_cc_physics_SphereShape_proto = cls->getProto();
     __jsb_cc_physics_SphereShape_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_BoxShape_proto = nullptr;
-se::Class* __jsb_cc_physics_BoxShape_class = nullptr;
+se::Object* __jsb_cc_physics_BoxShape_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_BoxShape_class = nullptr;  // NOLINT
 
 static bool js_physics_BoxShape_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1666,7 +1641,7 @@ static bool js_physics_BoxShape_getAABB(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::AABB& result = cobj->getAABB();
+        cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_BoxShape_getAABB : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1685,7 +1660,7 @@ static bool js_physics_BoxShape_getBoundingSphere(se::State& s) // NOLINT(readab
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::Sphere& result = cobj->getBoundingSphere();
+        cc::geometry::Sphere& result = cobj->getBoundingSphere();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_BoxShape_getBoundingSphere : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1761,7 +1736,7 @@ static bool js_physics_BoxShape_initialize(se::State& s) // NOLINT(readability-i
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_BoxShape_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -1972,24 +1947,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_BoxShape_finalize)
 
 static bool js_physics_BoxShape_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::BoxShape* cobj = JSB_ALLOC(cc::physics::BoxShape);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::BoxShape);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_BoxShape_constructor, __jsb_cc_physics_BoxShape_class, js_cc_physics_BoxShape_finalize)
 
-
-
 static bool js_cc_physics_BoxShape_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::BoxShape>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_BoxShape_finalize)
@@ -2021,11 +1986,12 @@ bool js_register_physics_BoxShape(se::Object* obj) // NOLINT(readability-identif
     __jsb_cc_physics_BoxShape_proto = cls->getProto();
     __jsb_cc_physics_BoxShape_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_CapsuleShape_proto = nullptr;
-se::Class* __jsb_cc_physics_CapsuleShape_class = nullptr;
+se::Object* __jsb_cc_physics_CapsuleShape_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_CapsuleShape_class = nullptr;  // NOLINT
 
 static bool js_physics_CapsuleShape_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2035,7 +2001,7 @@ static bool js_physics_CapsuleShape_getAABB(se::State& s) // NOLINT(readability-
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::AABB& result = cobj->getAABB();
+        cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_CapsuleShape_getAABB : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -2054,7 +2020,7 @@ static bool js_physics_CapsuleShape_getBoundingSphere(se::State& s) // NOLINT(re
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::Sphere& result = cobj->getBoundingSphere();
+        cc::geometry::Sphere& result = cobj->getBoundingSphere();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_CapsuleShape_getBoundingSphere : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -2130,7 +2096,7 @@ static bool js_physics_CapsuleShape_initialize(se::State& s) // NOLINT(readabili
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_CapsuleShape_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -2375,24 +2341,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_CapsuleShape_finalize)
 
 static bool js_physics_CapsuleShape_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::CapsuleShape* cobj = JSB_ALLOC(cc::physics::CapsuleShape);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::CapsuleShape);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_CapsuleShape_constructor, __jsb_cc_physics_CapsuleShape_class, js_cc_physics_CapsuleShape_finalize)
 
-
-
 static bool js_cc_physics_CapsuleShape_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::CapsuleShape>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_CapsuleShape_finalize)
@@ -2426,11 +2382,12 @@ bool js_register_physics_CapsuleShape(se::Object* obj) // NOLINT(readability-ide
     __jsb_cc_physics_CapsuleShape_proto = cls->getProto();
     __jsb_cc_physics_CapsuleShape_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_PlaneShape_proto = nullptr;
-se::Class* __jsb_cc_physics_PlaneShape_class = nullptr;
+se::Object* __jsb_cc_physics_PlaneShape_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_PlaneShape_class = nullptr;  // NOLINT
 
 static bool js_physics_PlaneShape_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2440,7 +2397,7 @@ static bool js_physics_PlaneShape_getAABB(se::State& s) // NOLINT(readability-id
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::AABB& result = cobj->getAABB();
+        cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_PlaneShape_getAABB : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -2459,7 +2416,7 @@ static bool js_physics_PlaneShape_getBoundingSphere(se::State& s) // NOLINT(read
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::Sphere& result = cobj->getBoundingSphere();
+        cc::geometry::Sphere& result = cobj->getBoundingSphere();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_PlaneShape_getBoundingSphere : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -2535,7 +2492,7 @@ static bool js_physics_PlaneShape_initialize(se::State& s) // NOLINT(readability
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_PlaneShape_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -2765,24 +2722,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_PlaneShape_finalize)
 
 static bool js_physics_PlaneShape_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::PlaneShape* cobj = JSB_ALLOC(cc::physics::PlaneShape);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::PlaneShape);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_PlaneShape_constructor, __jsb_cc_physics_PlaneShape_class, js_cc_physics_PlaneShape_finalize)
 
-
-
 static bool js_cc_physics_PlaneShape_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::PlaneShape>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_PlaneShape_finalize)
@@ -2815,11 +2762,12 @@ bool js_register_physics_PlaneShape(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_physics_PlaneShape_proto = cls->getProto();
     __jsb_cc_physics_PlaneShape_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_TrimeshShape_proto = nullptr;
-se::Class* __jsb_cc_physics_TrimeshShape_class = nullptr;
+se::Object* __jsb_cc_physics_TrimeshShape_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_TrimeshShape_class = nullptr;  // NOLINT
 
 static bool js_physics_TrimeshShape_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2829,7 +2777,7 @@ static bool js_physics_TrimeshShape_getAABB(se::State& s) // NOLINT(readability-
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::AABB& result = cobj->getAABB();
+        cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_TrimeshShape_getAABB : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -2848,7 +2796,7 @@ static bool js_physics_TrimeshShape_getBoundingSphere(se::State& s) // NOLINT(re
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::Sphere& result = cobj->getBoundingSphere();
+        cc::geometry::Sphere& result = cobj->getBoundingSphere();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_TrimeshShape_getBoundingSphere : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -2924,7 +2872,7 @@ static bool js_physics_TrimeshShape_initialize(se::State& s) // NOLINT(readabili
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_TrimeshShape_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -3150,24 +3098,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_TrimeshShape_finalize)
 
 static bool js_physics_TrimeshShape_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::TrimeshShape* cobj = JSB_ALLOC(cc::physics::TrimeshShape);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::TrimeshShape);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_TrimeshShape_constructor, __jsb_cc_physics_TrimeshShape_class, js_cc_physics_TrimeshShape_finalize)
 
-
-
 static bool js_cc_physics_TrimeshShape_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::TrimeshShape>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_TrimeshShape_finalize)
@@ -3200,11 +3138,12 @@ bool js_register_physics_TrimeshShape(se::Object* obj) // NOLINT(readability-ide
     __jsb_cc_physics_TrimeshShape_proto = cls->getProto();
     __jsb_cc_physics_TrimeshShape_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_CylinderShape_proto = nullptr;
-se::Class* __jsb_cc_physics_CylinderShape_class = nullptr;
+se::Object* __jsb_cc_physics_CylinderShape_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_CylinderShape_class = nullptr;  // NOLINT
 
 static bool js_physics_CylinderShape_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -3214,7 +3153,7 @@ static bool js_physics_CylinderShape_getAABB(se::State& s) // NOLINT(readability
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::AABB& result = cobj->getAABB();
+        cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_CylinderShape_getAABB : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -3233,7 +3172,7 @@ static bool js_physics_CylinderShape_getBoundingSphere(se::State& s) // NOLINT(r
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::Sphere& result = cobj->getBoundingSphere();
+        cc::geometry::Sphere& result = cobj->getBoundingSphere();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_CylinderShape_getBoundingSphere : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -3309,7 +3248,7 @@ static bool js_physics_CylinderShape_initialize(se::State& s) // NOLINT(readabil
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_CylinderShape_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -3539,24 +3478,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_CylinderShape_finalize)
 
 static bool js_physics_CylinderShape_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::CylinderShape* cobj = JSB_ALLOC(cc::physics::CylinderShape);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::CylinderShape);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_CylinderShape_constructor, __jsb_cc_physics_CylinderShape_class, js_cc_physics_CylinderShape_finalize)
 
-
-
 static bool js_cc_physics_CylinderShape_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::CylinderShape>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_CylinderShape_finalize)
@@ -3589,11 +3518,12 @@ bool js_register_physics_CylinderShape(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_physics_CylinderShape_proto = cls->getProto();
     __jsb_cc_physics_CylinderShape_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_ConeShape_proto = nullptr;
-se::Class* __jsb_cc_physics_ConeShape_class = nullptr;
+se::Object* __jsb_cc_physics_ConeShape_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_ConeShape_class = nullptr;  // NOLINT
 
 static bool js_physics_ConeShape_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -3603,7 +3533,7 @@ static bool js_physics_ConeShape_getAABB(se::State& s) // NOLINT(readability-ide
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::AABB& result = cobj->getAABB();
+        cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_ConeShape_getAABB : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -3622,7 +3552,7 @@ static bool js_physics_ConeShape_getBoundingSphere(se::State& s) // NOLINT(reada
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::Sphere& result = cobj->getBoundingSphere();
+        cc::geometry::Sphere& result = cobj->getBoundingSphere();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_ConeShape_getBoundingSphere : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -3698,7 +3628,7 @@ static bool js_physics_ConeShape_initialize(se::State& s) // NOLINT(readability-
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_ConeShape_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -3928,24 +3858,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_ConeShape_finalize)
 
 static bool js_physics_ConeShape_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::ConeShape* cobj = JSB_ALLOC(cc::physics::ConeShape);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::ConeShape);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_ConeShape_constructor, __jsb_cc_physics_ConeShape_class, js_cc_physics_ConeShape_finalize)
 
-
-
 static bool js_cc_physics_ConeShape_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::ConeShape>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_ConeShape_finalize)
@@ -3978,11 +3898,12 @@ bool js_register_physics_ConeShape(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_physics_ConeShape_proto = cls->getProto();
     __jsb_cc_physics_ConeShape_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_TerrainShape_proto = nullptr;
-se::Class* __jsb_cc_physics_TerrainShape_class = nullptr;
+se::Object* __jsb_cc_physics_TerrainShape_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_TerrainShape_class = nullptr;  // NOLINT
 
 static bool js_physics_TerrainShape_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -3992,7 +3913,7 @@ static bool js_physics_TerrainShape_getAABB(se::State& s) // NOLINT(readability-
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::AABB& result = cobj->getAABB();
+        cc::geometry::AABB& result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_TerrainShape_getAABB : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -4011,7 +3932,7 @@ static bool js_physics_TerrainShape_getBoundingSphere(se::State& s) // NOLINT(re
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::scene::Sphere& result = cobj->getBoundingSphere();
+        cc::geometry::Sphere& result = cobj->getBoundingSphere();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_TerrainShape_getBoundingSphere : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -4087,7 +4008,7 @@ static bool js_physics_TerrainShape_initialize(se::State& s) // NOLINT(readabili
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_TerrainShape_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -4300,24 +4221,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_TerrainShape_finalize)
 
 static bool js_physics_TerrainShape_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::TerrainShape* cobj = JSB_ALLOC(cc::physics::TerrainShape);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::TerrainShape);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_TerrainShape_constructor, __jsb_cc_physics_TerrainShape_class, js_cc_physics_TerrainShape_finalize)
 
-
-
 static bool js_cc_physics_TerrainShape_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::TerrainShape>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_TerrainShape_finalize)
@@ -4349,11 +4260,12 @@ bool js_register_physics_TerrainShape(se::Object* obj) // NOLINT(readability-ide
     __jsb_cc_physics_TerrainShape_proto = cls->getProto();
     __jsb_cc_physics_TerrainShape_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_RevoluteJoint_proto = nullptr;
-se::Class* __jsb_cc_physics_RevoluteJoint_class = nullptr;
+se::Object* __jsb_cc_physics_RevoluteJoint_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_RevoluteJoint_class = nullptr;  // NOLINT
 
 static bool js_physics_RevoluteJoint_getImpl(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4382,7 +4294,7 @@ static bool js_physics_RevoluteJoint_initialize(se::State& s) // NOLINT(readabil
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_RevoluteJoint_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -4549,24 +4461,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_RevoluteJoint_finalize)
 
 static bool js_physics_RevoluteJoint_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::RevoluteJoint* cobj = JSB_ALLOC(cc::physics::RevoluteJoint);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::RevoluteJoint);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_RevoluteJoint_constructor, __jsb_cc_physics_RevoluteJoint_class, js_cc_physics_RevoluteJoint_finalize)
 
-
-
 static bool js_cc_physics_RevoluteJoint_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_RevoluteJoint_finalize)
@@ -4592,11 +4494,12 @@ bool js_register_physics_RevoluteJoint(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_physics_RevoluteJoint_proto = cls->getProto();
     __jsb_cc_physics_RevoluteJoint_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_physics_DistanceJoint_proto = nullptr;
-se::Class* __jsb_cc_physics_DistanceJoint_class = nullptr;
+se::Object* __jsb_cc_physics_DistanceJoint_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_physics_DistanceJoint_class = nullptr;  // NOLINT
 
 static bool js_physics_DistanceJoint_getImpl(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4625,7 +4528,7 @@ static bool js_physics_DistanceJoint_initialize(se::State& s) // NOLINT(readabil
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::Node*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_DistanceJoint_initialize : Error processing arguments");
         cobj->initialize(arg0.value());
@@ -4769,24 +4672,14 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_physics_DistanceJoint_finalize)
 
 static bool js_physics_DistanceJoint_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::physics::DistanceJoint* cobj = JSB_ALLOC(cc::physics::DistanceJoint);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::physics::DistanceJoint);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_physics_DistanceJoint_constructor, __jsb_cc_physics_DistanceJoint_class, js_cc_physics_DistanceJoint_finalize)
 
-
-
 static bool js_cc_physics_DistanceJoint_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::physics::DistanceJoint>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_physics_DistanceJoint_finalize)
@@ -4811,14 +4704,15 @@ bool js_register_physics_DistanceJoint(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_physics_DistanceJoint_proto = cls->getProto();
     __jsb_cc_physics_DistanceJoint_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_physics(se::Object* obj)
+bool register_all_physics(se::Object* obj)    // NOLINT
 {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("jsb.physics", &nsVal))
+    if (!obj->getProperty("jsb.physics", &nsVal, true))
     {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
@@ -4826,18 +4720,19 @@ bool register_all_physics(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_physics_World(ns);
-    js_register_physics_RigidBody(ns);
-    js_register_physics_SphereShape(ns);
     js_register_physics_BoxShape(ns);
     js_register_physics_CapsuleShape(ns);
-    js_register_physics_PlaneShape(ns);
-    js_register_physics_TrimeshShape(ns);
-    js_register_physics_CylinderShape(ns);
     js_register_physics_ConeShape(ns);
-    js_register_physics_TerrainShape(ns);
-    js_register_physics_RevoluteJoint(ns);
+    js_register_physics_CylinderShape(ns);
     js_register_physics_DistanceJoint(ns);
+    js_register_physics_PlaneShape(ns);
+    js_register_physics_RevoluteJoint(ns);
+    js_register_physics_RigidBody(ns);
+    js_register_physics_SphereShape(ns);
+    js_register_physics_TerrainShape(ns);
+    js_register_physics_TrimeshShape(ns);
+    js_register_physics_World(ns);
     return true;
 }
 
+// clang-format on

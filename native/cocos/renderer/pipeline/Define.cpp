@@ -278,12 +278,12 @@ const gfx::UniformBlock UBOMorph::LAYOUT = {
     UBOMorph::NAME,
     {
         {"cc_displacementWeights", gfx::Type::FLOAT4, static_cast<uint>(UBOMorph::MAX_MORPH_TARGET_COUNT / 4)},
-        {"cc_displacementWeights", gfx::Type::FLOAT4, 1},
+        {"cc_displacementTextureInfo", gfx::Type::FLOAT4, 1},
     },
     1,
 };
 
-const String                          UBOUILocal::NAME       = "CCMorph";
+const String                          UBOUILocal::NAME       = "CCUILocal";
 const gfx::DescriptorSetLayoutBinding UBOUILocal::DESCRIPTOR = {
     UBOUILocal::BINDING,
     gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER,
@@ -517,25 +517,17 @@ bool supportsFloatTexture(gfx::Device *device) {
            device->getGfxAPI() != gfx::API::GLES2;
 }
 
-uint getPhaseID(const String &phase) {
-    se::Object *globalObj = se::ScriptEngine::getInstance()->getGlobalObject();
+static std::unordered_map<String, uint32_t> phases; //cjh how to clear this global variable when exiting game?
+static uint32_t                             phaseNum = 0;
 
-    se::Value nrValue;
-    if (!globalObj->getProperty("nr", &nrValue)) {
-        CC_LOG_ERROR("getPhaseID: failed to get nr property.");
-        return 0;
+uint getPhaseID(const String &phaseName) {
+    auto iter = phases.find(phaseName);
+    if (iter == phases.end()) {
+        phases.emplace(phaseName, 1 << phaseNum);
+        ++phaseNum;
     }
-    se::Object *nrObjct = nrValue.toObject();
-    se::Value   nrPhase;
-    if (!nrObjct->getProperty("getPhaseID", &nrPhase)) {
-        CC_LOG_ERROR("getPhaseID: failed to get getPhaseID property.");
-        return 0;
-    }
-    se::ValueArray args;
-    args.push_back(se::Value(phase));
-    se::Value nrResult;
-    nrPhase.toObject()->call(args, nullptr, &nrResult);
-    return nrResult.toUint32();
+    return phases.at(phaseName);
 }
+
 } // namespace pipeline
 } // namespace cc

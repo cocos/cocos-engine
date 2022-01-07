@@ -27,6 +27,7 @@
 
 #include "GFXDef.h"
 #include "base/Object.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {

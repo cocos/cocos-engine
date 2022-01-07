@@ -56,7 +56,6 @@ static std::string gen_send_index() {
 static bool WebSocketServer_finalize(se::State &s) {
     WSSPTR cobj = (WSSPTR)s.nativeThisObject();
     CC_LOG_INFO("jsbindings: finalizing JS object %p (WebSocketServer)", cobj);
-    delete cobj;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(WebSocketServer_finalize)
@@ -102,12 +101,12 @@ static bool WebSocketServer_listen(se::State &s) {
     bool ok;
 
     if (argc >= 1) { // port
-        ok = seval_to_int32(args[0], &arg_port);
+        ok = sevalue_to_native(args[0], &arg_port);
         SE_PRECONDITION2(ok, false, "Convert args[0] to port failed");
     }
     if (argc >= 2) {              // host or callback
         if (args[1].isString()) { //to host
-            ok = seval_to_std_string(args[1], &arg_host);
+            ok = sevalue_to_native(args[1], &arg_host);
             SE_PRECONDITION2(ok, false, "Convert args[1] to host failed");
         }
         se::Object *funObj = nullptr;
@@ -339,7 +338,6 @@ SE_BIND_PROP_GET(WebSocketServer_connections)
 static bool WebSocketServer_Connection_finalize(se::State &s) {
     WSCONNPTR cobj = (WSCONNPTR)s.nativeThisObject();
     CC_LOG_INFO("jsbindings: finalizing JS object %p (WebSocketServer_Connection)", cobj);
-    delete cobj;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(WebSocketServer_Connection_finalize)
@@ -406,7 +404,7 @@ static bool WebSocketServer_Connection_send(se::State &s) {
         bool ok = false;
         if (args[0].isString()) {
             std::string data;
-            ok = seval_to_std_string(args[0], &data);
+            ok = sevalue_to_native(args[0], &data);
             SE_PRECONDITION2(ok, false, "Convert string failed");
             (*cobj)->sendTextAsync(data, callback);
         } else if (args[0].isObject()) {
@@ -456,11 +454,11 @@ static bool WebSocketServer_Connection_close(se::State &s) {
     bool                                     ok;
 
     if (argc >= 1) {
-        ok = seval_to_int32(args[0], &arg_code);
+        ok = sevalue_to_native(args[0], &arg_code);
         SE_PRECONDITION2(ok, false, "Convert args[0] should be a number");
 
         if (argc >= 2) {
-            ok = seval_to_std_string(args[1], &arg_reason);
+            ok = sevalue_to_native(args[1], &arg_reason);
             SE_PRECONDITION2(ok, false, "Convert args[1] should be a string");
         }
     }

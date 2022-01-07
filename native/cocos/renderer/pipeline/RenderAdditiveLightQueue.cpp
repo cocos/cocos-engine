@@ -36,8 +36,10 @@
 #include "RenderInstancedQueue.h"
 #include "SceneCulling.h"
 #include "base/Utils.h"
+#include "core/geometry/Sphere.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/DirectionalLight.h"
 #include "scene/RenderScene.h"
 
 namespace cc {
@@ -66,14 +68,14 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
 RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
     CC_SAFE_DELETE(_instancedQueue);
     CC_SAFE_DELETE(_batchedQueue);
-    CC_SAFE_DESTROY(_firstLightBufferView);
-    CC_SAFE_DESTROY(_lightBuffer);
+    CC_SAFE_DESTROY_AND_DELETE(_firstLightBufferView);
+    CC_SAFE_DESTROY_AND_DELETE(_lightBuffer);
 }
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
     _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
-    const bool enableOcclusionQuery = _pipeline->getOcclusionQueryEnabled();
+    const bool enableOcclusionQuery = _pipeline->isOcclusionQueryEnabled();
     const auto offset               = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
 
     for (const auto &lightPass : _lightPasses) {
@@ -127,7 +129,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
 
         if (_lightIndices.empty()) continue;
         int i = 0;
-        for (const auto *subModel : model->getSubModels()) {
+        for (const auto &subModel : model->getSubModels()) {
             const auto lightPassIdx = lightPassIndices[i];
             if (lightPassIdx == UINT_MAX) continue;
             const auto *pass          = subModel->getPass(lightPassIdx);
@@ -135,7 +137,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
             if (isTransparent) {
                 continue;
             }
-            auto *      descriptorSet = subModel->getDescriptorSet();
+            auto *descriptorSet = subModel->getDescriptorSet();
             descriptorSet->bindBuffer(UBOForwardLight::BINDING, _firstLightBufferView);
             descriptorSet->update();
 
@@ -201,13 +203,12 @@ void RenderAdditiveLightQueue::addRenderQueue(const scene::Pass *pass, const sce
 }
 
 void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    const auto  exposure        = camera->exposure;
+    const auto  exposure        = camera->getExposure();
     const auto  validLightCount = _validPunctualLights.size();
     const auto *sceneData       = _pipeline->getPipelineSceneData();
 
-    const auto *sharedData      = sceneData->getSharedData();
-    const auto *shadowInfo      = sharedData->shadow;
-    size_t      offset          = 0;
+    const auto *shadows = sceneData->getShadows();
+    size_t      offset  = 0;
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
 
@@ -235,7 +236,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 
         index             = offset + UBOForwardLight::LIGHT_COLOR_OFFSET;
         const auto &color = light->getColor();
-        if (light->getUseColorTemperature()) {
+        if (light->isUseColorTemperature()) {
             const auto &tempRGB       = light->getColorTemperatureRGB();
             _lightBufferData[index++] = color.x * tempRGB.x;
             _lightBufferData[index++] = color.y * tempRGB.y;
@@ -248,7 +249,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 
         const float luminanceHDR = isSpotLight ? spotLight->getLuminanceHDR() : sphereLight->getLuminanceHDR();
         const float luminanceLDR = isSpotLight ? spotLight->getLuminanceLDR() : sphereLight->getLuminanceLDR();
-        if (sharedData->isHDR) {
+        if (sceneData->isHDR()) {
             _lightBufferData[index] = luminanceHDR * exposure * _lightMeterScale;
         } else {
             _lightBufferData[index] = luminanceLDR;
@@ -258,12 +259,12 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
             case scene::LightType::SPHERE:
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3]              = 0;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
-                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->enabled && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) ? 1.0F : 0.0F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F : 0.0F;
                 break;
             case scene::LightType::SPOT: {
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3]              = 1.0F;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
-                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->enabled && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) ? 1.0F : 0.0F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F : 0.0F;
 
                 index                     = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction     = spotLight->getDirection();
@@ -280,14 +281,14 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 }
 
 void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    const auto *        sceneData  = _pipeline->getPipelineSceneData();
-    auto *              shadowInfo = sceneData->getSharedData()->shadow;
-    const auto *const   scene      = camera->scene;
-    auto *              device     = gfx::Device::getInstance();
-    const bool          hFTexture  = supportsFloatTexture(device);
-    const float         linear     = 0.0F;
-    const float         packing    = hFTexture ? 0.0F : 1.0F;
-    const scene::Light *mainLight  = scene->getMainLight();
+    const auto *        sceneData = _pipeline->getPipelineSceneData();
+    auto *              shadows   = sceneData->getShadows();
+    const auto *const   scene     = camera->getScene();
+    auto *              device    = gfx::Device::getInstance();
+    const bool          hFTexture = supportsFloatTexture(device);
+    const float         linear    = 0.0F;
+    const float         packing   = hFTexture ? 0.0F : 1.0F;
+    const scene::Light *mainLight = scene->getMainLight();
 
     for (uint i = 0; i < _validPunctualLights.size(); ++i) {
         const auto *light         = _validPunctualLights[i];
@@ -302,21 +303,22 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
             case scene::LightType::SPHERE: {
                 // update planar PROJ
                 if (mainLight) {
-                    updateDirLight(shadowInfo, mainLight, &_shadowUBO);
+                    updateDirLight(const_cast<scene::Shadows *>(shadows), mainLight, &_shadowUBO);
                 }
 
                 // Reserve sphere light shadow interface
-                float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(shadowInfo->pcfType), shadowInfo->bias};
+                const auto &shadowSize         = shadows->getSize();
+                float       shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, static_cast<float>(shadows->getPcf()), shadows->getBias()};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(float) * 4);
 
-                float shadowLPNNInfos[4] = {2.0F, packing, shadowInfo->normalBias, 0.0F};
+                float shadowLPNNInfos[4] = {2.0F, packing, shadows->getNormalBias(), 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
             } break;
             case scene::LightType::SPOT: {
                 const auto *spotLight = static_cast<const scene::SpotLight *>(light);
                 // update planar PROJ
                 if (mainLight) {
-                    updateDirLight(shadowInfo, mainLight, &_shadowUBO);
+                    updateDirLight(shadows, mainLight, &_shadowUBO);
                 }
 
                 const auto &matShadowCamera = light->getNode()->getWorldMatrix();
@@ -334,13 +336,14 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
                 // shadow info
-                float shadowNFLSInfos[4] = {0.1F, spotLight->getRange(), linear, 1.0F - shadowInfo->saturation};
+                float shadowNFLSInfos[4] = {0.1F, spotLight->getRange(), linear, 1.0F - shadows->getSaturation()};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
-                float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(shadowInfo->pcfType), shadowInfo->bias};
+                const auto &shadowSize         = shadows->getSize();
+                float       shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, static_cast<float>(shadows->getPcf()), shadows->getBias()};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
 
-                float shadowLPNNInfos[4] = {1.0F, packing, shadowInfo->normalBias, 0.0F};
+                float shadowLPNNInfos[4] = {1.0F, packing, shadows->getNormalBias(), 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
 
                 float shadowInvProjDepthInfos[4] = {matShadowInvProj.m[10], matShadowInvProj.m[14], matShadowInvProj.m[11], matShadowInvProj.m[15]};
@@ -365,8 +368,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 break;
         }
 
-        float color[4] = {shadowInfo->color.x, shadowInfo->color.y, shadowInfo->color.z, shadowInfo->color.w};
-        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(float) * 4);
+        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, shadows->getShadowColor4f().data(), sizeof(float) * 4);
 
         descriptorSet->update();
 
@@ -378,9 +380,9 @@ bool RenderAdditiveLightQueue::getLightPassIndex(const scene::Model *model, vect
     lightPassIndices->clear();
     bool hasValidLightPass = false;
 
-    for (const auto *subModel : model->getSubModels()) {
+    for (const auto &subModel : model->getSubModels()) {
         int lightPassIndex = 0;
-        for (const auto *pass : subModel->getPasses()) {
+        for (const auto &pass : subModel->getPasses()) {
             if (pass->getPhase() == _phaseID) {
                 hasValidLightPass = true;
                 break;

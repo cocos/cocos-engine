@@ -25,14 +25,15 @@
 
 #pragma once
 
-#include "IOTypedArray.h"
 #include <functional>
+#include <utility>
+#include "IOTypedArray.h"
 
 MIDDLEWARE_BEGIN
 
 class SharedBufferManager {
 public:
-    SharedBufferManager(se::Object::TypedArrayType arrayType);
+    explicit SharedBufferManager(se::Object::TypedArrayType arrayType);
     virtual ~SharedBufferManager();
 
     void reset() {
@@ -43,9 +44,9 @@ public:
         return _buffer;
     }
 
-    typedef std::function<void()> resizeCallback;
+    using resizeCallback = std::function<void()>;
     void setResizeCallback(resizeCallback callback) {
-        _resizeCallback = callback;
+        _resizeCallback = std::move(callback);
     }
 
     se_object_ptr getSharedBuffer() const {
@@ -56,10 +57,9 @@ private:
     void init();
     void afterCleanupHandle();
 
-private:
     se::Object::TypedArrayType _arrayType;
-    IOTypedArray *_buffer = nullptr;
-    resizeCallback _resizeCallback = nullptr;
+    IOTypedArray *             _buffer         = nullptr;
+    resizeCallback             _resizeCallback = nullptr;
 };
 
 MIDDLEWARE_END

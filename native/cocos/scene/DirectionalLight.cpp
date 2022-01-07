@@ -24,12 +24,20 @@
  ****************************************************************************/
 
 #include "scene/DirectionalLight.h"
+#include "core/scene-graph/Node.h"
 
 namespace cc {
 namespace scene {
 
+void DirectionalLight::initialize() {
+    Light::initialize();
+
+    setIlluminance(Ambient::SUN_ILLUM);
+    _dir.set(1.0F, -1.0F, -1.0F);
+}
+
 void DirectionalLight::update() {
-    if (_node && _node->getFlagsChanged()) {
+    if (_node && _node->getChangedFlags()) {
         _dir = _forward;
         _node->updateWorldTransform();
         _dir.transformQuat(_node->getWorldRotation());
