@@ -42,7 +42,7 @@ CCProgram planar-shadow-vs %{
     vec3 P = (matWorld * position).xyz;
     vec3 L = cc_mainLitDir.xyz;
     vec3 N = cc_planarNDInfo.xyz;
-    float d = cc_planarNDInfo.w - 0.001;
+    float d = cc_planarNDInfo.w + 0.001;
     float dist = (-d - dot(P, N)) / (dot(L, N) + 0.0001);
     vec3 shadowPos = P + L * dist;
   
