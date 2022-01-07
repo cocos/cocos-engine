@@ -60,26 +60,24 @@ export const barFilled: IAssembler = {
                 return;
             }
 
-            if (this.updateVertexData) {
-                let fillStart = sprite.fillStart;
-                let fillRange = sprite.fillRange;
-                if (fillRange < 0) {
-                    fillStart += fillRange;
-                    fillRange = -fillRange;
-                }
-                fillRange = fillStart + fillRange;
-                fillStart = fillStart > 1.0 ? 1.0 : fillStart;
-                fillStart = fillStart < 0.0 ? 0.0 : fillStart;
-                fillRange = fillRange > 1.0 ? 1.0 : fillRange;
-                fillRange = fillRange < 0.0 ? 0.0 : fillRange;
-                fillRange -= fillStart;
-                fillRange = fillRange < 0 ? 0 : fillRange;
-                let fillEnd = fillStart + fillRange;
-                fillEnd = fillEnd > 1 ? 1 : fillEnd;
-
-                this.updateUVs(sprite, fillStart, fillEnd);
-                this.updateVertexData(sprite, fillStart, fillEnd);
+            let fillStart = sprite.fillStart;
+            let fillRange = sprite.fillRange;
+            if (fillRange < 0) {
+                fillStart += fillRange;
+                fillRange = -fillRange;
             }
+            fillRange = fillStart + fillRange;
+            fillStart = fillStart > 1.0 ? 1.0 : fillStart;
+            fillStart = fillStart < 0.0 ? 0.0 : fillStart;
+            fillRange = fillRange > 1.0 ? 1.0 : fillRange;
+            fillRange = fillRange < 0.0 ? 0.0 : fillRange;
+            fillRange -= fillStart;
+            fillRange = fillRange < 0 ? 0 : fillRange;
+            let fillEnd = fillStart + fillRange;
+            fillEnd = fillEnd > 1 ? 1 : fillEnd;
+
+            this.updateUVs(sprite, fillStart, fillEnd);
+            this.updateVertexData(sprite, fillStart, fillEnd);
         }
     },
 
@@ -228,9 +226,9 @@ export const barFilled: IAssembler = {
             const local = dataList[i];
             Vec3.transformMat4(vec3_temp, local, matrix);
             offset = i * stride;
-            vData[offset++] = vec3_temp.x;
-            vData[offset++] = vec3_temp.y;
-            vData[offset++] = vec3_temp.z;
+            vData[offset] = vec3_temp.x;
+            vData[offset + 1] = vec3_temp.y;
+            vData[offset + 2] = vec3_temp.z;
         }
     },
 
