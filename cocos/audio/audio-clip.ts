@@ -106,14 +106,6 @@ export class AudioClip extends Asset {
         return !!this._meta;
     }
 
-    public getDuration () {
-        // Dynamicly loaded audioClip._duration is 0
-        if (this._duration) {
-            return this._duration;
-        }
-        return this._meta ? this._meta.duration : 0;
-    }
-
     // #region deprecated method
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.state instead.
