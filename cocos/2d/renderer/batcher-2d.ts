@@ -50,7 +50,7 @@ import { StaticVBAccessor } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
-import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
+import { BaseRenderData, MeshRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
 const _dsInfo = new DescriptorSetInfo(null!);
@@ -71,44 +71,6 @@ export class Batcher2D implements IBatcher {
     get batches () {
         return this._batches;
     }
-
-    // public registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) {
-    //     let meshBuffer: MeshBuffer;
-    //     if (attributes instanceof MeshBuffer) {
-    //         meshBuffer = attributes;
-    //     } else {
-    //         meshBuffer = this._bufferBatchPool.add();
-    //         meshBuffer.initialize(this.device, attributes, callback || this._recreateMeshBuffer.bind(this, attributes));
-    //         if (!meshBuffer.accessor) {
-    //             meshBuffer.setAccessor(new LinearBufferAccessor());
-    //         }
-    //     }
-    //     const strideBytes = meshBuffer.vertexFormatBytes;
-    //     let buffers = this._customMeshBuffers.get(strideBytes);
-    //     if (!buffers) { buffers = []; this._customMeshBuffers.set(strideBytes, buffers); }
-    //     buffers.push(meshBuffer);
-    //     return meshBuffer;
-    // }
-
-    // public unRegisterCustomBuffer (buffer: MeshBuffer) {
-    //     const buffers = this._customMeshBuffers.get(buffer.vertexFormatBytes);
-    //     if (buffers) {
-    //         for (let i = 0; i < buffers.length; i++) {
-    //             if (buffers[i] === buffer) {
-    //                 buffers.splice(i, 1);
-    //                 break;
-    //             }
-    //         }
-    //     }
-
-    //     // release the buffer to recycle pool --
-    //     const idx = this._bufferBatchPool.data.indexOf(buffer);
-    //     if (idx !== -1) {
-    //         buffer.reset();
-    //         this._bufferBatchPool.removeAt(idx);
-    //     }
-    //     // ---
-    // }
 
     set currStaticRoot (value: UIStaticBatch | null) {
         this._currStaticRoot = value;
@@ -269,14 +231,6 @@ export class Batcher2D implements IBatcher {
                 accessor.reset();
             });
 
-            // const customs = this._customMeshBuffers;
-            // customs.forEach((value, key) => {
-            //     value.forEach((bb) => {
-            //         bb.uploadBuffers();
-            //         bb.reset();
-            //     });
-            // });
-
             this._descriptorSetCache.update();
         }
     }
@@ -311,7 +265,6 @@ export class Batcher2D implements IBatcher {
         this._meshBufferUseCount.clear();
         this._batches.clear();
         StencilManager.sharedManager!.reset();
-        this._descriptorSetCache.reset();
     }
 
     /**
@@ -463,6 +416,7 @@ export class Batcher2D implements IBatcher {
 
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
+        this._currRenderData = null;
         this._currComponent = null;
         this._currTransform = null;
         this._currTexture = null;
@@ -730,7 +684,7 @@ class LocalDescriptorSet  {
         this._textureHash = batch.textureHash;
         this._samplerHash = batch.samplerHash;
         _dsInfo.layout = batch.passes[0].localSetLayout;
-        this._descriptorSet =  device.createDescriptorSet(_dsInfo);
+        this._descriptorSet = device.createDescriptorSet(_dsInfo);
         this._descriptorSet!.bindBuffer(UBOLocal.BINDING, this._localBuffer!);
         const binding = ModelLocalBindings.SAMPLER_SPRITE;
         this._descriptorSet!.bindTexture(binding, batch.texture!);

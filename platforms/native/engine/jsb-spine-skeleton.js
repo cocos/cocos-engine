@@ -758,6 +758,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._nativeSkeleton && !this.isAnimationCached()) {
             return this._nativeSkeleton.getState();
         }
+        return null;
     };
 
     skeleton._ensureListener = function () {
@@ -792,7 +793,8 @@ const cacheManager = require('./jsb-cache-manager');
         this._stateData = null;
     };
 
-    const _tempAttachMat4 = new cc.mat4();
+    const _tempAttachMat4 = cc.mat4();
+    const _identityTrans = new cc.Node();
     let _tempVfmt; let _tempBufferIndex; let _tempIndicesOffset; let _tempIndicesCount;
 
     skeleton._render = function (ui) {
@@ -834,7 +836,7 @@ const cacheManager = require('./jsb-cache-manager');
                 tm.m12 = attachInfo[matOffset + 12];
                 tm.m13 = attachInfo[matOffset + 13];
                 boneNode.matrix = tm;
-                boneNode.scale = this.node.scale;
+                boneNode.scale = node.scale;
             }
         }
 
@@ -868,27 +870,14 @@ const cacheManager = require('./jsb-cache-manager');
                 renderInfo[renderInfoOffset + materialIdx++],
                 renderInfo[renderInfoOffset + materialIdx++],
                 useTint ? 1 : 0,
-);
+            );
 
             _tempBufferIndex = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesOffset = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
-            if (middleware.indicesStart != _tempIndicesOffset ||
-                middleware.preRenderBufferIndex != _tempBufferIndex ||
-                middleware.preRenderBufferType != _tempVfmt) {
-                // Firstly, when the first spine in the scene excutes this method, the preRenderComponent(the last rendered spine component) of middleware which is a singleton must be null.
-                // Then, autoMergeBatches(null) leads to that the 'indicesStart' is modified as the value of the 'indicesOffset'.
-                // At Last, there is another autoMergeBatches in commmitComp, but this function will not work under condition that 'indicesStart' equals to 'indicesOffset'.
-                if(middleware.preRenderComponent) {
-                    ui.autoMergeBatches(middleware.preRenderComponent);
-                }
-                middleware.resetIndicesStart = true;
-            } else {
-                middleware.resetIndicesStart = false;
-            }
-
-            ui.commitComp(this, realTexture, this._assembler, null);
+            const renderData = middleware.RenderInfoLookup[_tempVfmt][_tempBufferIndex];
+            ui.commitComp(this, renderData, realTexture, this._assembler, _identityTrans);
             this.material = mat;
         }
     };
@@ -901,24 +890,5 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     assembler.fillBuffers = function (comp, renderer) {
-        const nativeSkeleton = comp._skeleton;
-        if (!nativeSkeleton) return;
-
-        const node = comp.node;
-        if (!node) return;
-
-        const renderInfoLookup = middleware.RenderInfoLookup;
-        const buffer = renderInfoLookup[_tempVfmt][_tempBufferIndex];
-        renderer.currBufferBatch = buffer;
-
-        if (middleware.resetIndicesStart) {
-            buffer.indicesStart = _tempIndicesOffset;
-        }
-        buffer.indicesOffset = _tempIndicesOffset + _tempIndicesCount;
-
-        middleware.indicesStart = buffer.indicesOffset;
-        middleware.preRenderComponent = comp;
-        middleware.preRenderBufferIndex = _tempBufferIndex;
-        middleware.preRenderBufferType = _tempVfmt;
     };
 }());

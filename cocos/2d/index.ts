@@ -35,6 +35,7 @@ import {
     spriteAssembler,
     earcut,
 } from './assembler';
+import { RenderData, MeshRenderData, QuadRenderData } from './renderer/render-data';
 import { MeshBuffer } from './renderer/mesh-buffer';
 import { StencilManager } from './renderer/stencil-manager';
 import { legacyCC } from '../core/global-exports';
@@ -62,17 +63,10 @@ export {
 
 legacyCC.UI = {
     MeshBuffer,
-    // barFilled,
-    // radialFilled,
-    // simple,
-    // sliced,
-    // ttf,
-    // bmfont,
-    // letter,
-    // mask,
-    // maskEnd,
-    // graphics,
     spriteAssembler,
     graphicsAssembler,
     labelAssembler,
+    RenderData,
+    MeshRenderData,
+    QuadRenderData,
 };

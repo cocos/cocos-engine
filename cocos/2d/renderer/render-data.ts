@@ -268,7 +268,7 @@ export class MeshRenderData extends BaseRenderData {
             return;
         }
 
-        _meshDataPool.data[idx].reset();
+        _meshDataPool.data[idx].clear();
         _meshDataPool.removeAt(idx);
     }
 
@@ -360,7 +360,7 @@ export class MeshRenderData extends BaseRenderData {
             if (!vbs.length) {
                 vbs.push(device.createBuffer(new BufferInfo(
                     BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                    MemoryUsageBit.DEVICE,
                     vbStride,
                     vbStride,
                 )));
@@ -369,7 +369,7 @@ export class MeshRenderData extends BaseRenderData {
             if (!this._indexBuffer) {
                 this._indexBuffer = device.createBuffer(new BufferInfo(
                     BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                    MemoryUsageBit.DEVICE,
                     ibStride,
                     ibStride,
                 ));
@@ -383,7 +383,7 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     public uploadBuffers () {
-        if (this.byteCount === 0) {
+        if (this.byteCount === 0 || !this._vertexBuffers[0] || !this._indexBuffer) {
             return;
         }
 
@@ -420,14 +420,24 @@ export class MeshRenderData extends BaseRenderData {
         }
     }
 
+    public clear () {
+        this.reset();
+        this.vData = new Float32Array(256 * this.stride);
+        this.iData = new Uint16Array(256 * 6);
+    }
+
     protected _reallocBuffer (vCount, iCount) {
         // copy old data
         const oldVData = this.vData;
         this.vData = new Float32Array(vCount);
-        this.vData.set(oldVData, 0);
+        if (oldVData) {
+            this.vData.set(oldVData, 0);
+        }
         const oldIData = this.iData;
         this.iData = new Uint16Array(iCount);
-        this.iData.set(oldIData, 0);
+        if (oldIData) {
+            this.iData.set(oldIData, 0);
+        }
     }
 
     // overload

@@ -11,7 +11,7 @@ import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
 import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
 import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
-import { Color, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
+import { Color, Mat4, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 

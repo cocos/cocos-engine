@@ -42,12 +42,15 @@
     renderInfoLookup[nativeXYZUVC] = [];
     renderInfoLookup[nativeXYZUVCC] = [];
 
-    middleware.preRenderComponent = null;
-    middleware.preRenderBufferIndex = 0;
-    middleware.preRenderBufferType = nativeXYZUVC;
-    middleware.renderOrder = 0;
-    middleware.indicesStart = 0;
-    middleware.resetIndicesStart = false;
+    middleware.reset = function () {
+        middleware.preRenderComponent = null;
+        middleware.preRenderBufferIndex = 0;
+        middleware.preRenderBufferType = nativeXYZUVC;
+        middleware.renderOrder = 0;
+        middleware.indicesStart = 0;
+        middleware.resetIndicesStart = false;
+    };
+    middleware.reset();
     middleware.retain = function () {
         reference++;
     };
@@ -58,17 +61,14 @@
         }
         reference--;
         if (reference === 0) {
-            const batcher2D = director.root.batcher2D;
             const uvcBuffers = renderInfoLookup[nativeXYZUVC];
             for (let i = 0; i < uvcBuffers.length; i++) {
-                batcher2D.unRegisterCustomBuffer(uvcBuffers[i]);
-                uvcBuffers[i].destroy();
+                cc.UI.MeshRenderData.remove(uvcBuffers[i]);
             }
             uvcBuffers.length = 0;
             const uvccBuffers = renderInfoLookup[nativeXYZUVCC];
             for (let i = 0; i < uvccBuffers.length; i++) {
-                batcher2D.unRegisterCustomBuffer(uvccBuffers[i]);
-                uvccBuffers[i].destroy();
+                cc.UI.MeshRenderData.remove(uvccBuffers[i]);
             }
             uvccBuffers.length = 0;
         }
@@ -86,15 +86,10 @@
 
             let buffer = renderInfoLookup[nativeFormat][i];
             if (!buffer)  {
-                buffer = renderer.registerCustomBuffer(jsFormat);
+                buffer = cc.UI.MeshRenderData.add(jsFormat);
             }
-
             buffer.reset();
-
-            const isRecreate = buffer.request(srcVertexCount, srcIndicesCount);
-            if (!isRecreate) {
-                buffer = renderer.registerCustomBuffer(jsFormat);
-            }
+            buffer.request(srcVertexCount, srcIndicesCount);
 
             const vBuf = buffer.vData;
             const iBuf = buffer.iData;
@@ -106,10 +101,9 @@
             iBuf.set(srcIBuf.subarray(0, srcIndicesCount), 0);
 
             // forbid js upload data, call by middleware
-            buffer.uploadBuffers();
+            // buffer.uploadBuffers();
 
-            // forbid auto merge, because of it's meanless
-            buffer.indicesOffset = 0;
+            // forbid auto merge, because of it's meaningless
             renderInfoLookup[nativeFormat][i] = buffer;
         }
     }
@@ -124,12 +118,7 @@
         middlewareMgr.render(game.deltaTime);
 
         // reset render order
-        middleware.renderOrder = 0;
-        middleware.preRenderComponent = null;
-        middleware.preRenderBufferIndex = 0;
-        middleware.preRenderBufferType = nativeXYZUVC;
-        middleware.indicesStart = 0;
-        middleware.resetIndicesStart = false;
+        middleware.reset();
 
         const batcher2D = director.root.batcher2D;
         CopyNativeBufferToJS(batcher2D, nativeXYZUVC, vfmtPosUvColor);
