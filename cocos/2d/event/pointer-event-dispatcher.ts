@@ -135,6 +135,8 @@ class PointerEventDispatcher {
                     }
                 }
             }
+            // reset swallow state
+            eventTouch.preventSwallow = false;
         }
         const type = pointerEvent2SystemEvent[eventTouch.type];
         if (shouldDispatchToSystemEvent && type) {
