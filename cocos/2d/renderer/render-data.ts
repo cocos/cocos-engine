@@ -39,6 +39,7 @@ import { Renderable2D } from '../framework/renderable-2d';
 import { StaticVBChunk } from './static-vb-accessor';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 
 export interface IRenderData {
     x: number;
@@ -301,11 +302,11 @@ export class MeshRenderData extends BaseRenderData {
     /**
      * Number of indices
      */
-    public indicesStart = 0;
+    public indexStart = 0;
     public byteStart = 0;
     public byteCount = 0;
     // only for graphics
-    public lastFilledIndices = 0;
+    public lastFilledIndex = 0;
     public lastFilledVertex = 0;
 
     private _vertexBuffers: Buffer[] = [];
@@ -353,9 +354,12 @@ export class MeshRenderData extends BaseRenderData {
         return true;
     }
 
-    public relocate (vertexCount: number, indexCount: number) {
-        this._vc += vertexCount; // vertexOffset
-        this._ic += indexCount; // indicesOffset
+    public updateRange (vertexCount: number, indexCount: number) {
+        const vc = this._vc + vertexCount;
+        const ic = this._ic + indexCount;
+        assertIsTrue(vc >= 0 && ic >= 0);
+        this._vc = vc; // vertexOffset
+        this._ic = ic; // indicesOffset
         this.byteCount += vertexCount * this.stride;
     }
 
@@ -394,7 +398,7 @@ export class MeshRenderData extends BaseRenderData {
         }
 
         const verticesData = new Float32Array(this.vData.buffer, this.byteStart, this.byteCount >> 2);
-        const indicesData = new Uint16Array(this.iData.buffer, this.indicesStart << 1, this.indexCount);
+        const indicesData = new Uint16Array(this.iData.buffer, this.indexStart << 1, this.indexCount);
 
         const vertexBuffer = this._vertexBuffers[0];
         if (this.byteCount > vertexBuffer.size) {
@@ -414,9 +418,9 @@ export class MeshRenderData extends BaseRenderData {
         this._ic = 0;
         this.byteCount = 0;
         this.vertexStart = 0;
-        this.indicesStart = 0;
+        this.indexStart = 0;
         this.byteStart = 0;
-        this.lastFilledIndices = 0;
+        this.lastFilledIndex = 0;
         this.lastFilledVertex = 0;
         this.material = null;
         this._ia = null!;

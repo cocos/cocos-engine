@@ -1070,12 +1070,15 @@ const macro = {
      */
     ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
 
-	/**
-     * @zh
-     * 每个 MeshBuffer 占用内存的大小（字节），默认值在默认格式下可容纳 4096 个顶点（4096*9*4/1024）
-     * @default 144
+    /**
+     * @zh 每个 MeshBuffer 占用内存的大小（KB），主要在 2D 渲染组件的合批过程中使用。
+     * 默认值在标准格式（[[vfmtPosUvColor]]）下可容纳 4096 个顶点（4096*9*4/1024），你可以增加容量来提升每个批次可容纳的元素数量。
+     * @en Memory size (in KB) of each MeshBuffer, it's mainly used in 2d renderable component batcher.
+     * The default size can contain 4096 standard vertex ([[vfmtPosUvColor]]) in one buffer,
+     * you can user larger buffer size to increase the elements count per 2d draw batch.
+     * @default 144 KB
      */
-    BYTE_LENGTH_PER_MESH_BUFFER: 144,
+    SIZE_PER_MESH_BUFFER: 144,
 };
 
 legacyCC.macro = macro;

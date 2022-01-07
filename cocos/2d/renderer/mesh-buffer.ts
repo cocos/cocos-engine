@@ -33,6 +33,7 @@ import { warnID } from '../../core/platform/debug';
 import { macro } from '../../core';
 
 export class MeshBuffer {
+    public static IB_SCALE = 4; // ib size scale based on vertex count
     get attributes () { return this._attributes; }
     get vertexFormatBytes () { return this._vertexFormatBytes; }
     get vertexBuffers (): Readonly<Buffer[]> { return this._vertexBuffers; }
@@ -57,14 +58,12 @@ export class MeshBuffer {
     private _iaInfo: InputAssemblerInfo = null!;
     private _nextFreeIAHandle = 0;
 
-    private _ibScale = 4; // ib size scale based on vertex count
-
     public initialize (device: Device, attrs: Attribute[]) {
         const floatCount = getComponentPerVertex(attrs);
         const vbStride = this._vertexFormatBytes = floatCount * Float32Array.BYTES_PER_ELEMENT;
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-        this._initVDataCount = macro.BYTE_LENGTH_PER_MESH_BUFFER * 1024 / Float32Array.BYTES_PER_ELEMENT;
-        this._initIDataCount = this._initVDataCount * this._ibScale;
+        this._initVDataCount = macro.SIZE_PER_MESH_BUFFER * 1024 / Float32Array.BYTES_PER_ELEMENT;
+        this._initIDataCount = this._initVDataCount * MeshBuffer.IB_SCALE;
         this._attributes = attrs;
 
         this._vertexBuffers[0] = device.createBuffer(new BufferInfo(

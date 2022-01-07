@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @module ui
+ * @hidden
  */
 
 import { Device, Attribute } from '../../core/gfx';
@@ -45,6 +45,9 @@ const _entryPool = new Pool<IFreeEntry>(() => ({
     length: 0,
 }), 32);
 
+/**
+ * @internal
+ */
 export class StaticVBChunk {
     // public ib: Uint16Array;
     constructor (

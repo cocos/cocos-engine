@@ -70,3 +70,14 @@ removeProperty(MeshRenderData.prototype, 'MeshRenderData', [
         name: 'formatByte',
     },
 ]);
+
+replaceProperty(MeshRenderData.prototype, 'MeshRenderData', [
+    {
+        name: 'indicesStart',
+        newName: 'indexStart',
+    },
+    {
+        name: 'lastFilledIndices',
+        newName: 'lastFilledIndex',
+    },
+]);

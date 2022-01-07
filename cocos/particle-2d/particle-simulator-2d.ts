@@ -34,6 +34,7 @@ import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
+import { MeshRenderData } from '../2d/renderer/render-data';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
@@ -112,7 +113,7 @@ export class Simulator {
     public active = false;
     public uvFilled = 0;
     public finished = false;
-    public declare renderData;
+    public declare renderData: MeshRenderData;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
@@ -461,7 +462,7 @@ export class Simulator {
                 }
                 pool.put(deadParticle);
                 particles.length--;
-                renderData.relocate(-4, -6);
+                renderData.updateRange(-4, -6);
             }
         }
 
