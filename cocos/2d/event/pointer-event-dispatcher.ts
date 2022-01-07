@@ -89,8 +89,7 @@ class PointerEventDispatcher {
                 if (!eventMouse.preventSwallow) {
                     break;
                 } else {
-                    // reset swallow state
-                    eventMouse.preventSwallow = false;
+                    eventMouse.preventSwallow = false;  // reset swallow state
                 }
             }
         }
@@ -122,8 +121,7 @@ class PointerEventDispatcher {
                         if (!eventTouch.preventSwallow) {
                             break;
                         } else {
-                            // reset swallow state
-                            eventTouch.preventSwallow = false;
+                            eventTouch.preventSwallow = false;  // reset swallow state
                         }
                     }
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
@@ -138,8 +136,7 @@ class PointerEventDispatcher {
                         if (!eventTouch.preventSwallow) {
                             break;
                         } else {
-                            // reset swallow state
-                            eventTouch.preventSwallow = false;
+                            eventTouch.preventSwallow = false;  // reset swallow state
                         }
                     }
                 }
