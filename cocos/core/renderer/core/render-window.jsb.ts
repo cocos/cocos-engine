@@ -22,28 +22,24 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, editable, serializable } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
-import { RenderPassInfo, Swapchain } from "../../gfx";
+import { ccclass } from 'cc.decorator';
 
 export interface IRenderWindowInfo {
     title?: string;
     width: number;
     height: number;
-    renderPassInfo: RenderPassInfo;
-    swapchain?: Swapchain;
+    renderPassInfo: any;
+    swapchain?: any;
 }
 
+declare const jsb: any;
 export const RenderWindow = jsb.RenderWindow;
+// @ts-ignore
 export type RenderWindow = jsb.RenderWindow;
 
 const clsDecorator = ccclass('cc.RenderWindow');
 
-//TODO: 
+//TODO:
 // _applyDecoratedDescriptor
 
 clsDecorator(RenderWindow);

@@ -210,18 +210,6 @@ export const Skybox = jsb.Skybox;
 export type Skybox = jsb.Skybox;
 legacyCC.Skybox = Skybox;
 
-/**
- * Model related.
- */
-
-export enum ModelType {
-    DEFAULT,
-    SKINNING,
-    BAKED_SKINNING,
-    BATCH_2D,
-    PARTICLE_BATCH,
-    LINE,
-}
 export * from './model';
 
 export * from './render-scene';
