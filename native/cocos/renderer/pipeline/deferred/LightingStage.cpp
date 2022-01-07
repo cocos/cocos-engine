@@ -319,7 +319,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
     }
 
     struct RenderData {
-        framegraph::TextureHandle gbuffer[4]; // read from gbuffer stage
+        framegraph::TextureHandle gbuffer[3]; // read from gbuffer stage
         framegraph::TextureHandle outputTex;  // output texture
         framegraph::TextureHandle depth;
         framegraph::BufferHandle  lightBuffer;      // light storage buffer
@@ -337,7 +337,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         builder.subpass(true);
 
         // read gbuffer
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             data.gbuffer[i] = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i])));
             builder.writeToBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i], data.gbuffer[i]);
         }
@@ -351,16 +351,23 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         data.depth = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutDepthTexture));
         data.depth = builder.write(data.depth, depthAttachmentInfo);
+        data.depth = builder.read(data.depth);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
 
         if (_pipeline->getClusterEnabled()) {
             // read cluster and light info
             data.lightBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterLightBuffer));
-            builder.read(data.lightBuffer);
+            if (data.lightBuffer.isValid()) {
+                builder.read(data.lightBuffer);
+            }
             data.lightIndexBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterLightIndexBuffer));
-            builder.read(data.lightIndexBuffer);
+            if (data.lightIndexBuffer.isValid()) {
+                builder.read(data.lightIndexBuffer);
+            }
             data.lightGridBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterLightGridBuffer));
-            builder.read(data.lightGridBuffer);
+            if (data.lightGridBuffer.isValid()) {
+                builder.read(data.lightGridBuffer);
+            }
         }
 
         // write to lighting output
@@ -406,12 +413,20 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
             pass->getDescriptorSet()->bindTexture(i, table.getRead(data.gbuffer[i]));
             pass->getDescriptorSet()->bindSampler(i, _defaultSampler);
         }
+        pass->getDescriptorSet()->bindTexture(3, table.getRead(data.depth));
+        pass->getDescriptorSet()->bindSampler(3, _defaultSampler);
 
         if (_pipeline->getClusterEnabled()) {
             // cluster buffer bind
-            pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_BINDING, table.getRead(data.lightBuffer));
-            pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_INDEX_BINDING, table.getRead(data.lightIndexBuffer));
-            pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_GRID_BINDING, table.getRead(data.lightGridBuffer));
+            if (data.lightBuffer.isValid()) {
+                pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_BINDING, table.getRead(data.lightBuffer));
+            }
+            if (data.lightIndexBuffer.isValid()) {
+                pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_INDEX_BINDING, table.getRead(data.lightIndexBuffer));
+            }
+            if (data.lightGridBuffer.isValid()) {
+                pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_GRID_BINDING, table.getRead(data.lightGridBuffer));
+            }
         }
 
         pass->getDescriptorSet()->update();
@@ -491,8 +506,11 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
         auto *cmdBuff  = pipeline->getCommandBuffers()[0];
 
-        vector<uint> dynamicOffsets = {0};
-        cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
+        // no need to bind localSet in cluster
+        if (!_pipeline->getClusterEnabled()) {
+            vector<uint> dynamicOffsets = {0};
+            cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
+        }
 
         const std::array<uint, 1> globalOffsets = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());

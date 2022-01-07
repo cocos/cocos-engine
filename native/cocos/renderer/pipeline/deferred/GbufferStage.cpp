@@ -169,7 +169,7 @@ void GbufferStage::render(scene::Camera *camera) {
             static_cast<uint>(pipeline->getHeight() * shadingScale),
         };
         for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT - 1; ++i) {
-            if (i != 0) { // positions & normals need more precision
+            if (i != 0) { // normals need more precision
                 data.gbuffer[i] = builder.create(DeferredPipeline::fgStrHandleGbufferTexture[i], gbufferInfoFloat);
             } else {
                 data.gbuffer[i] = builder.create(DeferredPipeline::fgStrHandleGbufferTexture[i], gbufferInfo);
@@ -178,10 +178,10 @@ void GbufferStage::render(scene::Camera *camera) {
 
         auto subpassEnabled = _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT);
         if (subpassEnabled) {
-            // when subpass enabled, the color result (gles2/gles3) will write to gbuffer[3] and the blit to color texture, so the format should be RGBA16F
-            data.gbuffer[3] = builder.create(DeferredPipeline::fgStrHandleGbufferTexture[3], gbufferInfoFloat);
+            // when subpass enabled, the color result (gles2/gles3) will write to gbuffer[2] and the blit to color texture, so the format should be RGBA16F
+            data.gbuffer[2] = builder.create(DeferredPipeline::fgStrHandleGbufferTexture[2], gbufferInfoFloat);
         } else {
-            data.gbuffer[3] = builder.create(DeferredPipeline::fgStrHandleGbufferTexture[3], gbufferInfo);
+            data.gbuffer[2] = builder.create(DeferredPipeline::fgStrHandleGbufferTexture[2], gbufferInfo);
         }
 
         gfx::Color clearColor{0.0, 0.0, 0.0, 0.0};
