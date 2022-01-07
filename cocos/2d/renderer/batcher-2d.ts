@@ -700,13 +700,14 @@ class LocalDescriptorSet  {
         this.uploadLocalData();
     }
 
-    public updateLocal () {
-        if (!this._transform) return;
+    public updateLocal () : boolean {
+        if (!this._transform) return false;
         if (!this._transform.isValid) {
             this.reset();
-            return;
+            return false;
         }
         this.uploadLocalData();
+        return true;
     }
 
     public equals (transform, textureHash, samplerHash) {
@@ -805,9 +806,16 @@ class DescriptorSetCache {
 
     public update () {
         const caches = this._localDescriptorSetCache;
+        const uselessArray: number[] = [];
         caches.forEach((value) => {
-            value.updateLocal();
+            if (!value.updateLocal()) {
+                const pos = caches.indexOf(value);
+                uselessArray.push(pos);
+            }
         });
+        for (let i = 0, l = uselessArray.length; i < l; i++) {
+            caches.splice(uselessArray[i], 1);
+        }
     }
 
     public reset () {
