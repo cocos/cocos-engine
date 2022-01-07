@@ -709,6 +709,10 @@ class LocalDescriptorSet  {
         return this._transform === transform && this._textureHash === textureHash && this._samplerHash === samplerHash;
     }
 
+    public textureEquals (textureHash) {
+        return this._textureHash === textureHash;
+    }
+
     public reset () {
         this._transform = null;
         this._textureHash = 0;
@@ -734,10 +738,10 @@ class LocalDescriptorSet  {
         // @ts-expect-error TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
+            this._transformUpdate = true;
         }
         if (this._transformUpdate) {
-            // @ts-expect-error TS2445
-            const worldMatrix = node._mat;
+            const worldMatrix = node.worldMatrix;
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
             if (!JSB) {
@@ -821,6 +825,13 @@ class DescriptorSetCache {
             this._descriptorSetCache.delete(key);
             this._dsCacheHashByTexture.delete(textureHash);
         }
+
+        const localDS = this._localDescriptorSetCache;
+        localDS.forEach((value) => {
+            if (value.textureEquals(textureHash)) {
+                value.reset();
+            }
+        });
     }
 
     public destroy () {

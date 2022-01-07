@@ -1258,6 +1258,7 @@ export class Skeleton extends Renderable2D {
 
     public onDestroy () {
         this._cleanMaterialCache();
+        this._destroyTexture();
         this.destroyRenderData();
         super.onDestroy();
     }
@@ -1663,6 +1664,16 @@ export class Skeleton extends Renderable2D {
             this._materialCache[val].destroy();
         }
         this._materialCache = {};
+    }
+
+    private _destroyTexture () {
+        if (this._meshRenderDataArray.length > 0) {
+            this._meshRenderDataArray.forEach((rd) => {
+                if (rd.texture) {
+                    rd.texture.destroy();
+                }
+            });
+        }
     }
 }
 
