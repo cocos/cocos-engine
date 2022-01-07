@@ -476,7 +476,7 @@ class MorphUniforms {
  * @param vec4Capacity Capacity of vec4.
  */
 function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
-    const hasFeatureFloatTexture = gfxDevice.formatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET;
+    const hasFeatureFloatTexture = gfxDevice.getFormatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET;
 
     let pixelRequired: number;
     let pixelFormat: PixelFormat;

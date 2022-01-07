@@ -47,7 +47,7 @@ export const uploadJointData = uploadJointDataLBS;
 export const MINIMUM_JOINT_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: Device): Format {
-    if (device.formatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET) {
+    if (device.getFormatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET) {
         return Format.RGBA32F;
     }
     return Format.RGBA8;

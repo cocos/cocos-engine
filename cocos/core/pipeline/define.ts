@@ -598,20 +598,16 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
  * @en Does the device support half float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
  */
-export function supportsHalfFloatTexture (device: Device) {
-    return device.formatFeature(Format.RGBA16F) & FormatFeatureBit.RENDER_TARGET
-        && !device.getTextureExclusive(Format.RGBA16F)
-        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+export function supportsR32HalfFloatTexture (device: Device) {
+    return device.getFormatFeature(Format.R16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
 /**
  * @en Does the device support float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持浮点贴图？（颜色输出和采样）
  */
-export function supportsFloatTexture (device: Device) {
-    return device.formatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET
-        && !device.getTextureExclusive(Format.RGBA32F)
-     && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+export function supportsR32FloatTexture (device: Device) {
+    return device.getFormatFeature(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
 /* eslint-enable max-len */

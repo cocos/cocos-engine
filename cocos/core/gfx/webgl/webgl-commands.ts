@@ -826,7 +826,9 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
-        if (!device.getTextureExclusive(gpuTexture.format) && !device.extensions.WEBGL_depth_texture && FormatInfos[gpuTexture.format].hasDepth) {
+        // @ts-expect-error(2341) friend class access
+        const { _textureExclusive: textureExclusive } = device;
+        if (!textureExclusive && !device.extensions.WEBGL_depth_texture && FormatInfos[gpuTexture.format].hasDepth) {
             gpuTexture.glInternalFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format, gl);
             gpuTexture.glRenderbuffer = gl.createRenderbuffer();
             if (gpuTexture.size > 0) {

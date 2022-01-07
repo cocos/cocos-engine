@@ -645,7 +645,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
     protected _generateConstantMacros () {
         let str = '';
-        str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.formatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET ? 1 : 0}\n`;
+        str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.getFormatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET ? 1 : 0}\n`;
         str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${this._clusterEnabled ? 1 : 0}\n`;
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
