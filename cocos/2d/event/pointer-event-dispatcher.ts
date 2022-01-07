@@ -51,6 +51,7 @@ class PointerEventDispatcher {
 
         NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.ADD_POINTER_EVENT_PROCESSOR, this.addPointerEventProcessor, this);
         NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this.removePointerEventProcessor, this);
+        NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.MARK_LIST_DIRTY, this._markListDirty, this);
     }
 
     public addPointerEventProcessor (pointerEventProcessor: NodeEventProcessor) {
@@ -212,6 +213,10 @@ class PointerEventDispatcher {
         const priority2 = n2 ? n2.getSiblingIndex() : 0;
 
         return ex ? priority1 - priority2 : priority2 - priority1;
+    }
+
+    private _markListDirty () {
+        this._isListDirty = true;
     }
 }
 

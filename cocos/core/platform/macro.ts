@@ -47,7 +47,7 @@ const KEY = {
      * @en The back key on mobile phone
      * @zh 移动端返回键
      * @readonly
-     * @deprecated since v3.3
+     * @deprecated since v3.3, please use KeyCode.MOBILE_BACK instead.
      */
     back: 6,
     /**
