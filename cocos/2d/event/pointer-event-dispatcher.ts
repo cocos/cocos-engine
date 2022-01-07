@@ -90,6 +90,8 @@ class PointerEventDispatcher {
                     break;
                 }
             }
+            // reset swallow state
+            eventMouse.preventSwallow = false;
         }
         const type = pointerEvent2SystemEvent[eventMouse.type];
         if (shouldDispatchToSystemEvent && type) {
