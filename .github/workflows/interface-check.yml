@@ -35,8 +35,7 @@ jobs:
         working-directory: ./engine
         run: |
           git checkout .
-          rm -r ./node_modules
-          rm ./package-lock.json
+          git clean -xfd
           ls -la
 
       - name: checkout HEAD branch
