@@ -1,9 +1,9 @@
 {
-    "version": "v3d-gfx-84",
+    "version": "v3d-gfx-88",
     "from": {
         "type": "github",
         "owner": "cocos-creator",
         "name": "engine-native-external",
-        "checkout": "v3d-gfx-83"
+        "checkout": "v3d-gfx-88"
     }
 }
