@@ -94,16 +94,17 @@ export class RenderShadowMapBatchedQueue {
 
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
-        const dirShadowObjects = pipelineSceneData.dirShadowObjects;
-        const castShadowObjects = pipelineSceneData.castShadowObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
+            const dirShadowObjects = pipelineSceneData.dirShadowObjects;
+            const castShadowObjects = pipelineSceneData.castShadowObjects;
+
             switch (light.type) {
             case LightType.DIRECTIONAL:
                 for (let i = 0; i < dirShadowObjects.length; i++) {
                     const ro = dirShadowObjects[i];
                     const model = ro.model;
                     if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-                    this.add(model, cmdBuff, _shadowPassIndices);
+                    this.add(model, _shadowPassIndices);
                 }
                 break;
             case LightType.SPOT:
@@ -119,11 +120,14 @@ export class RenderShadowMapBatchedQueue {
                         if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
                     }
 
-                    this.add(model, cmdBuff, _shadowPassIndices);
+                    this.add(model, _shadowPassIndices);
                 }
                 break;
             default:
             }
+
+            this._instancedQueue.uploadBuffers(cmdBuff);
+            this._batchedQueue.uploadBuffers(cmdBuff);
         }
     }
 
@@ -139,7 +143,7 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue.clear();
     }
 
-    public add (model: Model, cmdBuff: CommandBuffer, _shadowPassIndices: number[]) {
+    public add (model: Model, _shadowPassIndices: number[]) {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
@@ -162,9 +166,6 @@ export class RenderShadowMapBatchedQueue {
                 this._passArray.push(pass);
             }
         }
-
-        this._instancedQueue.uploadBuffers(cmdBuff);
-        this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     /**

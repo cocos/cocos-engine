@@ -25,7 +25,7 @@
  */
 
 import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName, help } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { BAIDU, EDITOR } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
@@ -696,6 +696,11 @@ export class ShadowsInfo {
         }
     }
     get enabled () {
+        if (BAIDU) {
+            if (this._type !== ShadowType.Planar) {
+                this._enabled = false;
+            }
+        }
         return this._enabled;
     }
 
