@@ -700,16 +700,6 @@ class LocalDescriptorSet  {
         this.uploadLocalData();
     }
 
-    public updateLocal () : boolean {
-        if (!this._transform) return false;
-        if (!this._transform.isValid) {
-            this.reset();
-            return false;
-        }
-        this.uploadLocalData();
-        return true;
-    }
-
     public equals (transform, textureHash, samplerHash) {
         return this._transform === transform && this._textureHash === textureHash && this._samplerHash === samplerHash;
     }
@@ -734,7 +724,11 @@ class LocalDescriptorSet  {
         this._localData = null;
     }
 
-    private uploadLocalData () {
+    public isValid () {
+        return this._transform && this._transform.isValid;
+    }
+
+    public uploadLocalData () {
         const node = this._transform!;
         // @ts-expect-error TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
@@ -808,12 +802,15 @@ class DescriptorSetCache {
         const caches = this._localDescriptorSetCache;
         const uselessArray: number[] = [];
         caches.forEach((value) => {
-            if (!value.updateLocal()) {
+            if (value.isValid()) {
+                value.uploadLocalData();
+            } else {
+                value.reset();
                 const pos = caches.indexOf(value);
                 uselessArray.push(pos);
             }
         });
-        for (let i = 0, l = uselessArray.length; i < l; i++) {
+        for (let i = uselessArray.length - 1; i >= 0; i--) {
             caches.splice(uselessArray[i], 1);
         }
     }
