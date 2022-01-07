@@ -64,7 +64,7 @@ jobs:
 
       - uses: LouisBrunner/diff-action@v0.1.2
         with:
-          old: ../cc_base.d.ts
+          old: ./cc_base.d.ts
           new: ./engine/bin/.declarations/cc.d.ts
           mode: addition
           tolerance: worse
