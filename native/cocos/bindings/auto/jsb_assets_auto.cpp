@@ -851,8 +851,8 @@ bool js_register_assets_Asset(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineProperty("_nativeUrl", _SE(js_assets_Asset_get__nativeUrl), _SE(js_assets_Asset_set__nativeUrl));
     cls->defineProperty("_uuid", _SE(js_assets_Asset_getUuid_asGetter), _SE(js_assets_Asset_setUuid_asSetter));
     cls->defineProperty("nativeUrl", _SE(js_assets_Asset_getNativeUrl_asGetter), nullptr);
-    cls->defineProperty("isDefault", _SE(js_assets_Asset_isDefault_asGetter), nullptr);
     cls->defineProperty("_nativeDep", _SE(js_assets_Asset_getNativeDep_asGetter), nullptr);
+    cls->defineProperty("isDefault", _SE(js_assets_Asset_isDefault_asGetter), nullptr);
     cls->defineFunction("addRef", _SE(js_assets_Asset_addAssetRef));
     cls->defineFunction("createNode", _SE(js_assets_Asset_createNode));
     cls->defineFunction("decRef", _SE(js_assets_Asset_decAssetRef));
@@ -1551,9 +1551,9 @@ bool js_register_assets_TextureBase(se::Object* obj) // NOLINT(readability-ident
     cls->defineProperty("_anisotropy", _SE(js_assets_TextureBase_get__anisotropy), _SE(js_assets_TextureBase_set__anisotropy));
     cls->defineProperty("_width", _SE(js_assets_TextureBase_get__width), _SE(js_assets_TextureBase_set__width));
     cls->defineProperty("_height", _SE(js_assets_TextureBase_get__height), _SE(js_assets_TextureBase_set__height));
-    cls->defineProperty({"_height", "height"}, _SE(js_assets_TextureBase_getHeight_asGetter), _SE(js_assets_TextureBase_setHeight_asSetter));
     cls->defineProperty("isCompressed", _SE(js_assets_TextureBase_isCompressed_asGetter), nullptr);
     cls->defineProperty({"_width", "width"}, _SE(js_assets_TextureBase_getWidth_asGetter), _SE(js_assets_TextureBase_setWidth_asSetter));
+    cls->defineProperty({"_height", "height"}, _SE(js_assets_TextureBase_getHeight_asGetter), _SE(js_assets_TextureBase_setHeight_asSetter));
     cls->defineFunction("getAnisotropy", _SE(js_assets_TextureBase_getAnisotropy));
     cls->defineFunction("getGFXSampler", _SE(js_assets_TextureBase_getGFXSampler));
     cls->defineFunction("getGFXTexture", _SE(js_assets_TextureBase_getGFXTexture));
@@ -8809,9 +8809,9 @@ bool js_register_assets_EffectAsset(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("EffectAsset", obj, __jsb_cc_Asset_proto, _SE(js_assets_EffectAsset_constructor));
 
-    cls->defineProperty("combinations", _SE(js_assets_EffectAsset_getCombinations_asGetter), _SE(js_assets_EffectAsset_setCombinations_asSetter));
-    cls->defineProperty("shaders", _SE(js_assets_EffectAsset_getShaders_asGetter), _SE(js_assets_EffectAsset_setShaders_asSetter));
     cls->defineProperty("techniques", _SE(js_assets_EffectAsset_getTechniques_asGetter), _SE(js_assets_EffectAsset_setTechniques_asSetter));
+    cls->defineProperty("shaders", _SE(js_assets_EffectAsset_getShaders_asGetter), _SE(js_assets_EffectAsset_setShaders_asSetter));
+    cls->defineProperty("combinations", _SE(js_assets_EffectAsset_getCombinations_asGetter), _SE(js_assets_EffectAsset_setCombinations_asSetter));
     cls->defineStaticFunction("get", _SE(js_assets_EffectAsset_get_static));
     cls->defineStaticFunction("getAll", _SE(js_assets_EffectAsset_getAll_static));
     cls->defineStaticFunction("register", _SE(js_assets_EffectAsset_registerAsset_static));
@@ -9300,8 +9300,8 @@ bool js_register_assets_ImageAsset(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("ImageAsset", obj, __jsb_cc_Asset_proto, _SE(js_assets_ImageAsset_constructor));
 
-    cls->defineProperty("url", _SE(js_assets_ImageAsset_getUrl_asGetter), _SE(js_assets_ImageAsset_setUrl_asSetter));
     cls->defineProperty("format", _SE(js_assets_ImageAsset_getFormat_asGetter), _SE(js_assets_ImageAsset_setFormat_asSetter));
+    cls->defineProperty("url", _SE(js_assets_ImageAsset_getUrl_asGetter), _SE(js_assets_ImageAsset_setUrl_asSetter));
     cls->defineFunction("getData", _SE(js_assets_ImageAsset_getData));
     cls->defineFunction("getHeight", _SE(js_assets_ImageAsset_getHeight));
     cls->defineFunction("getUrl", _SE(js_assets_ImageAsset_getUrl));
@@ -10810,11 +10810,11 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("_defines", _SE(js_assets_Material_get__defines), _SE(js_assets_Material_set__defines));
     cls->defineProperty("_states", _SE(js_assets_Material_get__states), _SE(js_assets_Material_set__states));
     cls->defineProperty("_propsInternal", _SE(js_assets_Material_get__props), _SE(js_assets_Material_set__props));
-    cls->defineProperty("hash", _SE(js_assets_Material_getHashForJS_asGetter), nullptr);
-    cls->defineProperty("technique", _SE(js_assets_Material_getTechniqueIndex_asGetter), nullptr);
-    cls->defineProperty("effectName", _SE(js_assets_Material_getEffectName_asGetter), nullptr);
-    cls->defineProperty("parent", _SE(js_assets_Material_getParent_asGetter), nullptr);
     cls->defineProperty("effectAsset", _SE(js_assets_Material_getEffectAsset_asGetter), _SE(js_assets_Material_setEffectAsset_asSetter));
+    cls->defineProperty("effectName", _SE(js_assets_Material_getEffectName_asGetter), nullptr);
+    cls->defineProperty("technique", _SE(js_assets_Material_getTechniqueIndex_asGetter), nullptr);
+    cls->defineProperty("hash", _SE(js_assets_Material_getHashForJS_asGetter), nullptr);
+    cls->defineProperty("parent", _SE(js_assets_Material_getParent_asGetter), nullptr);
     cls->defineFunction("copy", _SE(js_assets_Material_copy));
     cls->defineFunction("getPasses", _SE(js_assets_Material_getPasses));
     cls->defineFunction("_getProperty", _SE(js_assets_Material_getProperty));
@@ -12752,12 +12752,12 @@ bool js_register_assets_RenderingSubMesh(se::Object* obj) // NOLINT(readability-
 {
     auto* cls = se::Class::create("RenderingSubMesh", obj, __jsb_cc_Asset_proto, _SE(js_assets_RenderingSubMesh_constructor));
 
-    cls->defineProperty("primitiveMode", _SE(js_assets_RenderingSubMesh_getPrimitiveMode_asGetter), nullptr);
-    cls->defineProperty({"iaInfo", "_iaInfo"}, _SE(js_assets_RenderingSubMesh_getIaInfo_asGetter), nullptr);
-    cls->defineProperty("jointMappedBuffers", _SE(js_assets_RenderingSubMesh_getJointMappedBuffers_asGetter), nullptr);
-    cls->defineProperty({"flatBuffers", "_flatBuffers"}, _SE(js_assets_RenderingSubMesh_getFlatBuffers_asGetter), _SE(js_assets_RenderingSubMesh_setFlatBuffers_asSetter));
     cls->defineProperty("mesh", _SE(js_assets_RenderingSubMesh_getMesh_asGetter), _SE(js_assets_RenderingSubMesh_setMesh_asSetter));
     cls->defineProperty("subMeshIdx", _SE(js_assets_RenderingSubMesh_getSubMeshIdx_asGetter), _SE(js_assets_RenderingSubMesh_setSubMeshIdx_asSetter));
+    cls->defineProperty({"flatBuffers", "_flatBuffers"}, _SE(js_assets_RenderingSubMesh_getFlatBuffers_asGetter), _SE(js_assets_RenderingSubMesh_setFlatBuffers_asSetter));
+    cls->defineProperty("jointMappedBuffers", _SE(js_assets_RenderingSubMesh_getJointMappedBuffers_asGetter), nullptr);
+    cls->defineProperty({"iaInfo", "_iaInfo"}, _SE(js_assets_RenderingSubMesh_getIaInfo_asGetter), nullptr);
+    cls->defineProperty("primitiveMode", _SE(js_assets_RenderingSubMesh_getPrimitiveMode_asGetter), nullptr);
     cls->defineFunction("enableVertexIdChannel", _SE(js_assets_RenderingSubMesh_enableVertexIdChannel));
     cls->defineFunction("genFlatBuffers", _SE(js_assets_RenderingSubMesh_genFlatBuffers));
     cls->defineFunction("getAttributes", _SE(js_assets_RenderingSubMesh_getAttributes));
@@ -16395,14 +16395,14 @@ bool js_register_assets_Mesh(se::Object* obj) // NOLINT(readability-identifier-n
     auto* cls = se::Class::create("Mesh", obj, __jsb_cc_Asset_proto, _SE(js_assets_Mesh_constructor));
 
     cls->defineProperty("morphRendering", _SE(js_assets_Mesh_get_morphRendering), _SE(js_assets_Mesh_set_morphRendering));
-    cls->defineProperty("subMeshCount", _SE(js_assets_Mesh_getSubMeshCount_asGetter), nullptr);
-    cls->defineProperty("maxPosition", _SE(js_assets_Mesh_getMaxPosition_asGetter), nullptr);
-    cls->defineProperty("renderingSubMeshes", _SE(js_assets_Mesh_getRenderingSubMeshes_asGetter), nullptr);
-    cls->defineProperty("_nativeAsset", _SE(js_assets_Mesh_getAssetData_asGetter), _SE(js_assets_Mesh_setAssetData_asSetter));
     cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Mesh_getHashForJS_asGetter), _SE(js_assets_Mesh_setHash_asSetter));
-    cls->defineProperty("jointBufferIndices", _SE(js_assets_Mesh_getJointBufferIndices_asGetter), nullptr);
     cls->defineProperty({"data", "_data"}, _SE(js_assets_Mesh_getData_asGetter), _SE(js_assets_Mesh_setData_asSetter));
+    cls->defineProperty("jointBufferIndices", _SE(js_assets_Mesh_getJointBufferIndices_asGetter), nullptr);
+    cls->defineProperty("maxPosition", _SE(js_assets_Mesh_getMaxPosition_asGetter), nullptr);
     cls->defineProperty("minPosition", _SE(js_assets_Mesh_getMinPosition_asGetter), nullptr);
+    cls->defineProperty("renderingSubMeshes", _SE(js_assets_Mesh_getRenderingSubMeshes_asGetter), nullptr);
+    cls->defineProperty("subMeshCount", _SE(js_assets_Mesh_getSubMeshCount_asGetter), nullptr);
+    cls->defineProperty("_nativeAsset", _SE(js_assets_Mesh_getAssetData_asGetter), _SE(js_assets_Mesh_setAssetData_asSetter));
     cls->defineFunction("assign", _SE(js_assets_Mesh_assign));
     cls->defineFunction("copyAttribute", _SE(js_assets_Mesh_copyAttribute));
     cls->defineFunction("copyIndices", _SE(js_assets_Mesh_copyIndices));

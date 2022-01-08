@@ -15127,9 +15127,9 @@ bool js_register_gfx_GFXObject(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("GFXObject", obj, nullptr, _SE(js_gfx_GFXObject_constructor));
 
-    cls->defineProperty("typedID", _SE(js_gfx_GFXObject_getTypedID_asGetter), nullptr);
-    cls->defineProperty("objectID", _SE(js_gfx_GFXObject_getObjectID_asGetter), nullptr);
     cls->defineProperty("objectType", _SE(js_gfx_GFXObject_getObjectType_asGetter), nullptr);
+    cls->defineProperty("objectID", _SE(js_gfx_GFXObject_getObjectID_asGetter), nullptr);
+    cls->defineProperty("typedID", _SE(js_gfx_GFXObject_getTypedID_asGetter), nullptr);
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GFXObject_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GFXObject>(cls);
@@ -15351,12 +15351,12 @@ bool js_register_gfx_Buffer(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Buffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Buffer_constructor));
 
-    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount_asGetter), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage_asGetter), nullptr);
     cls->defineProperty("memUsage", _SE(js_gfx_Buffer_getMemUsage_asGetter), nullptr);
     cls->defineProperty("stride", _SE(js_gfx_Buffer_getStride_asGetter), nullptr);
-    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags_asGetter), nullptr);
-    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage_asGetter), nullptr);
+    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount_asGetter), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Buffer_getSize_asGetter), nullptr);
+    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Buffer_destroy));
     cls->defineFunction("isBufferView", _SE(js_gfx_Buffer_isBufferView));
     cls->defineFunction("resize", _SE(js_gfx_Buffer_resize));
@@ -15809,19 +15809,19 @@ bool js_register_gfx_InputAssembler(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("InputAssembler", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_InputAssembler_constructor));
 
-    cls->defineProperty("instanceCount", _SE(js_gfx_InputAssembler_getInstanceCount_asGetter), _SE(js_gfx_InputAssembler_setInstanceCount_asSetter));
     cls->defineProperty("vertexBuffers", _SE(js_gfx_InputAssembler_getVertexBuffers_asGetter), nullptr);
-    cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash_asGetter), nullptr);
-    cls->defineProperty("firstInstance", _SE(js_gfx_InputAssembler_getFirstInstance_asGetter), _SE(js_gfx_InputAssembler_setFirstInstance_asSetter));
-    cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount_asGetter), _SE(js_gfx_InputAssembler_setVertexCount_asSetter));
-    cls->defineProperty("drawInfo", _SE(js_gfx_InputAssembler_getDrawInfo_asGetter), nullptr);
-    cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer_asGetter), nullptr);
-    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset_asGetter), _SE(js_gfx_InputAssembler_setVertexOffset_asSetter));
     cls->defineProperty("attributes", _SE(js_gfx_InputAssembler_getAttributes_asGetter), nullptr);
+    cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer_asGetter), nullptr);
+    cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer_asGetter), nullptr);
+    cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash_asGetter), nullptr);
+    cls->defineProperty("drawInfo", _SE(js_gfx_InputAssembler_getDrawInfo_asGetter), nullptr);
+    cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount_asGetter), _SE(js_gfx_InputAssembler_setVertexCount_asSetter));
+    cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex_asGetter), _SE(js_gfx_InputAssembler_setFirstVertex_asSetter));
     cls->defineProperty("indexCount", _SE(js_gfx_InputAssembler_getIndexCount_asGetter), _SE(js_gfx_InputAssembler_setIndexCount_asSetter));
     cls->defineProperty("firstIndex", _SE(js_gfx_InputAssembler_getFirstIndex_asGetter), _SE(js_gfx_InputAssembler_setFirstIndex_asSetter));
-    cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer_asGetter), nullptr);
-    cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex_asGetter), _SE(js_gfx_InputAssembler_setFirstVertex_asSetter));
+    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset_asGetter), _SE(js_gfx_InputAssembler_setVertexOffset_asSetter));
+    cls->defineProperty("instanceCount", _SE(js_gfx_InputAssembler_getInstanceCount_asGetter), _SE(js_gfx_InputAssembler_setInstanceCount_asSetter));
+    cls->defineProperty("firstInstance", _SE(js_gfx_InputAssembler_getFirstInstance_asGetter), _SE(js_gfx_InputAssembler_setFirstInstance_asSetter));
     cls->defineFunction("destroy", _SE(js_gfx_InputAssembler_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_InputAssembler_initialize));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_InputAssembler_finalize));
@@ -17489,8 +17489,8 @@ bool js_register_gfx_Framebuffer(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Framebuffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Framebuffer_constructor));
 
-    cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures_asGetter), nullptr);
     cls->defineProperty("renderPass", _SE(js_gfx_Framebuffer_getRenderPass_asGetter), nullptr);
+    cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures_asGetter), nullptr);
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_Framebuffer_getDepthStencilTexture_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Framebuffer_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_Framebuffer_initialize));
@@ -17843,14 +17843,14 @@ bool js_register_gfx_PipelineState(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("PipelineState", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_PipelineState_constructor));
 
-    cls->defineProperty("primitive", _SE(js_gfx_PipelineState_getPrimitive_asGetter), nullptr);
-    cls->defineProperty("rasterizerState", _SE(js_gfx_PipelineState_getRasterizerState_asGetter), nullptr);
     cls->defineProperty("shader", _SE(js_gfx_PipelineState_getShader_asGetter), nullptr);
+    cls->defineProperty("primitive", _SE(js_gfx_PipelineState_getPrimitive_asGetter), nullptr);
+    cls->defineProperty("bindPoint", _SE(js_gfx_PipelineState_getBindPoint_asGetter), nullptr);
+    cls->defineProperty("inputState", _SE(js_gfx_PipelineState_getInputState_asGetter), nullptr);
+    cls->defineProperty("rasterizerState", _SE(js_gfx_PipelineState_getRasterizerState_asGetter), nullptr);
+    cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineState_getDepthStencilState_asGetter), nullptr);
     cls->defineProperty("blendState", _SE(js_gfx_PipelineState_getBlendState_asGetter), nullptr);
     cls->defineProperty("renderPass", _SE(js_gfx_PipelineState_getRenderPass_asGetter), nullptr);
-    cls->defineProperty("inputState", _SE(js_gfx_PipelineState_getInputState_asGetter), nullptr);
-    cls->defineProperty("bindPoint", _SE(js_gfx_PipelineState_getBindPoint_asGetter), nullptr);
-    cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineState_getDepthStencilState_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_PipelineState_destroy));
     cls->defineFunction("getDynamicStates", _SE(js_gfx_PipelineState_getDynamicStates));
     cls->defineFunction("getPipelineLayout", _SE(js_gfx_PipelineState_getPipelineLayout));
@@ -18588,10 +18588,10 @@ bool js_register_gfx_Shader(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Shader", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Shader_constructor));
 
-    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes_asGetter), nullptr);
-    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages_asGetter), nullptr);
-    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks_asGetter), nullptr);
     cls->defineProperty("name", _SE(js_gfx_Shader_getName_asGetter), nullptr);
+    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages_asGetter), nullptr);
+    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes_asGetter), nullptr);
+    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks_asGetter), nullptr);
     cls->defineProperty("samplers", _SE(js_gfx_Shader_getSamplers_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Shader_destroy));
     cls->defineFunction("getBuffers", _SE(js_gfx_Shader_getBuffers));
@@ -18857,12 +18857,12 @@ bool js_register_gfx_Texture(se::Object* obj) // NOLINT(readability-identifier-n
     auto* cls = se::Class::create("Texture", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Texture_constructor));
 
     cls->defineProperty("info", _SE(js_gfx_Texture_getInfo_asGetter), nullptr);
-    cls->defineProperty("hash", _SE(js_gfx_Texture_getHash_asGetter), nullptr);
-    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat_asGetter), nullptr);
-    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight_asGetter), nullptr);
-    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth_asGetter), nullptr);
     cls->defineProperty("viewInfo", _SE(js_gfx_Texture_getViewInfo_asGetter), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth_asGetter), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight_asGetter), nullptr);
+    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat_asGetter), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Texture_getSize_asGetter), nullptr);
+    cls->defineProperty("hash", _SE(js_gfx_Texture_getHash_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Texture_destroy));
     cls->defineFunction("isTextureView", _SE(js_gfx_Texture_isTextureView));
     cls->defineFunction("resize", _SE(js_gfx_Texture_resize));
@@ -19126,10 +19126,10 @@ bool js_register_gfx_Swapchain(se::Object* obj) // NOLINT(readability-identifier
     auto* cls = se::Class::create("Swapchain", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Swapchain_constructor));
 
     cls->defineProperty("width", _SE(js_gfx_Swapchain_getWidth_asGetter), nullptr);
-    cls->defineProperty("surfaceTransform", _SE(js_gfx_Swapchain_getSurfaceTransform_asGetter), nullptr);
-    cls->defineProperty("depthStencilTexture", _SE(js_gfx_Swapchain_getDepthStencilTexture_asGetter), nullptr);
-    cls->defineProperty("colorTexture", _SE(js_gfx_Swapchain_getColorTexture_asGetter), nullptr);
     cls->defineProperty("height", _SE(js_gfx_Swapchain_getHeight_asGetter), nullptr);
+    cls->defineProperty("surfaceTransform", _SE(js_gfx_Swapchain_getSurfaceTransform_asGetter), nullptr);
+    cls->defineProperty("colorTexture", _SE(js_gfx_Swapchain_getColorTexture_asGetter), nullptr);
+    cls->defineProperty("depthStencilTexture", _SE(js_gfx_Swapchain_getDepthStencilTexture_asGetter), nullptr);
     cls->defineFunction("createSurface", _SE(js_gfx_Swapchain_createSurface));
     cls->defineFunction("destroy", _SE(js_gfx_Swapchain_destroy));
     cls->defineFunction("destroySurface", _SE(js_gfx_Swapchain_destroySurface));
@@ -20217,17 +20217,17 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr);
 
+    cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI_asGetter), nullptr);
     cls->defineProperty("deviceName", _SE(js_gfx_Device_getDeviceName_asGetter), nullptr);
+    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus_asGetter), nullptr);
+    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue_asGetter), nullptr);
+    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer_asGetter), nullptr);
+    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer_asGetter), nullptr);
     cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor_asGetter), nullptr);
     cls->defineProperty("numDrawCalls", _SE(js_gfx_Device_getNumDrawCalls_asGetter), nullptr);
-    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus_asGetter), nullptr);
-    cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI_asGetter), nullptr);
-    cls->defineProperty("capabilities", _SE(js_gfx_Device_getCapabilities_asGetter), nullptr);
-    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris_asGetter), nullptr);
-    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue_asGetter), nullptr);
-    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer_asGetter), nullptr);
-    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer_asGetter), nullptr);
     cls->defineProperty("numInstances", _SE(js_gfx_Device_getNumInstances_asGetter), nullptr);
+    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris_asGetter), nullptr);
+    cls->defineProperty("capabilities", _SE(js_gfx_Device_getCapabilities_asGetter), nullptr);
     cls->defineFunction("acquire", _SE(js_gfx_Device_acquire));
     cls->defineFunction("bindingMappingInfo", _SE(js_gfx_Device_bindingMappingInfo));
     cls->defineFunction("createCommandBuffer", _SE(js_gfx_Device_createCommandBuffer));

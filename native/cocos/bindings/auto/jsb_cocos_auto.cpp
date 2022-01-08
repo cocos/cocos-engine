@@ -1767,17 +1767,17 @@ bool js_register_engine_ICanvasRenderingContext2D(se::Object* obj) // NOLINT(rea
 {
     auto* cls = se::Class::create("ICanvasRenderingContext2D", obj, __jsb_cc_OSInterface_proto, nullptr);
 
-    cls->defineProperty("strokeStyle", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setStrokeStyle_asSetter));
-    cls->defineProperty("lineWidth", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineWidth_asSetter));
-    cls->defineProperty("lineCap", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineCap_asSetter));
-    cls->defineProperty("globalCompositeOperation", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation_asSetter));
-    cls->defineProperty("fillStyle", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setFillStyle_asSetter));
-    cls->defineProperty("height", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setHeight_asSetter));
     cls->defineProperty("width", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setWidth_asSetter));
-    cls->defineProperty("textBaseline", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setTextBaseline_asSetter));
-    cls->defineProperty("lineJoin", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineJoin_asSetter));
+    cls->defineProperty("height", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setHeight_asSetter));
+    cls->defineProperty("fillStyle", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setFillStyle_asSetter));
     cls->defineProperty("font", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setFont_asSetter));
+    cls->defineProperty("globalCompositeOperation", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation_asSetter));
+    cls->defineProperty("lineCap", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineCap_asSetter));
+    cls->defineProperty("lineJoin", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineJoin_asSetter));
+    cls->defineProperty("lineWidth", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineWidth_asSetter));
+    cls->defineProperty("strokeStyle", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setStrokeStyle_asSetter));
     cls->defineProperty("textAlign", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setTextAlign_asSetter));
+    cls->defineProperty("textBaseline", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setTextBaseline_asSetter));
     cls->defineFunction("beginPath", _SE(js_engine_ICanvasRenderingContext2D_beginPath));
     cls->defineFunction("clearRect", _SE(js_engine_ICanvasRenderingContext2D_clearRect));
     cls->defineFunction("closePath", _SE(js_engine_ICanvasRenderingContext2D_closePath));
@@ -2629,9 +2629,9 @@ bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifi
 
     cls->defineProperty("_objFlags", _SE(js_engine_CCObject_get__objFlags), _SE(js_engine_CCObject_set__objFlags));
     cls->defineProperty("_name", _SE(js_engine_CCObject_get__name), _SE(js_engine_CCObject_set__name));
+    cls->defineProperty("name", _SE(js_engine_CCObject_getName_asGetter), _SE(js_engine_CCObject_setName_asSetter));
     cls->defineProperty("hideFlags", _SE(js_engine_CCObject_getHideFlags_asGetter), _SE(js_engine_CCObject_setHideFlags_asSetter));
     cls->defineProperty("replicated", _SE(js_engine_CCObject_isReplicated_asGetter), _SE(js_engine_CCObject_setReplicated_asSetter));
-    cls->defineProperty("name", _SE(js_engine_CCObject_getName_asGetter), _SE(js_engine_CCObject_setName_asSetter));
     cls->defineProperty("isValid", _SE(js_engine_CCObject_isValid_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_engine_CCObject_destroy));
     cls->defineFunction("_destroyImmediate", _SE(js_engine_CCObject_destroyImmediate));
