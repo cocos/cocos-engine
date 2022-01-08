@@ -220,7 +220,9 @@ Java_com_cocos_lib_JsbBridge_nativeSendToScript(JNIEnv *env, jclass clazz, jstri
 ScriptNativeBridge* ScriptNativeBridge::bridgeCxxInstance{nullptr};
 
 JavaScriptJavaBridge::CallInfo::~CallInfo() {
+    _mEnv->DeleteLocalRef(_mClassID);
     if (_mReturnType == ValueType::STRING && _mRet.stringValue) {
+        _mEnv->DeleteLocalRef(_mRetjstring);
         delete _mRet.stringValue;
     }
 }
