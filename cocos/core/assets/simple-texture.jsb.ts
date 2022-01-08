@@ -23,14 +23,15 @@
  THE SOFTWARE.
 */
 import { ccclass } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import { macro } from '../platform';
+import dependUtil from '../asset-manager/depend-util';
+import { fastRemoveAt } from '../utils/array';
 
+declare const jsb: any;
+
+// @ts-ignore
 export type SimpleTexture = jsb.SimpleTexture;
 export const SimpleTexture: any = jsb.SimpleTexture;
 
@@ -43,8 +44,10 @@ const oldUpdateDataFunc = simpleTextureProto.uploadData;
 simpleTextureProto.uploadData = function (source, level = 0, arrayIndex = 0) {
     let data;
     if (source instanceof HTMLCanvasElement) {
+        // @ts-ignore
         data = source.data;
     } else if (source instanceof HTMLImageElement) {
+        // @ts-ignore
         data = source._data;
     } else if (ArrayBuffer.isView(source)) {
         data = source.buffer;
@@ -57,7 +60,7 @@ const clsDecorator = ccclass('cc.SimpleTexture');
 simpleTextureProto._ctor = function () {
     jsb.TextureBase.prototype._ctor.apply(this, arguments);
     this._gfxTexture = null;
-    this._registerGFXTextureUpdatedListener();
+    this._registerListeners();
 };
 
 const oldGetGFXTexture = simpleTextureProto.getGFXTexture;
@@ -70,6 +73,17 @@ simpleTextureProto.getGFXTexture = function () {
 
 simpleTextureProto._onGFXTextureUpdated = function (gfxTexture) {
     this._gfxTexture = gfxTexture;
+};
+
+simpleTextureProto._onAfterAssignImage = function (image) {
+    if (macro.CLEANUP_IMAGE_CACHE) {
+        const deps = dependUtil.getDeps(this._uuid);
+        const index = deps.indexOf(image._uuid);
+        if (index !== -1) {
+            fastRemoveAt(deps, index);
+            image.decRef();
+        }
+    }
 };
 
 clsDecorator(SimpleTexture);

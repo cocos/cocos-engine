@@ -31,11 +31,13 @@ import {
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 
+declare const jsb: any;
 const renderTextureProto: any = jsb.RenderTexture.prototype;
 const textureBaseProto: any = jsb.TextureBase.prototype;
 
 renderTextureProto.createNode = null!;
 
+// @ts-ignore
 export type RenderTexture = jsb.RenderTexture;
 export const RenderTexture: any = jsb.RenderTexture;
 

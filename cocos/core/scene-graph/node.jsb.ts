@@ -48,7 +48,10 @@ import {
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
 
+declare const jsb: any;
+
 export const Node = jsb.Node;
+// @ts-ignore
 export type Node = jsb.Node;
 legacyCC.Node = Node;
 
@@ -491,7 +494,9 @@ NodeCls._findChildComponents = function (children, constructor, components) {
  * @en Determine whether the given object is a normal Node. Will return false if [[Scene]] given.
  * @zh 指定对象是否是普通的节点？如果传入 [[Scene]] 会返回 false。
  */
+// @ts-ignore
 NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
+    // @ts-ignore
     return obj instanceof jsb.Node && (obj.constructor === jsb.Node || !(obj instanceof legacyCC.Scene));
 };
 

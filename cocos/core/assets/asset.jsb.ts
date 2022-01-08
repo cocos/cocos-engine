@@ -34,6 +34,9 @@ import { applyMixins } from '../event/event-target-factory';
 import { createMap } from '../utils/js-typed';
 import { property } from '../data/class-decorator';
 import { getUrlWithUuid } from '../asset-manager/helper';
+import { extname } from '../utils/path';
+
+declare const jsb: any;
 
 /**
  * @param error - null or the error info
@@ -46,6 +49,7 @@ applyMixins(jsb.Asset, [CallbacksInvoker]);
 const assetProto: any = jsb.Asset.prototype;
 
 assetProto._ctor = function () {
+    this._ref = 0;
     this.__nativeRefs = {};
     this.__jsb_ref_id = undefined;
     this._iN$t = null;
@@ -88,8 +92,34 @@ Object.defineProperty (assetProto, 'nativeUrl', {
     }
 });
 
+Object.defineProperty(assetProto, 'refCount', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._ref;
+    }
+});
+
+assetProto.addRef = function (): Asset {
+    this._ref++;
+    this.addAssetRef();
+    return this;
+};
+
+assetProto.decRef = function (autoRelease = true): Asset {
+    this.decAssetRef();
+    if (this._ref > 0) {
+        this._ref--;
+    }
+    if (autoRelease) {
+        legacyCC.assetManager._releaseManager.tryRelease(this);
+    }
+    return this;
+};
+
 assetProto.createNode = null!;
 
+// @ts-ignore
 export type Asset = jsb.Asset;
 export const Asset = jsb.Asset;
 
