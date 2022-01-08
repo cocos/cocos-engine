@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <functional>
 #include <cmath>
+#include <functional>
 #include "base/Object.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
@@ -132,8 +132,8 @@ struct CC_DLL InternalBindingInst : public InternalBindingDesc {
 };
 
 struct CC_DLL RenderQueueCreateInfo {
-    bool                                                          isTransparent     = false;
-    uint                                                          phases            = 0;
+    bool                                                          isTransparent = false;
+    uint                                                          phases        = 0;
     std::function<bool(const RenderPass &a, const RenderPass &b)> sortFunc;
 };
 
@@ -151,8 +151,8 @@ enum class CC_DLL RenderQueueSortMode {
 CC_ENUM_CONVERSION_OPERATOR(RenderQueueSortMode)
 
 struct CC_DLL RenderQueueDesc {
-    bool                isTransparent     = false;
-    RenderQueueSortMode sortMode          = RenderQueueSortMode::FRONT_TO_BACK;
+    bool                isTransparent = false;
+    RenderQueueSortMode sortMode      = RenderQueueSortMode::FRONT_TO_BACK;
     StringArray         stages;
 };
 using RenderQueueDescList = std::vector<RenderQueueDesc>;
@@ -452,7 +452,8 @@ struct CC_DLL UBOShadow : public Object {
     static constexpr uint                        SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET      = UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET   = UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_COLOR_OFFSET                           = UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
-    static constexpr uint                        COUNT                                         = UBOShadow::SHADOW_COLOR_OFFSET + 4;
+    static constexpr uint                        PLANAR_NORMAL_DISTANCE_INFO_OFFSET            = UBOShadow::SHADOW_COLOR_OFFSET + 4;
+    static constexpr uint                        COUNT                                         = UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
     static constexpr uint                        SIZE                                          = UBOShadow::COUNT * 4;
     static constexpr uint                        BINDING                                       = static_cast<uint>(PipelineGlobalBindings::UBO_SHADOW);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;

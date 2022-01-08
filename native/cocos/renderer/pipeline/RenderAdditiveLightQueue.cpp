@@ -135,7 +135,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
             if (isTransparent) {
                 continue;
             }
-            auto *      descriptorSet = subModel->getDescriptorSet();
+            auto *descriptorSet = subModel->getDescriptorSet();
             descriptorSet->bindBuffer(UBOForwardLight::BINDING, _firstLightBufferView);
             descriptorSet->update();
 
@@ -205,9 +205,9 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
     const auto  validLightCount = _validPunctualLights.size();
     const auto *sceneData       = _pipeline->getPipelineSceneData();
 
-    const auto *sharedData      = sceneData->getSharedData();
-    const auto *shadowInfo      = sharedData->shadow;
-    size_t      offset          = 0;
+    const auto *sharedData = sceneData->getSharedData();
+    const auto *shadowInfo = sharedData->shadow;
+    size_t      offset     = 0;
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
 
@@ -303,6 +303,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 // update planar PROJ
                 if (mainLight) {
                     updateDirLight(shadowInfo, mainLight, &_shadowUBO);
+                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 // Reserve sphere light shadow interface
@@ -317,6 +318,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 // update planar PROJ
                 if (mainLight) {
                     updateDirLight(shadowInfo, mainLight, &_shadowUBO);
+                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 const auto &matShadowCamera = light->getNode()->getWorldMatrix();

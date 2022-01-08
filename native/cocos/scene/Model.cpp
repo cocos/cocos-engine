@@ -79,11 +79,28 @@ void Model::updateUBOs(uint32_t stamp) {
         memcpy(bufferView.data() + pipeline::UBOLocal::MAT_WORLD_OFFSET, worldMatrix.m, sizeof(Mat4));
         Mat4::inverseTranspose(worldMatrix, &mat4);
         memcpy(bufferView.data() + pipeline::UBOLocal::MAT_WORLD_IT_OFFSET, mat4.m, sizeof(Mat4));
+        const float lightmapUVParam[4] = {_lightmapSettings._lightmapUVParam.x, _lightmapSettings._lightmapUVParam.y,
+                                          _lightmapSettings._lightmapUVParam.z, _lightmapSettings._lightmapUVParam.w};
+        memcpy(bufferView.data() + pipeline::UBOLocal::LIGHTINGMAP_UVPARAM, lightmapUVParam, sizeof(lightmapUVParam));
         _localBuffer->update(bufferView.data(), pipeline::UBOLocal::SIZE);
 
         const bool enableOcclusionQuery = pipeline::RenderPipeline::getInstance()->getOcclusionQueryEnabled();
         if (enableOcclusionQuery) {
             updateWorldBoundUBOs();
+        }
+    }
+}
+
+void Model::updateLightingmap(const Vec4 &lightmapUVParam, gfx::Sampler *sampler, gfx::Texture *lightmap) {
+    _lightmapSettings._lightmapUVParam = lightmapUVParam;
+    _lightmapSettings._sampler         = sampler;
+    _lightmapSettings._lightmap        = lightmap;
+    for (const SubModel *subModel : _subModels) {
+        if (sampler && lightmap) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindSampler(pipeline::LIGHTMAPTEXTURE::BINDING, sampler);
+            descriptorSet->bindTexture(pipeline::LIGHTMAPTEXTURE::BINDING, lightmap);
+            descriptorSet->update();
         }
     }
 }

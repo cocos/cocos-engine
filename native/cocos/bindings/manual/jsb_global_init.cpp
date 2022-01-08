@@ -68,21 +68,18 @@ static std::string removeFileExt(const std::string &filePath) {
     return filePath;
 }
 
-static void remove_uv_tcp_cb(uv_handle_t *handle) { // NOLINT(readability-identifier-naming)
-    free(handle);
-}
-
 static int selectPort(int port) {
     struct sockaddr_in addr;
-    auto *     server    = static_cast<uv_tcp_t *>(malloc(sizeof(uv_tcp_t)));
-    uv_loop_t *loop      = uv_default_loop();
-    int        tryTimes  = 200;
-    int        startPort = port;
-    uv_tcp_init(loop, server);
+    static uv_tcp_t    server;
+    uv_loop_t *        loop      = uv_loop_new();
+    int                tryTimes  = 200;
+    int                startPort = port;
     while (tryTimes-- > 0) {
+        uv_tcp_init(loop, &server);
         uv_ip4_addr("0.0.0.0", startPort, &addr);
-        uv_tcp_bind(server, reinterpret_cast<const struct sockaddr *>(&addr), 0);
-        int r = uv_listen(reinterpret_cast<uv_stream_t *>(server), 5, nullptr);
+        uv_tcp_bind(&server, reinterpret_cast<const struct sockaddr *>(&addr), 0);
+        int r = uv_listen(reinterpret_cast<uv_stream_t *>(&server), 5, nullptr);
+        uv_close(reinterpret_cast<uv_handle_t *>(&server), nullptr);
         if (r) {
             SE_LOGD("Failed to listen port %d, error: %s. Try next port\n", startPort, uv_strerror(r));
             startPort += 1;
@@ -90,8 +87,7 @@ static int selectPort(int port) {
             break;
         }
     }
-    uv_unref(reinterpret_cast<uv_handle_t *>(server));
-    uv_close(reinterpret_cast<uv_handle_t *>(server), remove_uv_tcp_cb);
+    uv_loop_close(loop);
     return startPort;
 }
 

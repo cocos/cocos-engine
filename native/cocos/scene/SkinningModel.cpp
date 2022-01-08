@@ -27,15 +27,18 @@
 #include <utility>
 #include "scene/RenderScene.h"
 
-
 namespace cc {
 namespace scene {
+
+std::vector<JointTransform*> SkinningModel::transStacks;
+
 void SkinningModel::updateWorldMatrix(JointInfo* info, uint32_t stamp) {
+    transStacks.clear();
+
     int i = -1;
     _worldMatrix.setIdentity();
-    auto*                        currTransform = &info->transform;
-    auto                         parentSize    = static_cast<int>(info->parents.size());
-    std::vector<JointTransform*> transStacks;
+    auto* currTransform = &info->transform;
+    auto  parentSize    = static_cast<int>(info->parents.size());
     while (currTransform->node) {
         if ((currTransform->stamp == stamp || currTransform->stamp + 1 == stamp) && !currTransform->node->getFlagsChanged()) {
             _worldMatrix.set(currTransform->world);
@@ -43,7 +46,7 @@ void SkinningModel::updateWorldMatrix(JointInfo* info, uint32_t stamp) {
             break;
         }
         currTransform->stamp = stamp;
-        transStacks.push_back(currTransform);
+        transStacks.emplace_back(currTransform);
         i++;
         if (i >= parentSize) {
             break;

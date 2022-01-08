@@ -30,7 +30,7 @@
 
 namespace cc {
 
-LegacyAutoreleasePool::LegacyAutoreleasePool()
+LegacyAutoreleasePool::LegacyAutoreleasePool() //NOLINT(misc-no-recursion)
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
 : _isClearing(false)
 #endif
@@ -58,7 +58,7 @@ LegacyAutoreleasePool::~LegacyAutoreleasePool() {
 }
 
 void LegacyAutoreleasePool::addObject(Ref *object) {
-    _managedObjectArray.push_back(object);
+    _managedObjectArray.emplace_back(object);
 }
 
 void LegacyAutoreleasePool::clear() {
@@ -76,7 +76,7 @@ void LegacyAutoreleasePool::clear() {
 }
 
 bool LegacyAutoreleasePool::contains(Ref *object) const {
-    for (const auto &obj : _managedObjectArray) {
+    for (const auto &obj : _managedObjectArray) { //NOLINT(readability-use-anyofallof)
         if (obj == object) {
             return true;
         }
@@ -101,7 +101,7 @@ void LegacyAutoreleasePool::dump() {
 
 PoolManager *PoolManager::_singleInstance = nullptr;
 
-PoolManager *PoolManager::getInstance() {
+PoolManager *PoolManager::getInstance() { //NOLINT(misc-no-recursion)
     if (_singleInstance == nullptr) {
         _singleInstance = new (std::nothrow) PoolManager();
         _singleInstance->push(new LegacyAutoreleasePool());
@@ -136,7 +136,7 @@ LegacyAutoreleasePool *PoolManager::getCurrentPool() const {
 }
 
 bool PoolManager::isObjectInPools(Ref *obj) const {
-    for (const auto &pool : _releasePoolStack) {
+    for (const auto &pool : _releasePoolStack) { //NOLINT(readability-use-anyofallof)
         if (pool->contains(obj)) {
             return true;
         }
@@ -145,7 +145,7 @@ bool PoolManager::isObjectInPools(Ref *obj) const {
 }
 
 void PoolManager::push(LegacyAutoreleasePool *pool) {
-    _releasePoolStack.push_back(pool);
+    _releasePoolStack.emplace_back(pool);
 }
 
 void PoolManager::pop() {

@@ -89,7 +89,10 @@ public:
         _transformUpdated       = true;
     }
     inline void setOctreeNode(OctreeNode *node) { _octreeNode = node; }
-    inline void setScene(RenderScene *scene) { _scene = scene; if (scene) _transformUpdated = true;  }
+    inline void setScene(RenderScene *scene) {
+        _scene = scene;
+        if (scene) _transformUpdated = true;
+    }
 
     inline bool                               getCastShadow() const { return _castShadow; }
     inline bool                               getEnabled() const { return _enabled; }
@@ -110,9 +113,11 @@ public:
     inline int32_t                            getUpdatStamp() const { return _updateStamp; }
     inline uint32_t                           getVisFlags() const { return _visFlags; }
     inline AABB *                             getWorldBounds() const { return _worldBounds; }
-    inline ModelType                          getType() const { return _type; };
+    inline ModelType                          getType() const { return _type; }
     inline OctreeNode *                       getOctreeNode() const { return _octreeNode; }
     inline RenderScene *                      getScene() const { return _scene; }
+
+    void updateLightingmap(const Vec4 &lightmapUVParam, gfx::Sampler *sampler, gfx::Texture *lightmap);
 
 protected:
     ModelType    _type{ModelType::DEFAULT};
@@ -140,6 +145,12 @@ private:
     std::vector<SubModel *>         _subModels;
     std::vector<gfx::Attribute>     _instanceAttributes;
     static void                     uploadMat4AsVec4x3(const Mat4 &mat, float *v1, float *v2, float *v3);
+
+    struct LightmapSettings {
+        Vec4          _lightmapUVParam;
+        gfx::Texture *_lightmap{nullptr};
+        gfx::Sampler *_sampler{nullptr};
+    } _lightmapSettings{};
 };
 
 } // namespace scene
