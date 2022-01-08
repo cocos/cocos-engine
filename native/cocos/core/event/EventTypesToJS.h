@@ -61,6 +61,7 @@ public:
     static const CallbacksInvoker::KeyType TEXTURE_BASE_GFX_SAMPLER_UPDATED;
 
     static const CallbacksInvoker::KeyType MATERIAL_PASSES_UPDATED;
+    static const CallbacksInvoker::KeyType SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE;
 };
 
 } // namespace cc

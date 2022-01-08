@@ -190,6 +190,14 @@ void Texture2D::initDefault(const cc::optional<std::string> &uuid) {
     setImage(imageAsset);
 }
 
+void Texture2D::setImage(ImageAsset *value) {
+    std::vector<IntrusivePtr<ImageAsset>> mipmaps;
+    if (value != nullptr) {
+        mipmaps.emplace_back(value);
+    }
+    setMipmaps(mipmaps);
+}
+
 bool Texture2D::validate() const {
     return !_mipmaps.empty();
 }

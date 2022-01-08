@@ -207,7 +207,7 @@
                    event:event];
 }
 
-- (int)translateButtonNumber:(int)buttonNumber {
+- (int)translateButtonNumber:(NSInteger)buttonNumber {
     if (buttonNumber == 1) // left
         return 0;
     else if (buttonNumber == 2) // right

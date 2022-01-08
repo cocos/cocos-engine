@@ -42,8 +42,8 @@ class Asset : public CCObject, public EventTarget {
 public:
     using Super = CCObject;
 
-    Asset()           = default;
-    ~Asset() override = default;
+    Asset() = default;
+    ~Asset() override;
 
     /**
      * @en
@@ -93,9 +93,9 @@ public:
      */
     virtual void createNode(const CreateNodeCallback &cb) {}
 
-    Asset *         addAssetRef();
-    Asset *         decAssetRef(bool autoRelease = true);
-    inline uint32_t getRefCount() const { return _ref; }
+    void            addAssetRef();
+    void            decAssetRef(bool autoRelease = true);
+    inline uint32_t getAssetRefCount() const { return _assetRefCount; }
 
     virtual void onLoaded() {}
 
@@ -144,7 +144,7 @@ protected:
     std::string _uuid;
 
     cc::any  _file;
-    uint32_t _ref{0};
+    uint32_t _assetRefCount{0};
 
     bool _loaded{true};
     bool _isDefault{false};

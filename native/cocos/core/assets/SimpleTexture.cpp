@@ -93,14 +93,7 @@ void SimpleTexture::assignImage(ImageAsset *image, uint32_t level, uint32_t arra
     uploadData(data, level, arrayIndex);
     checkTextureLoaded();
 
-    if (macro::CLEANUP_IMAGE_CACHE) {
-        //cjh how to handle dependUtils which is in asset-manager module?        const deps = dependUtil.getDeps(_uuid);
-        //        const index = deps.indexOf(image._uuid);
-        //        if (index !== -1) {
-        //            fastRemoveAt(deps, index);
-        //            image.decAssetRef();
-        //        }
-    }
+    emit(EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE, image);
 }
 
 void SimpleTexture::checkTextureLoaded() {

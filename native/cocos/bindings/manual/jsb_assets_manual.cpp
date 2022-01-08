@@ -83,10 +83,10 @@ static bool js_assets_ImageAsset_setData(se::State &s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_assets_ImageAsset_setData) // NOLINT(readability-identifier-naming)
 
-static bool js_assets_SimpleTexture_registerGFXTextureUpdatedListener(se::State &s) // NOLINT(readability-identifier-naming)
+static bool js_assets_SimpleTexture_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::SimpleTexture>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_SimpleTexture_registerGFXTextureUpdatedListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_assets_SimpleTexture_registerListeners : Invalid Native Object");
     auto *thisObj = s.thisObject();
     cobj->on(cc::EventTypesToJS::SIMPLE_TEXTURE_GFX_TEXTURE_UPDATED, [thisObj](cc::gfx::Texture *texture) {
         se::AutoHandleScope hs;
@@ -95,9 +95,16 @@ static bool js_assets_SimpleTexture_registerGFXTextureUpdatedListener(se::State 
         se::ScriptEngine::getInstance()->callFunction(thisObj, "_onGFXTextureUpdated", 1, &arg0);
     });
 
+    cobj->on(cc::EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE, [thisObj](cc::ImageAsset *image) {
+        se::AutoHandleScope hs;
+        se::Value           arg0;
+        nativevalue_to_se(image, arg0, nullptr);
+        se::ScriptEngine::getInstance()->callFunction(thisObj, "_onAfterAssignImage", 1, &arg0);
+    });
+
     return true;
 }
-SE_BIND_FUNC(js_assets_SimpleTexture_registerGFXTextureUpdatedListener) // NOLINT(readability-identifier-naming)
+SE_BIND_FUNC(js_assets_SimpleTexture_registerListeners) // NOLINT(readability-identifier-naming)
 
 static bool js_assets_TextureBase_registerGFXSamplerUpdatedListener(se::State &s) // NOLINT(readability-identifier-naming)
 {
@@ -141,7 +148,7 @@ bool register_all_assets_manual(se::Object *obj) // NOLINT(readability-identifie
 
     __jsb_cc_Asset_proto->defineProperty("_nativeDep", _SE(js_assets_Asset_getNativeDep), nullptr);
     __jsb_cc_ImageAsset_proto->defineFunction("setData", _SE(js_assets_ImageAsset_setData));
-    __jsb_cc_SimpleTexture_proto->defineFunction("_registerGFXTextureUpdatedListener", _SE(js_assets_SimpleTexture_registerGFXTextureUpdatedListener));
+    __jsb_cc_SimpleTexture_proto->defineFunction("_registerListeners", _SE(js_assets_SimpleTexture_registerListeners));
     __jsb_cc_TextureBase_proto->defineFunction("_registerGFXSamplerUpdatedListener", _SE(js_assets_TextureBase_registerGFXSamplerUpdatedListener));
     __jsb_cc_Material_proto->defineFunction("_registerPassesUpdatedListener", _SE(js_assets_Material_registerPassesUpdatedListener));
 

@@ -434,12 +434,8 @@ static bool js_assets_Asset_addAssetRef(se::State& s) // NOLINT(readability-iden
     SE_PRECONDITION2(cobj, false, "js_assets_Asset_addAssetRef : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::Asset* result = cobj->addAssetRef();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Asset_addAssetRef : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        cobj->addAssetRef();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -504,20 +500,14 @@ static bool js_assets_Asset_decAssetRef(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::Asset* result = cobj->decAssetRef();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Asset_decAssetRef : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        cobj->decAssetRef();
         return true;
     }
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_Asset_decAssetRef : Error processing arguments");
-        cc::Asset* result = cobj->decAssetRef(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Asset_decAssetRef : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        cobj->decAssetRef(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -545,6 +535,25 @@ static bool js_assets_Asset_deserialize(se::State& s) // NOLINT(readability-iden
     return false;
 }
 SE_BIND_FUNC(js_assets_Asset_deserialize)
+
+static bool js_assets_Asset_getAssetRefCount(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Asset>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_Asset_getAssetRefCount : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getAssetRefCount();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_Asset_getAssetRefCount : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_Asset_getAssetRefCount)
 
 static bool js_assets_Asset_getNativeAsset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -602,25 +611,6 @@ static bool js_assets_Asset_getNativeUrl(se::State& s) // NOLINT(readability-ide
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_assets_Asset_getNativeUrl)
-
-static bool js_assets_Asset_getRefCount(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Asset>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Asset_getRefCount : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getRefCount();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_Asset_getRefCount : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_Asset_getRefCount)
 
 static bool js_assets_Asset_getUuid(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -853,12 +843,12 @@ bool js_register_assets_Asset(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineProperty("nativeUrl", _SE(js_assets_Asset_getNativeUrl_asGetter), nullptr);
     cls->defineProperty("_nativeDep", _SE(js_assets_Asset_getNativeDep_asGetter), nullptr);
     cls->defineProperty("isDefault", _SE(js_assets_Asset_isDefault_asGetter), nullptr);
-    cls->defineFunction("addRef", _SE(js_assets_Asset_addAssetRef));
+    cls->defineFunction("addAssetRef", _SE(js_assets_Asset_addAssetRef));
     cls->defineFunction("createNode", _SE(js_assets_Asset_createNode));
-    cls->defineFunction("decRef", _SE(js_assets_Asset_decAssetRef));
+    cls->defineFunction("decAssetRef", _SE(js_assets_Asset_decAssetRef));
     cls->defineFunction("deserialize", _SE(js_assets_Asset_deserialize));
     cls->defineFunction("getNativeAsset", _SE(js_assets_Asset_getNativeAsset));
-    cls->defineFunction("getRefCount", _SE(js_assets_Asset_getRefCount));
+    cls->defineFunction("getAssetRefCount", _SE(js_assets_Asset_getAssetRefCount));
     cls->defineFunction("initDefault", _SE(js_assets_Asset_initDefault));
     cls->defineFunction("onLoaded", _SE(js_assets_Asset_onLoaded));
     cls->defineFunction("serialize", _SE(js_assets_Asset_serialize));

@@ -113,14 +113,7 @@ public:
         return _mipmaps.empty() ? nullptr : _mipmaps[0].get();
     }
 
-    void setImage(ImageAsset *value) {
-        value->addAssetRef();
-        std::vector<IntrusivePtr<ImageAsset>> mipmaps;
-        if (value != nullptr) {
-            mipmaps.emplace_back(value);
-        }
-        setMipmaps(mipmaps);
-    }
+    void setImage(ImageAsset *value);
 
     void initialize();
 

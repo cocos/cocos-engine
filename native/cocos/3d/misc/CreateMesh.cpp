@@ -1,8 +1,8 @@
 #include "3d/misc/CreateMesh.h"
 #include <algorithm>
 #include "3d/assets/Mesh.h"
-#include "3d/misc/BufferBlob.h"
 #include "3d/misc/Buffer.h"
+#include "3d/misc/BufferBlob.h"
 #include "core/ArrayBuffer.h"
 #include "core/DataView.h"
 #include "renderer/gfx-base/GFXDef-common.h"
@@ -145,7 +145,7 @@ Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOpt
     }
 
     if (geometry.customAttributes.has_value()) {
-        for (auto ca : geometry.customAttributes.value()) {
+        for (const auto &ca : geometry.customAttributes.value()) {
             const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr->format)];
             attributes.emplace_back(ca.attr);
             vertCount = std::max(vertCount, static_cast<uint32_t>(std::floor(ca.values.size() / info.count)));

@@ -63,4 +63,6 @@ const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_ROTATION_UPDATED{121}
 const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_SCALE_UPDATED{122};
 const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_POSITION_ROTATION_SCALE_UPDATED{123};
 
+const CallbacksInvoker::KeyType EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE{124};
+
 } // namespace cc
