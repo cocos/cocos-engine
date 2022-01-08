@@ -44,7 +44,7 @@ class DataPoolManager;
 struct BakedJointInfo {
     IntrusivePtr<gfx::Buffer>                 buffer;
     Float32Array                              jointTextureInfo;
-    cc::optional<IJointTextureHandle>         texture;
+    cc::optional<IJointTextureHandle *>       texture;
     IAnimInfo                                 animInfo;
     std::vector<cc::optional<geometry::AABB>> boundsInfo;
 };
@@ -88,7 +88,7 @@ public:
     void setUploadedAnimForJS(bool value) { _isUploadedAnim = value; }
 
 protected:
-    void applyJointTexture(const cc::optional<IJointTextureHandle> &texture);
+    void applyJointTexture(const cc::optional<IJointTextureHandle *> &texture);
 
 private:
     BakedJointInfo _jointMedium;

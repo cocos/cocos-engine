@@ -134,7 +134,7 @@ JointTexturePool::JointTexturePool(gfx::Device *device) {
     _device            = device;
     const auto &format = selectJointsMediumFormat(_device);
     _formatSize        = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
-    _pixelsPerJoint    = 48.F / static_cast<float>(_formatSize);
+    _pixelsPerJoint    = 48 / _formatSize;
     _pool              = new TextureBufferPool(device);
     ITextureBufferPoolInfo poolInfo;
     poolInfo.format    = format;
@@ -165,9 +165,9 @@ void JointTexturePool::registerCustomTextureLayouts(const std::vector<ICustomJoi
     }
 }
 
-cc::optional<IJointTextureHandle> JointTexturePool::getDefaultPoseTexture(Skeleton *skeleton, Mesh *mesh, Node *skinningRoot) {
-    uint64_t                          hash = skeleton->getHash() ^ 0; // may not equal to skeleton.hash
-    cc::optional<IJointTextureHandle> texture;
+cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skeleton *skeleton, Mesh *mesh, Node *skinningRoot) {
+    uint64_t                            hash = skeleton->getHash() ^ 0; // may not equal to skeleton.hash
+    cc::optional<IJointTextureHandle *> texture;
     if (_textureBuffers.find(hash) != _textureBuffers.end()) {
         texture = _textureBuffers[hash];
     }
@@ -186,18 +186,18 @@ cc::optional<IJointTextureHandle> JointTexturePool::getDefaultPoseTexture(Skelet
             handle = _pool->alloc(bufSize * Float32Array::BYTES_PER_ELEMENT);
             return texture;
         }
-        IJointTextureHandle textureHandle;
-        textureHandle.pixelOffset      = handle.start / _formatSize;
-        textureHandle.refCount         = 1;
-        textureHandle.clipHash         = 0;
-        textureHandle.skeletonHash     = skeleton->getHash();
-        textureHandle.readyToBeDeleted = false;
-        textureHandle.handle           = handle;
-        texture                        = textureHandle;
-        textureBuffer                  = Float32Array(bufSize);
-        buildTexture                   = true;
+        IJointTextureHandle *textureHandle = IJointTextureHandle::createJoinTextureHandle();
+        textureHandle->pixelOffset         = handle.start / _formatSize;
+        textureHandle->refCount            = 1;
+        textureHandle->clipHash            = 0;
+        textureHandle->skeletonHash        = skeleton->getHash();
+        textureHandle->readyToBeDeleted    = false;
+        textureHandle->handle              = handle;
+        texture                            = textureHandle;
+        textureBuffer                      = Float32Array(bufSize);
+        buildTexture                       = true;
     } else {
-        texture->refCount++;
+        texture.value()->refCount++;
     }
 
     geometry::AABB ab1;
@@ -227,10 +227,10 @@ cc::optional<IJointTextureHandle> JointTexturePool::getDefaultPoseTexture(Skelet
     }
 
     std::vector<geometry::AABB> bounds;
-    texture->bounds[static_cast<uint32_t>(mesh->getHash())] = bounds;
+    texture.value()->bounds[static_cast<uint32_t>(mesh->getHash())] = bounds;
     geometry::AABB::fromPoints(v3Min, v3Max, &bounds[0]);
     if (buildTexture) {
-        _pool->update(texture->handle, textureBuffer.buffer());
+        _pool->update(texture.value()->handle, textureBuffer.buffer());
         _textureBuffers[hash] = texture.value();
     }
 
@@ -335,31 +335,32 @@ cc::optional<IJointTextureHandle> JointTexturePool::getDefaultPoseTexture(Skelet
 // }
 // }
 
-void JointTexturePool::releaseHandle(IJointTextureHandle &handle) {
-    if (handle.refCount > 0) {
-        handle.refCount--;
+void JointTexturePool::releaseHandle(IJointTextureHandle *handle) {
+    if (handle->refCount > 0) {
+        handle->refCount--;
     }
-    if (!handle.refCount && handle.readyToBeDeleted) {
-        uint64_t hash = handle.skeletonHash ^ handle.clipHash;
+    if (!handle->refCount && handle->readyToBeDeleted) {
+        uint64_t hash = handle->skeletonHash ^ handle->clipHash;
         if (_chunkIdxMap.find(hash) != _chunkIdxMap.end()) {
-            _customPool->free(handle.handle);
+            _customPool->free(handle->handle);
         } else {
-            _pool->free(handle.handle);
+            _pool->free(handle->handle);
         }
-        if (&_textureBuffers[hash] == &handle) { // TODO(xwx): value equal or address equal?
+        if (_textureBuffers[hash] == handle) {
             _textureBuffers.erase(hash);
+            CC_SAFE_DELETE(handle);
         }
     }
 }
 
 void JointTexturePool::releaseSkeleton(Skeleton *skeleton) {
     for (const auto &texture : _textureBuffers) {
-        auto handle = texture.second;
-        if (handle.skeletonHash == skeleton->getHash()) {
-            handle.readyToBeDeleted = true;
-            if (handle.refCount > 0) {
+        auto *handle = texture.second;
+        if (handle->skeletonHash == skeleton->getHash()) {
+            handle->readyToBeDeleted = true;
+            if (handle->refCount > 0) {
                 // delete handle record immediately so new allocations with the same asset could work
-                _textureBuffers.erase(handle.skeletonHash ^ handle.clipHash);
+                _textureBuffers.erase(handle->skeletonHash ^ handle->clipHash);
             } else {
                 releaseHandle(handle);
             }

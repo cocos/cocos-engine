@@ -48,7 +48,6 @@ const std::string INST_JOINT_ANIM_INFO = "a_jointAnimInfo";
 namespace cc {
 
 BakedSkinningModel::BakedSkinningModel()
-: Super()
 //, _dataPoolManager(Root::getInstance()->getDataPoolManager())
 {
     _type = Model::Type::BAKED_SKINNING;
@@ -63,6 +62,9 @@ void BakedSkinningModel::destroy() {
 
     if (_jointMedium.buffer != nullptr) {
         CC_SAFE_DESTROY(_jointMedium.buffer);
+    }
+    if (_jointMedium.texture.has_value()) {
+        CC_SAFE_DELETE(_jointMedium.texture.value());
     }
     applyJointTexture(cc::nullopt);
     Super::destroy();
@@ -125,7 +127,7 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     }
 }
 
-void BakedSkinningModel::applyJointTexture(const cc::optional<IJointTextureHandle> &texture) {
+void BakedSkinningModel::applyJointTexture(const cc::optional<IJointTextureHandle *> &texture) {
     auto oldTex = _jointMedium.texture;
     if (oldTex.has_value() && texture.has_value() && (&oldTex.value() != &texture.value())) {
         //        _dataPoolManager->jointTexturePool->releaseHandle(oldTex.value());
@@ -134,17 +136,18 @@ void BakedSkinningModel::applyJointTexture(const cc::optional<IJointTextureHandl
     if (!texture.has_value()) {
         return;
     }
+    auto *textureHandle    = texture.value();
     auto *buffer           = _jointMedium.buffer.get();
     auto &jointTextureInfo = _jointMedium.jointTextureInfo;
-    jointTextureInfo[0]    = static_cast<float>(texture->handle.texture->getWidth());
+    jointTextureInfo[0]    = static_cast<float>(textureHandle->handle.texture->getWidth());
     jointTextureInfo[1]    = static_cast<float>(_skeleton->getJoints().size());
-    jointTextureInfo[2]    = static_cast<float>(texture->pixelOffset) + 0.1F; // guard against floor() underflow
+    jointTextureInfo[2]    = static_cast<float>(textureHandle->pixelOffset) + 0.1F; // guard against floor() underflow
     jointTextureInfo[3]    = 1 / jointTextureInfo[0];
     updateInstancedJointTextureInfo();
     if (buffer != nullptr) {
         buffer->update(&jointTextureInfo[0], jointTextureInfo.byteLength());
     }
-    auto *tex = texture->handle.texture;
+    auto *tex = textureHandle->handle.texture;
 
     for (const auto &subModel : _subModels) {
         auto *descriptorSet = subModel->getDescriptorSet();
@@ -168,7 +171,7 @@ void BakedSkinningModel::updateLocalDescriptors(index_t subModelIndex, gfx::Desc
     descriptorSet->bindBuffer(pipeline::UBOSkinningAnimation::BINDING, animInfo.buffer);
     if (texture.has_value()) {
         auto *sampler = _device->getSampler(JOINT_TEXTURE_SAMPLER_INFO);
-        descriptorSet->bindTexture(pipeline::JOINTTEXTURE::BINDING, texture->handle.texture);
+        descriptorSet->bindTexture(pipeline::JOINTTEXTURE::BINDING, texture.value()->handle.texture);
         descriptorSet->bindSampler(pipeline::JOINTTEXTURE::BINDING, sampler);
     }
 }
@@ -222,9 +225,9 @@ void BakedSkinningModel::syncDataForJS(const std::vector<cc::optional<geometry::
 
     _jointMedium.animInfo.curFrame       = &animInfoData[0];
     _jointMedium.animInfo.frameDataBytes = animInfoData.byteLength();
-    IJointTextureHandle textureInfo;
-    textureInfo.handle.texture = tex;
-    _jointMedium.texture       = std::move(textureInfo);
+    IJointTextureHandle *textureInfo     = IJointTextureHandle::createJoinTextureHandle();
+    textureInfo->handle.texture          = tex;
+    _jointMedium.texture                 = textureInfo;
 
     updateInstancedJointTextureInfo();
 
