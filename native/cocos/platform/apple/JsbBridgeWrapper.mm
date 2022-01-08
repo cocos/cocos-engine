@@ -26,7 +26,6 @@
 #include <iostream>
 #include <string>
 #include "JsbBridge.h"
-#include "Application.h"
 
 @implementation JsbBridgeWrapper {
     JsbBridge* jb;
