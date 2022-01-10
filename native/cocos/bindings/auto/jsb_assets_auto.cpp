@@ -847,8 +847,8 @@ bool js_register_assets_Asset(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineFunction("createNode", _SE(js_assets_Asset_createNode));
     cls->defineFunction("decAssetRef", _SE(js_assets_Asset_decAssetRef));
     cls->defineFunction("deserialize", _SE(js_assets_Asset_deserialize));
-    cls->defineFunction("getNativeAsset", _SE(js_assets_Asset_getNativeAsset));
     cls->defineFunction("getAssetRefCount", _SE(js_assets_Asset_getAssetRefCount));
+    cls->defineFunction("getNativeAsset", _SE(js_assets_Asset_getNativeAsset));
     cls->defineFunction("initDefault", _SE(js_assets_Asset_initDefault));
     cls->defineFunction("onLoaded", _SE(js_assets_Asset_onLoaded));
     cls->defineFunction("serialize", _SE(js_assets_Asset_serialize));
