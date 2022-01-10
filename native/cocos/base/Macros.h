@@ -242,18 +242,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 #define CC_CPU_ARCH_32 1
 #define CC_CPU_ARCH_64 2
 
-// Endian
-#define CC_ENDIAN_LITTLE 1
-#define CC_ENDIAN_BIG    2
-
-// Charset
-#define CC_CHARSET_UNICODE   1
-#define CC_CHARSET_MULTIBYTE 2
-
-// Precision
-#define CC_PRECISION_FLOAT  1
-#define CC_PRECISION_DOUBLE 2
-
 // Mode
 #define CC_MODE_DEBUG   1
 #define CC_MODE_RELEASE 2
@@ -295,28 +283,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #error "Unknown compiler. Abort!"
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #define CC_ENDIAN CC_ENDIAN_LITTLE
-#else
-    #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-        #include <machine/endian.h>
-    #elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-        #include <Endian.h>
-    #else
-        #if !defined(__QNX__)
-            #include <endian.h>
-        #else
-            #define CC_ENDIAN CC_ENDIAN_LITTLE
-        #endif
-    #endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    #
-    #if __BYTE_ORDER == __LITTLE_ENDIAN
-        #define CC_ENDIAN CC_ENDIAN_LITTLE
-    #else
-        #define CC_ENDIAN CC_ENDIAN_BIG
-    #endif //__BYTE_ORDER == __LITTLE_ENDIAN
-#endif
-
 // CPU architecture type recognition
 #if (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)))
     #define CC_CPU CC_CPU_X86
@@ -340,17 +306,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_CPU_ARCH CC_CPU_ARCH_64
 #endif
 
-// C11 features
-#if (CC_COMPILER == CC_COMPILER_MSVC)
-    #if (_MSC_VER >= 1700)
-        #define CC_C11_TYPED_ENUMS
-    #endif
-#elif (CC_COMPILER == CC_COMPILER_GNUC)
-    #if (__GNUC_MINOR__ >= 4)
-        #define CC_C11_TYPED_ENUMS
-    #endif
-#endif
-
 // Disable MSVC warning
 #if (CC_COMPILER == CC_COMPILER_MSVC)
     #pragma warning(disable : 4251 4275 4819)
@@ -360,22 +315,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #ifndef _SCL_SECURE_NO_DEPRECATE
         #define _SCL_SECURE_NO_DEPRECATE
     #endif
-#endif
-
-// Charset Settings
-#if defined(_UNICODE) || defined(UNICODE)
-    #define CC_CHARSET CC_CHARSET_UNICODE
-#else
-    #define CC_CHARSET CC_CHARSET_MULTIBYTE
-#endif
-
-// Asserts expression is true at compile-time
-#define CC_COMPILER_ASSERT(x) typedef int COMPILER_ASSERT_[!!(x)]
-
-#if (CC_COMPILER == CC_COMPILER_MSVC)
-    #define CC_RESTRICT __restrict //MSVC
-#else
-    #define CC_RESTRICT __restrict__ //GCC... and others?
 #endif
 
 #define CC_CACHELINE_SIZE 64
@@ -617,14 +556,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 #define CC_TOSTR(s) #s
 
-#define ENABLE_IF_T(t1)          std::enable_if_t<std::is_same<t1, T>::value, T>
-#define ENABLE_IF_T2(t1, t2)     std::enable_if_t<std::is_same<t1, T>::value || std::is_same<t2, T>::value, T>
-#define ENABLE_IF_T3(t1, t2, t3) std::enable_if_t<std::is_same<t1, T>::value || std::is_same<t2, T>::value || std::is_same<t3, T>::value, T>
-
-#define ENABLE_IF_T_RET(t1)          std::enable_if_t<std::is_same<t1, T>::value, RET>
-#define ENABLE_IF_T2_RET(t1, t2)     std::enable_if_t<std::is_same<t1, T>::value || std::is_same<t2, T>::value, RET>
-#define ENABLE_IF_T3_RET(t1, t2, t3) std::enable_if_t<std::is_same<t1, T>::value || std::is_same<t2, T>::value || std::is_same<t3, T>::value, void>
-
 #if defined(__GNUC__) && __GNUC__ >= 4
     #define CC_PREDICT_TRUE(x)  __builtin_expect(!!(x), 1)
     #define CC_PREDICT_FALSE(x) __builtin_expect(!!(x), 0)
@@ -644,19 +575,3 @@ It should work same as apples CFSwapInt32LittleToHost(..)
         #define CC_FORCE_INLINE inline
     #endif
 #endif
-
-/// @name namespace cc { namespace event {
-/// @{
-#ifdef __cplusplus
-    #define NS_CC_EVENT_BEGIN \
-        namespace cc {        \
-        namespace event {
-    #define NS_CC_EVENT_END \
-        }                   \
-        }
-#else
-    #define NS_CC_EVENT_BEGIN
-    #define NS_CC_EVENT_END
-#endif
-//  end of namespace group
-/// @}
