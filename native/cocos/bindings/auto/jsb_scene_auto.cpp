@@ -4352,7 +4352,7 @@ static bool js_scene_Pass_getDefines(se::State& s) // NOLINT(readability-identif
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::unordered_map<std::string, boost::variant2::variant<int, float, bool, std::string>>& result = cobj->getDefines();
+        const std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>& result = cobj->getDefines();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_scene_Pass_getDefines : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -5152,7 +5152,7 @@ static bool js_scene_Pass_tryCompile(se::State& s) // NOLINT(readability-identif
     size_t argc = args.size();
     do {
         if (argc == 1) {
-            HolderType<boost::optional<std::unordered_map<std::string, boost::variant2::variant<int, float, bool, std::string>>>, true> arg0 = {};
+            HolderType<boost::optional<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>>, true> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
@@ -17782,7 +17782,7 @@ static bool js_scene_ProgramLib_destroyShaderByDefines(se::State& s) // NOLINT(r
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::unordered_map<std::string, boost::variant2::variant<int, float, bool, std::string>>, true> arg0 = {};
+        HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_destroyShaderByDefines : Error processing arguments");
         cobj->destroyShaderByDefines(arg0.value());
@@ -17841,7 +17841,7 @@ static bool js_scene_ProgramLib_getGFXShader(se::State& s) // NOLINT(readability
     if (argc == 4) {
         HolderType<cc::gfx::Device*, false> arg0 = {};
         HolderType<std::string, true> arg1 = {};
-        HolderType<std::unordered_map<std::string, boost::variant2::variant<int, float, bool, std::string>>, true> arg2 = {};
+        HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg2 = {};
         HolderType<cc::pipeline::RenderPipeline*, false> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -17857,7 +17857,7 @@ static bool js_scene_ProgramLib_getGFXShader(se::State& s) // NOLINT(readability
     if (argc == 5) {
         HolderType<cc::gfx::Device*, false> arg0 = {};
         HolderType<std::string, true> arg1 = {};
-        HolderType<std::unordered_map<std::string, boost::variant2::variant<int, float, bool, std::string>>, true> arg2 = {};
+        HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg2 = {};
         HolderType<cc::pipeline::RenderPipeline*, false> arg3 = {};
         HolderType<std::string*, false> arg4 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -17886,7 +17886,7 @@ static bool js_scene_ProgramLib_getKey(se::State& s) // NOLINT(readability-ident
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<std::unordered_map<std::string, boost::variant2::variant<int, float, bool, std::string>>, true> arg1 = {};
+        HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_ProgramLib_getKey : Error processing arguments");

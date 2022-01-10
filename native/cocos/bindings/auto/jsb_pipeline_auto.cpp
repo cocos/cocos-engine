@@ -2161,20 +2161,6 @@ static bool js_pipeline_RenderPipeline_setValue(se::State& s) // NOLINT(readabil
         }
     } while(false);
 
-    do {
-        if (argc == 2) {
-            HolderType<cc::String, true> arg0 = {};
-            HolderType<float, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->setValue(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }

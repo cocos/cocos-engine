@@ -8591,7 +8591,7 @@ static bool js_assets_EffectAsset_getCombinations(se::State& s) // NOLINT(readab
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<std::unordered_map<std::string, boost::variant2::variant<std::vector<bool>, std::vector<float>, std::vector<std::string>>>>& result = cobj->getCombinations();
+        const std::vector<std::unordered_map<std::string, boost::variant2::variant<std::vector<bool>, std::vector<int>, std::vector<std::string>>>>& result = cobj->getCombinations();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_assets_EffectAsset_getCombinations : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -8648,7 +8648,7 @@ static bool js_assets_EffectAsset_setCombinations(se::State& s) // NOLINT(readab
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::vector<std::unordered_map<std::string, boost::variant2::variant<std::vector<bool>, std::vector<float>, std::vector<std::string>>>>, true> arg0 = {};
+        HolderType<std::vector<std::unordered_map<std::string, boost::variant2::variant<std::vector<bool>, std::vector<int>, std::vector<std::string>>>>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_assets_EffectAsset_setCombinations : Error processing arguments");
         cobj->setCombinations(arg0.value());
@@ -9804,7 +9804,7 @@ static bool js_assets_Material_recompileShaders(se::State& s) // NOLINT(readabil
     size_t argc = args.size();
     do {
         if (argc == 2) {
-            HolderType<std::unordered_map<std::string, boost::variant2::variant<int, float, bool, std::string>>, true> arg0 = {};
+            HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg0 = {};
             HolderType<int, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9818,7 +9818,7 @@ static bool js_assets_Material_recompileShaders(se::State& s) // NOLINT(readabil
 
     do {
         if (argc == 1) {
-            HolderType<std::unordered_map<std::string, boost::variant2::variant<int, float, bool, std::string>>, true> arg0 = {};
+            HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
