@@ -63,7 +63,7 @@ let AnimationCacheMode = cc.Enum({
      * !#zh 私有缓存模式。
      * @property {Number} PRIVATE_CACHE
      */
-    PRIVATE_CACHE: 2
+    PRIVATE_CACHE: 2 
 });
 
 function setEnumAttr (obj, propName, enumDef) {
@@ -130,8 +130,8 @@ sp.Skeleton = cc.Class({
             default: null,
             type: sp.SkeletonData,
             notify () {
-                this._resetDefaultAnim();
-                this._resetDefaultSkin();
+                this.defaultSkin = '';
+                this.defaultAnimation = '';
                 if (CC_EDITOR) {
                     this._refreshInspector();
                 }
@@ -422,7 +422,7 @@ sp.Skeleton = cc.Class({
         _animationName : "",
         // Animation queue
         _animationQueue : [],
-        // Head animation info of
+        // Head animation info of 
         _headAniInfo : null,
         // Play times
         _playTimes : 0,
@@ -457,7 +457,7 @@ sp.Skeleton = cc.Class({
         if (baseMaterial) {
             baseMaterial.define('USE_TINT', useTint);
             baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
-
+            
             let srcBlendFactor = this.premultipliedAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
             let dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
 
@@ -594,7 +594,7 @@ sp.Skeleton = cc.Class({
             }
             this._state = state;
         }
-
+        
     },
 
     // IMPLEMENT
@@ -603,7 +603,7 @@ sp.Skeleton = cc.Class({
         if (CC_EDITOR) {
             var Flags = cc.Object.Flags;
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
-
+            
             this._refreshInspector();
         }
 
@@ -625,10 +625,10 @@ sp.Skeleton = cc.Class({
      * !#en
      * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
      * If set the mode in editor, then no need to worry about order problem.
-     * !#zh
+     * !#zh 
      * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
      * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
-     *
+     * 
      * @method setAnimationCacheMode
      * @param {AnimationCacheMode} cacheMode
      * @example
@@ -823,7 +823,7 @@ sp.Skeleton = cc.Class({
 
     /**
      * !#en
-     * Updating an animation cache to calculate all frame data in the animation is a cost in
+     * Updating an animation cache to calculate all frame data in the animation is a cost in 
      * performance due to calculating all data in a single frame.
      * To update the cache, use the invalidAnimationCache method with high performance.
      * !#zh
@@ -1255,7 +1255,7 @@ sp.Skeleton = cc.Class({
      */
     setTrackCompleteListener (entry, listener) {
         TrackEntryListeners.getListeners(entry).complete = function (trackEntry) {
-            var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+            var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd); 
             listener(trackEntry, loopCount);
         };
     },
@@ -1279,24 +1279,6 @@ sp.Skeleton = cc.Class({
      */
     getState () {
         return this._state;
-    },
-
-    _resetDefaultAnim () {
-        if (this.skeletonData) {
-            let animEnum = this.skeletonData.getAnimsEnum();
-            if (!animEnum.hasOwnProperty(this.defaultAnimation)) {
-                this.defaultAnimation = '';
-            }
-        }
-    },
-
-    _resetDefaultSkin () {
-        if (this.skeletonData) {
-            let skinEnum = this.skeletonData.getSkinsEnum();
-            if(!skinEnum.hasOwnProperty(this.defaultSkin)) {
-                this.defaultSkin = '';
-            }
-        }
     },
 
     // update animation list for editor
@@ -1338,7 +1320,7 @@ sp.Skeleton = cc.Class({
             this.disableRender();
             return;
         }
-
+        
         try {
             this.setSkeletonData(data);
             if (!this.isAnimationCached()) {
@@ -1349,7 +1331,7 @@ sp.Skeleton = cc.Class({
         catch (e) {
             cc.warn(e);
         }
-
+        
         this.attachUtil.init(this);
         this.attachUtil._associateAttachedNode();
         this._preCacheMode = this._cacheMode;
@@ -1371,7 +1353,7 @@ sp.Skeleton = cc.Class({
                 let debugDraw = debugDrawNode.addComponent(Graphics);
                 debugDraw.lineWidth = 1;
                 debugDraw.strokeColor = cc.color(255, 0, 0, 255);
-
+                
                 this._debugRenderer = debugDraw;
             }
 
