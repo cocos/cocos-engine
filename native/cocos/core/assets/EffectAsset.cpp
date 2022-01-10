@@ -239,8 +239,8 @@ std::vector<MacroRecord> EffectAsset::generateRecords(const std::string &key, co
             record[key] = value;
             ret.emplace_back(record);
         }
-    } else if (const auto *floatValues = cc::get_if<std::vector<float>>(&value)) {
-        for (const float value : *floatValues) {
+    } else if (const auto *intValues = cc::get_if<std::vector<int32_t>>(&value)) {
+        for (const int32_t value : *intValues) {
             MacroRecord record;
             record[key] = value;
             ret.emplace_back(record);
@@ -269,8 +269,8 @@ std::vector<MacroRecord> EffectAsset::insertInfoValue(const std::vector<MacroRec
                 tmpRecord[key]        = value;
                 ret.emplace_back(tmpRecord);
             }
-        } else if (const auto *floatValues = cc::get_if<std::vector<float>>(&value)) {
-            for (const float value : *floatValues) {
+        } else if (const auto *intValues = cc::get_if<std::vector<int32_t>>(&value)) {
+            for (const int32_t value : *intValues) {
                 MacroRecord tmpRecord = record;
                 tmpRecord[key]        = value;
                 ret.emplace_back(tmpRecord);

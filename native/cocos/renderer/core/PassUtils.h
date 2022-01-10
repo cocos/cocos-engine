@@ -64,7 +64,7 @@ constexpr uint32_t  customizeType(uint32_t handle, gfx::Type type) {
     return (handle & ~TYPE_MASK) | ((static_cast<uint32_t>(type) << 26) & TYPE_MASK);
 }
 
-using MacroValue = cc::variant<int32_t, float, bool, std::string>;
+using MacroValue = cc::variant<int32_t, bool, std::string>;
 
 /**
  * @en Combination of preprocess macros

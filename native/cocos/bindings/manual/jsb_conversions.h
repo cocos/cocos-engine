@@ -905,7 +905,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
 
 template <typename... Args>
 inline bool sevalue_to_native(const se::Value & /*from*/, cc::variant<Args...> * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    static_assert(sizeof...(Args) == 0, "");                                                                     //TODO(PatriceJiang): should not pass variant from js -> native
+    static_assert(sizeof...(Args) == 0, "should not pass variant from js -> native");
     assert(false);
     return false;
 }
@@ -1317,14 +1317,8 @@ inline bool nativevalue_to_se(const std::array<float, N> &from, se::Value &to, s
 }
 
 template <typename R, typename... Args>
-inline bool nativevalue_to_se(std::function<R(Args...)> & /*from*/, se::Value & /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    SE_LOGE("Can not convert C++ lambda to JS object");                                                         // TODO(jiangzhan)
-    return false;
-}
-
-template <typename R, typename... Args>
 inline bool nativevalue_to_se(const std::function<R(Args...)> & /*from*/, se::Value & /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    SE_LOGE("Can not convert C++ const lambda to JS object");                                                         // TODO(jiangzhan)
+    SE_LOGE("Can not convert C++ const lambda to JS object");                                                         
     return false;
 }
 

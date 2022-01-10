@@ -84,7 +84,6 @@ public:
     inline void                                    setValue(const String &name, int32_t value) { _macros[name] = value; }
     inline void                                    setValue(const String &name, bool value) { _macros[name] = value; }
     inline void                                    setValue(const String &name, const std::string &value) { _macros[name] = value; }
-    inline void                                    setValue(const String &name, float value) { _macros[name] = value; }
     inline GlobalDSManager *                       getGlobalDSManager() const { return _globalDSManager; }
     inline gfx::DescriptorSet *                    getDescriptorSet() const { return _descriptorSet; }
     inline gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }

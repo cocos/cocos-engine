@@ -82,12 +82,6 @@ static MacroRecord jsonToMacroRecord(const rapidjson::Value &embeddedMacrosVal) 
         } else if (value.IsInt64()) {
             cEmbeddedMacros.emplace(name, static_cast<int32_t>(value.GetInt64())); //cjh TODO: need int64?
                                                                                    //            CC_LOG_DEBUG(">> embeddedMacros[%s]=%ld", name, value.GetInt64());
-        } else if (value.IsFloat()) {
-            cEmbeddedMacros.emplace(name, value.GetFloat());
-            //            CC_LOG_DEBUG(">> embeddedMacros[%s]=%f", name, value.GetFloat());
-        } else if (value.IsDouble()) {
-            cEmbeddedMacros.emplace(name, static_cast<float>(value.GetDouble())); //cjh TODO: need double?
-                                                                                  //            CC_LOG_DEBUG(">> embeddedMacros[%s]=%lf", name, value.GetDouble());
         } else if (value.IsBool()) {
             cEmbeddedMacros.emplace(name, value.GetBool());
             //            CC_LOG_DEBUG(">> embeddedMacros[%s]=%d", name, static_cast<int32_t>(value.GetBool()));
@@ -822,10 +816,10 @@ static void deserializePreCompileInfoValue(const rapidjson::Value &infoVal, IPre
         std::vector<bool> boolInfo;
         deserializeArray(infoVal, boolInfo);
         cInfo = std::move(boolInfo);
-    } else if (infoVal.IsFloat()) {
-        std::vector<float> floatInfo;
-        deserializeArray(infoVal, floatInfo);
-        cInfo = std::move(floatInfo);
+    } else if (infoVal.IsInt()) {
+        std::vector<int32_t> intInfo;
+        deserializeArray(infoVal, intInfo);
+        cInfo = std::move(intInfo);
     } else if (infoVal.IsString()) {
         std::vector<std::string> strInfo;
         deserializeArray(infoVal, strInfo);

@@ -523,7 +523,7 @@ struct IShaderInfo {
     }
 };
 
-using IPreCompileInfoValueType = cc::variant<std::vector<bool>, std::vector<float>, std::vector<std::string>>; //cjh number is float?
+using IPreCompileInfoValueType = cc::variant<std::vector<bool>, std::vector<int32_t>, std::vector<std::string>>;
 using IPreCompileInfo          = std::unordered_map<std::string, IPreCompileInfoValueType>;
 
 class EffectAsset final : public Asset {

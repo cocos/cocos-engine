@@ -61,9 +61,6 @@ bool recordAsBool(const MacroRecord::mapped_type &v) {
     if (cc::holds_alternative<int32_t>(v)) {
         return cc::get<int32_t>(v);
     }
-    if (cc::holds_alternative<float>(v)) {
-        return std::abs(cc::get<float>(v)) > FLT_EPSILON;
-    }
     return false;
 }
 
@@ -76,9 +73,6 @@ std::string recordAsString(const MacroRecord::mapped_type &v) {
     }
     if (cc::holds_alternative<int32_t>(v)) {
         return std::to_string(cc::get<int32_t>(v));
-    }
-    if (cc::holds_alternative<float>(v)) {
-        return std::to_string(cc::get<float>(v));
     }
     return "";
 }
@@ -328,9 +322,6 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
                 if (cc::holds_alternative<int32_t>(value)) {
                     return cc::get<int32_t>(value) - range[0];
                 }
-                if (cc::holds_alternative<float>(value)) {
-                    return static_cast<int32_t>(cc::get<float>(value)) - range[0];
-                }
                 if (cc::holds_alternative<bool>(value)) {
                     return (cc::get<bool>(value) ? 1 : 0) - range[0];
                 }
@@ -353,11 +344,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
                 if (pBool != nullptr) {
                     return *pBool ? 1 : 0;
                 }
-                const auto *pFloat = cc::get_if<float>(&value);
-                if (pFloat != nullptr) {
-                    return *pFloat != 0.F ? 1 : 0;
-                }
-                const auto *pInt = cc::get_if<int>(&value);
+                const auto *pInt = cc::get_if<int32_t>(&value);
                 if (pInt != nullptr) {
                     return *pInt ? 1 : 0;
                 }
