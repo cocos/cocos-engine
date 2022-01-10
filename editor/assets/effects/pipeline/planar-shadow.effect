@@ -30,7 +30,7 @@ CCProgram planar-shadow-vs %{
   #include <cc-local-batch>
   #include <cc-shadow>
 
-  out float v_discard;
+  out float v_dist;
 
   vec4 vert () {
     vec4 position;
@@ -46,9 +46,12 @@ CCProgram planar-shadow-vs %{
     float dist = (-d - dot(P, N)) / (dot(L, N) + 0.0001);
     vec3 shadowPos = P + L * dist;
   
+    vec3 view = normalize(cc_cameraPos.xyz - shadowPos);
+    float viewLength = length(cc_cameraPos.xyz - shadowPos);
+    shadowPos += view * max(0.02, 0.001 * viewLength);
+
     position = cc_matProj * cc_matView * vec4(shadowPos, 1.0);
-    position.z -= 0.0001;
-    v_discard = dist < 0.00001 ? 0.0 : 10.0;
+    v_dist = dist;
     return position;
   }
 }%
@@ -58,10 +61,10 @@ CCProgram planar-shadow-fs %{
   #include <cc-shadow>
   #include <output>
 
-  in float v_discard;
+  in float v_dist;
 
   vec4 frag () {
-    if(v_discard < 9.9)
+    if(v_dist < 0.02)
       discard;
     return CCFragOutput(cc_shadowColor);
   }
