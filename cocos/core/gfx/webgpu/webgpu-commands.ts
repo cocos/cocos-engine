@@ -570,7 +570,7 @@ export function removeCombinedSamplerTexture0 (shaderSource: string) {
         samplerStr = samplerStr.replace(samplerReg, samplerBinding.toString());
 
         const textureStr = str.replace(/(?<=uniform(.*?))(sampler)(?=\w*)/g, 'texture');
-        code = code.replace(str, `${samplerStr}\n${textureStr}`);
+        code = code.replace(str, `${textureStr}\n${samplerStr}`);
 
         if (!samplerSet.has(`${textureName}Sampler`)) {
             samplerSet.add(`${textureName}Sampler`);
@@ -622,17 +622,6 @@ export function removeCombinedSamplerTexture0 (shaderSource: string) {
                     }
                 });
 
-                // const lastElseIndex = searchTarget.lastIndexOf('#else');
-                // const lastElifIndex = searchTarget.lastIndexOf('#elif');
-                // const lastEndifIndex = searchTarget.lastIndexOf('#endif');
-                // const lastIfIndex = searchTarget.lastIndexOf('#if');
-                // let defineNoneZero = true;
-                // if (lastIfIndex > lastElseIndex && lastIfIndex > lastEndifIndex) {
-                //     const ifdefStr = (new RegExp(`#if(?:(?!#if).)+$`, 'gs')).exec(searchTarget)![0];
-                //     const varStr = (new RegExp(`#if[\\s]+([\\S]+)`, 'gs')).exec(ifdefStr)![1];
-                //     const defStr = (new RegExp(`#define[\\s]+${varStr}[\\s]+([\\S]+).*`, 'gs')).exec(searchTarget)![1];
-                //     defineNoneZero = defStr !== '0';
-                // }
                 const key = `${reArr[1]}_${samplerFunc}_${textureName}Sampler`;
                 if (!referredFuncMap.has(key) && defCheck) {
                     referredFuncMap.set(key, [reArr[1], samplerFunc, `${textureName}Sampler`]);
@@ -664,7 +653,7 @@ export function removeCombinedSamplerTexture0 (shaderSource: string) {
         const codePieceRe = new RegExp(codePieceStr);
         let res = codePieceRe.exec(code);
         while (res) {
-            const replaceStr = res[0].replace(`${pair[0]}`, `${pair[0]}_${pair[2]}_specialized`);
+            const replaceStr = res[0].replace(`${pair[0]}(${textureStr},`, `${pair[0]}_${pair[2]}_specialized(`);
             code = code.replace(codePieceRe, replaceStr);
             res = codePieceRe.exec(code);
         }
@@ -688,7 +677,7 @@ export function removeCombinedSamplerTexture0 (shaderSource: string) {
             for (let i = 0; i < textureOpArr.length; i++) {
                 const texFuncReStr = `(${textureOpArr[i]})\\(${textureName},`;
                 const texFuncRe = new RegExp(texFuncReStr, 'g');
-                funcDef = funcDef.replace(texFuncRe, `$1(${samplerType}(${textureName}, ${textureName}SAMPLER_HOLDER),`);
+                funcDef = funcDef.replace(texFuncRe, `$1(${samplerType}(${textureName}TEXTURE_HOLDER, ${textureName}SAMPLER_HOLDER),`);
             }
             return funcDef;
         };
@@ -774,9 +763,13 @@ export function removeCombinedSamplerTexture0 (shaderSource: string) {
             funcs.every((str) => {
                 if (!specializedFuncs.has(`${pair[0]}_${pair[2]}_specialized`)) {
                     const samplerReStr = `(\\w+)SAMPLER_HOLDER`;
+                    const textureName = pair[2].slice(0, pair[2].length - 7); // xxxxSampler
+                    const textureStr = `(\\w+)TEXTURE_HOLDER`;
                     let funcTemplate = functionTemplates.get(str);
                     funcTemplate = funcTemplate!.replace(new RegExp(samplerReStr, 'g'), pair[2]);
-                    funcTemplate = funcTemplate.replace('SAMPLER_SPEC', `_${pair[2]}_specialized`);
+                    funcTemplate = funcTemplate.replace(new RegExp(textureStr, 'g'), textureName);
+                    funcTemplate = funcTemplate.replace(new RegExp('SAMPLER_SPEC\\([^,)]+(,)?', 'g'), `_${pair[2]}_specialized(`);
+                    // funcTemplate = funcTemplate.replace('SAMPLER_SPEC', `_${pair[2]}_specialized`);
 
                     for (let i = 0; i < referredFuncMap.values.length; ++i) {
                         const funcDepReStr = `\\b(${referredFuncMap.values[i].fnName as string})\\b`;
@@ -786,8 +779,8 @@ export function removeCombinedSamplerTexture0 (shaderSource: string) {
                     }
 
                     let declStr = fnDecl![0].replace(pair[0], `${str}_${pair[2]}_specialized`);
-                    declStr = declStr.replace(`sampler${pair[1]} `, `texture${pair[1]} `);
-                    declStr += ';';
+                    declStr = declStr.replace(new RegExp(`sampler${pair[1]}[^,)]+(,)?`, 'g'), ``);
+                    declStr += `;`;
                     specializedFuncs.set(declStr, funcTemplate);
                 } else {
                     return specialize(functionDeps.get(str)!);
@@ -813,151 +806,6 @@ export function removeCombinedSamplerTexture0 (shaderSource: string) {
 
     return code;
 }
-
-// export function removeCombinedSamplerTexture1 (shaderSource: string) {
-//     // sampler and texture
-//     const samplerTexturArr = shaderSource.match(/(.*?)\(set = \d+, binding = \d+\) uniform(.*?)sampler\w* \w+;/g);
-//     const count = samplerTexturArr?.length ? samplerTexturArr?.length : 0;
-//     let code = shaderSource;
-
-//     const referredFuncSet = new Set<[fnName: string, samplerType: string]>();
-//     const samplerTypeSet = new Set<string>();
-//     samplerTexturArr?.every((str) => {
-//         const textureName = str.match(/(?<=uniform(.*?)sampler\w* )(\w+)(?=;)/g)!.toString();
-//         let samplerStr = str.replace(textureName, `${textureName}Sampler`);
-//         let samplerFunc = samplerStr.match(/(?<=uniform(.*?))sampler(\w*)/g)!.toString();
-//         samplerFunc = samplerFunc.replace('sampler', '');
-//         samplerStr = samplerStr.replace(/(?<=uniform(.*?))(sampler\w*)/g, 'sampler');
-
-//         // layout (set = a, binding = b) uniform sampler2D cctex;
-//         // to:
-//         // layout (set = a, binding = b) uniform sampler cctexSampler;
-//         // layout (set = a, binding = b + maxTextureNum) uniform texture2D cctex;
-//         const samplerReg = /(?<=binding = )(\d+)(?=\))/g;
-//         const samplerBindingStr = str.match(samplerReg)!.toString();
-//         const samplerBinding = Number(samplerBindingStr) + 16;
-//         samplerStr = samplerStr.replace(samplerReg, samplerBinding.toString());
-
-//         const textureStr = str.replace(/(?<=uniform(.*?))(sampler)(?=\w*)/g, 'texture');
-//         code = code.replace(str, `${samplerStr}\n${textureStr}`);
-
-//         if (!samplerTypeSet.has(samplerFunc)) {
-//             samplerTypeSet.add(samplerFunc);
-//             // gathering referred func
-//             const referredFuncStr = `([\\w]+)[\\s]*\\(sampler${samplerFunc}[^\\)]+\\)[\\s]*{`;
-//             const referredFuncRe = new RegExp(referredFuncStr, 'g');
-//             let reArr = referredFuncRe.exec(code);
-//             while (reArr) {
-//                 referredFuncSet.add([reArr[1], samplerFunc]);
-//                 reArr = referredFuncRe.exec(code);
-//             }
-//         }
-
-//         // cctex in main() called directly
-//         // .*?texture\(
-//         const regStr = `texture\\(\\b(${textureName})\\b`;
-//         const re = new RegExp(regStr);
-//         let reArr = re.exec(code);
-//         while (reArr) {
-//             code = code.replace(re, `texture(sampler${samplerFunc}(${textureName},${textureName}Sampler)`);
-//             reArr = re.exec(code);
-//         }
-//         return true;
-//     });
-
-//     // function
-//     referredFuncSet.forEach((pair) => {
-//         // 1. fn definition
-//         const fnDefReStr = `[\\\n|\\W]([\\w]+)[\\W]+${pair[0]}[\\s]*\\(sampler${pair[1]}[^}]+}`;
-//         const fnDefRe = new RegExp(fnDefReStr);
-//         const fnArr = fnDefRe.exec(code);
-//         let funcTemplate;
-//         let funcReturnType;
-//         // no overload in c :)
-//         if (fnArr) {
-//             funcReturnType = fnArr[1];
-//             const samplerType = `sampler${pair[1]}`;
-//             const textureRe = (new RegExp(`.*?${samplerType}[\\s]+([\\S]+),`)).exec(fnArr[0])!;
-//             const textureName = textureRe[1];
-//             //\\W*vec2\\W([^\\)]+)
-//             const uvDefRe = (new RegExp(`.*?${samplerType}[\\s]+[\\S]+,\\W*\\w+\\W([^\\)]+)`)).exec(fnArr[0])!;
-//             const uvName = uvDefRe[1];
-//             const uvRe = `\\b${uvName}\\b`;
-//             const paramReStr = `${samplerType}[\\s]+${textureName}`;
-//             // eslint-disable-next-line max-len
-//             const funcDef = fnArr[0].replace(new RegExp(paramReStr), `texture${pair[1]} ${textureName}_TEX_NAME_PLACEHOLDER, sampler ${textureName}Sampler_SAMPLER_PLACEHOLDER`);
-//             funcTemplate = funcDef;
-//             // 2. texture(...) inside, builtin funcs
-//             const textureOpArr = ['texture', 'textureSize', 'texelFetch', 'textureLod'];
-//             for (let i = 0; i < textureOpArr.length; i++) {
-//                 const texFuncReStr = `(${textureOpArr[i]})\\(${textureName},`;
-//                 const texFuncRe = new RegExp(texFuncReStr, 'g');
-//                 funcTemplate = funcTemplate.replace(texFuncRe, `$1(${samplerType}(${textureName}_TEX_NAME_PLACEHOLDER, ${textureName}Sampler_SAMPLER_PLACEHOLDER),`);
-//             }
-//             funcTemplate = funcTemplate.replace(new RegExp(uvRe, 'g'), `${uvName}_UV_NAME_PLACEHOLDER`);
-
-//             const funcNameLineReStr = `(?:\\\\n|\\W).*\\(texture${pair[1]}[^\\)]+\\)[\\s]*{`;
-//             const funcNameLineRe = new RegExp(funcNameLineReStr, 'g');
-//             funcTemplate = funcTemplate.replace(funcNameLineRe, `\n${funcReturnType as string} RET_VAR_PLACEHOLDER;\n`);
-//             const lastBracket = `(?:.(?!}))+$`;
-//             const lastBracketRe = new RegExp(lastBracket, 'g');
-//             funcTemplate = funcTemplate.replace(lastBracketRe, '');
-//             const returnKeyword = `[\\\\n|\\W]return[\\W]`;
-//             const returnKeywordRe = new RegExp(returnKeyword, 'g');
-//             funcTemplate = funcTemplate.replace(returnKeywordRe, `\nRET_VAR_PLACEHOLDER = `);
-
-//             // 3. fn called
-//             // getVec3DisplacementFromTexture\(([\S]+),[^\)]+
-//             // (?:.(?!\\n))+CCSampleWithAlphaSeparated\(([\S]+),[\s]*[^\\n]*
-//             const calledReStr = `(?:.(?!\\\\n))+${pair[0]}\\(([\\S]+),[\\s]*([^\\)]+)[^;]+;`;
-//             const calledRe = new RegExp(calledReStr, 'g');
-//             let calledArr = calledRe.exec(code);
-//             while (calledArr) {
-//                 if (!calledArr[0].includes(`${calledArr[1]}, ${calledArr[1]}Sampler`)) {
-//                     const calledStr = calledArr[0].replace(calledArr[1], `${calledArr[1]}, ${calledArr[1]}Sampler`);
-//                     const returnVar = `${pair[0]}_${calledArr[1]}_${calledArr[2]}`;
-//                     const placeholderMap = new Map<string, string>([
-//                         ['RET_VAR_PLACEHOLDER', returnVar],
-//                         [`${textureName}_TEX_NAME_PLACEHOLDER`, `${calledArr[1]}`],
-//                         [`${textureName}Sampler_SAMPLER_PLACEHOLDER`, `${calledArr[1]}Sampler`],
-//                         [`${uvName}_UV_NAME_PLACEHOLDER`, `${calledArr[2]}`],
-//                     ]);
-//                     const placeholderReStr = `(?:RET_VAR_PLACEHOLDER|${textureName}_TEX_NAME_PLACEHOLDER|${textureName}Sampler_SAMPLER_PLACEHOLDER|${uvName}_UV_NAME_PLACEHOLDER)`;
-//                     const placeHolderRe = new RegExp(placeholderReStr, 'g');
-//                     const specFunc = funcTemplate.replace(placeHolderRe, (matched) => placeholderMap.get(matched));
-
-//                     // o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv0);  => o *= retVar;
-//                     const targetExpr = `${pair[0]}[^;]+`;
-//                     const targetExprRe = new RegExp(targetExpr, 'g');
-//                     const retExpr = calledArr[0].replace(targetExprRe, returnVar);
-
-//                     const str = (specFunc as string) + retExpr;
-
-//                     code = code.replace(calledArr[0], str);
-//                 }
-//                 calledArr = calledRe.exec(code);
-//             }
-
-//             //code = code.replace(fnDefRe, funcDef);
-//             //fnArr = fnDefRe.exec(code);
-//         }
-
-//         // 3. fn called
-//         // getVec3DisplacementFromTexture\(([\S]+),[^\)]+
-//         // const calledReStr = `(?<!vec.)${pair[0]}\\(([\\S]+),[\\s]*[^\\)]+`;
-//         // const calledRe = new RegExp(calledReStr, 'g');
-//         // let calledArr = calledRe.exec(code);
-//         // while (calledArr) {
-//         //     if (!calledArr[0].includes(`${calledArr[1]}, ${calledArr[1]}Sampler`)) {
-//         //         const calledStr = calledArr[0].replace(calledArr[1], `${calledArr[1]}, ${calledArr[1]}Sampler`);
-//         //         code = code.replace(calledArr[0], calledStr);
-//         //     }
-//         //     calledArr = calledRe.exec(code);
-//         // }
-//     });
-//     // code = code.replace(/(?<!vec4 )(CCSampleTexture\(.+\))/g, 'CCSampleTexture(cc_spriteTextureSampler, cc_spriteTexture, uv0)');
-//     return code;
-// }
 
 export class WebGPUDeviceManager {
     static get instance () {
