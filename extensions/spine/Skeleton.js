@@ -130,10 +130,13 @@ sp.Skeleton = cc.Class({
             default: null,
             type: sp.SkeletonData,
             notify () {
-                this._resetDefaultAnim();
-                this._resetDefaultSkin();
                 if (CC_EDITOR) {
+                    this._resetDefaultAnim();
+                    this._resetDefaultSkin();
                     this._refreshInspector();
+                } else {
+                    this.defaultSkin = '';
+                    this.defaultAnimation = '';
                 }
                 this._updateSkeletonData();
             },
@@ -1281,7 +1284,7 @@ sp.Skeleton = cc.Class({
         return this._state;
     },
 
-    _resetDefaultAnim () {
+    _resetDefaultAnim: CC_EDITOR && function () {
         if (this.skeletonData) {
             let animEnum = this.skeletonData.getAnimsEnum();
             if (!animEnum.hasOwnProperty(this.defaultAnimation)) {
@@ -1290,7 +1293,7 @@ sp.Skeleton = cc.Class({
         }
     },
 
-    _resetDefaultSkin () {
+    _resetDefaultSkin: CC_EDITOR && function () {
         if (this.skeletonData) {
             let skinEnum = this.skeletonData.getSkinsEnum();
             if(!skinEnum.hasOwnProperty(this.defaultSkin)) {
