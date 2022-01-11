@@ -29,7 +29,6 @@ import { Color } from '../math/color';
 import { Mat4 } from '../math/mat4';
 import { Vec3 } from '../math/vec3';
 import { Vec4 } from '../math/vec4';
-import { NativeGeometryRenderer } from '../renderer/scene';
 import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPipeline } from './render-pipeline';
@@ -158,17 +157,19 @@ export class GeometryRenderer {
     private _device: Device | null = null;
     private _pipeline: RenderPipeline | null = null;
     private _buffers: GeometryVertexBuffers;
-    private _nativeObj: NativeGeometryRenderer | null = null;
+    private _nativeObj: any = null;
 
     public constructor () {
         this._buffers = new GeometryVertexBuffers();
 
         if (JSB) {
-            this._nativeObj = new NativeGeometryRenderer();
+            // @ts-expect-error: jsb related codes.
+            this._nativeObj = new nr.GeometryRenderer();
         }
     }
 
-    public get native (): NativeGeometryRenderer | null {
+    public get native () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._nativeObj;
     }
 
@@ -205,19 +206,19 @@ export class GeometryRenderer {
             for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
                 const lines = this._buffers.lines[i];
                 if (!lines.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.LINE, i, lines._vertices, lines._vertexCount);
+                    this._nativeObj.flushFromJSB(GeometryType.LINE, i, lines._vertices, lines._vertexCount);
                     lines.reset();
                 }
 
                 const dashedLines = this._buffers.dashedLines[i];
                 if (!dashedLines.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.DASHED_LINE, i, dashedLines._vertices, dashedLines._vertexCount);
+                    this._nativeObj.flushFromJSB(GeometryType.DASHED_LINE, i, dashedLines._vertices, dashedLines._vertexCount);
                     dashedLines.reset();
                 }
 
                 const triangles = this._buffers.triangles[i];
                 if (!triangles.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.TRIANGLE, i, triangles._vertices, triangles._vertexCount);
+                    this._nativeObj.flushFromJSB(GeometryType.TRIANGLE, i, triangles._vertices, triangles._vertexCount);
                     triangles.reset();
                 }
             }

@@ -23,20 +23,12 @@
  THE SOFTWARE.
  */
 
-
 declare const nr: any;
 
-import { getPhaseID } from './pass-phase'
-import { setClassName, mixin, addon } from '../../core/utils/js';
-import { DeferredPipelineSceneData } from './deferred/deferred-pipeline-scene-data';
-import { legacyCC } from '../../core/global-exports';
-import { Asset } from '../assets/asset';
-import { Swapchain } from '../gfx';
-import { Model, Camera } from '../renderer/scene';
-import { IPipelineEvent, PipelineEventType } from './pipeline-event';
-import { PipelineSceneData } from './pipeline-scene-data';
+import { getPhaseID } from './pass-phase';
+import { setClassName } from '../../core/utils/js';
+import { PipelineEventType } from './pipeline-event';
 import { GeometryRenderer } from './geometry-renderer';
-import { geometry } from '..';
 
 nr.getPhaseID = getPhaseID;
 
@@ -45,338 +37,254 @@ export const RenderFlow = nr.RenderFlow;
 export const RenderStage = nr.RenderStage;
 export const InstancedBuffer = nr.InstancedBuffer;
 export const PipelineStateManager = nr.PipelineStateManager;
+export const ForwardPipeline = nr.ForwardPipeline;
+export const ForwardFlow = nr.ForwardFlow;
+export const ShadowFlow = nr.ShadowFlow;
+export const ForwardStage = nr.ForwardStage;
+export const ShadowStage = nr.ShadowStage;
+export const DeferredPipeline = nr.DeferredPipeline;
+export const MainFlow = nr.MainFlow;
+export const LightingStage = nr.LightingStage;
+export const PostProcessStage = nr.PostProcessStage;
+export const GbufferStage = nr.GbufferStage;
+export const BloomStage = nr.BloomStage;
 export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
-
-let instancedBufferProto = nr.InstancedBuffer;
-let oldGetFunc = instancedBufferProto.get;
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
 nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
-    return getOrCreatePipelineState.call(device, pass.native, shader, renderPass, ia);
-}
-
-export function createDefaultPipeline () {
-    const pipeline = new ForwardPipeline();
-    pipeline.init();
-    return pipeline;
-}
+    return getOrCreatePipelineState(pass, shader, renderPass, ia); //cjh TODO: remove hacking. c++ API doesn't access device argument.
+};
 
 // ForwardPipeline
-export class ForwardPipeline extends nr.ForwardPipeline implements IPipelineEvent {
-    public pipelineSceneData = new PipelineSceneData();
-    public geometryRenderer = new GeometryRenderer();
-
-    constructor() {
-      super();
-      this._tag = 0;
-      this._flows = [];
-      this.renderTextures = [];
-      this.materials = [];
-    }
-    on(type: PipelineEventType, callback: any, target?: any, once?: boolean) {}
-    once(type: PipelineEventType, callback: any, target?: any) {}
-    off(type: PipelineEventType, callback?: any, target?: any) {}
-    emit(type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
-    targetOff(typeOrTarget: any): void {}
-    removeAll(typeOrTarget: any): void {}
-    hasEventListener(type: PipelineEventType, callback?: any, target?: any): boolean { return false; }
-
-    public init () {
-        this.setPipelineSharedSceneData(this.pipelineSceneData.native);
-        this.setGeometryRenderer(this.geometryRenderer.native);
-
-        for (let i = 0; i < this._flows.length; i++) {
-            this._flows[i].init(this);
-        }
-        const info = new nr.RenderPipelineInfo(this._tag, this._flows);
-        this.initialize(info);
-    }
-
-    public activate (swapchain: Swapchain) {
-      this.geometryRenderer.activate(legacyCC.director.root.device, this as any);
-        return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
-    }
-
-    public render (cameras: Camera[]) {
-      this.geometryRenderer.flush();
-      let nativeObjs = [];
-      for (let i = 0, len = cameras.length; i < len; ++i) {
-          nativeObjs.push(cameras[i].native);
-      }
-      super.render(nativeObjs);
-    }
-
-    set profiler (value: Model) {
-      this.setProfiler(value && value.native);
-    }
-
-    public destroy () {
-        this.pipelineSceneData.destroy();
-        this.geometryRenderer.destroy();
-        super.destroy();
-    }
-}
-
-addon(ForwardPipeline.prototype, Asset.prototype);
-
-const ForwardOnLoaded = ForwardPipeline.prototype.onLoaded;
-
-// hook to invoke init after deserialization
-ForwardPipeline.prototype.onLoaded = function () {
-  if (ForwardOnLoaded) ForwardOnLoaded.call(this);
-  this.init();
-}
-
-export class ForwardFlow extends nr.ForwardFlow {
-    constructor() {
-        super();
-        this._name = 0;
-        this._priority = 0;
-        this._tag = 0;
-        this._stages = [];
-    }
-    init(pipeline) {
-        for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].init(pipeline);
-        }
-        const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
-        this.initialize(info);
-    }
-}
-
-export class ShadowFlow extends nr.ShadowFlow {
-    constructor() {
-        super();
-        this._name = 0;
-        this._priority = 0;
-        this._tag = 0;
-        this._stages = [];
-    }
-    init(pipeline) {
-        for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].init(pipeline);
-        }
-        const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
-        this.initialize(info);
-    }
-}
-
-export class ForwardStage extends nr.ForwardStage {
-    constructor() {
-        super();
-        this._name = 0;
-        this._priority = 0;
-        this._tag = 0;
-        this.renderQueues = [];
-    }
-    public init(pipeline) {
-        const queues = [];
-        for (let i = 0; i < this.renderQueues.length; i++) {
-            queues.push(this.renderQueues[i].init());
-        }
-        const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
-        this.initialize(info);
-    }
-}
-
-export class ShadowStage extends nr.ShadowStage {
-    constructor() {
-        super();
-        this._name = 0;
-        this._priority = 0;
-        this._tag = 0;
-    }
-    public init(pipeline) {
-        const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, []);
-        this.initialize(info);
-    }
-}
-
-export class RenderQueueDesc {
-    public isTransparent = false;
-    public sortMode = 0;
-    public stages = [];
-
-    constructor() {
-        this.isTransparent = false;
-        this.sortMode = 0;
-        this.stages = [];
-    }
-
-    public init() {
-        return new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
-    }
-}
-
-export class DeferredPipeline extends nr.DeferredPipeline implements IPipelineEvent {
-  public pipelineSceneData = new DeferredPipelineSceneData();
-  public geometryRenderer = new GeometryRenderer();
-
-  constructor() {
-    super();
+const forwardPipelineProto = ForwardPipeline.prototype;
+forwardPipelineProto._ctor = function() {
     this._tag = 0;
     this._flows = [];
-    this.renderTextures = [];
-    this.materials = [];
-  }
-  on(type: PipelineEventType, callback: any, target?: any, once?: boolean) {}
-  once(type: PipelineEventType, callback: any, target?: any) {}
-  off(type: PipelineEventType, callback?: any, target?: any) {}
-  emit(type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
-  targetOff(typeOrTarget: any): void {}
-  removeAll(typeOrTarget: any): void {}
-  hasEventListener(type: PipelineEventType, callback?: any, target?: any): boolean { return false; }
+    // noinspection JSConstantReassignment
+    this.geometryRenderer = new GeometryRenderer();
+};
 
-  init() {
-    this.setPipelineSharedSceneData(this.pipelineSceneData.native);
-    this.setGeometryRenderer(this.geometryRenderer.native);
+forwardPipelineProto.init = function () {
+      this.setGeometryRenderer(this.geometryRenderer.native);
+      for (let i = 0; i < this._flows.length; i++) {
+          this._flows[i].init(this);
+      }
+      const info = new nr.RenderPipelineInfo(this._tag, this._flows);
+      this.initialize(info);
+};
 
-    for (let i = 0; i < this._flows.length; i++) {
-      this._flows[i].init(this);
-    }
-    let info = new nr.RenderPipelineInfo(this._tag, this._flows);
-    this.initialize(info);
-  }
+forwardPipelineProto.on = function(type: PipelineEventType, callback: any, target?: any, once?: boolean){}
+forwardPipelineProto.once = function(type: PipelineEventType, callback: any, target?: any) {}
+forwardPipelineProto.off = function(type: PipelineEventType, callback?: any, target?: any) {}
+forwardPipelineProto.emit = function(type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
+forwardPipelineProto.targetOff = function(typeOrTarget: any): void {}
+forwardPipelineProto.removeAll = function(typeOrTarget: any): void {}
+forwardPipelineProto.hasEventListener = function(type: PipelineEventType, callback?: any, target?: any): boolean { return false; }
 
-  public activate (swapchain: Swapchain) {
-    this.geometryRenderer.activate(legacyCC.director.root.device, this as any);
-    return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
-  }
-
-  public render (cameras: Camera[]) {
-    this.geometryRenderer.flush();
-    let nativeObjs = [];
-    for (let i = 0, len = cameras.length; i < len; ++i) {
-      nativeObjs.push(cameras[i].native);
-    }
-    super.render(nativeObjs);
-  }
-
-  set profiler (value: Model) {
-    this.setProfiler(value && value.native);
-  }
-
-  destroy () {
-    this.fog.destroy();
-    this.ambient.destroy();
-    this.skybox.destroy();
-    this.shadows.destroy();
-    this.pipelineSceneData.destroy();
-    this.geometryRenderer.destroy();
-    super.destroy();
-  }
-
-}
-
-addon(DeferredPipeline.prototype, Asset.prototype);
-
-const DeferredOnLoaded = DeferredPipeline.prototype.onLoaded;
-
+const oldForwardOnLoaded = forwardPipelineProto.onLoaded;
 // hook to invoke init after deserialization
-DeferredPipeline.prototype.onLoaded = function () {
-  if (DeferredOnLoaded) DeferredOnLoaded.call(this);
-  this.init();
+forwardPipelineProto.onLoaded = function () {
+    if (oldForwardOnLoaded) oldForwardOnLoaded.call(this);
+    for (let i = 0; i < this._flows.length; i++) {
+        this._flows[i].init(this);
+    }
+    const info = new nr.RenderPipelineInfo(this._tag, this._flows);
+    this.initialize(info);
 }
 
-export class MainFlow extends nr.MainFlow {
-  constructor() {
-    super();
+const forwardFlowProto = ForwardFlow.prototype;
+forwardFlowProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
     this._stages = [];
+}
+forwardFlowProto.init = function(pipeline) {
+    for (let i = 0; i < this._stages.length; i++) {
+        this._stages[i].init(pipeline);
+    }
+    const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
+    this.initialize(info);
+}
+
+const shadowFlowProto = ShadowFlow.prototype;
+shadowFlowProto._ctor = function() {
+  this._name = 0;
+      this._priority = 0;
+      this._tag = 0;
+      this._stages = [];
+}
+shadowFlowProto.init = function (pipeline) {
+    for (let i = 0; i < this._stages.length; i++) {
+      this._stages[i].init(pipeline);
+    }
+    const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
+    this.initialize(info);
+}
+
+const forwardStageProto = ForwardStage.prototype;
+forwardStageProto._ctor = function() {
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = [];
+}
+forwardStageProto.init = function(pipeline) {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
+    }
+    const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    this.initialize(info);
+}
+
+const shadowStageProto = ShadowStage.prototype;
+shadowStageProto._ctor = function() {
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+}
+shadowStageProto.init = function(pipeline) {
+    const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, []);
+    this.initialize(info);
+}
+
+export class RenderQueueDesc {
+  public isTransparent = false;
+  public sortMode = 0;
+  public stages = [];
+
+  constructor() {
+      this.isTransparent = false;
+      this.sortMode = 0;
+      this.stages = [];
   }
 
-  init(pipeline) {
+  public init() {
+      return new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
+  }
+}
+
+const deferredPipelineProto = DeferredPipeline.prototype;
+deferredPipelineProto._ctor = function() {
+    this._tag = 0;
+    this._flows = [];
+    this.renderTextures = [];
+    this.materials = [];
+    // noinspection JSConstantReassignment
+    this.geometryRenderer = new GeometryRenderer();
+}
+deferredPipelineProto.on = function(type: PipelineEventType, callback: any, target?: any, once?: boolean){}
+deferredPipelineProto.once = function(type: PipelineEventType, callback: any, target?: any) {}
+deferredPipelineProto.off = function(type: PipelineEventType, callback?: any, target?: any) {}
+deferredPipelineProto.emit = function(type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
+deferredPipelineProto.targetOff = function(typeOrTarget: any): void {}
+deferredPipelineProto.removeAll = function(typeOrTarget: any): void {}
+deferredPipelineProto.hasEventListener = function(type: PipelineEventType, callback?: any, target?: any): boolean { return false; }
+
+const oldDeferredOnLoaded = deferredPipelineProto.onLoaded;
+// hook to invoke init after deserialization
+deferredPipelineProto.onLoaded = function () {
+    if (oldDeferredOnLoaded) oldDeferredOnLoaded.call(this);
+
+    this.setGeometryRenderer(this.geometryRenderer.native);
+    for (let i = 0; i < this._flows.length; i++) {
+        this._flows[i].init(this);
+    }
+    let info = new nr.RenderPipelineInfo(this._tag, this._flows);
+    this.initialize(info);
+}
+
+const mainFlowProto = MainFlow.prototype;
+mainFlowProto._ctor = function() {
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this._stages = [];
+}
+mainFlowProto.init = function(pipeline) {
     for (let i = 0; i < this._stages.length; i++) {
       this._stages[i].init(pipeline);
     }
     let info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
     this.initialize(info);
-  }
 }
 
-export class GbufferStage extends nr.GbufferStage {
-  constructor() {
-    super();
+const gbufferStageProto = GbufferStage.prototype;
+gbufferStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
-    this.renderQueues = []
-  }
-
-  init(pipeline) {
+    this.renderQueues = [];
+}
+gbufferStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
-      queues.push(this.renderQueues[i].init());
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
     }
-    let info =
-        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    let info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
-  }
 }
 
-export class LightingStage extends nr.LightingStage {
-  constructor() {
-    super();
+
+const lightingStageProto = LightingStage.prototype;
+lightingStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
     this._deferredMaterial = null;
-  }
-  init(pipeline) {
+}
+lightingStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
-      queues.push(this.renderQueues[i].init());
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
     }
     pipeline.pipelineSceneData.deferredLightingMaterial = this._deferredMaterial;
-    let info =
-        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    let info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
-  }
 }
 
-export class BloomStage extends nr.BloomStage {
-  constructor() {
-    super();
+const bloomStageProto = BloomStage.prototype;
+bloomStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
     this._bloomMaterial = null;
-  }
-  init(pipeline) {
+}
+bloomStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
-      queues.push(this.renderQueues[i].init());
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
     }
     pipeline.pipelineSceneData.bloomMaterial = this._bloomMaterial;
-    let info =
-        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    let info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
-  }
 }
 
-export class PostProcessStage extends nr.PostProcessStage {
-  constructor() {
-    super();
+const postProcessStageProto = PostProcessStage.prototype;
+postProcessStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
     this._postProcessMaterial = null;
-  }
-  init(pipeline) {
+}
+postProcessStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
-      queues.push(this.renderQueues[i].init());
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
     }
-    pipeline.pipelineSceneData.postprocessMaterial = this._postProcessMaterial;
+    pipeline.pipelineSceneData.postProcessMaterial = this._postProcessMaterial;
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
-  }
 }
 
 setClassName('DeferredPipeline', DeferredPipeline);

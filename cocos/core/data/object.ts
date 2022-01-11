@@ -28,7 +28,7 @@
  * @module core/data
  */
 
-import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST, JSB } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
@@ -191,6 +191,12 @@ class CCObject implements EditorExtendableObject {
 
         if (EDITOR) {
             deferredDestroyTimer = null;
+        }
+
+        if (JSB) {
+            // release objects which hold for delay GC
+            // @ts-expect-error: jsb function call
+            jsb.CCObject._deferredDestroyReleaseObjects();
         }
     }
 
