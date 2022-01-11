@@ -1,10 +1,17 @@
 name: run test cases
-on: pull_request
+
+#on: pull_request
+on: 
+  pull_request_review_comment:
+    types: [created, edited]
+  issue_comment:
+    types: [created, edited]
 
 jobs:
   run-test-cases:
+    if: |
+      contains(github.event.comment.body, '@cocos-robot run test cases')
     runs-on: run-test-win01
-
     steps:
       - name: 'Checkout engine'
         uses: actions/checkout@v2
