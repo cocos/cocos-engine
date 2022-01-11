@@ -768,7 +768,7 @@ export function removeCombinedSamplerTexture0 (shaderSource: string) {
                     let funcTemplate = functionTemplates.get(str);
                     funcTemplate = funcTemplate!.replace(new RegExp(samplerReStr, 'g'), pair[2]);
                     funcTemplate = funcTemplate.replace(new RegExp(textureStr, 'g'), textureName);
-                    funcTemplate = funcTemplate.replace(new RegExp('SAMPLER_SPEC\\([^,)]+(,)?', 'g'), `_${pair[2]}_specialized(`);
+                    funcTemplate = funcTemplate.replace(new RegExp('SAMPLER_SPEC([\\W]?)*\\([^,)]+(,)?', 'g'), `_${pair[2]}_specialized(`);
                     // funcTemplate = funcTemplate.replace('SAMPLER_SPEC', `_${pair[2]}_specialized`);
 
                     for (let i = 0; i < referredFuncMap.values.length; ++i) {
