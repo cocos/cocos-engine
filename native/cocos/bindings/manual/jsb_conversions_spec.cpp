@@ -737,8 +737,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::FogInfo *to, se::Object
     set_member_field<float>(obj, to, "fogAtten", &cc::scene::FogInfo::setFogAtten, tmp);
     set_member_field<float>(obj, to, "fogTop", &cc::scene::FogInfo::setFogTop, tmp);
     set_member_field<float>(obj, to, "fogRange", &cc::scene::FogInfo::setFogRange, tmp);
-    // TODO(PatriceJiang): covnert resource ??
-    //  set_member_field<cc::scene::Fog>(obj, to, "resource", &cc::scene::FogInfo::setResource, tmp);
+    set_member_field<float>(obj, to, "accurate", &cc::scene::FogInfo::setAccurate, tmp);
     return true;
 }
 
@@ -762,8 +761,8 @@ bool sevalue_to_native(const se::Value &from, cc::scene::ShadowsInfo *to, se::Ob
     set_member_field<float>(obj, to, "maxReceived", &cc::scene::ShadowsInfo::setMaxReceived, tmp);
     set_member_field<float>(obj, to, "size", &cc::scene::ShadowsInfo::setShadowMapSize, tmp);
     set_member_field<float>(obj, to, "saturation", &cc::scene::ShadowsInfo::setSaturation, tmp);
-    // TODO(PatriceJiang): covnert resource ??
-    //  set_member_field<cc::scene::Shadow>(obj, to, "resource", &cc::scene::ShadowInfo::setResource, tmp);
+    set_member_field<float>(obj, to, "invisibleOcclusionRange", &cc::scene::ShadowsInfo::setInvisibleOcclusionRange, tmp);
+    set_member_field<float>(obj, to, "shadowDistance", &cc::scene::ShadowsInfo::setShadowDistance, tmp);
 
     return true;
 }
@@ -925,19 +924,19 @@ bool sevalue_to_native(const se::Value &from, cc::MaterialProperty *to, se::Obje
             return true;
         }
 
-        // TODO(): optimize the the performance?
         if (obj->_getClass() != nullptr) {
-            if (0 == strcmp(obj->_getClass()->getName(), "Texture2D")) {
+            const auto *name = obj->_getClass()->getName();
+            if (0 == strcmp(name, "Texture2D")) {
                 *to = reinterpret_cast<cc::Texture2D *>(obj->getPrivateData());
                 return true;
             }
 
-            if (0 == strcmp(obj->_getClass()->getName(), "TextureCube")) {
+            if (0 == strcmp(name, "TextureCube")) {
                 *to = reinterpret_cast<cc::TextureCube *>(obj->getPrivateData());
                 return true;
             }
 
-            if (0 == strcmp(obj->_getClass()->getName(), "RenderTexture")) {
+            if (0 == strcmp(name, "RenderTexture")) {
                 *to = reinterpret_cast<cc::RenderTexture *>(obj->getPrivateData());
                 return true;
             }

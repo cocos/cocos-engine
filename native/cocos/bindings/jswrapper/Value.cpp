@@ -58,19 +58,6 @@ inline
 
 #define CONVERT_TO_TYPE(type) fromDoubleToIntegral<type>(toDouble())
 
-namespace {
-
-bool isInteger(const std::string &str) {
-    for (const char &c : str) { // NOLINT //remvoe after using c++20
-        if (std::isdigit(c) == 0) {
-            return false;
-        }
-    }
-    return true;
-}
-
-} // namespace
-
 ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
 Value Value::Null      = Value(Type::Null);      //NOLINT(readability-identifier-naming)
@@ -456,7 +443,7 @@ float Value::toFloat() const {
 }
 
 double Value::toDouble() const {
-    assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt || (_type == Type::String && isInteger(*_u._string)));
+    assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt || _type == Type::String);
     if (LIKELY(_type == Type::Number)) {
         return _u._number;
     }
@@ -465,9 +452,8 @@ double Value::toDouble() const {
         return static_cast<double>(_u._bigint);
     }
 
-    // TODO(): Only supports to convert integer string to integer now.
-    if (_type == Type::String && isInteger(*_u._string)) {
-        return atoi(_u._string->c_str());
+    if (_type == Type::String) {
+        return std::stod(*_u._string);
     }
 
     return _u._boolean ? 1.0 : 0.0;

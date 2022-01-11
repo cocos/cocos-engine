@@ -40,9 +40,10 @@ namespace cc {
 
 class Mesh;
 
+// _chunkIdxMap[key] = skeleton ^ clips[i]
 struct IChunkContent {
-    int32_t              skeleton{0}; // TODO(xwx): int or uint or float?
-    std::vector<int32_t> clips;       // TODO(xwx): int or uint?
+    uint64_t              skeleton{0};
+    std::vector<uint64_t> clips;
 };
 
 struct ICustomJointTextureLayout {
