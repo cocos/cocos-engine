@@ -596,24 +596,25 @@ export class Batcher2D implements IBatcher {
         const uiProps = node._uiProps;
         const render = uiProps.uiComp as Renderable2D;
 
+        // Save opacity
+        const parentOpacity = this._pOpacity;
+        let opacity = parentOpacity;
+        // TODO Always cascade ui property's local opacity before remove it
+        const selfOpacity = render && render.color ? render.color.a / 255 : 1;
+        this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
+        // TODO Set opacity to ui property's opacity before remove it
+        // @ts-expect-error temporary force set, will be removed with ui property's opacity
+        uiProps._opacity = opacity;
+        if (uiProps.colorDirty) {
+            // Cascade color dirty state
+            this._opacityDirty++;
+        }
+
         // Render assembler update logic
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
         }
 
-        // Save opacity
-        const parentOpacity = this._pOpacity;
-        let opacity = parentOpacity;
-        const selfOpacity = render && render.color ? render.color.a / 255 : 1;
-        this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
-        // TODO Always cascade ui property's local opacity before remove it
-        if (uiProps.colorDirty) {
-            // TODO Set opacity to ui property's opacity before remove it
-            // @ts-expect-error temporary force set, will be removed with ui property's opacity
-            uiProps._opacity = opacity;
-            // Cascade color dirty state
-            this._opacityDirty++;
-        }
         // Update cascaded opacity to vertex buffer
         if (this._opacityDirty && render && render.renderData && render.renderData.vertexCount > 0) {
             // HARD COUPLING
