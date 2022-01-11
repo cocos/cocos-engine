@@ -51,7 +51,7 @@ export const EnvironmentLightingType = Enum({
      * unuse ambient lighting reflection
      * @readonly
      */
-    Ambient_Diffuse: 0,
+     Hemisphere_Diffuse: 0,
     /**
      * @zh
      * 使用环境光反射
@@ -59,7 +59,7 @@ export const EnvironmentLightingType = Enum({
      * use ambient lighting reflection
      * @readonly
      */
-    AutoGen_Ambient_Diffuse_With_Reflection: 1,
+    AutoGen_Hemisphere_Diffuse_With_Reflection: 1,
        /**
      * @zh
      * 使用漫反射贴图。

@@ -222,7 +222,7 @@ legacyCC.AmbientInfo = AmbientInfo;
 @help('i18n:cc.Skybox')
 export class SkyboxInfo {
     @serializable
-    protected _environmentLightingType = EnvironmentLightingType.Ambient_Diffuse;
+    protected _environmentLightingType = EnvironmentLightingType.Hemisphere_Diffuse;
     @serializable
     protected _applyDiffuseMap = false;
     @serializable
@@ -296,11 +296,11 @@ export class SkyboxInfo {
     @type(EnvironmentLightingType)
     @tooltip('i18n:skybox.EnvironmentLightingType')
     set environmentLightingType (val) {
-        if(EnvironmentLightingType.Ambient_Diffuse == val)
+        if(EnvironmentLightingType.Hemisphere_Diffuse == val)
         {
             this.useIBL = false;
         }
-        else if(EnvironmentLightingType.AutoGen_Ambient_Diffuse_With_Reflection == val)
+        else if(EnvironmentLightingType.AutoGen_Hemisphere_Diffuse_With_Reflection == val)
         {
             this.useIBL = true;
             this.applyDiffuseMap = false;
