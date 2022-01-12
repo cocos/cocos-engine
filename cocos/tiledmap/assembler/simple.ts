@@ -512,7 +512,8 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             _fillGrids++;
 
             const renderData = _renderData!.renderData;
-            renderData.updateRange(0, renderData.vertexCount + 4, 0, renderData.indexCount + 6);
+            renderData.request(4, 6);
+            renderData.updateRange(0, renderData.vertexCount, 0, renderData.indexCount);
 
             // check render users node
             // if (colNodesCount > 0) _renderNodes(row, col);
