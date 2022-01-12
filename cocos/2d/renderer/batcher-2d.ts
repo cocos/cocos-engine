@@ -225,12 +225,13 @@ export class Batcher2D implements IBatcher {
     }
 
     public uploadBuffers () {
-        this._meshDataArray.forEach(rd => {
-            rd.uploadBuffers();
-        });
-        this._meshDataArray = [];
 
         if (this._batches.length > 0) {
+            this._meshDataArray.forEach(rd => {
+                rd.uploadBuffers();
+            });
+            this._meshDataArray.length = 0;
+
             this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
                 accessor.uploadBuffers();
                 accessor.reset();
@@ -255,6 +256,7 @@ export class Batcher2D implements IBatcher {
         this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
             accessor.reset();
         });
+        this._meshDataArray.length = 0;
         this._staticVBBuffer = null;
 
         this._currBID = -1;
@@ -477,7 +479,7 @@ export class Batcher2D implements IBatcher {
         // Previous batch using mesh buffer
         if (rd && rd.isMeshBuffer) {
             ia = rd.requestIA(this.device);
-            if (-1 === this._meshDataArray.indexOf(rd)) {
+            if (this._meshDataArray.indexOf(rd) === -1) {
                 this._meshDataArray.push(rd);
             }
         } else if (accessor) {
