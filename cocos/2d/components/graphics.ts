@@ -619,10 +619,12 @@ export class Graphics extends Renderable2D {
         }
 
         const subModelList = this.model.subModels;
+        let lastFilledVertex = -1;
+        let lastFilledIndex = -1;
         for (let i = 0; i < renderDataList.length; i++) {
             const renderData = renderDataList[i];
             const ia = subModelList[i].inputAssembler;
-            if (renderData.lastFilledVertex === renderData.vertexStart) {
+            if (lastFilledVertex === renderData.vertexStart) {
                 continue;
             }
 
@@ -632,8 +634,8 @@ export class Graphics extends Renderable2D {
             const ib = new Uint16Array(renderData.iData.buffer, 0, renderData.indexStart);
             ia.indexBuffer!.update(ib);
             ia.indexCount = renderData.indexStart;
-            renderData.lastFilledVertex = renderData.vertexStart;
-            renderData.lastFilledIndex = renderData.indexStart;
+            lastFilledVertex = renderData.vertexStart;
+            lastFilledIndex = renderData.indexStart;
         }
 
         this._isNeedUploadData = false;
