@@ -37,6 +37,35 @@ import { EventTarget } from '../core/event/event-target';
 import { Event, EventAcceleration, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 
+export enum EventDispatcherPriority {
+    GLOBAL = 0,
+    UI = 1,
+}
+
+export interface IEventDispatcher {
+    /**
+     * Priority to emit event to dispatcher
+     */
+    readonly priority: EventDispatcherPriority;
+    /**
+     * @param event
+     * @returns Whether dispatch to next event dispatcher
+     */
+    dispatchEvent (event: Event): boolean;
+}
+
+class InputEventDispatcher implements IEventDispatcher {
+    private _inputEventTarget: EventTarget;
+    priority: EventDispatcherPriority = EventDispatcherPriority.GLOBAL;
+    constructor (inputEventTarget: EventTarget) {
+        this._inputEventTarget = inputEventTarget;
+    }
+    dispatchEvent (event: Event): boolean {
+        this._inputEventTarget.emit(event.type, event);
+        return true;
+    }
+}
+
 const pointerEventTypeMap = {
     [InputEventType.MOUSE_DOWN]: InputEventType.TOUCH_START,
     [InputEventType.MOUSE_MOVE]: InputEventType.TOUCH_MOVE,
@@ -109,8 +138,13 @@ export class Input {
 
     private _needSimulateTouchMoveEvent = false;
 
+    private _inputEventDispatcher: InputEventDispatcher;
+    private _eventDispatcherList: IEventDispatcher[] = [];
+
     constructor () {
         this._registerEvent();
+        this._inputEventDispatcher = new InputEventDispatcher(this._eventTarget);
+        this._registerEventDispatcher(this._inputEventDispatcher);
     }
 
     private _simulateEventTouch (eventMouse: EventMouse) {
@@ -126,6 +160,22 @@ export class Input {
             touchManager.releaseTouch(touchID);
         }
         this._dispatchOrPushEventTouch(eventTouch, this._eventTouchList);
+    }
+
+    // TODO: public in engine
+    private _registerEventDispatcher (eventDispatcher: IEventDispatcher) {
+        this._eventDispatcherList.push(eventDispatcher);
+        this._eventDispatcherList.sort((a, b) => b.priority - a.priority);
+    }
+
+    private _emitEvent (event: Event) {
+        const length = this._eventDispatcherList.length;
+        for (let i = 0; i < length; ++i) {
+            const dispatcher = this._eventDispatcherList[i];
+            if (!dispatcher.dispatchEvent(event)) {
+                break;
+            }
+        }
     }
 
     private _registerEvent () {
@@ -180,7 +230,7 @@ export class Input {
 
     private _dispatchOrPushEvent (event: Event, eventList: Event[]) {
         if (this._dispatchImmediately) {
-            this._eventTarget.emit(event.type, event);
+            this._emitEvent(event);
         } else {
             eventList.push(event);
         }
@@ -193,7 +243,7 @@ export class Input {
             for (let i = 0; i < touchesLength; ++i) {
                 eventTouch.touch = touches[i];
                 eventTouch.propagationStopped = eventTouch.propagationImmediateStopped = false;
-                this._eventTarget.emit(eventTouch.type, eventTouch);
+                this._emitEvent(eventTouch);
             }
         } else {
             touchEventList.push(eventTouch);
@@ -205,7 +255,7 @@ export class Input {
         // TODO: culling event queue
         for (let i = 0, length = eventMouseList.length; i < length; ++i) {
             const eventMouse = eventMouseList[i];
-            this._eventTarget.emit(eventMouse.type, eventMouse);
+            this._emitEvent(eventMouse);
         }
 
         const eventTouchList = this._eventTouchList;
@@ -217,7 +267,7 @@ export class Input {
             for (let j = 0; j < touchesLength; ++j) {
                 eventTouch.touch = touches[j];
                 eventTouch.propagationStopped = eventTouch.propagationImmediateStopped = false;
-                this._eventTarget.emit(eventTouch.type, eventTouch);
+                this._emitEvent(eventTouch);
             }
         }
 
@@ -225,14 +275,14 @@ export class Input {
         // TODO: culling event queue
         for (let i = 0, length = eventKeyboardList.length; i < length; ++i) {
             const eventKeyboard = eventKeyboardList[i];
-            this._eventTarget.emit(eventKeyboard.type, eventKeyboard);
+            this._emitEvent(eventKeyboard);
         }
 
         const eventAccelerationList = this._eventAccelerationList;
         // TODO: culling event queue
         for (let i = 0, length = eventAccelerationList.length; i < length; ++i) {
             const eventAcceleration = eventAccelerationList[i];
-            this._eventTarget.emit(eventAcceleration.type, eventAcceleration);
+            this._emitEvent(eventAcceleration);
         }
 
         this._clearEvents();
