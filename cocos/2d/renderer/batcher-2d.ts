@@ -112,6 +112,8 @@ export class Batcher2D implements IBatcher {
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
+    private _meshDataArray :MeshRenderData[] = [];
+
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
@@ -226,6 +228,10 @@ export class Batcher2D implements IBatcher {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
+            this._meshDataArray.forEach((rd) => {
+                rd.uploadBuffers();
+            });
+
             this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
                 accessor.uploadBuffers();
                 accessor.reset();
@@ -250,6 +256,7 @@ export class Batcher2D implements IBatcher {
         this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
             accessor.reset();
         });
+        this._meshDataArray.length = 0;
         this._staticVBBuffer = null;
 
         this._currBID = -1;
@@ -471,7 +478,9 @@ export class Batcher2D implements IBatcher {
         // Previous batch using mesh buffer
         if (rd && rd.isMeshBuffer) {
             ia = rd.requestIA(this.device);
-            rd.uploadBuffers();
+            if (this._meshDataArray.indexOf(rd) === -1) {
+                this._meshDataArray.push(rd);
+            }
         } else if (accessor) {
         // Previous batch using static vb buffer
             const bid = this._currBID;
