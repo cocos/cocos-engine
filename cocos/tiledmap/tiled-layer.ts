@@ -1380,7 +1380,7 @@ export class TiledLayer extends Renderable2D {
         }
         if (arr.length > 0) {
             const last = arr[arr.length - 1];
-            if (last.renderData && last.renderData.byteCount === 0) {
+            if (last.renderData && last.renderData.vertexCount === 0) {
                 return last as TiledMeshData;
             }
         }
