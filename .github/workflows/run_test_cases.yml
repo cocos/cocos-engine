@@ -1,14 +1,7 @@
 name: run test cases
 
 #on: pull_request
-on: 
-  pull_request:
-  discussion_comment:
-    types: [created, edited]
-  pull_request_review_comment:
-    types: [created, edited]
-  issue_comment:
-    types: [created, edited]
+on: [discussion_comment, pull_request_review_comment, issue_comment]
 
 jobs:
   run-test-cases:
