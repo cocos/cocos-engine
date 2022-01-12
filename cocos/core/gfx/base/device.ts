@@ -150,7 +150,6 @@ export abstract class Device {
     protected _vendor = '';
     protected _features = new Array<boolean>(Feature.COUNT);
     protected _formatFeatures = new Array<FormatFeature>(Format.COUNT);
-    protected _textureExclusive = new Array<boolean>(Format.COUNT);
     protected _queue: Queue | null = null;
     protected _cmdBuff: CommandBuffer | null = null;
     protected _numDrawCalls = 0;
@@ -342,14 +341,5 @@ export abstract class Device {
      */
     public getFormatFeature (format: Format): FormatFeature {
         return this._formatFeatures[format];
-    }
-
-    /**
-     * @en Whether a specific format is color renderable or not.
-     * @zh 该格式是否支持 renderBuffer。
-     * @param format The GFX format to be queried.
-     */
-    public getTextureExclusive (format: Format): boolean {
-        return this._textureExclusive[format];
     }
 }

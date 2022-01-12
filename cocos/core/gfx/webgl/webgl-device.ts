@@ -63,7 +63,7 @@ import { GlobalBarrier } from '../base/states/global-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
-import { WebGLDeviceManager } from './webgl-define';
+import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 
 export class WebGLDevice extends Device {
     get gl () {
@@ -88,6 +88,7 @@ export class WebGLDevice extends Device {
 
     private _swapchain: WebGLSwapchain | null = null;
     private _context: WebGLRenderingContext | null = null;
+    protected _textureExclusive = new Array<boolean>(Format.COUNT);
 
     public initialize (info: DeviceInfo): boolean {
         WebGLDeviceManager.setInstance(this);
@@ -141,7 +142,84 @@ export class WebGLDevice extends Device {
         const version: string = gl.getParameter(gl.VERSION);
 
         this._features.fill(false);
+
+        this.initFormatFeatures(exts);
+
+        if (exts.EXT_blend_minmax) {
+            this._features[Feature.BLEND_MINMAX] = true;
+        }
+
+        if (exts.OES_element_index_uint) {
+            this._features[Feature.ELEMENT_INDEX_UINT] = true;
+        }
+
+        if (exts.ANGLE_instanced_arrays) {
+            this._features[Feature.INSTANCED_ARRAYS] = true;
+        }
+
+        if (exts.WEBGL_draw_buffers) {
+            this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
+        }
+
+        let compressedFormat = '';
+
+        if (exts.WEBGL_compressed_texture_etc1) {
+            compressedFormat += 'etc1 ';
+        }
+
+        if (exts.WEBGL_compressed_texture_etc) {
+            compressedFormat += 'etc2 ';
+        }
+
+        if (exts.WEBGL_compressed_texture_s3tc) {
+            compressedFormat += 'dxt ';
+        }
+
+        if (exts.WEBGL_compressed_texture_pvrtc) {
+            compressedFormat += 'pvrtc ';
+        }
+
+        if (exts.WEBGL_compressed_texture_astc) {
+            compressedFormat += 'astc ';
+        }
+
+        debug('WebGL device initialized.');
+        debug(`RENDERER: ${this._renderer}`);
+        debug(`VENDOR: ${this._vendor}`);
+        debug(`VERSION: ${version}`);
+        debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
+        debug(`EXTENSIONS: ${extStr}`);
+
+        return true;
+    }
+
+    public destroy (): void {
+        if (this._queue) {
+            this._queue.destroy();
+            this._queue = null;
+        }
+
+        if (this._cmdBuff) {
+            this._cmdBuff.destroy();
+            this._cmdBuff = null;
+        }
+    }
+
+    public flushCommands (cmdBuffs: CommandBuffer[]) {}
+
+    public acquire (swapchains: Swapchain[]) {}
+
+    public present () {
+        const queue = (this._queue as WebGLQueue);
+        this._numDrawCalls = queue.numDrawCalls;
+        this._numInstances = queue.numInstances;
+        this._numTris = queue.numTris;
+        queue.clear();
+    }
+
+    protected initFormatFeatures (exts: IWebGLExtensions) {
         this._formatFeatures.fill(FormatFeatureBit.NONE);
+
         this._textureExclusive.fill(true);
 
         const completeFeature: FormatFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
@@ -233,28 +311,10 @@ export class WebGLDevice extends Device {
             this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.LINEAR_FILTER;
         }
 
-        if (exts.EXT_blend_minmax) {
-            this._features[Feature.BLEND_MINMAX] = true;
-        }
-
-        if (exts.OES_element_index_uint) {
-            this._features[Feature.ELEMENT_INDEX_UINT] = true;
-        }
-
-        if (exts.ANGLE_instanced_arrays) {
-            this._features[Feature.INSTANCED_ARRAYS] = true;
-        }
-
-        if (exts.WEBGL_draw_buffers) {
-            this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
-        }
-
-        let compressedFormat = '';
         const compressedFeature: FormatFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         if (exts.WEBGL_compressed_texture_etc1) {
             this._formatFeatures[Format.ETC_RGB8] = compressedFeature;
-            compressedFormat += 'etc1 ';
         }
 
         if (exts.WEBGL_compressed_texture_etc) {
@@ -264,7 +324,6 @@ export class WebGLDevice extends Device {
             this._formatFeatures[Format.ETC2_SRGB8_A8] = compressedFeature;
             this._formatFeatures[Format.ETC2_RGB8_A1] = compressedFeature;
             this._formatFeatures[Format.ETC2_SRGB8_A1] = compressedFeature;
-            compressedFormat += 'etc2 ';
         }
 
         if (exts.WEBGL_compressed_texture_s3tc) {
@@ -276,7 +335,6 @@ export class WebGLDevice extends Device {
             this._formatFeatures[Format.BC2_SRGB] = compressedFeature;
             this._formatFeatures[Format.BC3] = compressedFeature;
             this._formatFeatures[Format.BC3_SRGB] = compressedFeature;
-            compressedFormat += 'dxt ';
         }
 
         if (exts.WEBGL_compressed_texture_pvrtc) {
@@ -284,7 +342,6 @@ export class WebGLDevice extends Device {
             this._formatFeatures[Format.PVRTC_RGBA2] |= compressedFeature;
             this._formatFeatures[Format.PVRTC_RGB4] |= compressedFeature;
             this._formatFeatures[Format.PVRTC_RGBA4] |= compressedFeature;
-            compressedFormat += 'pvrtc ';
         }
 
         if (exts.WEBGL_compressed_texture_astc) {
@@ -317,41 +374,7 @@ export class WebGLDevice extends Device {
             this._formatFeatures[Format.ASTC_SRGBA_10X10] |= compressedFeature;
             this._formatFeatures[Format.ASTC_SRGBA_12X10] |= compressedFeature;
             this._formatFeatures[Format.ASTC_SRGBA_12X12] |= compressedFeature;
-            compressedFormat += 'astc ';
         }
-
-        debug('WebGL device initialized.');
-        debug(`RENDERER: ${this._renderer}`);
-        debug(`VENDOR: ${this._vendor}`);
-        debug(`VERSION: ${version}`);
-        debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
-        debug(`EXTENSIONS: ${extStr}`);
-
-        return true;
-    }
-
-    public destroy (): void {
-        if (this._queue) {
-            this._queue.destroy();
-            this._queue = null;
-        }
-
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
-        }
-    }
-
-    public flushCommands (cmdBuffs: CommandBuffer[]) {}
-
-    public acquire (swapchains: Swapchain[]) {}
-
-    public present () {
-        const queue = (this._queue as WebGLQueue);
-        this._numDrawCalls = queue.numDrawCalls;
-        this._numInstances = queue.numInstances;
-        this._numTris = queue.numTris;
-        queue.clear();
     }
 
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
