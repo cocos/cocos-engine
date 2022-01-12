@@ -84,10 +84,10 @@ export class SystemEvent extends EventTarget {
         input.on(InputEventType.MOUSE_UP, (e) => { this.emit(SystemEventType.MOUSE_UP, e);  });
         input.on(InputEventType.MOUSE_WHEEL, (e) => { this.emit(SystemEventType.MOUSE_WHEEL, e);  });
 
-        input.on(InputEventType.TOUCH_START, (e) => { this.emit(SystemEventType.TOUCH_START, e);  });
-        input.on(InputEventType.TOUCH_MOVE, (e) => { this.emit(SystemEventType.TOUCH_MOVE, e);  });
-        input.on(InputEventType.TOUCH_END, (e) => { this.emit(SystemEventType.TOUCH_END, e);  });
-        input.on(InputEventType.TOUCH_CANCEL, (e) => { this.emit(SystemEventType.TOUCH_CANCEL, e);  });
+        input.on(InputEventType.TOUCH_START, (e) => { this.emit(SystemEventType.TOUCH_START, e.touch, e);  });
+        input.on(InputEventType.TOUCH_MOVE, (e) => { this.emit(SystemEventType.TOUCH_MOVE, e.touch, e);  });
+        input.on(InputEventType.TOUCH_END, (e) => { this.emit(SystemEventType.TOUCH_END, e.touch, e);  });
+        input.on(InputEventType.TOUCH_CANCEL, (e) => { this.emit(SystemEventType.TOUCH_CANCEL, e.touch, e);  });
 
         input.on(InputEventType.KEY_DOWN, (e) => { this.emit(SystemEventType.KEY_DOWN, e);  });
         input.on(InputEventType.KEY_PRESSING, (e) => { this.emit(SystemEventType.KEY_DOWN, e);  });
