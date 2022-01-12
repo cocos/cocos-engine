@@ -45,6 +45,8 @@ const touchEvents = [
 ];
 
 class PointerEventDispatcher implements IEventDispatcher {
+    public priority: EventDispatcherPriority = EventDispatcherPriority.UI;
+
     private _isListDirty = false;
     private _inDispatchCount = 0;
     private _pointerEventProcessorList: NodeEventProcessor[] = [];
@@ -59,7 +61,6 @@ class PointerEventDispatcher implements IEventDispatcher {
         NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this.removePointerEventProcessor, this);
         NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.MARK_LIST_DIRTY, this._markListDirty, this);
     }
-    public priority: EventDispatcherPriority = EventDispatcherPriority.UI;
 
     public dispatchEvent (event: Event): boolean {
         const eventType = event.type as Input.EventType;

@@ -55,12 +55,14 @@ export interface IEventDispatcher {
 }
 
 class InputEventDispatcher implements IEventDispatcher {
+    public priority: EventDispatcherPriority = EventDispatcherPriority.GLOBAL;
     private _inputEventTarget: EventTarget;
-    priority: EventDispatcherPriority = EventDispatcherPriority.GLOBAL;
+
     constructor (inputEventTarget: EventTarget) {
         this._inputEventTarget = inputEventTarget;
     }
-    dispatchEvent (event: Event): boolean {
+
+    public dispatchEvent (event: Event): boolean {
         this._inputEventTarget.emit(event.type, event);
         return true;
     }
@@ -145,6 +147,90 @@ export class Input {
         this._registerEvent();
         this._inputEventDispatcher = new InputEventDispatcher(this._eventTarget);
         this._registerEventDispatcher(this._inputEventDispatcher);
+    }
+
+    /**
+     * @en
+     * Register a callback of a specific input event type.
+     * @zh
+     * 注册特定的输入事件回调。
+     *
+     * @param eventType - The event type
+     * @param callback - The event listener's callback
+     * @param target - The event listener's target and callee
+     */
+    public on<K extends keyof InputEventMap> (eventType: K, callback: InputEventMap[K], target?: any) {
+        if (EDITOR) {
+            return callback;
+        }
+        this._eventTarget.on(eventType, callback, target);
+        return callback;
+    }
+
+    /**
+     * @en
+     * Register a callback of a specific input event type once.
+     * @zh
+     * 注册单次的输入事件回调。
+     *
+     * @param eventType - The event type
+     * @param callback - The event listener's callback
+     * @param target - The event listener's target and callee
+     */
+    public once<K extends keyof InputEventMap> (eventType: K, callback: InputEventMap[K], target?: any) {
+        if (EDITOR) {
+            return callback;
+        }
+        this._eventTarget.once(eventType, callback, target);
+        return callback;
+    }
+
+    /**
+     * @en
+     * Unregister a callback of a specific input event type.
+     * @zh
+     * 取消注册特定的输入事件回调。
+     *
+     * @param eventType - The event type
+     * @param callback - The event listener's callback
+     * @param target - The event listener's target and callee
+     */
+    public off<K extends keyof InputEventMap> (eventType: K, callback?: InputEventMap[K], target?: any) {
+        if (EDITOR) {
+            return;
+        }
+        this._eventTarget.off(eventType, callback, target);
+    }
+    /**
+     * @en
+     * Sets whether to enable the accelerometer event listener or not.
+     *
+     * @zh
+     * 是否启用加速度计事件。
+     */
+    public setAccelerometerEnabled (isEnable: boolean) {
+        if (EDITOR) {
+            return;
+        }
+        if (isEnable) {
+            this._accelerometerInput.start();
+        } else {
+            this._accelerometerInput.stop();
+        }
+    }
+
+    /**
+     * @en
+     * Sets the accelerometer interval value.
+     *
+     * @zh
+     * 设置加速度计间隔值。
+     */
+    public setAccelerometerInterval (intervalInMileSeconds: number): void {
+        if (EDITOR) {
+            return;
+        }
+        this._accelerometerInput.setInterval(intervalInMileSeconds);
     }
 
     private _simulateEventTouch (eventMouse: EventMouse) {
@@ -286,90 +372,6 @@ export class Input {
         }
 
         this._clearEvents();
-    }
-
-    /**
-     * @en
-     * Register a callback of a specific input event type.
-     * @zh
-     * 注册特定的输入事件回调。
-     *
-     * @param eventType - The event type
-     * @param callback - The event listener's callback
-     * @param target - The event listener's target and callee
-     */
-    public on<K extends keyof InputEventMap> (eventType: K, callback: InputEventMap[K], target?: any) {
-        if (EDITOR) {
-            return callback;
-        }
-        this._eventTarget.on(eventType, callback, target);
-        return callback;
-    }
-
-    /**
-     * @en
-     * Register a callback of a specific input event type once.
-     * @zh
-     * 注册单次的输入事件回调。
-     *
-     * @param eventType - The event type
-     * @param callback - The event listener's callback
-     * @param target - The event listener's target and callee
-     */
-    public once<K extends keyof InputEventMap> (eventType: K, callback: InputEventMap[K], target?: any) {
-        if (EDITOR) {
-            return callback;
-        }
-        this._eventTarget.once(eventType, callback, target);
-        return callback;
-    }
-
-    /**
-     * @en
-     * Unregister a callback of a specific input event type.
-     * @zh
-     * 取消注册特定的输入事件回调。
-     *
-     * @param eventType - The event type
-     * @param callback - The event listener's callback
-     * @param target - The event listener's target and callee
-     */
-    public off<K extends keyof InputEventMap> (eventType: K, callback?: InputEventMap[K], target?: any) {
-        if (EDITOR) {
-            return;
-        }
-        this._eventTarget.off(eventType, callback, target);
-    }
-    /**
-     * @en
-     * Sets whether to enable the accelerometer event listener or not.
-     *
-     * @zh
-     * 是否启用加速度计事件。
-     */
-    public setAccelerometerEnabled (isEnable: boolean) {
-        if (EDITOR) {
-            return;
-        }
-        if (isEnable) {
-            this._accelerometerInput.start();
-        } else {
-            this._accelerometerInput.stop();
-        }
-    }
-
-    /**
-     * @en
-     * Sets the accelerometer interval value.
-     *
-     * @zh
-     * 设置加速度计间隔值。
-     */
-    public setAccelerometerInterval (intervalInMileSeconds: number): void {
-        if (EDITOR) {
-            return;
-        }
-        this._accelerometerInput.setInterval(intervalInMileSeconds);
     }
 }
 
