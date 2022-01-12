@@ -372,7 +372,7 @@ export class MeshRenderData extends BaseRenderData {
     public requestIA (device: Device) {
         this._initIAInfo(device);
         const ia = this._iaPool!.add();
-        ia.firstIndex = 0;
+        ia.firstIndex = this.indexStart;
         ia.indexCount = this.indexCount;
         return ia;
     }
