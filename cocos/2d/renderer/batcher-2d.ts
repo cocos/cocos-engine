@@ -231,7 +231,6 @@ export class Batcher2D implements IBatcher {
             this._meshDataArray.forEach((rd) => {
                 rd.uploadBuffers();
             });
-            this._meshDataArray.length = 0;
 
             this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
                 accessor.uploadBuffers();
