@@ -4,7 +4,7 @@ import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
-import { Value } from './variable';
+import { Value, VarInstance } from './variable';
 import { BindContext, bindOr, validateVariableExistence, validateVariableType, VariableType } from './parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
@@ -1259,56 +1259,4 @@ interface TransitionEval {
     triggers: string[] | undefined;
 }
 
-class VarInstance {
-    public type: VariableType;
-
-    constructor (type: VariableType, value: Value) {
-        this.type = type;
-        this._value = value;
-    }
-
-    get value () {
-        return this._value;
-    }
-
-    set value (value) {
-        this._value = value;
-        for (const { fn, thisArg, args } of this._refs) {
-            fn.call(thisArg, value, ...args);
-        }
-    }
-
-    public bind <T, TThis, ExtraArgs extends any[]> (
-        fn: (this: TThis, value: T, ...args: ExtraArgs) => void,
-        thisArg: TThis,
-        ...args: ExtraArgs
-    ) {
-        this._refs.push({
-            fn: fn as (this: unknown, value: unknown, ...args: unknown[]) => void,
-            thisArg,
-            args,
-        });
-        return this._value;
-    }
-
-    private _value: Value;
-    private _refs: VarRef[] = [];
-}
-
-export type { VarInstance };
-
-interface VarRefs {
-    type: VariableType;
-
-    value: Value;
-
-    refs: VarRef[];
-}
-
-interface VarRef {
-    fn: (this: unknown, value: unknown, ...args: unknown[]) => void;
-
-    thisArg: unknown;
-
-    args: unknown[];
-}
+export type { VarInstance } from './variable';

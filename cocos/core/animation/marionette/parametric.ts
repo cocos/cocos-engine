@@ -4,16 +4,9 @@ import { warn } from '../../platform/debug';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import type { VarInstance } from './graph-eval';
+import { VariableType } from './variable';
 
-export enum VariableType {
-    FLOAT,
-
-    BOOLEAN,
-
-    TRIGGER,
-
-    INTEGER,
-}
+export { VariableType };
 
 export interface Bindable<TValue> {
     value: TValue;
