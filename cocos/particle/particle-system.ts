@@ -1085,10 +1085,12 @@ export class ParticleSystem extends RenderableComponent {
                     this._isSimulating = true;
                 }
             }
-        
-            if (!this._isSimulating) return;
+
+            if (!this._isSimulating) {
+                return;
+            }
         }
-    
+
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 

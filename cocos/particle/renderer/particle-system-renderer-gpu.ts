@@ -207,7 +207,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleNum++;
     }
 
-    public getPass() : Pass | null {
+    public getPass(): Pass | null {
         const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         if (!mat) {
             return null;
