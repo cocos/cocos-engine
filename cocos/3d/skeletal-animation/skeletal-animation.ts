@@ -296,6 +296,9 @@ export class SkeletalAnimation extends Animation {
 
     protected doPlayOrCrossFade (state: AnimationState, duration: number) {
         if (this._useBakedAnimation) {
+            if (this._currentBakedState) {
+                this._currentBakedState.stop();
+            }
             const skeletalAnimationState = state as SkeletalAnimationState;
             this._currentBakedState = skeletalAnimationState;
             skeletalAnimationState.play();
