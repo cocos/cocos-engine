@@ -293,25 +293,32 @@ export class MeshRenderData extends BaseRenderData {
     /**
      * Index of Float32Array: vData
      */
-    get vDataOffset () { return this.byteCount >>> 2; }
+    get vDataOffset () { return this._byteLength >>> 2; }
 
     public isMeshBuffer = true;
     public vData: Float32Array;
     public iData: Uint16Array;
     /**
-     * Each vertex contains multiple float numbers
+     * First vertex used in the current IA
      */
     public vertexStart = 0;
     /**
-     * Number of indices
+     * Vertex count used in the current IA
+     */
+    public vertexRange = 0;
+    /**
+     * First index used in the current IA
      */
     public indexStart = 0;
-    public byteStart = 0;
-    public byteCount = 0;
+    /**
+     * Index count used in the current IA
+     */
+    public indexRange = 0;
     // only for graphics
     public lastFilledIndex = 0;
     public lastFilledVertex = 0;
 
+    private _byteLength = 0;
     private _vertexBuffers: Buffer[] = [];
     private _indexBuffer: Buffer = null!;
 
@@ -325,16 +332,16 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     public request (vertexCount: number, indexCount: number) {
-        const byteOffset = this.byteCount + vertexCount * this.stride;
+        const byteOffset = this._byteLength + vertexCount * this.stride;
         this.reserve(vertexCount, indexCount);
         this._vc += vertexCount; // vertexOffset
         this._ic += indexCount; // indicesOffset
-        this.byteCount = byteOffset; // byteOffset
+        this._byteLength = byteOffset; // byteOffset
         return true;
     }
 
     public reserve (vertexCount: number, indexCount: number) {
-        const newVBytes = this.byteCount + vertexCount * this.stride;
+        const newVBytes = this._byteLength + vertexCount * this.stride;
         const newICount = this.indexCount + indexCount;
 
         if (vertexCount + this.vertexCount > 65535) {
@@ -363,35 +370,34 @@ export class MeshRenderData extends BaseRenderData {
         assertIsTrue(vertexCount >= 0 && indexCount >= 0);
         this.vertexStart = vertOffset;
         this.indexStart = indexOffset;
-        this._vc = vertexCount;
-        this._ic = indexCount;
-        this.byteStart = vertOffset * this.stride;
-        this.byteCount = vertexCount * this.stride;
+        this.vertexRange = vertexCount;
+        this.indexRange = indexCount;
     }
 
     public requestIA (device: Device) {
         this._initIAInfo(device);
         const ia = this._iaPool!.add();
         ia.firstIndex = this.indexStart;
-        ia.indexCount = this.indexCount;
+        ia.indexCount = this.indexRange;
         return ia;
     }
 
     public uploadBuffers () {
-        if (this.byteCount === 0 || !this._vertexBuffers[0] || !this._indexBuffer) {
+        if (this._byteLength === 0 || !this._vertexBuffers[0] || !this._indexBuffer) {
             return;
         }
 
-        const verticesData = new Float32Array(this.vData.buffer, this.byteStart, this.byteCount >> 2);
-        const indicesData = new Uint16Array(this.iData.buffer, this.indexStart << 1, this.indexCount);
+        const indexCount = this._ic;
+        const verticesData = new Float32Array(this.vData.buffer, 0, this._byteLength >> 2);
+        const indicesData = new Uint16Array(this.iData.buffer, 0, indexCount);
 
         const vertexBuffer = this._vertexBuffers[0];
-        if (this.byteCount > vertexBuffer.size) {
-            vertexBuffer.resize(this.byteCount);
+        if (this._byteLength > vertexBuffer.size) {
+            vertexBuffer.resize(this._byteLength);
         }
         vertexBuffer.update(verticesData);
 
-        const indexBytes = this.indexCount << 1;
+        const indexBytes = indexCount << 1;
         if (indexBytes > this._indexBuffer.size) {
             this._indexBuffer.resize(indexBytes);
         }
@@ -407,10 +413,11 @@ export class MeshRenderData extends BaseRenderData {
     public reset () {
         this._vc = 0;
         this._ic = 0;
-        this.byteCount = 0;
+        this._byteLength = 0;
         this.vertexStart = 0;
+        this.vertexRange = 0;
         this.indexStart = 0;
-        this.byteStart = 0;
+        this.indexRange = 0;
         this.lastFilledIndex = 0;
         this.lastFilledVertex = 0;
         this.material = null;
