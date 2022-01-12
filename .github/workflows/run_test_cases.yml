@@ -11,6 +11,7 @@ jobs:
   run-test-cases:
     if: |
       contains(github.event.comment.body, '@cocos-robot run test cases')
+
     runs-on: run-test-win01
     steps:
       - name: 'Checkout engine'
