@@ -589,7 +589,8 @@ function realTimeTraverse (worldMat?: Mat4) {
                     vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
                 }
             }
-            _buffer!.renderData.updateRange(_vertexFloatCount / _perVertexSize, _indexCount);
+            const renderData = _buffer!.renderData;
+            renderData.updateRange(0, renderData.vertexCount + _vertexFloatCount / _perVertexSize, 0, renderData.indexCount + _indexCount);
         }
 
         clipper.clipEndWithSlot(slot);
@@ -735,7 +736,8 @@ function cacheTraverse (worldMat?: Mat4) {
             }
         }
 
-        _buffer!.renderData.updateRange(_vertexCount, _indexCount);
+        const renderData = _buffer!.renderData;
+        renderData.updateRange(0, renderData.vertexCount + _vertexCount, 0, renderData.indexCount + _indexCount);
 
         if (!_needColor) continue;
 

@@ -66,18 +66,21 @@ export class BaseRenderData {
     get floatStride () {
         return this._floatStride;
     }
+    get vertexFormat () {
+        return this._vertexFormat;
+    }
     public chunk: StaticVBChunk = null!;
-    public vertexFormat = vfmtPosUvColor;
     public dataHash = 0;
     public isMeshBuffer = false;
 
     protected _vc = 0;
     protected _ic = 0;
     protected _floatStride = 0;
+    protected _vertexFormat = vfmtPosUvColor;
 
     constructor (vertexFormat = vfmtPosUvColor) {
         this._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
-        this.vertexFormat = vertexFormat;
+        this._vertexFormat = vertexFormat;
     }
 
     public isValid () {
@@ -89,7 +92,7 @@ export class BaseRenderData {
         this._vc = vertexCount;
         this._ic = indexCount;
         const batcher = director.root!.batcher2D;
-        const accessor = batcher.switchBufferAccessor(this.vertexFormat);
+        const accessor = batcher.switchBufferAccessor(this._vertexFormat);
         if (this.chunk) {
             accessor.recycleChunk(this.chunk);
             this.chunk = null!;
@@ -103,7 +106,7 @@ export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor) {
         const rd = _pool.add();
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
-        rd.vertexFormat = vertexFormat;
+        rd._vertexFormat = vertexFormat;
         return rd;
     }
 
@@ -257,7 +260,7 @@ export class RenderData extends BaseRenderData {
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
-        this.vertexFormat = vfmtPosUvColor;
+        this._vertexFormat = vfmtPosUvColor;
     }
 }
 
@@ -265,7 +268,7 @@ export class MeshRenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor) {
         const rd = _meshDataPool.add();
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
-        rd.vertexFormat = vertexFormat;
+        rd._vertexFormat = vertexFormat;
         return rd;
     }
 
@@ -311,7 +314,10 @@ export class MeshRenderData extends BaseRenderData {
 
     private _vertexBuffers: Buffer[] = [];
     private _indexBuffer: Buffer = null!;
-    private _ia: InputAssembler = null!;
+
+    private _iaPool: InputAssembler[] = [];
+    private _iaInfo: InputAssemblerInfo = null!;
+    private _nextFreeIAHandle = 0;
 
     constructor (vertexFormat = vfmtPosUvColor) {
         super(vertexFormat);
@@ -354,42 +360,25 @@ export class MeshRenderData extends BaseRenderData {
         return true;
     }
 
-    public updateRange (vertexCount: number, indexCount: number) {
-        const vc = this._vc + vertexCount;
-        const ic = this._ic + indexCount;
-        assertIsTrue(vc >= 0 && ic >= 0);
-        this._vc = vc; // vertexOffset
-        this._ic = ic; // indicesOffset
-        this.byteCount += vertexCount * this.stride;
+    public updateRange (vertOffset: number, vertexCount: number, indexOffset: number, indexCount: number) {
+        assertIsTrue(vertexCount >= 0 && indexCount >= 0);
+        this.vertexStart = vertOffset;
+        this.indexStart = indexOffset;
+        this._vc = vertexCount;
+        this._ic = indexCount;
+        this.byteStart = vertOffset * this.stride;
+        this.byteCount = vertexCount * this.stride;
     }
 
     public requestIA (device: Device) {
-        if (!this._ia) {
-            const vbStride = this.stride;
-            const vbs = this._vertexBuffers;
-            if (!vbs.length) {
-                vbs.push(device.createBuffer(new BufferInfo(
-                    BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.DEVICE,
-                    vbStride,
-                    vbStride,
-                )));
-            }
-            const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-            if (!this._indexBuffer) {
-                this._indexBuffer = device.createBuffer(new BufferInfo(
-                    BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.DEVICE,
-                    ibStride,
-                    ibStride,
-                ));
-            }
-            const iaInfo = new InputAssemblerInfo(this.vertexFormat, vbs, this._indexBuffer);
-            this._ia = device.createInputAssembler(iaInfo);
+        this._initIAInfo(device);
+        if (this._iaPool.length <= this._nextFreeIAHandle) {
+            this._iaPool.push(device.createInputAssembler(this._iaInfo));
         }
-        this._ia.firstIndex = 0;
-        this._ia.indexCount = this.indexCount;
-        return this._ia;
+        const ia = this._iaPool[this._nextFreeIAHandle++];
+        ia.firstIndex = 0;
+        ia.indexCount = this.indexCount;
+        return ia;
     }
 
     public uploadBuffers () {
@@ -423,7 +412,7 @@ export class MeshRenderData extends BaseRenderData {
         this.lastFilledIndex = 0;
         this.lastFilledVertex = 0;
         this.material = null;
-        this._ia = null!;
+        this._nextFreeIAHandle = 0;
         if (this._vertexBuffers[0]) {
             this._vertexBuffers[0].destroy();
             this._vertexBuffers = [];
@@ -434,6 +423,31 @@ export class MeshRenderData extends BaseRenderData {
         this.reset();
         this.vData = new Float32Array(256 * this.stride);
         this.iData = new Uint16Array(256 * 6);
+    }
+
+    protected _initIAInfo (device: Device) {
+        if (!this._iaInfo) {
+            const vbStride = this.stride;
+            const vbs = this._vertexBuffers;
+            if (!vbs.length) {
+                vbs.push(device.createBuffer(new BufferInfo(
+                    BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.DEVICE,
+                    vbStride,
+                    vbStride,
+                )));
+            }
+            const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+            if (!this._indexBuffer) {
+                this._indexBuffer = device.createBuffer(new BufferInfo(
+                    BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.DEVICE,
+                    ibStride,
+                    ibStride,
+                ));
+            }
+            this._iaInfo = new InputAssemblerInfo(this._vertexFormat, vbs, this._indexBuffer);
+        }
     }
 
     protected _reallocBuffer (vCount, iCount) {
