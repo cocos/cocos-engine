@@ -1004,7 +1004,17 @@ export class ParticleSystem extends RenderableComponent {
     protected update (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
 
-        if (this.renderCulling) {
+        if (!this.renderCulling) {
+            if (this._boundingBox) {
+                this._boundingBox = null;
+            }
+            if (this._culler) {
+                this._culler.clear();
+                this._culler.destroy();
+                this._culler = null;
+            }
+            this._isSimulating = true;
+        } else {
             if (!this._boundingBox) {
                 this._boundingBox = new AABB();
                 this._calculateBounding(false);
@@ -1075,20 +1085,10 @@ export class ParticleSystem extends RenderableComponent {
                     this._isSimulating = true;
                 }
             }
-        } else {
-            if (this._boundingBox) {
-                this._boundingBox = null;
-            }
-            if (this._culler) {
-                this._culler.clear();
-                this._culler.destroy();
-                this._culler = null;
-            }
-            this._isSimulating = true;
+        
+            if (!this._isSimulating) return;
         }
-
-        if (!this._isSimulating) return;
-
+    
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
@@ -1100,8 +1100,9 @@ export class ParticleSystem extends RenderableComponent {
                 this.stop();
             }
         } else {
-            this.processor.updateRotation();
-            this.processor.updateScale();
+            const pass = this.processor.getPass();
+            this.processor.updateRotation(pass);
+            this.processor.updateScale(pass);
         }
         // update render data
         this.processor.updateRenderData();
@@ -1181,7 +1182,7 @@ export class ParticleSystem extends RenderableComponent {
             } else {
                 particle.startEuler.set(0, 0, this.startRotationZ.evaluate(loopDelta, rand));
             }
-            Vec3.set(particle.rotation, particle.startEuler.x, particle.startEuler.y, particle.startEuler.z);
+            particle.rotation.set(particle.startEuler);
 
             // apply startSize.
             if (this.startSize3D) {

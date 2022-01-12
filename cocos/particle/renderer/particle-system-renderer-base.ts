@@ -31,6 +31,7 @@ import { Material } from '../../core/assets';
 import { Particle, IParticleModule } from '../particle';
 import { RenderMode } from '../enum';
 import { legacyCC } from '../../core/global-exports';
+import { Pass } from '../../core/renderer';
 
 export interface IParticleSystemRenderer {
     onInit (ps: Component): void;
@@ -50,8 +51,9 @@ export interface IParticleSystemRenderer {
     getParticleCount (): number;
     getFreeParticle (): Particle | null;
     setNewParticle (p: Particle): void;
-    updateRotation (): void;
-    updateScale (): void;
+    getPass (): Pass | null;
+    updateRotation (pass: Pass | null): void;
+    updateScale (pass: Pass | null): void;
     updateParticles (dt: number): number;
     updateRenderData (): void;
     enableModule (name: string, val: boolean, pm: IParticleModule): void;
@@ -147,8 +149,9 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateRenderMode () : void;
     public abstract updateMaterialParams () : void;
     public abstract setNewParticle (p: Particle): void;
-    public abstract updateRotation (): void;
-    public abstract updateScale (): void;
+    public abstract getPass(): Pass | null;
+    public abstract updateRotation (pass: Pass | null): void;
+    public abstract updateScale (pass: Pass | null): void;
     public abstract updateParticles (dt: number): number;
     public abstract updateRenderData (): void;
     public abstract enableModule (name: string, val: boolean, pm: IParticleModule): void;
