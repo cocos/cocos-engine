@@ -219,8 +219,8 @@ const Elements = {
                     list: [],
                     contentRender: panel.$.contentHeader,
                 },
-                section: {
-                    list: panel.renderMap.section['unknown'],
+                content: {
+                    list: panel.renderMap.content['unknown'],
                     contentRender: panel.$.contentSection,
                 },
                 footer: {
@@ -482,6 +482,6 @@ exports.close = async function close() {
 
 exports.config = {
     header: require('../assets-header'),
-    section: require('../assets'),
+    content: require('../assets'),
     footer: require('../assets-footer'),
 };

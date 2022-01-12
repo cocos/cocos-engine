@@ -784,17 +784,17 @@ const Elements = {
                     sectionBody.appendChild($section);
 
                     // 再处理内部
-                    let renderList = panel.renderMap.section[$section.__type__];
+                    let renderList = panel.renderMap.content[$section.__type__];
 
                     // 如果都没有渲染模板，使用默认 cc.Class 模板
                     if (!renderList || !renderList.length) {
                         // 判断继承
                         if (Array.isArray(component.extends)) {
                             const parentClass = component.extends[0];
-                            renderList = panel.renderMap.section[parentClass];
+                            renderList = panel.renderMap.content[parentClass];
                         }
                         if (!renderList) {
-                            renderList = panel.renderMap.section['cc.Class'];
+                            renderList = panel.renderMap.content['cc.Class'];
                         }
                     }
 
@@ -831,10 +831,10 @@ const Elements = {
             }
 
             // 自定义 node 数据
-            if (panel.renderMap.section && panel.renderMap.section['cc.Node']) {
+            if (panel.renderMap.content && panel.renderMap.content['cc.Node']) {
                 const array = (panel.$.nodeSection.__node_panels__ = panel.$.nodeSection.__node_panels__ || []);
 
-                panel.renderMap.section['cc.Node'].forEach((file, index) => {
+                panel.renderMap.content['cc.Node'].forEach((file, index) => {
                     if (!array[index]) {
                         array[index] = document.createElement('ui-panel');
                         panel.$.nodeSection.appendChild(array[index]);
@@ -843,11 +843,11 @@ const Elements = {
                     array[index].update(panel.dump);
                 });
 
-                for (let i = panel.renderMap.section['cc.Node'].length; i < array.length; i++) {
+                for (let i = panel.renderMap.content['cc.Node'].length; i < array.length; i++) {
                     array[i].remove();
                 }
 
-                array.length = panel.renderMap.section['cc.Node'].length;
+                array.length = panel.renderMap.content['cc.Node'].length;
             } else if (panel.$.nodeSection.__node_panels__) {
                 panel.$.nodeSection.__node_panels__.forEach((dom) => {
                     dom.remove();
@@ -1456,5 +1456,5 @@ exports.beforeClose = async function beforeClose() {
 };
 
 exports.config = {
-    section: require('../components.js'),
+    content: require('../components.js'),
 };
