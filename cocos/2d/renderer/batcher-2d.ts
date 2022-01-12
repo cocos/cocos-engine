@@ -225,6 +225,11 @@ export class Batcher2D implements IBatcher {
     }
 
     public uploadBuffers () {
+        this._meshDataArray.forEach(rd => {
+            rd.uploadBuffers();
+        });
+        this._meshDataArray = [];
+
         if (this._batches.length > 0) {
             this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
                 accessor.uploadBuffers();
@@ -453,6 +458,7 @@ export class Batcher2D implements IBatcher {
         this.finishMergeBatches();
     }
 
+    private _meshDataArray :MeshRenderData[] = [];
     /**
      * @en
      * End a section of render data and submit according to the batch condition.
@@ -471,7 +477,9 @@ export class Batcher2D implements IBatcher {
         // Previous batch using mesh buffer
         if (rd && rd.isMeshBuffer) {
             ia = rd.requestIA(this.device);
-            rd.uploadBuffers();
+            if (-1 !== this._meshDataArray.indexOf(rd)) {
+                this._meshDataArray.push(rd);
+            }
         } else if (accessor) {
         // Previous batch using static vb buffer
             const bid = this._currBID;
