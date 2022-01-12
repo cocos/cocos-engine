@@ -3465,7 +3465,7 @@ static bool js_scene_FogInfo_isAccurate(se::State& s) // NOLINT(readability-iden
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_scene_FogInfo_isAccurate)
+SE_BIND_FUNC_AS_PROP_GET(js_scene_FogInfo_isAccurate)
 
 static bool js_scene_FogInfo_isEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -3503,7 +3503,7 @@ static bool js_scene_FogInfo_setAccurate(se::State& s) // NOLINT(readability-ide
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_scene_FogInfo_setAccurate)
+SE_BIND_FUNC_AS_PROP_SET(js_scene_FogInfo_setAccurate)
 
 static bool js_scene_FogInfo_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -3919,6 +3919,33 @@ static bool js_scene_FogInfo_set__fogRange(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_FogInfo_set__fogRange)
 
+static bool js_scene_FogInfo_get__accurate(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_get__accurate : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_accurate, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_accurate, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_FogInfo_get__accurate)
+
+static bool js_scene_FogInfo_set__accurate(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::FogInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_FogInfo_set__accurate : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_accurate, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_FogInfo_set__accurate : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_FogInfo_set__accurate)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_FogInfo_finalize)
 
 static bool js_scene_FogInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -3948,9 +3975,11 @@ bool js_register_scene_FogInfo(se::Object* obj) // NOLINT(readability-identifier
     cls->defineProperty("_fogAtten", _SE(js_scene_FogInfo_get__fogAtten), _SE(js_scene_FogInfo_set__fogAtten));
     cls->defineProperty("_fogTop", _SE(js_scene_FogInfo_get__fogTop), _SE(js_scene_FogInfo_set__fogTop));
     cls->defineProperty("_fogRange", _SE(js_scene_FogInfo_get__fogRange), _SE(js_scene_FogInfo_set__fogRange));
+    cls->defineProperty("_accurate", _SE(js_scene_FogInfo_get__accurate), _SE(js_scene_FogInfo_set__accurate));
     cls->defineProperty("type", _SE(js_scene_FogInfo_getType_asGetter), _SE(js_scene_FogInfo_setType_asSetter));
     cls->defineProperty("fogColor", _SE(js_scene_FogInfo_getFogColor_asGetter), _SE(js_scene_FogInfo_setFogColor_asSetter));
     cls->defineProperty("enable", _SE(js_scene_FogInfo_isEnabled_asGetter), _SE(js_scene_FogInfo_setEnabled_asSetter));
+    cls->defineProperty("accurate", _SE(js_scene_FogInfo_isAccurate_asGetter), _SE(js_scene_FogInfo_setAccurate_asSetter));
     cls->defineProperty("fogDensity", _SE(js_scene_FogInfo_getFogDensity_asGetter), _SE(js_scene_FogInfo_setFogDensity_asSetter));
     cls->defineProperty("fogStart", _SE(js_scene_FogInfo_getFogStart_asGetter), _SE(js_scene_FogInfo_setFogStart_asSetter));
     cls->defineProperty("fogEnd", _SE(js_scene_FogInfo_getFogEnd_asGetter), _SE(js_scene_FogInfo_setFogEnd_asSetter));
@@ -3958,8 +3987,6 @@ bool js_register_scene_FogInfo(se::Object* obj) // NOLINT(readability-identifier
     cls->defineProperty("fogTop", _SE(js_scene_FogInfo_getFogTop_asGetter), _SE(js_scene_FogInfo_setFogTop_asSetter));
     cls->defineProperty("fogRange", _SE(js_scene_FogInfo_getFogRange_asGetter), _SE(js_scene_FogInfo_setFogRange_asSetter));
     cls->defineFunction("activate", _SE(js_scene_FogInfo_activate));
-    cls->defineFunction("isAccurate", _SE(js_scene_FogInfo_isAccurate));
-    cls->defineFunction("setAccurate", _SE(js_scene_FogInfo_setAccurate));
     cls->defineFinalizeFunction(_SE(js_cc_scene_FogInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::scene::FogInfo>(cls);
@@ -7235,7 +7262,7 @@ static bool js_scene_Shadows_getShadowDistance(se::State& s) // NOLINT(readabili
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_scene_Shadows_getShadowDistance)
+SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getShadowDistance)
 
 static bool js_scene_Shadows_getShadowMapSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7653,7 +7680,7 @@ static bool js_scene_Shadows_setShadowDistance(se::State& s) // NOLINT(readabili
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_scene_Shadows_setShadowDistance)
+SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setShadowDistance)
 
 static bool js_scene_Shadows_setShadowMapDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7790,6 +7817,7 @@ bool js_register_scene_Shadows(se::Object* obj) // NOLINT(readability-identifier
     cls->defineProperty("normalBias", _SE(js_scene_Shadows_getNormalBias_asGetter), _SE(js_scene_Shadows_setNormalBias_asSetter));
     cls->defineProperty("saturation", _SE(js_scene_Shadows_getSaturation_asGetter), _SE(js_scene_Shadows_setSaturation_asSetter));
     cls->defineProperty("fixedArea", nullptr, _SE(js_scene_Shadows_setFixedArea_asSetter));
+    cls->defineProperty("shadowDistance", _SE(js_scene_Shadows_getShadowDistance_asGetter), _SE(js_scene_Shadows_setShadowDistance_asSetter));
     cls->defineProperty("invisibleOcclusionRange", _SE(js_scene_Shadows_getInvisibleOcclusionRange_asGetter), _SE(js_scene_Shadows_setInvisibleOcclusionRange_asSetter));
     cls->defineProperty("matLight", _SE(js_scene_Shadows_getMatLight_asGetter), nullptr);
     cls->defineProperty("instancingMaterial", _SE(js_scene_Shadows_getInstancingMaterial_asGetter), nullptr);
@@ -7800,12 +7828,10 @@ bool js_register_scene_Shadows(se::Object* obj) // NOLINT(readability-identifier
     cls->defineFunction("getPlanarInstanceShader", _SE(js_scene_Shadows_getPlanarInstanceShader));
     cls->defineFunction("getPlanarShader", _SE(js_scene_Shadows_getPlanarShader));
     cls->defineFunction("getShadowColor4f", _SE(js_scene_Shadows_getShadowColor4f));
-    cls->defineFunction("getShadowDistance", _SE(js_scene_Shadows_getShadowDistance));
     cls->defineFunction("getShadowMapSize", _SE(js_scene_Shadows_getShadowMapSize));
     cls->defineFunction("initialize", _SE(js_scene_Shadows_initialize));
     cls->defineFunction("isFixedArea", _SE(js_scene_Shadows_isFixedArea));
     cls->defineFunction("setMaxReceived", _SE(js_scene_Shadows_setMaxReceived));
-    cls->defineFunction("setShadowDistance", _SE(js_scene_Shadows_setShadowDistance));
     cls->defineFunction("setShadowMapSize", _SE(js_scene_Shadows_setShadowMapSize));
     // static fields
     cls->defineStaticProperty("MAX_FAR", _SE(js_scene_Shadows_get_MAX_FAR), nullptr);

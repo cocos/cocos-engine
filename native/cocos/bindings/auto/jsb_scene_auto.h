@@ -208,8 +208,6 @@ extern se::Class * __jsb_cc_scene_FogInfo_class; // NOLINT
 bool js_register_cc_scene_FogInfo(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_FogInfo_activate);
-SE_DECLARE_FUNC(js_scene_FogInfo_isAccurate);
-SE_DECLARE_FUNC(js_scene_FogInfo_setAccurate);
 SE_DECLARE_FUNC(js_scene_FogInfo_FogInfo);
 
 extern se::Object *__jsb_cc_scene_PassDynamicsValue_proto; // NOLINT
@@ -291,12 +289,10 @@ SE_DECLARE_FUNC(js_scene_Shadows_getMaxReceived);
 SE_DECLARE_FUNC(js_scene_Shadows_getPlanarInstanceShader);
 SE_DECLARE_FUNC(js_scene_Shadows_getPlanarShader);
 SE_DECLARE_FUNC(js_scene_Shadows_getShadowColor4f);
-SE_DECLARE_FUNC(js_scene_Shadows_getShadowDistance);
 SE_DECLARE_FUNC(js_scene_Shadows_getShadowMapSize);
 SE_DECLARE_FUNC(js_scene_Shadows_initialize);
 SE_DECLARE_FUNC(js_scene_Shadows_isFixedArea);
 SE_DECLARE_FUNC(js_scene_Shadows_setMaxReceived);
-SE_DECLARE_FUNC(js_scene_Shadows_setShadowDistance);
 SE_DECLARE_FUNC(js_scene_Shadows_setShadowMapSize);
 SE_DECLARE_FUNC(js_scene_Shadows_Shadows);
 
