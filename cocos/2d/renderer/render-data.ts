@@ -317,6 +317,7 @@ export class MeshRenderData extends BaseRenderData {
 
     private _iaPool: RecyclePool<InputAssembler> | null = null;
     private _iaInfo: InputAssemblerInfo = null!;
+    private _indexLength = 0;
 
     constructor (vertexFormat = vfmtPosUvColor) {
         super(vertexFormat);
@@ -374,6 +375,7 @@ export class MeshRenderData extends BaseRenderData {
         const ia = this._iaPool!.add();
         ia.firstIndex = this.indexStart;
         ia.indexCount = this.indexCount;
+        this._indexLength += this.indexCount;
         return ia;
     }
 
@@ -383,7 +385,7 @@ export class MeshRenderData extends BaseRenderData {
         }
 
         const verticesData = new Float32Array(this.vData.buffer, this.byteStart, this.byteCount >> 2);
-        const indicesData = new Uint16Array(this.iData.buffer, this.indexStart << 1, this.indexCount);
+        const indicesData = new Uint16Array(this.iData.buffer, 0, this._indexLength);
 
         const vertexBuffer = this._vertexBuffers[0];
         if (this.byteCount > vertexBuffer.size) {
@@ -391,7 +393,7 @@ export class MeshRenderData extends BaseRenderData {
         }
         vertexBuffer.update(verticesData);
 
-        const indexBytes = this.indexCount << 1;
+        const indexBytes = this._indexLength << 1;
         if (indexBytes > this._indexBuffer.size) {
             this._indexBuffer.resize(indexBytes);
         }
@@ -405,6 +407,7 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     public reset () {
+        this._indexLength = 0;
         this._vc = 0;
         this._ic = 0;
         this.byteCount = 0;
