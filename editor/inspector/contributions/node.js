@@ -208,7 +208,7 @@ exports.$ = {
     prefabLocal: '.prefab > [role="local"]',
     prefabReset: '.prefab > [role="reset"]',
     prefabSave: '.prefab > [role="save"]',
-    prefabEditor: '.prefab .edit-prefab',
+    prefabEdit: '.prefab > [role="edit"]',
 
     header: '.header',
     active: '.active',
