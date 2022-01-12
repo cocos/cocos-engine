@@ -246,14 +246,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._alignSpace = space;
     }
 
-    public getPass(): Pass | null {
-        const ps = this._particleSystem;
-        if (!ps) {
-            return null;
-        } else {
-            const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
-            return mat!.passes[0];
-        }
+    public getDefaultMaterial(): Material | null {
+        return this._defaultMat;
     }
 
     public updateRotation (pass: Pass | null) {

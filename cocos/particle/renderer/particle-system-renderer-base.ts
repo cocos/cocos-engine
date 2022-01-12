@@ -51,7 +51,7 @@ export interface IParticleSystemRenderer {
     getParticleCount (): number;
     getFreeParticle (): Particle | null;
     setNewParticle (p: Particle): void;
-    getPass (): Pass | null;
+    getDefaultMaterial(): Material | null;
     updateRotation (pass: Pass | null): void;
     updateScale (pass: Pass | null): void;
     updateParticles (dt: number): number;
@@ -149,7 +149,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateRenderMode () : void;
     public abstract updateMaterialParams () : void;
     public abstract setNewParticle (p: Particle): void;
-    public abstract getPass(): Pass | null;
+    public abstract getDefaultMaterial(): Material | null;
     public abstract updateRotation (pass: Pass | null): void;
     public abstract updateScale (pass: Pass | null): void;
     public abstract updateParticles (dt: number): number;

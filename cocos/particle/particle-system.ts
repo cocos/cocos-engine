@@ -1102,7 +1102,8 @@ export class ParticleSystem extends RenderableComponent {
                 this.stop();
             }
         } else {
-            const pass = this.processor.getPass();
+            const mat: Material | null = this.getMaterialInstance(0) || this.processor.getDefaultMaterial();
+            const pass = mat!.passes[0];
             this.processor.updateRotation(pass);
             this.processor.updateScale(pass);
         }
