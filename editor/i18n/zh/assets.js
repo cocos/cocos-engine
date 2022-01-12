@@ -318,6 +318,10 @@ module.exports = {
         animationGraph: {
             edit: '编辑',
         },
+        animationMask: {
+            importSkeleton: '导入骨骼节点',
+            nodeEnableTip: '是否启用这个节点<br>按住 Alt + 点击，可以切换自身和子孙节点的状态',
+        },
         multipleWarning: '不支持此类型资源的多选编辑',
     },
 };

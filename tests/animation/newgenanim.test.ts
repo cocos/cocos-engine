@@ -1,7 +1,7 @@
 
 import { AnimationClip, Component, Node, Vec2, Vec3, warnID } from '../../cocos/core';
 import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
-import { LayerBlending, AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition } from '../../cocos/core/animation/marionette/animation-graph';
+import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition } from '../../cocos/core/animation/marionette/animation-graph';
 import { createEval } from '../../cocos/core/animation/marionette/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/core/animation/marionette/graph-eval';
@@ -30,7 +30,6 @@ describe('NewGen Anim', () => {
         const graph = new AnimationGraph();
         expect(graph.layers).toHaveLength(0);
         const layer = graph.addLayer();
-        expect(layer.blending).toBe(LayerBlending.additive);
         expect(layer.mask).toBeNull();
         expect(layer.weight).toBe(1.0);
         const layerGraph = layer.stateMachine;

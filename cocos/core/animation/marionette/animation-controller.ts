@@ -78,4 +78,10 @@ export class AnimationController extends Component {
         assertIsNonNullable(graphEval);
         return graphEval.getNextClipStatuses(layer);
     }
+
+    public setLayerWeight (layer: number, weight: number) {
+        const { _graphEval: graphEval } = this;
+        assertIsNonNullable(graphEval);
+        return graphEval.setLayerWeight(layer, weight);
+    }
 }

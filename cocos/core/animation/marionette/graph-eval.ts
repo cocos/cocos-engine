@@ -9,9 +9,10 @@ import { BindContext, bindOr, validateVariableExistence, validateVariableType, V
 import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import { MotionState } from './motion-state';
-import { SkeletonMask } from '../skeleton-mask';
+import { AnimationMask } from './animation-mask';
 import { debug, warnID } from '../../platform/debug';
-import { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
+import { BlendStateBuffer, LayeredBlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
+import { MAX_ANIMATION_LAYER } from '../../../3d/skeletal-animation/limits';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
 import { AnimationClip } from '../animation-clip';
 import type { AnimationController } from './animation-controller';
@@ -20,13 +21,22 @@ import { InteractiveState } from './state';
 
 export class AnimationGraphEval {
     private declare _layerEvaluations: LayerEval[];
-    private _blendBuffer = new BlendStateBuffer();
+    private _blendBuffer = new LayeredBlendStateBuffer();
     private _currentTransitionCache: TransitionStatus = {
         duration: 0.0,
         time: 0.0,
     };
 
     constructor (graph: AnimationGraph, root: Node, controller: AnimationController) {
+        if (DEBUG) {
+            if (graph.layers.length >= MAX_ANIMATION_LAYER) {
+                throw new Error(
+                    `Max layer count exceeds. `
+                    + `Allowed: ${MAX_ANIMATION_LAYER}, actual: ${graph.layers.length}`,
+                );
+            }
+        }
+
         for (const [name, { type, value }] of graph.variables) {
             this._varInstances[name] = new VarInstance(type, value);
         }
@@ -41,22 +51,39 @@ export class AnimationGraphEval {
             },
         };
 
-        this._layerEvaluations = Array.from(graph.layers).map((layer) => {
+        const layerEvaluations = this._layerEvaluations = Array.from(graph.layers).map((layer) => {
             const layerEval = new LayerEval(layer, {
                 ...context,
                 mask: layer.mask ?? undefined,
             });
             return layerEval;
         });
+
+        // Set layer masks.
+        const nLayers = layerEvaluations.length;
+        for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
+            const mask = graph.layers[iLayer].mask;
+            if (mask) {
+                const excludeNodes = new Set(mask.filterDisabledNodes(context.node));
+                this._blendBuffer.setMask(iLayer, excludeNodes);
+            }
+        }
     }
 
     public update (deltaTime: number) {
+        const {
+            _blendBuffer: blendBuffer,
+            _layerEvaluations: layerEvaluations,
+        } = this;
         graphDebugGroup(`New frame started.`);
         if (GRAPH_DEBUG_ENABLED) {
             clearWeightsStats();
         }
-        for (const layerEval of this._layerEvaluations) {
+        const nLayers = layerEvaluations.length;
+        for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
+            const layerEval = layerEvaluations[iLayer];
             layerEval.update(deltaTime);
+            blendBuffer.commitLayerChanges(iLayer, layerEval.weight);
         }
         if (GRAPH_DEBUG_ENABLED) {
             graphDebug(`Weights: ${getWeightsStats()}`);
@@ -112,6 +139,10 @@ export class AnimationGraphEval {
         varInstance.value = value;
     }
 
+    public setLayerWeight (layerIndex: number, weight: number) {
+        this._layerEvaluations[layerIndex].weight = weight;
+    }
+
     private _varInstances: Record<string, VarInstance> = {};
 }
 
@@ -156,7 +187,7 @@ interface LayerContext extends BindContext {
     /**
      * The mask applied to this layer.
      */
-    mask?: SkeletonMask;
+    mask?: AnimationMask;
 
     /**
      * TODO: A little hacky.
@@ -168,10 +199,12 @@ interface LayerContext extends BindContext {
 class LayerEval {
     public declare name: string;
 
+    public declare weight: number;
+
     constructor (layer: Layer, context: LayerContext) {
         this.name = layer.name;
         this._controller = context.controller;
-        this._weight = layer.weight;
+        this.weight = layer.weight;
         const { entry, exit } = this._addStateMachine(layer.stateMachine, null, {
             ...context,
         }, layer.name);
@@ -251,7 +284,6 @@ class LayerEval {
     }
 
     private declare _controller: AnimationController;
-    private _weight: number;
     private _nodes: NodeEval[] = [];
     private _topLevelEntry: NodeEval;
     private _topLevelExit: NodeEval;
@@ -478,6 +510,11 @@ class LayerEval {
                     currentNode.updateFromPort(remainTimePiece);
                     this._fromUpdated = true;
                     // Animation play eat all times.
+                    remainTimePiece = 0.0;
+                } else {
+                    // Happened when firstly entered the layer's top level entry
+                    // and no further transition.
+                    // I'm sure conscious of it's redundant with above statement, just emphasize.
                     remainTimePiece = 0.0;
                 }
                 if (GRAPH_DEBUG_ENABLED) {
@@ -804,14 +841,8 @@ class LayerEval {
 
         const toNodeName = toNode?.name ?? '<Empty>';
 
-        const weight = this._weight;
-        graphDebugGroup(
-            `[SubStateMachine ${this.name}]: TransitionUpdate: ${fromNode.name} -> ${toNodeName}`
-            + `with ratio ${ratio} in base weight ${this._weight}.`,
-        );
-
-        this._fromWeight = weight * (1.0 - ratio);
-        this._toWeight = weight * ratio;
+        this._fromWeight = (1.0 - ratio);
+        this._toWeight = ratio;
 
         const shouldUpdatePorts = contrib !== 0;
         const hasFinished = ratio === 1.0;
