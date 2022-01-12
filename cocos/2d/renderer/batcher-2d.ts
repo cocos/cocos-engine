@@ -256,6 +256,9 @@ export class Batcher2D implements IBatcher {
         this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
             accessor.reset();
         });
+        this._meshDataArray.forEach((rd) => {
+            rd.freeIAPool();
+        });
         this._meshDataArray.length = 0;
         this._staticVBBuffer = null;
 

@@ -426,6 +426,7 @@ export class MeshRenderData extends BaseRenderData {
             this._vertexBuffers[0].destroy();
             this._vertexBuffers = [];
         }
+        this._iaInfo = null!;
         this.vData = new Float32Array(256 * this.stride);
         this.iData = new Uint16Array(256 * 6);
     }
