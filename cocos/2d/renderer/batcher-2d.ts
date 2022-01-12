@@ -226,7 +226,7 @@ export class Batcher2D implements IBatcher {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
-            this._meshDataArray.forEach(rd => {
+            this._meshDataArray.forEach((rd) => {
                 rd.uploadBuffers();
             });
             this._meshDataArray.length = 0;
