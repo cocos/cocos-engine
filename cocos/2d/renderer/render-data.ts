@@ -315,9 +315,8 @@ export class MeshRenderData extends BaseRenderData {
     private _vertexBuffers: Buffer[] = [];
     private _indexBuffer: Buffer = null!;
 
-    private _iaPool: InputAssembler[] = [];
+    private _iaPool: RecyclePool<InputAssembler> | null = null;
     private _iaInfo: InputAssemblerInfo = null!;
-    private _nextFreeIAHandle = 0;
 
     constructor (vertexFormat = vfmtPosUvColor) {
         super(vertexFormat);
@@ -372,10 +371,7 @@ export class MeshRenderData extends BaseRenderData {
 
     public requestIA (device: Device) {
         this._initIAInfo(device);
-        if (this._iaPool.length <= this._nextFreeIAHandle) {
-            this._iaPool.push(device.createInputAssembler(this._iaInfo));
-        }
-        const ia = this._iaPool[this._nextFreeIAHandle++];
+        const ia = this._iaPool!.add();
         ia.firstIndex = 0;
         ia.indexCount = this.indexCount;
         return ia;
@@ -402,6 +398,12 @@ export class MeshRenderData extends BaseRenderData {
         this._indexBuffer.update(indicesData);
     }
 
+    public freeIAPool () {
+        if (this._iaPool) {
+            this._iaPool.reset();
+        }
+    }
+
     public reset () {
         this._vc = 0;
         this._ic = 0;
@@ -412,15 +414,18 @@ export class MeshRenderData extends BaseRenderData {
         this.lastFilledIndex = 0;
         this.lastFilledVertex = 0;
         this.material = null;
-        this._nextFreeIAHandle = 0;
-        if (this._vertexBuffers[0]) {
-            this._vertexBuffers[0].destroy();
-            this._vertexBuffers = [];
-        }
+        this.freeIAPool();
     }
 
     public clear () {
         this.reset();
+        if (this._iaPool) {
+            this._iaPool.destroy();
+        }
+        if (this._vertexBuffers[0]) {
+            this._vertexBuffers[0].destroy();
+            this._vertexBuffers = [];
+        }
         this.vData = new Float32Array(256 * this.stride);
         this.iData = new Uint16Array(256 * 6);
     }
@@ -447,6 +452,7 @@ export class MeshRenderData extends BaseRenderData {
                 ));
             }
             this._iaInfo = new InputAssemblerInfo(this._vertexFormat, vbs, this._indexBuffer);
+            this._iaPool =  new RecyclePool(() => device.createInputAssembler(this._iaInfo), 1, (ia) => { ia.destroy(); });
         }
     }
 
