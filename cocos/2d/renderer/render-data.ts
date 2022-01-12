@@ -314,6 +314,9 @@ export class MeshRenderData extends BaseRenderData {
      * Index count used in the current IA
      */
     public indexRange = 0;
+    // only for graphics
+    public lastFilledIndex = 0;
+    public lastFilledVertex = 0;
 
     private _byteLength = 0;
     private _vertexBuffers: Buffer[] = [];
@@ -415,6 +418,8 @@ export class MeshRenderData extends BaseRenderData {
         this.vertexRange = 0;
         this.indexStart = 0;
         this.indexRange = 0;
+        this.lastFilledIndex = 0;
+        this.lastFilledVertex = 0;
         this.material = null;
         this.freeIAPool();
     }

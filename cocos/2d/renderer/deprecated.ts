@@ -70,12 +70,6 @@ removeProperty(MeshRenderData.prototype, 'MeshRenderData', [
         name: 'formatByte',
     },
     {
-        name: 'lastFilledVertex',
-    },
-    {
-        name: 'lastFilledIndices',
-    },
-    {
         name: 'byteStart',
     },
     {
