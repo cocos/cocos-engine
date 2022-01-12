@@ -2,7 +2,7 @@
 /* eslint-disable new-cap */
 import { RenderPass } from '../base/render-pass';
 import { RenderPassInfo } from '../base/define';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 import { SampleCount, Format, LoadOp, StoreOp, ResolveMode } from '..';
 
 export class WebGPURenderPass extends RenderPass {

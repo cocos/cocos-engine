@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Sampler } from '../base/states/sampler';
 import { SamplerInfo } from '../base/define';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 import { toWGPUNativeAddressMode, toWGPUNativeCompareFunc, toWGPUNativeFilter } from './webgpu-commands';
 
 export class WebGPUSampler extends Sampler {

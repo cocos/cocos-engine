@@ -13,7 +13,7 @@ import {
     SurfaceTransform,
 } from '../base/define';
 import { Texture } from '../base/texture';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 import { WebGPUDevice } from './webgpu-device';
 import { Swapchain } from '../base/swapchain';
 import { WebGPUTexture } from './webgpu-texture';

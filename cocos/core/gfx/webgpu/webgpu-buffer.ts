@@ -10,7 +10,7 @@ import {
 
 import { toWGPUNativeBufferFlag, toWGPUNativeBufferMemUsage, toWGPUNativeBufferUsage } from './webgpu-commands';
 
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 
 export class WebGPUBuffer extends Buffer {
     private _nativeBuffer;

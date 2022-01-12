@@ -10,7 +10,7 @@ import { WebGPUDevice } from './webgpu-device';
 import {
 
 } from './webgpu-commands';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 
 export class WebGPUPipelineState extends PipelineState {

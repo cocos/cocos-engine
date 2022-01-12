@@ -126,6 +126,12 @@ namespace build {
         ammoJsWasm?: boolean | 'fallback';
 
         /**
+         * Whether use WebGPU render backend.
+         * It's false by default.
+         */
+        useWebGPU?: boolean;
+
+        /**
          * If true, all deprecated features/API are excluded.
          * You can also specify a version range(in semver range) to exclude deprecations in specified version(s).
          * @default false
@@ -220,6 +226,7 @@ async function doBuild ({
 
     const moduleOption = options.moduleFormat ?? ModuleOption.iife;
     const rollupFormat = moduleOptionsToRollupFormat(moduleOption);
+    const useWebGPU = options.useWebGPU ?? false;
 
     let { ammoJsWasm } = options;
     if (ammoJsWasm === 'fallback'
@@ -253,6 +260,11 @@ async function doBuild ({
         }
     }
 
+    // NOTE: this is an experimental feature
+    if (useWebGPU && !features.includes('gfx-webgpu')) {
+        features.push('gfx-webgpu');
+    }
+
     const intrinsicFlags = statsQuery.getIntrinsicFlagsOfFeatures(features);
 
     const buildTimeConstants = {
@@ -280,6 +292,9 @@ async function doBuild ({
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
     const forceStandaloneModules = ['wait-for-ammo-instantiation', 'decorator'];
+    if (useWebGPU) {
+        forceStandaloneModules.push('wait-for-webgpu-instantiation');
+    }
 
     let rollupEntries: NonNullable<rollup.RollupOptions['input']> | undefined;
     if (split) {
@@ -603,6 +618,12 @@ export default Bullet;
                 }
             }
         }
+    }
+
+    if (useWebGPU) {
+        // TODO: simply copy wasm assets for now
+        fs.copyFileSync(ps.join(options.engine, './cocos/core/gfx/webgpu/lib/glslang.wasm'), ps.join(options.out, 'glslang.wasm'));
+        fs.copyFileSync(ps.join(options.engine, './cocos/core/gfx/webgpu/lib/webgpu_wasm.wasm'), ps.join(options.out, 'webgpu_wasm.wasm'));
     }
 
     Object.assign(result.exports, validEntryChunks);

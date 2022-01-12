@@ -2,7 +2,6 @@
 /* eslint-disable no-empty */
 /* eslint-disable new-cap */
 /* eslint-disable dot-notation */
-import glslang from '@webgpu/glslang/dist/web-devel/glslang';/* eslint-disable @typescript-eslint/no-floating-promises */
 import { Device } from '../base/device';
 import {
     DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
@@ -23,7 +22,7 @@ import {
     TextureInfo, TextureViewInfo, Framebuffer, GlobalBarrier, GlobalBarrierInfo, TextureBarrier, TextureBarrierInfo,
 } from '..';
 
-import { nativeLib, glslalgWasmModule } from './webgpu-utils';
+import { nativeLib, webgpuAdapter } from './instantiated';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUFramebuffer } from './webgpu-framebuffer';
 import { WebGPUSwapchain } from './webgpu-swapchain';
@@ -62,11 +61,10 @@ export class WebGPUDevice extends Device {
     }
 
     public initialize (info: DeviceInfo): Promise<boolean> {
-        async function getDevice () {
+        function getDevice () {
             const chromeVersion = getChromeVersion();
-            const adapter = await (navigator as any).gpu.requestAdapter();
-            const device = await adapter.requestDevice();
-            glslalgWasmModule['glslang'] = await glslang();
+            const adapter = webgpuAdapter.adapter;
+            const device = webgpuAdapter.device;
             nativeLib['preinitializedWebGPUDevice'] = device;
             device.lost.then((info) => {
                 console.error('Device was lost.', info);
@@ -120,7 +118,6 @@ export class WebGPUDevice extends Device {
                 if (nativeLib.wasmLoaded) {
                     wasmDevice(nativeLib).then(() => {
                         nativeLib.wasmLoaded = true;
-                        console.log(nativeLib);
                         return getDevice().then(() => {
                             launch();
                             resolve();

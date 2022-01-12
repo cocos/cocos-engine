@@ -17,7 +17,8 @@
         },
         "gfx-webgpu": {
             "modules": [
-                "gfx-webgpu"
+                "gfx-webgpu",
+                "wait-for-webgpu-instantiation"
             ]
         },
         "3d": {

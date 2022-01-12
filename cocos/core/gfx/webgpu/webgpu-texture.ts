@@ -9,7 +9,7 @@ import {
     SampleCount,
 } from '../base/define';
 import { Texture } from '../base/texture';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 import {
     toWGPUNativeFormat, toWGPUNativeTextureType, toWGPUNativeTextureUsage,
     toWGPUTextureFlag, toWGPUTextureSampleCount,

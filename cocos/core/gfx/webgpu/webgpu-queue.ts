@@ -3,7 +3,7 @@ import { CommandBuffer } from '../base/command-buffer';
 import { Queue } from '../base/queue';
 import { WebGPUCommandBuffer } from './webgpu-command-buffer';
 import { QueueInfo, QueueType } from '../base/define';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 
 export class WebGPUQueue extends Queue {
     private _nativeQueue;

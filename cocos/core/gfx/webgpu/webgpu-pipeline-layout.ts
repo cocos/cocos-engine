@@ -2,7 +2,7 @@
 import { PipelineLayout } from '../base/pipeline-layout';
 import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
 import { PipelineLayoutInfo } from '../base/define';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 
 export class WebGPUPipelineLayout extends PipelineLayout {
     private _nativePipelineLayout;
