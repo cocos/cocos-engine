@@ -699,7 +699,10 @@ export class Game extends EventTarget {
         return !!node._persistNode;
     }
 
-    // hack for PhysX initialization
+    /**
+     * Only hack for PhysX initialization, should be removed in future
+     * @internal
+     */
     public onEngineInitedAsync (func: () => (Promise<void> | void)) {
         this._onEngineInitedCallback.push(func);
     }
