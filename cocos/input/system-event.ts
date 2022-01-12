@@ -65,6 +65,8 @@ interface SystemEventMap {
  * 系统事件，它目前支持按键事件和重力感应事件。<br/>
  * 你可以通过 `systemEvent` 获取到 `SystemEvent` 的实例。<br/>
  *
+ * @deprecated since v3.4.0, please use Input class instead.
+ *
  * @example
  * ```
  * import { systemEvent, SystemEvent } from 'cc';
@@ -158,6 +160,8 @@ legacyCC.SystemEvent = SystemEvent;
 /**
  * @en The singleton of the SystemEvent, there should only be one instance to be used globally
  * @zh 系统事件单例，方便全局使用。
+ *
+ * @deprecated since v3.4.0, please use input instead.
  */
 export const systemEvent = new SystemEvent();
 legacyCC.systemEvent = systemEvent;
