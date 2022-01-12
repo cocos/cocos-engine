@@ -112,6 +112,8 @@ export class Batcher2D implements IBatcher {
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
+    private _meshDataArray :MeshRenderData[] = [];
+
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
@@ -459,7 +461,6 @@ export class Batcher2D implements IBatcher {
         this.finishMergeBatches();
     }
 
-    private _meshDataArray :MeshRenderData[] = [];
     /**
      * @en
      * End a section of render data and submit according to the batch condition.
