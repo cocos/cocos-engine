@@ -781,6 +781,7 @@ const cacheManager = require('./jsb-cache-manager');
 
             const renderData = middleware.RenderInfoLookup[middleware.vfmtPosUvColor][_tempBufferIndex];
             ui.commitComp(this, renderData, realTexture, this._assembler, null);
+            renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
             this.material = mat;
         }
     };
