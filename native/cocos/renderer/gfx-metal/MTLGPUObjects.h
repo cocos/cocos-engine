@@ -53,6 +53,8 @@ namespace {
 constexpr size_t MegaBytesToBytes = 1024 * 1024;
 }
 
+constexpr size_t MAX_COLORATTACHMENTS = 16u;
+
 class CCMTLGPUDescriptorSetLayout : public Object {
 public:
     DescriptorSetLayoutBindingList bindings;

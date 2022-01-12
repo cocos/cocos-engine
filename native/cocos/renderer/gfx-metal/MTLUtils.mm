@@ -314,24 +314,58 @@ bool isASTCFormat(Format format) {
     }
 }
 
-gfx::Shader *createShader(CCMTLDevice *device) {
+gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass* renderPass) {
     String vs = R"(
             layout(location = 0) in vec2 a_position;
             void main() {
                 gl_Position = vec4(a_position, 1.0, 1.0);
             }
     )";
+//    String fs = R"(
+//            precision mediump float;
+//            layout(set = 0, binding = 0) uniform Color {
+//                vec4 u_color;
+//            };
+//            layout(location = 0) out vec4 o_color;
+//
+//            void main() {
+//                o_color = u_color;
+//            }
+//    )";
+    
     String fs = R"(
             precision mediump float;
             layout(set = 0, binding = 0) uniform Color {
                 vec4 u_color;
             };
-            layout(location = 0) out vec4 o_color;
-
-            void main() {
-                o_color = u_color;
-            }
     )";
+    
+    //TODO_Zeqiang: gather info in framegraph.
+    if(renderPass->getSubpasses().empty()) {
+        for (size_t i = 0; i < renderPass->getColorAttachments().size(); ++i) {
+            fs += "\n layout(location = " + std::to_string(i) + ") out vec4 o_color" + std::to_string(i) + ";";
+        }
+        
+        fs += "\nvoid main() {\n    o_color0 = u_color;\n";
+        
+        for (size_t i = 1; i < renderPass->getColorAttachments().size(); ++i) {
+            fs += "    o_color" + std::to_string(i) + " = vec4(0.0);\n";
+        }
+    } else {
+        const auto& subpasses = renderPass->getSubpasses();
+        for (size_t i = 0; i < subpasses[renderPass->getCurrentSubpassIndex()].colors.size(); ++i) {
+            fs += "\n layout(location = " + std::to_string(i) + ") out vec4 o_color" + std::to_string(i) + ";";
+        }
+        
+        fs += "\nvoid main() {\n    o_color0 = u_color;\n";
+        
+        for (size_t i = 1; i < subpasses[renderPass->getCurrentSubpassIndex()].colors.size(); ++i) {
+            fs += "    o_color" + std::to_string(i) + " = vec4(0.0);\n";
+        }
+    }
+    
+    fs += "}";
+    
     gfx::ShaderStageList shaderStageList;
     gfx::ShaderStage vertexShaderStage;
     vertexShaderStage.stage = gfx::ShaderStageFlagBit::VERTEX;
@@ -367,7 +401,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
-    pipelineInfo.shader = createShader(device);
+    pipelineInfo.shader = createShader(device, static_cast<CCMTLRenderPass*>(curPass));
     pipelineInfo.inputState = {{position}};
     pipelineInfo.renderPass = curPass;
     

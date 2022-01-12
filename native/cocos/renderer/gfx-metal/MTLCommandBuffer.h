@@ -32,6 +32,7 @@
 #include "MTLComputeCommandEncoder.h"
 #include "MTLGPUObjects.h"
 #include "MTLRenderCommandEncoder.h"
+#include <bitset>
 
 namespace cc {
 namespace gfx {
@@ -114,6 +115,8 @@ protected:
     CCMTLGPUCommandBufferObject *_gpuCommandBufferObj = nullptr;
     
     CCMTLSemaphore* _texCopySemaphore = nullptr;
+    
+    std::bitset<MAX_COLORATTACHMENTS> _colorAppearedBefore;
 };
 
 } // namespace gfx
