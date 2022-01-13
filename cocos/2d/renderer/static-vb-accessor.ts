@@ -170,7 +170,7 @@ export class StaticVBAccessor extends BufferAccessor {
         if (entry) {
             const vertexOffset = entry.offset / this.vertexFormatBytes;
             assertIsTrue(Number.isInteger(vertexOffset));
-            const vb = new Float32Array(buf.vData.buffer, entry.offset, byteLength >> 2);
+            const vb = new Float32Array(buf.vData.buffer, entry.offset, byteLength >> 2).fill(0);
             this._allocateChunkFromEntry(bid, eid, entry, byteLength);
             return new StaticVBChunk(this, bid, vertexOffset, vb, indexCount);
         } else {
