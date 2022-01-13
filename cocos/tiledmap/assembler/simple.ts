@@ -424,7 +424,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             // begin to fill vertex buffer
             tiledNode = tiledTiles[colData.index];
 
-            renderData.reserve(4, 6);
+            renderData.reserve(4, 0);
             _vfOffset = renderData.vertexCount * 9;
             vertexBuf = renderData.vData;
             if (!tiledNode) {
