@@ -83,7 +83,7 @@ void PipelineSceneData::initOcclusionQuery() {
 
     if (!_occlusionQueryMaterial) {
         _occlusionQueryMaterial = new Material();
-        _occlusionQueryMaterial->initDefault(std::string{"default-occlusion-query-material"});
+        _occlusionQueryMaterial->setUuid("default-occlusion-query-material");
         IMaterialInfo info;
         info.effectName = "occlusion-query";
         _occlusionQueryMaterial->initialize(info);
