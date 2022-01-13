@@ -56,11 +56,6 @@ jobs:
           ref: ${{ steps.parse_pull_request.outputs.pr_head_sha }}
           path: engine
 
-      - name: 'CocosCreator version'
-        shell: bash
-        run: |
-          echo "CocosCreator Version: ${{ steps.parse_pull_request.outputs.pr_base_ref }}"
-
       - name: 'npm install'
         run: |
           cd engine
