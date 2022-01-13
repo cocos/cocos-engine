@@ -500,10 +500,10 @@ export class Sprite extends Renderable2D {
 
     public __preload () {
         super.__preload();
+        // Force update uv, material define, active material, etc
+        this._applySpriteFrame(null);
 
         if (EDITOR) {
-            // Force update uv, material define, active material, etc
-            this._applySpriteFrame(null);
             this._resized();
             this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
@@ -511,8 +511,6 @@ export class Sprite extends Renderable2D {
 
     public onEnable () {
         super.onEnable();
-        // Force update uv, material define, active material, etc
-        this._applySpriteFrame(null);
         if (UI_GPU_DRIVEN) {
             this.tillingOffsetWithTrim = [];
         }
