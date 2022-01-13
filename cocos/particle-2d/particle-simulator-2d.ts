@@ -462,7 +462,7 @@ export class Simulator {
                 }
                 pool.put(deadParticle);
                 particles.length--;
-                renderData.updateRange(0, renderData.vertexCount - 4, 0, renderData.indexCount - 6);
+                renderData.resize(renderData.vertexCount - 4, renderData.indexCount - 6);
             }
         }
 

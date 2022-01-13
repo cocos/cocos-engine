@@ -221,9 +221,7 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
         for (let ii = 0, il = indices.length; ii < il; ii++) {
             ibuf[_indexOffset++] = _vertexOffset + indices[ii];
         }
-
-        const renderData = _buffer!.renderData;
-        renderData.updateRange(0, renderData.vertexCount + _vertexCount, 0, renderData.indexCount + _indexCount);
+        rd.resize(rd.vertexCount + _vertexCount, rd.indexCount + _indexCount);
     }
 }
 
@@ -315,9 +313,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
             vbuf[offset + 1] = _x * _m01 + _y * _m05 + _m13;
             offset += STRIDE_FLOAT;
         }
-
-        const renderData = _buffer!.renderData;
-        renderData.updateRange(0, renderData.vertexCount + _vertexCount, 0, renderData.indexCount + _indexCount);
+        rd.resize(rd.vertexCount + _vertexCount, rd.indexCount + _indexCount);
 
         if (!(_handleVal & NEED_COLOR)) continue;
 

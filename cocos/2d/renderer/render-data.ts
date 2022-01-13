@@ -333,7 +333,8 @@ export class MeshRenderData extends BaseRenderData {
 
     public request (vertexCount: number, indexCount: number) {
         const byteOffset = this._byteLength + vertexCount * this.stride;
-        this.reserve(vertexCount, indexCount);
+        const succeed = this.reserve(vertexCount, indexCount);
+        if (!succeed) return false;
         this._vc += vertexCount; // vertexOffset
         this._ic += indexCount; // indicesOffset
         this._byteLength = byteOffset; // byteOffset
@@ -366,8 +367,20 @@ export class MeshRenderData extends BaseRenderData {
         return true;
     }
 
+    // overload
+    // Resize buffer and IA range
+    public resize (vertexCount: number, indexCount: number) {
+        const byteLength = vertexCount * this.stride;
+        assertIsTrue(vertexCount >= 0 && indexCount >= 0 && byteLength <= this.vData.byteLength && indexCount <= this.iData.length);
+        this._vc = vertexCount;
+        this._ic = indexCount;
+        this._byteLength = byteLength;
+        this.updateRange(0, vertexCount, 0, indexCount);
+    }
+
+    // Only resize IA range
     public updateRange (vertOffset: number, vertexCount: number, indexOffset: number, indexCount: number) {
-        assertIsTrue(vertexCount >= 0 && indexCount >= 0);
+        assertIsTrue(vertexCount >= 0 && indexCount >= 0 && vertexCount <= this._vc && indexCount <= this._ic);
         this.vertexStart = vertOffset;
         this.indexStart = indexOffset;
         this.vertexRange = vertexCount;
@@ -476,10 +489,6 @@ export class MeshRenderData extends BaseRenderData {
         if (oldIData) {
             this.iData.set(oldIData, 0);
         }
-    }
-
-    // overload
-    public resize (vertexCount: number, indexCount: number) {
     }
 }
 
