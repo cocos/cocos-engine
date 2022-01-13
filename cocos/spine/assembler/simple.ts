@@ -314,12 +314,13 @@ function fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color,
         _indexCount = clippedTriangles.length;
         _vertexFloatCount = clippedVertices.length / _perClipVertexSize * _perVertexSize;
 
-        _buffer!.renderData.reserve(_vertexFloatCount / _perVertexSize, _indexCount);
-        _indexOffset = _buffer!.renderData.indexCount;
-        _vertexOffset = _buffer!.renderData.vertexCount;
-        _vertexFloatOffset = _buffer!.renderData.vDataOffset;
-        vbuf = _buffer!.renderData.vData;
-        ibuf = _buffer!.renderData.iData;
+        const renderData = _buffer!.renderData;
+        renderData.reserve(_vertexFloatCount / _perVertexSize, _indexCount);
+        _indexOffset = renderData.indexCount;
+        _vertexOffset = renderData.vertexCount;
+        _vertexFloatOffset = renderData.vDataOffset;
+        vbuf = renderData.vData;
+        ibuf = renderData.iData;
 
         // fill indices
         // for(let ii=0; ii < _indexCount; ii++) {
@@ -481,6 +482,7 @@ function realTimeTraverse (worldMat?: Mat4) {
             _buffer.renderData.material = _currentMaterial;
         }
 
+        const renderData = _buffer!.renderData;
         if (isRegion) {
             triangles = _quadTriangles;
 
@@ -488,12 +490,12 @@ function realTimeTraverse (worldMat?: Mat4) {
             _vertexFloatCount = 4 * _perVertexSize;
             _indexCount = 6;
 
-            _buffer!.renderData.reserve(4, 6);
-            _indexOffset = _buffer!.renderData.indexCount;
-            _vertexOffset = _buffer!.renderData.vertexCount;
-            _vertexFloatOffset = _buffer!.renderData.vDataOffset;
-            vbuf = _buffer!.renderData.vData;
-            ibuf = _buffer!.renderData.iData;
+            renderData.reserve(4, 6);
+            _indexOffset = renderData.indexCount;
+            _vertexOffset = renderData.vertexCount;
+            _vertexFloatOffset = renderData.vDataOffset;
+            vbuf = renderData.vData;
+            ibuf = renderData.iData;
 
             // compute vertex and fill x y
             (attachment as spine.RegionAttachment).computeWorldVertices(slot.bone, vbuf, _vertexFloatOffset, _perVertexSize);
@@ -516,14 +518,12 @@ function realTimeTraverse (worldMat?: Mat4) {
             _vertexFloatCount = (mattachment.worldVerticesLength >> 1) * _perVertexSize;
             _indexCount = triangles.length;
 
-            _buffer!.renderData.reserve(mattachment.worldVerticesLength >> 1, _indexCount);
-
-            _indexOffset = _buffer!.renderData.indexCount;
-            _vertexOffset = _buffer!.renderData.vertexCount;
-            _vertexFloatOffset = _buffer!.renderData.vDataOffset;
-
-            vbuf = _buffer!.renderData.vData;
-            ibuf = _buffer!.renderData.iData;
+            renderData.reserve(mattachment.worldVerticesLength >> 1, _indexCount);
+            _indexOffset = renderData.indexCount;
+            _vertexOffset = renderData.vertexCount;
+            _vertexFloatOffset = renderData.vDataOffset;
+            vbuf = renderData.vData;
+            ibuf = renderData.iData;
 
             // compute vertex and fill x y
             mattachment.computeWorldVertices(slot, 0, mattachment.worldVerticesLength, vbuf, _vertexFloatOffset, _perVertexSize);
@@ -566,9 +566,8 @@ function realTimeTraverse (worldMat?: Mat4) {
         fillVertices(skeletonColor, meshAttachment.color, slot.color, clipper, slot);
 
         // reset buffer pointer, because clipper maybe realloc a new buffer in file Vertices function.
-
-        vbuf = _buffer!.renderData.vData;
-        ibuf = _buffer!.renderData.iData;
+        vbuf = renderData.vData;
+        ibuf = renderData.iData;
 
         if (_indexCount > 0) {
             for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
@@ -589,8 +588,7 @@ function realTimeTraverse (worldMat?: Mat4) {
                     vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
                 }
             }
-            const renderData = _buffer!.renderData;
-            renderData.updateRange(0, renderData.vertexCount + _vertexFloatCount / _perVertexSize, 0, renderData.indexCount + _indexCount);
+            renderData.resize(renderData.vertexCount + _vertexFloatCount / _perVertexSize, renderData.indexCount + _indexCount);
         }
 
         clipper.clipEndWithSlot(slot);
@@ -660,6 +658,7 @@ function cacheTraverse (worldMat?: Mat4) {
     let maxVFOffset = nowColor.vfOffset;
     _handleColor(nowColor);
 
+    const renderData = _buffer!.renderData;
     for (let i = 0, n = segments.length; i < n; i++) {
         const segInfo = segments[i];
         material = _getSlotMaterial(segInfo.blendMode!);
@@ -683,13 +682,12 @@ function cacheTraverse (worldMat?: Mat4) {
         _vertexCount = segInfo.vertexCount;
         _indexCount = segInfo.indexCount;
 
-        _buffer!.renderData.reserve(_vertexCount, _indexCount);
-
-        _indexOffset = _buffer!.renderData.indexCount;
-        _vertexOffset = _buffer!.renderData.vertexCount;
-        _vfOffset = _buffer!.renderData.vDataOffset;
-        vbuf = _buffer!.renderData.vData;
-        ibuf = _buffer!.renderData.iData;
+        renderData.reserve(_vertexCount, _indexCount);
+        _indexOffset = renderData.indexCount;
+        _vertexOffset = renderData.vertexCount;
+        _vfOffset = renderData.vDataOffset;
+        vbuf = renderData.vData;
+        ibuf = renderData.iData;
 
         for (let ii = _indexOffset, il = _indexOffset + _indexCount; ii < il; ii++) {
             ibuf[ii] = _vertexOffset + indices[frameIndexOffset++];
@@ -735,9 +733,7 @@ function cacheTraverse (worldMat?: Mat4) {
                 vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
             }
         }
-
-        const renderData = _buffer!.renderData;
-        renderData.updateRange(0, renderData.vertexCount + _vertexCount, 0, renderData.indexCount + _indexCount);
+        renderData.resize(renderData.vertexCount + _vertexCount, renderData.indexCount + _indexCount);
 
         if (!_needColor) continue;
 
