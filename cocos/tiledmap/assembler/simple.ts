@@ -383,6 +383,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             cols = checkColRange && leftDown.col < rowData.minCol ? rowData.minCol : leftDown.col;
         }
 
+        const renderData = _renderData!.renderData;
         // traverse col
         for (; (cols - col) * colMoveDir >= 0; col += colMoveDir) {
             colData = rowData && rowData[col];
@@ -423,9 +424,9 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             // begin to fill vertex buffer
             tiledNode = tiledTiles[colData.index];
 
-            _renderData!.renderData.reserve(4, 0);
-            _vfOffset = _renderData!.renderData.vertexCount * 9;
-            vertexBuf = _renderData!.renderData.vData;
+            renderData.reserve(4, 6);
+            _vfOffset = renderData.vertexCount * 9;
+            vertexBuf = renderData.vData;
             if (!tiledNode) {
                 if (diamondTile) {
                     const centerX = (left + right) / 2;
@@ -511,7 +512,6 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 
             _fillGrids++;
 
-            const renderData = _renderData!.renderData;
             renderData.request(4, 6);
             renderData.updateRange(0, renderData.vertexCount, 0, renderData.indexCount);
 
