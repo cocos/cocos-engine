@@ -28,6 +28,7 @@
 #include <cassert>
 #include <memory>
 #include <type_traits>
+#include <cmath>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 

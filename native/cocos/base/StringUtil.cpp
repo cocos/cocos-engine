@@ -28,6 +28,7 @@
 #include <cctype>
 #include <cstdarg>
 #include <string>
+#include <algorithm>
 #include "base/ZipUtils.h"
 #include "base/base64.h"
 #include "memory/Memory.h"

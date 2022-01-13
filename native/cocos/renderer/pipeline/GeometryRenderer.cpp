@@ -26,6 +26,7 @@
 #include "GeometryRenderer.h"
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include "Define.h"
 #include "PipelineStateManager.h"
 #include "RenderPipeline.h"
@@ -471,13 +472,13 @@ void GeometryRenderer::addCapsule(const Vec3& center, float radius, float height
         CircleList topList;
 
         float theta    = i * deltaTheta;
-        float sinTheta = std::sinf(theta);
-        float cosTheta = std::cosf(theta);
+        float sinTheta = sinf(theta);
+        float cosTheta = cosf(theta);
 
         for (auto j = 0U; j < segmentsU + 1; j++) {
             float phi    = j * deltaPhi;
-            float sinPhi = std::sinf(phi);
-            float cosPhi = std::cosf(phi);
+            float sinPhi = sinf(phi);
+            float cosPhi = cosf(phi);
             Vec3  p{radius * sinTheta * cosPhi, radius * cosTheta, radius * sinTheta * sinPhi};
 
             bottomList.emplace_back(bottomCenter + Vec3(p.x, -p.y, p.z));
@@ -524,7 +525,7 @@ void GeometryRenderer::addCylinder(const Vec3& center, float radius, float heigh
 
     for (auto i = 0U; i < segments + 1; i++) {
         float phi = i * deltaPhi;
-        Vec3  p{radius * std::cosf(phi), 0.0F, radius * std::sinf(phi)};
+        Vec3  p{radius * cosf(phi), 0.0F, radius * sinf(phi)};
         bottomPoints.emplace_back(p + bottomCenter);
         topPoints.emplace_back(p + topCenter);
     }
@@ -555,7 +556,7 @@ void GeometryRenderer::addCone(const Vec3& center, float radius, float height, g
     std::vector<Vec3> bottomPoints;
 
     for (auto i = 0U; i < segments + 1; i++) {
-        Vec3 point{radius * std::cosf(i * deltaPhi), 0.0F, radius * std::sinf(i * deltaPhi)};
+        Vec3 point{radius * cosf(i * deltaPhi), 0.0F, radius * sinf(i * deltaPhi)};
         bottomPoints.emplace_back(point + bottomCenter);
     }
 
@@ -579,7 +580,7 @@ void GeometryRenderer::addCircle(const Vec3& center, float radius, gfx::Color co
     std::vector<Vec3> points;
 
     for (auto i = 0U; i < segments + 1; i++) {
-        Vec3 point{radius * std::cosf(i * deltaPhi), 0.0F, radius * std::sinf(i * deltaPhi)};
+        Vec3 point{radius * cosf(i * deltaPhi), 0.0F, radius * sinf(i * deltaPhi)};
         points.emplace_back(point + center);
     }
 
@@ -601,7 +602,7 @@ void GeometryRenderer::addArc(const Vec3& center, float radius, gfx::Color color
     std::vector<Vec3> points;
 
     for (auto i = 0U; i < segments + 1; i++) {
-        Vec3 point{radius * std::cosf(i * deltaPhi + startRadian), 0.0F, radius * std::sinf(i * deltaPhi + startRadian)};
+        Vec3 point{radius * cosf(i * deltaPhi + startRadian), 0.0F, radius * sinf(i * deltaPhi + startRadian)};
         points.emplace_back(point + center);
     }
 
@@ -630,7 +631,7 @@ void GeometryRenderer::addDisc(const Vec3& center, float radius, gfx::Color colo
     Vec3              newCenter = center;
 
     for (auto i = 0U; i < segments + 1; i++) {
-        Vec3 point{radius * std::cosf(i * deltaPhi), 0.0F, radius * std::sinf(i * deltaPhi)};
+        Vec3 point{radius * cosf(i * deltaPhi), 0.0F, radius * sinf(i * deltaPhi)};
         points.emplace_back(point + newCenter);
     }
 
@@ -662,7 +663,7 @@ void GeometryRenderer::addSector(const Vec3& center, float radius, gfx::Color co
     Vec3              newCenter = center;
 
     for (auto i = 0U; i < segments + 1; i++) {
-        Vec3 point{radius * std::cosf(i * deltaPhi), 0.0F, radius * std::sinf(i * deltaPhi)};
+        Vec3 point{radius * cosf(i * deltaPhi), 0.0F, radius * sinf(i * deltaPhi)};
         points.emplace_back(point + newCenter);
     }
 
@@ -696,13 +697,13 @@ void GeometryRenderer::addSphere(const Vec3& center, float radius, gfx::Color co
     for (auto i = 0U; i < segmentsV + 1; i++) {
         CircleList list;
         float      theta    = i * deltaTheta;
-        float      sinTheta = std::sinf(theta);
-        float      cosTheta = std::cosf(theta);
+        float      sinTheta = sinf(theta);
+        float      cosTheta = cosf(theta);
 
         for (auto j = 0U; j < segmentsU + 1; j++) {
             float phi    = j * deltaPhi;
-            float sinPhi = std::sinf(phi);
-            float cosPhi = std::cosf(phi);
+            float sinPhi = sinf(phi);
+            float cosPhi = cosf(phi);
             Vec3  p{radius * sinTheta * cosPhi, radius * cosTheta, radius * sinTheta * sinPhi};
 
             list.emplace_back(center + p);
@@ -737,13 +738,13 @@ void GeometryRenderer::addTorus(const Vec3& center, float bigRadius, float radiu
     for (auto i = 0U; i < segmentsU + 1; i++) {
         CircleList list;
         float      phi    = i * deltaPhi;
-        float      sinPhi = std::sinf(phi);
-        float      cosPhi = std::cosf(phi);
+        float      sinPhi = sinf(phi);
+        float      cosPhi = cosf(phi);
 
         for (auto j = 0U; j < segmentsV + 1; j++) {
             float theta    = j * deltaTheta;
-            float sinTheta = std::sinf(theta);
-            float cosTheta = std::cosf(theta);
+            float sinTheta = sinf(theta);
+            float cosTheta = cosf(theta);
             Vec3  p{(bigRadius + radius * cosTheta) * cosPhi, radius * sinTheta, (bigRadius + radius * cosTheta) * sinPhi};
 
             list.emplace_back(center + p);

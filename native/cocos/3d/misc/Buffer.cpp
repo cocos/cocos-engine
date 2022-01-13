@@ -94,7 +94,7 @@ DataView mapBuffer(DataView &                target,
     }
 
     const uint32_t componentBytesLength = info.size / info.count;
-    const uint32_t nSeg                 = std::floor(length / stride);
+    const uint32_t nSeg                 = floor(length / stride);
 
     for (uint32_t iSeg = 0; iSeg < nSeg; ++iSeg) {
         const uint32_t x = offset + stride * iSeg;

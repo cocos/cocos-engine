@@ -27,6 +27,7 @@
 #include "cocos/base/Optional.h"
 #include "core/DataView.h"
 #include "renderer/gfx-base/GFXDef.h"
+#include <cmath>
 
 namespace cc {
 
@@ -42,7 +43,7 @@ void writeBuffer(DataView &            target,
         stride = info.size;
     }
     const uint32_t componentBytesLength = info.size / info.count;
-    const uint32_t nSeg                 = static_cast<uint32_t>(std::floor(data.size() / info.count));
+    const auto nSeg                 = static_cast<uint32_t>(floor(data.size() / info.count));
 
     const uint32_t bytes = info.size / info.count * 8;
 

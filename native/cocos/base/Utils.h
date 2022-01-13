@@ -32,6 +32,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "base/Macros.h"
 #include "base/TypeDef.h"
 /** @file ccUtils.h

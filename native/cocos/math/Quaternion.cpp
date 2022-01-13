@@ -23,6 +23,7 @@
 #include "math/Quaternion.h"
 
 #include <cmath>
+#include <cstring>
 #include "base/Macros.h"
 #include "math/Mat3.h"
 #include "math/Math.h"
@@ -166,7 +167,7 @@ void Quaternion::normalize() {
         return;
     }
 
-    n = std::sqrt(n);
+    n = sqrt(n);
     // Too close to zero.
     if (n < 0.000001F) {
         return;
@@ -353,27 +354,27 @@ void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
     float m08   = m.m[8];
     float trace = m00 + m04 + m08;
     if (trace > 0) {
-        const float s = 0.5F / std::sqrtf(trace + 1.F);
+        const float s = 0.5F / sqrtf(trace + 1.F);
         out->w        = 0.25F / s;
         out->x        = (m05 - m07) * s;
         out->y        = (m06 - m02) * s;
         out->z        = (m01 - m03) * s;
     } else if ((m00 > m04) && (m00 > m08)) {
-        const float s = 2.F * std::sqrtf(1.F + m04 - m00 - m08);
+        const float s = 2.F * sqrtf(1.F + m04 - m00 - m08);
 
         out->w = (m05 - m07) / s;
         out->x = 0.25F * s;
         out->y = (m03 + m01) / s;
         out->z = (m06 + m02) / s;
     } else if (m04 > m08) {
-        const float s = 2.F * std::sqrtf(1.F + m04 - m00 - m08);
+        const float s = 2.F * sqrtf(1.F + m04 - m00 - m08);
 
         out->w = (m06 - m02) / s;
         out->x = (m03 + m01) / s;
         out->y = 0.25F * s;
         out->z = (m07 + m05) / s;
     } else {
-        const float s = 2.F * std::sqrtf(1.F + m08 - m00 - m04);
+        const float s = 2.F * sqrtf(1.F + m08 - m00 - m04);
 
         out->w = (m01 - m03) / s;
         out->x = (m06 + m02) / s;

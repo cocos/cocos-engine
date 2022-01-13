@@ -24,6 +24,7 @@
 
 #include <array>
 #include <cmath>
+#include <cstring>
 #include "base/Log.h"
 #include "math/MathUtil.h"
 #include "math/Quaternion.h"
@@ -111,7 +112,7 @@ void Mat4::createPerspective(float fieldOfView, float aspectRatio, float zNearPl
                              bool isFieldOfViewY, float minClipZ, float projectionSignY, int orientation, Mat4 *dst) {
     GP_ASSERT(dst);
     GP_ASSERT(zFarPlane != zNearPlane);
-    GP_ASSERT(fieldOfView != 0.0f);
+    GP_ASSERT(fieldOfView != 0.0F);
 
     const float f  = 1.0F / tanf(fieldOfView / 2.0F);
     const float nf = 1.0F / (zNearPlane - zFarPlane);
