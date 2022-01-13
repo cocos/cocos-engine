@@ -16,8 +16,7 @@
             "description": "i18n:ENGINE.features.graphics.description",
             "default": [
                 "gfx-webgl",
-                "gfx-webgl2",
-                "gfx-webgpu"
+                "gfx-webgl2"
             ],
             "options": {
                 "gfx-webgl": {
@@ -29,11 +28,6 @@
                 "gfx-webgl2": {
                     "label": "i18n:ENGINE.features.gfx_webgl2.label",
                     "description": "i18n:ENGINE.features.gfx_webgl2.description",
-                    "wechatPlugin": true
-                },
-                "gfx-webgpu": {
-                    "label": "i18n:ENGINE.features.gfx_webgpu.label",
-                    "description": "i18n:ENGINE.features.gfx_webgpu.description",
                     "wechatPlugin": true
                 }
             }
