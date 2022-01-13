@@ -28,8 +28,11 @@
  * @hidden
  */
 
+import { BUILD } from 'internal:constants';
 import { WebGPUDevice } from '../cocos/core/gfx/webgpu/webgpu-device';
 import { legacyCC } from '../cocos/core/global-exports';
 
 export { WebGPUDevice };
-legacyCC.WebGPUDevice = WebGPUDevice;
+if (BUILD) {
+    legacyCC.WebGPUDevice = WebGPUDevice;
+}
