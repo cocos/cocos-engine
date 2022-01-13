@@ -441,6 +441,7 @@ export class AnimationState extends Playable {
 
     /**
      * This method is used for internal purpose only.
+     * @legacyPublic
      */
     public _setEventTarget (target) {
         this._target = target;

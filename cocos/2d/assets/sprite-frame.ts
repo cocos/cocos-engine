@@ -40,7 +40,7 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { legacyCC } from '../../core/global-exports';
 import { ImageAsset, ImageSource } from '../../core/assets/image-asset';
 import { Texture2D } from '../../core/assets/texture-2d';
-import { errorID } from '../../core/platform/debug';
+import { errorID, warnID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
 
@@ -400,7 +400,11 @@ export class SpriteFrame extends Asset {
 
     set texture (value) {
         if (!value) {
-            console.warn(`Error Texture in ${this.name}`);
+            warnID(3122, this.name);
+            return;
+        }
+
+        if (value === this._texture) {
             return;
         }
 
@@ -799,7 +803,10 @@ export class SpriteFrame extends Asset {
         return super.destroy();
     }
 
-    // Calculate UV for sliced
+    /**
+     * Calculate UV for sliced
+     * @legacyPublic
+     */
     public _calculateSlicedUV () {
         if (UI_GPU_DRIVEN) {
             this._calculateSlicedData();
@@ -861,7 +868,10 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    // Calculate UV
+    /**
+     * Calculate UV
+     * @legacyPublic
+     */
     public _calculateUV () {
         const rect = this._rect;
         const uv = this.uv;
@@ -1102,6 +1112,9 @@ export class SpriteFrame extends Asset {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _setDynamicAtlasFrame (frame) {
         if (!frame) return;
 
@@ -1117,6 +1130,9 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _resetDynamicAtlasFrame () {
         if (!this._original) return;
         this._rect.x = this._original._x;
@@ -1126,6 +1142,9 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _checkPackable () {
         const dynamicAtlas = dynamicAtlasManager;
         if (!dynamicAtlas) return;
@@ -1149,7 +1168,9 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    // SERIALIZATION
+    /**
+     * @legacyPublic
+     */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const rect = { x: this._rect.x, y: this._rect.y, width: this._rect.width, height: this._rect.height };
@@ -1193,6 +1214,9 @@ export class SpriteFrame extends Asset {
         return null;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteFramesSerializeData;
         const rect = data.rect;

@@ -40,6 +40,7 @@ vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
 }
 
 #if USE_REFLECTION_DENOISE
+#pragma extension([GL_OES_standard_derivatives, __VERSION__ < 110])
   vec3 GetEnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {
     #if CC_USE_IBL
     	float mip = roughness * mipCount;
@@ -116,7 +117,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW && CC_ENABLE_DIR_SHADOW
     if (NL > 0.0) {
-      CC_SHADOW_FACTOR_BASE(shadow, shadowPos, N, NL);
+      shadow = CCShadowFactorBase(shadowPos, N);
     }
   #endif
 

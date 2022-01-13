@@ -636,6 +636,9 @@ export class Label extends Renderable2D {
         this._fontAtlas = value;
     }
 
+    /**
+     * @legacyPublic
+     */
     get _bmFontOriginalSize () {
         if (this._font instanceof BitmapFont) {
             return this._font.fontSize;
@@ -672,6 +675,7 @@ export class Label extends Renderable2D {
     protected _font: Font | null = null;
     @serializable
     protected _isSystemFontUsed = true;
+    @serializable
     protected _spacingX = 0;
     @serializable
     protected _isItalic = false;

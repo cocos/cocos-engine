@@ -179,12 +179,29 @@ export class TerrainLayer {
  * @zh 地形渲染组件
  */
 class TerrainRenderable extends RenderableComponent {
+    /**
+     * @legacyPublic
+     */
     public _model: scene.Model | null = null;
+    /**
+     * @legacyPublic
+     */
     public _meshData: RenderingSubMesh | null = null;
-
+    /**
+     * @legacyPublic
+     */
     public _brushPass: Pass | null = null;
+    /**
+     * @legacyPublic
+     */
     public _brushMaterial: Material | null = null;
+    /**
+     * @legacyPublic
+     */
     public _currentMaterial: Material | null = null;
+    /**
+     * @legacyPublic
+     */
     public _currentMaterialLayers = 0;
 
     public destroy () {
@@ -197,6 +214,9 @@ class TerrainRenderable extends RenderableComponent {
         return super.destroy();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _destroyModel () {
         // this._invalidMaterial();
         if (this._model != null) {
@@ -205,6 +225,9 @@ class TerrainRenderable extends RenderableComponent {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _invalidMaterial () {
         if (this._currentMaterial == null) {
             return;
@@ -219,6 +242,9 @@ class TerrainRenderable extends RenderableComponent {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateMaterial (block: TerrainBlock, init: boolean) {
         if (this._meshData == null || this._model == null) {
             return;
@@ -234,7 +260,7 @@ class TerrainRenderable extends RenderableComponent {
             });
 
             if (this._brushMaterial !== null) {
-                // 创建画刷材质实例，避免材质GC直接删除插入的画刷pass
+                // Create brush material instance, avoid being destroyed by material gc
                 const brushMaterialInstance = new Material();
                 brushMaterialInstance.copy(this._brushMaterial);
 
@@ -259,6 +285,9 @@ class TerrainRenderable extends RenderableComponent {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onMaterialModified (idx: number, mtl: Material|null) {
         if (this._model == null) {
             return;
@@ -345,30 +374,7 @@ export class TerrainBlock {
 
         // vertex buffer
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
-        let index = 0;
-        this._bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-        this._bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
-        for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
-            for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
-                const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
-                const y = this._index[1] * TERRAIN_BLOCK_TILE_COMPLEXITY + j;
-                const position = this._terrain.getPosition(x, y);
-                const normal = this._terrain.getNormal(x, y);
-                const uv = new Vec2(i / TERRAIN_BLOCK_TILE_COMPLEXITY, j / TERRAIN_BLOCK_TILE_COMPLEXITY);
-                vertexData[index++] = position.x;
-                vertexData[index++] = position.y;
-                vertexData[index++] = position.z;
-                vertexData[index++] = normal.x;
-                vertexData[index++] = normal.y;
-                vertexData[index++] = normal.z;
-                vertexData[index++] = uv.x;
-                vertexData[index++] = uv.y;
-
-                Vec3.min(this._bbMin, this._bbMin, position);
-                Vec3.max(this._bbMax, this._bbMax, position);
-            }
-        }
-
+        this._buildVertexData(vertexData);
         const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
@@ -376,6 +382,9 @@ export class TerrainBlock {
             TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
         ));
         vertexBuffer.update(vertexData);
+
+        // build bounding box
+        this._buildBoundingBox();
 
         // initialize renderable
         const gfxAttributes: Attribute[] = [
@@ -801,34 +810,10 @@ export class TerrainBlock {
         }
 
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
-
-        let index = 0;
-        this._bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-        this._bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
-        for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
-            for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
-                const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
-                const y = this._index[1] * TERRAIN_BLOCK_TILE_COMPLEXITY + j;
-
-                const position = this._terrain.getPosition(x, y);
-                const normal = this._terrain.getNormal(x, y);
-                const uv = new Vec2(i / TERRAIN_BLOCK_VERTEX_COMPLEXITY, j / TERRAIN_BLOCK_VERTEX_COMPLEXITY);
-
-                vertexData[index++] = position.x;
-                vertexData[index++] = position.y;
-                vertexData[index++] = position.z;
-                vertexData[index++] = normal.x;
-                vertexData[index++] = normal.y;
-                vertexData[index++] = normal.z;
-                vertexData[index++] = uv.x;
-                vertexData[index++] = uv.y;
-
-                Vec3.min(this._bbMin, this._bbMin, position);
-                Vec3.max(this._bbMax, this._bbMax, position);
-            }
-        }
-
+        this._buildVertexData(vertexData);
         this._renderable._meshData.vertexBuffers[0].update(vertexData);
+
+        this._buildBoundingBox();
         this._renderable._model!.createBoundingShape(this._bbMin, this._bbMax);
         this._renderable._model!.updateWorldBound();
 
@@ -875,11 +860,17 @@ export class TerrainBlock {
         this._weightMap.uploadData(weightData);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateLightmap (info: TerrainBlockLightmapInfo) {
         this._lightmapInfo = info;
         this._invalidMaterial();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateLod () {
         const key = new TerrainLodKey();
         key.level = this._lodLevel;
@@ -928,6 +919,9 @@ export class TerrainBlock {
         this._updateIndexBuffer();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _resetLod () {
         const key = new TerrainLodKey();
         key.level = 0;
@@ -944,6 +938,9 @@ export class TerrainBlock {
         this._updateIndexBuffer();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateIndexBuffer () {
         if (this._renderable._meshData === null) {
             return;
@@ -1064,6 +1061,41 @@ export class TerrainBlock {
             const e = this._errorMetrics[i];
             const d = e * c;
             this._LevelDistances[i] = d;
+        }
+    }
+
+    private _buildVertexData (vertexData: Float32Array) {
+        let index = 0;
+        for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
+            for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
+                const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
+                const y = this._index[1] * TERRAIN_BLOCK_TILE_COMPLEXITY + j;
+                const position = this._terrain.getPosition(x, y);
+                const normal = this._terrain.getNormal(x, y);
+                const uv = new Vec2(i / TERRAIN_BLOCK_TILE_COMPLEXITY, j / TERRAIN_BLOCK_TILE_COMPLEXITY);
+                vertexData[index++] = position.x;
+                vertexData[index++] = position.y;
+                vertexData[index++] = position.z;
+                vertexData[index++] = normal.x;
+                vertexData[index++] = normal.y;
+                vertexData[index++] = normal.z;
+                vertexData[index++] = uv.x;
+                vertexData[index++] = uv.y;
+            }
+        }
+    }
+
+    private _buildBoundingBox () {
+        this._bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        this._bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
+        for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
+            for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
+                const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
+                const y = this._index[1] * TERRAIN_BLOCK_TILE_COMPLEXITY + j;
+                const position = this._terrain.getPosition(x, y);
+                Vec3.min(this._bbMin, this._bbMin, position);
+                Vec3.max(this._bbMax, this._bbMax, position);
+            }
         }
     }
 }
@@ -1188,6 +1220,9 @@ export class Terrain extends Component {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public get _asset () {
         return this.__asset;
     }
@@ -1734,6 +1769,9 @@ export class Terrain extends Component {
         return h;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _setNormal (i: number, j: number, n: Vec3) {
         const index = j * this.vertexCount[0] + i;
 
@@ -2044,6 +2082,9 @@ export class Terrain extends Component {
         return position;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _getSharedIndexBuffer () {
         if (this._sharedIndexBuffer == null) {
             // initialize shared index buffer
@@ -2060,10 +2101,16 @@ export class Terrain extends Component {
         return this._sharedIndexBuffer;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _getIndexData (key: TerrainLodKey) {
         return this._lod.getIndexData(key);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _resetLightmap (enble: boolean) {
         this._lightmapInfos.length = 0;
         if (enble) {
@@ -2073,6 +2120,9 @@ export class Terrain extends Component {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this._lightmapInfos[blockId].texture = tex;
         this._lightmapInfos[blockId].UOff = uOff;
@@ -2082,11 +2132,17 @@ export class Terrain extends Component {
         this._blocks[blockId]._updateLightmap(this._lightmapInfos[blockId]);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _getLightmapInfo (i: number, j: number) {
         const index = j * this._blockCount[0] + i;
         return index < this._lightmapInfos.length ? this._lightmapInfos[index] : null;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _calcNormal (x: number, z: number) {
         let flip = 1;
         const here = this.getPosition(x, z);
@@ -2119,6 +2175,9 @@ export class Terrain extends Component {
         return normal;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _buildNormals () {
         let index = 0;
         for (let y = 0; y < this.vertexCount[1]; ++y) {

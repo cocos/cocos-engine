@@ -27,7 +27,7 @@
  * @module asset-manager
  */
 import { Asset } from '../assets/asset';
-import SceneAsset from '../assets/scene-asset';
+import { SceneAsset } from '../assets/scene-asset';
 import { legacyCC } from '../global-exports';
 import { error, errorID } from '../platform/debug';
 import Config, { IAddressableInfo, IAssetInfo, IConfigOption, ISceneInfo } from './config';
@@ -595,6 +595,9 @@ export default class Bundle {
         });
     }
 
+    /**
+     * @legacyPublic
+     */
     public _destroy () {
         this._config.destroy();
     }

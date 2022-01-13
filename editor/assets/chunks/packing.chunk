@@ -7,5 +7,4 @@ vec4 packDepthToRGBA (float depth) {
   return ret;
 }
 
-#define unpackRGBAToDepth(color)
-  dot(color, vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0))
+#define unpackRGBAToDepth(color) dot(color, vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0))

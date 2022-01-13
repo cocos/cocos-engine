@@ -38,7 +38,7 @@ import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Game, Material, builtinResMgr, director, RenderingSubMesh, CCObject } from '../../core';
+import { Game, Material, builtinResMgr, director, CCObject } from '../../core';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
@@ -46,6 +46,7 @@ import { Model } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
+import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -327,7 +328,13 @@ export class Mask extends Renderable2D {
 
     public static Type = MaskType;
 
+    /**
+     * @legacyPublic
+     */
     public _clearStencilMtl: Material | null = null;
+    /**
+     * @legacyPublic
+     */
     public _clearModel: Model | null = null;
 
     @serializable

@@ -36,6 +36,7 @@ import { PerfCounter } from './perf-counter';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from '../core/renderer';
 import { preTransforms } from '../core/math/mat4';
+import { JSB } from '../core/default-constants';
 import { Root } from '../core/root';
 import { RenderPipeline } from '../core';
 
@@ -71,7 +72,7 @@ interface IProfilerState {
 }
 
 const _profileInfo = {
-    fps: { desc: 'Framerate (FPS)', below: 30, average: _average, isInteger: true },
+    fps: { desc: `Framerate (FPS)`, below: 30, average: _average, isInteger: true },
     draws: { desc: 'Draw call', isInteger: true },
     frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: _average },
     instances: { desc: 'Instance Count', isInteger: true },
@@ -92,6 +93,9 @@ const _constants = {
 };
 
 export class Profiler {
+    /**
+     * @legacyPublic
+     */
     public _stats: IProfilerState | null = null;
     public id = '__Profiler__';
 
@@ -116,7 +120,7 @@ export class Profiler {
     private _statsDone = false;
     private _inited = false;
 
-    private readonly _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
+    private _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
     private _wordHeight = 0;
     private _eachNumWidth = 0;
     private _totalLines = 0; // total lines to display
@@ -131,6 +135,35 @@ export class Profiler {
         }
     }
 
+    public reset () {
+        this._stats = null;
+
+        this._showFPS = false;
+
+        this._rootNode = null;
+        this._device = null;
+        this._swapchain = null;
+        this._pipeline = null!;
+        if (this._meshRenderer) {
+            this._meshRenderer.destroy();
+        }
+        this._meshRenderer = null!;
+        this.digitsData = null!;
+        this.offsetData = null!;
+        this.pass = null!;
+
+        this._canvasDone = false;
+        this._statsDone = false;
+        this._inited = false;
+
+        this._lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
+        this._wordHeight = 0;
+        this._eachNumWidth = 0;
+        this._totalLines = 0; // total lines to display
+
+        this.lastTime = 0;   // update use time
+    }
+
     public isShowingStats () {
         return this._showFPS;
     }
@@ -141,7 +174,6 @@ export class Profiler {
                 this._rootNode.active = false;
             }
 
-            legacyCC.game.off(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
@@ -168,7 +200,6 @@ export class Profiler {
             this.generateStats();
             if (!EDITOR) {
                 legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
-                legacyCC.game.on(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
             } else {
                 this._inited = true;
             }
@@ -390,8 +421,8 @@ export class Profiler {
                 this.offsetData[3] = surfaceTransform;
             }
 
-            // @ts-expect-error using private members for efficiency
-            this.pass._setRootBufferDirty(true);
+            // @ts-expect-error using private members for efficiency.
+            this.pass._rootBufferDirty = true;
         }
 
         if (this._meshRenderer.model) this._pipeline.profiler = this._meshRenderer.model;

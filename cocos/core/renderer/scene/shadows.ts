@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
@@ -31,7 +30,6 @@ import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
 import { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
-import { NativeShadow } from './native-scene';
 import { Shader } from '../../gfx';
 
 /**
@@ -146,7 +144,7 @@ export class Shadows {
     }
 
     set enabled (val: boolean) {
-        this._setEnable(val);
+        this._enabled = val;
         this.activate();
     }
 
@@ -160,9 +158,6 @@ export class Shadows {
 
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
-        if (JSB) {
-            this._nativeObj!.normal = this._normal;
-        }
     }
 
     /**
@@ -175,9 +170,6 @@ export class Shadows {
 
     set distance (val: number) {
         this._distance = val;
-        if (JSB) {
-            this._nativeObj!.distance = val;
-        }
     }
 
     /**
@@ -190,9 +182,6 @@ export class Shadows {
 
     set shadowColor (color: Color) {
         this._shadowColor = color;
-        if (JSB) {
-            this._nativeObj!.color = color;
-        }
     }
 
     /**
@@ -204,9 +193,6 @@ export class Shadows {
     }
     public set invisibleOcclusionRange (val: number) {
         this._invisibleOcclusionRange = val;
-        if (JSB) {
-            this._nativeObj!.invisibleOcclusionRange = val;
-        }
     }
 
     /**
@@ -218,9 +204,6 @@ export class Shadows {
     }
     public set shadowDistance (val: number) {
         this._shadowDistance = val;
-        if (JSB) {
-            this._nativeObj!.shadowDistance = val;
-        }
     }
 
     /**
@@ -231,7 +214,7 @@ export class Shadows {
         return this._type;
     }
     set type (val: number) {
-        this._setType(val);
+        this._type = this.enabled ? val : SHADOW_TYPE_NONE;
         this.activate();
     }
 
@@ -244,9 +227,6 @@ export class Shadows {
     }
     public set near (val: number) {
         this._near = val;
-        if (JSB) {
-            this._nativeObj!.nearValue = val;
-        }
     }
 
     /**
@@ -258,9 +238,6 @@ export class Shadows {
     }
     public set far (val: number) {
         this._far = val;
-        if (JSB) {
-            this._nativeObj!.farValue = val;
-        }
     }
 
     /**
@@ -272,9 +249,6 @@ export class Shadows {
     }
     public set orthoSize (val: number) {
         this._orthoSize = val;
-        if (JSB) {
-            this._nativeObj!.orthoSize = val;
-        }
     }
 
     /**
@@ -286,9 +260,6 @@ export class Shadows {
     }
     public set size (val: Vec2) {
         this._size.set(val);
-        if (JSB) {
-            this._nativeObj!.size = val;
-        }
     }
 
     /**
@@ -300,9 +271,6 @@ export class Shadows {
     }
     public set pcf (val: number) {
         this._pcf = val;
-        if (JSB) {
-            this._nativeObj!.pcfType = val;
-        }
     }
 
     /**
@@ -314,9 +282,6 @@ export class Shadows {
     }
     public set shadowMapDirty (val: boolean) {
         this._shadowMapDirty = val;
-        if (JSB) {
-            this._nativeObj!.shadowMapDirty = val;
-        }
     }
 
     /**
@@ -328,9 +293,6 @@ export class Shadows {
     }
     public set bias (val: number) {
         this._bias = val;
-        if (JSB) {
-            this._nativeObj!.bias = val;
-        }
     }
 
     /**
@@ -342,9 +304,6 @@ export class Shadows {
     }
     public set normalBias (val: number) {
         this._normalBias = val;
-        if (JSB) {
-            this._nativeObj!.normalBias = val;
-        }
     }
 
     /**
@@ -356,9 +315,6 @@ export class Shadows {
     }
     public set saturation (val: number) {
         this._saturation = val;
-        if (JSB) {
-            this._nativeObj!.saturation = val;
-        }
     }
 
     /**
@@ -368,11 +324,9 @@ export class Shadows {
     public get fixedArea (): boolean {
         return this._fixedArea;
     }
+
     public set fixedArea (val: boolean) {
         this._fixedArea = val;
-        if (JSB) {
-            this._nativeObj!.fixedArea = val;
-        }
     }
 
     public get matLight () {
@@ -426,25 +380,11 @@ export class Shadows {
     protected _normalBias = 0;
     protected _fixedArea = false;
     protected _saturation = 0.75;
-    protected declare _nativeObj: NativeShadow | null;
-
-    get native (): NativeShadow {
-        return this._nativeObj!;
-    }
-
-    constructor () {
-        if (JSB) {
-            this._nativeObj = new NativeShadow();
-        }
-    }
 
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._material) {
             this._material = new Material();
             this._material.initialize({ effectName: 'planar-shadow' });
-            if (JSB) {
-                this._nativeObj!.planarPass = this._material.passes[0].native;
-            }
         }
 
         return this._material.passes[0].getShaderVariant(patches);
@@ -454,27 +394,9 @@ export class Shadows {
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
-            if (JSB) {
-                this._nativeObj!.instancePass = this._instancingMaterial.passes[0].native;
-            }
         }
 
         return this._instancingMaterial.passes[0].getShaderVariant(patches);
-    }
-
-    private _setEnable (val: boolean) {
-        this._enabled = val;
-        if (JSB) {
-            this._nativeObj!.enabled = val;
-            if (!val) this._setType(SHADOW_TYPE_NONE);
-        }
-    }
-
-    private _setType (val) {
-        this._type = this.enabled ? val : SHADOW_TYPE_NONE;
-        if (JSB) {
-            this._nativeObj!.shadowType = this._type;
-        }
     }
 
     public initialize (shadowsInfo: ShadowsInfo) {
@@ -492,8 +414,8 @@ export class Shadows {
         this.normalBias = shadowsInfo.normalBias;
         this.maxReceived = shadowsInfo.maxReceived;
         this.fixedArea = shadowsInfo.fixedArea;
-        this._setEnable(shadowsInfo.enabled);
-        this._setType(shadowsInfo.type);
+        this._enabled = shadowsInfo.enabled;
+        this._type = this.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE;
         this.saturation = shadowsInfo.saturation;
     }
 
@@ -516,16 +438,10 @@ export class Shadows {
         if (!this._material) {
             this._material = new Material();
             this._material.initialize({ effectName: 'planar-shadow' });
-            if (JSB) {
-                this._nativeObj!.planarPass = this._material.passes[0].native;
-            }
         }
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
-            if (JSB) {
-                this._nativeObj!.instancePass = this._instancingMaterial.passes[0].native;
-            }
         }
 
         const root = legacyCC.director.root;
@@ -541,14 +457,7 @@ export class Shadows {
         root.onGlobalPipelineStateChanged();
     }
 
-    protected _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
     public destroy () {
-        this._destroy();
         if (this._material) {
             this._material.destroy();
         }

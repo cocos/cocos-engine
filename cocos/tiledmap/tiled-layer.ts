@@ -1433,7 +1433,9 @@ export class TiledLayer extends Renderable2D {
         }
     }
 
-    // 当前的 _meshRenderDataArray 的索引, 以便 fillBuffers 选取 RenderData
+    /**
+     * @legacyPublic
+     */
     public _meshRenderDataArrayIdx = 0;
     protected _render (ui: IBatcher) {
         if (this._meshRenderDataArray) {

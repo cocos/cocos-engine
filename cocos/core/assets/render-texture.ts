@@ -113,6 +113,9 @@ export class RenderTexture extends TextureBase {
         this.emit('resize', this._window);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             return { base: super._serialize(ctxForExporting), w: this._width, h: this._height, n: this._name };
@@ -120,6 +123,9 @@ export class RenderTexture extends TextureBase {
         return {};
     }
 
+    /**
+     * @legacyPublic
+     */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData;
         this._width = data.w;

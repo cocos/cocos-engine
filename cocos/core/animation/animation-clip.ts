@@ -139,7 +139,7 @@ export class AnimationClip extends Asset {
     /**
      * Sets if node TRS curves in this animation can be blended.
      * Normally this flag is enabled for model animation and disabled for other case.
-     * @internal This is an internal slot. Never use it in your code.
+     * @legacyPublic This is an internal slot. Never use it in your code.
      */
     @serializable
     public enableTrsBlending = false;
@@ -286,7 +286,7 @@ export class AnimationClip extends Asset {
      * Creates an event evaluator for this animation.
      * @param targetNode Target node used to fire events.
      * @returns
-     * @internal Do not use this in your code.
+     * @legacyPublic Do not use this in your code.
      */
     public createEventEvaluator (targetNode: Node) {
         return new EventEvaluator(
@@ -301,7 +301,7 @@ export class AnimationClip extends Asset {
      * Creates an evaluator for this animation.
      * @param context The context.
      * @returns The evaluator.
-     * @internal Do not use this in your code.
+     * @legacyPublic Do not use this in your code.
      */
     public createEvaluator (context: AnimationClipEvalContext) {
         const {
@@ -407,7 +407,7 @@ export class AnimationClip extends Asset {
     /**
      * Convert all untyped tracks into typed ones and delete the original.
      * @param refine How to decide the type on specified path.
-     * @internal DO NOT USE THIS IN YOUR CODE.
+     * @legacyPublic DO NOT USE THIS IN YOUR CODE.
      */
     public upgradeUntypedTracks (refine: UntypedTrackRefine) {
         const newTracks: Track[] = [];
@@ -493,7 +493,6 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @internal
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     public getPropertyCurves () {
@@ -514,7 +513,6 @@ export class AnimationClip extends Asset {
      * @en
      * Commit event data update.
      * You should call this function after you changed the `events` data to take effect.
-     * @internal
      * @deprecated Since V3.3. Please Assign to `this.events`.
      */
     public updateEventDatas () {
@@ -532,7 +530,7 @@ export class AnimationClip extends Asset {
 
     /**
      * Migrates legacy data into tracks.
-     * @internal This method tend to be used as internal purpose or patch.
+     * NOTE: This method tend to be used as internal purpose or patch.
      * DO NOT use it in your code since it might be removed for the future at any time.
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
@@ -818,9 +816,6 @@ interface RootMotionOptions {
 type ExoticAnimationEvaluator = ReturnType<ExoticAnimation['createEvaluator']>;
 
 class AnimationClipEvaluation {
-    /**
-     * @internal
-     */
     constructor (
         trackEvalStatuses: TrackEvalStatus[],
         exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined,

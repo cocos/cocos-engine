@@ -28,7 +28,7 @@
  * @module core/data
  */
 
-import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST, JSB } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
@@ -192,10 +192,22 @@ class CCObject implements EditorExtendableObject {
         if (EDITOR) {
             deferredDestroyTimer = null;
         }
+
+        if (JSB) {
+            // release objects which hold for delay GC
+            // @ts-expect-error: jsb function call
+            jsb.CCObject._deferredDestroyReleaseObjects();
+        }
     }
 
+    /**
+     * @legacyPublic
+     */
     public declare [editorExtrasTag]: unknown;
 
+    /**
+     * @legacyPublic
+     */
     public _objFlags: number;
     protected _name: string;
 
@@ -339,6 +351,7 @@ class CCObject implements EditorExtendableObject {
      *           }
      *       }
      *
+     * @legacyPublic
      */
     public _destruct () {
         const ctor: any = this.constructor;
@@ -350,6 +363,9 @@ class CCObject implements EditorExtendableObject {
         destruct(this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _destroyImmediate () {
         if (this._objFlags & Destroyed) {
             errorID(5000);

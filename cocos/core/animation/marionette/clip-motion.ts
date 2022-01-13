@@ -24,6 +24,9 @@ export class ClipMotion extends EditorExtendable implements Motion {
 }
 
 class ClipMotionEval implements MotionEval {
+    /**
+     * @legacyPublic
+     */
     public declare __DEBUG__ID__?: string;
 
     private declare _state: AnimationState;

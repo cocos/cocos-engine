@@ -35,6 +35,7 @@ import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
 import { Material, RenderingSubMesh } from '../../core/assets';
+import { JSB } from '../../core/default-constants';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -63,6 +64,9 @@ export default class ParticleBatchModel extends scene.Model {
 
     constructor () {
         super();
+        if (JSB) {
+            (this as any)._registerListeners();
+        }
 
         this.type = scene.ModelType.PARTICLE_BATCH;
         this._capacity = 0;

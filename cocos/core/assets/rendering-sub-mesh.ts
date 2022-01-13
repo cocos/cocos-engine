@@ -114,9 +114,6 @@ export class RenderingSubMesh {
 
     private _iaInfo: InputAssemblerInfo;
 
-    private _init () {
-    }
-
     constructor (
         vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
         indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
@@ -127,7 +124,6 @@ export class RenderingSubMesh {
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
         this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
-        this._init();
     }
 
     /**

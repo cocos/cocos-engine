@@ -124,6 +124,9 @@ export class Texture2D extends SimpleTexture {
         this.mipmaps = value ? [value] : [];
     }
 
+    /**
+     * @legacyPublic
+     */
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
 
@@ -228,6 +231,9 @@ export class Texture2D extends SimpleTexture {
         this.destroy();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _serialize (ctxForExporting: any) {
         if (EDITOR || TEST) {
             return {
@@ -247,6 +253,9 @@ export class Texture2D extends SimpleTexture {
         return null;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData as ITexture2DSerializeData;
         super._deserialize(data.base, handle);

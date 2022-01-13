@@ -1,0 +1,175 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    padding-left: 10px;
+    padding-right: 2px;
+}
+
+.container[hoving] {
+    outline: 2px solid var(--color-focus-fill-weaker);
+    outline-offset: -2px;
+}
+
+.prefab {
+    display: flex;
+    padding: 5px 0 10px 0;
+}
+
+.prefab[hidden] {
+    display: none;
+}
+
+.prefab > ui-label {
+    flex: 1;
+    color: var(--color-success-fill);
+}
+
+.prefab > ui-button {
+    padding: 0 7px;
+    margin-left: 10px;
+}
+
+.prefab[missing] > ui-label {
+    color: var(--color-danger-fill);
+}
+
+.header {
+    display: none;
+    margin-top: 7px;
+}
+
+.header > .name {
+    flex: 1;
+}
+
+.scene {
+    display: none;
+}
+
+.scene > ui-prop {
+    margin: 10px 0;
+}
+
+:host([sub-type='scene']) > .container > .scene {
+    display: block;
+}
+
+:host([sub-type='scene']) > .container > .prefab,
+:host([sub-type='scene']) > .container > .node,
+:host([sub-type='scene']) > .container > .section-header,
+:host([sub-type='scene']) > .container > .section-body,
+:host([sub-type='scene']) > .container > .section-footer,
+:host([sub-type='scene']) > .container > .section-missing,
+:host([sub-type='scene']) > .container > .footer {
+    display: none;
+}
+
+.section-missing:not(:empty) {
+    margin-top: 10px;
+    border-top: 1px solid var(--color-normal-border);
+}
+
+.section-missing > section {
+    display: flex;
+    padding: 0 10px;
+}
+
+.section-missing > section:hover {
+    background-color: var(--color-hover-fill-normal);
+}
+
+.section-missing .name {
+    flex: 1;
+}
+
+.section-missing > section > ui-icon {
+    margin: 0 0 0 10px;
+    cursor: pointer;
+    display: none;
+}
+
+.section-missing > section:hover > ui-icon {
+    display: inline-block;
+}
+
+.section-missing > section > ui-icon:hover {
+    color: var(--color-focus-fill-weakest);
+}
+
+.node {
+    display: none;
+}
+
+.node .layer-content {
+    display: flex;
+}
+
+.node .layer-content > .layer-select {
+    flex: 1;
+}
+
+.node .layer-content > .layer-edit {
+    margin-left: 6px;
+}
+
+.node .node-section {
+    margin-top: 6px;
+}
+
+:host([sub-type='node']) > .container > .node {
+    display: block;
+}
+
+.component {
+    margin-top: 10px;
+}
+
+.component .component-header {
+    flex: 1;
+}
+
+.component .component-header > .menu,
+.component .component-header > .link {
+    padding: 0 5px;
+    float: right;
+    transition: color 0.15s;
+}
+
+.component .component-header > .menu:hover {
+    opacity: 0.8;
+}
+
+.component .component-header > .link {
+    display: none;
+}
+
+.component .component-header > .link[value] {
+    display: inline-block;
+}
+
+.component ui-prop {
+    margin-top: 6px;
+}
+
+.component ui-prop [slot='label'] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.footer {
+    display: none;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.section-asset:empty {
+    display: none;
+}

@@ -31,17 +31,15 @@
 import {
     ccclass, editable, serializable, type,
 } from 'cc.decorator';
-import { EDITOR, JSB } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
-import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { NativeNode } from '../renderer/scene/native-scene';
 import { NodeEventType } from './node-event';
-import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../data';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -51,7 +49,6 @@ const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
 const dirtyNodes: any[] = [];
-const nativeDirtyNodes: any[] = [];
 const view_tmp:[Uint32Array, number] = [] as any;
 class BookOfChange {
     private _chunks: Uint32Array[] = [];
@@ -158,13 +155,12 @@ export class Node extends BaseNode implements CustomSerializable {
     public static TransformBit = TransformBit;
 
     /**
-     * @internal
+     * @legacyPublic
      */
     public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
-    // UI 部分的脏数据
     /**
-     * @private
+     * @legacyPublic
      */
     public _uiProps = new NodeUIProperties(this);
 
@@ -175,6 +171,9 @@ export class Node extends BaseNode implements CustomSerializable {
     private static ClearFrame = 0;
     private static ClearRound = 1000;
 
+    /**
+     * @legacyPublic
+     */
     public _static = false;
 
     // world transform, don't access this directly
@@ -203,64 +202,25 @@ export class Node extends BaseNode implements CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    private _dirtyFlagsPri = TransformBit.NONE; // does the world transform need to update?
-
-    protected get _dirtyFlags () {
-        return this._dirtyFlagsPri;
-    }
-
-    protected set _dirtyFlags (flags) {
-        this._dirtyFlagsPri = flags;
-        if (JSB) {
-            this._nativeDirtyFlag[0] = flags;
-        }
-    }
-
+    private _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
-    protected _nodeHandle: NodeHandle = NULL_HANDLE;
     protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
     protected declare _hasChangedFlagsOffset: number;
     protected declare _hasChangedFlags: Uint32Array;
-    protected declare _nativeObj: NativeNode | null;
-    protected declare _nativeLayer: Uint32Array;
-    protected declare _nativeDirtyFlag: Uint32Array;
 
-    protected _init () {
+    constructor (name?: string) {
+        super(name);
+
         const [chunk, offset] = bookOfChange.alloc();
         this._hasChangedFlagsChunk = chunk;
         this._hasChangedFlagsOffset = offset;
         const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
         this._hasChangedFlags = flagBuffer;
-        if (JSB) {
-            // new node
-            this._nodeHandle = NodePool.alloc();
-            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as any);
-            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as any);
-            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as any);
 
-            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as any);
-            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as any);
-            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as any);
-
-            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as any);
-            this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
-            this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
-            this._scale.set(1, 1, 1);
-            this._lscale.set(1, 1, 1);
-            this._nativeLayer[0] = this._layer;
-            this._nativeObj = new NativeNode();
-            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer, nativeDirtyNodes);
-        } else {
-            this._pos = new Vec3();
-            this._rot = new Quat();
-            this._scale = new Vec3(1, 1, 1);
-            this._mat = new Mat4();
-        }
-    }
-
-    constructor (name?: string) {
-        super(name);
-        this._init();
+        this._pos = new Vec3();
+        this._rot = new Quat();
+        this._scale = new Vec3(1, 1, 1);
+        this._mat = new Mat4();
     }
 
     /**
@@ -273,19 +233,8 @@ export class Node extends BaseNode implements CustomSerializable {
 
     protected _onPreDestroy () {
         const result = this._onPreDestroyBase();
-        if (JSB) {
-            if (this._nodeHandle) {
-                NodePool.free(this._nodeHandle);
-                this._nodeHandle = NULL_HANDLE;
-            }
-            this._nativeObj = null;
-        }
         bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
         return result;
-    }
-
-    get native (): any {
-        return this._nativeObj;
     }
 
     /**
@@ -467,9 +416,7 @@ export class Node extends BaseNode implements CustomSerializable {
     @editable
     set layer (l) {
         this._layer = l;
-        if (JSB) {
-            this._nativeLayer[0] = this._layer;
-        }
+
         if (this._uiProps && this._uiProps.uiComp) {
             this._uiProps.uiComp.setNodeDirty();
             this._uiProps.uiComp.markForUpdateRenderData();
@@ -544,11 +491,11 @@ export class Node extends BaseNode implements CustomSerializable {
     public setParent (value: this | null, keepWorldTransform = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
-        if (JSB) {
-            this._nativeObj!.setParent(this.parent ? this.parent.native : null);
-        }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
         if (keepWorldTransform) {
@@ -573,11 +520,10 @@ export class Node extends BaseNode implements CustomSerializable {
         super._onHierarchyChangedBase(oldParent);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
-        if (JSB) {
-            this._nativeLayer[0] = this._layer;
-            this._nativeObj!.setParent(this.parent?.native);
-        }
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags |= TransformBit.TRS;
         const len = this._children.length;
@@ -587,11 +533,17 @@ export class Node extends BaseNode implements CustomSerializable {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onBeforeSerialize () {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onPostActivated (active: boolean) {
         if (active) { // activated
             this._eventProcessor.setEnabled(true);
@@ -687,9 +639,6 @@ export class Node extends BaseNode implements CustomSerializable {
 
     protected _setDirtyNode (idx: number, currNode: this) {
         dirtyNodes[idx] = currNode;
-        if (JSB) {
-            nativeDirtyNodes[idx] = currNode.native;
-        }
     }
 
     /**
@@ -714,24 +663,18 @@ export class Node extends BaseNode implements CustomSerializable {
         // this._setDirtyNode(0, this);
         // ```
         dirtyNodes[0] = this;
-        if (JSB) {
-            nativeDirtyNodes[0] = this.native;
-        }
 
         while (i >= 0) {
             cur = dirtyNodes[i--];
             hasChangedFlags = cur._hasChangedFlags[0];
-            flag =  cur._dirtyFlagsPri;
+            flag =  cur._dirtyFlags;
             if (cur.isValid && (flag & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 // NOTE: inflate procedure
                 // ```
                 // cur._dirtyFlags |= dirtyBit;
                 // ```
                 flag |= dirtyBit;
-                cur._dirtyFlagsPri = flag;
-                if (JSB) {
-                    cur._nativeDirtyFlag[0] = flag;
-                }
+                cur._dirtyFlags = flag;
 
                 // NOTE: inflate attribute accessor
                 // ```
@@ -748,9 +691,6 @@ export class Node extends BaseNode implements CustomSerializable {
                     // this._setDirtyNode(0, c);
                     // ```
                     dirtyNodes[++i] = c;
-                    if (JSB) {
-                        nativeDirtyNodes[i] = c.native;
-                    }
                 }
             }
             dirtyBit = childDirtyBit;
@@ -1326,8 +1266,25 @@ export class Node extends BaseNode implements CustomSerializable {
         } else {
             Node.ClearFrame = 0;
             dirtyNodes.length = 0;
-            nativeDirtyNodes.length = 0;
         }
+    }
+
+    /**
+     * @en
+     * Get the complete path of the current node in the hierarchy.
+     *
+     * @zh
+     * 获得当前节点在 hierarchy 中的完整路径。
+     */
+    public getPathInHierarchy (): string {
+        let result = this.name;
+        let curNode: BaseNode | null = this.parent;
+        while (curNode && curNode instanceof Node) {
+            result = `${curNode.name}/${result}`;
+            curNode = curNode.parent;
+        }
+
+        return result;
     }
 }
 

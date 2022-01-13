@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../../builtin';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../../3d/assets/mesh';
@@ -34,7 +33,6 @@ import { Model } from './model';
 import { legacyCC } from '../../global-exports';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
-import { NaitveSkybox } from './native-scene';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
 import { Device } from '../../gfx';
 
@@ -55,7 +53,7 @@ export class Skybox {
     }
 
     set enabled (val: boolean) {
-        this._setEnabled(val);
+        this._enabled = val;
         if (val) this.activate(); else this._updatePipeline();
     }
     /**
@@ -67,7 +65,7 @@ export class Skybox {
     }
 
     set useHDR (val: boolean) {
-        this._setUseHDR(val);
+        this._useHDR = val;
         this.setEnvMaps(this._envmapHDR, this._envmapLDR);
     }
 
@@ -80,7 +78,7 @@ export class Skybox {
     }
 
     set useIBL (val: boolean) {
-        this._setUseIBL(val);
+        this._useIBL = val;
         this._updatePipeline();
     }
 
@@ -164,51 +162,12 @@ export class Skybox {
     protected _useIBL = false;
     protected _useHDR = true;
     protected _useDiffuseMap = false;
-    protected declare _nativeObj: NaitveSkybox | null;
-
-    get native (): NaitveSkybox {
-        return this._nativeObj!;
-    }
-
-    constructor () {
-        if (JSB) {
-            this._nativeObj = new NaitveSkybox();
-        }
-    }
-
-    private _setEnabled (val) {
-        this._enabled = val;
-        if (JSB) {
-            this._nativeObj!.enabled = val;
-        }
-    }
-
-    private _setUseIBL (val) {
-        this._useIBL = val;
-        if (JSB) {
-            this._nativeObj!.useIBL = val;
-        }
-    }
-
-    private _setUseHDR (val) {
-        this._useHDR = val;
-        if (JSB) {
-            this._nativeObj!.useHDR = val;
-        }
-    }
-
-    private _setUseDiffuseMap (val) {
-        this._useDiffuseMap = val;
-        if (JSB) {
-            this._nativeObj!.useDiffuseMap = val;
-        }
-    }
 
     public initialize (skyboxInfo: SkyboxInfo) {
-        this._setEnabled(skyboxInfo.enabled);
-        this._setUseIBL(skyboxInfo.useIBL);
-        this._setUseDiffuseMap(skyboxInfo.applyDiffuseMap);
-        this._setUseHDR(skyboxInfo.useHDR);
+        this._enabled = skyboxInfo.enabled;
+        this._useIBL = skyboxInfo.useIBL;
+        this._useDiffuseMap = skyboxInfo.applyDiffuseMap;
+        this._useHDR = skyboxInfo.useHDR;
     }
 
     public setEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null) {
@@ -247,9 +206,6 @@ export class Skybox {
             this._model._initLocalDescriptors = () => {};
             // @ts-expect-error private member access
             this._model._initWorldBoundDescriptors = () => {};
-            if (JSB) {
-                this._nativeObj!.model = this._model.native;
-            }
         }
         let isRGBE = this._default.isRGBE;
         if (this.envmap) {
@@ -282,18 +238,6 @@ export class Skybox {
     }
 
     protected _updatePipeline () {
-        if (this.enabled && skybox_material) {
-            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
-        }
-
-        if (this._model) {
-            this._model.setSubModelMaterial(0, skybox_material!);
-        }
-
-        if (JSB) {
-            this._nativeObj!.isRGBE = this.isRGBE;
-        }
-
         const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
 
@@ -311,6 +255,14 @@ export class Skybox {
         pipeline.macros.CC_USE_HDR = useHDRValue;
 
         root.onGlobalPipelineStateChanged();
+
+        if (this.enabled && skybox_material) {
+            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+        }
+
+        if (this._model) {
+            this._model.setSubModelMaterial(0, skybox_material!);
+        }
     }
 
     protected _updateGlobalBinding () {
@@ -335,16 +287,6 @@ export class Skybox {
 
             this._globalDSManager.update();
         }
-    }
-
-    protected _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
-    public destroy () {
-        this._destroy();
     }
 }
 

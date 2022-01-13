@@ -23,6 +23,10 @@ let jsb_downloader = null;
 let downloading = new cc.AssetManager.Cache();
 let tempDir = '';
 
+jsb.Downloader.prototype._ctor = function () {
+    this.__nativeRefs = {};
+};
+
 var fsUtils = {
 
     fs,
@@ -231,4 +235,4 @@ var fsUtils = {
     }
 };
 
-window.fsUtils = module.exports = fsUtils; 
+window.fsUtils = module.exports = fsUtils;

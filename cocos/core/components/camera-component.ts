@@ -531,6 +531,9 @@ export class Camera extends Component {
         return out;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _createCamera () {
         if (!this._camera) {
             this._camera = (legacyCC.director.root as Root).createCamera();
