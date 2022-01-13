@@ -36,7 +36,8 @@ import { errorID } from '../../core';
 
 function isSupportGPUParticle () {
     const device: Device = director.root!.device;
-    if (device.capabilities.maxVertexTextureUnits >= 8 && (device.getFormatFeature(Format.RGBA32F) & FormatFeatureBit.RENDER_TARGET)) {
+    if (device.capabilities.maxVertexTextureUnits >= 8 && (device.getFormatFeature(Format.RGBA32F)
+        & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))) {
         return true;
     }
 

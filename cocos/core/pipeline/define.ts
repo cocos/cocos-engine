@@ -598,7 +598,7 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
  * @en Does the device support half float texture? (for both color attachment and sampling)
  * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
  */
-export function supportsR32HalfFloatTexture (device: Device) {
+export function supportsR16HalfFloatTexture (device: Device) {
     return device.getFormatFeature(Format.R16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
