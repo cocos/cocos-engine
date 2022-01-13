@@ -37,7 +37,7 @@ import {
 } from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { Color, Vec2, Vec3 } from '../math';
-import {CCFloat, CCInteger} from '../data';
+import { CCFloat, CCInteger } from '../data';
 import { TextureCube } from '../assets/texture-cube';
 import { Enum } from '../value-types';
 
@@ -187,7 +187,7 @@ legacyCC.AmbientInfo = AmbientInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new Color(51, 128, 204, 1.0);
         },
     });
@@ -196,7 +196,7 @@ legacyCC.AmbientInfo = AmbientInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 20000.0; // cjh FIXME: Ambient.SKY_ILLUM;
         },
     });
@@ -205,7 +205,7 @@ legacyCC.AmbientInfo = AmbientInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new Color(51, 51, 51, 255);
         },
     });
@@ -257,8 +257,17 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return false;
+        }
+    });
+
+    const _descriptor8$1 = _applyDecoratedDescriptor(_class5$2.prototype, "_envmap", [serializable, _dec14$1, _dec15$1], {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        initializer: function initializer () {
+            return null;
         }
     });
 
@@ -266,7 +275,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return null;
         }
     });
@@ -275,7 +284,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return null;
         }
     });
@@ -284,7 +293,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return null;
         }
     });
@@ -293,7 +302,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return null;
         }
     });
@@ -302,7 +311,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return false;
         }
     });
@@ -311,7 +320,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return false;
         }
     });
@@ -320,7 +329,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return true;
         }
     });
@@ -360,7 +369,7 @@ legacyCC.FogInfo = FogInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return FogType.LINEAR;
         },
     });
@@ -368,7 +377,7 @@ legacyCC.FogInfo = FogInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new Color('#C8C8C8');
         },
     });
@@ -376,7 +385,7 @@ legacyCC.FogInfo = FogInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return false;
         },
     });
@@ -385,7 +394,7 @@ legacyCC.FogInfo = FogInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 0.3;
         },
     });
@@ -393,7 +402,7 @@ legacyCC.FogInfo = FogInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 0.5;
         },
     });
@@ -401,7 +410,7 @@ legacyCC.FogInfo = FogInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 300;
         },
     });
@@ -409,7 +418,7 @@ legacyCC.FogInfo = FogInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 5;
         },
     });
@@ -417,7 +426,7 @@ legacyCC.FogInfo = FogInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 1.5;
         },
     });
@@ -425,21 +434,21 @@ legacyCC.FogInfo = FogInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 1.2;
         },
     });
 
-// , _dec8$1 = visible(), _dec9$1 = type(CCFloat), _dec10$1 = range(), _dec11$1 = rangeStep(), _dec12$1 = displayOrder(), _dec13$1 = visible(), _dec14$1 = type(CCFloat), _dec15$1 = rangeStep(), _dec16$1 = displayOrder(), _dec17$1 = visible(), _dec18$1 = type(CCFloat), _dec19$1 = rangeStep(), _dec20$1 = displayOrder(), _dec21$1 = visible(), _dec22$1 = type(CCFloat), _dec23$1 = rangeMin(), _dec24$1 = rangeStep(), _dec25$1 = displayOrder(), _dec26$1 = visible(), _dec27$1 = type(CCFloat), _dec28$1 = rangeStep(), _dec29$1 = displayOrder(), _dec30$1 = visible(), _dec31$1 = type(CCFloat), _dec32 = rangeStep(), _dec33 = displayOrder()
+    // , _dec8$1 = visible(), _dec9$1 = type(CCFloat), _dec10$1 = range(), _dec11$1 = rangeStep(), _dec12$1 = displayOrder(), _dec13$1 = visible(), _dec14$1 = type(CCFloat), _dec15$1 = rangeStep(), _dec16$1 = displayOrder(), _dec17$1 = visible(), _dec18$1 = type(CCFloat), _dec19$1 = rangeStep(), _dec20$1 = displayOrder(), _dec21$1 = visible(), _dec22$1 = type(CCFloat), _dec23$1 = rangeMin(), _dec24$1 = rangeStep(), _dec25$1 = displayOrder(), _dec26$1 = visible(), _dec27$1 = type(CCFloat), _dec28$1 = rangeStep(), _dec29$1 = displayOrder(), _dec30$1 = visible(), _dec31$1 = type(CCFloat), _dec32 = rangeStep(), _dec33 = displayOrder()
 
-// _applyDecoratedDescriptor(_class8$1.prototype, "enabled", [editable], Object.getOwnPropertyDescriptor(_class8$1.prototype, "enabled"), _class8$1.prototype);
-// _applyDecoratedDescriptor(_class8$1.prototype, "fogColor", [editable], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogColor"), _class8$1.prototype);
-// _applyDecoratedDescriptor(_class8$1.prototype, "type", [editable, _dec7$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "type"), _class8$1.prototype);
-// _applyDecoratedDescriptor(_class8$1.prototype, "fogDensity", [_dec8$1, _dec9$1, _dec10$1, _dec11$1, slide, _dec12$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogDensity"), _class8$1.prototype);
-// _applyDecoratedDescriptor(_class8$1.prototype, "fogStart", [_dec13$1, _dec14$1, _dec15$1, _dec16$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogStart"), _class8$1.prototype);
-// _applyDecoratedDescriptor(_class8$1.prototype, "fogEnd", [_dec17$1, _dec18$1, _dec19$1, _dec20$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogEnd"), _class8$1.prototype);
-// _applyDecoratedDescriptor(_class8$1.prototype, "fogAtten", [_dec21$1, _dec22$1, _dec23$1, _dec24$1, _dec25$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogAtten"), _class8$1.prototype);
-// _applyDecoratedDescriptor(_class8$1.prototype, "fogTop", [_dec26$1, _dec27$1, _dec28$1, _dec29$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogTop"), _class8$1.prototype), _applyDecoratedDescriptor(_class8$1.prototype, "fogRange", [_dec30$1, _dec31$1, _dec32, _dec33], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogRange"), _class8$1.prototype)), _class8$1)) || _class7$1);
+    // _applyDecoratedDescriptor(_class8$1.prototype, "enabled", [editable], Object.getOwnPropertyDescriptor(_class8$1.prototype, "enabled"), _class8$1.prototype);
+    // _applyDecoratedDescriptor(_class8$1.prototype, "fogColor", [editable], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogColor"), _class8$1.prototype);
+    // _applyDecoratedDescriptor(_class8$1.prototype, "type", [editable, _dec7$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "type"), _class8$1.prototype);
+    // _applyDecoratedDescriptor(_class8$1.prototype, "fogDensity", [_dec8$1, _dec9$1, _dec10$1, _dec11$1, slide, _dec12$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogDensity"), _class8$1.prototype);
+    // _applyDecoratedDescriptor(_class8$1.prototype, "fogStart", [_dec13$1, _dec14$1, _dec15$1, _dec16$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogStart"), _class8$1.prototype);
+    // _applyDecoratedDescriptor(_class8$1.prototype, "fogEnd", [_dec17$1, _dec18$1, _dec19$1, _dec20$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogEnd"), _class8$1.prototype);
+    // _applyDecoratedDescriptor(_class8$1.prototype, "fogAtten", [_dec21$1, _dec22$1, _dec23$1, _dec24$1, _dec25$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogAtten"), _class8$1.prototype);
+    // _applyDecoratedDescriptor(_class8$1.prototype, "fogTop", [_dec26$1, _dec27$1, _dec28$1, _dec29$1], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogTop"), _class8$1.prototype), _applyDecoratedDescriptor(_class8$1.prototype, "fogRange", [_dec30$1, _dec31$1, _dec32, _dec33], Object.getOwnPropertyDescriptor(_class8$1.prototype, "fogRange"), _class8$1.prototype)), _class8$1)) || _class7$1);
 
     fogInfoDecorator(FogInfo);
 })();
@@ -454,34 +463,34 @@ legacyCC.ShadowsInfo = ShadowsInfo;
 (function () {
     const shadowInfoDecorator = ccclass('cc.ShadowsInfo');
 
-// Object.defineProperty(ShadowsInfo.prototype, '_shadowColor', {
-//     configurable: true,
-//     enumerable: true,
-//     get ()  {
-//         return new Color(this._shadowColorInternal.r, this._shadowColorInternal.g, this._shadowColorInternal.b, this._shadowColorInternal.a);
-//     },
-//     set (val) {
-//         this._shadowColorInternal = val;
-//     },
-// });
+    // Object.defineProperty(ShadowsInfo.prototype, '_shadowColor', {
+    //     configurable: true,
+    //     enumerable: true,
+    //     get ()  {
+    //         return new Color(this._shadowColorInternal.r, this._shadowColorInternal.g, this._shadowColorInternal.b, this._shadowColorInternal.a);
+    //     },
+    //     set (val) {
+    //         this._shadowColorInternal = val;
+    //     },
+    // });
 
-// Object.defineProperty(ShadowsInfo.prototype, 'shadowColor', {
-//     configurable: true,
-//     enumerable: true,
-//     get () {
-//         return new Color(this.shadowColorInternal.r, this.shadowColorInternal.g, this.shadowColorInternal.b, this.shadowColorInternal.a);
-//     },
-//     set (val) {
-//         this.shadowColorInternal = val;
-//     },
-// });
+    // Object.defineProperty(ShadowsInfo.prototype, 'shadowColor', {
+    //     configurable: true,
+    //     enumerable: true,
+    //     get () {
+    //         return new Color(this.shadowColorInternal.r, this.shadowColorInternal.g, this.shadowColorInternal.b, this.shadowColorInternal.a);
+    //     },
+    //     set (val) {
+    //         this.shadowColorInternal = val;
+    //     },
+    // });
 
     const _class11$1 = ShadowsInfo;
     const _descriptor17$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_type', [serializable], {
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return ShadowType.Planar;
         },
     });
@@ -489,7 +498,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return false;
         },
     });
@@ -498,7 +507,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new Vec3(0, 1, 0);
         },
     });
@@ -507,7 +516,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 0;
         },
     });
@@ -516,7 +525,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new Color(0, 0, 0, 76);
         },
     });
@@ -525,7 +534,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return false;
         }
     })
@@ -534,7 +543,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return false;
         },
     });
@@ -542,7 +551,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return PCFType.HARD;
         },
     });
@@ -550,7 +559,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 0.00001;
         },
     });
@@ -558,7 +567,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 0.0;
         },
     });
@@ -566,7 +575,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 0.1;
         },
     });
@@ -574,7 +583,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 10;
         },
     });
@@ -583,7 +592,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 100;
         }
     });
@@ -592,7 +601,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 200;
         }
     });
@@ -601,7 +610,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 5;
         },
     });
@@ -609,7 +618,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 4;
         },
     });
@@ -617,7 +626,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new Vec2(512, 512);
         },
     });
@@ -625,25 +634,25 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return 0.75;
         },
     });
-// _applyDecoratedDescriptor(_class11$1.prototype, "enabled", [editable], Object.getOwnPropertyDescriptor(_class11$1.prototype, "enabled"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "type", [editable, _dec35], Object.getOwnPropertyDescriptor(_class11$1.prototype, "type"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "shadowColor", [_dec36], Object.getOwnPropertyDescriptor(_class11$1.prototype, "shadowColor"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "normal", [_dec37], Object.getOwnPropertyDescriptor(_class11$1.prototype, "normal"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "distance", [_dec38, _dec39], Object.getOwnPropertyDescriptor(_class11$1.prototype, "distance"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "saturation", [editable, _dec40, slide, _dec41, _dec42], Object.getOwnPropertyDescriptor(_class11$1.prototype, "saturation"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "pcf", [_dec43, _dec44], Object.getOwnPropertyDescriptor(_class11$1.prototype, "pcf"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "maxReceived", [_dec45, _dec46], Object.getOwnPropertyDescriptor(_class11$1.prototype, "maxReceived"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "bias", [_dec47, _dec48], Object.getOwnPropertyDescriptor(_class11$1.prototype, "bias"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "normalBias", [_dec49, _dec50], Object.getOwnPropertyDescriptor(_class11$1.prototype, "normalBias"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "shadowMapSize", [_dec51, _dec52], Object.getOwnPropertyDescriptor(_class11$1.prototype, "shadowMapSize"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "autoAdapt", [_dec53, _dec54], Object.getOwnPropertyDescriptor(_class11$1.prototype, "autoAdapt"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "near", [_dec55, _dec56], Object.getOwnPropertyDescriptor(_class11$1.prototype, "near"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "far", [_dec57, _dec58], Object.getOwnPropertyDescriptor(_class11$1.prototype, "far"), _class11$1.prototype);
-// _applyDecoratedDescriptor(_class11$1.prototype, "orthoSize", [_dec59, _dec60], Object.getOwnPropertyDescriptor(_class11$1.prototype, "orthoSize"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "enabled", [editable], Object.getOwnPropertyDescriptor(_class11$1.prototype, "enabled"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "type", [editable, _dec35], Object.getOwnPropertyDescriptor(_class11$1.prototype, "type"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "shadowColor", [_dec36], Object.getOwnPropertyDescriptor(_class11$1.prototype, "shadowColor"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "normal", [_dec37], Object.getOwnPropertyDescriptor(_class11$1.prototype, "normal"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "distance", [_dec38, _dec39], Object.getOwnPropertyDescriptor(_class11$1.prototype, "distance"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "saturation", [editable, _dec40, slide, _dec41, _dec42], Object.getOwnPropertyDescriptor(_class11$1.prototype, "saturation"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "pcf", [_dec43, _dec44], Object.getOwnPropertyDescriptor(_class11$1.prototype, "pcf"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "maxReceived", [_dec45, _dec46], Object.getOwnPropertyDescriptor(_class11$1.prototype, "maxReceived"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "bias", [_dec47, _dec48], Object.getOwnPropertyDescriptor(_class11$1.prototype, "bias"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "normalBias", [_dec49, _dec50], Object.getOwnPropertyDescriptor(_class11$1.prototype, "normalBias"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "shadowMapSize", [_dec51, _dec52], Object.getOwnPropertyDescriptor(_class11$1.prototype, "shadowMapSize"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "autoAdapt", [_dec53, _dec54], Object.getOwnPropertyDescriptor(_class11$1.prototype, "autoAdapt"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "near", [_dec55, _dec56], Object.getOwnPropertyDescriptor(_class11$1.prototype, "near"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "far", [_dec57, _dec58], Object.getOwnPropertyDescriptor(_class11$1.prototype, "far"), _class11$1.prototype);
+    // _applyDecoratedDescriptor(_class11$1.prototype, "orthoSize", [_dec59, _dec60], Object.getOwnPropertyDescriptor(_class11$1.prototype, "orthoSize"), _class11$1.prototype);
 
     shadowInfoDecorator(ShadowsInfo);
 
@@ -674,7 +683,7 @@ legacyCC.OctreeInfo = OctreeInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return false;
         }
     });
@@ -683,7 +692,7 @@ legacyCC.OctreeInfo = OctreeInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new Vec3(DEFAULT_WORLD_MIN_POS);
         }
     });
@@ -692,7 +701,7 @@ legacyCC.OctreeInfo = OctreeInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new Vec3(DEFAULT_WORLD_MAX_POS);
         }
     });
@@ -701,7 +710,7 @@ legacyCC.OctreeInfo = OctreeInfo;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return DEFAULT_OCTREE_DEPTH;
         }
     });
@@ -736,10 +745,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'ambient', {
         enumerable: true,
         configurable: true,
-        get() {
+        get () {
             return this._ambientRef;
         },
-        set(v) {
+        set (v) {
             this._ambientRef = v;
             this.setAmbientInfo(v);
         },
@@ -748,10 +757,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'shadows', {
         enumerable: true,
         configurable: true,
-        get() {
+        get () {
             return this._shadowsRef;
         },
-        set(v) {
+        set (v) {
             this._shadowsRef = v;
             this.setShadowsInfo(v);
         },
@@ -760,10 +769,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, '_skybox', {
         enumerable: true,
         configurable: true,
-        get() {
+        get () {
             return this._skyboxRef;
         },
-        set(v) {
+        set (v) {
             this._skyboxRef = v;
             this.setSkyboxInfo(v);
         },
@@ -772,10 +781,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'skybox', {
         enumerable: true,
         configurable: true,
-        get() {
+        get () {
             return this._skyboxRef;
         },
-        set(v) {
+        set (v) {
             this._skyboxRef = v;
             this.setSkyboxInfo(v);
         },
@@ -784,10 +793,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'fog', {
         enumerable: true,
         configurable: true,
-        get() {
+        get () {
             return this._fogRef;
         },
-        set(v) {
+        set (v) {
             this._fogRef = v;
             this.setFogInfo(v);
         },
@@ -796,10 +805,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'octree', {
         enumerable: true,
         configurable: true,
-        get() {
+        get () {
             return this._octreeRef;
         },
-        set(v) {
+        set (v) {
             this._octreeRef = v;
             this.setOctreeInfo(v);
         },
@@ -810,7 +819,7 @@ legacyCC.SceneGlobals = SceneGlobals;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new AmbientInfo();
         },
     });
@@ -818,7 +827,7 @@ legacyCC.SceneGlobals = SceneGlobals;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new ShadowsInfo();
         },
     });
@@ -826,7 +835,7 @@ legacyCC.SceneGlobals = SceneGlobals;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new SkyboxInfo();
         },
     });
@@ -834,12 +843,12 @@ legacyCC.SceneGlobals = SceneGlobals;
         configurable: true,
         enumerable: true,
         writable: true,
-        initializer: function initializer() {
+        initializer: function initializer () {
             return new FogInfo();
         },
     });
 
-// _applyDecoratedDescriptor(_class14$1.prototype, "skybox", [editable, _dec62], Object.getOwnPropertyDescriptor(_class14$1.prototype, "skybox"), _class14$1.prototype);
+    // _applyDecoratedDescriptor(_class14$1.prototype, "skybox", [editable, _dec62], Object.getOwnPropertyDescriptor(_class14$1.prototype, "skybox"), _class14$1.prototype);
 
     sceneGlobalsDecorator(SceneGlobals);
 })();
