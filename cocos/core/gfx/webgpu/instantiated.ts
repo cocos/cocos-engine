@@ -1,6 +1,8 @@
-import glslangLoader from './lib/glslang.js';
-import wasmDevice from './lib/webgpu_wasm.js';
-
+import glslangURL from '@cocos/webgpu/glslang.wasmurl';
+import webgpuURL from '@cocos/webgpu/webgpu.wasmurl';
+import glslangLoader from '@cocos/webgpu/glslang';
+import wasmDevice from '@cocos/webgpu/webgpu';
+  
 export const glslalgWasmModule: any = {
     glslang: null,
 };
@@ -17,11 +19,11 @@ export const webgpuAdapter: any = {
 
 export function waitForWebGPUInstantiation (rootDir: string) {
     return Promise.all([
-        glslangLoader('./cocos-js/glslang.wasm').then((res) => {
+        glslangLoader(rootDir + glslangURL).then((res) => {
             glslalgWasmModule.glslang = res;
         }),
         new Promise<void>((resolve) => {
-            fetch('./cocos-js/webgpu_wasm.wasm').then((response) => {
+            fetch(rootDir + webgpuURL).then((response) => {
                 response.arrayBuffer().then((buffer) => {
                     nativeLib.wasmBinary = buffer;
                     wasmDevice(nativeLib).then(resolve);

@@ -45,6 +45,7 @@
         "SNORM",
         "struct",
         "UNORM",
+        "wasmurl",
         "wasm",
         "WECHAT",
         "WECHATGAME",
