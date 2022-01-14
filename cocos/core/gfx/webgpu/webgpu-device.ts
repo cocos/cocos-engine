@@ -60,80 +60,55 @@ export class WebGPUDevice extends Device {
         return this._nativeDevice;
     }
 
-    public initialize (info: DeviceInfo): Promise<boolean> {
-        function getDevice () {
-            const chromeVersion = getChromeVersion();
-            const adapter = webgpuAdapter.adapter;
-            const device = webgpuAdapter.device;
-            nativeLib['preinitializedWebGPUDevice'] = device;
-            device.lost.then((info) => {
-                console.error('Device was lost.', info);
-                throw new Error('Something bad happened');
-            });
-            console.log(adapter);
+    public initialize (info: DeviceInfo) {
+        const chromeVersion = getChromeVersion();
+        const adapter = webgpuAdapter.adapter;
+        const device = webgpuAdapter.device;
+        nativeLib['preinitializedWebGPUDevice'] = device;
+        device.lost.then((info) => {
+            console.error('Device was lost.', info);
+            throw new Error('Something bad happened');
+        });
+        console.log(adapter);
+
+        this._nativeDevice = nativeLib.CCWGPUDevice.getInstance();
+        nativeLib.nativeDevice = this._nativeDevice;
+        const deviceInfo = {};
+        const bufferOffsets = new nativeLib['vector_int']();
+        for (let i = 0; i < info.bindingMappingInfo.bufferOffsets.length; i++) {
+            bufferOffsets.push_back(info.bindingMappingInfo.bufferOffsets[i]);
         }
-        const launch = (): boolean => {
-            this._nativeDevice = nativeLib.CCWGPUDevice.getInstance();
-            nativeLib.nativeDevice = this._nativeDevice;
-            const deviceInfo = {};
-            const bufferOffsets = new nativeLib['vector_int']();
-            for (let i = 0; i < info.bindingMappingInfo.bufferOffsets.length; i++) {
-                bufferOffsets.push_back(info.bindingMappingInfo.bufferOffsets[i]);
-            }
 
-            const samplerOffsets = new nativeLib['vector_int']();
-            for (let i = 0; i < info.bindingMappingInfo.samplerOffsets.length; i++) {
-                samplerOffsets.push_back(info.bindingMappingInfo.samplerOffsets[i]);
-            }
+        const samplerOffsets = new nativeLib['vector_int']();
+        for (let i = 0; i < info.bindingMappingInfo.samplerOffsets.length; i++) {
+            samplerOffsets.push_back(info.bindingMappingInfo.samplerOffsets[i]);
+        }
 
-            deviceInfo['bindingMappingInfo'] = {
-                bufferOffsets,
-                samplerOffsets,
-                flexibleSet: info.bindingMappingInfo.flexibleSet,
-            };
-
-            (this._nativeDevice as any).initialize(deviceInfo);
-
-            const queueInfo = new QueueInfo(QueueType.GRAPHICS);
-            this._queue = new WebGPUQueue();
-            (this._queue as WebGPUQueue).device = this;
-            this._queue.initialize(queueInfo);
-
-            const cmdBufferInfo = new CommandBufferInfo(this._queue, CommandBufferType.PRIMARY);
-            this._cmdBuff = new WebGPUCommandBuffer();
-            (this._cmdBuff as WebGPUCommandBuffer).device = this;
-            this._cmdBuff.initialize(cmdBufferInfo);
-
-            this._caps.uboOffsetAlignment = 256;
-            this._caps.clipSpaceMinZ = 0;
-            this._caps.screenSpaceSignY = -1;
-            this._caps.clipSpaceSignY = 1;
-            WebGPUDeviceManager.setInstance(this);
-
-            return true;
+        deviceInfo['bindingMappingInfo'] = {
+            bufferOffsets,
+            samplerOffsets,
+            flexibleSet: info.bindingMappingInfo.flexibleSet,
         };
 
-        function mainEntry (): Promise<boolean> {
-            const poll = (resolve) => {
-                if (nativeLib.wasmLoaded) {
-                    wasmDevice(nativeLib).then(() => {
-                        nativeLib.wasmLoaded = true;
-                        return getDevice().then(() => {
-                            launch();
-                            resolve();
-                        });
-                    });
-                } else {
-                    setTimeout((_) => {
-                        poll(resolve);
-                    }, 30);
-                }
-            };
+        (this._nativeDevice as any).initialize(deviceInfo);
 
-            return new Promise(poll);
-        }
+        const queueInfo = new QueueInfo(QueueType.GRAPHICS);
+        this._queue = new WebGPUQueue();
+        (this._queue as WebGPUQueue).device = this;
+        this._queue.initialize(queueInfo);
 
-        return mainEntry();
+        const cmdBufferInfo = new CommandBufferInfo(this._queue, CommandBufferType.PRIMARY);
+        this._cmdBuff = new WebGPUCommandBuffer();
+        (this._cmdBuff as WebGPUCommandBuffer).device = this;
+        this._cmdBuff.initialize(cmdBufferInfo);
+
+        this._caps.uboOffsetAlignment = 256;
+        this._caps.clipSpaceMinZ = 0;
+        this._caps.screenSpaceSignY = -1;
+        this._caps.clipSpaceSignY = 1;
+        WebGPUDeviceManager.setInstance(this);
+
+        return true;
     }
 
     public destroy (): void {

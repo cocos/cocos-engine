@@ -62,110 +62,110 @@ export interface LayerItem {
 }
 
 /**
- * @zh
- * 游戏配置。
- * @en
- * Game configuration.
- */
+  * @zh
+  * 游戏配置。
+  * @en
+  * Game configuration.
+  */
 export interface IGameConfig {
     /**
-     * @zh
-     * 设置 debug 模式，在浏览器中这个选项会被忽略。
-     * @en
-     * Set debug mode, only valid in non-browser environment.
-     */
+      * @zh
+      * 设置 debug 模式，在浏览器中这个选项会被忽略。
+      * @en
+      * Set debug mode, only valid in non-browser environment.
+      */
     debugMode?: debug.DebugMode;
 
     /**
-     * @zh
-     * 当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。
-     * @en
-     * Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
-     */
+      * @zh
+      * 当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。
+      * @en
+      * Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
+      */
     showFPS?: boolean;
 
     /**
-     * @zh
-     * 暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类的创建过程的性能，但对对象构造没有影响。
-     * @en
-     * Expose class name to chrome debug tools, the class intantiate performance is a little bit slower when exposed.
-     */
+      * @zh
+      * 暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类的创建过程的性能，但对对象构造没有影响。
+      * @en
+      * Expose class name to chrome debug tools, the class intantiate performance is a little bit slower when exposed.
+      */
     exposeClassName?: boolean;
 
     /**
-     * @zh
-     * 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。
-     * @en
-     * Set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
-     */
+      * @zh
+      * 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。
+      * @en
+      * Set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
+      */
     frameRate?: number;
 
     /**
-     * @zh
-     * Web 页面上的 Canvas Element ID，仅适用于 web 端。
-     * @en
-     * Sets the id of your canvas element on the web page, it's useful only on web.
-     */
+      * @zh
+      * Web 页面上的 Canvas Element ID，仅适用于 web 端。
+      * @en
+      * Sets the id of your canvas element on the web page, it's useful only on web.
+      */
     id?: string | HTMLElement;
 
     /**
-     * @zh
-     * 渲染模式。
-     * 设置渲染器类型，仅适用于 web 端：
-     * - 0 - 通过引擎自动选择。
-     * - 1 - 强制使用 canvas 渲染。
-     * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
-     * - 3 - 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用
-     * @en
-     * Sets the renderer type, only useful on web:
-     * - 0 - Automatically chosen by engine.
-     * - 1 - Forced to use canvas renderer.
-     * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
-     * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
-     */
+      * @zh
+      * 渲染模式。
+      * 设置渲染器类型，仅适用于 web 端：
+      * - 0 - 通过引擎自动选择。
+      * - 1 - 强制使用 canvas 渲染。
+      * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
+      * - 3 - 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用
+      * @en
+      * Sets the renderer type, only useful on web:
+      * - 0 - Automatically chosen by engine.
+      * - 1 - Forced to use canvas renderer.
+      * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
+      * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
+      */
     renderMode?: 0 | 1 | 2 | 3;
 
     /**
-     * @zh
-     * 当前包中可用场景。
-     * @en
-     * Include available scenes in the current bundle.
-     */
+      * @zh
+      * 当前包中可用场景。
+      * @en
+      * Include available scenes in the current bundle.
+      */
     scenes?: ISceneInfo[];
 
     /**
-     * For internal use.
-     */
+      * For internal use.
+      */
     jsList?: string[];
 
     /**
-     * Render pipeline resources
-     */
+      * Render pipeline resources
+      */
     renderPipeline?: string;
 
     /**
-     * Asset Manager initialization options
-     */
+      * Asset Manager initialization options
+      */
     assetOptions?: IAssetManagerOptions;
 
     /**
-     * GPU instancing options
-     */
+      * GPU instancing options
+      */
     customJointTextureLayouts?: ICustomJointTextureLayout[];
 
     /**
-     * Physics system config
-     */
+      * Physics system config
+      */
     physics?: IPhysicsConfig;
 
     /**
-     * User layers config
-     */
+      * User layers config
+      */
     layers?: LayerItem[];
 
     /**
-     * The adapter stores various platform-related objects.
-     */
+      * The adapter stores various platform-related objects.
+      */
     adapter?: {
         canvas: HTMLCanvasElement,
         frame: HTMLDivElement,
@@ -174,173 +174,173 @@ export interface IGameConfig {
     };
 
     /**
-     * The orientation from the builder configuration.
-     * Available value can be 'auto', 'landscape', 'portrait'.
-     */
+      * The orientation from the builder configuration.
+      * Available value can be 'auto', 'landscape', 'portrait'.
+      */
     orientation?: ConfigOrientation;
     /**
-     * Determine whether the game frame exact fits the screen.
-     * Now it only works on Web platform.
-     */
+      * Determine whether the game frame exact fits the screen.
+      * Now it only works on Web platform.
+      */
     exactFitScreen: boolean,
 }
 
 /**
- * @en An object to boot the game.
- * @zh 包含游戏主体信息并负责驱动游戏的游戏对象。
- */
+  * @en An object to boot the game.
+  * @zh 包含游戏主体信息并负责驱动游戏的游戏对象。
+  */
 export class Game extends EventTarget {
     /**
-     * @en Event triggered when game hide to background.<br>
-     * Please note that this event is not 100% guaranteed to be fired on Web platform,<br>
-     * on native platforms, it corresponds to enter background event, os status bar or notification center may not trigger this event.
-     * @zh 游戏进入后台时触发的事件。<br>
-     * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。<br>
-     * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
-     * @example
-     * ```ts
-     * import { game, audioEngine } from 'cc';
-     * game.on(Game.EVENT_HIDE, function () {
-     *     audioEngine.pauseMusic();
-     *     audioEngine.pauseAllEffects();
-     * });
-     * ```
-     */
+      * @en Event triggered when game hide to background.<br>
+      * Please note that this event is not 100% guaranteed to be fired on Web platform,<br>
+      * on native platforms, it corresponds to enter background event, os status bar or notification center may not trigger this event.
+      * @zh 游戏进入后台时触发的事件。<br>
+      * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。<br>
+      * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
+      * @example
+      * ```ts
+      * import { game, audioEngine } from 'cc';
+      * game.on(Game.EVENT_HIDE, function () {
+      *     audioEngine.pauseMusic();
+      *     audioEngine.pauseAllEffects();
+      * });
+      * ```
+      */
     public static readonly EVENT_HIDE = 'game_on_hide';
 
     /**
-     * @en Event triggered when game back to foreground<br>
-     * Please note that this event is not 100% guaranteed to be fired on Web platform,<br>
-     * on native platforms, it corresponds to enter foreground event.
-     * @zh 游戏进入前台运行时触发的事件。<br>
-     * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。<br>
-     * 在原生平台，它对应的是应用被切换到前台事件。
-     */
+      * @en Event triggered when game back to foreground<br>
+      * Please note that this event is not 100% guaranteed to be fired on Web platform,<br>
+      * on native platforms, it corresponds to enter foreground event.
+      * @zh 游戏进入前台运行时触发的事件。<br>
+      * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。<br>
+      * 在原生平台，它对应的是应用被切换到前台事件。
+      */
     public static readonly EVENT_SHOW: string = 'game_on_show';
 
     /**
-     * @en Event triggered when system in low memory status.<br>
-     * This event is only triggered on native iOS/Android platform.
-     * @zh 程序在内存不足时触发的事件。<br>
-     * 该事件只会在 iOS/Android 平台触发。
-     */
+      * @en Event triggered when system in low memory status.<br>
+      * This event is only triggered on native iOS/Android platform.
+      * @zh 程序在内存不足时触发的事件。<br>
+      * 该事件只会在 iOS/Android 平台触发。
+      */
     public static readonly EVENT_LOW_MEMORY: string = 'game_on_low_memory';
 
     /**
-     * @en Event triggered after game inited, at this point all engine objects and game scripts are loaded
-     * @zh 游戏启动后的触发事件，此时加载所有的引擎对象和游戏脚本。
-     */
+      * @en Event triggered after game inited, at this point all engine objects and game scripts are loaded
+      * @zh 游戏启动后的触发事件，此时加载所有的引擎对象和游戏脚本。
+      */
     public static readonly EVENT_GAME_INITED = 'game_inited';
 
     /**
-     * @en Event triggered after engine inited, at this point you will be able to use all engine classes.<br>
-     * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0.
-     * Since Cocos Creator v3.0, EVENT_RENDERER_INITED is a new event, look up define for details.
-     * @zh 在引擎初始化之后触发的事件，此时您能够使用引擎所有的类。<br>
-     * 它在 Cocos Creator v1.x 版本中名字为 EVENT_RENDERER_INITED，在 v2.0 更名为 EVENT_ENGINE_INITED
-     * 并在 Cocos Creator v3.0 中将 EVENT_RENDERER_INITED 用作为渲染器初始化的事件。
-     */
+      * @en Event triggered after engine inited, at this point you will be able to use all engine classes.<br>
+      * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0.
+      * Since Cocos Creator v3.0, EVENT_RENDERER_INITED is a new event, look up define for details.
+      * @zh 在引擎初始化之后触发的事件，此时您能够使用引擎所有的类。<br>
+      * 它在 Cocos Creator v1.x 版本中名字为 EVENT_RENDERER_INITED，在 v2.0 更名为 EVENT_ENGINE_INITED
+      * 并在 Cocos Creator v3.0 中将 EVENT_RENDERER_INITED 用作为渲染器初始化的事件。
+      */
     public static readonly EVENT_ENGINE_INITED = 'engine_inited';
 
     /**
-     * @en Event triggered after renderer inited, at this point you will be able to use all gfx renderer feature.<br>
-     * @zh 在渲染器初始化之后触发的事件，此事件在 EVENT_ENGINE_INITED 之前触发，此时开始可使用 gfx 渲染框架。
-     */
+      * @en Event triggered after renderer inited, at this point you will be able to use all gfx renderer feature.<br>
+      * @zh 在渲染器初始化之后触发的事件，此事件在 EVENT_ENGINE_INITED 之前触发，此时开始可使用 gfx 渲染框架。
+      */
     public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
 
     /**
-     * @en Event triggered when game restart
-     * @zh 调用restart后，触发事件
-     */
+      * @en Event triggered when game restart
+      * @zh 调用restart后，触发事件
+      */
     public static readonly EVENT_RESTART = 'game_on_restart';
 
     /**
-     * @en Web Canvas 2d API as renderer backend.
-     * @zh 使用 Web Canvas 2d API 作为渲染器后端。
-     */
+      * @en Web Canvas 2d API as renderer backend.
+      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
+      */
     public static readonly RENDER_TYPE_CANVAS = 0;
     /**
-     * @en WebGL API as renderer backend.
-     * @zh 使用 WebGL API 作为渲染器后端。
-     */
+      * @en WebGL API as renderer backend.
+      * @zh 使用 WebGL API 作为渲染器后端。
+      */
     public static readonly RENDER_TYPE_WEBGL = 1;
     /**
-     * @en OpenGL API as renderer backend.
-     * @zh 使用 OpenGL API 作为渲染器后端。
-     */
+      * @en OpenGL API as renderer backend.
+      * @zh 使用 OpenGL API 作为渲染器后端。
+      */
     public static readonly RENDER_TYPE_OPENGL = 2;
 
     /**
-     * @en Headless Renderer, usually used in test or server env
-     * @zh 空渲染器，通常用于测试环境或服务器端模式
-     */
+      * @en Headless Renderer, usually used in test or server env
+      * @zh 空渲染器，通常用于测试环境或服务器端模式
+      */
     public static readonly RENDER_TYPE_HEADLESS = 3;
 
     /**
-     * @en If delta time since last frame is more than this threshold in seconds,
-     * the game timer will consider user is debugging and adjust the delta time to [[frameTime]].
-     * @zh 如果距离上一帧的帧间隔超过了这个阈值（单位是 s），那么就会被认为正在调试，帧间隔会被自动调节为 [[frameTime]].
-     */
+      * @en If delta time since last frame is more than this threshold in seconds,
+      * the game timer will consider user is debugging and adjust the delta time to [[frameTime]].
+      * @zh 如果距离上一帧的帧间隔超过了这个阈值（单位是 s），那么就会被认为正在调试，帧间隔会被自动调节为 [[frameTime]].
+      */
     public static DEBUG_DT_THRESHOLD = 1;
 
     /**
-     * @en The outer frame of the game canvas; parent of game container.
-     * @zh 游戏画布的外框，container 的父容器。
-     *
-     * @deprecated since 3.4.0, frame is a concept on web standard, please manager screens via the `screen` module.
-     */
+      * @en The outer frame of the game canvas; parent of game container.
+      * @zh 游戏画布的外框，container 的父容器。
+      *
+      * @deprecated since 3.4.0, frame is a concept on web standard, please manager screens via the `screen` module.
+      */
     public frame: HTMLDivElement | null = null;
     /**
-     * @en The container of game canvas.
-     * @zh 游戏画布的容器。
-     *
-     * @deprecated since 3.4.0, container is a concept on web standard, please manager screens via the `screen` module.
-     */
+      * @en The container of game canvas.
+      * @zh 游戏画布的容器。
+      *
+      * @deprecated since 3.4.0, container is a concept on web standard, please manager screens via the `screen` module.
+      */
     public container: HTMLDivElement | null = null;
     /**
-     * @en The canvas of the game.
-     * @zh 游戏的画布。
-     */
+      * @en The canvas of the game.
+      * @zh 游戏的画布。
+      */
     public canvas: HTMLCanvasElement | null = null;
 
     /**
-     * @en The renderer backend of the game.
-     * @zh 游戏的渲染器类型。
-     */
+      * @en The renderer backend of the game.
+      * @zh 游戏的渲染器类型。
+      */
     public renderType = -1;
 
     public eventTargetOn = super.on;
     public eventTargetOnce = super.once;
 
     /**
-     * @en
-     * The current game configuration,
-     * please be noticed any modification directly on this object after the game initialization won't take effect.
-     * @zh
-     * 当前的游戏配置
-     * 注意：请不要直接修改这个对象，它不会有任何效果。
-     */
+      * @en
+      * The current game configuration,
+      * please be noticed any modification directly on this object after the game initialization won't take effect.
+      * @zh
+      * 当前的游戏配置
+      * 注意：请不要直接修改这个对象，它不会有任何效果。
+      */
     public config: NormalizedGameConfig = {} as NormalizedGameConfig;
 
     /**
-     * @en Callback when the scripts of engine have been load.
-     * @zh 当引擎完成启动后的回调函数。
-     * @method onStart
-     */
+      * @en Callback when the scripts of engine have been load.
+      * @zh 当引擎完成启动后的回调函数。
+      * @method onStart
+      */
     public onStart: Game.OnStart | null = null;
 
     /**
-     * @en Indicates whether the engine and the renderer has been initialized
-     * @zh 引擎和渲染器是否以完成初始化
-     */
+      * @en Indicates whether the engine and the renderer has been initialized
+      * @zh 引擎和渲染器是否以完成初始化
+      */
     public get inited () {
         return this._inited;
     }
 
     /**
-     * @en Expected frame rate of the game.
-     * @zh 游戏的设定帧率。
-     */
+      * @en Expected frame rate of the game.
+      * @zh 游戏的设定帧率。
+      */
     public get frameRate () {
         return this._frameRate;
     }
@@ -357,33 +357,33 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en The delta time since last frame, unit: s.
-     * @zh 获取上一帧的增量时间，以秒为单位。
-     */
+      * @en The delta time since last frame, unit: s.
+      * @zh 获取上一帧的增量时间，以秒为单位。
+      */
     public get deltaTime () {
         return this._deltaTime;
     }
 
     /**
-     * @en The total passed time since game start, unit: ms
-     * @zh 获取从游戏开始到现在总共经过的时间，以毫秒为单位
-     */
+      * @en The total passed time since game start, unit: ms
+      * @zh 获取从游戏开始到现在总共经过的时间，以毫秒为单位
+      */
     public get totalTime () {
         return performance.now() - this._initTime;
     }
 
     /**
-     * @en The start time of the current frame in milliseconds.
-     * @zh 获取当前帧开始的时间（以 ms 为单位）。
-     */
+      * @en The start time of the current frame in milliseconds.
+      * @zh 获取当前帧开始的时间（以 ms 为单位）。
+      */
     public get frameStartTime () {
         return this._startTime;
     }
 
     /**
-     * @en The expected delta time of each frame in milliseconds
-     * @zh 期望帧率对应的每帧时间（以 ms 为单位）
-     */
+      * @en The expected delta time of each frame in milliseconds
+      * @zh 期望帧率对应的每帧时间（以 ms 为单位）
+      */
     public frameTime = 1000 / 60;
 
     public collisionMatrix = [];
@@ -413,47 +413,47 @@ export class Game extends EventTarget {
     //  @Game play control
 
     /**
-     * @en Set frame rate of game.
-     * @zh 设置游戏帧率。
-     * @deprecated since v3.3.0 please use [[game.frameRate]]
-     */
+      * @en Set frame rate of game.
+      * @zh 设置游戏帧率。
+      * @deprecated since v3.3.0 please use [[game.frameRate]]
+      */
     public setFrameRate (frameRate: number | string) {
         this.frameRate = frameRate;
     }
 
     /**
-     * @en Get frame rate set for the game, it doesn't represent the real frame rate.
-     * @zh 获取设置的游戏帧率（不等同于实际帧率）。
-     * @return frame rate
-     * @deprecated since v3.3.0 please use [[game.frameRate]]
-     */
+      * @en Get frame rate set for the game, it doesn't represent the real frame rate.
+      * @zh 获取设置的游戏帧率（不等同于实际帧率）。
+      * @return frame rate
+      * @deprecated since v3.3.0 please use [[game.frameRate]]
+      */
     public getFrameRate (): number {
         return this.frameRate as number;
     }
 
     /**
-     * @en Run the game frame by frame with a fixed delta time correspond to frame rate.
-     * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
-     */
+      * @en Run the game frame by frame with a fixed delta time correspond to frame rate.
+      * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
+      */
     public step () {
         legacyCC.director.tick(this.frameTime / 1000);
     }
 
     /**
-     * @en Pause the game main loop. This will pause:
-     * - game logic execution
-     * - rendering process
-     * - input event dispatching (excluding Web and Minigame platforms)
-     *
-     * This is different with `director.pause()` which only pause the game logic execution.
-     *
-     * @zh 暂停游戏主循环。包含：
-     * - 游戏逻辑
-     * - 渲染
-     * - 输入事件派发（Web 和小游戏平台除外）
-     *
-     * 这点和只暂停游戏逻辑的 `director.pause()` 不同。
-     */
+      * @en Pause the game main loop. This will pause:
+      * - game logic execution
+      * - rendering process
+      * - input event dispatching (excluding Web and Minigame platforms)
+      *
+      * This is different with `director.pause()` which only pause the game logic execution.
+      *
+      * @zh 暂停游戏主循环。包含：
+      * - 游戏逻辑
+      * - 渲染
+      * - 输入事件派发（Web 和小游戏平台除外）
+      *
+      * 这点和只暂停游戏逻辑的 `director.pause()` 不同。
+      */
     public pause () {
         if (this._paused) { return; }
         this._paused = true;
@@ -464,10 +464,10 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Resume the game from pause. This will resume:<br>
-     * game logic execution, rendering process, event manager, background music and all audio effects.<br>
-     * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
-     */
+      * @en Resume the game from pause. This will resume:<br>
+      * game logic execution, rendering process, event manager, background music and all audio effects.<br>
+      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
+      */
     public resume () {
         if (!this._paused) { return; }
         // @ts-expect-error _clearEvents is a private method.
@@ -482,17 +482,17 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Check whether the game is paused.
-     * @zh 判断游戏是否暂停。
-     */
+      * @en Check whether the game is paused.
+      * @zh 判断游戏是否暂停。
+      */
     public isPaused (): boolean {
         return this._paused;
     }
 
     /**
-     * @en Restart game.
-     * @zh 重新开始游戏
-     */
+      * @en Restart game.
+      * @zh 重新开始游戏
+      */
     public restart (): Promise<void> {
         const endFramePromise = new Promise<void>((resolve) => legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => resolve()) as void);
         return endFramePromise.then(() => {
@@ -515,27 +515,27 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en End game, it will close the game window
-     * @zh 退出游戏
-     */
+      * @en End game, it will close the game window
+      * @zh 退出游戏
+      */
     public end () {
         systemInfo.close();
     }
 
     /**
-     * @en
-     * Register an callback of a specific event type on the game object.<br>
-     * This type of event should be triggered via `emit`.<br>
-     * @zh
-     * 注册 game 的特定事件类型回调。这种类型的事件应该被 `emit` 触发。<br>
-     *
-     * @param type - A string representing the event type to listen for.
-     * @param callback - The callback that will be invoked when the event is dispatched.<br>
-     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param target - The target (this object) to invoke the callback, can be null
-     * @param once - After the first invocation, whether the callback should be unregistered.
-     * @return - Just returns the incoming callback so you can save the anonymous function easier.
-     */
+      * @en
+      * Register an callback of a specific event type on the game object.<br>
+      * This type of event should be triggered via `emit`.<br>
+      * @zh
+      * 注册 game 的特定事件类型回调。这种类型的事件应该被 `emit` 触发。<br>
+      *
+      * @param type - A string representing the event type to listen for.
+      * @param callback - The callback that will be invoked when the event is dispatched.<br>
+      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+      * @param target - The target (this object) to invoke the callback, can be null
+      * @param once - After the first invocation, whether the callback should be unregistered.
+      * @return - Just returns the incoming callback so you can save the anonymous function easier.
+      */
     public on (type: string, callback: () => void, target?: any, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if ((this._engineInited && type === Game.EVENT_ENGINE_INITED)
@@ -547,17 +547,17 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en
-     * Register an callback of a specific event type on the game object,<br>
-     * the callback will remove itself after the first time it is triggered.<br>
-     * @zh
-     * 注册 game 的特定事件类型回调，回调会在第一时间被触发后删除自身。
-     *
-     * @param type - A string representing the event type to listen for.
-     * @param callback - The callback that will be invoked when the event is dispatched.<br>
-     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param target - The target (this object) to invoke the callback, can be null
-     */
+      * @en
+      * Register an callback of a specific event type on the game object,<br>
+      * the callback will remove itself after the first time it is triggered.<br>
+      * @zh
+      * 注册 game 的特定事件类型回调，回调会在第一时间被触发后删除自身。
+      *
+      * @param type - A string representing the event type to listen for.
+      * @param callback - The callback that will be invoked when the event is dispatched.<br>
+      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+      * @param target - The target (this object) to invoke the callback, can be null
+      */
     public once (type: string, callback: () => void, target?: any): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._engineInited && type === Game.EVENT_ENGINE_INITED) {
@@ -567,10 +567,10 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Init game with configuration object.
-     * @zh 使用指定的配置初始化引擎。
-     * @param config - Pass configuration object
-     */
+      * @en Init game with configuration object.
+      * @zh 使用指定的配置初始化引擎。
+      * @param config - Pass configuration object
+      */
     public init (config: IGameConfig) {
         this._initConfig(config);
         // TODO: unify the screen initialization workflow.
@@ -608,10 +608,10 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Run game with configuration object and onStart function.
-     * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
-     * @param onStart - function to be executed after game initialized
-     */
+      * @en Run game with configuration object and onStart function.
+      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
+      * @param onStart - function to be executed after game initialized
+      */
     public run (onStart?: Game.OnStart): Promise<void>;
 
     public run (configOrCallback?: Game.OnStart | IGameConfig, onStart?: Game.OnStart) {
@@ -639,14 +639,14 @@ export class Game extends EventTarget {
 
     //  @ Persist root node section
     /**
-     * @en
-     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br>
-     * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
-     * @zh
-     * 声明常驻根节点，该节点不会在场景切换中被销毁。<br>
-     * 目标节点必须位于为层级的根节点，否则无效。
-     * @param node - The node to be made persistent
-     */
+      * @en
+      * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br>
+      * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
+      * @zh
+      * 声明常驻根节点，该节点不会在场景切换中被销毁。<br>
+      * 目标节点必须位于为层级的根节点，否则无效。
+      * @param node - The node to be made persistent
+      */
     public addPersistRootNode (node: Node) {
         if (!legacyCC.Node.isNode(node) || !node.uuid) {
             debug.warnID(3800);
@@ -675,10 +675,10 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Remove a persistent root node.
-     * @zh 取消常驻根节点。
-     * @param node - The node to be removed from persistent node list
-     */
+      * @en Remove a persistent root node.
+      * @zh 取消常驻根节点。
+      * @param node - The node to be removed from persistent node list
+      */
     public removePersistRootNode (node: Node) {
         const id = node.uuid || '';
         if (node === this._persistRootNodes[id]) {
@@ -690,24 +690,20 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Check whether the node is a persistent root node.
-     * @zh 检查节点是否是常驻根节点。
-     * @param node - The node to be checked
-     */
+      * @en Check whether the node is a persistent root node.
+      * @zh 检查节点是否是常驻根节点。
+      * @param node - The node to be checked
+      */
     public isPersistRootNode (node: { _persistNode: any; }): boolean {
         return !!node._persistNode;
     }
 
     //  @Engine loading
 
-    private _initDeviceAsync () {
-        return Promise.resolve(this._initDevice()).then(() => {
-            legacyCC.director._init();
-        });
-    }
-
     private _initEngine () {
-        return Promise.resolve(this._initDeviceAsync()).then(() => {
+        this._initDevice();
+        const director = legacyCC.director;
+        return Promise.resolve(director._init()).then(() => {
             legacyCC.view.init();
             // Log engine version
             debug.log(`Cocos Creator v${VERSION}`);
@@ -857,7 +853,7 @@ export class Game extends EventTarget {
             throw new Error(debug.getError(3820, userRenderMode));
         }
     }
-    // _initDevice
+
     private _initDevice () {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
@@ -871,10 +867,7 @@ export class Game extends EventTarget {
         }
 
         this._determineRenderType();
-        return this._constructDevice();
-    }
 
-    private async _constructDevice () {
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
@@ -891,37 +884,35 @@ export class Game extends EventTarget {
                 }
 
                 const deviceCtors: Constructor<Device>[] = [];
-                if (useWebGL2 && legacyCC.WebGL2Device) {
-                    // deviceCtors.push(legacyCC.WebGL2Device);
-                }
-                if (legacyCC.WebGLDevice) {
-                    // deviceCtors.push(legacyCC.WebGLDevice);
-                }
-                if (legacyCC.EmptyDevice) {
-                    // deviceCtors.push(legacyCC.EmptyDevice);
-                }
                 if (legacyCC.WebGPUDevice) {
                     deviceCtors.push(legacyCC.WebGPUDevice);
                 }
+                if (useWebGL2 && legacyCC.WebGL2Device) {
+                    deviceCtors.push(legacyCC.WebGL2Device);
+                }
+                if (legacyCC.WebGLDevice) {
+                    deviceCtors.push(legacyCC.WebGLDevice);
+                }
+                if (legacyCC.EmptyDevice) {
+                    deviceCtors.push(legacyCC.EmptyDevice);
+                }
+
                 Device.canvas = this.canvas!;
                 for (let i = 0; i < deviceCtors.length; i++) {
                     this._gfxDevice = new deviceCtors[i]();
-                    // eslint-disable-next-line no-await-in-loop
-                    const success = await this._gfxDevice.initialize(deviceInfo);
-                    if (success) { break; }
+                    if (this._gfxDevice.initialize(deviceInfo)) { break; }
                 }
             }
         } else if (this.renderType === Game.RENDER_TYPE_HEADLESS && legacyCC.EmptyDevice) {
             this._gfxDevice = new legacyCC.EmptyDevice();
-            // eslint-disable-next-line no-void
-            void this._gfxDevice!.initialize(new DeviceInfo(bindingMappingInfo));
+            this._gfxDevice!.initialize(new DeviceInfo(bindingMappingInfo));
         }
 
         if (!this._gfxDevice) {
             // todo fix here for wechat game
             debug.error('can not support canvas rendering in 3D');
             this.renderType = Game.RENDER_TYPE_CANVAS;
-            return false;
+            return;
         }
 
         const swapchainInfo = new SwapchainInfo(this.canvas!);
@@ -931,7 +922,6 @@ export class Game extends EventTarget {
         this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
 
         this.canvas!.oncontextmenu = () => false;
-        return true;
     }
 
     private _initEvents () {
@@ -1024,11 +1014,11 @@ export declare namespace Game {
 legacyCC.Game = Game;
 
 /**
- * @en
- * This is a Game instance.
- * @zh
- * 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。
- */
+  * @en
+  * This is a Game instance.
+  * @zh
+  * 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。
+  */
 export const game = legacyCC.game = new Game();
 
 type NormalizedGameConfig = IGameConfig & {
