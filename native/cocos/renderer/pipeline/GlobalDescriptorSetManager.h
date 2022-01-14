@@ -26,6 +26,7 @@
 #pragma once
 
 #include "base/CoreStd.h"
+#include "base/Ptr.h"
 
 namespace cc {
 namespace gfx {
@@ -61,11 +62,11 @@ public:
     static void setDescriptorSetLayout();
 
 private:
-    RenderPipeline *                               _pipeline            = nullptr;
-    gfx::Device *                                  _device              = nullptr;
-    gfx::Sampler *                                 _linearSampler       = nullptr;
-    gfx::Sampler *                                 _pointSampler        = nullptr;
-    gfx::DescriptorSetLayout *                     _descriptorSetLayout = nullptr;
+    RenderPipeline *                               _pipeline      = nullptr;
+    gfx::Device *                                  _device        = nullptr;
+    gfx::Sampler *                                 _linearSampler = nullptr;
+    gfx::Sampler *                                 _pointSampler  = nullptr;
+    IntrusivePtr<gfx::DescriptorSetLayout>         _descriptorSetLayout;
     gfx::DescriptorSet *                           _globalDescriptorSet = nullptr;
     std::unordered_map<uint, gfx::DescriptorSet *> _descriptorSetMap{};
     std::vector<gfx::Buffer *>                     _shadowUBOs;

@@ -25,13 +25,16 @@
 
 #include "engine/Engine.h"
 #include <functional>
-#include "base/Macros.h"
+#include <memory>
+#include <sstream>
 #include "base/DeferredReleasePool.h"
-#include "platform/BasePlatform.h"
-#include "platform/FileUtils.h"
+#include "base/Macros.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/renderer/GFXDeviceManager.h"
+#include "cocos/renderer/core/ProgramLib.h"
 #include "pipeline/RenderPipeline.h"
+#include "platform/BasePlatform.h"
+#include "platform/FileUtils.h"
 
 #if USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
@@ -41,8 +44,6 @@
     #include "cocos/network/WebSocket.h"
 #endif
 
-#include <memory>
-#include <sstream>
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
@@ -51,10 +52,10 @@
 
 namespace {
 
-bool setCanvasCallback(se::Object* /*global*/) {
+bool setCanvasCallback(se::Object * /*global*/) {
     se::AutoHandleScope scope;
-    se::ScriptEngine*   se       = se::ScriptEngine::getInstance();
-    auto*               window   = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
+    se::ScriptEngine *  se       = se::ScriptEngine::getInstance();
+    auto *              window   = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
     auto                handler  = window->getWindowHandler();
     auto                viewSize = window->getViewSize();
 
@@ -96,9 +97,10 @@ Engine::~Engine() {
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
 
+    ProgramLib::destroyInstance();
     gfx::DeviceManager::destroy();
 
-    BasePlatform* platform = BasePlatform::getPlatform();
+    BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(nullptr);
 }
 
@@ -108,16 +110,16 @@ int32_t Engine::init() {
 
     se::ScriptEngine::getInstance()->cleanup();
 
-    BasePlatform* platform = BasePlatform::getPlatform();
+    BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(
-        std::bind(&Engine::handleEvent, this, std::placeholders::_1));// NOLINT(modernize-avoid-bind)
+        std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
     se::ScriptEngine::getInstance()->addPermanentRegisterCallback(setCanvasCallback);
     return 0;
 }
 
 int32_t Engine::run() {
-    BasePlatform* platform = BasePlatform::getPlatform();
+    BasePlatform *platform = BasePlatform::getPlatform();
     platform->runInPlatformThread([&]() {
         tick();
     });
@@ -142,15 +144,15 @@ void Engine::close() { // NOLINT
         cc::EventDispatcher::dispatchCloseEvent();
     }
 
-    auto* scriptEngine = se::ScriptEngine::getInstance();
+    auto *scriptEngine = se::ScriptEngine::getInstance();
 
     cc::DeferredReleasePool::clear();
 #if USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-//#if USE_SOCKET
-//    cc::network::WebSocket::closeAllConnections();
-//#endif
+    //#if USE_SOCKET
+    //    cc::network::WebSocket::closeAllConnections();
+    //#endif
     cc::network::HttpClient::destroyInstance();
 
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
@@ -171,12 +173,12 @@ void Engine::setPreferredFramesPerSecond(int fps) {
     if (fps == 0) {
         return;
     }
-    BasePlatform* platform = BasePlatform::getPlatform();
+    BasePlatform *platform = BasePlatform::getPlatform();
     platform->setFps(fps);
     _prefererredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); //NOLINT(google-runtime-int)
 }
 
-void Engine::addEventCallback(OSEventType evType, const EventCb& cb) {
+void Engine::addEventCallback(OSEventType evType, const EventCb &cb) {
     _eventCallbacks.insert(std::make_pair(evType, cb));
 }
 
@@ -230,15 +232,15 @@ int32_t Engine::restartVM() {
 
     pipeline::RenderPipeline::getInstance()->destroy();
 
-    auto* scriptEngine = se::ScriptEngine::getInstance();
+    auto *scriptEngine = se::ScriptEngine::getInstance();
 
     cc::DeferredReleasePool::clear();
 #if USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-//#if USE_SOCKET
-//    cc::network::WebSocket::closeAllConnections();
-//#endif
+    //#if USE_SOCKET
+    //    cc::network::WebSocket::closeAllConnections();
+    //#endif
     cc::network::HttpClient::destroyInstance();
 
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
@@ -255,7 +257,7 @@ int32_t Engine::restartVM() {
     return 0;
 }
 
-bool Engine::handleEvent(const OSEvent& ev) {
+bool Engine::handleEvent(const OSEvent &ev) {
     bool        isHandled = false;
     OSEventType type      = ev.eventType();
     if (type == OSEventType::TOUCH_OSEVENT) {
@@ -283,7 +285,7 @@ Engine::SchedulerPtr Engine::getScheduler() const {
     return _scheduler;
 }
 
-bool Engine::dispatchDeviceEvent(const DeviceEvent& ev) { // NOLINT(readability-convert-member-functions-to-static)
+bool Engine::dispatchDeviceEvent(const DeviceEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
     if (ev.type == DeviceEvent::Type::DEVICE_MEMORY) {
         cc::EventDispatcher::dispatchMemoryWarningEvent();
         return true;
@@ -291,7 +293,7 @@ bool Engine::dispatchDeviceEvent(const DeviceEvent& ev) { // NOLINT(readability-
     return false;
 }
 
-bool Engine::dispatchWindowEvent(const WindowEvent& ev) {
+bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
     bool isHandled = false;
     if (ev.type == WindowEvent::Type::SHOW ||
         ev.type == WindowEvent::Type::RESTORED) {
@@ -315,7 +317,7 @@ bool Engine::dispatchWindowEvent(const WindowEvent& ev) {
     return isHandled;
 }
 
-bool Engine::dispatchEventToApp(OSEventType type, const OSEvent& ev) {
+bool Engine::dispatchEventToApp(OSEventType type, const OSEvent &ev) {
     auto it = _eventCallbacks.find(type);
     if (it != _eventCallbacks.end()) {
         it->second(ev);

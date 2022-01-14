@@ -171,12 +171,12 @@ protected:
     uint32_t     _numTriangles{0U};
     MemoryStatus _memoryStatus;
 
-    unordered_map<SamplerInfo, IntrusivePtr<Sampler>, Hasher<SamplerInfo>>                      _samplers;
-    unordered_map<GlobalBarrierInfo, IntrusivePtr<GlobalBarrier>, Hasher<GlobalBarrierInfo>>    _globalBarriers;
-    unordered_map<TextureBarrierInfo, IntrusivePtr<TextureBarrier>, Hasher<TextureBarrierInfo>> _textureBarriers;
+    unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>>                      _samplers;
+    unordered_map<GlobalBarrierInfo, GlobalBarrier *, Hasher<GlobalBarrierInfo>>    _globalBarriers;
+    unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
 
 private:
-    vector<IntrusivePtr<Swapchain>> _swapchains;
+    vector<Swapchain *> _swapchains; // weak reference
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -58,7 +58,7 @@ struct ITemplateInfo {
     gfx::ShaderInfo                              shaderInfo;
     std::vector<int32_t>                         blockSizes;
     Vector<gfx::DescriptorSetLayout *>           setLayouts;
-    IntrusivePtr<gfx::PipelineLayout>            pipelineLayout{nullptr};
+    IntrusivePtr<gfx::PipelineLayout>            pipelineLayout;
     Record<std::string, uint32_t>                handleMap;
     std::vector<gfx::DescriptorSetLayoutBinding> bindings;
     int32_t                                      samplerStartBinding{-1};
@@ -82,9 +82,7 @@ const char *getDeviceShaderVersion(const gfx::Device *device);
 class ProgramLib final {
 public:
     static ProgramLib *getInstance();
-
-    ProgramLib()  = default;
-    ~ProgramLib() = default;
+    static void        destroyInstance();
 
     void registerEffect(EffectAsset *effect);
 
@@ -155,13 +153,15 @@ public:
     gfx::Shader *getGFXShader(gfx::Device *device, const std::string &name, MacroRecord &defines,
                               pipeline::RenderPipeline *pipeline, std::string *key = nullptr);
 
-protected:
+private:
+    CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);
+    ProgramLib()  = default;
+    ~ProgramLib() = default;
+
+    static ProgramLib *                            instance;
     Record<std::string, IProgramInfo>              _templates; // per shader
     Record<std::string, IntrusivePtr<gfx::Shader>> _cache;
     Record<uint64_t, ITemplateInfo>                _templateInfos;
-
-private:
-    CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);
 };
 
 } // namespace cc

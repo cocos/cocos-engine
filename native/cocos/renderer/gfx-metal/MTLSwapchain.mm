@@ -122,8 +122,8 @@ void CCMTLSwapchain::doDestroy(){
         CC_SAFE_DELETE(_gpuSwapchainObj);
     }
 
-    CC_SAFE_DESTROY_AND_DELETE(_colorTexture);
-    CC_SAFE_DESTROY_AND_DELETE(_depthStencilTexture);
+    CC_SAFE_DESTROY_NULL(_colorTexture);
+    CC_SAFE_DESTROY_NULL(_depthStencilTexture);
 }
 
 void CCMTLSwapchain::doDestroySurface() {

@@ -118,7 +118,7 @@ gfx::Sampler *TextureBase::getGFXSampler() const {
             //cjh            errorID(9302);
         }
     }
-    return _gfxSampler.get();
+    return _gfxSampler;
 }
 
 cc::any TextureBase::serialize(const cc::any & /*ctxForExporting*/) {
@@ -180,7 +180,7 @@ bool TextureBase::isCompressed() const {
 }
 
 void TextureBase::notifySamplerUpdated() {
-    emit(EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED, _gfxSampler.get());
+    emit(EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED, _gfxSampler);
 }
 
 } // namespace cc

@@ -131,7 +131,7 @@ bool RenderPipeline::destroy() {
     CC_SAFE_DESTROY_AND_DELETE(_globalDSManager);
     CC_SAFE_DESTROY_AND_DELETE(_pipelineUBO);
     CC_SAFE_DESTROY_NULL(_pipelineSceneData);
-    CC_SAFE_DESTROY_AND_DELETE(_geometryRenderer);
+    CC_SAFE_DESTROY_NULL(_geometryRenderer);
 
     for (auto *const queryPool : _queryPools) {
         queryPool->destroy();

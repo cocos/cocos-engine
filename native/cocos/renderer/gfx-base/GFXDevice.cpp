@@ -72,9 +72,21 @@ bool Device::initialize(const DeviceInfo &info) {
 }
 
 void Device::destroy() {
+    for (auto pair : _samplers) {
+        CC_SAFE_DELETE(pair.second);
+    }
     _samplers.clear();
+
+    for (auto pair : _globalBarriers) {
+        CC_SAFE_DELETE(pair.second);
+    }
     _globalBarriers.clear();
+
+    for (auto pair : _textureBarriers) {
+        CC_SAFE_DELETE(pair.second);
+    }
     _textureBarriers.clear();
+
     _bindingMappingInfo.bufferOffsets.clear();
     _bindingMappingInfo.samplerOffsets.clear();
 

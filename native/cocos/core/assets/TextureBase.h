@@ -249,10 +249,10 @@ public:
     uint32_t _height{1};
 
 protected:
-    std::string                _id;
-    gfx::SamplerInfo           _samplerInfo;
-    IntrusivePtr<gfx::Sampler> _gfxSampler;
-    gfx::Device *              _gfxDevice{nullptr};
+    std::string      _id;
+    gfx::SamplerInfo _samplerInfo;
+    gfx::Sampler *   _gfxSampler{nullptr};
+    gfx::Device *    _gfxDevice{nullptr};
 
     uint64_t _textureHash{0};
 

@@ -90,8 +90,7 @@ class MorphTexture final : public RefCounted {
 public:
     MorphTexture() = default;
 
-    ~MorphTexture() override {
-    }
+    ~MorphTexture() override = default;
     /**
      * Gets the GFX texture.
      */
@@ -151,10 +150,10 @@ public:
     }
 
 private:
-    IntrusivePtr<Texture2D>    _textureAsset;
-    IntrusivePtr<gfx::Sampler> _sampler;
-    ArrayBuffer::Ptr           _arrayBuffer;
-    Float32Array               _valueView;
+    IntrusivePtr<Texture2D> _textureAsset;
+    gfx::Sampler *          _sampler{nullptr};
+    ArrayBuffer::Ptr        _arrayBuffer;
+    Float32Array            _valueView;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(MorphTexture);
 };
@@ -543,7 +542,7 @@ GpuComputing::GpuComputing(Mesh *mesh, uint32_t subMeshIndex, const Morph *morph
 
     uint32_t nVertices    = mesh->getStruct().vertexBundles[mesh->getStruct().primitives[subMeshIndex].vertexBundelIndices[0]].view.count;
     _verticesCount        = nVertices;
-    uint32_t nTargets     = static_cast<uint32_t>(subMeshMorph.targets.size());
+    auto     nTargets     = static_cast<uint32_t>(subMeshMorph.targets.size());
     uint32_t vec4Required = nVertices * nTargets;
 
     auto vec4TextureFactory = createVec4TextureFactory(gfxDevice, vec4Required);

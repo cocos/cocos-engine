@@ -48,6 +48,7 @@
 #include "core/geometry/Geometry.h"
 #include "math/Color.h"
 #include "math/Math.h"
+#include "renderer/gfx-base/states/GFXSampler.h"
 
 #define SE_PRECONDITION2_VOID(condition, ...)                                                                \
     do {                                                                                                     \
@@ -313,14 +314,18 @@ bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, T> *ret) {
 }
 
 template <typename T>
-typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, void>::type
+inline typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, void>::type
 cc_tmp_set_private_data(se::Object *obj, T *v) { // NOLINT(readability-identifier-naming)
     obj->setPrivateData(v);
 }
 
 template <typename T>
-typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, void>::type
+inline typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, void>::type
 cc_tmp_set_private_data(se::Object *obj, T *v) { // NOLINT(readability-identifier-naming)
+    obj->setPrivateObject(se::rawref_private_object(v));
+}
+
+inline void cc_tmp_set_private_data(se::Object *obj, cc::gfx::Sampler *v) {
     obj->setPrivateObject(se::rawref_private_object(v));
 }
 
@@ -1318,7 +1323,7 @@ inline bool nativevalue_to_se(const std::array<float, N> &from, se::Value &to, s
 
 template <typename R, typename... Args>
 inline bool nativevalue_to_se(const std::function<R(Args...)> & /*from*/, se::Value & /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    SE_LOGE("Can not convert C++ const lambda to JS object");                                                         
+    SE_LOGE("Can not convert C++ const lambda to JS object");
     return false;
 }
 

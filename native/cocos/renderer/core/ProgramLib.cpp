@@ -281,9 +281,21 @@ void IProgramInfo::copyFrom(const IShaderInfo &o) {
 
 //
 /*static*/
+
+ProgramLib *ProgramLib::instance = nullptr;
+
 ProgramLib *ProgramLib::getInstance() {
-    static ProgramLib instance;
-    return &instance; // cjh TODO: how to release it ?
+    if (!ProgramLib::instance) {
+        ProgramLib::instance = new ProgramLib();
+    }
+    return ProgramLib::instance;
+}
+
+void ProgramLib::destroyInstance() {
+    if (ProgramLib::instance) {
+        delete ProgramLib::instance;
+        ProgramLib::instance = nullptr;
+    }
 }
 
 void ProgramLib::registerEffect(EffectAsset *effect) {

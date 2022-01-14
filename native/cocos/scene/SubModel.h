@@ -89,7 +89,7 @@ protected:
     IntrusivePtr<gfx::DescriptorSet>  _worldBoundDescriptorSet;
 
     IntrusivePtr<gfx::Texture>                       _reflectionTex;
-    IntrusivePtr<gfx::Sampler>                       _reflectionSampler;
+    gfx::Sampler *                                   _reflectionSampler{nullptr};
     pipeline::RenderPriority                         _priority{pipeline::RenderPriority::DEFAULT};
     IntrusivePtr<gfx::Shader>                        _planarShader;
     IntrusivePtr<gfx::Shader>                        _planarInstanceShader;
