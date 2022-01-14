@@ -582,6 +582,7 @@ SE_DECLARE_FUNC(js_assets_TextureCube_releaseTexture);
 SE_DECLARE_FUNC(js_assets_TextureCube_reset);
 SE_DECLARE_FUNC(js_assets_TextureCube_setImage);
 SE_DECLARE_FUNC(js_assets_TextureCube_setMipmaps);
+SE_DECLARE_FUNC(js_assets_TextureCube_setMipmapsForJS);
 SE_DECLARE_FUNC(js_assets_TextureCube_fromTexture2DArray);
 SE_DECLARE_FUNC(js_assets_TextureCube_TextureCube);
 
