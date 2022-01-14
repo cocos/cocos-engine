@@ -141,6 +141,12 @@ Object.defineProperty(textureCubeProto, 'image', {
     }
 });
 
+const oldOnLoaded = textureCubeProto.onLoaded;
+textureCubeProto.onLoaded = function () {
+    this.setMipmapsForJS(this._mipmaps);
+    oldOnLoaded.apply(this);
+}
+
 textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeData, handle: any) {
     const data = serializedData;
     jsb.TextureBase.prototype._deserialize.call(this, data.base, handle);
@@ -165,7 +171,6 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
         handle.result.push(this._mipmaps[i], `top`, mipmap.top, imageAssetClassId);
         handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom, imageAssetClassId);
     }
-    this.setMipmaps(this._mipmaps);
 }
 
 clsDecorator(TextureCube);
