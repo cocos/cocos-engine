@@ -129,7 +129,7 @@ export const simple: IAssembler = {
         colorV[0] = color.r / 255;
         colorV[1] = color.g / 255;
         colorV[2] = color.b / 255;
-        colorV[0] = color.a / 255;
+        colorV[3] = color.a / 255;
         const rs = tiled.meshRenderDataArray;
         if (rs) {
             for (const r of rs) {
