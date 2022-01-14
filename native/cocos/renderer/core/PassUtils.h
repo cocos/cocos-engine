@@ -72,7 +72,7 @@ using MacroValue = cc::variant<int32_t, bool, std::string>;
  */
 using MacroRecord = Record<std::string, MacroValue>;
 
-using MaterialProperty = cc::variant<cc::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, TextureBase * /*10*/, gfx::Texture * /*11*/>;
+using MaterialProperty = cc::variant<cc::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, cc::IntrusivePtr<TextureBase> /*10*/, cc::IntrusivePtr<gfx::Texture> /*11*/>;
 
 using MaterialPropertyList = std::vector<MaterialProperty>;
 

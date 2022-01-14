@@ -400,10 +400,10 @@ void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialPro
     }
 
     const uint32_t binding = scene::Pass::getBindingFromHandle(handle);
-    if (const auto *pTexture = cc::get_if<gfx::Texture *>(&val)) {
-        pass->bindTexture(binding, const_cast<gfx::Texture *>(*pTexture), index);
-    } else if (const auto *pTextureBase = cc::get_if<TextureBase *>(&val)) {
-        auto *        textureBase = *pTextureBase;
+    if (const auto *pTexture = cc::get_if<cc::IntrusivePtr<gfx::Texture>>(&val)) {
+        pass->bindTexture(binding, const_cast<gfx::Texture *>(pTexture->get()), index);
+    } else if (const auto *pTextureBase = cc::get_if<cc::IntrusivePtr<TextureBase>>(&val)) {
+        auto *        textureBase = pTextureBase->get();
         gfx::Texture *texture     = nullptr;
         if (textureBase != nullptr) {
             texture = textureBase->getGFXTexture();
