@@ -32,7 +32,7 @@ import { WebGPUPipelineState } from './webgpu-pipeline-state';
 import { WebGPUTexture } from './webgpu-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGPURenderPass } from './webgpu-render-pass';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 import { WebGPUQueue } from './webgpu-queue';
 import { checkCircleReference } from '../../asset-manager/utilities';
 

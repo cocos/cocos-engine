@@ -3,7 +3,7 @@ import { InputAssembler } from '../base/input-assembler';
 import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUDevice } from './webgpu-device';
 import { InputAssemblerInfo, Format } from '../base/define';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 
 export class WebGPUInputAssembler extends InputAssembler {
     private _nativeInputAssembler;

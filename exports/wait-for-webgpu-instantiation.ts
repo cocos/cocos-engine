@@ -23,16 +23,4 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { BUILD } from 'internal:constants';
-import { WebGPUDevice } from '../cocos/core/gfx/webgpu/webgpu-device';
-import { legacyCC } from '../cocos/core/global-exports';
-
-export { WebGPUDevice };
-if (BUILD) {
-    legacyCC.WebGPUDevice = WebGPUDevice;
-}
+export { waitForWebGPUInstantiation as default } from '../cocos/core/gfx/webgpu/instantiated';

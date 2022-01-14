@@ -2,7 +2,7 @@
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { toWGPUNativeDescriptorType, toWGPUNativeStageFlags } from './webgpu-commands';
 import { DescriptorSetLayoutInfo } from '../base/define';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 import { WebGPUSampler } from './webgpu-sampler';
 
 export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {

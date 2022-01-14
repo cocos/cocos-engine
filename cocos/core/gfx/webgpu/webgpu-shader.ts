@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Shader } from '../base/shader';
 import { Format, MemoryAccessBit, ShaderInfo, ShaderStageFlagBit, Type } from '../base/define';
-import { glslalgWasmModule, nativeLib } from './webgpu-utils';
+import { glslalgWasmModule, nativeLib } from './instantiated';
 import { removeCombinedSamplerTexture, removeCombinedSamplerTexture0 } from './webgpu-commands';
 
 export class WebGPUShader extends Shader {
@@ -32,7 +32,7 @@ export class WebGPUShader extends Shader {
             const stageStr = info.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
                 : info.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
             const sourceCode = `#version 450\n${source}`;
-            const code = (glslalgWasmModule as any).glslang.compileGLSL(sourceCode, stageStr, true, '1.1');
+            const code = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.1');
             shaderStage.setSPVData(code);
             shaderStageList.push_back(shaderStage);
         }

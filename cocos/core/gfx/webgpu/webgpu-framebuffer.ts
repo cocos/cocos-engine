@@ -3,7 +3,7 @@ import { Framebuffer } from '../base/framebuffer';
 import { WebGPUDevice } from './webgpu-device';
 import { WebGPUTexture } from './webgpu-texture';
 import { FramebufferInfo } from '../base/define';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 import { WebGPURenderPass } from './webgpu-render-pass';
 
 export class WebGPUFramebuffer extends Framebuffer {

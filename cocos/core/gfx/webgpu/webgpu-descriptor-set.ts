@@ -2,7 +2,7 @@
 import { DescriptorSet } from '../base/descriptor-set';
 import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
 import { DescriptorSetInfo } from '../base/define';
-import { nativeLib } from './webgpu-utils';
+import { nativeLib } from './instantiated';
 import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUSampler } from './webgpu-sampler';
 import { WebGPUTexture } from './webgpu-texture';
