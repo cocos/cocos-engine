@@ -86,8 +86,6 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
         const model = this._model;
         if (model) {
             model.node = model.transform = this._particleSystem.node;
-            // Enable model when playing instead of onEnable
-            //model.enabled = this._particleSystem.enabledInHierarchy;
         }
     }
 
