@@ -28,6 +28,7 @@ import removeDeprecatedFeatures from './remove-deprecated-features';
 import { StatsQuery } from './stats-query';
 import { filePathToModuleRequest } from './utils';
 import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
+import { assetRef as rpAssetRefWasm } from './rollup-plugins/asset-ref-wasm';
 import { codeAsset } from './rollup-plugins/code-asset';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
@@ -503,6 +504,11 @@ async function doBuild ({
         }
     }
 
+    // TODO: make a better wasm resolver
+    if (useWebGPU) {
+        rollupPlugins.unshift(rpAssetRefWasm());
+    }
+
     let hasCriticalWarns = false;
 
     const rollupWarningHandler: rollup.WarningHandlerWithDefault = (warning, defaultHandler) => {
@@ -535,7 +541,7 @@ async function doBuild ({
         rollupOptions.perf = true;
     }
 
-    const bulletAsmJsModule = await nodeResolveAsync('@cocos/bullet/bullet.cocos.js');
+    const bulletAsmJsModule = await nodeResolveAsync('@cocos/bullet/bullet.cocos.js', engineRoot);
     const wasmBinaryPath = ps.join(bulletAsmJsModule, '..', 'bullet.wasm.wasm');
     if (ammoJsWasm === true) {
         rpVirtualOptions['@cocos/bullet'] = `
@@ -620,12 +626,6 @@ export default Bullet;
         }
     }
 
-    if (useWebGPU) {
-        // TODO: simply copy wasm assets for now
-        fs.copyFileSync(ps.join(options.engine, './cocos/core/gfx/webgpu/lib/glslang.wasm'), ps.join(options.out, 'glslang.wasm'));
-        fs.copyFileSync(ps.join(options.engine, './cocos/core/gfx/webgpu/lib/webgpu_wasm.wasm'), ps.join(options.out, 'webgpu_wasm.wasm'));
-    }
-
     Object.assign(result.exports, validEntryChunks);
 
     Object.assign(result.chunkAliases, codeAssetMapping);
@@ -640,20 +640,20 @@ export default Bullet;
     result.hasCriticalWarns = hasCriticalWarns;
 
     return result;
+}
 
-    async function nodeResolveAsync (specifier: string) {
-        return new Promise<string>((r, reject) => {
-            nodeResolve(specifier, {
-                basedir: engineRoot,
-            }, (err, resolved, pkg) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    r(resolved as string);
-                }
-            });
+export async function nodeResolveAsync(specifier: string, engineRoot: string) {
+    return new Promise<string>((r, reject) => {
+        nodeResolve(specifier, {
+            basedir: engineRoot,
+        }, (err, resolved, pkg) => {
+            if (err) {
+                reject(err);
+            } else {
+                r(resolved as string);
+            }
         });
-    }
+    });
 }
 
 function moduleOptionsToRollupFormat (moduleOptions: ModuleOption): rollup.ModuleFormat {

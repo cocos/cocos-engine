@@ -39,7 +39,9 @@
       "./@types/pal/screen-adapter",
       "./@types/pal/minigame",
       "./@types/pal/audio",
-      "./@types/pal/input"
+      "./@types/pal/input",
+
+      "./cocos/core/gfx/webgpu/type"
     ]
   },
   "include": [

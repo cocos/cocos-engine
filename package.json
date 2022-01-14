@@ -69,6 +69,6 @@
     "@cocos/cannon": "1.2.8",
     "@cocos/dragonbones-js": "^1.0.1",
     "@cocos/physx": "1.0.7",
-    "@webgpu/glslang": "0.0.15"
+    "@cocos/webgpu": "1.0.2"
   }
 }
