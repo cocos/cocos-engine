@@ -858,6 +858,13 @@ export class ParticleSystem extends RenderableComponent {
         if (this._trailModule) {
             this._trailModule.play();
         }
+
+        if (this.processor) {
+            const model = this.processor.getModel();
+            if (model) {
+                model.enabled = this.enabledInHierarchy;
+            }
+        }
     }
 
     /**
