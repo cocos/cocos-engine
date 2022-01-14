@@ -210,7 +210,7 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         _swapchains.clear();
         _swapchains.emplace_back(_swapchain);
         _device->acquire(_swapchains);
-        // cjh TODO:        const stamp = legacyCC.director.getTotalFrames();
+        // NOTE: c++ doesn't have a Director, so totalFrames need to be set from JS
         uint32_t stamp = totalFrames;
 
         _eventProcessor->emit(EventTypesToJS::ROOT_BATCH2D_UPLOAD_BUFFERS, this);

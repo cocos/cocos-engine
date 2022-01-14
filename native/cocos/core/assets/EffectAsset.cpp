@@ -150,7 +150,7 @@ void EffectAsset::initDefault(const cc::optional<std::string> &uuid) {
     _name              = "unlit";
     _shaders           = effect->_shaders;
     _combinations      = effect->_combinations;
-    _techniques        = effect->_techniques; //cjh TODO: shared_ptr ?
+    _techniques        = effect->_techniques; //NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE 
 }
 
 bool EffectAsset::validate() const {

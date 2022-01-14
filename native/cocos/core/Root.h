@@ -85,7 +85,7 @@ public:
      * 每帧执行函数
      * @param deltaTime 间隔时间
      */
-    void frameMove(float deltaTime, int32_t totalFrames); // TODO(): c++ doesn't have a Director, so totalFrames need to be set from JS
+    void frameMove(float deltaTime, int32_t totalFrames); // NOTE: c++ doesn't have a Director, so totalFrames need to be set from JS
 
     /**
      * @zh

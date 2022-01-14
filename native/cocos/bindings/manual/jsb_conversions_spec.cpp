@@ -41,6 +41,7 @@
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
+#include "bindings/auto/jsb_assets_auto.h"
 
 ///////////////////////// utils /////////////////////////
 
@@ -770,100 +771,8 @@ bool sevalue_to_native(const se::Value &from, cc::scene::ShadowsInfo *to, se::Ob
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::ImageAsset *to, se::Object * /*unused*/) {
-    se::Object *obj = from.toObject();
-
-    void *privateData = obj->getPrivateData();
-
-    if (privateData) {
-        assert(false); // not copyable
-        return false;
-    }
-
-    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to ImageAsset failed!");
-
-    se::Value tmp;
-    set_member_field<uint32_t>(obj, to, "width", &cc::ImageAsset::setWidth, tmp);
-    set_member_field<uint32_t>(obj, to, "height", &cc::ImageAsset::setHeight, tmp);
-
-    bool ok = obj->getProperty("format", &tmp, true);
-    if (ok) {
-        to->setFormat(static_cast<cc::PixelFormat>(tmp.toInt32()));
-    }
-
-    return true;
-}
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::ImageAsset **to, se::Object *ctx) {
-    se::Object *obj         = from.toObject();
-    void *      privateData = obj->getPrivateData();
-
-    if (privateData) {
-        *to = static_cast<cc::ImageAsset *>(privateData);
-        return true;
-    }
-    return sevalue_to_native(from, *to, ctx);
-}
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::ITextureCubeMipmap *to, se::Object * /*unused*/) {
-    se::Object *obj = from.toObject();
-    se::Value   tmp;
-    set_member_field(obj, to, "front", &cc::ITextureCubeMipmap::front, tmp);
-    set_member_field(obj, to, "back", &cc::ITextureCubeMipmap::back, tmp);
-    set_member_field(obj, to, "left", &cc::ITextureCubeMipmap::left, tmp);
-    set_member_field(obj, to, "right", &cc::ITextureCubeMipmap::right, tmp);
-    set_member_field(obj, to, "top", &cc::ITextureCubeMipmap::top, tmp);
-    set_member_field(obj, to, "bottom", &cc::ITextureCubeMipmap::bottom, tmp);
-
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, std::vector<cc::ITextureCubeMipmap> *to, se::Object * /*ctx*/) {
-    if (from.isNullOrUndefined()) {
-        to->clear();
-        return true;
-    }
-
-    SE_PRECONDITION2(from.isObject(), false, "sevalue_to_native(std::vector<cc::ITextureCubeMipmap>), not an object");
-    auto *fromObj = from.toObject();
-    CC_ASSERT(fromObj->isArray());
-    uint32_t len = 0;
-    bool     ok  = fromObj->getArrayLength(&len);
-    if (ok) {
-        to->resize(len);
-        se::Value arrElement;
-        for (uint32_t i = 0; i < len; ++i) {
-            ok = fromObj->getArrayElement(i, &arrElement);
-            if (!ok || !arrElement.isObject()) {
-                continue;
-            }
-
-            sevalue_to_native(arrElement, &to->at(i), nullptr);
-        }
-    }
-
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::TextureCube *to, se::Object * /*unused*/) {
-    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to TextureCube failed!");
-    se::Object *obj = from.toObject();
-    se::Value   tmp;
-    set_member_field<cc::ITextureCubeMipmap>(obj, to, "image", &cc::TextureCube::setImage, tmp);
-    set_member_field<std::vector<cc::ITextureCubeMipmap>>(obj, to, "mipmaps", &cc::TextureCube::setMipmaps, tmp);
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::TextureCube **to, se::Object *ctx) {
-    return sevalue_to_native(from, *to, ctx);
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::scene::SkyboxInfo *to, se::Object * /*ctx*/) {
-    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to ShadowInfo failed!");
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to SkyboxInfo failed!");
     se::Object *obj = from.toObject();
     se::Value   tmp;
     set_member_field<cc::TextureCube *>(obj, to, "envmap", &cc::scene::SkyboxInfo::setEnvmap, tmp);

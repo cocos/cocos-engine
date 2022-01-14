@@ -122,6 +122,10 @@ public:
 
     void setMipmaps(const std::vector<ITextureCubeMipmap> &value);
 
+    void setMipmapsForJS(const std::vector<ITextureCubeMipmap>& value) {
+        _mipmaps = value;
+    }
+
     /**
      * @en Level 0 mipmap image.
      * Be noted, `this.image = img` equals `this.mipmaps = [img]`,

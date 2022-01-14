@@ -177,7 +177,7 @@ Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOpt
     bufferBlob.addBuffer(vertexBuffer);
 
     // Fill index buffer.
-    ArrayBuffer *  indexBuffer{nullptr};
+    ArrayBuffer::Ptr indexBuffer;
     uint32_t       idxCount  = 0;
     const uint32_t idxStride = 2;
     if (geometry.indices.has_value()) {
