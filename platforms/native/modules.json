@@ -193,5 +193,11 @@
   {
     "name": "Mesh",
     "entries": []
+  },
+  {
+    "name": "AR",
+    "entries": [
+      "./dist/engine/jsb-ar.js"
+    ]
   }
 ]

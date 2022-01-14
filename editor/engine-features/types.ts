@@ -29,6 +29,11 @@ export type EngineFeature =
     | 'dragon-bones'
     | 'primitive'
     | 'profiler'
+    | 'ar'
+    | 'ar-android'
+    | 'ar-auto'
+    | 'ar-core'
+    | 'ar-engine'
     | 'marionette';
 export interface ModuleRenderConfig {
     $schema?: string;

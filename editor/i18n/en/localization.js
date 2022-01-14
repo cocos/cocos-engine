@@ -883,6 +883,26 @@ module.exports = {
             label: "DragonBones",
             description: "DragonBones support.",
         },
+        ar: {
+            label: "AR Module",
+            description: "AR support.",
+        },
+        ar_android: {
+            label: "AR Android Api",
+            description: "Select Api for ARModule on Android",
+        },
+        ar_auto: {
+            label: "auto adaption",
+            description: "Auto adaptation of ar api on android device.",
+        },
+        ar_core: {
+            label: "use ARCore",
+            description: "For ARCore supported devices.",
+        },
+        ar_engine: {
+            label: "use AREngine",
+            description: "For AREngine supported devices, Huawei and HONOR.",
+        },
     },
     renderable_2d: {
         srcBlendFactor: 'Specifies the source blend mode, it will clone a new material object.',

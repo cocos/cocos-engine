@@ -864,6 +864,26 @@ module.exports = {
             label: "DragonBones",
             description: "DragonBones 支持。",
         },
+        ar: {
+            label: "AR Module",
+            description: "AR 支持。",
+        },
+        ar_android: {
+            label: "AR Android Api",
+            description: "为安卓设备选择 AR Api",
+        },
+        ar_auto: {
+            label: "自动适配",
+            description: "安卓设备自动适配。",
+        },
+        ar_core: {
+            label: "使用 ARCore",
+            description: "适用 ARCore 支持的设备。",
+        },
+        ar_engine: {
+            label: "使用 AREngine",
+            description: "适用 AREngine 支持的设备，Huawei 和 HONOR。",
+        },
     },
     renderable_2d: {
         srcBlendFactor: '指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',

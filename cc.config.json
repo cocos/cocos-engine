@@ -27,6 +27,7 @@
         "tiled-map": { "modules": [ "tiled-map" ] },
         "spine": { "modules": [ "spine" ] },
         "dragon-bones": { "modules": [ "dragon-bones" ] },
+        "ar": { "modules": [ "ar" ] },
         "marionette": {
             "modules": [],
             "intrinsicFlags": {
