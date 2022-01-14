@@ -648,8 +648,8 @@ SE_DECLARE_FUNC(js_scene_ProgramLib_getTemplate);
 SE_DECLARE_FUNC(js_scene_ProgramLib_getTemplateInfo);
 SE_DECLARE_FUNC(js_scene_ProgramLib_hasProgram);
 SE_DECLARE_FUNC(js_scene_ProgramLib_registerEffect);
+SE_DECLARE_FUNC(js_scene_ProgramLib_destroyInstance);
 SE_DECLARE_FUNC(js_scene_ProgramLib_getInstance);
-SE_DECLARE_FUNC(js_scene_ProgramLib_ProgramLib);
 
 extern se::Object *__jsb_cc_scene_OctreeInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_OctreeInfo_class; // NOLINT
