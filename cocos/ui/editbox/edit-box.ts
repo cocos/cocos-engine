@@ -545,6 +545,7 @@ export class EditBox extends Component {
             let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
                 node = new Node('TEXT_LABEL');
+                node.layer = this.node.layer;
             }
             textLabel = node.getComponent(Label);
             if (!textLabel) {
@@ -575,6 +576,7 @@ export class EditBox extends Component {
             let node = this.node.getChildByName('PLACEHOLDER_LABEL');
             if (!node) {
                 node = new Node('PLACEHOLDER_LABEL');
+                node.layer = this.node.layer;
             }
             placeholderLabel = node.getComponent(Label);
             if (!placeholderLabel) {
@@ -796,3 +798,5 @@ if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !
  * ```
  * @return {Boolean} whether it is the first time the destroy being called
  */
+
+legacyCC.internal.EditBox = EditBox;

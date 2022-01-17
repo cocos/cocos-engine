@@ -1380,14 +1380,14 @@ export class TiledLayer extends Renderable2D {
         }
         if (arr.length > 0) {
             const last = arr[arr.length - 1];
-            if (last.renderData && last.renderData.byteCount === 0) {
+            if (last.renderData && last.renderData.vertexCount === 0) {
                 return last as TiledMeshData;
             }
         }
 
-        const renderData = new MeshRenderData();
+        const renderData = MeshRenderData.add();
         const comb = { renderData, texture: null };
-        Object.defineProperty(renderData, 'material', { get: () => this.getRenderMaterial(0) });
+        renderData.material = this.getRenderMaterial(0);
         this._meshRenderDataArray.push(comb);
         return comb;
     }
@@ -1414,13 +1414,16 @@ export class TiledLayer extends Renderable2D {
 
     public destroyRenderData () {
         if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { if ((rd as TiledMeshData).renderData) (rd as TiledMeshData).renderData.reset(); });
+            this._meshRenderDataArray.forEach((rd) => {
+                const renderData = (rd as TiledMeshData).renderData;
+                if (renderData) MeshRenderData.remove(renderData);
+            });
             this._meshRenderDataArray.length = 0;
         }
     }
 
     protected _flushAssembler () {
-        const assembler = TiledLayer.Assembler!.getAssembler(this);
+        const assembler = TiledLayer.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
@@ -1447,7 +1450,7 @@ export class TiledLayer extends Renderable2D {
                     });
                 } else if ((m as TiledMeshData).texture) {
                     // NOTE: 由于 commitComp 只支持单张纹理, 故分多次提交
-                    ui.commitComp(this, (m as TiledMeshData).texture, this._assembler, null);
+                    ui.commitComp(this, (m as TiledMeshData).renderData, (m as TiledMeshData).texture, this._assembler, null);
                 }
             }
             this.node._static = true;

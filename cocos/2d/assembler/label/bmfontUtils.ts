@@ -100,8 +100,9 @@ export const bmfontUtils = {
 
             _comp.actualFontSize = _fontSize;
             _uiTrans.setContentSize(_contentSize);
+            this.updateUVs(comp);
 
-            _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
+            _comp.renderData!.vertDirty = false;
             // fix bmfont run updateRenderData twice bug
             _comp.markForUpdateRenderData(false);
 
@@ -116,6 +117,20 @@ export const bmfontUtils = {
         }
     },
 
+    updateUVs (label: Label) {
+        const renderData = label.renderData!;
+        const vData = renderData.chunk.vb;
+        const vertexCount = renderData.vertexCount;
+        const dataList = renderData.data;
+        let vertexOffset = 3;
+        for (let i = 0; i < vertexCount; i++) {
+            const vert = dataList[i];
+            vData[vertexOffset] = vert.u;
+            vData[vertexOffset + 1] = vert.v;
+            vertexOffset += 9;
+        }
+    },
+
     _updateFontScale () {
         _bmfontScale = _fontSize / _originFontSize;
     },
@@ -127,6 +142,7 @@ export const bmfontUtils = {
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
 
         dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
+        // TODO update material and uv
     },
 
     _updateLabelInfo (comp) {
@@ -550,7 +566,8 @@ export const bmfontUtils = {
 
         const texture =  _spriteFrame ? _spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
         const renderData = _comp.renderData!;
-        renderData.dataLength = renderData.vertexCount = renderData.indicesCount = 0;
+        renderData.dataLength = 0;
+        renderData.resize(0, 0);
         const anchorPoint = _uiTrans!.anchorPoint;
         const contentSize = _contentSize;
         const appX = anchorPoint.x * contentSize.width;

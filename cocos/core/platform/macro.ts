@@ -47,7 +47,7 @@ const KEY = {
      * @en The back key on mobile phone
      * @zh 移动端返回键
      * @readonly
-     * @deprecated since v3.3
+     * @deprecated since v3.3, please use KeyCode.MOBILE_BACK instead.
      */
     back: 6,
     /**
@@ -1069,6 +1069,16 @@ const macro = {
      * @default false
      */
     ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
+
+    /**
+     * @zh 每个 MeshBuffer 占用内存的大小（KB），主要在 2D 渲染组件的合批过程中使用。
+     * 默认值在标准格式（[[vfmtPosUvColor]]）下可容纳 4096 个顶点（4096*9*4/1024），你可以增加容量来提升每个批次可容纳的元素数量。
+     * @en Memory size (in KB) of each MeshBuffer, it's mainly used in 2d renderable component batcher.
+     * The default size can contain 4096 standard vertex ([[vfmtPosUvColor]]) in one buffer,
+     * you can user larger buffer size to increase the elements count per 2d draw batch.
+     * @default 144 KB
+     */
+    SIZE_PER_MESH_BUFFER: 144,
 };
 
 legacyCC.macro = macro;

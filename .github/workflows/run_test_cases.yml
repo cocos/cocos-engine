@@ -1,10 +1,19 @@
 name: run test cases
-on: pull_request
+
+#on: pull_request
+on: 
+  discussion_comment:
+    types: [created, edited]
+  pull_request_review_comment:
+    types: [created, edited]
+  issue_comment:
+    types: [created, edited]
 
 jobs:
   run-test-cases:
+    if: |
+      contains(github.event.comment.body, '@cocos-robot run test cases')
     runs-on: run-test-win01
-
     steps:
       - name: 'Checkout engine'
         uses: actions/checkout@v2
@@ -16,13 +25,10 @@ jobs:
           cd engine
           npm -v
           npm install --registry https://registry.npm.taobao.org
-
       - name: 'CocosCreator version'
         shell: bash
         run: |
           echo "CocosCreator Version: ${{github.base_ref}}"
-
       - name: 'Call run test cases job'
         run: |
           python3 -u ./pr-test/main.py ${{github.base_ref}}
-

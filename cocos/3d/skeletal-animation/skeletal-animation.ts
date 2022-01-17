@@ -294,10 +294,17 @@ export class SkeletalAnimation extends Animation {
         return state;
     }
 
-    protected doPlayOrCrossFade (state: AnimationState) {
-        const skeletalAnimationState = state as SkeletalAnimationState;
-        this._currentBakedState = skeletalAnimationState;
-        skeletalAnimationState.play();
+    protected doPlayOrCrossFade (state: AnimationState, duration: number) {
+        if (this._useBakedAnimation) {
+            if (this._currentBakedState) {
+                this._currentBakedState.stop();
+            }
+            const skeletalAnimationState = state as SkeletalAnimationState;
+            this._currentBakedState = skeletalAnimationState;
+            skeletalAnimationState.play();
+        } else {
+            super.doPlayOrCrossFade(state, duration);
+        }
     }
 
     private _users = new Set<SkinnedMeshRenderer>();

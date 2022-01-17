@@ -22,18 +22,24 @@ export const effects = [
           { "name": "a_color", "defines": [], "format": 44, "location": 2 }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
-            { "name": "mainTiling_Offset", "type": 16, "count": 1 },
-            { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
-            { "name": "scale", "type": 16, "count": 1 },
-            { "name": "nodeRotation", "type": 16, "count": 1 }
-          ]},
-          {"name": "builtin", "defines": [], "binding": 1, "stageFlags": 1, "members": [
-            { "name": "cc_size_rotation", "type": 16, "count": 1 }
-          ]},
-          {"name": "FragConstants", "defines": [], "binding": 2, "stageFlags": 16, "members": [
-            { "name": "tintColor", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
+              { "name": "mainTiling_Offset", "type": 16, "count": 1 },
+              { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
+              { "name": "scale", "type": 16, "count": 1 },
+              { "name": "nodeRotation", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "builtin", "defines": [], "binding": 1, "stageFlags": 1, "members": [
+              { "name": "cc_size_rotation", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "FragConstants", "defines": [], "binding": 2, "stageFlags": 16, "members": [
+              { "name": "tintColor", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 3 }
@@ -170,42 +176,62 @@ export const effects = [
           { "name": "a_color1", "defines": ["CC_RENDER_MODE"], "format": 44, "location": 9 }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
-            { "name": "mainTiling_Offset", "type": 16, "count": 1 },
-            { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
-            { "name": "scale", "type": 16, "count": 1 },
-            { "name": "nodeRotation", "type": 16, "count": 1 }
-          ]},
-          {"name": "SampleConstants", "defines": [], "binding": 1, "stageFlags": 1, "members": [
-            { "name": "u_sampleInfo", "type": 16, "count": 1 }
-          ]},
-          {"name": "TickConstants", "defines": [], "binding": 2, "stageFlags": 1, "members": [
-            { "name": "u_worldRot", "type": 16, "count": 1 },
-            { "name": "u_timeDelta", "type": 16, "count": 1 }
-          ]},
-          {"name": "ColorConstant", "defines": ["COLOR_OVER_TIME_MODULE_ENABLE"], "binding": 3, "stageFlags": 1, "members": [
-            { "name": "u_color_mode", "type": 5, "count": 1 }
-          ]},
-          {"name": "RotationConstant", "defines": ["ROTATION_OVER_TIME_MODULE_ENABLE"], "binding": 4, "stageFlags": 1, "members": [
-            { "name": "u_rotation_mode", "type": 5, "count": 1 }
-          ]},
-          {"name": "SizeConstant", "defines": ["SIZE_OVER_TIME_MODULE_ENABLE"], "binding": 5, "stageFlags": 1, "members": [
-            { "name": "u_size_mode", "type": 5, "count": 1 }
-          ]},
-          {"name": "ForceConstant", "defines": ["FORCE_OVER_TIME_MODULE_ENABLE"], "binding": 6, "stageFlags": 1, "members": [
-            { "name": "u_force_mode", "type": 5, "count": 1 },
-            { "name": "u_force_space", "type": 5, "count": 1 }
-          ]},
-          {"name": "VelocityConstant", "defines": ["VELOCITY_OVER_TIME_MODULE_ENABLE"], "binding": 7, "stageFlags": 1, "members": [
-            { "name": "u_velocity_mode", "type": 5, "count": 1 },
-            { "name": "u_velocity_space", "type": 5, "count": 1 }
-          ]},
-          {"name": "AnimationConstant", "defines": ["TEXTURE_ANIMATION_MODULE_ENABLE"], "binding": 8, "stageFlags": 1, "members": [
-            { "name": "u_anim_info", "type": 16, "count": 1 }
-          ]},
-          {"name": "FragConstants", "defines": [], "binding": 9, "stageFlags": 16, "members": [
-            { "name": "tintColor", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
+              { "name": "mainTiling_Offset", "type": 16, "count": 1 },
+              { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
+              { "name": "scale", "type": 16, "count": 1 },
+              { "name": "nodeRotation", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "SampleConstants", "defines": [], "binding": 1, "stageFlags": 1, "members": [
+              { "name": "u_sampleInfo", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "TickConstants", "defines": [], "binding": 2, "stageFlags": 1, "members": [
+              { "name": "u_worldRot", "type": 16, "count": 1 },
+              { "name": "u_timeDelta", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "ColorConstant", "defines": ["COLOR_OVER_TIME_MODULE_ENABLE"], "binding": 3, "stageFlags": 1, "members": [
+              { "name": "u_color_mode", "type": 5, "count": 1 }
+            ]
+          },
+          {
+            "name": "RotationConstant", "defines": ["ROTATION_OVER_TIME_MODULE_ENABLE"], "binding": 4, "stageFlags": 1, "members": [
+              { "name": "u_rotation_mode", "type": 5, "count": 1 }
+            ]
+          },
+          {
+            "name": "SizeConstant", "defines": ["SIZE_OVER_TIME_MODULE_ENABLE"], "binding": 5, "stageFlags": 1, "members": [
+              { "name": "u_size_mode", "type": 5, "count": 1 }
+            ]
+          },
+          {
+            "name": "ForceConstant", "defines": ["FORCE_OVER_TIME_MODULE_ENABLE"], "binding": 6, "stageFlags": 1, "members": [
+              { "name": "u_force_mode", "type": 5, "count": 1 },
+              { "name": "u_force_space", "type": 5, "count": 1 }
+            ]
+          },
+          {
+            "name": "VelocityConstant", "defines": ["VELOCITY_OVER_TIME_MODULE_ENABLE"], "binding": 7, "stageFlags": 1, "members": [
+              { "name": "u_velocity_mode", "type": 5, "count": 1 },
+              { "name": "u_velocity_space", "type": 5, "count": 1 }
+            ]
+          },
+          {
+            "name": "AnimationConstant", "defines": ["TEXTURE_ANIMATION_MODULE_ENABLE"], "binding": 8, "stageFlags": 1, "members": [
+              { "name": "u_anim_info", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "FragConstants", "defines": [], "binding": 9, "stageFlags": 16, "members": [
+              { "name": "tintColor", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "color_over_time_tex0", "type": 28, "count": 1, "defines": ["COLOR_OVER_TIME_MODULE_ENABLE"], "stageFlags": 1, "binding": 10 },
@@ -251,15 +277,19 @@ export const effects = [
           { "name": "a_color", "defines": [], "format": 44, "location": 4 }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
-            { "name": "mainTiling_Offset", "type": 16, "count": 1 },
-            { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
-            { "name": "scale", "type": 16, "count": 1 },
-            { "name": "nodeRotation", "type": 16, "count": 1 }
-          ]},
-          {"name": "FragConstants", "defines": [], "binding": 1, "stageFlags": 16, "members": [
-            { "name": "tintColor", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
+              { "name": "mainTiling_Offset", "type": 16, "count": 1 },
+              { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
+              { "name": "scale", "type": 16, "count": 1 },
+              { "name": "nodeRotation", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "FragConstants", "defines": [], "binding": 1, "stageFlags": 16, "members": [
+              { "name": "tintColor", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 2 }
@@ -302,15 +332,19 @@ export const effects = [
           { "name": "a_normal", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 7 }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
-            { "name": "mainTiling_Offset", "type": 16, "count": 1 },
-            { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
-            { "name": "scale", "type": 16, "count": 1 },
-            { "name": "nodeRotation", "type": 16, "count": 1 }
-          ]},
-          {"name": "FragConstants", "defines": [], "binding": 1, "stageFlags": 16, "members": [
-            { "name": "tintColor", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
+              { "name": "mainTiling_Offset", "type": 16, "count": 1 },
+              { "name": "frameTile_velLenScale", "type": 16, "count": 1 },
+              { "name": "scale", "type": 16, "count": 1 },
+              { "name": "nodeRotation", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "FragConstants", "defines": [], "binding": 1, "stageFlags": 16, "members": [
+              { "name": "tintColor", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 2 }
@@ -349,9 +383,11 @@ export const effects = [
           { "name": "a_color2", "defines": ["TWO_COLORED"], "format": 44, "location": 3 }
         ],
         "blocks": [
-          {"name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [
-            { "name": "alphaThreshold", "type": 13, "count": 1 }
-          ]}
+          {
+            "name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [
+              { "name": "alphaThreshold", "type": 13, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [],
         "buffers": [],
@@ -427,9 +463,11 @@ export const effects = [
           { "name": "a_color", "defines": [], "format": 44, "location": 2 }
         ],
         "blocks": [
-          {"name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [
-            { "name": "alphaThreshold", "type": 13, "count": 1 }
-          ]}
+          {
+            "name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [
+              { "name": "alphaThreshold", "type": 13, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [],
         "buffers": [],
@@ -448,9 +486,9 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 1747308226,
+        "hash": 4038009253,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 221, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 64 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 222, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 65 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
         },
@@ -478,7 +516,6 @@ export const effects = [
           { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
           { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 2] },
           { "name": "USE_REFLECTION_DENOISE", "type": "boolean" },
-          { "name": "CC_ENABLE_DIR_SHADOW", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "USE_ALBEDO_MAP", "type": "boolean" },
           { "name": "ALBEDO_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
@@ -512,14 +549,16 @@ export const effects = [
           { "name": "a_texCoord1", "defines": [], "format": 21, "location": 14 }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 17, "members": [
-            { "name": "tilingOffset", "type": 16, "count": 1 },
-            { "name": "albedo", "type": 16, "count": 1 },
-            { "name": "albedoScaleAndCutoff", "type": 16, "count": 1 },
-            { "name": "pbrParams", "type": 16, "count": 1 },
-            { "name": "emissive", "type": 16, "count": 1 },
-            { "name": "emissiveScaleParam", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "Constants", "defines": [], "binding": 0, "stageFlags": 17, "members": [
+              { "name": "tilingOffset", "type": 16, "count": 1 },
+              { "name": "albedo", "type": 16, "count": 1 },
+              { "name": "albedoScaleAndCutoff", "type": 16, "count": 1 },
+              { "name": "pbrParams", "type": 16, "count": 1 },
+              { "name": "emissive", "type": 16, "count": 1 },
+              { "name": "emissiveScaleParam", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "albedoMap", "type": 28, "count": 1, "defines": ["USE_ALBEDO_MAP"], "stageFlags": 16, "binding": 1 },
@@ -541,9 +580,9 @@ export const effects = [
       },
       {
         "name": "standard|shadow-caster-vs:vert|shadow-caster-fs:frag",
-        "hash": 1774012115,
+        "hash": 210600745,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 182, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 64 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 183, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 65 },
           "globals": { "blocks": [{ "name": "CCShadow", "defines": [] }, { "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
@@ -583,14 +622,16 @@ export const effects = [
           { "name": "a_texCoord1", "defines": [], "format": 21, "location": 13 }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 17, "members": [
-            { "name": "tilingOffset", "type": 16, "count": 1 },
-            { "name": "albedo", "type": 16, "count": 1 },
-            { "name": "albedoScaleAndCutoff", "type": 16, "count": 1 },
-            { "name": "pbrParams", "type": 16, "count": 1 },
-            { "name": "emissive", "type": 16, "count": 1 },
-            { "name": "emissiveScaleParam", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "Constants", "defines": [], "binding": 0, "stageFlags": 17, "members": [
+              { "name": "tilingOffset", "type": 16, "count": 1 },
+              { "name": "albedo", "type": 16, "count": 1 },
+              { "name": "albedoScaleAndCutoff", "type": 16, "count": 1 },
+              { "name": "pbrParams", "type": 16, "count": 1 },
+              { "name": "emissive", "type": 16, "count": 1 },
+              { "name": "emissiveScaleParam", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "albedoMap", "type": 28, "count": 1, "defines": ["USE_ALBEDO_MAP"], "stageFlags": 16, "binding": 1 }
@@ -611,9 +652,9 @@ export const effects = [
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 3818018672,
+        "hash": 3916952624,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 69, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 60 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 70, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 61 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [{ "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
         },
@@ -628,7 +669,6 @@ export const effects = [
           { "name": "USE_REFLECTION_DENOISE", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
-          { "name": "CC_ENABLE_DIR_SHADOW", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "LAYERS", "type": "number", "range": [0, 4] },
           { "name": "USE_PBR", "type": "boolean" },
@@ -641,14 +681,18 @@ export const effects = [
           { "name": "a_texCoord", "defines": [], "format": 21, "location": 2 }
         ],
         "blocks": [
-          {"name": "TexCoords", "defines": [], "binding": 0, "stageFlags": 1, "members": [
-            { "name": "UVScale", "type": 16, "count": 1 },
-            { "name": "lightMapUVParam", "type": 16, "count": 1 }
-          ]},
-          {"name": "PbrParams", "defines": [], "binding": 1, "stageFlags": 16, "members": [
-            { "name": "metallic", "type": 16, "count": 1 },
-            { "name": "roughness", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "TexCoords", "defines": [], "binding": 0, "stageFlags": 1, "members": [
+              { "name": "UVScale", "type": 16, "count": 1 },
+              { "name": "lightMapUVParam", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "PbrParams", "defines": [], "binding": 1, "stageFlags": 16, "members": [
+              { "name": "metallic", "type": 16, "count": 1 },
+              { "name": "roughness", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "weightMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 2 },
@@ -674,9 +718,9 @@ export const effects = [
       },
       {
         "name": "terrain|shadow-caster-vs:vert|shadow-caster-fs:frag",
-        "hash": 809389262,
+        "hash": 4270039829,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 67, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 68, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -748,13 +792,17 @@ export const effects = [
           { "name": "a_color", "defines": ["USE_VERTEX_COLOR"], "format": 44, "location": 13 }
         ],
         "blocks": [
-          {"name": "TexCoords", "defines": ["USE_TEXTURE"], "binding": 0, "stageFlags": 1, "members": [
-            { "name": "tilingOffset", "type": 16, "count": 1 }
-          ]},
-          {"name": "Constant", "defines": [], "binding": 1, "stageFlags": 16, "members": [
-            { "name": "mainColor", "type": 16, "count": 1 },
-            { "name": "colorScaleAndCutoff", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "TexCoords", "defines": ["USE_TEXTURE"], "binding": 0, "stageFlags": 1, "members": [
+              { "name": "tilingOffset", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "Constant", "defines": [], "binding": 1, "stageFlags": 16, "members": [
+              { "name": "mainColor", "type": 16, "count": 1 },
+              { "name": "colorScaleAndCutoff", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "mainTexture", "type": 28, "count": 1, "defines": ["USE_TEXTURE"], "stageFlags": 16, "binding": 2 }
@@ -803,9 +851,11 @@ export const effects = [
           { "name": "a_jointAnimInfo", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 44, "isInstanced": true, "location": 7 }
         ],
         "blocks": [
-          {"name": "BloomUBO", "defines": [], "binding": 0, "stageFlags": 16, "members": [
-            { "name": "texSize", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "BloomUBO", "defines": [], "binding": 0, "stageFlags": 16, "members": [
+              { "name": "texSize", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "outputResultMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 1 }
@@ -846,9 +896,11 @@ export const effects = [
           { "name": "a_jointAnimInfo", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 44, "isInstanced": true, "location": 7 }
         ],
         "blocks": [
-          {"name": "BloomUBO", "defines": [], "binding": 0, "stageFlags": 16, "members": [
-            { "name": "texSize", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "BloomUBO", "defines": [], "binding": 0, "stageFlags": 16, "members": [
+              { "name": "texSize", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "bloomTexture", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 1 }
@@ -889,9 +941,11 @@ export const effects = [
           { "name": "a_jointAnimInfo", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 44, "isInstanced": true, "location": 7 }
         ],
         "blocks": [
-          {"name": "BloomUBO", "defines": [], "binding": 0, "stageFlags": 16, "members": [
-            { "name": "texSize", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "BloomUBO", "defines": [], "binding": 0, "stageFlags": 16, "members": [
+              { "name": "texSize", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "bloomTexture", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 1 }
@@ -932,9 +986,11 @@ export const effects = [
           { "name": "a_jointAnimInfo", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 44, "isInstanced": true, "location": 7 }
         ],
         "blocks": [
-          {"name": "BloomUBO", "defines": [], "binding": 0, "stageFlags": 16, "members": [
-            { "name": "texSize", "type": 16, "count": 1 }
-          ]}
+          {
+            "name": "BloomUBO", "defines": [], "binding": 0, "stageFlags": 16, "members": [
+              { "name": "texSize", "type": 16, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "outputResultMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 1 },
@@ -958,7 +1014,7 @@ export const effects = [
         "name": "deferred-lighting|lighting-vs|lighting-fs",
         "hash": 3282783042,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 58 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 59 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCForwardLight", "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
@@ -970,7 +1026,6 @@ export const effects = [
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
-          { "name": "CC_ENABLE_DIR_SHADOW", "type": "boolean" },
           { "name": "CC_PIPELINE_TYPE", "type": "number", "range": [0, 1] },
           { "name": "CC_FORCE_FORWARD_SHADING", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
@@ -983,7 +1038,9 @@ export const effects = [
           { "name": "a_tangent", "defines": [], "format": 44, "location": 3 }
         ],
         "blocks": [],
-        "samplerTextures": [],
+        "samplerTextures": [
+          { "name": "depth_stencil", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 3 }
+        ],
         "buffers": [
           { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 4 },
           { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 5 },
@@ -994,9 +1051,8 @@ export const effects = [
         "samplers": [],
         "subpassInputs": [
           { "name": "gbuffer_albedoMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 0 },
-          { "name": "gbuffer_positionMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 1 },
-          { "name": "gbuffer_normalMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 2 },
-          { "name": "gbuffer_emissiveMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 3 }
+          { "name": "gbuffer_normalMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 1 },
+          { "name": "gbuffer_emissiveMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 2 }
         ]
       }
     ]
@@ -1009,9 +1065,9 @@ export const effects = [
     "shaders": [
       {
         "name": "planar-shadow|planar-shadow-vs:vert|planar-shadow-fs:frag",
-        "hash": 2954155677,
+        "hash": 2672216600,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 215, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 58 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 216, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 59 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
@@ -1187,12 +1243,16 @@ export const effects = [
           { "name": "a_color", "defines": [], "format": 44, "location": 1 }
         ],
         "blocks": [
-          {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
-            { "name": "offset", "type": 16, "count": 1 }
-          ]},
-          {"name": "PerFrameInfo", "defines": [], "binding": 1, "stageFlags": 1, "members": [
-            { "name": "digits", "type": 16, "count": 20 }
-          ]}
+          {
+            "name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
+              { "name": "offset", "type": 16, "count": 1 }
+            ]
+          },
+          {
+            "name": "PerFrameInfo", "defines": [], "binding": 1, "stageFlags": 1, "members": [
+              { "name": "digits", "type": 16, "count": 20 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 2 }
@@ -1225,14 +1285,18 @@ export const effects = [
           { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 }
         ],
         "blocks": [
-          {"name": "Constant", "defines": [], "binding": 0, "stageFlags": 1, "members": [
-            { "name": "u_buffer0", "type": 16, "count": 1 },
-            { "name": "u_buffer1", "type": 16, "count": 1 },
-            { "name": "u_projection", "type": 25, "count": 1 }
-          ]},
-          {"name": "Factor", "defines": [], "binding": 1, "stageFlags": 16, "members": [
-            { "name": "u_percent", "type": 13, "count": 1 }
-          ]}
+          {
+            "name": "Constant", "defines": [], "binding": 0, "stageFlags": 1, "members": [
+              { "name": "u_buffer0", "type": 16, "count": 1 },
+              { "name": "u_buffer1", "type": 16, "count": 1 },
+              { "name": "u_projection", "type": 25, "count": 1 }
+            ]
+          },
+          {
+            "name": "Factor", "defines": [], "binding": 1, "stageFlags": 16, "members": [
+              { "name": "u_percent", "type": 13, "count": 1 }
+            ]
+          }
         ],
         "samplerTextures": [
           { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 2 }

@@ -112,6 +112,10 @@ export class Prefab extends Asset {
     @editable
     public optimizationPolicy = OptimizationPolicy.AUTO;
 
+    @serializable
+    @editable
+    public persistent = false;
+
     // Cache function to optimize instance creation.
     private _createFunction: ((...arg: any[]) => Node) | null;
     private _instantiatedTimes: number;
