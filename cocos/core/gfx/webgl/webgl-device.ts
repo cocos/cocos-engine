@@ -240,7 +240,9 @@ export class WebGLDevice extends Device {
         this._formatFeatures[Format.RGB5A1] = tempFeature;
         this._textureExclusive[Format.RGB5A1] = false;
 
+        this._formatFeatures[Format.DEPTH] = FormatFeatureBit.RENDER_TARGET;
         this._textureExclusive[Format.DEPTH] = false;
+        this._formatFeatures[Format.DEPTH_STENCIL] = FormatFeatureBit.RENDER_TARGET;
         this._textureExclusive[Format.DEPTH_STENCIL] = false;
 
         this._formatFeatures[Format.R8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
@@ -276,16 +278,20 @@ export class WebGLDevice extends Device {
         }
 
         if (exts.WEBGL_depth_texture) {
-            this._formatFeatures[Format.DEPTH] = tempFeature;
-            this._formatFeatures[Format.DEPTH_STENCIL] = tempFeature;
+            this._formatFeatures[Format.DEPTH] |= tempFeature;
+            this._formatFeatures[Format.DEPTH_STENCIL] |= tempFeature;
         }
 
         if (exts.WEBGL_color_buffer_float) {
+            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET;
             this._textureExclusive[Format.RGB32F] = false;
             this._textureExclusive[Format.RGBA32F] = false;
         }
 
         if (exts.EXT_color_buffer_half_float) {
+            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.RENDER_TARGET;
             this._textureExclusive[Format.RGB16F] = false;
             this._textureExclusive[Format.RGBA16F] = false;
         }
