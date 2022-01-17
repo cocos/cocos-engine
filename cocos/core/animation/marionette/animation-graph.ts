@@ -456,6 +456,11 @@ export class SubStateMachine extends InteractiveState {
     private _stateMachine: StateMachine = new StateMachine();
 }
 
+export enum LayerBlending {
+    override,
+    additive,
+}
+
 @ccclass('cc.animation.Layer')
 export class Layer implements OwnedBy<AnimationGraph> {
     [ownerSymbol]: AnimationGraph | undefined;
@@ -482,11 +487,6 @@ export class Layer implements OwnedBy<AnimationGraph> {
     get stateMachine () {
         return this._stateMachine;
     }
-}
-
-export enum LayerBlending {
-    override,
-    additive,
 }
 
 @ccclass('cc.animation.Variable')

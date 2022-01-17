@@ -47,6 +47,7 @@ import {
 } from '../utils/prefab/utils';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
 import { syncNodeValues } from "../utils/jsb-utils";
+import { BaseNode } from "./base-node.jsb";
 
 declare const jsb: any;
 
@@ -1142,23 +1143,23 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
 const _class2$u = Node;
 
 // cjh FIXME: replace object.ts with object.jsb.ts
-_applyDecoratedDescriptor(_class2$u.prototype, '_name', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return '';
-    },
-});
+// _applyDecoratedDescriptor(_class2$u.prototype, '_name', [serializable], {
+//     configurable: true,
+//     enumerable: true,
+//     writable: true,
+//     initializer: function initializer () {
+//         return '';
+//     },
+// });
 
-_applyDecoratedDescriptor(_class2$u.prototype, '_objFlags', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 0;
-    },
-});
+// _applyDecoratedDescriptor(_class2$u.prototype, '_objFlags', [serializable], {
+//     configurable: true,
+//     enumerable: true,
+//     writable: true,
+//     initializer: function initializer () {
+//         return 0;
+//     },
+// });
 //
 
 const _descriptor$o = _applyDecoratedDescriptor(_class2$u.prototype, '_parent', [serializable], {
@@ -1260,6 +1261,7 @@ _applyDecoratedDescriptor(_class2$v.prototype, 'layer', [editable], Object.getOw
 
 //
 nodeProto._ctor = function (name?: string) {
+    BaseNode.prototype._ctor.apply(this, arguments);
     this.__nativeRefs = {};
     this.__jsb_ref_id = undefined;
     this._iN$t = null;

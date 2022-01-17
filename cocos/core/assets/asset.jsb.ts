@@ -35,8 +35,13 @@ import { createMap } from '../utils/js-typed';
 import { property } from '../data/class-decorator';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { extname } from '../utils/path';
-
+import { CCClass } from '../data/class';
+import { editorExtrasTag } from '../data/editor-extras-tag';
 declare const jsb: any;
+
+CCClass.fastDefine('jsb.CCObject', jsb.CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
+CCClass.Attr.setClassAttr(jsb.CCObject, editorExtrasTag, 'editorOnly', true);
+CCClass.Attr.setClassAttr(jsb.CCObject, 'replicated', 'visible', false);
 
 /**
  * @param error - null or the error info
@@ -136,7 +141,7 @@ const _descriptor$1 = _applyDecoratedDescriptor(_class2$1.prototype, '_native', 
 });
 
 //cjh FIXME: replace object.ts with object.jsb.ts
-_applyDecoratedDescriptor(_class2$1.prototype, '_name', [serializable], {
+_applyDecoratedDescriptor(jsb.CCObject.prototype, '_name', [serializable], {
     configurable: true,
     enumerable: true,
     writable: true,
@@ -145,7 +150,7 @@ _applyDecoratedDescriptor(_class2$1.prototype, '_name', [serializable], {
     },
 });
 
-_applyDecoratedDescriptor(_class2$1.prototype, '_objFlags', [serializable], {
+_applyDecoratedDescriptor(jsb.CCObject.prototype, '_objFlags', [serializable], {
     configurable: true,
     enumerable: true,
     writable: true,

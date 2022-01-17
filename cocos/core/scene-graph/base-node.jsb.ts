@@ -27,13 +27,15 @@ import { ccclass, editable, serializable } from 'cc.decorator';
 import { property } from '../data/decorators/property';
 import { legacyCC } from '../global-exports';
 import { _applyDecoratedDescriptor } from '../data/utils/decorator-jsb-utils';
-
-const baseNodeProto: any = jsb.TextAsset.prototype;
+import { baseNodePolyfill } from './base-node-dev';
+const baseNodeProto: any = jsb.BaseNode.prototype;
 
 baseNodeProto.createNode = null!;
 
 export type BaseNode = jsb.BaseNode;
 export const BaseNode = jsb.BaseNode;
+
+
 
 const clsDecorator = ccclass('cc.BaseNode');
 
@@ -87,14 +89,14 @@ const clsDecorator = ccclass('cc.BaseNode');
 //     },
 // });
 //
-// baseNodeProto._ctor = function () {
+baseNodeProto._ctor = function () {
 //     // _initializerDefineProperty(_this, "_parent", _descriptor$o, _assertThisInitialized(_this));
 //     // _initializerDefineProperty(_this, "_children", _descriptor2$h, _assertThisInitialized(_this));
 //     // _initializerDefineProperty(_this, "_active", _descriptor3$b, _assertThisInitialized(_this));
 //     // _initializerDefineProperty(_this, "_components", _descriptor4$9, _assertThisInitialized(_this));
 //     // _initializerDefineProperty(_this, "_prefab", _descriptor5$6, _assertThisInitialized(_this));
-// };
+};
 
 clsDecorator(BaseNode);
-
+baseNodePolyfill(BaseNode);
 legacyCC._BaseNode = jsb.BaseNode;
