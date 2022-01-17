@@ -83,19 +83,13 @@ export class SkeletalAnimationState extends AnimationState {
         this._frames = frames - 1;
         this._animInfo = this._animInfoMgr.getData(root.uuid);
         this._bakedDuration = this._frames / samples; // last key
+        this.setUseBaked(this._parent.useBakedAnimation);
     }
 
-    public onPlay () {
-        super.onPlay();
-        const baked = this._parent!.useBakedAnimation;
-        if (baked) {
+    public setUseBaked (useBaked: boolean) {
+        if (useBaked) {
             this._sampleCurves = this._sampleCurvesBaked;
             this.duration = this._bakedDuration;
-            this._animInfoMgr.switchClip(this._animInfo!, this.clip);
-            const users = this._parent!.getUsers();
-            users.forEach((user) => {
-                user.uploadAnimation(this.clip);
-            });
         } else {
             this._sampleCurves = super._sampleCurves;
             this.duration = this.clip.duration;
@@ -168,8 +162,24 @@ export class SkeletalAnimationState extends AnimationState {
     private _sampleCurvesBaked (time: number) {
         const ratio = time / this.duration;
         const info = this._animInfo!;
+
+        // Ensure I'm the one on which the anim info is sampling.
+        if (!this._animInfoMgr.isCurrentlySampling(info, this.clip)) {
+            // If not, switch to me.
+            this._animInfoMgr.switchClip(this._animInfo!, this.clip);
+
+            const users = this._parent!.getUsers();
+            users.forEach((user) => {
+                user.uploadAnimation(this.clip);
+            });
+        }
+
         const curFrame = (ratio * this._frames + 0.5) | 0;
-        if (curFrame === info.data[0]) { return; }
+        if (info.hasSampled && curFrame === info.data[0]) {
+            return;
+        }
+
+        info.hasSampled = true;
         info.data[0] = curFrame;
         this._setAnimInfoDirty(info, true);
         for (let i = 0; i < this._sockets.length; ++i) {
