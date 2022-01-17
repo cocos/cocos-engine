@@ -62,7 +62,7 @@ export class MeshBuffer {
         const floatCount = getComponentPerVertex(attrs);
         const vbStride = this._vertexFormatBytes = floatCount * Float32Array.BYTES_PER_ELEMENT;
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-        this._initVDataCount = macro.SIZE_PER_MESH_BUFFER * 1024 / Float32Array.BYTES_PER_ELEMENT;
+        this._initVDataCount = macro.MEM_INCREMENT_FOR_BATCHER_2D * 1024 / Float32Array.BYTES_PER_ELEMENT;
         this._initIDataCount = this._initVDataCount * MeshBuffer.IB_SCALE;
         this._attributes = attrs;
 
