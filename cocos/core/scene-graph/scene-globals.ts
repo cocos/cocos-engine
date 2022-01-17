@@ -31,7 +31,7 @@ import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
-import { Skybox } from '../renderer/scene/skybox';
+import { Skybox, EnvironmentLightingType } from '../renderer/scene/skybox';
 import { Octree } from '../renderer/scene/octree';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
@@ -222,6 +222,8 @@ legacyCC.AmbientInfo = AmbientInfo;
 @help('i18n:cc.Skybox')
 export class SkyboxInfo {
     @serializable
+    protected _environmentLightingType = EnvironmentLightingType.Hemisphere_Diffuse;
+    @serializable
     protected _applyDiffuseMap = false;
     @serializable
     @type(TextureCube)
@@ -249,14 +251,6 @@ export class SkyboxInfo {
      * @en Whether to use diffuse convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
      * @zh 是否为IBL启用漫反射卷积图？不启用的话将使用默认的半球光照
      */
-    @visible(function (this : SkyboxInfo) {
-        if (this.useIBL) {
-            return true;
-        }
-        return false;
-    })
-    @editable
-    @tooltip('i18n:skybox.applyDiffuseMap')
     set applyDiffuseMap (val) {
         this._applyDiffuseMap = val;
 
@@ -287,11 +281,37 @@ export class SkyboxInfo {
     }
 
     /**
+     * @zh 环境反射类型
+     * @en environment reflection type
+     */
+    @editable
+    @type(EnvironmentLightingType)
+    @tooltip('i18n:skybox.EnvironmentLightingType')
+    set environmentLightingType (val) {
+        if(EnvironmentLightingType.Hemisphere_Diffuse == val)
+        {
+            this.useIBL = false;
+        }
+        else if(EnvironmentLightingType.AutoGen_Hemisphere_Diffuse_With_Reflection == val)
+        {
+            this.useIBL = true;
+            this.applyDiffuseMap = false;
+        }
+        else if(EnvironmentLightingType.DiffuseMap_With_Reflection == val)
+        {
+            //need generate diffuse map
+            this.useIBL = true;
+            this.applyDiffuseMap = true;
+        }
+        this._environmentLightingType = val;
+    }
+    get environmentLightingType () {
+        return this._environmentLightingType;
+    }
+    /**
      * @en Whether use environment lighting
      * @zh 是否启用环境光照？
      */
-    @editable
-    @tooltip('i18n:skybox.useIBL')
     set useIBL (val) {
         this._useIBL = val;
 
@@ -402,6 +422,7 @@ export class SkyboxInfo {
     }
 
     public activate (resource: Skybox) {
+        this.environmentLightingType = this.environmentLightingType;
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
