@@ -3074,7 +3074,7 @@ Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too 
 
 ### 9005
 
-BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 \* 9 \* 4 / 1024 = 2304KB)
+BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 * 9 * 4 / 1024 = 2304KB)
 
 ### 9100
 
