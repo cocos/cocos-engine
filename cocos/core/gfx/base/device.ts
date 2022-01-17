@@ -339,7 +339,7 @@ export abstract class Device {
      * @zh 后端对特定格式的支持程度。
      * @param format The GFX format to be queried.
      */
-    public getFormatFeature (format: Format): FormatFeature {
+    public getFormatFeatures (format: Format): FormatFeature {
         return this._formatFeatures[format];
     }
 }

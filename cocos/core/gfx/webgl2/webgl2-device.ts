@@ -253,7 +253,7 @@ export class WebGL2Device extends Device {
         this._formatFeatures[Format.DEPTH_STENCIL] = tempFeature;
 
         this._formatFeatures[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
-            | FormatFeatureBit.LINEAR_FILTER;
+            | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
             | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
@@ -264,7 +264,7 @@ export class WebGL2Device extends Device {
         this._formatFeatures[Format.RGBA16F] = tempFeature;
 
         tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
-            | FormatFeatureBit.VERTEX_ATTRIBUTE;
+            | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R32F] = tempFeature;
         this._formatFeatures[Format.RG32F] = tempFeature;
@@ -272,10 +272,10 @@ export class WebGL2Device extends Device {
         this._formatFeatures[Format.RGBA32F] = tempFeature;
 
         this._formatFeatures[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
-            | FormatFeatureBit.LINEAR_FILTER;
+            | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
-            | FormatFeatureBit.LINEAR_FILTER | FormatFeatureBit.VERTEX_ATTRIBUTE;
+            | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R8I] = tempFeature;
         this._formatFeatures[Format.R8UI] = tempFeature;

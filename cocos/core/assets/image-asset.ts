@@ -275,15 +275,15 @@ export class ImageAsset extends Asset {
             if (index !== -1 && index < preferedExtensionIndex) {
                 const fmt = extFormat[1] ? parseInt(extFormat[1]) : this._format;
                 // check whether or not support compressed texture
-                if (tmpExt === '.astc' && (!device || !(device.getFormatFeature(Format.ASTC_RGBA_4X4) & FormatFeatureBit.SAMPLED_TEXTURE))) {
+                if (tmpExt === '.astc' && (!device || !(device.getFormatFeatures(Format.ASTC_RGBA_4X4) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                     continue;
-                } else if (tmpExt === '.pvr' && (!device || !(device.getFormatFeature(Format.PVRTC_RGBA4) & FormatFeatureBit.SAMPLED_TEXTURE))) {
+                } else if (tmpExt === '.pvr' && (!device || !(device.getFormatFeatures(Format.PVRTC_RGBA4) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1)
-                    && (!device || !(device.getFormatFeature(Format.ETC_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
+                    && (!device || !(device.getFormatFeatures(Format.ETC_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2)
-                    && (!device || !(device.getFormatFeature(Format.ETC2_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
+                    && (!device || !(device.getFormatFeatures(Format.ETC2_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                     continue;
                 } else if (tmpExt === '.webp' && !legacyCC.sys.hasFeature(legacyCC.sys.Feature.WEBP)) {
                     continue;
