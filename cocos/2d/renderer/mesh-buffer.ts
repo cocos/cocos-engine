@@ -29,8 +29,9 @@
  */
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
 import { getComponentPerVertex } from './vertex-format';
-import { warnID } from '../../core/platform/debug';
+import { getError, warnID } from '../../core/platform/debug';
 import { macro } from '../../core';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 
 export class MeshBuffer {
     public static IB_SCALE = 4; // ib size scale based on vertex count
@@ -63,6 +64,7 @@ export class MeshBuffer {
         const vbStride = this._vertexFormatBytes = floatCount * Float32Array.BYTES_PER_ELEMENT;
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         this._initVDataCount = macro.BATCHER2D_MEM_INCREMENT * 1024 / Float32Array.BYTES_PER_ELEMENT;
+        assertIsTrue(this._initVDataCount < 65536, getError(9005));
         this._initIDataCount = this._initVDataCount * MeshBuffer.IB_SCALE;
         this._attributes = attrs;
 
