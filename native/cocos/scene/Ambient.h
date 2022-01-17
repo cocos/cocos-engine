@@ -102,12 +102,15 @@ public:
     AmbientInfo(/* args */) = default;
     ~AmbientInfo() override = default;
 
+    inline void        setSkyColorHDR(const Vec4 &val) { _skyColorHDR.set(val); };
     inline const Vec4 &getSkyColorHDR() const { return _skyColorHDR; };
     inline const Vec4 &getSkyColorLDR() const { return _skyColorLDR; };
 
+    inline void        setGroundAlbedoHDR(const Vec4 &val) { _groundAlbedoHDR.set(val); };
     inline const Vec4 &getGroundAlbedoHDR() const { return _groundAlbedoHDR; };
     inline const Vec4 &getGroundAlbedoLDR() const { return _groundAlbedoLDR; };
 
+    inline void         setSkyIllumHDR(float val) { _skyIllumHDR = val; };
     inline const float &getSkyIllumHDR() const { return _skyIllumHDR; };
     inline const float &getSkyIllumLDR() const { return _skyIllumLDR; };
 
