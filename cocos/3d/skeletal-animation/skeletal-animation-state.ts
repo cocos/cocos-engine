@@ -83,7 +83,7 @@ export class SkeletalAnimationState extends AnimationState {
         this._frames = frames - 1;
         this._animInfo = this._animInfoMgr.getData(root.uuid);
         this._bakedDuration = this._frames / samples; // last key
-        this.setUseBaked(this._parent.useBakedAnimation);
+        this.setUseBaked(baked);
     }
 
     public setUseBaked (useBaked: boolean) {
