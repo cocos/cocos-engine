@@ -86,6 +86,10 @@ export class WebGL2Device extends Device {
         return this._swapchain!.nullTexCube;
     }
 
+    get textureExclusive (): boolean[] {
+        return this._textureExclusive;
+    }
+
     private _swapchain: WebGL2Swapchain | null = null;
     private _context: WebGL2RenderingContext | null = null;
     protected _textureExclusive = new Array<boolean>(Format.COUNT);
@@ -219,16 +223,16 @@ export class WebGL2Device extends Device {
 
         this._textureExclusive.fill(true);
 
-        const completeFeature: FormatFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
-            | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
-        let tempFeature: FormatFeature = completeFeature | FormatFeatureBit.VERTEX_ATTRIBUTE;
+        let tempFeature: FormatFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
+            | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.LINEAR_FILTER | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R8] = tempFeature;
         this._formatFeatures[Format.RG8] = tempFeature;
         this._formatFeatures[Format.RGB8] = tempFeature;
         this._formatFeatures[Format.RGBA8] = tempFeature;
 
-        tempFeature = completeFeature;
+        tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
+            | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         this._formatFeatures[Format.R8SN] = tempFeature;
         this._formatFeatures[Format.RG8SN] = tempFeature;
@@ -248,26 +252,30 @@ export class WebGL2Device extends Device {
         this._formatFeatures[Format.DEPTH] = tempFeature;
         this._formatFeatures[Format.DEPTH_STENCIL] = tempFeature;
 
-        tempFeature = completeFeature & ~FormatFeatureBit.SAMPLED_TEXTURE;
-        this._formatFeatures[Format.RGB10A2UI] = tempFeature;
+        this._formatFeatures[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
+            | FormatFeatureBit.LINEAR_FILTER;
 
-        tempFeature = completeFeature | FormatFeatureBit.VERTEX_ATTRIBUTE & ~FormatFeatureBit.LINEAR_FILTER;
+        tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
+            | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R16F] = tempFeature;
         this._formatFeatures[Format.RG16F] = tempFeature;
         this._formatFeatures[Format.RGB16F] = tempFeature;
         this._formatFeatures[Format.RGBA16F] = tempFeature;
 
-        tempFeature = completeFeature | FormatFeatureBit.VERTEX_ATTRIBUTE & ~FormatFeatureBit.LINEAR_FILTER & ~FormatFeatureBit.SAMPLED_TEXTURE;
+        tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
+            | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R32F] = tempFeature;
         this._formatFeatures[Format.RG32F] = tempFeature;
         this._formatFeatures[Format.RGB32F] = tempFeature;
         this._formatFeatures[Format.RGBA32F] = tempFeature;
 
-        this._formatFeatures[Format.RGB10A2UI] = completeFeature ^ FormatFeatureBit.SAMPLED_TEXTURE;
+        this._formatFeatures[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
+            | FormatFeatureBit.LINEAR_FILTER;
 
-        tempFeature = completeFeature | FormatFeatureBit.VERTEX_ATTRIBUTE & ~FormatFeatureBit.SAMPLED_TEXTURE;
+        tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
+            | FormatFeatureBit.LINEAR_FILTER | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R8I] = tempFeature;
         this._formatFeatures[Format.R8UI] = tempFeature;
@@ -358,12 +366,11 @@ export class WebGL2Device extends Device {
             this._formatFeatures[Format.R16F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures[Format.RG16F] |= FormatFeatureBit.LINEAR_FILTER;
         }
-        let compressedFormat = '';
+
         const compressedFeature: FormatFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         if (exts.WEBGL_compressed_texture_etc1) {
             this._formatFeatures[Format.ETC_RGB8] = compressedFeature;
-            compressedFormat += 'etc1 ';
         }
 
         if (exts.WEBGL_compressed_texture_etc) {
@@ -373,7 +380,6 @@ export class WebGL2Device extends Device {
             this._formatFeatures[Format.ETC2_SRGB8_A8] = compressedFeature;
             this._formatFeatures[Format.ETC2_RGB8_A1] = compressedFeature;
             this._formatFeatures[Format.ETC2_SRGB8_A1] = compressedFeature;
-            compressedFormat += 'etc2 ';
         }
 
         if (exts.WEBGL_compressed_texture_s3tc) {
@@ -385,50 +391,45 @@ export class WebGL2Device extends Device {
             this._formatFeatures[Format.BC2_SRGB] = compressedFeature;
             this._formatFeatures[Format.BC3] = compressedFeature;
             this._formatFeatures[Format.BC3_SRGB] = compressedFeature;
-
-            compressedFormat += 'dxt ';
         }
 
         if (exts.WEBGL_compressed_texture_pvrtc) {
-            this._formatFeatures[Format.PVRTC_RGB2] |= compressedFeature;
-            this._formatFeatures[Format.PVRTC_RGBA2] |= compressedFeature;
-            this._formatFeatures[Format.PVRTC_RGB4] |= compressedFeature;
-            this._formatFeatures[Format.PVRTC_RGBA4] |= compressedFeature;
-            compressedFormat += 'pvrtc ';
+            this._formatFeatures[Format.PVRTC_RGB2] = compressedFeature;
+            this._formatFeatures[Format.PVRTC_RGBA2] = compressedFeature;
+            this._formatFeatures[Format.PVRTC_RGB4] = compressedFeature;
+            this._formatFeatures[Format.PVRTC_RGBA4] = compressedFeature;
         }
 
         if (exts.WEBGL_compressed_texture_astc) {
-            this._formatFeatures[Format.ASTC_RGBA_4X4] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_5X4] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_5X5] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_6X5] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_6X6] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_8X5] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_8X6] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_8X8] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_10X5] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_10X6] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_10X8] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_10X10] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_12X10] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_12X12] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_4X4] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_5X4] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_5X5] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_6X5] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_6X6] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_8X5] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_8X6] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_8X8] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_10X5] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_10X6] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_10X8] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_10X10] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_12X10] = compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_12X12] = compressedFeature;
 
-            this._formatFeatures[Format.ASTC_SRGBA_4X4] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_5X4] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_5X5] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_6X5] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_6X6] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_8X5] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_8X6] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_8X8] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_10X5] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_10X6] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_10X8] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_10X10] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_12X10] |= compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_12X12] |= compressedFeature;
-
-            compressedFormat += 'astc ';
+            this._formatFeatures[Format.ASTC_SRGBA_4X4] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_5X4] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_5X5] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_6X5] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_6X6] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_8X5] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_8X6] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_8X8] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_10X5] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_10X6] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_10X8] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_10X10] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_12X10] = compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_12X12] = compressedFeature;
         }
     }
 

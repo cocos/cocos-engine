@@ -595,16 +595,16 @@ export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, 
 export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
 
 /**
- * @en Does the device support half float texture? (for both color attachment and sampling)
- * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
+ * @en Does the device support single-channeled half float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持单通道半浮点贴图？（颜色输出和采样）
  */
 export function supportsR16HalfFloatTexture (device: Device) {
     return device.getFormatFeature(Format.R16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
 /**
- * @en Does the device support float texture? (for both color attachment and sampling)
- * @zh 当前设备是否支持浮点贴图？（颜色输出和采样）
+ * @en Does the device support single-channeled float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持单通道浮点贴图？（颜色输出和采样）
  */
 export function supportsR32FloatTexture (device: Device) {
     return device.getFormatFeature(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);

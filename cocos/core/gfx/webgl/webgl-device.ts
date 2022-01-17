@@ -86,6 +86,10 @@ export class WebGLDevice extends Device {
         return this._swapchain!.nullTexCube;
     }
 
+    get textureExclusive (): boolean[] {
+        return this._textureExclusive;
+    }
+
     private _swapchain: WebGLSwapchain | null = null;
     private _context: WebGLRenderingContext | null = null;
     protected _textureExclusive = new Array<boolean>(Format.COUNT);
@@ -222,9 +226,8 @@ export class WebGLDevice extends Device {
 
         this._textureExclusive.fill(true);
 
-        const completeFeature: FormatFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
+        const tempFeature: FormatFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
             | FormatFeatureBit.LINEAR_FILTER;
-        let tempFeature: FormatFeature = completeFeature;
 
         this._formatFeatures[Format.RGB8] = tempFeature;
         this._formatFeatures[Format.R5G6B5] = tempFeature;
@@ -266,8 +269,6 @@ export class WebGLDevice extends Device {
         this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         if (exts.EXT_sRGB) {
-            tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
-                | FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures[Format.SRGB8] = tempFeature;
             this._formatFeatures[Format.SRGB8_A8] = tempFeature;
 
@@ -290,15 +291,13 @@ export class WebGLDevice extends Device {
         }
 
         if (exts.OES_texture_float) {
-            tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
-            this._formatFeatures[Format.RGB32F] = tempFeature;
-            this._formatFeatures[Format.RGBA32F] = tempFeature;
+            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
         }
 
         if (exts.OES_texture_half_float) {
-            tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
-            this._formatFeatures[Format.RGB16F] = tempFeature;
-            this._formatFeatures[Format.RGBA16F] = tempFeature;
+            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
         }
 
         if (exts.OES_texture_float_linear) {
