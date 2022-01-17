@@ -15800,7 +15800,7 @@ static bool js_scene_AmbientInfo_getGroundAlbedoHDR(se::State& s) // NOLINT(read
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_scene_AmbientInfo_getGroundAlbedoHDR)
+SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getGroundAlbedoHDR)
 
 static bool js_scene_AmbientInfo_getGroundAlbedoLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15857,7 +15857,7 @@ static bool js_scene_AmbientInfo_getSkyColorHDR(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_scene_AmbientInfo_getSkyColorHDR)
+SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getSkyColorHDR)
 
 static bool js_scene_AmbientInfo_getSkyColorLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15914,7 +15914,7 @@ static bool js_scene_AmbientInfo_getSkyIllumHDR(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_scene_AmbientInfo_getSkyIllumHDR)
+SE_BIND_FUNC_AS_PROP_GET(js_scene_AmbientInfo_getSkyIllumHDR)
 
 static bool js_scene_AmbientInfo_getSkyIllumLDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15973,6 +15973,25 @@ static bool js_scene_AmbientInfo_setGroundAlbedo(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setGroundAlbedo)
 
+static bool js_scene_AmbientInfo_setGroundAlbedoHDR(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setGroundAlbedoHDR : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Vec4, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setGroundAlbedoHDR : Error processing arguments");
+        cobj->setGroundAlbedoHDR(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setGroundAlbedoHDR)
+
 static bool js_scene_AmbientInfo_setGroundLightingColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
@@ -16011,6 +16030,25 @@ static bool js_scene_AmbientInfo_setSkyColor(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setSkyColor)
 
+static bool js_scene_AmbientInfo_setSkyColorHDR(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setSkyColorHDR : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Vec4, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setSkyColorHDR : Error processing arguments");
+        cobj->setSkyColorHDR(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setSkyColorHDR)
+
 static bool js_scene_AmbientInfo_setSkyIllum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
@@ -16030,6 +16068,25 @@ static bool js_scene_AmbientInfo_setSkyIllum(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setSkyIllum)
 
+static bool js_scene_AmbientInfo_setSkyIllumHDR(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_setSkyIllumHDR : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_setSkyIllumHDR : Error processing arguments");
+        cobj->setSkyIllumHDR(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_AmbientInfo_setSkyIllumHDR)
+
 static bool js_scene_AmbientInfo_setSkyLightingColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
@@ -16048,168 +16105,6 @@ static bool js_scene_AmbientInfo_setSkyLightingColor(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC(js_scene_AmbientInfo_setSkyLightingColor)
-
-static bool js_scene_AmbientInfo_get__skyColorHDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__skyColorHDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_skyColorHDR, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_skyColorHDR, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_AmbientInfo_get__skyColorHDR)
-
-static bool js_scene_AmbientInfo_set__skyColorHDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__skyColorHDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_skyColorHDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__skyColorHDR : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyColorHDR)
-
-static bool js_scene_AmbientInfo_get__skyIllumHDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__skyIllumHDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_skyIllumHDR, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_skyIllumHDR, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_AmbientInfo_get__skyIllumHDR)
-
-static bool js_scene_AmbientInfo_set__skyIllumHDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__skyIllumHDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_skyIllumHDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__skyIllumHDR : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyIllumHDR)
-
-static bool js_scene_AmbientInfo_get__groundAlbedoHDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__groundAlbedoHDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_groundAlbedoHDR, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_groundAlbedoHDR, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_AmbientInfo_get__groundAlbedoHDR)
-
-static bool js_scene_AmbientInfo_set__groundAlbedoHDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__groundAlbedoHDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_groundAlbedoHDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__groundAlbedoHDR : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_AmbientInfo_set__groundAlbedoHDR)
-
-static bool js_scene_AmbientInfo_get__skyColorLDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__skyColorLDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_skyColorLDR, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_skyColorLDR, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_AmbientInfo_get__skyColorLDR)
-
-static bool js_scene_AmbientInfo_set__skyColorLDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__skyColorLDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_skyColorLDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__skyColorLDR : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyColorLDR)
-
-static bool js_scene_AmbientInfo_get__skyIllumLDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__skyIllumLDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_skyIllumLDR, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_skyIllumLDR, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_AmbientInfo_get__skyIllumLDR)
-
-static bool js_scene_AmbientInfo_set__skyIllumLDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__skyIllumLDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_skyIllumLDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__skyIllumLDR : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_AmbientInfo_set__skyIllumLDR)
-
-static bool js_scene_AmbientInfo_get__groundAlbedoLDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_get__groundAlbedoLDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_groundAlbedoLDR, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_groundAlbedoLDR, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_AmbientInfo_get__groundAlbedoLDR)
-
-static bool js_scene_AmbientInfo_set__groundAlbedoLDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::AmbientInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_AmbientInfo_set__groundAlbedoLDR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_groundAlbedoLDR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_AmbientInfo_set__groundAlbedoLDR : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_AmbientInfo_set__groundAlbedoLDR)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_AmbientInfo_finalize)
 
@@ -16231,21 +16126,15 @@ bool js_register_scene_AmbientInfo(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("AmbientInfo", obj, nullptr, _SE(js_scene_AmbientInfo_constructor));
 
-    cls->defineProperty("_skyColorHDR", _SE(js_scene_AmbientInfo_get__skyColorHDR), _SE(js_scene_AmbientInfo_set__skyColorHDR));
-    cls->defineProperty("_skyIllumHDR", _SE(js_scene_AmbientInfo_get__skyIllumHDR), _SE(js_scene_AmbientInfo_set__skyIllumHDR));
-    cls->defineProperty("_groundAlbedoHDR", _SE(js_scene_AmbientInfo_get__groundAlbedoHDR), _SE(js_scene_AmbientInfo_set__groundAlbedoHDR));
-    cls->defineProperty("_skyColorLDR", _SE(js_scene_AmbientInfo_get__skyColorLDR), _SE(js_scene_AmbientInfo_set__skyColorLDR));
-    cls->defineProperty("_skyIllumLDR", _SE(js_scene_AmbientInfo_get__skyIllumLDR), _SE(js_scene_AmbientInfo_set__skyIllumLDR));
-    cls->defineProperty("_groundAlbedoLDR", _SE(js_scene_AmbientInfo_get__groundAlbedoLDR), _SE(js_scene_AmbientInfo_set__groundAlbedoLDR));
     cls->defineProperty("skyColor", nullptr, _SE(js_scene_AmbientInfo_setSkyColor_asSetter));
     cls->defineProperty("skyIllum", _SE(js_scene_AmbientInfo_getSkyIllum_asGetter), _SE(js_scene_AmbientInfo_setSkyIllum_asSetter));
     cls->defineProperty("groundAlbedo", nullptr, _SE(js_scene_AmbientInfo_setGroundAlbedo_asSetter));
-    cls->defineFunction("getGroundAlbedoHDR", _SE(js_scene_AmbientInfo_getGroundAlbedoHDR));
+    cls->defineProperty("_skyColor", _SE(js_scene_AmbientInfo_getSkyColorHDR_asGetter), _SE(js_scene_AmbientInfo_setSkyColorHDR_asSetter));
+    cls->defineProperty("_skyIllum", _SE(js_scene_AmbientInfo_getSkyIllumHDR_asGetter), _SE(js_scene_AmbientInfo_setSkyIllumHDR_asSetter));
+    cls->defineProperty("_groundAlbedo", _SE(js_scene_AmbientInfo_getGroundAlbedoHDR_asGetter), _SE(js_scene_AmbientInfo_setGroundAlbedoHDR_asSetter));
     cls->defineFunction("getGroundAlbedoLDR", _SE(js_scene_AmbientInfo_getGroundAlbedoLDR));
     cls->defineFunction("getGroundLightingColor", _SE(js_scene_AmbientInfo_getGroundLightingColor));
-    cls->defineFunction("getSkyColorHDR", _SE(js_scene_AmbientInfo_getSkyColorHDR));
     cls->defineFunction("getSkyColorLDR", _SE(js_scene_AmbientInfo_getSkyColorLDR));
-    cls->defineFunction("getSkyIllumHDR", _SE(js_scene_AmbientInfo_getSkyIllumHDR));
     cls->defineFunction("getSkyIllumLDR", _SE(js_scene_AmbientInfo_getSkyIllumLDR));
     cls->defineFunction("getSkyLightingColor", _SE(js_scene_AmbientInfo_getSkyLightingColor));
     cls->defineFunction("setGroundLightingColor", _SE(js_scene_AmbientInfo_setGroundLightingColor));

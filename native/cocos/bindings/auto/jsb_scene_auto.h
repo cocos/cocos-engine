@@ -540,12 +540,9 @@ extern se::Class * __jsb_cc_scene_AmbientInfo_class; // NOLINT
 
 bool js_register_cc_scene_AmbientInfo(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_scene_AmbientInfo_getGroundAlbedoHDR);
 SE_DECLARE_FUNC(js_scene_AmbientInfo_getGroundAlbedoLDR);
 SE_DECLARE_FUNC(js_scene_AmbientInfo_getGroundLightingColor);
-SE_DECLARE_FUNC(js_scene_AmbientInfo_getSkyColorHDR);
 SE_DECLARE_FUNC(js_scene_AmbientInfo_getSkyColorLDR);
-SE_DECLARE_FUNC(js_scene_AmbientInfo_getSkyIllumHDR);
 SE_DECLARE_FUNC(js_scene_AmbientInfo_getSkyIllumLDR);
 SE_DECLARE_FUNC(js_scene_AmbientInfo_getSkyLightingColor);
 SE_DECLARE_FUNC(js_scene_AmbientInfo_setGroundLightingColor);
