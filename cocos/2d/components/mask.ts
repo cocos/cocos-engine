@@ -420,7 +420,7 @@ export class Mask extends Renderable2D {
         testPt.y += ap.y * h;
 
         let result = false;
-        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL) {
+        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL || this.type === MaskType.IMAGE_STENCIL) {
             result = testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
         } else if (this.type === MaskType.ELLIPSE) {
             const rx = w / 2;
