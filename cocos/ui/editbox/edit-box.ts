@@ -364,11 +364,11 @@ export class EditBox extends Component {
     public editingReturn: ComponentEventHandler[] = [];
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _impl: EditBoxImplBase | null = null;
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _background: Sprite | null = null;
 
@@ -472,7 +472,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _editBoxEditingDidBegan () {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
@@ -480,7 +480,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _editBoxEditingDidEnded () {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
@@ -488,7 +488,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _editBoxTextChanged (text: string) {
         text = this._updateLabelStringStyle(text, true);
@@ -498,7 +498,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _editBoxEditingReturn () {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
@@ -506,7 +506,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _showLabels () {
         this._isLabelVisible = true;
@@ -514,7 +514,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _hideLabels () {
         this._isLabelVisible = false;

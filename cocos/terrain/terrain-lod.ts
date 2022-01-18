@@ -63,19 +63,19 @@ export class TerrainLod {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _bodyIndexPool: TerrainIndexPool[];
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _connecterIndexPool: TerrainIndexPool[];
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _indexMap: TerrainIndexData[] = [];
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _indexBuffer: Uint16Array = new Uint16Array();
 

@@ -390,25 +390,25 @@ export class Game extends EventTarget {
     public groupList: any[] = [];
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _persistRootNodes = {};
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _gfxDevice: Device | null = null;
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _swapchain: Swapchain | null = null;
     // states
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _configLoaded = false; // whether config loaded
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _isCloning = false;    // deserializing or instantiating
     private _inited = false;
@@ -952,20 +952,6 @@ export class Game extends EventTarget {
     }
 
     private _setRenderPipelineNShowSplash () {
-        // The test environment does not currently support the renderer
-        if (TEST) {
-            return Promise.resolve((() => {
-                this._rendererInitialized = true;
-                this._safeEmit(Game.EVENT_RENDERER_INITED);
-                this._inited = true;
-                this._setAnimFrame();
-                this._runMainLoop();
-                this._safeEmit(Game.EVENT_GAME_INITED);
-                if (this.onStart) {
-                    this.onStart();
-                }
-            })());
-        }
         return Promise.resolve(this._setupRenderPipeline()).then(
             () => Promise.resolve(this._showSplashScreen()).then(
                 () => {

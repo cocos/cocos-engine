@@ -98,7 +98,7 @@ export class AnimationCache {
     public isCompleted = false;
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _privateMode = false;
     protected _inited = false;
