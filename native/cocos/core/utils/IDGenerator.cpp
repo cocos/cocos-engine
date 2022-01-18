@@ -1,5 +1,8 @@
 #include "core/utils/IDGenerator.h"
 #include "base/Random.h"
+#include "boost/uuid/uuid.hpp"
+#include "boost/uuid/uuid_generators.hpp" 
+#include "boost/uuid/uuid_io.hpp"
 
 namespace cc {
 
@@ -12,10 +15,13 @@ IDGenerator::IDGenerator(const std::string &category) {
 }
 
 std::string IDGenerator::getNewId() {
-    //cjh TODO:    if (EDITOR && (this.prefix === 'Node.' || this.prefix === 'Comp.')) {
-    //        return EditorExtends.UuidUtils.uuid();
-    //    }
+#ifdef EDITOR
+    if (_prefix == "Node." || _prefix == "Comp.") {
+        static boost::uuids::random_generator_mt19937 generator;
+        boost::uuids::uuid                            id = generator();
+        return boost::uuids::to_string(id);
+    }
+#endif
     return _prefix + std::to_string(++_id);
 }
-
 } // namespace cc
