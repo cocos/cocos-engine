@@ -383,7 +383,7 @@ nodeProto._onReAttach = function () {
     this._eventProcessor.reattach();
 };
 
-nodeProto._onAttached = function (attached: boolean) {
+nodeProto._onEditorAttached = function (attached: boolean) {
     if (EDITOR) {
         this._registerIfAttached(attached);
     }
