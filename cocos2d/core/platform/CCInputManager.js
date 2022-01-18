@@ -617,8 +617,8 @@ let inputManager = {
      * @returns {Boolean} whether the touch object with touchID is valid.
      */
     isValidTouch (touchID) {
-        const locTouchesIntDict = this._touchesIntegerDict
-        return locTouchesIntDict[touchID] !== undefined
+        const locTouchesIntDict = this._touchesIntegerDict;
+        return locTouchesIntDict[touchID] !== undefined;
     },
 
     /**
