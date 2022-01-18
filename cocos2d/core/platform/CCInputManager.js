@@ -612,6 +612,16 @@ let inputManager = {
     _registerAccelerometerEvent () {},
 
     /**
+     * @method isValidTouch
+     * @param {Number} touchID
+     * @returns {Boolean} whether the touch object with touchID is valid.
+     */
+    isValidTouch (touchID) {
+        const locTouchesIntDict = this._touchesIntegerDict
+        return locTouchesIntDict[touchID] !== undefined
+    },
+
+    /**
      * @method update
      * @param {Number} dt
      */
