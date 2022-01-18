@@ -511,7 +511,7 @@ export class JointAnimationInfo {
         }
     }
 
-    public isCurrentlySampling (info: IAnimInfo, clip: AnimationClip) {
+    public isSampling (info: IAnimInfo, clip: AnimationClip) {
         return info.currentClip === clip;
     }
 

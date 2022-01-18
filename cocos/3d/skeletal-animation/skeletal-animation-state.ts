@@ -164,7 +164,7 @@ export class SkeletalAnimationState extends AnimationState {
         const info = this._animInfo!;
 
         // Ensure I'm the one on which the anim info is sampling.
-        if (!this._animInfoMgr.isCurrentlySampling(info, this.clip)) {
+        if (!this._animInfoMgr.isSampling(info, this.clip)) {
             // If not, switch to me.
             this._animInfoMgr.switchClip(this._animInfo!, this.clip);
 
