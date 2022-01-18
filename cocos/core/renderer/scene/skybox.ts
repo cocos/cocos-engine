@@ -42,29 +42,28 @@ import { Enum } from '../../value-types';
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
 
-
 export const EnvironmentLightingType = Enum({
     /**
      * @zh
-     * 不使用环境光反射
+     * 半球反射
      * @en
-     * unuse ambient lighting reflection
+     * hemisphere reflection
      * @readonly
      */
-     Hemisphere_Diffuse: 0,
+    Hemisphere_Diffuse: 0,
     /**
      * @zh
-     * 使用环境光反射
+     * 半球反射和环境贴图反射
      * @en
-     * use ambient lighting reflection
+     * hemisphere reflection and environment map reflection
      * @readonly
      */
     AutoGen_Hemisphere_Diffuse_With_Reflection: 1,
-       /**
+    /**
      * @zh
-     * 使用漫反射贴图。
+     * 漫反射贴图。
      * @en
-     * use diffuse map
+     * diffuse map
      * @readonly
      */
     DiffuseMap_With_Reflection: 2,
