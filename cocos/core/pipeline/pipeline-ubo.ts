@@ -25,7 +25,7 @@
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
     supportsFloatTexture, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
+import { Device, DescriptorSet } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
@@ -69,7 +69,6 @@ export class PipelineUBO {
 
     public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array,
         camera: Camera) {
-        const root = legacyCC.director.root;
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
         const sceneData = pipeline.pipelineSceneData;
@@ -172,9 +171,9 @@ export class PipelineUBO {
                 const matShadowView = shadowInfo.matShadowView;
                 const matShadowProj = shadowInfo.matShadowProj;
                 const matShadowViewProj = shadowInfo.matShadowViewProj;
-                if (shadowInfo.fixedArea) {
-                    near = shadowInfo.near;
-                    far = shadowInfo.far;
+                if (mainLight.fixedArea) {
+                    near = mainLight.fixedNear;
+                    far = mainLight.fixedFar;
                 } else {
                     near = 0.1;
                     far = shadowInfo.shadowCameraFar;
@@ -231,10 +230,11 @@ export class PipelineUBO {
         const matShadowProj = shadowInfo.matShadowProj;
         const matShadowViewProj = shadowInfo.matShadowViewProj;
         switch (light.type) {
-        case LightType.DIRECTIONAL:
-            if (shadowInfo.fixedArea) {
-                near = shadowInfo.near;
-                far = shadowInfo.far;
+        case LightType.DIRECTIONAL: {
+            const mainLight = light as DirectionalLight;
+            if (mainLight.fixedArea) {
+                near = mainLight.fixedNear;
+                far = mainLight.fixedFar;
             } else {
                 near = 0.1;
                 far = shadowInfo.shadowCameraFar;
@@ -307,58 +307,6 @@ export class PipelineUBO {
      */
     public static getCombineSignY () {
         return PipelineUBO._combineSignY;
-    }
-
-    private _initCombineSignY () {
-        const device = this._device;
-        PipelineUBO._combineSignY = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
-    }
-
-    public activate (device: Device, pipeline: RenderPipeline) {
-        this._device = device;
-        this._pipeline = pipeline;
-        const ds = this._pipeline.descriptorSet;
-        this._initCombineSignY();
-
-        const globalUBO = device.createBuffer(new BufferInfo(
-            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            UBOGlobal.SIZE,
-            UBOGlobal.SIZE,
-        ));
-        ds.bindBuffer(UBOGlobal.BINDING, globalUBO);
-
-        const cameraUBO = device.createBuffer(new BufferInfo(
-            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            UBOCamera.SIZE,
-            UBOCamera.SIZE,
-        ));
-        ds.bindBuffer(UBOCamera.BINDING, cameraUBO);
-
-        const shadowUBO = device.createBuffer(new BufferInfo(
-            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            UBOShadow.SIZE,
-            UBOShadow.SIZE,
-        ));
-        ds.bindBuffer(UBOShadow.BINDING, shadowUBO);
-    }
-
-    /**
-     * @en Update all UBOs
-     * @zh 更新全部 UBO。
-     */
-    public updateGlobalUBO (window: RenderWindow) {
-        const globalDSManager = this._pipeline.globalDSManager;
-        const ds = this._pipeline.descriptorSet;
-        const cmdBuffer = this._pipeline.commandBuffers;
-        ds.update();
-        PipelineUBO.updateGlobalUBOView(window, this._globalUBO);
-        cmdBuffer[0].updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
-
-        globalDSManager.bindBuffer(UBOGlobal.BINDING, ds.getBuffer(UBOGlobal.BINDING));
-        globalDSManager.update();
     }
 
     public updateCameraUBO (camera: Camera) {

@@ -183,9 +183,6 @@ removeProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     {
         name: 'saturation',
     },
-    {
-        name: 'aspect',
-    },
 ]);
 
 removeProperty(Node.prototype, 'Node.prototype', [

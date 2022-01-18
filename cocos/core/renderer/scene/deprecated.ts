@@ -223,7 +223,4 @@ removeProperty(Shadows.prototype, 'Shadows.prototype', [
     {
         name: 'saturation',
     },
-    {
-        name: 'aspect',
-    },
 ]);
