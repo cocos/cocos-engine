@@ -458,10 +458,6 @@ export interface IAnimInfo {
     data: Float32Array;
     dirty: boolean;
     currentClip: AnimationClip | null;
-    /**
-     * Has sampled at least once since last switching.
-     */
-    hasSampled: boolean;
 }
 
 export class JointAnimationInfo {
@@ -512,9 +508,8 @@ export class JointAnimationInfo {
     }
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
-        info.hasSampled = false;
         info.currentClip = clip;
-        info.data[0] = 0;
+        info.data[0] = -1;
         info.buffer.update(info.data);
         this._setAnimInfoDirty(info, false);
         return info;

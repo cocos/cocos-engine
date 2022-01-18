@@ -179,11 +179,8 @@ export class SkeletalAnimationState extends AnimationState {
         }
 
         const curFrame = (ratio * this._frames + 0.5) | 0;
-        if (info.hasSampled && curFrame === info.data[0]) {
-            return;
-        }
+        if (curFrame === info.data[0]) { return; }
 
-        info.hasSampled = true;
         info.data[0] = curFrame;
         this._setAnimInfoDirty(info, true);
         for (let i = 0; i < this._sockets.length; ++i) {
