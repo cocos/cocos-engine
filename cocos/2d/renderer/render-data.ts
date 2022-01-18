@@ -295,6 +295,8 @@ export class MeshRenderData extends BaseRenderData {
      */
     get vDataOffset () { return this._byteLength >>> 2; }
 
+    get byteLength () { return this._byteLength; }
+
     public isMeshBuffer = true;
     public vData: Float32Array;
     public iData: Uint16Array;

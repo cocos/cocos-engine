@@ -72,14 +72,15 @@ removeProperty(MeshRenderData.prototype, 'MeshRenderData', [
     {
         name: 'byteStart',
     },
-    {
-        name: 'byteCount',
-    },
 ]);
 
 replaceProperty(MeshRenderData.prototype, 'MeshRenderData', [
     {
         name: 'indicesStart',
         newName: 'indexStart',
+    },
+    {
+        name: 'byteCount',
+        newName: 'byteLength',
     },
 ]);
