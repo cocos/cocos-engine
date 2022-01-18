@@ -44,6 +44,7 @@ import { legacyCC } from '../../core/global-exports';
 import { AnimationManager } from '../../core/animation/animation-manager';
 import { js } from '../../core/utils/js';
 import type { AnimationState } from '../../core/animation/animation-state';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 
 @ccclass('cc.SkeletalAnimation.Socket')
 export class Socket {
@@ -142,16 +143,15 @@ export class SkeletalAnimation extends Animation {
 
     set useBakedAnimation (val) {
         this._useBakedAnimation = val;
-        this._removeAllUsers();
 
-        // Actively search for potential users and notify them that an animation is usable.
-        const comps = this.node.getComponentsInChildren(SkinnedMeshRenderer);
-        for (let i = 0; i < comps.length; ++i) {
-            const comp = comps[i];
-            if (comp.skinningRoot === this.node) {
-                comp.notifyAnimationUsable(this);
-            }
+        for (const stateName in this._nameToState) {
+            const state = this._nameToState[stateName] as SkeletalAnimationState;
+            state.setUseBaked(val);
         }
+
+        this._users.forEach((user) => {
+            user.setUseBakedAnimation(val);
+        });
 
         if (this._useBakedAnimation) {
             (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets);
@@ -167,10 +167,23 @@ export class SkeletalAnimation extends Animation {
     @type([Socket])
     protected _sockets: Socket[] = [];
 
+    public onLoad () {
+        super.onLoad();
+        // Actively search for potential users and notify them that an animation is usable.
+        const comps = this.node.getComponentsInChildren(SkinnedMeshRenderer);
+        for (let i = 0; i < comps.length; ++i) {
+            const comp = comps[i];
+            if (comp.skinningRoot === this.node) {
+                this.notifySkinnedMeshAdded(comp);
+            }
+        }
+    }
+
     public onDestroy () {
         super.onDestroy();
         (legacyCC.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
         (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets);
+        this._removeAllUsers();
     }
 
     public start () {
@@ -250,30 +263,33 @@ export class SkeletalAnimation extends Animation {
     }
 
     /**
-     * Adds an user which uses this animation.
      * @internal This method only friends to skinned mesh renderer.
      */
-    public addUser (user: SkinnedMeshRenderer) {
-        this._users.add(user);
+    public notifySkinnedMeshAdded (skinnedMeshRenderer: SkinnedMeshRenderer) {
         const { _useBakedAnimation: useBakedAnimation } = this;
-        user.setUseBakedAnimation(useBakedAnimation, true);
+        const formerBound = skinnedMeshRenderer.associatedAnimation;
+        if (formerBound) {
+            formerBound._users.delete(skinnedMeshRenderer);
+        }
+        skinnedMeshRenderer.associatedAnimation = this;
+        skinnedMeshRenderer.setUseBakedAnimation(useBakedAnimation, true);
         if (useBakedAnimation) {
             const { _currentBakedState: playingState } = this;
             if (playingState) {
-                user.uploadAnimation(playingState.clip);
+                skinnedMeshRenderer.uploadAnimation(playingState.clip);
             }
         }
+        this._users.add(skinnedMeshRenderer);
     }
 
     /**
-     * Remove specific user of this animation.
-     * The user should receive an "animation useless" notification.
      * @internal This method only friends to skinned mesh renderer.
      */
-    public removeUser (user: SkinnedMeshRenderer) {
-        user.setUseBakedAnimation(false);
-        user.notifyAnimationUnusable();
-        this._users.delete(user);
+    public notifySkinnedMeshRemoved (skinnedMeshRenderer: SkinnedMeshRenderer) {
+        assertIsTrue(skinnedMeshRenderer.associatedAnimation === this);
+        skinnedMeshRenderer.setUseBakedAnimation(false);
+        skinnedMeshRenderer.associatedAnimation = null;
+        this._users.delete(skinnedMeshRenderer);
     }
 
     /**
@@ -313,7 +329,7 @@ export class SkeletalAnimation extends Animation {
 
     private _removeAllUsers () {
         Array.from(this._users).forEach((user) => {
-            this.removeUser(user);
+            this.notifySkinnedMeshRemoved(user);
         });
     }
 }
