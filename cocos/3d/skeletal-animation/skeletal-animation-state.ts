@@ -162,15 +162,16 @@ export class SkeletalAnimationState extends AnimationState {
     private _sampleCurvesBaked (time: number) {
         const ratio = time / this.duration;
         const info = this._animInfo!;
+        const clip = this.clip;
 
         // Ensure I'm the one on which the anim info is sampling.
-        if (!this._animInfoMgr.isSampling(info, this.clip)) {
+        if (info.currentClip !== clip) {
             // If not, switch to me.
-            this._animInfoMgr.switchClip(this._animInfo!, this.clip);
+            this._animInfoMgr.switchClip(this._animInfo!, clip);
 
             const users = this._parent!.getUsers();
             users.forEach((user) => {
-                user.uploadAnimation(this.clip);
+                user.uploadAnimation(clip);
             });
         }
 

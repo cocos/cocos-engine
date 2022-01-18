@@ -511,10 +511,6 @@ export class JointAnimationInfo {
         }
     }
 
-    public isSampling (info: IAnimInfo, clip: AnimationClip) {
-        return info.currentClip === clip;
-    }
-
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
         info.hasSampled = false;
         info.currentClip = clip;
