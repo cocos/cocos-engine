@@ -827,8 +827,8 @@ export class TiledLayer extends Renderable2D {
             // right top to left down
             // iso can be treat as special hex whose hex side length is 0
         case Orientation.ISO:
-            col = Math.floor(x / maptw2);
-            row = Math.floor(y / mapth2);
+            col = Math.floor(x / maptw);
+            row = Math.floor(y / mapth);
             break;
             // left top to right dowm
         case Orientation.HEX:
