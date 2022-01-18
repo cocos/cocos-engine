@@ -73,6 +73,8 @@ export class MeshBuffer {
             this.vData = new Float32Array(this._initVDataCount);
             this.iData = new Uint16Array(this._initIDataCount);
         }
+        // Initialize the first ia
+        this._iaPool.push(this.createNewIA(device));
     }
 
     public reset () {
