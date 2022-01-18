@@ -525,6 +525,12 @@ export class Sprite extends Renderable2D {
         }
     }
 
+    public onDisable () {
+        if (this._spriteFrame && this._type === SpriteType.SLICED) {
+            this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+        }
+    }
+
     public onDestroy () {
         this.destroyRenderData();
         if (EDITOR) {
