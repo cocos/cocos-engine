@@ -480,7 +480,7 @@ export class JointAnimationInfo {
         ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
-        const info: IAnimInfo = { buffer, data, dirty: false, currentClip: null, hasSampled: false };
+        const info: IAnimInfo = { buffer, data, dirty: false, currentClip: null };
         this._setAnimInfoDirty(info, false);
         this._pool.set(nodeID, info);
         return info;
