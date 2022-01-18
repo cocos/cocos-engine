@@ -457,7 +457,7 @@ export interface IAnimInfo {
     buffer: Buffer;
     data: Float32Array;
     dirty: boolean;
-    currentClipRef: WeakSet<AnimationClip>;
+    currentClip: AnimationClip | null;
     /**
      * Has sampled at least once since last switching.
      */
@@ -484,7 +484,7 @@ export class JointAnimationInfo {
         ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
-        const info: IAnimInfo = { buffer, data, dirty: false, currentClipRef: new WeakSet(), hasSampled: false };
+        const info: IAnimInfo = { buffer, data, dirty: false, currentClip: null, hasSampled: false };
         this._setAnimInfoDirty(info, false);
         this._pool.set(nodeID, info);
         return info;
@@ -512,15 +512,12 @@ export class JointAnimationInfo {
     }
 
     public isCurrentlySampling (info: IAnimInfo, clip: AnimationClip) {
-        return info.currentClipRef.has(clip);
+        return info.currentClip === clip;
     }
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
         info.hasSampled = false;
-        info.currentClipRef = new WeakSet();
-        if (clip) {
-            info.currentClipRef.add(clip);
-        }
+        info.currentClip = clip;
         info.data[0] = 0;
         info.buffer.update(info.data);
         this._setAnimInfoDirty(info, false);
