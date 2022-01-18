@@ -30,15 +30,19 @@
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
 import { getComponentPerVertex } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
-import { macro } from '../../core';
+import { macro, sys, nextPow2 } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+
+interface IIARef {
+    ia: InputAssembler;
+    vertexBuffers: Buffer[];
+    indexBuffer: Buffer;
+}
 
 export class MeshBuffer {
     public static IB_SCALE = 4; // ib size scale based on vertex count
     get attributes () { return this._attributes; }
     get vertexFormatBytes () { return this._vertexFormatBytes; }
-    get vertexBuffers (): Readonly<Buffer[]> { return this._vertexBuffers; }
-    get indexBuffer () { return this._indexBuffer; }
 
     public byteOffset = 0;
     public vertexOffset = 0;
@@ -48,47 +52,27 @@ export class MeshBuffer {
 
     private _dirty = false;
     private _vertexFormatBytes = 0;
+    private _floatsPerVertex = 0;
     private _initVDataCount = 0;
     private _initIDataCount = 0;
     private _attributes: Attribute[] = null!;
-    private _vertexBuffers: Buffer[] = [];
-    private _indexBuffer: Buffer = null!;
 
     // InputAssembler pools for each mesh buffer, array offset correspondent
-    private _iaPool: InputAssembler[] = [];
+    private _iaPool: IIARef[] = [];
     private _iaInfo: InputAssemblerInfo = null!;
     private _nextFreeIAHandle = 0;
 
     public initialize (device: Device, attrs: Attribute[]) {
-        const floatCount = getComponentPerVertex(attrs);
-        const vbStride = this._vertexFormatBytes = floatCount * Float32Array.BYTES_PER_ELEMENT;
-        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         this._initVDataCount = macro.BATCHER2D_MEM_INCREMENT * 1024 / Float32Array.BYTES_PER_ELEMENT;
         assertIsTrue(this._initVDataCount < 65536, getError(9005));
         this._initIDataCount = this._initVDataCount * MeshBuffer.IB_SCALE;
         this._attributes = attrs;
+        this._floatsPerVertex = getComponentPerVertex(attrs);
 
-        this._vertexBuffers[0] = device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            vbStride,
-            vbStride,
-        ));
-        this._indexBuffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            ibStride,
-            ibStride,
-        ));
-
-        // for recycle pool using purpose --
         if (!this.vData || !this.iData) {
             this.vData = new Float32Array(this._initVDataCount);
             this.iData = new Uint16Array(this._initIDataCount);
         }
-        // ----------
-
-        this._iaInfo = new InputAssemblerInfo(this._attributes, this._vertexBuffers, this.indexBuffer);
     }
 
     public reset () {
@@ -99,22 +83,20 @@ export class MeshBuffer {
     public destroy () {
         this.reset();
         this._attributes = null!;
+        this._iaInfo = null!;
         this.vData = null!;
         this.iData = null!;
 
-        if (this._vertexBuffers[0]) {
-            this._vertexBuffers[0].destroy();
-        }
-        this._vertexBuffers.length = 0;
-
-        if (this._indexBuffer) {
-            this._indexBuffer.destroy();
-        }
-        this._indexBuffer = null!;
-
         // Destroy InputAssemblers
         for (let i = 0; i < this._iaPool.length; ++i) {
-            this._iaPool[i].destroy();
+            const iaRef = this._iaPool[i];
+            if (iaRef.vertexBuffers[0]) {
+                iaRef.vertexBuffers[0].destroy();
+            }
+            if (iaRef.indexBuffer) {
+                iaRef.indexBuffer.destroy();
+            }
+            iaRef.ia.destroy();
         }
         this._iaPool.length = 0;
     }
@@ -134,19 +116,22 @@ export class MeshBuffer {
 
     public requireFreeIA (device: Device) {
         if (this._iaPool.length <= this._nextFreeIAHandle) {
-            this._iaPool.push(device.createInputAssembler(this._iaInfo));
+            this._iaPool.push(this.createNewIA(device));
         }
-        const ia = this._iaPool[this._nextFreeIAHandle++];
+        const ia = this._iaPool[this._nextFreeIAHandle++].ia;
         return ia;
     }
 
     public recycleIA (ia: InputAssembler) {
         const pool = this._iaPool;
-        const id = pool.indexOf(ia);
-        if (id >= 0 && id < this._nextFreeIAHandle) {
-            // Swap to recycle the ia
-            pool[id] = pool[--this._nextFreeIAHandle];
-            pool[this._nextFreeIAHandle] = ia;
+        for (let i = 0; i < this._nextFreeIAHandle; ++i) {
+            if (ia === pool[i].ia) {
+                // Swap to recycle the ia
+                const iaRef = pool[i];
+                pool[i] = pool[--this._nextFreeIAHandle];
+                pool[this._nextFreeIAHandle] = iaRef;
+                return;
+            }
         }
     }
 
@@ -164,19 +149,75 @@ export class MeshBuffer {
             return;
         }
 
-        const verticesData = new Float32Array(this.vData.buffer, 0, this.byteOffset >> 2);
-        const indicesData = new Uint16Array(this.iData.buffer, 0, this.indexOffset);
+        // On iOS14, different IAs can not share same GPU buffer, so must submit the same date to different buffers
+        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
+        const iOS14 = sys.__isWebIOS14OrIPadOS14Env;
+        const submitCount = iOS14 ? this._nextFreeIAHandle : 1;
+        const byteCount = this.byteOffset;
+        const indexCount = this.indexOffset;
+        for (let i = 0; i < submitCount; ++i) {
+            const iaRef = this._iaPool[i];
+            // if (iOS14) {
+            //     indexCount = iaRef.ia.firstIndex + iaRef.ia.indexCount;
+            //     const maxVertex = this.iData[indexCount];
+            //     // Only upload as much data as needed, to avoid frequent resize, using pow2 size
+            //     // Wrong implementation because maxVertex might be larger than the last vertex id, hard to find the correct max vertex
+            //     byteCount = Math.min(this.byteOffset, nextPow2(maxVertex + 2) * this.vertexFormatBytes);
+            // }
 
-        const vertexBuffer = this._vertexBuffers[0];
-        if (this.byteOffset > vertexBuffer.size) {
-            vertexBuffer.resize(this.byteOffset);
-        }
-        vertexBuffer.update(verticesData);
+            const verticesData = new Float32Array(this.vData.buffer, 0, byteCount >> 2);
+            const indicesData = new Uint16Array(this.iData.buffer, 0, indexCount);
 
-        if (this.indexOffset * 2 > this.indexBuffer.size) {
-            this.indexBuffer.resize(this.indexOffset * 2);
+            const vertexBuffer = iaRef.vertexBuffers[0];
+            if (byteCount > vertexBuffer.size) {
+                vertexBuffer.resize(byteCount);
+            }
+            vertexBuffer.update(verticesData);
+
+            if (indexCount * 2 > iaRef.indexBuffer.size) {
+                iaRef.indexBuffer.resize(indexCount * 2);
+            }
+            iaRef.indexBuffer.update(indicesData);
         }
-        this._indexBuffer.update(indicesData);
         this._dirty = false;
+    }
+
+    private createNewIA (device: Device): IIARef {
+        let ia;
+        let vertexBuffers;
+        let indexBuffer;
+        // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
+        // TODO: Maybe it can be removed after Apple fixes it?
+        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
+        if (sys.__isWebIOS14OrIPadOS14Env || !this._iaPool[0]) {
+            const vbStride = this._vertexFormatBytes = this._floatsPerVertex * Float32Array.BYTES_PER_ELEMENT;
+            const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+            const vertexBuffer = device.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                vbStride,
+                vbStride,
+            ));
+            indexBuffer = device.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                ibStride,
+                ibStride,
+            ));
+
+            vertexBuffers = [vertexBuffer];
+            // Reuse purpose for new IAs
+            this._iaInfo = new InputAssemblerInfo(this._attributes, vertexBuffers, indexBuffer);
+            ia = device.createInputAssembler(this._iaInfo);
+        } else {
+            ia = device.createInputAssembler(this._iaInfo);
+            vertexBuffers = this._iaInfo.vertexBuffers;
+            indexBuffer = this._iaInfo.indexBuffer;
+        }
+        return {
+            ia,
+            vertexBuffers,
+            indexBuffer,
+        };
     }
 }
