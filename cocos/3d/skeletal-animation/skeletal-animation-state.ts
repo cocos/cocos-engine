@@ -86,6 +86,9 @@ export class SkeletalAnimationState extends AnimationState {
         this.setUseBaked(baked);
     }
 
+    /**
+     * @internal This method only friends to `SkeletalAnimation`.
+     */
     public setUseBaked (useBaked: boolean) {
         if (useBaked) {
             this._sampleCurves = this._sampleCurvesBaked;
