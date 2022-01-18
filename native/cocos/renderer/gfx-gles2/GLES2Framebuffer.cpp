@@ -50,12 +50,14 @@ void GLES2Framebuffer::doInit(const FramebufferInfo & /*info*/) {
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
         auto *colorTexture           = static_cast<GLES2Texture *>(_colorTextures[i]);
         _gpuFBO->gpuColorTextures[i] = colorTexture->gpuTexture();
+        _gpuFBO->lodLevel            = colorTexture->lodLevel();
         GLES2Device::getInstance()->framebufferHub()->connect(colorTexture->gpuTexture(), _gpuFBO);
     }
 
     if (_depthStencilTexture) {
         auto *depthTexture              = static_cast<GLES2Texture *>(_depthStencilTexture);
         _gpuFBO->gpuDepthStencilTexture = depthTexture->gpuTexture();
+        _gpuFBO->lodLevel               = depthTexture->lodLevel();
         GLES2Device::getInstance()->framebufferHub()->connect(depthTexture->gpuTexture(), _gpuFBO);
     }
 

@@ -1319,7 +1319,7 @@ static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device * 
         if (gpuResolveTexture) {
             if (autoResolve) {
                 GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                                              gpuResolveTexture->glTarget, gpuResolveTexture->glTexture, 0,
+                                                              gpuResolveTexture->glTarget, gpuResolveTexture->glTexture, 0, /* fixed to 0, same for webgl 1 */
                                                               gpuColorTexture->glSamples));
                 continue;
             }
@@ -1507,18 +1507,25 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
 
     GLES2GPUStateCache *cache         = device->stateCache();
     GLES2ObjectCache &  gfxStateCache = cache->gfxStateCache;
+
+    Rect                realRenderArea;
+    realRenderArea.x = renderArea->x;
+    realRenderArea.y = renderArea->y;
+    realRenderArea.width = renderArea->width << gpuFramebuffer->lodLevel;
+    realRenderArea.height = renderArea->height << gpuFramebuffer->lodLevel;
+
     gfxStateCache.subpassIdx          = subpassIdx;
     if (subpassIdx) {
         gpuRenderPass  = gfxStateCache.gpuRenderPass;
         gpuFramebuffer = gfxStateCache.gpuFramebuffer;
-        renderArea     = &gfxStateCache.renderArea;
+        realRenderArea = gfxStateCache.renderArea;
         clearColors    = gfxStateCache.clearColors.data();
         clearDepth     = gfxStateCache.clearDepth;
         clearStencil   = gfxStateCache.clearStencil;
     } else {
         gfxStateCache.gpuRenderPass  = gpuRenderPass;
         gfxStateCache.gpuFramebuffer = gpuFramebuffer;
-        gfxStateCache.renderArea     = *renderArea;
+        gfxStateCache.renderArea     = realRenderArea;
         gfxStateCache.clearColors.assign(clearColors, clearColors + gpuRenderPass->colorAttachments.size());
         gfxStateCache.clearDepth   = clearDepth;
         gfxStateCache.clearStencil = clearStencil;
@@ -1536,20 +1543,20 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
         }
 
         if (subpassIdx == 0) {
-            if (cache->viewport.left != renderArea->x ||
-                cache->viewport.top != renderArea->y ||
-                cache->viewport.width != renderArea->width ||
-                cache->viewport.height != renderArea->height) {
-                GL_CHECK(glViewport(renderArea->x, renderArea->y, renderArea->width, renderArea->height));
-                cache->viewport.left   = renderArea->x;
-                cache->viewport.top    = renderArea->y;
-                cache->viewport.width  = renderArea->width;
-                cache->viewport.height = renderArea->height;
+            if (cache->viewport.left != realRenderArea.x ||
+                cache->viewport.top != realRenderArea.y ||
+                cache->viewport.width != realRenderArea.width ||
+                cache->viewport.height != realRenderArea.height) {
+                GL_CHECK(glViewport(realRenderArea.x, realRenderArea.y, realRenderArea.width, realRenderArea.height));
+                cache->viewport.left   = realRenderArea.x;
+                cache->viewport.top    = realRenderArea.y;
+                cache->viewport.width  = realRenderArea.width;
+                cache->viewport.height = realRenderArea.height;
             }
 
-            if (cache->scissor != *renderArea) {
-                GL_CHECK(glScissor(renderArea->x, renderArea->y, renderArea->width, renderArea->height));
-                cache->scissor = *renderArea;
+            if (cache->scissor != realRenderArea) {
+                GL_CHECK(glScissor(realRenderArea.x, realRenderArea.y, realRenderArea.width, realRenderArea.height));
+                cache->scissor = realRenderArea;
             }
         }
 

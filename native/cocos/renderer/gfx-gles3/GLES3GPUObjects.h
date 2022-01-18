@@ -151,7 +151,16 @@ public:
     GLES3GPUSwapchain *swapchain{nullptr};
 };
 
-using GLES3GPUTextureList = vector<GLES3GPUTexture *>;
+class GLES3GPUTextureView final : public Object {
+public:
+    GLES3GPUTexture *gpuTexture{nullptr};
+    TextureType      type       = TextureType::TEX2D;
+    Format           format     = Format::UNKNOWN;
+    uint32_t         baseLevel  = 0U;
+    uint32_t         levelCount = 1U;
+};
+
+using GLES3GPUTextureViewList = vector<GLES3GPUTextureView *>;
 
 class GLES3GPUSwapchain final : public Object {
 public:
@@ -174,6 +183,19 @@ public:
     GLenum  glWrapS     = 0;
     GLenum  glWrapT     = 0;
     GLenum  glWrapR     = 0;
+
+    ~GLES3GPUSampler() override {
+        vector<GLuint> glSampelrs;
+        for (const auto &pair : _cache) {
+            glSampelrs.push_back(pair.second);
+        }
+        GL_CHECK(glDeleteSamplers(static_cast<GLsizei>(glSampelrs.size()), glSampelrs.data()));
+    }
+
+    GLuint getGLSampler(uint16_t minLod, uint16_t maxLod);
+
+private:
+    unordered_map<uint32_t, GLuint> _cache;
 };
 
 class GLES3GPUInput final : public Object {
@@ -324,10 +346,10 @@ public:
 class GLES3GPUFramebufferCacheMap;
 class GLES3GPUFramebuffer final : public Object {
 public:
-    GLES3GPURenderPass *gpuRenderPass{nullptr};
-    GLES3GPUTextureList gpuColorTextures;
-    GLES3GPUTexture *   gpuDepthStencilTexture{nullptr};
-    bool                usesFBF{false};
+    GLES3GPURenderPass *    gpuRenderPass{nullptr};
+    GLES3GPUTextureViewList gpuColorViews;
+    GLES3GPUTextureView *   gpuDepthStencilView{nullptr};
+    bool                    usesFBF{false};
 
     struct GLFramebufferInfo {
         GLuint   glFramebuffer{0U};
@@ -413,10 +435,10 @@ public:
 
 class GLES3GPUDescriptor final : public Object {
 public:
-    DescriptorType   type       = DescriptorType::UNKNOWN;
-    GLES3GPUBuffer * gpuBuffer  = nullptr;
-    GLES3GPUTexture *gpuTexture = nullptr;
-    GLES3GPUSampler *gpuSampler = nullptr;
+    DescriptorType       type           = DescriptorType::UNKNOWN;
+    GLES3GPUBuffer *     gpuBuffer      = nullptr;
+    GLES3GPUTextureView *gpuTextureView = nullptr;
+    GLES3GPUSampler *    gpuSampler     = nullptr;
 };
 using GLES3GPUDescriptorList = vector<GLES3GPUDescriptor>;
 
@@ -537,22 +559,6 @@ public:
 
 private:
     bool _initialized{false};
-};
-
-class GLES3GPUSamplerRegistry final : public Object {
-public:
-    ~GLES3GPUSamplerRegistry() override {
-        vector<GLuint> glSampelrs;
-        for (const auto &pair : _cache) {
-            glSampelrs.push_back(pair.second);
-        }
-        GL_CHECK(glDeleteSamplers(static_cast<GLsizei>(glSampelrs.size()), glSampelrs.data()));
-    }
-
-    GLuint getGLSampler(GLES3GPUSampler *gpuSampler);
-
-private:
-    unordered_map<GLES3GPUSampler *, GLuint> _cache;
 };
 
 class GLES3GPUFramebufferCacheMap final : public Object {

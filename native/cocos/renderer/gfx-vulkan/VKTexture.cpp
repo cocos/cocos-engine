@@ -114,9 +114,10 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTextureView);
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTexture);
 
-    _gpuTexture->width  = width;
-    _gpuTexture->height = height;
-    _gpuTexture->size   = size;
+    _gpuTexture->width     = width;
+    _gpuTexture->height    = height;
+    _gpuTexture->size      = size;
+    _gpuTexture->mipLevels = _info.levelCount;
     cmdFuncCCVKCreateTexture(CCVKDevice::getInstance(), _gpuTexture);
 
     if (!_gpuTexture->memoryless) {

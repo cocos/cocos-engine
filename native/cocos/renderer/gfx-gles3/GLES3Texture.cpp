@@ -29,6 +29,7 @@
 #include "GLES3Device.h"
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
+#include "base/Macros.h"
 
 namespace cc {
 namespace gfx {
@@ -62,21 +63,46 @@ void GLES3Texture::doInit(const TextureInfo& /*info*/) {
     if (!_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize += _size;
     }
+
+    _gpuTextureView = CC_NEW(GLES3GPUTextureView);
+    createTextureView();
 }
 
 void GLES3Texture::doInit(const TextureViewInfo& /*info*/) {
-    CC_LOG_ERROR("GLES3 doesn't support texture view.");
+    _gpuTexture = static_cast<GLES3Texture*>(_viewInfo.texture)->gpuTexture();
+
+    CCASSERT(_viewInfo.texture->getFormat() == _viewInfo.format, "Invalid TextureView fromat");
+
+    _gpuTextureView = CC_NEW(GLES3GPUTextureView);
+    createTextureView();
+}
+
+void GLES3Texture::createTextureView() {
+    _gpuTextureView->gpuTexture = _gpuTexture;
+    _gpuTextureView->type       = _viewInfo.type;
+    _gpuTextureView->format     = _viewInfo.format;
+    _gpuTextureView->baseLevel  = _viewInfo.baseLevel;
+    _gpuTextureView->levelCount = _viewInfo.levelCount;
+
+    cmdFuncGLES3CreateTextureView(GLES3Device::getInstance(), _gpuTextureView);
 }
 
 void GLES3Texture::doDestroy() {
+    if (_gpuTextureView) {
+        // dont forget to clean the descriptor set
+        CC_DELETE(_gpuTextureView);
+        _gpuTextureView = nullptr;
+    }
     if (_gpuTexture) {
-        if (!_gpuTexture->memoryless) {
-            GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
-        }
+        if (!_isTextureView) {
+            if (!_gpuTexture->memoryless) {
+                GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
+            }
 
-        cmdFuncGLES3DestroyTexture(GLES3Device::getInstance(), _gpuTexture);
-        GLES3Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
-        CC_DELETE(_gpuTexture);
+            cmdFuncGLES3DestroyTexture(GLES3Device::getInstance(), _gpuTexture);
+            GLES3Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
+            CC_DELETE(_gpuTexture);
+        }
         _gpuTexture = nullptr;
     }
 }
@@ -86,9 +112,11 @@ void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
     }
 
-    _gpuTexture->width  = width;
-    _gpuTexture->height = height;
-    _gpuTexture->size   = size;
+    _gpuTexture->width    = width;
+    _gpuTexture->height   = height;
+    _gpuTexture->size     = size;
+    _gpuTexture->mipLevel = _info.levelCount;
+
     cmdFuncGLES3ResizeTexture(GLES3Device::getInstance(), _gpuTexture);
 
     GLES3Device::getInstance()->framebufferHub()->update(_gpuTexture);
@@ -115,6 +143,9 @@ void GLES3Texture::doInit(const SwapchainTextureInfo& /*info*/) {
     _gpuTexture->size       = _size;
     _gpuTexture->memoryless = true;
     _gpuTexture->swapchain  = static_cast<GLES3Swapchain*>(_swapchain)->gpuSwapchain();
+
+    _gpuTextureView = CC_NEW(GLES3GPUTextureView);
+    createTextureView();
 }
 
 } // namespace gfx

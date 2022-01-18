@@ -31,7 +31,6 @@
 #include "ValidationUtils.h"
 #include "gfx-base/GFXDef-common.h"
 
-
 namespace cc {
 namespace gfx {
 
@@ -81,7 +80,8 @@ void TextureValidator::doInit(const TextureInfo &info) {
 
 void TextureValidator::doInit(const TextureViewInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
-    _inited = true;
+    _inited        = true;
+    _isTextureView = true;
     CCASSERT(info.texture && static_cast<TextureValidator *>(info.texture)->isInited(), "alread destroyed?");
 
     /////////// execute ///////////

@@ -64,18 +64,21 @@ void GLES2Texture::doInit(const TextureInfo& /*info*/) {
     }
 }
 
-void GLES2Texture::doInit(const TextureViewInfo& /*info*/) {
-    CC_LOG_ERROR("GLES2 doesn't support texture view");
+void GLES2Texture::doInit(const TextureViewInfo& info) {
+    _gpuTexture = static_cast<GLES2Texture*>(info.texture)->gpuTexture();
+    _lodLevel   = info.baseLevel;
 }
 
 void GLES2Texture::doDestroy() {
     if (_gpuTexture) {
-        if (!_gpuTexture->memoryless) {
-            GLES2Device::getInstance()->getMemoryStatus().textureSize -= _size;
+        if (!_isTextureView) {
+            if (!_gpuTexture->memoryless) {
+                GLES2Device::getInstance()->getMemoryStatus().textureSize -= _size;
+            }
+            cmdFuncGLES2DestroyTexture(GLES2Device::getInstance(), _gpuTexture);
+            GLES2Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
+            CC_DELETE(_gpuTexture);
         }
-        cmdFuncGLES2DestroyTexture(GLES2Device::getInstance(), _gpuTexture);
-        GLES2Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
-        CC_DELETE(_gpuTexture);
         _gpuTexture = nullptr;
     }
 }
@@ -87,6 +90,7 @@ void GLES2Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     _gpuTexture->width  = width;
     _gpuTexture->height = height;
     _gpuTexture->size   = size;
+    _gpuTexture->mipLevel = _info.levelCount;
     cmdFuncGLES2ResizeTexture(GLES2Device::getInstance(), _gpuTexture);
 
     GLES2Device::getInstance()->framebufferHub()->update(_gpuTexture);

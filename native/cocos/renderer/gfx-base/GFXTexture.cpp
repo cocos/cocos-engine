@@ -80,8 +80,19 @@ void Texture::initialize(const TextureViewInfo &info) {
     doInit(info);
 }
 
+const uint32_t getLevelCount(uint32_t width, uint32_t height) {
+    return std::floor(std::log2(std::max(width, height))) + 1;
+}
+
 void Texture::resize(uint32_t width, uint32_t height) {
     if (_info.width != width || _info.height != height) {
+
+        if (_info.levelCount == getLevelCount(_info.width, _info.height)) {
+            _info.levelCount = getLevelCount(width, height);
+        } else if (_info.levelCount > 1) {
+            _info.levelCount = std::min(_info.levelCount, getLevelCount(width, height));
+        }
+
         uint32_t size = formatSize(_info.format, width, height, _info.depth);
         doResize(width, height, size);
 

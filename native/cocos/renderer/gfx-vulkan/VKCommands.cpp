@@ -773,8 +773,8 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
         } else {
             attachments[i] = gpuFramebuffer->gpuColorViews[i]->vkImageView;
         }
-        createInfo.width  = std::min(createInfo.width, gpuFramebuffer->gpuColorViews[i]->gpuTexture->width);
-        createInfo.height = std::min(createInfo.height, gpuFramebuffer->gpuColorViews[i]->gpuTexture->height);
+        createInfo.width  = std::min(createInfo.width, std::max(1U, gpuFramebuffer->gpuColorViews[i]->gpuTexture->width >> gpuFramebuffer->gpuColorViews[i]->baseLevel));
+        createInfo.height = std::min(createInfo.height, std::max(1U, gpuFramebuffer->gpuColorViews[i]->gpuTexture->height >> gpuFramebuffer->gpuColorViews[i]->baseLevel));
     }
     if (hasDepth) {
         if (gpuFramebuffer->gpuDepthStencilView->gpuTexture->swapchain) {
@@ -783,8 +783,8 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
         } else {
             attachments[colorViewCount] = gpuFramebuffer->gpuDepthStencilView->vkImageView;
         }
-        createInfo.width  = std::min(createInfo.width, gpuFramebuffer->gpuDepthStencilView->gpuTexture->width);
-        createInfo.height = std::min(createInfo.height, gpuFramebuffer->gpuDepthStencilView->gpuTexture->height);
+        createInfo.width  = std::min(createInfo.width, std::max(1U, gpuFramebuffer->gpuDepthStencilView->gpuTexture->width >> gpuFramebuffer->gpuDepthStencilView->baseLevel));
+        createInfo.height = std::min(createInfo.height, std::max(1U, gpuFramebuffer->gpuDepthStencilView->gpuTexture->height >> gpuFramebuffer->gpuDepthStencilView->baseLevel));
     }
     gpuFramebuffer->isOffscreen = !swapchainImageIndices;
     gpuFramebuffer->width       = createInfo.width;
