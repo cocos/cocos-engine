@@ -59,6 +59,15 @@
         }                                                                                                    \
     } while (0)
 
+#define SE_PRECONDITION2_FUNCNAME_VOID(condition, funcName, ...)                                         \
+    do {                                                                                                 \
+        if (!(condition)) {                                                                              \
+            CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, funcName); \
+            CC_LOG_ERROR(__VA_ARGS__);                                                                   \
+            return;                                                                                      \
+        }                                                                                                \
+    } while (0)
+
 #define SE_PRECONDITION2(condition, ret_value, ...)                                                          \
     do {                                                                                                     \
         if (!(condition)) {                                                                                  \

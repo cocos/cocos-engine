@@ -58,11 +58,11 @@ void Scene::load() {
     walk(Node::setScene);
 }
 
-void Scene::activate(bool active /* = true */) {
-    //cjh    if (EDITOR) {
-    //        // register all nodes to editor
-    //        _registerIfAttached!(active);
-    //    }
+void Scene::activate(bool active /* = true */) { // NOLINT(misc-unused-parameters)
+#ifdef CC_EDITOR
+    this->notifyEditorAttached(active);
+#endif
+    //cjh
     //    Director::getInstance()->getNodeActivator()->activateNode(this, active);
     //     The test environment does not currently support the renderer
     //        if (!TEST) {

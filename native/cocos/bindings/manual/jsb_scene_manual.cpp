@@ -49,15 +49,15 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
     auto *cobj = SE_THIS_OBJECT<cc::Root>(s);
     SE_PRECONDITION2(cobj, false, "js_root_registerListeners : Invalid Native Object");
 
-#define DISPATCH_EVENT_TO_JS_ARGS_0(eventType, jsFuncName)                                              \
-    cobj->getEventProcessor()->on(eventType, [](cc::Root *rootObj) {                                    \
-        se::AutoHandleScope hs;                                                                         \
-        se::Value           rootVal;                                                                    \
-        bool                ok = nativevalue_to_se(rootObj, rootVal);                                   \
-        SE_PRECONDITION2_VOID(ok, "js_root_registerListeners : Error processing arguments");            \
-        if (rootVal.isObject()) {                                                                       \
-            se::ScriptEngine::getInstance()->callFunction(rootVal.toObject(), #jsFuncName, 0, nullptr); \
-        }                                                                                               \
+#define DISPATCH_EVENT_TO_JS_ARGS_0(eventType, jsFuncName)                                                         \
+    cobj->getEventProcessor()->on(eventType, [](cc::Root *rootObj) {                                               \
+        se::AutoHandleScope hs;                                                                                    \
+        se::Value           rootVal;                                                                               \
+        bool                ok = nativevalue_to_se(rootObj, rootVal);                                              \
+        SE_PRECONDITION2_FUNCNAME_VOID(ok, #jsFuncName, "js_root_registerListeners : Error processing arguments"); \
+        if (rootVal.isObject()) {                                                                                  \
+            se::ScriptEngine::getInstance()->callFunction(rootVal.toObject(), #jsFuncName, 0, nullptr);            \
+        }                                                                                                          \
     })
 
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::EventTypesToJS::ROOT_BATCH2D_INIT, _onBatch2DInit);
@@ -293,6 +293,13 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
         se::Value           arg0;
         nativevalue_to_se(scene, arg0);
         se::ScriptEngine::getInstance()->callFunction(jsObject, "_onSceneUpdated", 1, &arg0);
+    });
+
+    cobj->on(cc::EventTypesToJS::NODE_EDITOR_ATTACHED, [jsObject](bool attached) {
+        se::AutoHandleScope hs;
+        se::Value           arg0;
+        nativevalue_to_se(attached, arg0);
+        se::ScriptEngine::getInstance()->callFunction(jsObject, "_onEditorAttached", 1, &arg0);
     });
 
     registerLocalPositionRotationScaleUpdated(cobj, jsObject);

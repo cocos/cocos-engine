@@ -65,4 +65,6 @@ const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_POSITION_ROTATION_SCA
 
 const CallbacksInvoker::KeyType EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE{124};
 
+const CallbacksInvoker::KeyType EventTypesToJS::NODE_EDITOR_ATTACHED{125};
+
 } // namespace cc

@@ -129,7 +129,8 @@ Node *Node::instantiate(Node *cloned, bool isSyncedNode) {
     return cloned;
 }
 
-void Node::onHierarchyChangedBase(Node * /*oldParent*/) {
+
+void Node::onHierarchyChangedBase(Node *oldParent) {// NOLINT(misc-unused-parameters)
     Node *newParent = _parent;
     auto *scene     = dynamic_cast<Scene *>(newParent);
     if (isPersistNode() && scene == nullptr) {
@@ -139,22 +140,21 @@ void Node::onHierarchyChangedBase(Node * /*oldParent*/) {
         //            warnID(1623);
         //        }
     }
-    // TODO()
-    // if (EDITOR) {
-    //    const scene                = legacyCC.director.getScene() as this | null;
-    //    const inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
-    //    const inCurrentSceneNow    = newParent && newParent.isChildOf(scene);
-    //    if (!inCurrentSceneBefore && inCurrentSceneNow) {
-    //        // attached
-    //        this._registerIfAttached !(true);
-    //    } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
-    //        // detached
-    //        this._registerIfAttached !(false);
-    //    }
+#ifdef CC_EDITOR
+    auto *     curScene             = getScene();
+    const bool inCurrentSceneBefore = oldParent && oldParent->isChildOf(curScene);
+    const bool inCurrentSceneNow    = newParent && newParent->isChildOf(curScene);
+    if (!inCurrentSceneBefore && inCurrentSceneNow) {
+        // attached
+        this->notifyEditorAttached(true);
+    } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
+        // detached
+        this->notifyEditorAttached(false);
+    }
+    // conflict detection
+    // _Scene.DetectConflict.afterAddChild(this);
+#endif 
 
-    //    // conflict detection
-    //    // _Scene.DetectConflict.afterAddChild(this);
-    //}
     bool shouldActiveNow = _active && !!(newParent && newParent->isActiveInHierarchy());
     if (isActiveInHierarchy() != shouldActiveNow) {
         // Director::getInstance()->getNodeActivator()->activateNode(this, shouldActiveNow); // TODO(xwx): use TS temporarily
@@ -392,10 +392,11 @@ bool Node::onPreDestroyBase() {
     Flags destroyingFlag = Flags::DESTROYING;
     _objFlags |= destroyingFlag;
     bool destroyByParent = (!!_parent) && (!!(_parent->_objFlags & destroyingFlag));
-    // TODO()
-    /*if (!destroyByParent && EDITOR) {
-        this._registerIfAttached !(false);
-    }*/
+#ifdef CC_EDITOR
+    if (!destroyByParent) {
+        this->notifyEditorAttached(false);
+    }
+#endif
     if (isPersistNode()) {
         emit(EventTypesToJS::NODE_REMOVE_PERSIST_ROOT_NODE);
     }
@@ -593,7 +594,7 @@ void Node::setScaleInternal(float x, float y, float z, bool calledFromJS) {
     }
 }
 
-void Node::updateWorldTransform() {
+void Node::updateWorldTransform() { //NOLINT(misc-no-recursion)
     if (!getDirtyFlag()) {
         return;
     }
@@ -658,7 +659,7 @@ void Node::updateWorldTransform() {
     }
 }
 
-const Mat4 &Node::getWorldMatrix() const {
+const Mat4 &Node::getWorldMatrix() const { //NOLINT(misc-no-recursion)
     const_cast<Node *>(this)->updateWorldTransform();
     return _worldMatrix;
 }
@@ -747,7 +748,7 @@ void Node::setWorldRotation(float x, float y, float z, float w) {
     notifyLocalRotationUpdated();
 }
 
-const Quaternion &Node::getWorldRotation() const {
+const Quaternion &Node::getWorldRotation() const { //NOLINT(misc-no-recursion)
     const_cast<Node *>(this)->updateWorldTransform();
     return _worldRotation;
 }

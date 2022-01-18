@@ -15,7 +15,7 @@ IDGenerator::IDGenerator(const std::string &category) {
 }
 
 std::string IDGenerator::getNewId() {
-#ifdef EDITOR
+#ifdef CC_EDITOR
     if (_prefix == "Node." || _prefix == "Comp.") {
         static boost::uuids::random_generator_mt19937 generator;
         boost::uuids::uuid                            id = generator();
