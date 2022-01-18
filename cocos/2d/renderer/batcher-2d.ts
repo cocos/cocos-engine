@@ -290,13 +290,6 @@ export class Batcher2D implements IBatcher {
                 accessor = new StaticVBAccessor(this.device, attributes);
                 this._bufferAccessors.set(strideBytes, accessor);
             }
-            // let meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
-            // // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
-            // if (vertexCount && indexCount || sys.__isWebIOS14OrIPadOS14Env) {
-            //     // useCount++ when _recreateMeshBuffer
-            //     meshBufferUseCount++;
-            // }
-            // this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
 
             this._staticVBBuffer = accessor;
             this._currBID = -1;
@@ -535,13 +528,6 @@ export class Batcher2D implements IBatcher {
         curDrawBatch.fillPasses(mat, depthStencil, dssHash, blendState, bsHash, null, this);
 
         this._batches.push(curDrawBatch);
-
-        // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
-        // TODO: Maybe it can be removed after Apple fixes it?
-        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
-        if (sys.__isWebIOS14OrIPadOS14Env && !this._currIsStatic) {
-        //     this._currMeshBuffer = null;
-        }
     }
 
     /**

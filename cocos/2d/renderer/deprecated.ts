@@ -54,6 +54,15 @@ replaceProperty(MeshBuffer.prototype, 'MeshBuffer', [
     },
 ]);
 
+removeProperty(MeshBuffer.prototype, 'MeshBuffer', [
+    {
+        name: 'vertexBuffers',
+    },
+    {
+        name: 'indexBuffer',
+    },
+]);
+
 replaceProperty(Batcher2D.prototype, 'Batcher2D', [
     {
         name: 'currBufferBatch',
