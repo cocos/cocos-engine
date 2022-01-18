@@ -11,7 +11,7 @@ test('basic', () => {
     expect(meshBuffer.indexOffset).toBe(0);
     expect(meshBuffer.attributes).toBe(vfmtPosUvColor);
     // TODO. initialized vData.length should be 256 * 9
-    const vDataCount = macro.SIZE_PER_MESH_BUFFER * 1024 / Float32Array.BYTES_PER_ELEMENT;
+    const vDataCount = macro.BATCHER2D_MEM_INCREMENT * 1024 / Float32Array.BYTES_PER_ELEMENT;
     const iDataCount = vDataCount * MeshBuffer.IB_SCALE;
     expect(meshBuffer.vData.length).toBe(vDataCount);
     expect(meshBuffer.iData.length).toBe(iDataCount);
