@@ -2384,21 +2384,6 @@ static bool js_engine_CCObject_destroyImmediate(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_engine_CCObject_destroyImmediate)
 
-static bool js_engine_CCObject_destruct(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
-    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_destruct : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->destruct();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_engine_CCObject_destruct)
-
 static bool js_engine_CCObject_getHideFlags(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
@@ -2635,7 +2620,6 @@ bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("isValid", _SE(js_engine_CCObject_isValid_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_engine_CCObject_destroy));
     cls->defineFunction("_destroyImmediate", _SE(js_engine_CCObject_destroyImmediate));
-    cls->defineFunction("destruct", _SE(js_engine_CCObject_destruct));
     cls->defineFunction("toString", _SE(js_engine_CCObject_toString));
     cls->defineStaticFunction("deferredDestroy", _SE(js_engine_CCObject_deferredDestroy_static));
     cls->defineFinalizeFunction(_SE(js_cc_CCObject_finalize));
