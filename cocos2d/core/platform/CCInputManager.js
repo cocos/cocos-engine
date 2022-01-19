@@ -612,6 +612,15 @@ let inputManager = {
     _registerAccelerometerEvent () {},
 
     /**
+     * @method getTouchById
+     * @param {Number} touchID
+     * @return {Touch} Touch Object
+     */
+    getTouchById (touchID) {
+        return this._touchesCache[touchID];
+    },
+
+    /**
      * @method isValidTouch
      * @param {Number} touchID
      * @returns {Boolean} whether the touch object with touchID is valid.
