@@ -216,17 +216,17 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
     const scene::Shadow *                 shadowInfo              = sharedData->shadow;
     const scene::RenderScene *const       scene                   = camera->scene;
     const scene::DirectionalLight *       mainLight               = scene->getMainLight();
-    const float                           invisibleOcclusionRange = shadowInfo->invisibleOcclusionRange;
+    const float                           invisibleOcclusionRange = mainLight->getShadowInvisibleOcclusionRange();
     const float                           shadowMapWidth          = shadowInfo->size.x;
     const auto *                          node                    = mainLight->getNode();
     const Quaternion &                    rotation                = node->getWorldRotation();
-    const bool                            fixedArea               = shadowInfo->fixedArea;
+    const bool                            fixedArea               = mainLight->getShadowFixedArea();
 
     if (fixedArea) {
-        const float x         = shadowInfo->orthoSize;
-        const float y         = shadowInfo->orthoSize;
-        const float nearClamp = shadowInfo->nearValue;
-        const float farClamp  = shadowInfo->farValue;
+        const float x         = mainLight->getShadowOrthoSize();
+        const float y         = mainLight->getShadowOrthoSize();
+        const float nearClamp = mainLight->getShadowNear();
+        const float farClamp  = mainLight->getShadowFar();
 
         Mat4 matShadowTrans;
         Mat4::fromRT(rotation, node->getWorldPosition(), &matShadowTrans);
@@ -248,7 +248,7 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
         const Mat4     matWorldTrans = getCameraWorldMatrix(camera);
         scene::Frustum validFrustum;
         validFrustum.type = scene::ShapeEnums::SHAPE_FRUSTUM_ACCURATE;
-        validFrustum.split(0.1F, shadowInfo->shadowDistance, camera->aspect, camera->fov, matWorldTrans);
+        validFrustum.split(0.1F, mainLight->getShadowDistance(), camera->aspect, camera->fov, matWorldTrans);
         scene::Frustum lightViewFrustum = validFrustum.clone();
 
         // view matrix with range back.

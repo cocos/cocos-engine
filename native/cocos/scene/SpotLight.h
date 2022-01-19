@@ -64,6 +64,10 @@ public:
     }
     inline void setPosition(const Vec3 &pos) { _pos = pos; }
     inline void setSize(float size) { _size = size; }
+    inline void setShadowEnabled(bool enabled) { _shadowEnabled = enabled; }
+    inline void setShadowPcf(float pcf) { _shadowPcf = pcf; }
+    inline void setShadowBias(float bias) { _shadowBias = bias; }
+    inline void setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
 
     inline AABB *         getAABB() const { return _aabb; }
     inline float          getAngle() const { return _angle; }
@@ -77,6 +81,10 @@ public:
     inline float          getRange() const { return _range; }
     inline const Vec3 &   getPosition() const { return _pos; }
     inline float          getSize() const { return _size; }
+    inline bool           getShadowEnabled() const { return _shadowEnabled; }
+    inline float          getShadowPcf() const { return _shadowPcf; }
+    inline float          getShadowBias() const { return _shadowBias; }
+    inline float          getShadowNormalBias() const { return _shadowNormalBias; }
 
 private:
     bool    _needUpdate{false};
@@ -91,6 +99,12 @@ private:
     Vec3    _pos;
     AABB *  _aabb{nullptr};
     Frustum _frustum;
+
+    // shadow info
+    bool  _shadowEnabled{false};
+    float _shadowPcf{0.0F};
+    float _shadowBias{0.0F};
+    float _shadowNormalBias{0.0F};
 };
 
 } // namespace scene
