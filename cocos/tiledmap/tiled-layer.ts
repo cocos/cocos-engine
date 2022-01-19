@@ -1397,9 +1397,10 @@ export class TiledLayer extends Renderable2D {
             this._meshRenderDataArray = [];
         }
         const arr = this._meshRenderDataArray as any[];
-        while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.byteCount === 0) {
-            arr.pop();
-        }
+        // TODO temporary fix for shield node test case
+        // while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.vertexCount === 0) {
+        // arr.pop();
+        // }
         if (arr.length > 0) {
             if (arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
                 return arr[arr.length - 1] as TiledSubNodeData;
