@@ -1397,7 +1397,7 @@ export class TiledLayer extends Renderable2D {
             this._meshRenderDataArray = [];
         }
         const arr = this._meshRenderDataArray as any[];
-        while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.byteLength === 0) {
+        while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.byteCount === 0) {
             arr.pop();
         }
         if (arr.length > 0) {
