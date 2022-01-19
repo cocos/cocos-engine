@@ -51,10 +51,6 @@ void CCObject::deferredDestroy() {
     } else {
         objectsToDestroy.erase(objectsToDestroy.begin(), objectsToDestroy.begin() + deleteCount);
     }
-
-    //cjh TODO:    if (EDITOR) {
-    //        deferredDestroyTimer = null;
-    //    }
 }
 
 CCObject::CCObject(std::string name /* = ""*/)
@@ -73,23 +69,8 @@ bool CCObject::destroy() {
     addRef();
     objectsToDestroy.emplace_back(this);
 
-    //cjh TODO:   if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && !legacyCC.engine._isUpdating) {
-    //        // auto destroy immediate in edit mode
-    //        // @ts-expect-error no function
-    //        deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
-    //    }
+    //NOTE: EDITOR's deferredDestroyTimer trigger from ts
     return true;
-}
-
-void CCObject::destruct() {
-    //cjh TODO: it seems that this function doesn't need to be implemented in c++
-    //    const ctor: any = this.constructor;
-    //    let destruct = ctor.__destruct__;
-    //    if (!destruct) {
-    //        destruct = compileDestruct(this, ctor);
-    //        js.value(ctor, '__destruct__', destruct, true);
-    //    }
-    //    destruct(this);
 }
 
 void CCObject::destroyImmediate() {
@@ -100,9 +81,7 @@ void CCObject::destroyImmediate() {
 
     onPreDestroy();
 
-    //cjh TODO:    if (!EDITOR || legacyCC.GAME_VIEW) {
-    destruct();
-    //    }
+    // NOTE: native has been use smart pointer, not needed to implement 'destruct' interface, remove 'destruct' reference code
 
     _objFlags |= Flags::DESTROYED;
 }

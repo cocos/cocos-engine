@@ -218,7 +218,6 @@ public:
      *       }
      *
      */
-    void destruct();
 
     void destroyImmediate();
 

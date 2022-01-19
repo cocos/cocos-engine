@@ -136,15 +136,14 @@ void Camera::setFixedSize(uint32_t width, uint32_t height) {
 
 // Editor specific gizmo camera logic
 void Camera::syncCameraEditor(const Camera &camera) {
-    // TODO(xwx): EDITOR not implemented
-    // if (EDITOR) {
-    //     this.position     = camera.position;
-    //     this.forward      = camera.forward;
-    //     this._matView     = camera.matView;
-    //     this._matProj     = camera.matProj;
-    //     this._matProjInv  = camera.matProjInv;
-    //     this._matViewProj = camera.matViewProj;
-    // }
+#ifdef CC_EDITOR
+    this->_position    = camera._position;
+    this->_forward     = camera._forward;
+    this->_matView     = camera._matView;
+    this->_matProj     = camera._matProj;
+    this->_matProjInv  = camera._matProjInv;
+    this->_matViewProj = camera._matViewProj;
+#endif
 }
 
 void Camera::update(bool forceUpdate /*false*/) {
