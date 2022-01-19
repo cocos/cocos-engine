@@ -384,6 +384,22 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
             }
 
         }
+    } else if(curRenderPass->getDepthStencilAttachment().format != Format::UNKNOWN) {
+        if(index == 0) {
+            descriptor.depthAttachment.loadAction   = dsAttachment.depthLoadOp == LoadOp::LOAD ? MTLLoadActionLoad : MTLLoadActionClear;
+            descriptor.stencilAttachment.loadAction = dsAttachment.stencilLoadOp == LoadOp::LOAD ? MTLLoadActionLoad : MTLLoadActionClear;
+        } else {
+            descriptor.depthAttachment.loadAction   = MTLLoadActionLoad;
+            descriptor.stencilAttachment.loadAction = MTLLoadActionLoad;
+        }
+        //storeop
+        if(index == subpasses.size() - 1) {
+            descriptor.depthAttachment.storeAction   = dsAttachment.depthStoreOp == StoreOp::STORE ? MTLStoreActionStore : MTLStoreActionDontCare;
+            descriptor.stencilAttachment.storeAction = dsAttachment.stencilStoreOp == StoreOp::STORE ? MTLStoreActionStore : MTLStoreActionDontCare;
+        } else {
+            descriptor.depthAttachment.storeAction   = MTLStoreActionStore;
+            descriptor.stencilAttachment.storeAction = MTLStoreActionStore;
+        }
     }
 }
 
