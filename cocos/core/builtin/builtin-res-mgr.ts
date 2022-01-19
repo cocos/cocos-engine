@@ -35,6 +35,7 @@ import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
 import { Color } from '../math';
+import { debug } from '..';
 
 class BuiltinResMgr {
     protected _device: Device | null = null;
@@ -44,7 +45,6 @@ class BuiltinResMgr {
     public initBuiltinRes (device: Device): Promise<void> {
         this._device = device;
         const resources = this._resources;
-
         const len = 2;
         const numChannels = 4;
 
@@ -294,6 +294,8 @@ class BuiltinResMgr {
                 effect.onLoaded();
             });
             this._initMaterials();
+        }).then( () => {
+            return this._preloadAssets();
         });
     }
 
@@ -301,6 +303,9 @@ class BuiltinResMgr {
         return this._resources[uuid] as T;
     }
 
+    /**
+     * @internal
+     */
     private _initMaterials () {
         const resources = this._resources;
         const materialsToBeCompiled: any[] = [];
@@ -512,6 +517,36 @@ class BuiltinResMgr {
                     mat.passes[j].tryCompile();
                 }
             }
+        });
+    }
+
+    /**
+     * @internal
+     */
+    private async _preloadAssets() {
+        const resources = this._resources;
+        const promiseArray: Promise<Asset>[] = [];
+
+        if (window._CCSettings && window._CCSettings.preloadAssets && window._CCSettings.preloadAssets.length > 0) {
+            const preloadedAssets = window._CCSettings.preloadAssets;
+            preloadedAssets.forEach(assetUUID => {
+                promiseArray.push(
+                    new Promise<Asset>((resolve, reject) => {
+                        return legacyCC.assetManager.loadAny(assetUUID, (err, asset) => (err ? reject(err) : resolve(asset)));
+                    })
+                );
+            });
+        }
+
+        await Promise.all(promiseArray).then((resolve) => {
+            resolve.map((asset) => {
+                if (asset.name) {
+                    resources[asset.name] = asset;
+                } else {
+                    resources[asset._uuid] = asset;
+                }
+            });
+        }, function () {
         });
     }
 }
