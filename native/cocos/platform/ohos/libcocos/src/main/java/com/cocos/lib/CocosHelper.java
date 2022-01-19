@@ -80,6 +80,7 @@ public class CocosHelper {
     private static String sObbFilePath = "";
 
 
+    private static Object sTaskMtx = new Object();
     private static List<Runnable> sTaskOnGameThread = Collections.synchronizedList(new ArrayList<>());
 
     /**
@@ -131,13 +132,19 @@ public class CocosHelper {
     }
 
     public static void runOnGameThread(final Runnable runnable) {
-        sTaskOnGameThread.add(runnable);
+        synchronized (sTaskMtx) {
+            sTaskOnGameThread.add(runnable);
+        }
     }
-
+    
     @SuppressWarnings("unused")
     static void flushTasksOnGameThread() {
-        while (sTaskOnGameThread.size() > 0) {
-            Runnable r = sTaskOnGameThread.remove(0);
+        List<Runnable> tmp = sTaskOnGameThread;
+        synchronized (sTaskMtx) {
+            sTaskOnGameThread = Collections.synchronizedList(new ArrayList<>());
+        }
+        while (tmp.size() > 0) {
+            Runnable r = tmp.remove(0);
             if (r != null) {
                 r.run();
             }
