@@ -47,7 +47,7 @@ export const EnvironmentLightingType = Enum({
      * @zh
      * 半球漫反射
      * @en
-     * hemisphere diffuse reflection
+     * hemisphere diffuse
      * @readonly
      */
     Hemisphere_Diffuse: 0,
@@ -55,7 +55,7 @@ export const EnvironmentLightingType = Enum({
      * @zh
      * 半球漫反射和环境反射
      * @en
-     * hemisphere diffuse reflection and Environment reflection
+     * hemisphere diffuse and Environment reflection
      * @readonly
      */
     AutoGen_Hemisphere_Diffuse_With_Reflection: 1,
