@@ -1300,7 +1300,7 @@ export class Skeleton extends Renderable2D {
         return materialType;
     }
 
-    public getMaterialWithTexturePixelFormat (src: BlendFactor, dst: BlendFactor, useTint: boolean, format: PixelFormat): MaterialInstance {
+    protected getMaterialWithTexturePixelFormat (src: BlendFactor, dst: BlendFactor, useTint: boolean, format: PixelFormat): MaterialInstance {
         let alphaSeparated = false;
         if (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
             alphaSeparated = true;
