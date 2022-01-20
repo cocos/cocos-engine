@@ -280,7 +280,7 @@ export const effects = [
     "shaders": [
       {
         "name": "particle|particle-vs-legacy:lpvs_main|tinted-fs:add",
-        "hash": 2766437914,
+        "hash": 2554907268,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 52, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -353,42 +353,6 @@ export const effects = [
             { "name": "alphaThreshold", "type": 13, "count": 1 }
           ]}
         ],
-        "samplerTextures": [],
-        "buffers": [],
-        "images": [],
-        "textures": [],
-        "samplers": [],
-        "subpassInputs": []
-      }
-    ]
-  },
-  {
-    "name": "sprite-gpu",
-    "techniques": [
-      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "sprite-gpu|sprite-vs-gpu:vert|sprite-fs-gpu:frag", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
-    ],
-    "shaders": [
-      {
-        "name": "sprite-gpu|sprite-vs-gpu:vert|sprite-fs-gpu:frag",
-        "hash": 2450198964,
-        "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCUILocal", "defines": [] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }], "buffers": [], "images": [] }
-        },
-        "defines": [
-          { "name": "SAMPLE_FROM_RT", "type": "boolean" },
-          { "name": "USE_PIXEL_ALIGNMENT", "type": "boolean" },
-          { "name": "CC_USE_EMBEDDED_ALPHA", "type": "boolean" },
-          { "name": "USE_TEXTURE", "type": "boolean" },
-          { "name": "IS_GRAY", "type": "boolean" }
-        ],
-        "attributes": [
-          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
-          { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 },
-          { "name": "a_batch_id", "defines": [], "format": 11, "location": 2 }
-        ],
-        "blocks": [],
         "samplerTextures": [],
         "buffers": [],
         "images": [],
@@ -1007,7 +971,7 @@ export const effects = [
     "shaders": [
       {
         "name": "planar-shadow|planar-shadow-vs:vert|planar-shadow-fs:frag",
-        "hash": 2672216600,
+        "hash": 730673320,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 216, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 59 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
