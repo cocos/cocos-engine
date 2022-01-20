@@ -75,8 +75,8 @@ type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event | number) => void;
 
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
-    COLORED_TEXTURED_ALPHA_SEPARATED = 1,
-    TWO_COLORED = 2,
+    TWO_COLORED = 1,
+    COLORED_TEXTURED_ALPHA_SEPARATED = 2,
     TWO_COLORED_ALPHA_SEPARATED = 3
 }
 
