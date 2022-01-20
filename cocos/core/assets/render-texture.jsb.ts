@@ -78,6 +78,14 @@ renderTextureProto._ctor = function () {
     // _initializerDefineProperty(_this, '_height', _descriptor2$d, _assertThisInitialized(_this));
 };
 
+renderTextureProto._serialize = function (ctxForExporting: any): any {
+    if (EDITOR || TEST) {
+        return { base: textureBaseProto._serialize(ctxForExporting), w: this._width, h: this._height, n: this._name };
+    }
+    return {};
+}
+
+
 renderTextureProto._deserialize = function (serializedData: any, handle: any) {
     const data = serializedData;
     this._width = data.w;
