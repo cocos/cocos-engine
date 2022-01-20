@@ -22,6 +22,7 @@ import { js } from '../core/utils/js';
 import { Attribute, BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
+import { PixelFormat } from '../core/assets/asset-enum';
 
 export const timeScale = 1.0;
 
@@ -74,7 +75,9 @@ type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event | number) => void;
 
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
-    TWO_COLORED = 1,
+    COLORED_TEXTURED_ALPHA_SEPARATED = 1,
+    TWO_COLORED = 2,
+    TWO_COLORED_ALPHA_SEPARATED = 3
 }
 
 export interface SkeletonMeshData {
@@ -1281,6 +1284,31 @@ export class Skeleton extends Renderable2D {
         }
     }
 
+    public pickMaterialType (useTint : boolean, alphaSeparated: boolean) :SpineMaterialType {
+        let materialType = SpineMaterialType.COLORED_TEXTURED;
+        if (alphaSeparated) {
+            if (useTint) {
+                materialType = SpineMaterialType.TWO_COLORED_ALPHA_SEPARATED;
+            } else {
+                materialType = SpineMaterialType.COLORED_TEXTURED_ALPHA_SEPARATED;
+            }
+        } else if (useTint) {
+            materialType = SpineMaterialType.TWO_COLORED;
+        } else {
+            materialType = SpineMaterialType.COLORED_TEXTURED;
+        }
+        return materialType;
+    }
+
+    public getMaterialWithTexturePixelFormat (src: BlendFactor, dst: BlendFactor, useTint: boolean, format: PixelFormat): MaterialInstance {
+        let alphaSeparated = false;
+        if (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+            alphaSeparated = true;
+        }
+        const materialType = this.pickMaterialType(useTint, alphaSeparated);
+        return this.getMaterialForBlendAndTint(src, dst, materialType);
+    }
+
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
         let inst = this._materialCache[key];
@@ -1290,14 +1318,20 @@ export class Skeleton extends Renderable2D {
 
         let material = this.customMaterial;
         if (material === null) {
-            material = builtinResMgr.get<Material>('default-spine-material');
+            if (type === SpineMaterialType.TWO_COLORED_ALPHA_SEPARATED || type === SpineMaterialType.COLORED_TEXTURED_ALPHA_SEPARATED) {
+                material = builtinResMgr.get<Material>('spine-alpha-separated');
+            } else {
+                material = builtinResMgr.get<Material>('default-spine-material');
+            }
         }
 
         let useTwoColor = false;
         switch (type) {
         case SpineMaterialType.TWO_COLORED:
+        case SpineMaterialType.TWO_COLORED_ALPHA_SEPARATED:
             useTwoColor = true;
             break;
+        case SpineMaterialType.COLORED_TEXTURED_ALPHA_SEPARATED:
         case SpineMaterialType.COLORED_TEXTURED:
         default:
             break;

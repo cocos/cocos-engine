@@ -861,15 +861,15 @@ const cacheManager = require('./jsb-cache-manager');
             realTexture = this.skeletonData.getTextureByIndex(realTextureIndex);
             if (!realTexture) return;
 
-            // SpineMaterialType.TWO_COLORED 1
-            // SpineMaterialType.COLORED_TEXTURED 0
             //HACK
             const mat = this.material;
+            const format = realTexture.getPixelFormat();
             // cache material
-            this.material = this.getMaterialForBlendAndTint(
+            this.material = this.getMaterialWithTexturePixelFormat(
                 renderInfo[renderInfoOffset + materialIdx++],
                 renderInfo[renderInfoOffset + materialIdx++],
-                useTint ? 1 : 0,
+                useTint,
+                format,
             );
 
             _tempBufferIndex = renderInfo[renderInfoOffset + materialIdx++];

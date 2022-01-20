@@ -61,6 +61,7 @@ CCProgram sprite-vs %{
 CCProgram sprite-fs %{
   precision highp float;
   #include <alpha-test>
+  #include <embedded-alpha>
 
   in vec4 v_light;
   #if TWO_COLORED
@@ -73,14 +74,12 @@ CCProgram sprite-fs %{
   vec4 frag () {
 
     vec4 o = vec4(1, 1, 1, 1);
+    vec4 texColor = CCSampleWithAlphaSeparated(cc_spriteTexture, uv0);
     #if TWO_COLORED
-      vec4 texColor = vec4(1, 1, 1, 1);
-
-      texColor *= texture(cc_spriteTexture, uv0);
  	    o.a = texColor.a * v_light.a;
       o.rgb = ((texColor.a - 1.0) * v_dark.a + 1.0 - texColor.rgb) * v_dark.rgb + texColor.rgb * v_light.rgb;
     #else
-      o *= texture(cc_spriteTexture, uv0);
+      o *= texColor;
       o *= v_light;
     #endif
 

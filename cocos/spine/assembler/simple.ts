@@ -14,6 +14,8 @@ import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
 import { Color, Mat4, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
+import { TextureBase } from '../../core/assets/texture-base';
+import { PixelFormat } from '../../core/assets/asset-enum';
 
 const FLAG_BATCH = 0x10;
 const FLAG_TWO_COLOR = 0x01;
@@ -87,7 +89,7 @@ let _vertexEffect: spine.VertexEffect | null = null;
 let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
 
-function _getSlotMaterial (blendMode: spine.BlendMode) {
+function _getSlotMaterial (blendMode: spine.BlendMode, alphaSeparated : boolean) {
     let src: BlendFactor;
     let dst: BlendFactor;
     switch (blendMode) {
@@ -109,7 +111,10 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
         dst = BlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     }
-    return _comp!.getMaterialForBlendAndTint(src, dst, _useTint ? SpineMaterialType.TWO_COLORED : SpineMaterialType.COLORED_TEXTURED);
+
+    const materialType = _comp!.pickMaterialType(_useTint, alphaSeparated);
+
+    return _comp!.getMaterialForBlendAndTint(src, dst, materialType);
 }
 
 function _handleColor (color: FrameColor) {
@@ -463,7 +468,15 @@ function realTimeTraverse (worldMat?: Mat4) {
         }
 
         const texture = ((attachment as any).region.texture as SkeletonTexture).getRealTexture();
-        material = _getSlotMaterial(slot.data.blendMode);
+
+        let alphaSeparated = false;
+        if (texture instanceof TextureBase) {
+            const format = texture.getPixelFormat();
+            if (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+                alphaSeparated = true;
+            }
+        }
+        material = _getSlotMaterial(slot.data.blendMode, alphaSeparated);
         if (!material) {
             clipper.clipEndWithSlot(slot);
             continue;
@@ -661,7 +674,15 @@ function cacheTraverse (worldMat?: Mat4) {
     const renderData = _buffer!.renderData;
     for (let i = 0, n = segments.length; i < n; i++) {
         const segInfo = segments[i];
-        material = _getSlotMaterial(segInfo.blendMode!);
+        let alphaSeparated = false;
+        const texture = segInfo.tex!;
+        if (texture instanceof TextureBase) {
+            const format = texture.getPixelFormat();
+            if (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+                alphaSeparated = true;
+            }
+        }
+        material = _getSlotMaterial(segInfo.blendMode!, alphaSeparated);
         if (!material) continue;
         if (!_currentMaterial) _currentMaterial = material;
         if (!_currentTexture) _currentTexture = segInfo.tex!;

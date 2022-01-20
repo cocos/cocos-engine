@@ -505,6 +505,20 @@ class BuiltinResMgr {
         resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
         materialsToBeCompiled.push(spineTwoColorMtl);
 
+        // spine with alpha separated
+        const spineAlphaSeparated = new legacyCC.Material();
+        spineAlphaSeparated._uuid = 'spine-alpha-separated';
+        spineAlphaSeparated.initialize({
+            defines: {
+                USE_TEXTURE: true,
+                CC_USE_EMBEDDED_ALPHA: true,
+                IS_GRAY: false,
+            },
+            effectName: 'spine',
+        });
+        resources[spineAlphaSeparated._uuid] = spineAlphaSeparated;
+        materialsToBeCompiled.push(spineAlphaSeparated);
+
         legacyCC.game.on(legacyCC.Game.EVENT_GAME_INITED, () => {
             for (let i = 0; i < materialsToBeCompiled.length; ++i) {
                 const mat = materialsToBeCompiled[i];
