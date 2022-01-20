@@ -265,7 +265,6 @@ export class DeferredPipeline extends RenderPipeline {
 
     private _generateDeferredRenderData () {
         const device = this.device;
-        debugger;
         const data: DeferredRenderData = this._pipelineRenderData = new DeferredRenderData();
         const sceneData = this.pipelineSceneData;
         for (let i = 0; i < 3; ++i) {
