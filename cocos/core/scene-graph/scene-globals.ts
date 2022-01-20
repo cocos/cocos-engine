@@ -224,8 +224,6 @@ export class SkyboxInfo {
     @serializable
     protected _environmentLightingType = EnvironmentLightingType.Hemisphere_Diffuse;
     @serializable
-    protected _applyDiffuseMap = false;
-    @serializable
     @type(TextureCube)
     @formerlySerializedAs('_envmap')
     protected _envmapHDR: TextureCube | null = null;
@@ -241,8 +239,6 @@ export class SkyboxInfo {
     @serializable
     protected _enabled = false;
     @serializable
-    protected _useIBL = false;
-    @serializable
     protected _useHDR = true;
 
     protected _resource: Skybox | null = null;
@@ -252,16 +248,16 @@ export class SkyboxInfo {
      * @zh 是否为IBL启用漫反射卷积图？不启用的话将使用默认的半球光照
      */
     set applyDiffuseMap (val) {
-        this._applyDiffuseMap = val;
-
         if (this._resource) {
             this._resource.useDiffuseMap = val;
         }
     }
     get applyDiffuseMap () {
-        return this._applyDiffuseMap;
+        if (EnvironmentLightingType.DiffuseMap_With_Reflection === this._environmentLightingType) {
+            return true;
+        }
+        return false;
     }
-
     /**
      * @en Whether activate skybox in the scene
      * @zh 是否启用天空盒？
@@ -307,14 +303,15 @@ export class SkyboxInfo {
      * @zh 是否启用环境光照？
      */
     set useIBL (val) {
-        this._useIBL = val;
-
         if (this._resource) {
-            this._resource.useIBL = this._useIBL;
+            this._resource.useIBL = val;
         }
     }
     get useIBL () {
-        return this._useIBL;
+        if (EnvironmentLightingType.Hemisphere_Diffuse !== this._environmentLightingType) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -361,14 +358,15 @@ export class SkyboxInfo {
 
         if (!this._envmapHDR) {
             this._diffuseMapHDR = null;
-            this._applyDiffuseMap = false;
+            this.applyDiffuseMap = false;
             this.useIBL = false;
+            this.environmentLightingType = EnvironmentLightingType.Hemisphere_Diffuse;
         }
 
         if (this._resource) {
             this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
             this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
-            this._resource.useDiffuseMap = this._applyDiffuseMap;
+            this._resource.useDiffuseMap = this.applyDiffuseMap;
             this._resource.envmap = val;
         }
     }

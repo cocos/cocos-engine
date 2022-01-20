@@ -45,25 +45,25 @@ let skybox_material: Material | null = null;
 export const EnvironmentLightingType = Enum({
     /**
      * @zh
-     * 半球反射
+     * 半球漫反射
      * @en
-     * hemisphere reflection
+     * hemisphere diffuse reflection
      * @readonly
      */
     Hemisphere_Diffuse: 0,
     /**
      * @zh
-     * 半球反射和环境贴图反射
+     * 半球漫反射和环境反射
      * @en
-     * hemisphere reflection and environment map reflection
+     * hemisphere diffuse reflection and Environment reflection
      * @readonly
      */
     AutoGen_Hemisphere_Diffuse_With_Reflection: 1,
     /**
      * @zh
-     * 漫反射贴图。
+     * 漫反射卷积图和环境反射
      * @en
-     * diffuse map
+     * diffuse convolution map and environment reflection
      * @readonly
      */
     DiffuseMap_With_Reflection: 2,
