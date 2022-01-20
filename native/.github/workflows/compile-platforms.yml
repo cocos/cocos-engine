@@ -228,3 +228,33 @@ jobs:
               cmake --build . --config Debug --  -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           fi
           echo "Compile iOS Done!"
+
+  compile_wgpu_mac:
+    name: "Emscripten"
+    runs-on: macos-latest
+    if: contains( github.event.head_commit.message, 'WGPU_CI_ON' )
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch 3.4.1_wgpu_rebase --depth 1 https://github.com/hana-alice/engine-native-external external
+      - name: Setup Emscripten
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git ../emsdk
+          cd ../emsdk
+          ./emsdk install 2.0.26
+          ./emsdk activate 2.0.26
+          source ./emsdk_env.sh
+          emcc -v
+      - name: Compile
+        env:
+          COCOS_ENGINE_DEV: 1
+        run: |
+          COCOS2DX_ROOT=$GITHUB_WORKSPACE
+          cd $COCOS2DX_ROOT/cocos/renderer/gfx-wgpu
+          $COCOS2DX_ROOT/../emsdk/upstream/emscripten/emcmake cmake .
+          $COCOS2DX_ROOT/../emsdk/upstream/emscripten/emmake make
+          echo "Compile WGPU on MacOS Done!"
