@@ -294,7 +294,7 @@ class BuiltinResMgr {
                 effect.onLoaded();
             });
             this._initMaterials();
-        }).then( () => {
+        }).then(() => {
             return this._preloadAssets();
         });
     }
@@ -532,7 +532,9 @@ class BuiltinResMgr {
             preloadedAssets.forEach(assetUUID => {
                 promiseArray.push(
                     new Promise<Asset>((resolve, reject) => {
-                        return legacyCC.assetManager.loadAny(assetUUID, (err, asset) => (err ? reject(err) : resolve(asset)));
+                        return legacyCC.assetManager.loadAny(assetUUID, (err, asset) => (err
+                            ? reject(err)
+                            : resolve(asset)));
                     })
                 );
             });
@@ -546,7 +548,8 @@ class BuiltinResMgr {
                     resources[asset._uuid] = asset;
                 }
             });
-        }, function () {
+        }, function() {
+            
         });
     }
 }
