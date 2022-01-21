@@ -89,6 +89,7 @@ export enum API {
     GLES3,
     METAL,
     VULKAN,
+    NVN,
     WEBGL,
     WEBGL2,
     WEBGPU,
@@ -953,19 +954,44 @@ export class Color {
     }
 }
 
+/**
+ * For non-vulkan backends, to maintain compatibility and maximize
+ * descriptor cache-locality, descriptor-set-based binding numbers need
+ * to be mapped to backend-specific bindings based on maximum limit
+ * of available descriptor slots in each set.
+ *
+ * The GFX layer assumes the binding numbers for each descriptor type inside each set
+ * are guaranteed to be consecutive, so the mapping procedure is reduced
+ * to a simple shifting operation. This data structure specifies the
+ * capacity for each descriptor type in each set.
+ *
+ * The `setIndices` field defines the binding ordering between different sets.
+ * The last set index is treated as the 'flexible set', whose capacity is dynamically
+ * assigned based on the total available descriptor slots on the runtime device.
+ */
 export class BindingMappingInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public bufferOffsets: number[] = [],
-        public samplerOffsets: number[] = [],
-        public flexibleSet: number = 0,
+        public maxBlockCounts: number[] = [0],
+        public maxSamplerTextureCounts: number[] = [0],
+        public maxSamplerCounts: number[] = [0],
+        public maxTextureCounts: number[] = [0],
+        public maxBufferCounts: number[] = [0],
+        public maxImageCounts: number[] = [0],
+        public maxSubpassInputCounts: number[] = [0],
+        public setIndices: number[] = [0],
     ) {}
 
     public copy (info: Readonly<BindingMappingInfo>) {
-        this.bufferOffsets = info.bufferOffsets.slice();
-        this.samplerOffsets = info.samplerOffsets.slice();
-        this.flexibleSet = info.flexibleSet;
+        this.maxBlockCounts = info.maxBlockCounts.slice();
+        this.maxSamplerTextureCounts = info.maxSamplerTextureCounts.slice();
+        this.maxSamplerCounts = info.maxSamplerCounts.slice();
+        this.maxTextureCounts = info.maxTextureCounts.slice();
+        this.maxBufferCounts = info.maxBufferCounts.slice();
+        this.maxImageCounts = info.maxImageCounts.slice();
+        this.maxSubpassInputCounts = info.maxSubpassInputCounts.slice();
+        this.setIndices = info.setIndices.slice();
         return this;
     }
 }
@@ -1712,7 +1738,7 @@ export class QueryPoolInfo {
 
     constructor (
         public type: QueryType = QueryType.OCCLUSION,
-        public maxQueryObjects: number = 65536,
+        public maxQueryObjects: number = 32767,
         public forceWait: boolean = true,
     ) {}
 
