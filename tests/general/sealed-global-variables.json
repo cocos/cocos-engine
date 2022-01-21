@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-11-09T10:07:10.295Z"
+        "stamp": "2022-01-21T08:38:55.515Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -106,6 +106,7 @@
         "cc.GFXFeature",
         "cc.GFXFilter",
         "cc.GFXFormat",
+        "cc.GFXFormatFeatureBit",
         "cc.GFXFormatInfo",
         "cc.GFXFormatInfos",
         "cc.GFXFormatSize",
