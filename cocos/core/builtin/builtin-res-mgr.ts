@@ -34,8 +34,7 @@ import { effects } from './effects';
 import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
-import { Color } from '../math';
-import { debug } from '..';
+import { AssetManager } from '../asset-manager/asset-manager';
 
 class BuiltinResMgr {
     protected _device: Device | null = null;
@@ -294,9 +293,7 @@ class BuiltinResMgr {
                 effect.onLoaded();
             });
             this._initMaterials();
-        }).then(() => {
-            return this._preloadAssets();
-        });
+        }).then(() => this._preloadAssets());
     }
 
     public get<T extends Asset> (uuid: string) {
@@ -523,34 +520,20 @@ class BuiltinResMgr {
     /**
      * @internal
      */
-    private async _preloadAssets() {
+    private async _preloadAssets () {
         const resources = this._resources;
-        const promiseArray: Promise<Asset>[] = [];
-
         if (window._CCSettings && window._CCSettings.preloadAssets && window._CCSettings.preloadAssets.length > 0) {
-            const preloadedAssets = window._CCSettings.preloadAssets;
-            preloadedAssets.forEach(assetUUID => {
-                promiseArray.push(
-                    new Promise<Asset>((resolve, reject) => {
-                        return legacyCC.assetManager.loadAny(assetUUID, (err, asset) => (err
-                            ? reject(err)
-                            : resolve(asset)));
-                    })
-                );
-            });
-        }
-
-        await Promise.all(promiseArray).then((resolve) => {
-            resolve.map((asset) => {
-                if (asset.name) {
-                    resources[asset.name] = asset;
+            const preloadedAssets = window._CCSettings.preloadAssets as string[];
+            return new Promise<void>((resolve, reject) => (legacyCC.assetManager as AssetManager).loadAny(preloadedAssets, { __outputAsArray__: true }, (err, assets) => {
+                if (err) {
+                    reject(err);
                 } else {
-                    resources[asset._uuid] = asset;
+                    assets.forEach((asset) => resources[asset._uuid] = asset);
+                    resolve();
                 }
-            });
-        }, function() {
-            
-        });
+            }));
+        }
+        return Promise.resolve();
     }
 }
 

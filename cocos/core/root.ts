@@ -271,7 +271,7 @@ export class Root {
      * 初始化函数
      * @param info Root描述信息
      */
-    public initialize (info: IRootInfo): Promise<void> {
+    public initialize (info: IRootInfo) {
         this._init();
 
         const swapchain: Swapchain = legacyCC.game._swapchain;
@@ -292,8 +292,6 @@ export class Root {
             swapchain,
         });
         this._curWindow = this._mainWindow;
-
-        return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
     }
 
     public destroy () {
