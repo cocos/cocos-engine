@@ -499,9 +499,8 @@ export class Sprite extends Renderable2D {
     }
 
     public __preload () {
+        this.changeMaterialForDefine();
         super.__preload();
-        // Force update uv, material define, active material, etc
-        this._applySpriteFrame(null);
 
         if (EDITOR) {
             this._resized();
@@ -511,8 +510,24 @@ export class Sprite extends Renderable2D {
 
     public onEnable () {
         super.onEnable();
+
+        // Force update uv, material define, active material, etc
+        this._activateMaterial();
+        const spriteFrame = this._spriteFrame;
+        if (spriteFrame) {
+            this._updateUVs();
+            if (this._type === SpriteType.SLICED) {
+                spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+            }
+        }
         if (UI_GPU_DRIVEN) {
             this.tillingOffsetWithTrim = [];
+        }
+    }
+
+    public onDisable () {
+        if (this._spriteFrame && this._type === SpriteType.SLICED) {
+            this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
     }
 

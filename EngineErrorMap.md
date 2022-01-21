@@ -40,18 +40,15 @@ cocos2d : getActionByTag(tag = %s): Action not found
 
 ### 1006
 
-<!-- DEPRECATED -->
 [Action step]. override me
 
 ### 1007
 
-<!-- DEPRECATED -->
 [Action update]. override me
 
 ### 1008
 
-<!-- DEPRECATED -->
-cocos2d: FiniteTimeAction#reverse: Implement me
+[Action reverse]. override me
 
 ### 1009
 
