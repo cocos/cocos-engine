@@ -1007,10 +1007,16 @@ export class TiledLayer extends Renderable2D {
         // record max rect, when viewPort is bigger than layer, can make it smaller
         if (rightTop.row < cullingRow) {
             rightTop.row = cullingRow;
+            if (layerOrientation === Orientation.ISO) {
+                rightTop.row += 1;
+            }
         }
 
         if (rightTop.col < cullingCol) {
             rightTop.col = cullingCol;
+            if (layerOrientation === Orientation.ISO) {
+                rightTop.col += 1;
+            }
         }
 
         // _offset is whole layer offset
