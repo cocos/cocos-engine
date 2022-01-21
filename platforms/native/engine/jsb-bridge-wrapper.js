@@ -69,7 +69,7 @@ Object.defineProperty(jsb, 'jsbBridgeWrapper', {
     get () {
         if (jsb.__JsbBridgeWrapper !== undefined) return jsb.__JsbBridgeWrapper;
 
-        if (window.ScriptNativeBridge && cc.sys.os === cc.sys.OS.ANDROID || cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX) {
+        if (window.ScriptNativeBridge && cc.sys.os === cc.sys.OS.ANDROID || cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX || cc.sys.os === cc.sys.OS.OHOS) {
             jsb.__JsbBridgeWrapper = JsbBridgeWrapper;
             jsb.bridge.onNative = (methodName, arg1) => {
                 console.log(`Trigger event: ${methodName} with argeter: ${arg1}`);
