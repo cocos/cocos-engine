@@ -50,7 +50,7 @@ export const EnvironmentLightingType = Enum({
      * hemisphere diffuse
      * @readonly
      */
-    Hemisphere_Diffuse: 0,
+    HEMISPHERE_DIFFUSE: 0,
     /**
      * @zh
      * 半球漫反射和环境反射
@@ -58,7 +58,7 @@ export const EnvironmentLightingType = Enum({
      * hemisphere diffuse and Environment reflection
      * @readonly
      */
-    AutoGen_Hemisphere_Diffuse_With_Reflection: 1,
+    AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION: 1,
     /**
      * @zh
      * 漫反射卷积图和环境反射
@@ -66,7 +66,7 @@ export const EnvironmentLightingType = Enum({
      * diffuse convolution map and environment reflection
      * @readonly
      */
-    DiffuseMap_With_Reflection: 2,
+    DIFFUSEMAP_WITH_REFLECTION: 2,
 });
 
 export class Skybox {

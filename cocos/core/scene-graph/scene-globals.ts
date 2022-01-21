@@ -222,7 +222,7 @@ legacyCC.AmbientInfo = AmbientInfo;
 @help('i18n:cc.Skybox')
 export class SkyboxInfo {
     @serializable
-    protected _environmentLightingType = EnvironmentLightingType.Hemisphere_Diffuse;
+    protected _envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
     @serializable
     @type(TextureCube)
     @formerlySerializedAs('_envmap')
@@ -253,7 +253,7 @@ export class SkyboxInfo {
         }
     }
     get applyDiffuseMap () {
-        if (EnvironmentLightingType.DiffuseMap_With_Reflection === this._environmentLightingType) {
+        if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === this._envLightingType) {
             return true;
         }
         return false;
@@ -283,20 +283,20 @@ export class SkyboxInfo {
     @editable
     @type(EnvironmentLightingType)
     @tooltip('i18n:skybox.EnvironmentLightingType')
-    set environmentLightingType (val) {
-        if(EnvironmentLightingType.Hemisphere_Diffuse === val) {
+    set envLightingType (val) {
+        if(EnvironmentLightingType.HEMISPHERE_DIFFUSE === val) {
             this.useIBL = false;
-        }else if(EnvironmentLightingType.AutoGen_Hemisphere_Diffuse_With_Reflection === val) {
+        }else if(EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION === val) {
             this.useIBL = true;
             this.applyDiffuseMap = false;
-        }else if(EnvironmentLightingType.DiffuseMap_With_Reflection === val) {
+        }else if(EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === val) {
             this.useIBL = true;
             this.applyDiffuseMap = true;
         }
-        this._environmentLightingType = val;
+        this._envLightingType = val;
     }
-    get environmentLightingType () {
-        return this._environmentLightingType;
+    get envLightingType () {
+        return this._envLightingType;
     }
     /**
      * @en Whether use environment lighting
@@ -308,7 +308,7 @@ export class SkyboxInfo {
         }
     }
     get useIBL () {
-        if (EnvironmentLightingType.Hemisphere_Diffuse !== this._environmentLightingType) {
+        if (EnvironmentLightingType.HEMISPHERE_DIFFUSE !== this._envLightingType) {
             return true;
         }
         return false;
@@ -360,7 +360,7 @@ export class SkyboxInfo {
             this._diffuseMapHDR = null;
             this.applyDiffuseMap = false;
             this.useIBL = false;
-            this.environmentLightingType = EnvironmentLightingType.Hemisphere_Diffuse;
+            this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
         }
 
         if (this._resource) {
@@ -414,7 +414,7 @@ export class SkyboxInfo {
     }
 
     public activate (resource: Skybox) {
-        this.environmentLightingType = this._environmentLightingType;
+        this.envLightingType = this._envLightingType;
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);

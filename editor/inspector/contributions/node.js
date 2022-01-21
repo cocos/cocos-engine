@@ -516,7 +516,7 @@ const Elements = {
                         $prop.addEventListener('change-dump', $prop.updateSkylightingColor);
                     }
                 }
-                if ($prop.dump.name === 'environmentLightingType' && !$prop.updateDiffuseMap) {
+                if ($prop.dump.name === 'envLightingType' && !$prop.updateDiffuseMap) {
                     $prop.updateDiffuseMap = Elements.scene.updateDiffuseMap.bind(panel);
                     $prop.addEventListener('change-dump', (e) => {
                         $prop.updateDiffuseMap();
@@ -534,8 +534,8 @@ const Elements = {
             if (!envMapUuid) {
                 return;
             }
-            const environmentLightingType = dump.environmentLightingType.value;
-            if (environmentLightingType === 2) {
+            const envLightingType = dump.envLightingType.value;
+            if (envLightingType === 2) {
                 await Editor.Message.request('scene', 'execute-scene-script', {
                     name: 'inspector',
                     method: 'generateDiffuseMap',
