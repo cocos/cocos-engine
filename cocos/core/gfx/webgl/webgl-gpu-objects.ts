@@ -102,6 +102,12 @@ export interface IWebGLGPUUniformInfo {
     isDirty: boolean;
 }
 
+export interface IWebGLBindingMapping {
+    blockOffsets: number[];
+    samplerTextureOffsets: number[];
+    flexibleSet: number;
+}
+
 export interface IWebGLGPUBufferView {
     gpuBuffer: IWebGLGPUBuffer;
     offset: number;

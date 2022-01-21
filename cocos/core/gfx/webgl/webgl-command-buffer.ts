@@ -64,7 +64,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         this._type = info.type;
         this._queue = info.queue;
 
-        const setCount = WebGLDeviceManager.instance.bindingMappingInfo.bufferOffsets.length;
+        const setCount = WebGLDeviceManager.instance.bindingMappings.blockOffsets.length;
         for (let i = 0; i < setCount; i++) {
             this._curGPUDescriptorSets.push(null!);
         }
