@@ -51,10 +51,11 @@ export class DirectionalLight extends Light {
     @serializable
     protected _illuminanceLDR = 1.0;
 
-    // public
+    // Public properties of shadow
     @serializable
     protected _shadowEnabled = false;
 
+    // Shadow map properties
     @serializable
     protected _shadowPcf = PCFType.HARD;
     @serializable
@@ -68,7 +69,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowInvisibleOcclusionRange = 200;
 
-    // fixed area
+    // fixed area properties
     @serializable
     protected _shadowFixedArea = false;
     @serializable

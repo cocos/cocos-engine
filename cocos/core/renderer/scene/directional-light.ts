@@ -39,9 +39,10 @@ export class DirectionalLight extends Light {
     protected _illuminanceHDR: number = Ambient.SUN_ILLUM;
     protected _illuminanceLDR = 1.0;
 
-    // public
+    // Public properties of shadow
     protected _shadowEnabled = false;
 
+    // Shadow map properties
     protected _shadowPcf = PCFType.HARD;
     protected _shadowBias = 0.00001;
     protected _shadowNormalBias = 0.0;
@@ -49,7 +50,7 @@ export class DirectionalLight extends Light {
     protected _shadowDistance = 100;
     protected _shadowInvisibleOcclusionRange = 200;
 
-    // fixed area
+    // fixed area properties
     protected _shadowFixedArea = false;
     protected _shadowNear = 0.1;
     protected _shadowFar = 10.0;

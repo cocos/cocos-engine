@@ -63,6 +63,7 @@ export class SpotLight extends Light {
     @serializable
     protected _spotAngle = 60;
 
+    // Shadow map properties
     @serializable
     protected _shadowEnabled = false;
     @serializable

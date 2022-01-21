@@ -71,6 +71,7 @@ export class SpotLight extends Light {
 
     protected _aspect = 0;
 
+    // Shadow map properties
     protected _shadowEnabled = false;
     protected _shadowPcf = PCFType.HARD;
     protected _shadowBias = 0.00001;
