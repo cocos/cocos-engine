@@ -545,7 +545,7 @@ export class ArmatureDisplay extends Renderable2D {
             owner: this,
         };
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ USE_LOCAL: false }, 0); // TODO: not supported by ui
+        inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -569,7 +569,7 @@ export class ArmatureDisplay extends Renderable2D {
                     this.material = m.renderData.material;
                 }
                 if (m.texture) {
-                    ui.commitComp(this, m.renderData, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.renderData, m.texture, this._assembler, this.node);
                 }
                 this.material = mat;
             }

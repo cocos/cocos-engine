@@ -691,6 +691,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     const _tempAttachMat4 = cc.mat4();
+    const _identityTrans = new cc.Node();
     let _tempBufferIndex; let _tempIndicesOffset; let _tempIndicesCount;
 
     armatureDisplayProto._render = function (ui) {
@@ -780,7 +781,7 @@ const cacheManager = require('./jsb-cache-manager');
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
             const renderData = middleware.RenderInfoLookup[middleware.vfmtPosUvColor][_tempBufferIndex];
-            ui.commitComp(this, renderData, realTexture, this._assembler, null);
+            ui.commitComp(this, renderData, realTexture, this._assembler, _identityTrans);
             renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
             this.material = mat;
         }
