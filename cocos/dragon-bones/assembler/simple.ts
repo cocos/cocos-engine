@@ -357,8 +357,9 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: IBatcher) {
         _handleVal |= NEED_COLOR;
     }
 
-    const worldMat: Mat4 = _node.worldMatrix;
+    let worldMat: Mat4 | undefined;
     if (_comp._enableBatch) {
+        worldMat = _node.worldMatrix as Mat4;
         _mustFlush = false;
         _handleVal |= NEED_BATCH;
     }
