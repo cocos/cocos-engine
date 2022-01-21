@@ -31,7 +31,7 @@ import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
-import { Skybox } from '../renderer/scene/skybox';
+import { Skybox, EnvironmentLightingType } from '../renderer/scene/skybox';
 import { Octree } from '../renderer/scene/octree';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
@@ -222,7 +222,7 @@ legacyCC.AmbientInfo = AmbientInfo;
 @help('i18n:cc.Skybox')
 export class SkyboxInfo {
     @serializable
-    protected _applyDiffuseMap = false;
+    protected _envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
     @serializable
     @type(TextureCube)
     @formerlySerializedAs('_envmap')
@@ -239,8 +239,6 @@ export class SkyboxInfo {
     @serializable
     protected _enabled = false;
     @serializable
-    protected _useIBL = false;
-    @serializable
     protected _useHDR = true;
 
     protected _resource: Skybox | null = null;
@@ -249,25 +247,17 @@ export class SkyboxInfo {
      * @en Whether to use diffuse convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
      * @zh 是否为IBL启用漫反射卷积图？不启用的话将使用默认的半球光照
      */
-    @visible(function (this : SkyboxInfo) {
-        if (this.useIBL) {
-            return true;
-        }
-        return false;
-    })
-    @editable
-    @tooltip('i18n:skybox.applyDiffuseMap')
     set applyDiffuseMap (val) {
-        this._applyDiffuseMap = val;
-
         if (this._resource) {
             this._resource.useDiffuseMap = val;
         }
     }
     get applyDiffuseMap () {
-        return this._applyDiffuseMap;
+        if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === this._envLightingType) {
+            return true;
+        }
+        return false;
     }
-
     /**
      * @en Whether activate skybox in the scene
      * @zh 是否启用天空盒？
@@ -287,20 +277,41 @@ export class SkyboxInfo {
     }
 
     /**
+     * @zh 环境反射类型
+     * @en environment reflection type
+     */
+    @editable
+    @type(EnvironmentLightingType)
+    @tooltip('i18n:skybox.EnvironmentLightingType')
+    set envLightingType (val) {
+        if(EnvironmentLightingType.HEMISPHERE_DIFFUSE === val) {
+            this.useIBL = false;
+        }else if(EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION === val) {
+            this.useIBL = true;
+            this.applyDiffuseMap = false;
+        }else if(EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === val) {
+            this.useIBL = true;
+            this.applyDiffuseMap = true;
+        }
+        this._envLightingType = val;
+    }
+    get envLightingType () {
+        return this._envLightingType;
+    }
+    /**
      * @en Whether use environment lighting
      * @zh 是否启用环境光照？
      */
-    @editable
-    @tooltip('i18n:skybox.useIBL')
     set useIBL (val) {
-        this._useIBL = val;
-
         if (this._resource) {
-            this._resource.useIBL = this._useIBL;
+            this._resource.useIBL = val;
         }
     }
     get useIBL () {
-        return this._useIBL;
+        if (EnvironmentLightingType.HEMISPHERE_DIFFUSE !== this._envLightingType) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -347,14 +358,15 @@ export class SkyboxInfo {
 
         if (!this._envmapHDR) {
             this._diffuseMapHDR = null;
-            this._applyDiffuseMap = false;
+            this.applyDiffuseMap = false;
             this.useIBL = false;
+            this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
         }
 
         if (this._resource) {
             this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
             this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
-            this._resource.useDiffuseMap = this._applyDiffuseMap;
+            this._resource.useDiffuseMap = this.applyDiffuseMap;
             this._resource.envmap = val;
         }
     }
@@ -402,6 +414,7 @@ export class SkyboxInfo {
     }
 
     public activate (resource: Skybox) {
+        this.envLightingType = this._envLightingType;
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
