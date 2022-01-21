@@ -284,12 +284,6 @@ export class SpotLight extends Light {
         this.luminanceLDR = 1.0;
         this.range = Math.cos(Math.PI / 6);
         this._setDirection(new Vec3(1.0, -1.0, -1.0));
-
-        // shadow
-        this.shadowEnabled = false;
-        this.shadowPcf = PCFType.HARD;
-        this.shadowBias = 0.00001;
-        this.shadowNormalBias = 0.0;
     }
 
     public update () {

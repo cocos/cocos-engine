@@ -45,7 +45,7 @@ export class DirectionalLight extends Light {
     protected _shadowPcf = PCFType.HARD;
     protected _shadowBias = 0.00001;
     protected _shadowNormalBias = 0.0;
-    protected _shadowSaturation = 0.75;
+    protected _shadowSaturation = 1.0;
     protected _shadowDistance = 100;
     protected _shadowInvisibleOcclusionRange = 200;
 
@@ -168,11 +168,7 @@ export class DirectionalLight extends Light {
         return this._shadowSaturation;
     }
     set shadowSaturation (val: number) {
-        if (val > 1.0) {
-            this._shadowSaturation = val / val;
-        } else {
-            this._shadowSaturation = val;
-        }
+        this._shadowSaturation = val;
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setShadowSaturation(this._shadowSaturation);
         }
@@ -272,22 +268,6 @@ export class DirectionalLight extends Light {
 
         this.illuminance = Ambient.SUN_ILLUM;
         this.direction = new Vec3(1.0, -1.0, -1.0);
-
-        // public
-        this.shadowEnabled = false;
-
-        this.shadowPcf = PCFType.HARD;
-        this.shadowBias = 0.00001;
-        this.shadowNormalBias = 0.0;
-        this.shadowSaturation = 0.75;
-        this.shadowDistance = 100;
-        this.shadowInvisibleOcclusionRange = 200;
-
-        // fixed area
-        this.fixedArea = false;
-        this.fixedNear = 0.1;
-        this.fixedFar = 10.0;
-        this.fixedOrthoSize = 5;
     }
 
     public update () {

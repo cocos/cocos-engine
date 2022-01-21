@@ -37,6 +37,7 @@ import { Camera, PCFType, Shadows, ShadowType } from '../../core/renderer/scene'
 import { Root } from '../../core/root';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
+import { clamp } from '../../core';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')
@@ -61,7 +62,7 @@ export class DirectionalLight extends Light {
     @serializable
     protected _shadowNormalBias = 0.0;
     @serializable
-    protected _shadowSaturation = 0.75;
+    protected _shadowSaturation = 1.0;
     @serializable
     protected _shadowDistance = 100;
     @serializable
@@ -192,11 +193,8 @@ export class DirectionalLight extends Light {
         return this._shadowSaturation;
     }
     set shadowSaturation (val) {
-        if (val > 1.0) {
-            this._shadowSaturation = val / val;
-        } else {
-            this._shadowSaturation = val;
-        }
+        this._shadowSaturation = clamp(val, 0.0, 1.0);
+
         if (this._light) {
             this._light.shadowSaturation = this._shadowSaturation;
         }
@@ -206,7 +204,10 @@ export class DirectionalLight extends Light {
      * @en get or set shadow camera far
      * @zh 获取或者设置潜在阴影产生的范围
      */
-    @visible(function (this: DirectionalLight) { return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === false; })
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        === ShadowType.ShadowMap && this._shadowFixedArea === false;
+    })
     @property({ group: { name: 'ShadowSettings', displayOrder: 9 } })
     @editable
     @tooltip('shadow visible distance: shadow quality is inversely proportional of the magnitude of this value')
@@ -227,7 +228,10 @@ export class DirectionalLight extends Light {
      * @en get or set shadow camera far
      * @zh 获取或者设置潜在阴影产生的范围
     */
-    @visible(function (this: DirectionalLight) { return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === false; })
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        === ShadowType.ShadowMap && this._shadowFixedArea === false;
+    })
     @property({ group: { name: 'ShadowSettings', displayOrder: 10 } })
     @editable
     @tooltip('if shadow has been culled, increase this value to fix it')
@@ -266,7 +270,10 @@ export class DirectionalLight extends Light {
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
      */
-    @visible(function (this: DirectionalLight) { return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === true; })
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        === ShadowType.ShadowMap && this._shadowFixedArea === true;
+    })
     @property({ group: { name: 'ShadowSettings', displayOrder: 12 } })
     @editable
     @type(CCFloat)
@@ -284,7 +291,10 @@ export class DirectionalLight extends Light {
      * @en get or set shadow camera far
      * @zh 获取或者设置阴影相机远裁剪面
      */
-    @visible(function (this: DirectionalLight) { return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === true; })
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        === ShadowType.ShadowMap && this._shadowFixedArea === true;
+    })
     @property({ group: { name: 'ShadowSettings', displayOrder: 13 } })
     @editable
     @type(CCFloat)
@@ -302,7 +312,10 @@ export class DirectionalLight extends Light {
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影相机正交大小
      */
-    @visible(function (this: DirectionalLight) { return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === true; })
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        === ShadowType.ShadowMap && this._shadowFixedArea === true;
+    })
     @property({ group: { name: 'ShadowSettings', displayOrder: 14 } })
     @type(CCFloat)
     get fixedOrthoSize () {
