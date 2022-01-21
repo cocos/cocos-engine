@@ -33,6 +33,13 @@ import { Filter, PixelFormat, WrapMode } from './asset-enum';
 
 const textureBaseProto: any = jsb.TextureBase.prototype;
 
+textureBaseProto._serialize = function (ctxForExporting: any): any {
+    if (EDITOR || TEST) {
+        return `${this._minFilter},${this._magFilter},${this._wrapS},${this._wrapT},${this._mipFilter},${this._anisotropy}`;
+    }
+    return '';
+}
+
 textureBaseProto._deserialize = function (serializedData: any, handle: any) {
     const data = serializedData as string;
     const fields = data.split(',');
