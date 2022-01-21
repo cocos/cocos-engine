@@ -166,6 +166,31 @@ imageAssetProto._syncDataToNative = function () {
     }
 };
 
+imageAssetProto._serialize = function () {
+    if (EDITOR || TEST) {
+        let targetExtensions;
+        if (this._native) {
+            targetExtensions = [this._native];
+        }
+
+        if (!targetExtensions) {
+            return '';
+        }
+
+        const extensionIndices: string[] = [];
+        for (const targetExtension of targetExtensions) {
+            const extensionFormat = targetExtension.split('@');
+            const i = extnames.indexOf(extensionFormat[0]);
+            let exportedExtensionID = i < 0 ? targetExtension : `${i}`;
+            if (extensionFormat[1]) {
+                exportedExtensionID += `@${extensionFormat[1]}`;
+            }
+            extensionIndices.push(exportedExtensionID);
+        }
+        return { fmt: extensionIndices.join('_'), w: this.width, h: this.height };
+    }
+}
+
 imageAssetProto._deserialize = function (data: any) {
     let fmtStr = '';
     if (typeof data === 'string') {

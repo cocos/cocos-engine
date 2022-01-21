@@ -147,9 +147,9 @@ nodeProto.getComponentsInChildren = function (typeOrClassName) {
 };
 
 nodeProto.addComponent = function (typeOrClassName) {
-    // if (EDITOR && (this._objFlags & Destroying)) {
-    //     throw Error('isDestroying');
-    // }
+    if (EDITOR && (this._objFlags & Destroying)) {
+        throw Error('isDestroying');
+    }
 
     // get component
 
@@ -200,12 +200,12 @@ nodeProto.addComponent = function (typeOrClassName) {
     const component = new constructor();
     component.node = (this as unknown as Node); // TODO: HACK here
     this._components.push(component);
-    // if (EDITOR && EditorExtends.Node && EditorExtends.Component) {
-    //     const node = EditorExtends.Node.getNode(this._id);
-    //     if (node) {
-    //         EditorExtends.Component.add(component._id, component);
-    //     }
-    // }
+    if (EDITOR && EditorExtends.Node && EditorExtends.Component) {
+        const node = EditorExtends.Node.getNode(this._id);
+        if (node) {
+            EditorExtends.Component.add(component._id, component);
+        }
+    }
     if (this._activeInHierarchy) {
         legacyCC.director._nodeActivator.activateComp(component);
     }
@@ -335,12 +335,38 @@ nodeProto._removeComponent = function (component: Component) {
         const i = this._components.indexOf(component);
         if (i !== -1) {
             this._components.splice(i, 1);
-            // if (EDITOR && EditorExtends.Component) {
-            //     EditorExtends.Component.remove(component._id);
-            // }
+            if (EDITOR && EditorExtends.Component) {
+                EditorExtends.Component.remove(component._id);
+            }
         } else if (component.node !== this) {
             errorID(3815);
         }
+    }
+};
+
+nodeProto._registerIfAttached = !EDITOR ? undefined : function (this: Node, attached: boolean) {
+    if (EditorExtends.Node && EditorExtends.Component) {
+        if (attached) {
+            EditorExtends.Node.add(this._id, this);
+
+            for (let i = 0; i < this._components.length; i++) {
+                const comp = this._components[i];
+                EditorExtends.Component.add(comp._id, comp);
+            }
+        } else {
+            for (let i = 0; i < this._components.length; i++) {
+                const comp = this._components[i];
+                EditorExtends.Component.remove(comp._id);
+            }
+
+            EditorExtends.Node.remove(this._id);
+        }
+    }
+
+    const children = this._children;
+    for (let i = 0, len = children.length; i < len; ++i) {
+        const child = children[i];
+        child._registerIfAttached(attached);
     }
 };
 
@@ -356,6 +382,12 @@ nodeProto._onParentChanged = function (oldParent) {
 
 nodeProto._onReAttach = function () {
     this._eventProcessor.reattach();
+};
+
+nodeProto._onEditorAttached = function (attached: boolean) {
+    if (EDITOR) {
+        this._registerIfAttached(attached);
+    }
 };
 
 nodeProto._onRemovePersistRootNode = function () {
@@ -693,7 +725,7 @@ nodeProto.getWorldScale = function (out?: Vec3): Vec3 {
     return Vec3.copy(this._worldScaleCache, r);
 };
 
-nodeProto.getWorldMatrix = function getWorldMatrix(out?: Mat4): Mat4 {
+nodeProto.getWorldMatrix = function getWorldMatrix (out?: Mat4): Mat4 {
     oldGetWorldMatrix.call(this);
     const target = out || this._worldMatrixCache;
     target.set(
@@ -1340,11 +1372,11 @@ nodeProto._ctor = function (name?: string) {
 
     this._registeredNodeEventTypeMask = 0;
 
-    this.on(NodeEventType.CHILD_ADDED, (child)=>{
+    this.on(NodeEventType.CHILD_ADDED, (child) => {
         this._children.push(child);
     });
 
-    this.on(NodeEventType.CHILD_REMOVED, (child)=>{
+    this.on(NodeEventType.CHILD_REMOVED, (child) => {
         const removeAt = this._children.indexOf(child);
         if (removeAt < 0) {
             errorID(1633);

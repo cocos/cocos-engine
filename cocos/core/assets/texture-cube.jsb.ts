@@ -141,6 +141,37 @@ Object.defineProperty(textureCubeProto, 'image', {
     }
 });
 
+const oldOnLoaded = textureCubeProto.onLoaded;
+textureCubeProto.onLoaded = function () {
+    this.setMipmapsForJS(this._mipmaps);
+    oldOnLoaded.apply(this);
+}
+
+textureCubeProto._serialize = function (ctxForExporting: any): Record<string, unknown> | null {
+    if (EDITOR || TEST) {
+        return {
+            base: jsb.TextureBase.prototype._serialize(ctxForExporting),
+            rgbe: this.isRGBE,
+            mipmaps: this._mipmaps.map((mipmap) => ((ctxForExporting && ctxForExporting._compressUuid) ? {
+                front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
+                back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
+                left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
+                right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
+                top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
+                bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
+            } : {
+                front: mipmap.front._uuid,
+                back: mipmap.back._uuid,
+                left: mipmap.left._uuid,
+                right: mipmap.right._uuid,
+                top: mipmap.top._uuid,
+                bottom: mipmap.bottom._uuid,
+            })),
+        };
+    }
+    return null;
+}
+
 textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeData, handle: any) {
     const data = serializedData;
     jsb.TextureBase.prototype._deserialize.call(this, data.base, handle);
@@ -165,7 +196,6 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
         handle.result.push(this._mipmaps[i], `top`, mipmap.top, imageAssetClassId);
         handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom, imageAssetClassId);
     }
-    this.setMipmaps(this._mipmaps);
 }
 
 clsDecorator(TextureCube);

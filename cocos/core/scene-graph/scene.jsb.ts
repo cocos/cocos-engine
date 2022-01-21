@@ -114,7 +114,7 @@ sceneProto._ctor = function () {
     // _initializerDefineProperty(_this, "_globals", _descriptor2$k, _assertThisInitialized(_this));
 };
 
-sceneProto._onBatchCreated = function(dontSyncChildPrefab: boolean) {
+sceneProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
     // Don't invoke Node.prototype._onBatchCreated because we refactor Node&BaseNode, BaseNode is empty just for
     // instanceof check in ts engine. After ts engine removes BaseNode, we could remove BaseNode.h/.cpp too.
     if (this._parent) {
@@ -148,10 +148,10 @@ sceneProto._load = function () {
 const oldActivate = sceneProto._activate;
 sceneProto._activate = function (active: boolean) {
     active = (active !== false);
-    // if (EDITOR) {
-    //     // register all nodes to editor
-    //     this._registerIfAttached!(active);
-    // }
+    if (EDITOR) {
+        // register all nodes to editor
+        this._registerIfAttached!(active);
+    }
     legacyCC.director._nodeActivator.activateNode(this, active);
     // The test environment does not currently support the renderer
     if (!TEST) {

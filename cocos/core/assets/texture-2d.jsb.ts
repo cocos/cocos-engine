@@ -75,6 +75,26 @@ texture2DProto._ctor = function () {
 
 clsDecorator(Texture2D);
 
+texture2DProto._serialize = function (ctxForExporting: any) {
+    if (EDITOR || TEST) {
+        return {
+            base: TextureBase.prototype._serialize(ctxForExporting),
+            mipmaps: this._mipmaps.map((mipmap) => {
+                if (!mipmap || !mipmap._uuid) {
+                    return null;
+                }
+                if (ctxForExporting && ctxForExporting._compressUuid) {
+                    // ctxForExporting.dependsOn('_textureSource', texture); TODO
+                    return EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
+                }
+                return mipmap._uuid;
+            }),
+        };
+    }
+    return null;
+}
+
+
 texture2DProto._deserialize = function (serializedData: any, handle: any) {
     const data = serializedData as ITexture2DSerializeData;
     TextureBase.prototype._deserialize.call(this, data.base);

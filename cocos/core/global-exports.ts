@@ -178,7 +178,7 @@ if (DEV) {
     legacyCC._Test = {};
 }
 
-const engineVersion = '3.5.0';
+const engineVersion = '3.6.0';
 
 /**
  * The current version of Cocos2d being used.<br/>

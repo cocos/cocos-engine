@@ -50,6 +50,7 @@
                 "cocos/core/renderer/core/native-pools.ts": "cocos/core/renderer/core/native-pools.jsb.ts",
                 "cocos/core/renderer/core/material-instance.ts": "cocos/core/renderer/core/material-instance.jsb.ts",
                 "cocos/core/renderer/core/pass.ts": "cocos/core/renderer/core/pass.jsb.ts",
+                "cocos/core/renderer/core/program-lib.ts": "cocos/core/renderer/core/program-lib.jsb.ts",
                 "cocos/core/renderer/core/render-window.ts": "cocos/core/renderer/core/render-window.jsb.ts",
                 "cocos/core/renderer/core/sampler-lib.ts": "cocos/core/renderer/core/sampler.jsb.ts",
                 "cocos/core/renderer/scene/camera.ts": "cocos/core/renderer/scene/camera.jsb.ts",
