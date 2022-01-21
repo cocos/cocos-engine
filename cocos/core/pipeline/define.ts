@@ -158,10 +158,16 @@ export enum SetIndex {
     LOCAL,
 }
 // parameters passed to GFX Device
-export const bindingMappingInfo = new BindingMappingInfo();
-bindingMappingInfo.bufferOffsets = [0, GLOBAL_UBO_COUNT + LOCAL_UBO_COUNT, GLOBAL_UBO_COUNT];
-bindingMappingInfo.samplerOffsets = [-GLOBAL_UBO_COUNT, GLOBAL_SAMPLER_COUNT + LOCAL_SAMPLER_COUNT, GLOBAL_SAMPLER_COUNT - LOCAL_UBO_COUNT];
-bindingMappingInfo.flexibleSet = 1;
+export const bindingMappingInfo = new BindingMappingInfo(
+    [GLOBAL_UBO_COUNT, 0, LOCAL_UBO_COUNT],         // Uniform Buffer Counts
+    [GLOBAL_SAMPLER_COUNT, 0, LOCAL_SAMPLER_COUNT], // Combined Sampler Texture Counts
+    [0, 0, 0],                                      // Sampler Counts
+    [0, 0, 0],                                      // Texture Counts
+    [0, 0, 0],                                      // Storage Buffer Counts
+    [0, 0, 0],                                      // Storage Image Counts
+    [0, 0, 0],                                      // Subpass Input Counts
+    [0, 2, 1],                                      // Set Order Indices
+);
 
 /**
  * @en The global uniform buffer object

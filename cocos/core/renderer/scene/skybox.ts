@@ -37,9 +37,37 @@ import { Root } from '../../root';
 import { NaitveSkybox } from './native-scene';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
 import { Device } from '../../gfx';
+import { Enum } from '../../value-types';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
+
+export const EnvironmentLightingType = Enum({
+    /**
+     * @zh
+     * 半球漫反射
+     * @en
+     * hemisphere diffuse
+     * @readonly
+     */
+    HEMISPHERE_DIFFUSE: 0,
+    /**
+     * @zh
+     * 半球漫反射和环境反射
+     * @en
+     * hemisphere diffuse and Environment reflection
+     * @readonly
+     */
+    AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION: 1,
+    /**
+     * @zh
+     * 漫反射卷积图和环境反射
+     * @en
+     * diffuse convolution map and environment reflection
+     * @readonly
+     */
+    DIFFUSEMAP_WITH_REFLECTION: 2,
+});
 
 export class Skybox {
     get model (): Model | null {
