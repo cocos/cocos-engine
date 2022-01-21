@@ -599,7 +599,8 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
  * @zh 当前设备是否支持单通道半浮点贴图？（颜色输出和采样）
  */
 export function supportsR16HalfFloatTexture (device: Device) {
-    return device.getFormatFeatures(Format.R16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
+    return (device.getFormatFeatures(Format.R16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
 /**
@@ -607,7 +608,8 @@ export function supportsR16HalfFloatTexture (device: Device) {
  * @zh 当前设备是否支持单通道浮点贴图？（颜色输出和采样）
  */
 export function supportsR32FloatTexture (device: Device) {
-    return device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
+    return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
 /* eslint-enable max-len */

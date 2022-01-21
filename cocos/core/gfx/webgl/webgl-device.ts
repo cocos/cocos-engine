@@ -167,23 +167,23 @@ export class WebGLDevice extends Device {
 
         let compressedFormat = '';
 
-        if (exts.WEBGL_compressed_texture_etc1) {
+        if (this.getFormatFeatures(Format.ETC_RGB8)) {
             compressedFormat += 'etc1 ';
         }
 
-        if (exts.WEBGL_compressed_texture_etc) {
+        if (this.getFormatFeatures(Format.ETC2_RGB8)) {
             compressedFormat += 'etc2 ';
         }
 
-        if (exts.WEBGL_compressed_texture_s3tc) {
+        if (this.getFormatFeatures(Format.BC1)) {
             compressedFormat += 'dxt ';
         }
 
-        if (exts.WEBGL_compressed_texture_pvrtc) {
+        if (this.getFormatFeatures(Format.PVRTC_RGB2)) {
             compressedFormat += 'pvrtc ';
         }
 
-        if (exts.WEBGL_compressed_texture_astc) {
+        if (this.getFormatFeatures(Format.ASTC_RGBA_4X4)) {
             compressedFormat += 'astc ';
         }
 
