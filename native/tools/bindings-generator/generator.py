@@ -1153,7 +1153,7 @@ class NativeClass(object):
 
     def generate_struct_constructor(self):
         stream = open(os.path.join(self.generator.target, "conversions.yaml"), "r")
-        config = yaml.load(stream)
+        config = yaml.safe_load(stream)
         tpl = Template(config['definitions']['constructor'],
                                     searchList=[self])
         self.struct_constructor_name = str(tpl)
@@ -1585,7 +1585,7 @@ class Generator(object):
         return False
 
     def should_skip_public_field(self, class_name, field_name, verbose=False):
-       
+
         if class_name == "*" and "*" in self.skip_public_fields_classes:
             for func in self.skip_public_fields_classes["*"]:
                 if re.match(func, field_name):
@@ -1697,7 +1697,7 @@ class Generator(object):
     def generate_code(self):
         # must read the yaml file first
         stream = open(os.path.join(self.target, "conversions.yaml"), "r")
-        data = yaml.load(stream)
+        data = yaml.safe_load(stream)
         self.config = data
         implfilepath = os.path.join(self.outdir, self.out_file + ".cpp")
         headfilepath = os.path.join(self.outdir, self.out_file + ".h")

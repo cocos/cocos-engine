@@ -73,23 +73,23 @@ void GLES2DescriptorSet::doDestroy() {
 
 void GLES2DescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
-        const GLES2GPUDescriptorList &descriptors = _gpuDescriptorSet->gpuDescriptors;
+        auto &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
             if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_BUFFER_TYPE)) {
                 auto *buffer = static_cast<GLES2Buffer *>(_buffers[i]);
                 if (buffer) {
                     if (buffer->gpuBuffer()) {
-                        _gpuDescriptorSet->gpuDescriptors[i].gpuBuffer = buffer->gpuBuffer();
+                        descriptors[i].gpuBuffer = buffer->gpuBuffer();
                     } else if (buffer->gpuBufferView()) {
-                        _gpuDescriptorSet->gpuDescriptors[i].gpuBufferView = buffer->gpuBufferView();
+                        descriptors[i].gpuBufferView = buffer->gpuBufferView();
                     }
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
                 if (_textures[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = static_cast<GLES2Texture *>(_textures[i])->gpuTexture();
+                    descriptors[i].gpuTexture = static_cast<GLES2Texture *>(_textures[i])->gpuTexture();
                 }
                 if (_samplers[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuSampler = static_cast<GLES2Sampler *>(_samplers[i])->gpuSampler();
+                    descriptors[i].gpuSampler = static_cast<GLES2Sampler *>(_samplers[i])->gpuSampler();
                 }
             }
         }

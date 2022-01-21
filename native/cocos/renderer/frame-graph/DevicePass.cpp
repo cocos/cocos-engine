@@ -24,15 +24,17 @@
 ****************************************************************************/
 
 #include "DevicePass.h"
-#include <algorithm>
 #include "CallbackPass.h"
 #include "DevicePassResourceTable.h"
 #include "FrameGraph.h"
 #include "PassNode.h"
 #include "ResourceNode.h"
+
 #include "base/Utils.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDef-common.h"
+
+#include <algorithm>
 
 namespace cc {
 namespace framegraph {
@@ -225,8 +227,8 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
                 // calculate the union of all viewports as render area
                 _viewport.left = _scissor.x = std::min(_scissor.x, pass.viewport.left);
                 _viewport.top = _scissor.y = std::min(_scissor.y, pass.viewport.top);
-                _viewport.width = _scissor.width = std::max(_scissor.width, pass.viewport.width);
-                _viewport.height = _scissor.height = std::max(_scissor.height, pass.viewport.height);
+                _viewport.width = _scissor.width = std::max(_scissor.width, pass.viewport.width + pass.viewport.left - _scissor.x);
+                _viewport.height = _scissor.height = std::max(_scissor.height, pass.viewport.height + pass.viewport.top - _scissor.y);
             }
         }
     }

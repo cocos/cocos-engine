@@ -274,8 +274,6 @@ class CCVKGPUShader final : public Object {
 public:
     String                     name;
     AttributeList              attributes;
-    UniformBlockList           blocks;
-    UniformSamplerList         samplers;
     vector<CCVKGPUShaderStage> gpuStages;
 };
 
@@ -970,6 +968,18 @@ public:
     void update(const CCVKGPUBuffer *buffer) {
         for (const auto &it : _buffers) {
             if (it.first->gpuBuffer != buffer) continue;
+            const auto &info = it.second;
+            for (uint32_t i = 0U; i < info.descriptors.size(); i++) {
+                doUpdate(it.first, info.descriptors[i]);
+            }
+            for (const auto *set : info.sets) {
+                _descriptorSetHub->record(set);
+            }
+        }
+    }
+    void update(const CCVKGPUTexture *texture) {
+        for (auto &it : _textures) {
+            if (it.first->gpuTexture != texture) continue;
             const auto &info = it.second;
             for (uint32_t i = 0U; i < info.descriptors.size(); i++) {
                 doUpdate(it.first, info.descriptors[i]);

@@ -61,6 +61,13 @@ enum class GLESCmdType : uint8_t {
     COUNT,
 };
 
+class GLESBindingMapping {
+public:
+    vector<int32_t> blockOffsets;
+    vector<int32_t> samplerTextureOffsets;
+    uint32_t        flexibleSet{0};
+};
+
 class GLESCmd : public Object {
 public:
     GLESCmdType type;

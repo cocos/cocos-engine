@@ -40,6 +40,7 @@
 #include "VKSwapchain.h"
 #include "VKTexture.h"
 #include "VKUtils.h"
+#include "base/Utils.h"
 #include "states/VKGlobalBarrier.h"
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
@@ -283,7 +284,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _caps.maxVertexTextureUnits          = limits.maxPerStageDescriptorSampledImages;
     _caps.maxTextureSize                 = limits.maxImageDimension2D;
     _caps.maxCubeMapTextureSize          = limits.maxImageDimensionCube;
-    _caps.uboOffsetAlignment             = static_cast<uint32_t>(limits.minUniformBufferOffsetAlignment);
+    _caps.uboOffsetAlignment             = utils::toUint(limits.minUniformBufferOffsetAlignment);
     // compute shaders
     _caps.maxComputeSharedMemorySize     = limits.maxComputeSharedMemorySize;
     _caps.maxComputeWorkGroupInvocations = limits.maxComputeWorkGroupInvocations;
@@ -597,8 +598,9 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 
     for (uint32_t i = 0; i < vkSwapchains.size(); ++i) {
         VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
-        VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, vkSwapchains[i], ~0ULL,
-                                       acquireSemaphore, VK_NULL_HANDLE, &vkSwapchainIndices[i]));
+        VkResult res = vkAcquireNextImageKHR(_gpuDevice->vkDevice, vkSwapchains[i], ~0ULL,
+                                       acquireSemaphore, VK_NULL_HANDLE, &vkSwapchainIndices[i]);
+        CCASSERT(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR, "acquire surface failed");
         gpuSwapchains[i]->curImageIndex = vkSwapchainIndices[i];
         queue->gpuQueue()->lastSignaledSemaphores.push_back(acquireSemaphore);
 

@@ -27,7 +27,6 @@
 #include "VKCommandBuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
-#include "vulkan/vulkan_core.h"
 
 namespace cc {
 namespace gfx {

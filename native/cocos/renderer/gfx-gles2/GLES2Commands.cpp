@@ -27,6 +27,7 @@
 
 #include "GLES2Commands.h"
 #include "GLES2Device.h"
+#include "gfx-gles-common/GLESCommandPool.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
@@ -1100,14 +1101,14 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     // texture unit index mapping optimization
     vector<GLES2GPUUniformSamplerTexture> glActiveSamplerTextures;
     vector<GLint>                         glActiveSamplerLocations;
-    const BindingMappingInfo &            bindingMappingInfo = device->bindingMappingInfo();
-    unordered_map<String, uint32_t> &     texUnitCacheMap    = device->stateCache()->texUnitCacheMap;
+    const GLESBindingMapping &            bindingMappings = device->bindingMappings();
+    unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
     // sampler bindings in the flexible set comes strictly after buffer bindings
     // so we need to subtract the buffer count for these samplers
     uint32_t flexibleSetBaseOffset = 0U;
-    for (auto &block : gpuShader->blocks) {
-        if (block.set == bindingMappingInfo.flexibleSet) {
+    for (const auto &block : gpuShader->blocks) {
+        if (block.set == bindingMappings.flexibleSet) {
             flexibleSetBaseOffset++;
         }
     }
@@ -1122,8 +1123,8 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
             glActiveSamplerLocations.push_back(glLoc);
         }
         if (!texUnitCacheMap.count(samplerTexture.name)) {
-            uint32_t binding = samplerTexture.binding + bindingMappingInfo.samplerOffsets[samplerTexture.set] + arrayOffset;
-            if (samplerTexture.set == bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
+            uint32_t binding = samplerTexture.binding + bindingMappings.samplerTextureOffsets[samplerTexture.set] + arrayOffset;
+            if (samplerTexture.set == bindingMappings.flexibleSet) binding -= flexibleSetBaseOffset;
             texUnitCacheMap[samplerTexture.name] = binding % device->getCapabilities().maxTextureUnits;
             arrayOffset += samplerTexture.count - 1;
         }

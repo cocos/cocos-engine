@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "VKGlobalBarrier.h"
-#include "../VKCommands.h"
+#include "../VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {

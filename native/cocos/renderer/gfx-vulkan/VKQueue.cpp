@@ -29,7 +29,6 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKQueue.h"
-#include "vulkan/vulkan_core.h"
 
 namespace cc {
 namespace gfx {

@@ -53,7 +53,7 @@ void GLES3CommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
     _cmdAllocator  = CC_NEW(GLES3GPUCommandAllocator);
     _curCmdPackage = CC_NEW(GLES3CmdPackage);
 
-    size_t setCount = GLES3Device::getInstance()->bindingMappingInfo().bufferOffsets.size();
+    size_t setCount = GLES3Device::getInstance()->bindingMappingInfo().setIndices.size();
     _curGPUDescriptorSets.resize(setCount);
     _curDynamicOffsets.resize(setCount);
 }

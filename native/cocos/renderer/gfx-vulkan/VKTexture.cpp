@@ -126,6 +126,7 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     cmdFuncCCVKCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
 
     CCVKDevice::getInstance()->gpuFramebufferHub()->update(_gpuTexture);
+    CCVKDevice::getInstance()->gpuDescriptorHub()->update(_gpuTexture);
 }
 
 ///////////////////////////// Swapchain Specific /////////////////////////////

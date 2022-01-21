@@ -123,6 +123,7 @@ enum class API : uint32_t {
     GLES3,
     METAL,
     VULKAN,
+    NVN,
     WEBGL,
     WEBGL2,
     WEBGPU,
@@ -884,12 +885,22 @@ using ColorList = vector<Color>;
  * The GFX layer assumes the binding numbers for each descriptor type inside each set
  * are guaranteed to be consecutive, so the mapping procedure is reduced
  * to a simple shifting operation. This data structure specifies the
- * offsets for each descriptor type in each set.
+ * capacity for each descriptor type in each set.
+ *
+ * The `setIndices` field defines the binding ordering between different sets.
+ * The last set index is treated as the 'flexible set', whose capacity is dynamically
+ * assigned based on the total available descriptor slots on the runtime device.
  */
 struct BindingMappingInfo {
-    std::vector<int32_t> bufferOffsets;
-    std::vector<int32_t> samplerOffsets;
-    uint32_t             flexibleSet{0U};
+    std::vector<uint32_t> maxBlockCounts{0};
+    std::vector<uint32_t> maxSamplerTextureCounts{0};
+    std::vector<uint32_t> maxSamplerCounts{0};
+    std::vector<uint32_t> maxTextureCounts{0};
+    std::vector<uint32_t> maxBufferCounts{0};
+    std::vector<uint32_t> maxImageCounts{0};
+    std::vector<uint32_t> maxSubpassInputCounts{0};
+
+    std::vector<uint32_t> setIndices{0};
 };
 
 struct SwapchainInfo {

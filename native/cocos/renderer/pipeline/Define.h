@@ -222,9 +222,6 @@ enum class CC_DLL PipelineGlobalBindings {
 };
 CC_ENUM_CONVERSION_OPERATOR(PipelineGlobalBindings)
 
-extern CC_DLL int globalUBOCount;
-extern CC_DLL int globalSamplerCount;
-
 enum class CC_DLL ModelLocalBindings {
     UBO_LOCAL,
     UBO_FORWARD_LIGHTS,
@@ -245,9 +242,6 @@ enum class CC_DLL ModelLocalBindings {
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ModelLocalBindings)
-
-extern CC_DLL int localUBOCount;
-extern CC_DLL int localSamplerCount;
 
 enum class CC_DLL SetIndex {
     GLOBAL,

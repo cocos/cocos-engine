@@ -191,12 +191,7 @@ void FrameGraph::move(const TextureHandle from, const TextureHandle to, uint8_t 
 }
 
 bool FrameGraph::hasPass(StringHandle handle) {
-    for (const auto &passNode : _passNodes) {
-        if (passNode->_name == handle) {
-            return true;
-        }
-    }
-    return false;
+    return std::any_of(_passNodes.begin(), _passNodes.end(), [&](const auto &passNode) { return passNode->_name == handle; });
 }
 
 Handle FrameGraph::create(VirtualResource *const virtualResource) {

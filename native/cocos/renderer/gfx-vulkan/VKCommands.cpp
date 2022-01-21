@@ -477,18 +477,14 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         if (subpassInfo.depthStencilResolve != INVALID_BINDING) {
             Format dsFormat{Format::UNKNOWN};
             bool   isGeneralLayout{false};
-            if (subpassInfo.depthStencil >= colorAttachmentCount) {
-                const DepthStencilAttachment &  desc       = gpuRenderPass->depthStencilAttachment;
-                const VkAttachmentDescription2 &attachment = attachmentDescriptions.back();
-                isGeneralLayout                            = desc.isGeneralLayout;
-                dsFormat                                   = desc.format;
-                sampleCount                                = std::max(sampleCount, attachment.samples);
+            if (subpassInfo.depthStencilResolve >= colorAttachmentCount) {
+                const DepthStencilAttachment &desc = gpuRenderPass->depthStencilAttachment;
+                isGeneralLayout                    = desc.isGeneralLayout;
+                dsFormat                           = desc.format;
             } else {
-                const ColorAttachment &         desc       = gpuRenderPass->colorAttachments[subpassInfo.depthStencil];
-                const VkAttachmentDescription2 &attachment = attachmentDescriptions[subpassInfo.depthStencil];
-                isGeneralLayout                            = desc.isGeneralLayout;
-                dsFormat                                   = desc.format;
-                sampleCount                                = std::max(sampleCount, attachment.samples);
+                const ColorAttachment &desc = gpuRenderPass->colorAttachments[subpassInfo.depthStencilResolve];
+                isGeneralLayout             = desc.isGeneralLayout;
+                dsFormat                    = desc.format;
             }
 
             VkImageAspectFlags aspect = GFX_FORMAT_INFOS[toNumber(dsFormat)].hasStencil
@@ -1170,7 +1166,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
             } else {
                 for (size_t i = 0; i < drawInfoCount; ++i) {
                     gpuBuffer->indirectCmds[i].vertexCount   = drawInfo->vertexCount;
-                    gpuBuffer->indirectCmds[i].instanceCount = drawInfo->instanceCount;
+                    gpuBuffer->indirectCmds[i].instanceCount = std::max(drawInfo->instanceCount, 1U);
                     gpuBuffer->indirectCmds[i].firstVertex   = drawInfo->firstVertex;
                     gpuBuffer->indirectCmds[i].firstInstance = drawInfo->firstInstance;
                     drawInfo++;
@@ -1355,7 +1351,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
 }
 
 void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcTexture, CCVKGPUBuffer *destBuffer,
-                                                   const BufferTextureCopy *regions, uint32_t count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+                                     const BufferTextureCopy *regions, uint32_t count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
     vector<ThsvsAccessType> &curTypes = srcTexture->currentAccessTypes;
 
     ThsvsImageBarrier barrier{};

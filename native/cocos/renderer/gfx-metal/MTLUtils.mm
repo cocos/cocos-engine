@@ -370,7 +370,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     pipelineInfo.shader = createShader(device);
     pipelineInfo.inputState = {{position}};
     pipelineInfo.renderPass = curPass;
-    
+
     DepthStencilState dsState;
     dsState.depthWrite  = 0;
     dsState.depthTest   = 1;
@@ -927,7 +927,6 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     // TODO: bindings from shader just kind of validation, cannot be directly input
     // Get all uniform buffers in the shader.
     uint maxBufferBindingIndex = device->getMaximumBufferBindingIndex();
-    const auto &bufferBindingOffset = device->bindingMappingInfo().bufferOffsets;
     for (const auto &ubo : resources.uniform_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
@@ -965,7 +964,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         if (binding >= maxBufferBindingIndex) {
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
-        
+
         uint nameHash = static_cast<uint>(std::hash<String>{}(ubo.name));
         if (gpuShader->blocks.find(nameHash) == gpuShader->blocks.end()) {
             auto mappedBinding = gpuShader->bufferIndex;
@@ -992,9 +991,6 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         return "";
     }
 
-    // Get all sampled images in the shader.
-    const auto &samplerBindingOffset = device->bindingMappingInfo().samplerOffsets;
-    
     // avoid conflict index with input attachments.
     const uint8_t rtOffsets = executionModel == spv::ExecutionModelFragment ? resources.subpass_inputs.size() : 0;
     for (const auto &sampler : resources.sampled_images) {
@@ -1634,7 +1630,7 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> render
     const auto gpuPSO = getClearRenderPassPipelineState(device, renderPass);
     const auto mtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
     uint slot = 0u;
-    
+
     const auto &renderTargetSizes = mtlRenderPass->getRenderTargetSizes();
     float renderTargetWidth = renderTargetSizes[slot].x;
     float renderTargetHeight = renderTargetSizes[slot].y;
