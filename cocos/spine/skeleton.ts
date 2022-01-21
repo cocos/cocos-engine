@@ -1318,20 +1318,22 @@ export class Skeleton extends Renderable2D {
 
         let material = this.customMaterial;
         if (material === null) {
-            if (type === SpineMaterialType.TWO_COLORED_ALPHA_SEPARATED || type === SpineMaterialType.COLORED_TEXTURED_ALPHA_SEPARATED) {
-                material = builtinResMgr.get<Material>('spine-alpha-separated');
-            } else {
-                material = builtinResMgr.get<Material>('default-spine-material');
-            }
+            material = builtinResMgr.get<Material>('default-spine-material');
         }
 
         let useTwoColor = false;
+        let alphaSeparated = false;
         switch (type) {
         case SpineMaterialType.TWO_COLORED:
-        case SpineMaterialType.TWO_COLORED_ALPHA_SEPARATED:
             useTwoColor = true;
             break;
+        case SpineMaterialType.TWO_COLORED_ALPHA_SEPARATED:
+            useTwoColor = true;
+            alphaSeparated = true;
+            break;
         case SpineMaterialType.COLORED_TEXTURED_ALPHA_SEPARATED:
+            alphaSeparated = true;
+            break;
         case SpineMaterialType.COLORED_TEXTURED:
         default:
             break;
@@ -1356,7 +1358,7 @@ export class Skeleton extends Renderable2D {
                 }],
             },
         });
-        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
+        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true, CC_USE_EMBEDDED_ALPHA: alphaSeparated });
         return inst;
     }
 
