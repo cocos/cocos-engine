@@ -76,6 +76,7 @@ export class ParticleSystem extends RenderableComponent {
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(1)
     @tooltip('i18n:particle_system.capacity')
     public get capacity () {
@@ -83,7 +84,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public set capacity (val) {
-        this._capacity = Math.floor(val);
+        this._capacity = Math.floor(val > 0 ? val : 0);
         // @ts-expect-error private property access
         if (this.processor && this.processor._model) {
             // @ts-expect-error private property access
@@ -710,6 +711,7 @@ export class ParticleSystem extends RenderableComponent {
     private _oldPos: Vec3 | null;
     private _curPos: Vec3 | null;
     private _isCulled: boolean;
+    private _isSimulating: boolean;
 
     private _customData1: Vec2;
     private _customData2: Vec2;
@@ -753,6 +755,7 @@ export class ParticleSystem extends RenderableComponent {
         this._oldPos = null;
         this._curPos = null;
         this._isCulled = false;
+        this._isSimulating = true;
 
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
@@ -864,6 +867,13 @@ export class ParticleSystem extends RenderableComponent {
         if (this._trailModule) {
             this._trailModule.play();
         }
+
+        if (this.processor) {
+            const model = this.processor.getModel();
+            if (model) {
+                model.enabled = this.enabledInHierarchy;
+            }
+        }
     }
 
     /**
@@ -918,7 +928,7 @@ export class ParticleSystem extends RenderableComponent {
             this.processor.clear();
             if (this._trailModule) this._trailModule.clear();
         }
-        this._calculateBounding(true);
+        this._calculateBounding(false);
     }
 
     /**
@@ -1010,7 +1020,17 @@ export class ParticleSystem extends RenderableComponent {
     protected update (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
 
-        if (this.renderCulling) {
+        if (!this.renderCulling) {
+            if (this._boundingBox) {
+                this._boundingBox = null;
+            }
+            if (this._culler) {
+                this._culler.clear();
+                this._culler.destroy();
+                this._culler = null;
+            }
+            this._isSimulating = true;
+        } else {
             if (!this._boundingBox) {
                 this._boundingBox = new AABB();
                 this._calculateBounding(false);
@@ -1057,7 +1077,7 @@ export class ParticleSystem extends RenderableComponent {
             }
             if (culled) {
                 if (this._cullingMode !== CullingMode.AlwaysSimulate) {
-                    this.pause();
+                    this._isSimulating = false;
                 }
                 if (!this._isCulled) {
                     this.processor.detachFromScene();
@@ -1077,18 +1097,13 @@ export class ParticleSystem extends RenderableComponent {
                     this._attachToScene();
                     this._isCulled = false;
                 }
-                if (!this._isPlaying) {
-                    this.play();
+                if (!this._isSimulating) {
+                    this._isSimulating = true;
                 }
             }
-        } else {
-            if (this._boundingBox) {
-                this._boundingBox = null;
-            }
-            if (this._culler) {
-                this._culler.clear();
-                this._culler.destroy();
-                this._culler = null;
+
+            if (!this._isSimulating) {
+                return;
             }
         }
 
@@ -1103,8 +1118,10 @@ export class ParticleSystem extends RenderableComponent {
                 this.stop();
             }
         } else {
-            this.processor.updateRotation();
-            this.processor.updateScale();
+            const mat: Material | null = this.getMaterialInstance(0) || this.processor.getDefaultMaterial();
+            const pass = mat!.passes[0];
+            this.processor.updateRotation(pass);
+            this.processor.updateScale(pass);
         }
         // update render data
         this.processor.updateRenderData();
@@ -1184,7 +1201,7 @@ export class ParticleSystem extends RenderableComponent {
             } else {
                 particle.startEuler.set(0, 0, this.startRotationZ.evaluate(loopDelta, rand));
             }
-            Vec3.set(particle.rotation, particle.startEuler.x, particle.startEuler.y, particle.startEuler.z);
+            particle.rotation.set(particle.startEuler);
 
             // apply startSize.
             if (this.startSize3D) {

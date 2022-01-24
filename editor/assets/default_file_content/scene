@@ -53,10 +53,10 @@
     },
     "_lrot": {
       "__type__": "cc.Quat",
-      "x": -0.24999999999999997,
-      "y": -0.24999999999999997,
-      "z": -0.06698729810778066,
-      "w": 0.9330127018922194
+      "x": -0.8005972817813567,
+      "y": -0.1453229557254247,
+      "z": -0.33176781330654553,
+      "w": 0.4773419623260901
     },
     "_lscale": {
       "__type__": "cc.Vec3",
@@ -67,9 +67,9 @@
     "_layer": 1073741824,
     "_euler": {
       "__type__": "cc.Vec3",
-      "x": -30,
-      "y": -30,
-      "z": 0
+      "x": -120.254,
+      "y": -42.248,
+      "z": -4.821
     },
     "_id": "c0y6F5f+pAvI805TdmxIjx"
   },
@@ -209,48 +209,48 @@
     "__type__": "cc.AmbientInfo",
     "_skyColorHDR": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.5,
-      "z": 0.8,
+      "x": 0.242613,
+      "y": 0.362617,
+      "z": 0.798746,
       "w": 0.520833125
     },
     "_skyColor": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.5,
-      "z": 0.8,
+      "x": 0.242613,
+      "y": 0.362617,
+      "z": 0.798746,
       "w": 0.520833125
     },
     "_skyIllumHDR": 20000,
     "_skyIllum": 20000,
     "_groundAlbedoHDR": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.2,
-      "z": 0.2,
-      "w": 1
+      "x": 0.241814,
+      "y": 0.361945,
+      "z": 0.798799,
+      "w": 0
     },
     "_groundAlbedo": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.2,
-      "z": 0.2,
-      "w": 1
+      "x": 0.241814,
+      "y": 0.361945,
+      "z": 0.798799,
+      "w": 0
     },
     "_skyColorLDR": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.5,
-      "z": 0.8,
-      "w": 1
+      "x": 0.519964,
+      "y": 0.630786,
+      "z": 0.905039,
+      "w": 0.5208
     },
     "_skyIllumLDR": 0.5208,
     "_groundAlbedoLDR": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.2,
-      "z": 0.2,
-      "w": 1
+      "x": 0.519544,
+      "y": 0.630484,
+      "z": 0.905069,
+      "w": 0
     }
   },
   {
@@ -292,12 +292,21 @@
   {
     "__type__": "cc.SkyboxInfo",
     "_applyDiffuseMap": false,
-    "_envmapHDR": null,
-    "_envmap": null,
-    "_envmapLDR": null,
+    "_envmapHDR": {
+      "__uuid__": "d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0",
+      "__expectedType__": "cc.TextureCube"
+    },
+    "_envmap": {
+      "__uuid__": "d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0",
+      "__expectedType__": "cc.TextureCube"
+    },
+    "_envmapLDR": {
+      "__uuid__": "6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0",
+      "__expectedType__": "cc.TextureCube"
+    },
     "_diffuseMapHDR": null,
     "_diffuseMapLDR": null,
-    "_enabled": false,
+    "_enabled": true,
     "_useIBL": false,
     "_useHDR": true
   },

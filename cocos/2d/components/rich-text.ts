@@ -42,10 +42,9 @@ import { Node } from '../../core/scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
 import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
-import { UIComponent, UITransform } from '../framework';
+import { UITransform } from '../framework';
 import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
-import assetManager from '../../core/asset-manager/asset-manager';
 import { CCObject } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
@@ -152,7 +151,7 @@ interface ISegment {
 @executionOrder(110)
 @menu('2D/RichText')
 @executeInEditMode
-export class RichText extends UIComponent {
+export class RichText extends Component {
     /**
      * @en
      * Content string of RichText.

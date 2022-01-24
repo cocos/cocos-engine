@@ -516,7 +516,7 @@ export class ArmatureDisplay extends Renderable2D {
         if (arr.length > 0 && arr[arr.length - 1].renderData.vertexCount === 0) {
             return arr[arr.length - 1];
         }
-        const renderData = new MeshRenderData();
+        const renderData = MeshRenderData.add();
         const comb = { renderData, texture: null };
         arr.push(comb);
         return comb;
@@ -524,7 +524,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     public destroyRenderData () {
         if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
+            this._meshRenderDataArray.forEach((rd) => { MeshRenderData.remove(rd.renderData); });
             this._meshRenderDataArray.length = 0;
         }
     }
@@ -548,7 +548,7 @@ export class ArmatureDisplay extends Renderable2D {
             owner: this,
         };
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ USE_LOCAL: false }, 0); // TODO: not supported by ui
+        inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -575,7 +575,7 @@ export class ArmatureDisplay extends Renderable2D {
                     this.material = m.renderData.material;
                 }
                 if (m.texture) {
-                    ui.commitComp(this, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.renderData, m.texture, this._assembler, this.node);
                 }
                 this.material = mat;
             }
@@ -1267,7 +1267,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = ArmatureDisplay.Assembler!.getAssembler(this);
+        const assembler = ArmatureDisplay.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
@@ -1275,7 +1275,6 @@ export class ArmatureDisplay extends Renderable2D {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
-                this._colorDirty = true;
                 this._updateColor();
             }
         }

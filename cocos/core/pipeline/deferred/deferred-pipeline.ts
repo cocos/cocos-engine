@@ -172,11 +172,6 @@ export class DeferredPipeline extends RenderPipeline {
             colorAttachment2.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment2.storeOp = StoreOp.STORE;
 
-            const colorAttachment3 = new ColorAttachment();
-            colorAttachment3.format = Format.RGBA16F;
-            colorAttachment3.loadOp = LoadOp.CLEAR; // should clear color attachment
-            colorAttachment3.storeOp = StoreOp.STORE;
-
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = Format.DEPTH_STENCIL;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
@@ -184,7 +179,7 @@ export class DeferredPipeline extends RenderPipeline {
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
             const renderPassInfo = new RenderPassInfo(
-                [colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3],
+                [colorAttachment0, colorAttachment1, colorAttachment2],
                 depthStencilAttachment,
             );
             this._gbufferRenderPass = device.createRenderPass(renderPassInfo);
@@ -271,18 +266,18 @@ export class DeferredPipeline extends RenderPipeline {
 
         const data: DeferredRenderData = this._pipelineRenderData = new DeferredRenderData();
         const sceneData = this.pipelineSceneData;
-        for (let i = 0; i < 4; ++i) {
+        for (let i = 0; i < 3; ++i) {
             data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA16F, // positions & normals need more precision
+                Format.RGBA16F, // normals need more precision
                 this._width * sceneData.shadingScale,
                 this._height * sceneData.shadingScale,
             )));
         }
         data.outputDepth = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
-            TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+            TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
             Format.DEPTH_STENCIL,
             this._width * sceneData.shadingScale,
             this._height * sceneData.shadingScale,
@@ -304,7 +299,7 @@ export class DeferredPipeline extends RenderPipeline {
         data.outputFrameBuffer = device.createFramebuffer(new FramebufferInfo(
             this._lightingRenderPass!,
             data.outputRenderTargets,
-            data.outputDepth,
+            null,
         ));
         // Listens when the attachment texture is scaled
         this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, (val: number) => {

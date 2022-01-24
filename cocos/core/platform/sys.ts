@@ -350,7 +350,7 @@ export const sys = {
 
     // @ts-expect-error HACK: this private property only needed on web
     sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
-        && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+        && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
 }());
 
 legacyCC.sys = sys;
