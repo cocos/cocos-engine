@@ -30,6 +30,7 @@
 #include "base/DeferredReleasePool.h"
 #include "base/Macros.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/core/builtin/BuiltinResMgr.h"
 #include "cocos/renderer/GFXDeviceManager.h"
 #include "cocos/renderer/core/ProgramLib.h"
 #include "pipeline/RenderPipeline.h"
@@ -96,8 +97,8 @@ Engine::~Engine() {
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
-
     ProgramLib::destroyInstance();
+    BuiltinResMgr::destroyInstance();
     gfx::DeviceManager::destroy();
 
     BasePlatform *platform = BasePlatform::getPlatform();

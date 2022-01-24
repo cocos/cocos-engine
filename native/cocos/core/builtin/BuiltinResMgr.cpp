@@ -16,8 +16,6 @@
 namespace cc {
 
 namespace {
-BuiltinResMgr *instance = nullptr;
-
 constexpr uint8_t BLACK_IMAGE_RGBA_DATA_2X2[2 * 2 * 4] = {
     // r, g, b, a
     0x00, 0x00, 0x00, 0xFF,
@@ -117,11 +115,13 @@ const uint8_t DEFAULT_IMAGE_RGBA_DATA_16X16[16 * 16 * 4] = {
 
 } // namespace
 
+BuiltinResMgr *BuiltinResMgr::instance = nullptr;
+
 /* static */
 BuiltinResMgr *BuiltinResMgr::getInstance() {
-    if (instance == nullptr) {
-        instance = new BuiltinResMgr(); //cjh how to release it?
-                                        //cjh FIXME: hacking code
+    if (BuiltinResMgr::instance == nullptr) {
+        BuiltinResMgr::instance = new BuiltinResMgr();
+        //cjh FIXME: hacking code
 #if !defined(CC_RUN_IN_CPP_MODE) || !CC_RUN_IN_CPP_MODE
         instance->initBuiltinRes(gfx::Device::getInstance());
         instance->tryCompileAllPasses();
@@ -129,6 +129,13 @@ BuiltinResMgr *BuiltinResMgr::getInstance() {
         //
     }
     return instance;
+}
+
+void BuiltinResMgr::destroyInstance() {
+    if (BuiltinResMgr::instance) {
+        delete BuiltinResMgr::instance;
+        BuiltinResMgr::instance = nullptr;
+    }
 }
 
 bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {

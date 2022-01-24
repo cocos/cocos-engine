@@ -71,9 +71,9 @@ void PipelineSceneData::destroy() {
     _shadowFrameBufferMap.clear();
     _validPunctualLights.clear();
 
-    CC_SAFE_DESTROY_NULL(_occlusionQueryInputAssembler);
-    CC_SAFE_DESTROY_NULL(_occlusionQueryVertexBuffer);
-    CC_SAFE_DESTROY_NULL(_occlusionQueryIndicesBuffer);
+    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryInputAssembler);
+    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryVertexBuffer);
+    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryIndicesBuffer);
 }
 
 void PipelineSceneData::initOcclusionQuery() {

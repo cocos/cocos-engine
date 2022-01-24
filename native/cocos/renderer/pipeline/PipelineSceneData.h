@@ -110,8 +110,8 @@ protected:
     gfx::InputAssembler *        _occlusionQueryInputAssembler{nullptr};
 
     IntrusivePtr<Material> _occlusionQueryMaterial{nullptr};
-    gfx::Shader *          _occlusionQueryShader{nullptr};
-    scene::Pass *          _occlusionQueryPass{nullptr};
+    gfx::Shader *          _occlusionQueryShader{nullptr}; // weak reference
+    scene::Pass *          _occlusionQueryPass{nullptr};   // weak reference
 
     std::vector<IntrusivePtr<Material>> _geometryRendererMaterials;
     std::vector<scene::Pass *>          _geometryRendererPasses;  // weak reference
