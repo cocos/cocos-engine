@@ -156,10 +156,16 @@ export enum SetIndex {
     LOCAL,
 }
 // parameters passed to GFX Device
-export const bindingMappingInfo = new BindingMappingInfo();
-bindingMappingInfo.bufferOffsets = [0, GLOBAL_UBO_COUNT + LOCAL_UBO_COUNT, GLOBAL_UBO_COUNT];
-bindingMappingInfo.samplerOffsets = [-GLOBAL_UBO_COUNT, GLOBAL_SAMPLER_COUNT + LOCAL_SAMPLER_COUNT, GLOBAL_SAMPLER_COUNT - LOCAL_UBO_COUNT];
-bindingMappingInfo.flexibleSet = 1;
+export const bindingMappingInfo = new BindingMappingInfo(
+    [GLOBAL_UBO_COUNT, 0, LOCAL_UBO_COUNT],         // Uniform Buffer Counts
+    [GLOBAL_SAMPLER_COUNT, 0, LOCAL_SAMPLER_COUNT], // Combined Sampler Texture Counts
+    [0, 0, 0],                                      // Sampler Counts
+    [0, 0, 0],                                      // Texture Counts
+    [0, 0, 0],                                      // Storage Buffer Counts
+    [0, 0, 0],                                      // Storage Image Counts
+    [0, 0, 0],                                      // Subpass Input Counts
+    [0, 2, 1],                                      // Set Order Indices
+);
 
 /**
  * @en The global uniform buffer object
@@ -252,7 +258,8 @@ export class UBOShadow {
     public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
     public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     public static readonly SHADOW_COLOR_OFFSET = UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
-    public static readonly COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static readonly PLANAR_NORMAL_DISTANCE_INFO_OFFSET = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static readonly COUNT: number = UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
     public static readonly SIZE = UBOShadow.COUNT * 4;
     public static readonly NAME = 'CCShadow';
     public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;
@@ -268,6 +275,7 @@ export class UBOShadow {
         new Uniform('cc_shadowWHPBInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowLPNNInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowColor', Type.FLOAT4, 1),
+        new Uniform('cc_planarNDInfo', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;

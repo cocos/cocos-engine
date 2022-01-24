@@ -22,6 +22,9 @@
 #pragma define CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS default(128)
 #pragma define CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS default(128)
 #pragma define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT default(0)
+#pragma define CC_PLATFORM_ANDROID_AND_WEBGL default(0)
+#pragma define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES default(0)
+
 // use cluster shading or not
 #pragma define CC_ENABLE_CLUSTERED_LIGHT_CULLING default(0)
 // When sampling RTs, Y-flip is needed if the screen space sign Y is positive (pointing upwards)

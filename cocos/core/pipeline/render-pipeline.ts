@@ -29,6 +29,7 @@
  */
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
+import { systemInfo } from 'pal/system-info';
 import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
 import { Asset } from '../assets/asset';
 import { AccessType, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
@@ -48,6 +49,8 @@ import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
 import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 import { decideProfilerCamera } from './pipeline-funcs';
+import { OS } from '../../../pal/system-info/enum-type';
+import { macro } from '../platform/macro';
 
 /**
  * @en Render pipeline information descriptor
@@ -300,10 +303,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         return device.createRenderPass(renderPassInfo);
     }
 
-    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
+    public getRenderPass (clearFlags: ClearFlags, fbo: Framebuffer): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
-        renderPass = this.createRenderPass(clearFlags, swapchain.colorTexture.format, swapchain.depthStencilTexture.format);
+        renderPass = this.createRenderPass(clearFlags, fbo.colorTextures[0]!.format, fbo.depthStencilTexture!.format);
         this._renderPasses.set(clearFlags, renderPass);
         return renderPass;
     }
@@ -647,6 +650,8 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
         str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
+        str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
+        str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
         this._constantMacros = str;
     }
 

@@ -104,8 +104,8 @@ export class Color extends ValueType {
         out.r = parseInt(hexString.substr(0, 2), 16) || 0;
         out.g = parseInt(hexString.substr(2, 2), 16) || 0;
         out.b = parseInt(hexString.substr(4, 2), 16) || 0;
-        out.a = parseInt(hexString.substr(6, 2), 16);
-        out.a = !Number.isNaN(out.a) ? out.a : 255;
+        const a = parseInt(hexString.substr(6, 2), 16);
+        out.a = !Number.isNaN(a) ? a : 255;
         out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
         return out;
     }

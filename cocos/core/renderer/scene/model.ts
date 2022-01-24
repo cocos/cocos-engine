@@ -43,7 +43,6 @@ import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDI
 const m4_1 = new Mat4();
 
 const shadowMapPatches: IMacroPatch[] = [
-    { name: 'CC_ENABLE_DIR_SHADOW', value: true },
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 

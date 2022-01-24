@@ -176,7 +176,7 @@ CCProgram terrain-fs %{
       baseColor = texture(detailMap0, uv0);
     #endif
 
-    s.position = v_position;
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
     #if USE_NORMALMAP
       vec4 baseNormal = vec4(0, 0, 0, 0);
       #if LAYERS == 1

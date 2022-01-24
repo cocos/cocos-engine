@@ -104,6 +104,7 @@ CCClass.fastDefine(
         leftTangent: 0.0,
         leftTangentWeight: 0.0,
         easingMethod: EasingMethod.LINEAR,
+        [editorExtrasTag]: undefined,
     },
 );
 

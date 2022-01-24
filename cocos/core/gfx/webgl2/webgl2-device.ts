@@ -64,6 +64,7 @@ import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
 import { WebGL2DeviceManager } from './webgl2-define';
+import { IWebGL2BindingMapping } from './webgl2-gpu-objects';
 
 export class WebGL2Device extends Device {
     get gl () {
@@ -86,16 +87,41 @@ export class WebGL2Device extends Device {
         return this._swapchain!.nullTexCube;
     }
 
+    get bindingMappings () {
+        return this._bindingMappings!;
+    }
+
     private _swapchain: WebGL2Swapchain | null = null;
     private _context: WebGL2RenderingContext | null = null;
+    private _bindingMappings: IWebGL2BindingMapping | null = null;
 
     public initialize (info: DeviceInfo): boolean {
         WebGL2DeviceManager.setInstance(this);
         this._gfxAPI = API.WEBGL2;
 
-        this._bindingMappingInfo = info.bindingMappingInfo;
-        if (!this._bindingMappingInfo.bufferOffsets.length) this._bindingMappingInfo.bufferOffsets.push(0);
-        if (!this._bindingMappingInfo.samplerOffsets.length) this._bindingMappingInfo.samplerOffsets.push(0);
+        const mapping = this._bindingMappingInfo = info.bindingMappingInfo;
+        const blockOffsets: number[] = [];
+        const samplerTextureOffsets: number[] = [];
+        const firstSet = mapping.setIndices[0];
+        blockOffsets[firstSet] = 0;
+        samplerTextureOffsets[firstSet] = 0;
+        for (let i = 1; i < mapping.setIndices.length; ++i) {
+            const curSet = mapping.setIndices[i];
+            const prevSet = mapping.setIndices[i - 1];
+            // accumulate the per set offset according to the specified capacity
+            blockOffsets[curSet] = mapping.maxBlockCounts[prevSet] + blockOffsets[prevSet];
+            samplerTextureOffsets[curSet] = mapping.maxSamplerTextureCounts[prevSet] + samplerTextureOffsets[prevSet];
+        }
+        for (let i = 0; i < mapping.setIndices.length; ++i) {
+            const curSet = mapping.setIndices[i];
+            // textures always come after UBOs
+            samplerTextureOffsets[curSet] -= mapping.maxBlockCounts[curSet];
+        }
+        this._bindingMappings = {
+            blockOffsets,
+            samplerTextureOffsets,
+            flexibleSet: mapping.setIndices[mapping.setIndices.length - 1],
+        };
 
         const gl = this._context = getContext(Device.canvas);
 

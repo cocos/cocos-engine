@@ -27,6 +27,7 @@ import { AABB, Frustum } from '../../geometry';
 import { legacyCC } from '../../global-exports';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
+import { PCFType } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);
 const _qt = new Quat();
@@ -67,6 +68,12 @@ export class SpotLight extends Light {
     protected _luminanceLDR = 0;
 
     protected _aspect = 0;
+
+    // Shadow map properties
+    protected _shadowEnabled = false;
+    protected _shadowPcf = PCFType.HARD;
+    protected _shadowBias = 0.00001;
+    protected _shadowNormalBias = 0.0;
 
     get position () {
         return this._pos;
@@ -158,6 +165,62 @@ export class SpotLight extends Light {
 
     get frustum () {
         return this._frustum;
+    }
+
+    /**
+     * @en Whether activate shadow
+     * @zh 是否启用阴影？
+     */
+    get shadowEnabled () {
+        return this._shadowEnabled;
+    }
+    set shadowEnabled (val) {
+        this._shadowEnabled = val;
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setShadowEnabled(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow pcf.
+      * @zh 获取或者设置阴影pcf等级。
+      */
+    get shadowPcf () {
+        return this._shadowPcf;
+    }
+    set shadowPcf (val) {
+        this._shadowPcf = val;
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setShadowPcf(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow map sampler offset
+      * @zh 获取或者设置阴影纹理偏移值
+      */
+    get shadowBias () {
+        return this._shadowBias;
+    }
+    set shadowBias (val) {
+        this._shadowBias = val;
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setShadowBias(val);
+        }
+    }
+
+    /**
+      * @en get or set normal bias.
+      * @zh 设置或者获取法线偏移。
+      */
+    get shadowNormalBias () {
+        return this._shadowNormalBias;
+    }
+    set shadowNormalBias (val: number) {
+        this._shadowNormalBias = val;
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setShadowNormalBias(val);
+        }
     }
 
     constructor () {

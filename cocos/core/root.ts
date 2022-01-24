@@ -397,7 +397,6 @@ export class Root {
         for (let i = 0; i < this._scenes.length; ++i) {
             this._scenes[i].removeBatches();
         }
-        if (this._batcher) this._batcher.update();
 
         const windows = this._windows;
         const cameraList: Camera[] = [];
@@ -410,7 +409,10 @@ export class Root {
             this._device.acquire([legacyCC.game._swapchain]);
             const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
-            if (this._batcher) this._batcher.uploadBuffers();
+            if (this._batcher) {
+                this._batcher.update();
+                this._batcher.uploadBuffers();
+            }
 
             for (let i = 0; i < scenes.length; i++) {
                 scenes[i].update(stamp);
@@ -516,13 +518,13 @@ export class Root {
         const p = this._modelPools.get(m.constructor as Constructor<Model>);
         if (p) {
             p.free(m);
-            m.destroy();
             if (m.scene) {
                 m.scene.removeModel(m);
             }
         } else {
             warnID(1300, m.constructor.name);
         }
+        m.destroy();
     }
 
     public createCamera (): Camera {
@@ -542,7 +544,6 @@ export class Root {
 
     public destroyLight (l: Light) {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
-        l.destroy();
         if (p) {
             p.free(l);
             if (l.scene) {
@@ -558,6 +559,7 @@ export class Root {
                 }
             }
         }
+        l.destroy();
     }
 }
 

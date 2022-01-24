@@ -63,10 +63,12 @@ import { DebugMode } from "../cocos/core/platform/debug";
 import { game, IGameConfig } from '../exports/base';
 import './asset-manager/init';
 import '../cocos/core/gfx/empty/empty-device';
+import '../cocos/3d/skeletal-animation/data-pool-manager';
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');
 const config: IGameConfig = {
+    customJointTextureLayouts: [],
     debugMode: DebugMode.INFO,
     renderMode: 3, // Headless Mode
     adapter: {

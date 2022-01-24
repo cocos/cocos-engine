@@ -549,7 +549,7 @@ export class View extends EventTarget {
      * @en Returns device pixel ratio for retina display.
      * @zh 返回设备或浏览器像素比例。
      *
-     * @deprecated since v3.4.0, devicePixelRatio is a concept on web standard.
+     * @deprecated since v3.4.0, please use screen.devicePixelRatio instead.
      */
     public getDevicePixelRatio (): number {
         return screenAdapter.devicePixelRatio;

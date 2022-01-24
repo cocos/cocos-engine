@@ -35,9 +35,37 @@ import { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
 import { Device } from '../../gfx';
+import { Enum } from '../../value-types';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
+
+export const EnvironmentLightingType = Enum({
+    /**
+     * @zh
+     * 半球漫反射
+     * @en
+     * hemisphere diffuse
+     * @readonly
+     */
+    HEMISPHERE_DIFFUSE: 0,
+    /**
+     * @zh
+     * 半球漫反射和环境反射
+     * @en
+     * hemisphere diffuse and Environment reflection
+     * @readonly
+     */
+    AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION: 1,
+    /**
+     * @zh
+     * 漫反射卷积图和环境反射
+     * @en
+     * diffuse convolution map and environment reflection
+     * @readonly
+     */
+    DIFFUSEMAP_WITH_REFLECTION: 2,
+});
 
 export class Skybox {
     get model (): Model | null {
@@ -92,8 +120,7 @@ export class Skybox {
 
     set useDiffuseMap (val: boolean) {
         this._useDiffuseMap = val;
-        this._updateGlobalBinding();
-        this._updatePipeline();
+        this.setDiffuseMaps(null, null);
     }
 
     /**
@@ -178,10 +205,10 @@ export class Skybox {
         const isHDR = root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             if (envmapHDR) {
-                root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = envmapHDR.mipmapLevel;
+                root.pipeline.pipelineSceneData.ambient.mipmapCount = envmapHDR.mipmapLevel;
             }
         } else if (envmapLDR) {
-            root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = envmapLDR.mipmapLevel;
+            root.pipeline.pipelineSceneData.ambient.mipmapCount = envmapLDR.mipmapLevel;
         }
 
         this._updateGlobalBinding();
@@ -245,16 +272,15 @@ export class Skybox {
         const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
         const useHDRValue = this.useHDR;
 
-        if (pipeline.macros.CC_USE_IBL === useIBLValue
-            && pipeline.macros.CC_USE_DIFFUSEMAP === useDiffuseMapValue
-            && pipeline.macros.CC_USE_HDR === useHDRValue) {
-            return;
-        }
-        pipeline.macros.CC_USE_IBL = useIBLValue;
-        pipeline.macros.CC_USE_DIFFUSEMAP = useDiffuseMapValue;
-        pipeline.macros.CC_USE_HDR = useHDRValue;
+        if (pipeline.macros.CC_USE_IBL !== useIBLValue
+            || pipeline.macros.CC_USE_DIFFUSEMAP !== useDiffuseMapValue
+            || pipeline.macros.CC_USE_HDR !== useHDRValue) {
+            pipeline.macros.CC_USE_IBL = useIBLValue;
+            pipeline.macros.CC_USE_DIFFUSEMAP = useDiffuseMapValue;
+            pipeline.macros.CC_USE_HDR = useHDRValue;
 
-        root.onGlobalPipelineStateChanged();
+            root.onGlobalPipelineStateChanged();
+        }
 
         if (this.enabled && skybox_material) {
             skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });

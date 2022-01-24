@@ -139,7 +139,33 @@ declare namespace jsb {
          * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
          * @param args : received from native
          */
-         export function onNative(arg0: string, arg1?: string|null): void;
+        export function onNative(arg0: string, arg1?: string|null): void;
+    }
+    /**
+     * Listener for jsbBridgeWrapper's event.
+     * It takes one argument as string which is transferred by jsbBridge.
+     */
+    export type OnNativeEventListener = (arg: string) => void;
+    export namespace jsbBridgeWrapper {
+        /** If there's no event registered, the wrapper will create one  */
+        export function addNativeEventListener(eventName: string, listener: OnNativeEventListener);
+        /**
+         * Dispatch the event registered on Objective-C, Java etc.
+         * No return value in JS to tell you if it works.
+         */
+        export function dispatchEventToNative(eventName: string, arg?: string);
+        /**
+         * Remove all listeners relative.
+         */
+        export function removeAllListenersForEvent(eventName: string);
+        /**
+         * Remove the listener specified
+         */
+        export function removeNativeEventListener(eventName: string, listener: OnNativeEventListener);
+        /**
+         * Remove all events, use it carefully!
+         */
+        export function removeAllListeners();
     }
     /**
      * 下载任务对象

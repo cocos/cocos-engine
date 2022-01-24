@@ -221,7 +221,6 @@ export class Event {
      * 重置事件对象以便在对象池中存储。
      */
     public unuse () {
-        // @ts-expect-error type is not SystemEventUnion
         this.type = Event.NO_TYPE;
         this.target = null;
         this.currentTarget = null;

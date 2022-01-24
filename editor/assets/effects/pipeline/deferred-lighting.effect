@@ -39,6 +39,7 @@ CCProgram lighting-fs %{
   #endif
   #include <output-standard>
   #include <cc-fog-base>
+  #include <octahedron-transform>
 
   in vec2 v_uv;
 
@@ -46,21 +47,19 @@ CCProgram lighting-fs %{
     #pragma extension([GL_EXT_shader_framebuffer_fetch, __VERSION__ < 450, enable])
     #if __VERSION__ >= 450
       layout(binding = 0, input_attachment_index = 0) uniform subpassInput gbuffer_albedoMap;
-      layout(binding = 1, input_attachment_index = 1) uniform subpassInput gbuffer_positionMap;
-      layout(binding = 2, input_attachment_index = 2) uniform subpassInput gbuffer_normalMap;
-      layout(binding = 3, input_attachment_index = 3) uniform subpassInput gbuffer_emissiveMap;
+      layout(binding = 1, input_attachment_index = 1) uniform subpassInput gbuffer_normalMap;
+      layout(binding = 2, input_attachment_index = 2) uniform subpassInput gbuffer_emissiveMap;
     #elif __VERSION__ >= 300
       layout(location = 0) inout vec4 gbuffer_albedoMap;
-      layout(location = 1) inout vec4 gbuffer_positionMap;
-      layout(location = 2) inout vec4 gbuffer_normalMap;
-      layout(location = 3) inout vec4 gbuffer_emissiveMap;
+      layout(location = 1) inout vec4 gbuffer_normalMap;
+      layout(location = 2) inout vec4 gbuffer_emissiveMap;
     #endif
   #else
     layout(binding = 0) uniform sampler2D gbuffer_albedoMap;
-    layout(binding = 1) uniform sampler2D gbuffer_positionMap;
-    layout(binding = 2) uniform sampler2D gbuffer_normalMap;
-    layout(binding = 3) uniform sampler2D gbuffer_emissiveMap;
+    layout(binding = 1) uniform sampler2D gbuffer_normalMap;
+    layout(binding = 2) uniform sampler2D gbuffer_emissiveMap;
   #endif
+  layout(binding = 3) uniform sampler2D depth_stencil;
 
   #if !CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT || __VERSION__ >= 450
     layout(location = 0) out vec4 fragColor;
@@ -72,40 +71,38 @@ CCProgram lighting-fs %{
     #if CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT
       #if __VERSION__ >= 450
         vec4 albedoMap = subpassLoad(gbuffer_albedoMap);
-        vec4 positionMap = subpassLoad(gbuffer_positionMap);
         vec4 normalMap = subpassLoad(gbuffer_normalMap);
         vec4 emissiveMap = subpassLoad(gbuffer_emissiveMap);
       #elif __VERSION__ >= 300
         vec4 albedoMap = gbuffer_albedoMap;
-        vec4 positionMap = gbuffer_positionMap;
         vec4 normalMap = gbuffer_normalMap;
         vec4 emissiveMap = gbuffer_emissiveMap;
       #else
         vec4 albedoMap = gl_LastFragData[0];
-        vec4 positionMap = gl_LastFragData[1];
-        vec4 normalMap = gl_LastFragData[2];
-        vec4 emissiveMap = gl_LastFragData[3];
+        vec4 normalMap = gl_LastFragData[1];
+        vec4 emissiveMap = gl_LastFragDat[2];
       #endif
     #else
       vec4 albedoMap = texture(gbuffer_albedoMap,v_uv);
-      vec4 positionMap = texture(gbuffer_positionMap,v_uv);
       vec4 normalMap = texture(gbuffer_normalMap,v_uv);
       vec4 emissiveMap = texture(gbuffer_emissiveMap,v_uv);
     #endif
+    float depth = texture(depth_stencil, v_uv).x;
 
     s.albedo = albedoMap;
-    s.position = positionMap.xyz;
-    s.roughness = positionMap.w;
-    s.normal = normalMap.xyz;
+    vec3 position = screen2WS(vec3(gl_FragCoord.xy, depth)).xyz;
+    s.position = position;
+    s.roughness = normalMap.z;
+    s.normal = oct_to_float32x3(normalMap.xy);
     s.metallic = normalMap.w;
     s.emissive = emissiveMap.xyz;
     s.occlusion = emissiveMap.w;
     // fixme: default value is 0, and give black result
     float fogFactor;
-    CC_TRANSFER_FOG_BASE(vec4(s.position, 1), fogFactor);
+    CC_TRANSFER_FOG_BASE(vec4(position, 1), fogFactor);
 
     vec4 shadowPos;
-    CC_TRANSFER_SHADOW_BASE(vec4(s.position, 1), shadowPos);
+    CC_TRANSFER_SHADOW_BASE(vec4(position, 1), shadowPos);
 
     vec4 color = CCStandardShadingBase(s, shadowPos) +
 #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
@@ -122,7 +119,7 @@ CCProgram lighting-fs %{
       #elif __VERSION__ >= 300
         gbuffer_emissiveMap = color;
       #else
-        gl_FragData[3] = color;
+        gl_FragData[2] = color;
       #endif
     #else
       fragColor = color;
