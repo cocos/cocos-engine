@@ -169,6 +169,9 @@ void glThreadEntry() {
                                                 "flushTasksOnGameThread");
         }
         if (game && cc::cocosApp.animating) {
+
+            cc::JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper",
+                                                "flushTasksOnGameThreadAtForeground");
             game->tick();
         }
         if (cc::cocosApp.destroyRequested) break;

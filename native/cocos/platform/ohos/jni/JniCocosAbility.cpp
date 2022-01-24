@@ -88,6 +88,28 @@ int readCommand(CommandMsg *msg) {
     return read(pipeRead, msg, sizeof(*msg));
 }
 
+int readCommandWithTimeout(CommandMsg *msg, int delayMS) {
+    if (delayMS > 0) {
+        static fd_set  fdSet;
+        static timeval timeout;
+
+        timeout = {delayMS / 1000, (delayMS % 1000) * 1000};
+        FD_ZERO(&fdSet);
+        FD_SET(pipeRead, &fdSet);
+
+        auto ret = select(pipeRead + 1, &fdSet, nullptr, nullptr, &timeout);
+        if (ret < 0) {
+            LOGV("failed to run select(..): %s\n", strerror(errno));
+            return ret;
+        }
+
+        if (ret == 0) {
+            return 0;
+        }
+    }
+    return read(pipeRead, msg, sizeof(*msg));
+}
+
 void handlePauseResume(int8_t cmd) {
     LOGV("activityState=%d", cmd);
     cc::cocosApp.activityState = cmd;
@@ -139,27 +161,32 @@ void glThreadEntry() {
     cc::cocosApp.glThreadPromise.set_value();
     cc::cocosApp.running = true;
 
-    int        cmd = 0;
     CommandMsg msg;
+    bool   runInLowRate = false;
     while (true) {
-        if (readCommand(&msg) > 0) {
-            cmd = msg.cmd;
-            preExecCmd(cmd);
-            cc::View::engineHandleCmd(cmd);
-            postExecCmd(cmd);
+        runInLowRate = !cc::cocosApp.animating || ABILITY_CMD_PAUSE == cc::cocosApp.activityState;
+        if (readCommandWithTimeout(&msg, runInLowRate ? 50 : 0) > 0) {
+//        if(readCommand(0&msg)>0){
+            preExecCmd(msg.cmd);
+            cc::View::engineHandleCmd(msg.cmd);
+            postExecCmd(msg.cmd);
             if (msg.callback) {
                 msg.callback();
             }
         }
+//        if (!cc::cocosApp.animating || ABILITY_CMD_PAUSE == cc::cocosApp.activityState) {
+//            std::this_thread::yield();
+//        }
 
-        if (!cc::cocosApp.animating || ABILITY_CMD_PAUSE == cc::cocosApp.activityState) {
-            std::this_thread::yield();
+        if (game) {
+            cc::JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper",
+                    "flushTasksOnGameThread");
         }
 
         if (game && cc::cocosApp.animating) {
             // Handle java events send by UI thread. Input events are handled here too.
             cc::JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper",
-                                                "flushTasksOnGameThread");
+                    "flushTasksOnGameThreadAtForeground");
             game->tick();
         }
 

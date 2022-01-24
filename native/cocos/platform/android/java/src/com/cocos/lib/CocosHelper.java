@@ -58,8 +58,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class CocosHelper {
@@ -86,9 +89,26 @@ public class CocosHelper {
     // The OBB file
     private static ZipResourceFile sOBBFile = null;
 
-    private static Object sTaskMtx = new Object();
-    private static List<Runnable> sTaskOnGameThread = Collections.synchronizedList(new ArrayList<>());
+    static class LockedTaskQ {
+        private final Object readMtx = new Object();
+        private Queue<Runnable> sTaskQ = new LinkedList<>();
+        public synchronized void addTask(Runnable runnable) {
+            sTaskQ.add(runnable);
+        }
+        public void runTasks(){
+            Queue<Runnable> tmp;
+            synchronized (readMtx) {
+                tmp = sTaskQ;
+                sTaskQ = new LinkedList<>();
+            }
+            for(Runnable runnable : tmp){
+                runnable.run();
+            }
+        }
+    }
 
+    private static LockedTaskQ sTaskQOnGameThread = new LockedTaskQ();
+    private static LockedTaskQ sForegroundTaskQOnGameThread = new LockedTaskQ();
     /**
      * Battery receiver to getting battery level.
      */
@@ -120,23 +140,20 @@ public class CocosHelper {
         context.unregisterReceiver(sBatteryReceiver);
     }
 
+    //Run on game thread forever, no matter foreground or background
     public static void runOnGameThread(final Runnable runnable) {
-        synchronized (sTaskMtx) {
-            sTaskOnGameThread.add(runnable);
-        }
+        sTaskQOnGameThread.addTask(runnable);
     }
 
     static void flushTasksOnGameThread() {
-        List<Runnable> tmp = sTaskOnGameThread;
-        synchronized (sTaskMtx) {
-            sTaskOnGameThread = Collections.synchronizedList(new ArrayList<>());
-        }
-        while (tmp.size() > 0) {
-            Runnable r = tmp.remove(0);
-            if (r != null) {
-                r.run();
-            }
-        }
+        sTaskQOnGameThread.runTasks();
+    }
+    public static void runOnGameThreadAtForeground(final Runnable runnable) {
+        sForegroundTaskQOnGameThread.addTask(runnable);
+    }
+
+    static void flushTasksOnGameThreadAtForeground() {
+        sForegroundTaskQOnGameThread.runTasks();
     }
 
     public static int getNetworkType() {
