@@ -57,6 +57,28 @@ int MessagePipe::readCommand(int8_t& cmd) const {
     return read(_pipeRead, &cmd, sizeof(cmd));
 }
 
+int MessagePipe::readCommandWithTimeout(void* msg, int32_t size, int delayMS) {
+    if (delayMS > 0) {
+        static fd_set  fdSet;
+        static timeval timeout;
+
+        timeout = {delayMS / 1000, (delayMS % 1000) * 1000};
+        FD_ZERO(&fdSet);
+        FD_SET(_pipeRead, &fdSet);
+
+        auto ret = select(_pipeRead + 1, &fdSet, nullptr, nullptr, &timeout);
+        if (ret < 0) {
+            LOGV("failed to run select(..): %s\n", strerror(errno));
+            return ret;
+        }
+
+        if (ret == 0) {
+            return 0;
+        }
+    }
+    return readCommand(msg, size);
+}
+
 void MessagePipe::writeCommand(void* msg, int32_t size) const {
     write(_pipeWrite, msg, size);
 }

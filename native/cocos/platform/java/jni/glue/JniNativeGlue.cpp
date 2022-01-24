@@ -131,25 +131,7 @@ int JniNativeGlue::readCommand(CommandMsg* msg) {
 }
 
 int JniNativeGlue::readCommandWithTimeout(CommandMsg* cmd, int delayMS) {
-    if (delayMS > 0) {
-        static fd_set  fdSet;
-        static timeval timeout;
-
-        timeout = {delayMS / 1000, (delayMS % 1000) * 1000};
-        FD_ZERO(&fdSet);
-        FD_SET(pipeRead, &fdSet);
-
-        auto ret = select(pipeRead + 1, &fdSet, nullptr, nullptr, &timeout);
-        if (ret < 0) {
-            LOGV("failed to run select(..): %s\n", strerror(errno));
-            return ret;
-        }
-
-        if (ret == 0) {
-            return 0;
-        }
-    }
-    return readCommand(cmd);
+    return _messagePipe->readCommandWithTimeout(cmd, sizeof(CommandMsg), delayMS);
 }
 
 void JniNativeGlue::setEventDispatch(IEventDispatch* eventDispatcher) {
@@ -193,7 +175,7 @@ void JniNativeGlue::onLowMemory() {
 void JniNativeGlue::execCommand() {
     static CommandMsg msg;
     static bool       runInLowRate{false};
-    runInLowRate = !_animating || APP_CMD_PAUSE == _appState;
+    runInLowRate = !_animating || JniCommand::JNI_CMD_PAUSE == _appState;
 
     if (readCommandWithTimeout(&msg, runInLowRate ? 50 : 0) > 0) {
         preExecCmd(msg.cmd);
