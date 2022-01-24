@@ -303,10 +303,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         return device.createRenderPass(renderPassInfo);
     }
 
-    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
+    public getRenderPass (clearFlags: ClearFlags, fbo: Framebuffer): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
-        renderPass = this.createRenderPass(clearFlags, swapchain.colorTexture.format, swapchain.depthStencilTexture.format);
+        renderPass = this.createRenderPass(clearFlags, fbo.colorTextures[0]!.format, fbo.depthStencilTexture!.format);
         this._renderPasses.set(clearFlags, renderPass);
         return renderPass;
     }

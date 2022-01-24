@@ -426,7 +426,7 @@ export class Mask extends Renderable2D {
         testPt.y += ap.y * h;
 
         let result = false;
-        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL) {
+        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL || this.type === MaskType.IMAGE_STENCIL) {
             result = testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
         } else if (this.type === MaskType.ELLIPSE) {
             const rx = w / 2;
@@ -444,7 +444,7 @@ export class Mask extends Renderable2D {
     }
 
     protected _render (render: IBatcher) {
-        render.commitComp(this, null, this._assembler!, null);
+        render.commitComp(this, this.renderData, null, this._assembler!, null);
     }
 
     protected _postRender (render: IBatcher) {
@@ -452,7 +452,7 @@ export class Mask extends Renderable2D {
             return;
         }
 
-        render.commitComp(this, null, this._postAssembler, null);
+        render.commitComp(this, null, null, this._postAssembler, null);
     }
 
     protected _nodeStateChange (type: TransformBit) {
@@ -470,7 +470,7 @@ export class Mask extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = Mask.Assembler!.getAssembler(this);
+        const assembler = Mask.Assembler.getAssembler(this);
         const posAssembler = Mask.PostAssembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {

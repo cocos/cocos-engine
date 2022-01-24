@@ -433,7 +433,7 @@ export const effects = [
     "shaders": [
       {
         "name": "particle|particle-vs-legacy:lpvs_main|tinted-fs:add",
-        "hash": 2766437914,
+        "hash": 2554907268,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 52, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -506,42 +506,6 @@ export const effects = [
             { "name": "alphaThreshold", "type": 13, "count": 1 }
           ]}
         ],
-        "samplerTextures": [],
-        "buffers": [],
-        "images": [],
-        "textures": [],
-        "samplers": [],
-        "subpassInputs": []
-      }
-    ]
-  },
-  {
-    "name": "sprite-gpu",
-    "techniques": [
-      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "sprite-gpu|sprite-vs-gpu:vert|sprite-fs-gpu:frag", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
-    ],
-    "shaders": [
-      {
-        "name": "sprite-gpu|sprite-vs-gpu:vert|sprite-fs-gpu:frag",
-        "hash": 2450198964,
-        "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCUILocal", "defines": [] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }], "buffers": [], "images": [] }
-        },
-        "defines": [
-          { "name": "SAMPLE_FROM_RT", "type": "boolean" },
-          { "name": "USE_PIXEL_ALIGNMENT", "type": "boolean" },
-          { "name": "CC_USE_EMBEDDED_ALPHA", "type": "boolean" },
-          { "name": "USE_TEXTURE", "type": "boolean" },
-          { "name": "IS_GRAY", "type": "boolean" }
-        ],
-        "attributes": [
-          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
-          { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 },
-          { "name": "a_batch_id", "defines": [], "format": 11, "location": 2 }
-        ],
-        "blocks": [],
         "samplerTextures": [],
         "buffers": [],
         "images": [],
@@ -631,7 +595,6 @@ export const effects = [
           { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
           { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 2] },
           { "name": "USE_REFLECTION_DENOISE", "type": "boolean" },
-          { "name": "CC_ENABLE_DIR_SHADOW", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "USE_ALBEDO_MAP", "type": "boolean" },
           { "name": "ALBEDO_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
@@ -781,7 +744,6 @@ export const effects = [
           { "name": "USE_REFLECTION_DENOISE", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
-          { "name": "CC_ENABLE_DIR_SHADOW", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "LAYERS", "type": "number", "range": [0, 4] },
           { "name": "USE_PBR", "type": "boolean" },
@@ -1123,7 +1085,6 @@ export const effects = [
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
-          { "name": "CC_ENABLE_DIR_SHADOW", "type": "boolean" },
           { "name": "CC_PIPELINE_TYPE", "type": "number", "range": [0, 1] },
           { "name": "CC_FORCE_FORWARD_SHADING", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
@@ -1136,7 +1097,9 @@ export const effects = [
           { "name": "a_tangent", "defines": [], "format": 44, "location": 3 }
         ],
         "blocks": [],
-        "samplerTextures": [],
+        "samplerTextures": [
+          { "name": "depth_stencil", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 3 }
+        ],
         "buffers": [
           { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 4 },
           { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 5 },
@@ -1147,9 +1110,8 @@ export const effects = [
         "samplers": [],
         "subpassInputs": [
           { "name": "gbuffer_albedoMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 0 },
-          { "name": "gbuffer_positionMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 1 },
-          { "name": "gbuffer_normalMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 2 },
-          { "name": "gbuffer_emissiveMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 3 }
+          { "name": "gbuffer_normalMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 1 },
+          { "name": "gbuffer_emissiveMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 2 }
         ]
       }
     ]

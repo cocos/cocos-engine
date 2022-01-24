@@ -49,10 +49,10 @@ export class DrawBatch2D {
     }
 
     public get inputAssembler () {
-        return this._inputAssember;
+        return this._inputAssembler;
     }
     public set inputAssembler (ia: InputAssembler | null) {
-        this._inputAssember = ia;
+        this._inputAssembler = ia;
         if (JSB) {
             this._nativeObj!.inputAssembler = ia;
         }
@@ -98,7 +98,7 @@ export class DrawBatch2D {
     private _passes: Pass[] = [];
     private _shaders: Shader[] = [];
     private _visFlags: number = UI_VIS_FLAG;
-    private _inputAssember: InputAssembler | null = null;
+    private _inputAssembler: InputAssembler | null = null;
     private _descriptorSet: DescriptorSet | null = null;
     private declare _nativeObj: NativeDrawBatch2D | null;
 
