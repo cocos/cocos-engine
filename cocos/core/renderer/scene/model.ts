@@ -123,6 +123,28 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
+    get shadowBias () {
+        return this._shadowBias;
+    }
+
+    set shadowBias (val) {
+        this._shadowBias = val;
+        if (JSB) {
+            this._nativeObj!.setShadowBias(val);
+        }
+    }
+
+    get shadowNormalBias () {
+        return this._shadowNormalBias;
+    }
+
+    set shadowNormalBias (val) {
+        this._shadowNormalBias = val;
+        if (JSB) {
+            this._nativeObj!.setShadowNormalBias(val);
+        }
+    }
+
     get receiveShadow () {
         return this._receiveShadow;
     }
@@ -207,13 +229,13 @@ export class Model {
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: Buffer | null = null;
     private _instMatWorldIdx = -1;
-    private _lightmap: Texture2D | null = null;
-    private _lightmapUVParam: Vec4 = new Vec4();
 
     protected _worldBoundBuffer: Buffer | null = null;
 
     protected _receiveShadow = false;
     protected _castShadow = false;
+    protected _shadowBias = 0;
+    protected _shadowNormalBias = 0;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
     protected declare _nativeObj: NativeModel | NativeSkinningModel | NativeBakedSkinningModel | null;
@@ -450,8 +472,6 @@ export class Model {
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
         this._localDataUpdated = true;
-        this._lightmap = texture;
-        this._lightmapUVParam = uvParam;
 
         if (texture === null) {
             texture = builtinResMgr.get<Texture2D>('empty-texture');
@@ -474,6 +494,15 @@ export class Model {
                 this._nativeObj!.updateLightingmap(uvParam, sampler, gfxTexture);
             }
         }
+    }
+
+    public updateLocalShadowBias () {
+        const sv = this._localData;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = 0;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
+        this._localDataUpdated = true;
     }
 
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {

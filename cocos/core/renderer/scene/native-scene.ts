@@ -28,6 +28,8 @@ export const NativeModel: Constructor<{
     seVisFlag (val: number): void;
     setTransform (n: Node): void;
     setNode (n: Node): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
     setWorldBoundBuffer (buf: Buffer | null): void;
@@ -38,6 +40,7 @@ export const NativeModel: Constructor<{
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
     updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
+    updateLocalShadowBias(val: Vec2): void;
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
 
@@ -47,6 +50,8 @@ export const NativeSkinningModel: Constructor<{
     seVisFlag (val: number): void;
     setTransform (n: Node): void;
     setNode (n: Node): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
     setWorldBoundBuffer (buf: Buffer | null): void;
@@ -60,6 +65,7 @@ export const NativeSkinningModel: Constructor<{
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
     updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
+    updateLocalShadowBias(val: Vec2): void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
@@ -84,6 +90,8 @@ export const NativeBakedSkinningModel: Constructor<{
     seVisFlag (val: number): void;
     setTransform (n: Node): void;
     setNode (n: Node): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
     setWorldBoundBuffer (buf: Buffer | null): void;
@@ -97,6 +105,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setAnimInfoIdx(idx: number): void;
     updateModelBounds(val: NativeAABB | null): void;
     updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
+    updateLocalShadowBias(val: Vec2): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 

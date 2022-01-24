@@ -108,6 +108,7 @@ CCProgram toon-vs %{
   out vec3 v_position;
   out vec2 v_uv;
   out vec3 v_normal;
+  out vec2 v_shadowBias;
   #if USE_NORMAL_MAP
     out vec3 v_tangent;
     out vec3 v_bitangent;
@@ -123,6 +124,7 @@ CCProgram toon-vs %{
     vec4 pos = matWorld * In.position;
     v_position = pos.xyz;
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    v_shadowBias = CCGetShadowBias();
 
     v_normal = (matWorldIT * vec4(In.normal, 0.0)).xyz;
     #if USE_NORMAL_MAP
@@ -146,6 +148,7 @@ CCProgram toon-fs %{
 
   in vec3 v_position;
   in vec2 v_uv;
+  in vec2 v_shadowBias;
 
   #if USE_BASE_COLOR_MAP
     uniform sampler2D baseColorMap;
@@ -208,6 +211,7 @@ CCProgram toon-fs %{
     #endif
 
     s.normal = v_normal;
+    s.shadowBias = v_shadowBias;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, v_uv).xyz - vec3(0.5);
       s.normal =

@@ -178,8 +178,50 @@ export class MeshRenderer extends RenderableComponent {
     @serializable
     protected _shadowReceivingMode = ModelShadowReceivingMode.ON;
 
+    @serializable
+    protected _shadowBias = 0;
+
+    @serializable
+    protected _shadowNormalBias = 0;
+
     // @serializable
     private _subMeshShapesWeights: number[][] = [];
+
+    /**
+     * @en local shadow bias.
+     * @zh 模型局部的阴影偏移。
+     */
+    @type(CCFloat)
+    @tooltip('i18n:model.shadow_bias')
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2 } })
+    @disallowAnimation
+    get shadowBias () {
+        return this._shadowBias;
+    }
+
+    set shadowBias (val) {
+        this._shadowBias = val;
+        this._updateShadowBias();
+        this._onUpdateLocalShadowBias();
+    }
+
+    /**
+     * @en local shadow normal bias.
+     * @zh 模型局部的阴影法线偏移。
+     */
+    @type(CCFloat)
+    @tooltip('i18n:model.shadow_normal_bias')
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2 } })
+    @disallowAnimation
+    get shadowNormalBias () {
+        return this._shadowNormalBias;
+    }
+
+    set shadowNormalBias (val) {
+        this._shadowNormalBias = val;
+        this._updateShadowBias();
+        this._onUpdateLocalShadowBias();
+    }
 
     /**
      * @en Shadow projection mode.
@@ -429,6 +471,7 @@ export class MeshRenderer extends RenderableComponent {
             this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
             this._updateModelParams();
             this._onUpdateLightingmap();
+            this._onUpdateLocalShadowBias();
         }
     }
 
@@ -504,6 +547,17 @@ export class MeshRenderer extends RenderableComponent {
         ]);
     }
 
+    protected _onUpdateLocalShadowBias () {
+        if (this.model !== null) {
+            this.model.updateLocalShadowBias();
+        }
+
+        this.setInstancedAttribute('a_localShadowBias', [
+            this._shadowBias,
+            this._shadowNormalBias,
+        ]);
+    }
+
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (!this._model || !this._model.inited) { return; }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
@@ -514,6 +568,7 @@ export class MeshRenderer extends RenderableComponent {
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
         this._onUpdateLightingmap();
+        this._onUpdateLocalShadowBias();
     }
 
     protected _onMeshChanged (old: Mesh | null) {
@@ -535,6 +590,16 @@ export class MeshRenderer extends RenderableComponent {
     protected _onVisibilityChange (val: number) {
         if (!this._model) { return; }
         this._model.visFlags = val;
+    }
+
+    protected _updateShadowBias () {
+        if (!this._model) { return; }
+        this._model.shadowBias = this._shadowBias;
+    }
+
+    protected _updateShadowNormalBias () {
+        if (!this._model) { return; }
+        this._model.shadowNormalBias = this._shadowNormalBias;
     }
 
     protected _updateCastShadow () {
