@@ -176,9 +176,6 @@ export class SpotLight extends Light {
     }
     set shadowEnabled (val) {
         this._shadowEnabled = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setShadowEnabled(val);
-        }
     }
 
     /**
@@ -190,9 +187,6 @@ export class SpotLight extends Light {
     }
     set shadowPcf (val) {
         this._shadowPcf = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setShadowPcf(val);
-        }
     }
 
     /**
@@ -204,9 +198,6 @@ export class SpotLight extends Light {
     }
     set shadowBias (val) {
         this._shadowBias = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setShadowBias(val);
-        }
     }
 
     /**
@@ -218,9 +209,6 @@ export class SpotLight extends Light {
     }
     set shadowNormalBias (val: number) {
         this._shadowNormalBias = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setShadowNormalBias(val);
-        }
     }
 
     constructor () {
