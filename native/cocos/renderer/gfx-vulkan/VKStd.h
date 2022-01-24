@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -42,15 +42,15 @@
 #endif
 
 #if CC_DEBUG > 0
-#define VK_CHECK(x)                                                      \
-    do {                                                                 \
-        VkResult err = x;                                                \
-        if (err) {                                                       \
-            CC_LOG_ERROR("%s returned Vulkan error: %d", #x, err);       \
-            CCASSERT(false, "Vulkan Error");                             \
-        }                                                                \
-    } while (0)
+    #define VK_CHECK(x)                                                \
+        do {                                                           \
+            VkResult err = x;                                          \
+            if (err) {                                                 \
+                CC_LOG_ERROR("%s returned Vulkan error: %d", #x, err); \
+                CCASSERT(false, "Vulkan Error");                       \
+            }                                                          \
+        } while (0)
 
 #else
-#define VK_CHECK(x) x
+    #define VK_CHECK(x) x
 #endif

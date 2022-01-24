@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,10 +28,10 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
-    #include "Utils.h"
+    #include "../MappingUtils.h"
     #include "Class.h"
     #include "ScriptEngine.h"
-    #include "../MappingUtils.h"
+    #include "Utils.h"
 
 namespace se {
 
@@ -64,11 +64,11 @@ Object *Object::createArrayObject(size_t length) {
 }
 
 Object *Object::createArrayBufferObject(void *data, size_t byteLength) {
-    Object *obj = nullptr;
+    Object *   obj = nullptr;
     JsValueRef jsobj;
     _CHECK(JsCreateArrayBuffer((unsigned int)byteLength, &jsobj));
-    ChakraBytePtr buffer = nullptr;
-    unsigned int bufferLength = 0;
+    ChakraBytePtr buffer       = nullptr;
+    unsigned int  bufferLength = 0;
     if (JsNoError == JsGetArrayBufferStorage(jsobj, &buffer, &bufferLength)) {
         if (data) {
             memcpy((void *)buffer, data, byteLength);
@@ -93,53 +93,53 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
     }
 
     JsTypedArrayType typedArrayType;
-    size_t elementLength = 0;
+    size_t           elementLength = 0;
 
     switch (type) {
         case TypedArrayType::INT8:
             typedArrayType = JsArrayTypeInt8;
-            elementLength = byteLength;
+            elementLength  = byteLength;
             break;
         case TypedArrayType::INT16:
             typedArrayType = JsArrayTypeInt16;
-            elementLength = byteLength / 2;
+            elementLength  = byteLength / 2;
             break;
         case TypedArrayType::INT32:
             typedArrayType = JsArrayTypeInt32;
-            elementLength = byteLength / 4;
+            elementLength  = byteLength / 4;
             break;
         case TypedArrayType::UINT8:
             typedArrayType = JsArrayTypeUint8;
-            elementLength = byteLength;
+            elementLength  = byteLength;
             break;
         case TypedArrayType::UINT16:
             typedArrayType = JsArrayTypeUint16;
-            elementLength = byteLength / 2;
+            elementLength  = byteLength / 2;
             break;
         case TypedArrayType::UINT32:
             typedArrayType = JsArrayTypeUint32;
-            elementLength = byteLength / 4;
+            elementLength  = byteLength / 4;
             break;
         case TypedArrayType::FLOAT32:
             typedArrayType = JsArrayTypeFloat32;
-            elementLength = byteLength / 4;
+            elementLength  = byteLength / 4;
             break;
         case TypedArrayType::FLOAT64:
             typedArrayType = JsArrayTypeFloat64;
-            elementLength = byteLength / 8;
+            elementLength  = byteLength / 8;
             break;
         default:
             assert(false); // Should never go here.
             break;
     }
 
-    Object *obj = nullptr;
+    Object *   obj = nullptr;
     JsValueRef jsobj;
     _CHECK(JsCreateTypedArray(typedArrayType, JS_INVALID_REFERENCE, 0, (unsigned int)elementLength, &jsobj));
-    ChakraBytePtr buffer = nullptr;
-    unsigned int bufferLength = 0;
+    ChakraBytePtr    buffer       = nullptr;
+    unsigned int     bufferLength = 0;
     JsTypedArrayType arrType;
-    int elementSize = 0;
+    int              elementSize = 0;
     if (JsNoError == JsGetTypedArrayStorage(jsobj, &buffer, &bufferLength, &arrType, &elementSize)) {
         //If data has content,then will copy data into buffer,or will only clear buffer.
         if (data) {
@@ -159,11 +159,11 @@ Object *Object::createUint8TypedArray(uint8_t *data, size_t dataCount) {
 }
 
 Object *Object::createJSONObject(const std::string &jsonStr) {
-    bool ok = false;
+    bool    ok  = false;
     Object *obj = nullptr;
 
     Object *global = ScriptEngine::getInstance()->getGlobalObject();
-    Value jsonVal;
+    Value   jsonVal;
     ok = global->getProperty("JSON", &jsonVal);
     assert(ok);
 
@@ -171,7 +171,7 @@ Object *Object::createJSONObject(const std::string &jsonStr) {
     ok = jsonVal.toObject()->getProperty("parse", &parseVal);
     assert(ok);
 
-    Value ret;
+    Value      ret;
     ValueArray args;
     args.push_back(Value(jsonStr));
     if (parseVal.toObject()->call(args, jsonVal.toObject(), &ret)) {
@@ -182,8 +182,8 @@ Object *Object::createJSONObject(const std::string &jsonStr) {
 }
 
 Object *Object::getObjectWithPtr(void *ptr) {
-    Object *obj = nullptr;
-    auto iter = NativePtrToObjectMap::find(ptr);
+    Object *obj  = nullptr;
+    auto    iter = NativePtrToObjectMap::find(ptr);
     if (iter != NativePtrToObjectMap::end()) {
         obj = iter->second;
         obj->incRef();
@@ -204,7 +204,7 @@ Object *Object::_createJSObject(Class *cls, JsValueRef obj) {
 
 Object *Object::createObjectWithClass(Class *cls) {
     JsValueRef jsobj = Class::_createJSObjectWithClass(cls);
-    Object *obj = Object::_createJSObject(cls, jsobj);
+    Object *   obj   = Object::_createJSObject(cls, jsobj);
     return obj;
 }
 
@@ -252,9 +252,9 @@ void Object::_cleanup(void *nativeObject /* = nullptr*/) {
 void Object::cleanup() {
     ScriptEngine::getInstance()->addAfterCleanupHook([]() {
         const auto &instance = NativePtrToObjectMap::instance();
-        se::Object *obj = nullptr;
+        se::Object *obj      = nullptr;
         for (const auto &e : instance) {
-            obj = e.second;
+            obj             = e.second;
             obj->_isCleanup = true; // _cleanup will invoke NativePtrToObjectMap::erase method which will break this for loop. It isn't needed at ScriptEngine::cleanup step.
             obj->decRef();
         }
@@ -329,7 +329,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
 
     jsArgs[0] = contextObject;
 
-    JsValueRef rcValue = JS_INVALID_REFERENCE;
+    JsValueRef  rcValue = JS_INVALID_REFERENCE;
     JsErrorCode errCode = JsCallFunction(_obj, jsArgs, args.size() + 1, &rcValue);
     free(jsArgs);
 
@@ -375,20 +375,20 @@ static bool getArrayLengthOfObject(JsValueRef arrObj, uint32_t *length) {
     assert(isArrayOfObject(arrObj));
     assert(length != nullptr);
 
-    JsErrorCode err = JsNoError;
+    JsErrorCode     err        = JsNoError;
     JsPropertyIdRef propertyId = JS_INVALID_REFERENCE;
-    const char *lengthName = "length";
-    err = JsCreatePropertyId(lengthName, strlen(lengthName), &propertyId);
+    const char *    lengthName = "length";
+    err                        = JsCreatePropertyId(lengthName, strlen(lengthName), &propertyId);
     if (err != JsNoError)
         return false;
 
     JsValueRef jsLen = JS_INVALID_REFERENCE;
-    err = JsGetProperty(arrObj, propertyId, &jsLen);
+    err              = JsGetProperty(arrObj, propertyId, &jsLen);
     if (err != JsNoError)
         return false;
 
     int intVal = 0;
-    err = JsNumberToInt(jsLen, &intVal);
+    err        = JsNumberToInt(jsLen, &intVal);
     if (err != JsNoError)
         return false;
 
@@ -409,10 +409,10 @@ bool Object::getArrayElement(uint32_t index, Value *data) const {
     assert(isArray());
     assert(data != nullptr);
 
-    JsErrorCode err = JsNoError;
-    JsValueRef result = JS_INVALID_REFERENCE;
-    JsValueRef jsIndex = JS_INVALID_REFERENCE;
-    err = JsIntToNumber(index, &jsIndex);
+    JsErrorCode err     = JsNoError;
+    JsValueRef  result  = JS_INVALID_REFERENCE;
+    JsValueRef  jsIndex = JS_INVALID_REFERENCE;
+    err                 = JsIntToNumber(index, &jsIndex);
     if (err != JsNoError)
         return false;
 
@@ -428,9 +428,9 @@ bool Object::getArrayElement(uint32_t index, Value *data) const {
 bool Object::setArrayElement(uint32_t index, const Value &data) {
     assert(isArray());
 
-    JsErrorCode err = JsNoError;
-    JsValueRef jsIndex = JS_INVALID_REFERENCE;
-    err = JsIntToNumber(index, &jsIndex);
+    JsErrorCode err     = JsNoError;
+    JsValueRef  jsIndex = JS_INVALID_REFERENCE;
+    err                 = JsIntToNumber(index, &jsIndex);
     if (err != JsNoError)
         return false;
 
@@ -447,22 +447,22 @@ bool Object::setArrayElement(uint32_t index, const Value &data) {
 bool Object::getAllKeys(std::vector<std::string> *allKeys) const {
     assert(allKeys != nullptr);
 
-    JsErrorCode err = JsNoError;
-    JsValueRef keys = JS_INVALID_REFERENCE;
-    err = JsGetOwnPropertyNames(_obj, &keys);
+    JsErrorCode err  = JsNoError;
+    JsValueRef  keys = JS_INVALID_REFERENCE;
+    err              = JsGetOwnPropertyNames(_obj, &keys);
     if (err != JsNoError)
         return false;
 
     uint32_t len = 0;
-    bool ok = false;
-    ok = getArrayLengthOfObject(keys, &len);
+    bool     ok  = false;
+    ok           = getArrayLengthOfObject(keys, &len);
     if (!ok)
         return false;
 
     std::string key;
     for (uint32_t index = 0; index < len; ++index) {
         JsValueRef indexValue = JS_INVALID_REFERENCE;
-        err = JsIntToNumber(index, &indexValue);
+        err                   = JsIntToNumber(index, &indexValue);
         if (err != JsNoError)
             return false;
 
@@ -510,9 +510,9 @@ Object::TypedArrayType Object::getTypedArrayType() const {
         return ret;
 
     JsTypedArrayType type;
-    JsValueRef arrayBuffer = JS_INVALID_REFERENCE;
-    unsigned int byteOffset = 0;
-    unsigned int byteLength = 0;
+    JsValueRef       arrayBuffer = JS_INVALID_REFERENCE;
+    unsigned int     byteOffset  = 0;
+    unsigned int     byteLength  = 0;
 
     if (JsNoError == JsGetTypedArrayInfo(_obj, &type, &arrayBuffer, &byteOffset, &byteLength)) {
         if (type == JsArrayTypeInt8)
@@ -541,16 +541,16 @@ Object::TypedArrayType Object::getTypedArrayType() const {
 bool Object::getTypedArrayData(uint8_t **ptr, size_t *length) const {
     assert(isTypedArray());
     JsTypedArrayType arrayType;
-    ChakraBytePtr buffer = nullptr;
-    unsigned int bufferLength = 0;
-    int elementSize = 0;
-    bool ret = false;
+    ChakraBytePtr    buffer       = nullptr;
+    unsigned int     bufferLength = 0;
+    int              elementSize  = 0;
+    bool             ret          = false;
     if (JsNoError == JsGetTypedArrayStorage(_obj, &buffer, &bufferLength, &arrayType, &elementSize)) {
-        *ptr = buffer;
+        *ptr    = buffer;
         *length = bufferLength;
-        ret = true;
+        ret     = true;
     } else {
-        *ptr = nullptr;
+        *ptr    = nullptr;
         *length = 0;
     }
     return ret;
@@ -566,15 +566,15 @@ bool Object::isArrayBuffer() const {
 
 bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
     assert(isArrayBuffer());
-    ChakraBytePtr buffer = nullptr;
-    unsigned int bufferLength = 0;
-    bool ret = false;
+    ChakraBytePtr buffer       = nullptr;
+    unsigned int  bufferLength = 0;
+    bool          ret          = false;
     if (JsNoError == JsGetArrayBufferStorage(_obj, &buffer, &bufferLength)) {
-        *ptr = buffer;
+        *ptr    = buffer;
         *length = bufferLength;
-        ret = true;
+        ret     = true;
     } else {
-        *ptr = nullptr;
+        *ptr    = nullptr;
         *length = 0;
     }
     return ret;
@@ -652,7 +652,7 @@ bool Object::attachObject(Object *obj) {
     assert(obj);
 
     Object *global = ScriptEngine::getInstance()->getGlobalObject();
-    Value jsbVal;
+    Value   jsbVal;
     if (!global->getProperty("jsb", &jsbVal))
         return false;
     Object *jsbObj = jsbVal.toObject();
@@ -672,7 +672,7 @@ bool Object::attachObject(Object *obj) {
 bool Object::detachObject(Object *obj) {
     assert(obj);
     Object *global = ScriptEngine::getInstance()->getGlobalObject();
-    Value jsbVal;
+    Value   jsbVal;
     if (!global->getProperty("jsb", &jsbVal))
         return false;
     Object *jsbObj = jsbVal.toObject();

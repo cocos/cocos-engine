@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -34,20 +34,20 @@ class CCMTLFramebuffer final : public Framebuffer {
 public:
     explicit CCMTLFramebuffer();
     ~CCMTLFramebuffer();
-    CCMTLFramebuffer(const CCMTLFramebuffer &)=delete;
-    CCMTLFramebuffer(CCMTLFramebuffer &&)=delete;
-    CCMTLFramebuffer &operator=(const CCMTLFramebuffer &)=delete;
-    CCMTLFramebuffer &operator=(CCMTLFramebuffer &&)=delete;
+    CCMTLFramebuffer(const CCMTLFramebuffer &) = delete;
+    CCMTLFramebuffer(CCMTLFramebuffer &&)      = delete;
+    CCMTLFramebuffer &operator=(const CCMTLFramebuffer &) = delete;
+    CCMTLFramebuffer &operator=(CCMTLFramebuffer &&) = delete;
 
-    inline bool isOffscreen() const { return _isOffscreen; }
-    inline CCMTLSwapchain* swapChain() const { return _swapChain; }
+    inline bool            isOffscreen() const { return _isOffscreen; }
+    inline CCMTLSwapchain *swapChain() const { return _swapChain; }
 
 protected:
     void doInit(const FramebufferInfo &info) override;
     void doDestroy() override;
 
-    bool _isOffscreen = false;
-    CCMTLSwapchain* _swapChain = nullptr;
+    bool            _isOffscreen = false;
+    CCMTLSwapchain *_swapChain   = nullptr;
 };
 
 } // namespace gfx

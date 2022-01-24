@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -52,8 +52,7 @@ public:
     explicit OSEvent(OSEventType type) : _type(type) {}
 
     template <typename T>
-    std::enable_if_t<std::is_base_of<cc::OSEvent, T>::value, const T &> 
-    static castEvent(const cc::OSEvent &ev) {
+    std::enable_if_t<std::is_base_of<cc::OSEvent, T>::value, const T &> static castEvent(const cc::OSEvent &ev) {
         const T &evDetail = dynamic_cast<const T &>(ev);
         return std::move(evDetail);
     }
@@ -66,7 +65,8 @@ private:
     OSEventType _type = OSEventType::UNKNOWN_OSEVENT;
 };
 
-#define CONSTRUCT_EVENT(name, type)  name() : OSEvent(type) {}
+#define CONSTRUCT_EVENT(name, type) \
+    name() : OSEvent(type) {}
 
 class AppEvent : public OSEvent {
 public:
@@ -279,7 +279,6 @@ public:
     static void dispatchCloseEvent();
     static void dispatchDestroyWindowEvent();
     static void dispatchRecreateWindowEvent();
-
 
     using CustomEventListener = std::function<void(const CustomEvent &)>;
     static uint32_t addCustomEventListener(const std::string &eventName, const CustomEventListener &listener);

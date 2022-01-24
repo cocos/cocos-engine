@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -105,7 +105,7 @@ void PhysXSharedBody::setType(ERigidBodyType v) {
     } else {
         _mImpl.ptr = reinterpret_cast<uintptr_t>(_mDynamicActor);
         _mImpl.rigidDynamic->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, _mType == ERigidBodyType::KINEMATIC);
-	}
+    }
 }
 
 void PhysXSharedBody::reference(bool v) {

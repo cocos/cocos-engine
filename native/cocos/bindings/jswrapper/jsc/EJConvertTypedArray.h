@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -46,17 +46,17 @@ extern "C" {
 @constant     kEJJSTypedArrayTypeArrayBuffer          ArrayBuffer
 */
 typedef enum {
-    kEJJSTypedArrayTypeNone = 0,
-    kEJJSTypedArrayTypeInt8Array = 1,
-    kEJJSTypedArrayTypeInt16Array = 2,
-    kEJJSTypedArrayTypeInt32Array = 3,
-    kEJJSTypedArrayTypeUint8Array = 4,
+    kEJJSTypedArrayTypeNone              = 0,
+    kEJJSTypedArrayTypeInt8Array         = 1,
+    kEJJSTypedArrayTypeInt16Array        = 2,
+    kEJJSTypedArrayTypeInt32Array        = 3,
+    kEJJSTypedArrayTypeUint8Array        = 4,
     kEJJSTypedArrayTypeUint8ClampedArray = 5,
-    kEJJSTypedArrayTypeUint16Array = 6,
-    kEJJSTypedArrayTypeUint32Array = 7,
-    kEJJSTypedArrayTypeFloat32Array = 8,
-    kEJJSTypedArrayTypeFloat64Array = 9,
-    kEJJSTypedArrayTypeArrayBuffer = 10
+    kEJJSTypedArrayTypeUint16Array       = 6,
+    kEJJSTypedArrayTypeUint32Array       = 7,
+    kEJJSTypedArrayTypeFloat32Array      = 8,
+    kEJJSTypedArrayTypeFloat64Array      = 9,
+    kEJJSTypedArrayTypeArrayBuffer       = 10
 } EJJSTypedArrayType;
 
 /*!

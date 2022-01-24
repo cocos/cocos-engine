@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -55,7 +55,7 @@ void RenderPassValidator::doInit(const RenderPassInfo &info) {
         }
     }
 
-    for (auto & attachment : _colorAttachments) {
+    for (auto &attachment : _colorAttachments) {
         if (attachment.loadOp == LoadOp::LOAD && attachment.beginAccesses.empty()) {
             CCASSERT(false, "Attachment missing beginAccesses for LoadOp::LOAD");
         }

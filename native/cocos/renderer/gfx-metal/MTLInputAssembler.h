@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -36,10 +36,10 @@ class CCMTLInputAssembler final : public InputAssembler {
 public:
     explicit CCMTLInputAssembler();
     ~CCMTLInputAssembler();
-    CCMTLInputAssembler(const CCMTLInputAssembler &)=delete;
-    CCMTLInputAssembler(CCMTLInputAssembler &&)=delete;
-    CCMTLInputAssembler &operator=(const CCMTLInputAssembler &)=delete;
-    CCMTLInputAssembler &operator=(CCMTLInputAssembler &&)=delete;
+    CCMTLInputAssembler(const CCMTLInputAssembler &) = delete;
+    CCMTLInputAssembler(CCMTLInputAssembler &&)      = delete;
+    CCMTLInputAssembler &operator=(const CCMTLInputAssembler &) = delete;
+    CCMTLInputAssembler &operator=(CCMTLInputAssembler &&) = delete;
 
 protected:
     friend class CCMTLQueue;

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -66,7 +66,7 @@ public:
     virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                            = 0;
     virtual void beginQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                        = 0;
     virtual void endQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                          = 0;
-    virtual void resetQueryPool(QueryPool *queryPool)                                                                                                                                                                     = 0;
+    virtual void resetQueryPool(QueryPool *queryPool)                                                                                                                                                                 = 0;
     virtual void completeQueryPool(QueryPool *queryPool) {}
 
     inline void begin();

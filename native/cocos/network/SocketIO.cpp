@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2015 Chris Hannon http://www.channon.us
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,12 +30,12 @@
 #include <iterator>
 #include <sstream>
 #include <utility>
+#include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/UTF8.h"
 #include "network/HttpClient.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
-#include "application/ApplicationManager.h"
 
 #include "json/document-wrapper.h"
 #include "json/rapidjson.h"
@@ -393,7 +393,7 @@ void SIOClientImpl::handshakeResponse(HttpClient * /*sender*/, HttpResponse *res
     }
 
     int32_t statusCode       = response->getResponseCode();
-    char statusString[64] = {};
+    char    statusString[64] = {};
     sprintf(statusString, "HTTP Status Code: %d, tag = %s", statusCode, response->getHttpRequest()->getTag());
     CC_LOG_INFO("response code: %ld", statusCode);
 
@@ -654,7 +654,7 @@ void SIOClientImpl::onOpen(WebSocket * /*ws*/) {
         _ws->send(s);
     }
 
-     CC_CURRENT_ENGINE()->getScheduler()->schedule([this](auto &&pH1) { this->heartbeat(std::forward<decltype(pH1)>(pH1)); }, this, (static_cast<float>(_heartbeat) * .9F), false, "heartbeat");
+    CC_CURRENT_ENGINE()->getScheduler()->schedule([this](auto &&pH1) { this->heartbeat(std::forward<decltype(pH1)>(pH1)); }, this, (static_cast<float>(_heartbeat) * .9F), false, "heartbeat");
 
     for (auto &client : _clients) {
         client.second->onOpen();
@@ -746,7 +746,7 @@ void SIOClientImpl::onMessage(WebSocket * /*ws*/, const WebSocket::Data &data) {
                         pos2      = sData.find(',');
                         if (pos2 > pos) {
                             eventname = sData.substr(pos + 2, pos2 - (pos + 3));
-                            sData    = sData.substr(pos2 + 9, sData.size() - (pos2 + 11));
+                            sData     = sData.substr(pos2 + 9, sData.size() - (pos2 + 11));
                         }
 
                         c->fireEvent(eventname, sData);

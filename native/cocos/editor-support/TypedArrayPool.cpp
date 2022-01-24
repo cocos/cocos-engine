@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,22 +24,22 @@
 ****************************************************************************/
 
 #include "TypedArrayPool.h"
+#include <cmath>
+#include <functional>
 #include "MiddlewareMacro.h"
 #include "base/Log.h"
 #include "base/Macros.h"
-#include <functional>
-#include <cmath>
 
 #define POOL_DEBUG 0
 
 #if POOL_DEBUG > 0
-#define PoolLog(...)                  \
-    do {                              \
-        fprintf(stdout, __VA_ARGS__); \
-        fflush(stdout);               \
-    } while (false)
+    #define PoolLog(...)                  \
+        do {                              \
+            fprintf(stdout, __VA_ARGS__); \
+            fflush(stdout);               \
+        } while (false)
 #else
-#define POOL_LOG(...)
+    #define POOL_LOG(...)
 #endif
 
 MIDDLEWARE_BEGIN
@@ -71,14 +71,14 @@ void TypedArrayPool::clearPool() {
     POOL_LOG("*****clearPool TypeArray pool begin");
 
     //map
-    for (auto & it : _pool) {
+    for (auto &it : _pool) {
         //map
         fitMap &mapPool = *(it.second);
-        for (auto & itMapPool : mapPool) {
+        for (auto &itMapPool : mapPool) {
             //vector
             objPool &itFitPool = *(itMapPool.second);
             POOL_LOG("clear arrayType:%d,fitSize:%lu,objSize:%lu\n", it->first, itMapPool->first, itFitPool.size());
-            for (auto & itFit : itFitPool) {
+            for (auto &itFit : itFitPool) {
                 itFit->unroot();
                 itFit->decRef();
             }
@@ -93,10 +93,10 @@ void TypedArrayPool::clearPool() {
 
 void TypedArrayPool::dump() {
     //map
-    for (auto & it : _pool) {
+    for (auto &it : _pool) {
         //map
         fitMap &mapPool = *(it.second);
-        for (auto & itMapPool : mapPool) {
+        for (auto &itMapPool : mapPool) {
             //vector
             CC_UNUSED objPool &itFitPool = *(itMapPool.second);
             POOL_LOG("arrayType:%d,fitSize:%lu,objSize:%lu\n", it->first, itMapPool->first, itFitPool.size());
@@ -105,7 +105,7 @@ void TypedArrayPool::dump() {
 }
 
 se::Object *TypedArrayPool::pop(arrayType type, std::size_t size) {
-    auto fitSize = static_cast<std::size_t>(std::ceil(size / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE);
+    auto     fitSize    = static_cast<std::size_t>(std::ceil(size / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE);
     objPool *objPoolPtr = getObjPool(type, fitSize);
 
     if (!objPoolPtr->empty()) {
@@ -117,25 +117,25 @@ se::Object *TypedArrayPool::pop(arrayType type, std::size_t size) {
 
     POOL_LOG("TypedArrayPool:pop result:empty,type:%d,fitSize:%lu,objSize:%lu\n", (int)type, fitSize, objPoolPtr->size());
     se::AutoHandleScope hs;
-    auto *typeArray = se::Object::createTypedArray(type, nullptr, fitSize);
+    auto *              typeArray = se::Object::createTypedArray(type, nullptr, fitSize);
     typeArray->root();
     return typeArray;
 }
 
 TypedArrayPool::objPool *TypedArrayPool::getObjPool(arrayType type, std::size_t fitSize) {
-    auto it = _pool.find(type);
+    auto    it        = _pool.find(type);
     fitMap *fitMapPtr = nullptr;
     if (it == _pool.end()) {
-        fitMapPtr = new fitMap();
+        fitMapPtr   = new fitMap();
         _pool[type] = fitMapPtr;
     } else {
         fitMapPtr = it->second;
     }
 
-    auto itPool = fitMapPtr->find(fitSize);
+    auto     itPool     = fitMapPtr->find(fitSize);
     objPool *objPoolPtr = nullptr;
     if (itPool == fitMapPtr->end()) {
-        objPoolPtr = new objPool();
+        objPoolPtr            = new objPool();
         (*fitMapPtr)[fitSize] = objPoolPtr;
     } else {
         objPoolPtr = itPool->second;
@@ -157,7 +157,7 @@ void TypedArrayPool::push(arrayType type, std::size_t arrayCapacity, se::Object 
     }
 
     objPool *objPoolPtr = getObjPool(type, arrayCapacity);
-    auto it = std::find(objPoolPtr->begin(), objPoolPtr->end(), object);
+    auto     it         = std::find(objPoolPtr->begin(), objPoolPtr->end(), object);
     if (it != objPoolPtr->end()) {
         POOL_LOG("TypedArrayPool:push result:repeat\n");
         return;

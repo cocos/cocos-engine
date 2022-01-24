@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #include "platform/qnx/modules/Screen.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
 #include "base/Macros.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 
 namespace cc {
 
 int Screen::getDPI() const {
     static int dpi = -1;
-    if (dpi == -1) {    
+    if (dpi == -1) {
         //screen_get_window_property_iv(screen_win, SCREEN_PROPERTY_DPI, &dpi);
     }
     return dpi;

@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -443,7 +443,7 @@ float Value::toFloat() const {
 
 double Value::toDouble() const {
     assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt);
-    if(LIKELY(_type == Type::Number)) {
+    if (LIKELY(_type == Type::Number)) {
         return _u._number;
     }
     if (_type == Type::BigInt) {
@@ -550,11 +550,11 @@ unsigned int Value::toUint() const {
     return CONVERT_TO_TYPE(unsigned int);
 }
 
-long Value::toLong() const {              // NOLINT(google-runtime-int)
+long Value::toLong() const { // NOLINT(google-runtime-int)
     return CONVERT_TO_TYPE(long);
 }
 
-unsigned long Value::toUlong() const {                                // NOLINT(google-runtime-int)
+unsigned long Value::toUlong() const { // NOLINT(google-runtime-int)
     return CONVERT_TO_TYPE(unsigned long);
 }
 

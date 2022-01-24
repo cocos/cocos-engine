@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,8 +30,8 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
-    #include "Base.h"
     #include "../Value.h"
+    #include "Base.h"
     #include "ObjectWrap.h"
 
 namespace se {
@@ -39,7 +39,7 @@ namespace se {
 namespace internal {
 
 struct PrivateData {
-    void *data;
+    void *  data;
     Object *seObj;
 };
 
@@ -51,10 +51,10 @@ void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *out
 void setReturnValue(const Value &data, const v8::FunctionCallbackInfo<v8::Value> &argv);
 void setReturnValue(const Value &data, const v8::PropertyCallbackInfo<v8::Value> &argv);
 
-bool hasPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
-void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, void *data, PrivateData **outInternalData);
+bool  hasPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
+void  setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, void *data, PrivateData **outInternalData);
 void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
-void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap);
+void  clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap);
 
 } // namespace internal
 } // namespace se

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,10 +27,10 @@
 #include "base/Macros.h"
 
 #include <SystemConfiguration/SystemConfiguration.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 
 namespace {
@@ -105,7 +105,7 @@ cc::Reachability::NetworkStatus getNetworkStatusForFlags(SCNetworkReachabilityFl
 namespace cc {
 
 Reachability *Reachability::createWithHostName(const std::string &hostName) {
-    Reachability *returnValue = nullptr;
+    Reachability *           returnValue  = nullptr;
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(nullptr, hostName.c_str());
     if (reachability != nullptr) {
         returnValue = new (std::nothrow) Reachability();
@@ -139,7 +139,7 @@ Reachability *Reachability::createWithAddress(const struct sockaddr *hostAddress
 Reachability *Reachability::createForInternetConnection() {
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));
-    zeroAddress.sin_len = sizeof(zeroAddress);
+    zeroAddress.sin_len    = sizeof(zeroAddress);
     zeroAddress.sin_family = AF_INET;
 
     return createWithAddress((const struct sockaddr *)&zeroAddress);
@@ -172,8 +172,8 @@ bool Reachability::startNotifier(const ReachabilityCallback &cb, void *userData)
     _callback = cb;
     _userData = userData;
 
-    bool returnValue = false;
-    SCNetworkReachabilityContext context = {0, this, nullptr, nullptr, nullptr};
+    bool                         returnValue = false;
+    SCNetworkReachabilityContext context     = {0, this, nullptr, nullptr, nullptr};
 
     if (SCNetworkReachabilitySetCallback(_reachabilityRef, onReachabilityCallback, &context)) {
         if (SCNetworkReachabilityScheduleWithRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode)) {
@@ -203,7 +203,7 @@ bool Reachability::isConnectionRequired() const {
 
 Reachability::NetworkStatus Reachability::getCurrentReachabilityStatus() const {
     CCASSERT(_reachabilityRef != nullptr, "currentNetworkStatus called with nullptr SCNetworkReachabilityRef");
-    NetworkStatus returnValue = NetworkStatus::NOT_REACHABLE;
+    NetworkStatus              returnValue = NetworkStatus::NOT_REACHABLE;
     SCNetworkReachabilityFlags flags;
 
     if (SCNetworkReachabilityGetFlags(_reachabilityRef, &flags)) {

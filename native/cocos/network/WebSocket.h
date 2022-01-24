@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -31,9 +31,9 @@
 #include "base/Ref.h"
 #include "platform/StdC.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
-#include <algorithm>
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
         #define OBJC_CLASS(name) @class name
@@ -87,10 +87,10 @@ public:
      */
     struct Data {
         Data() = default;
-        char *bytes{nullptr};
+        char *  bytes{nullptr};
         ssize_t len{0}, issued{0};
-        bool isBinary{false};
-        void *ext{nullptr};
+        bool    isBinary{false};
+        void *  ext{nullptr};
         ssize_t getRemain() const { return std::max(static_cast<ssize_t>(0), len - issued); }
     };
 
@@ -166,10 +166,10 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate &delegate,
-              const std::string &url,
-              const std::vector<std::string> *protocols = nullptr,
-              const std::string &caFilePath = "");
+    bool init(const Delegate &                delegate,
+              const std::string &             url,
+              const std::vector<std::string> *protocols  = nullptr,
+              const std::string &             caFilePath = "");
 
     /**
      *  @brief Sends string data to websocket server.

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,7 +30,7 @@
 #include "MemTracker.h"
 #include "StlAlloc.h"
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-#include <Availability.h>
+    #include <Availability.h>
 #endif
 
 // Global Interface Definitions
@@ -150,7 +150,7 @@ inline void operator delete(void *ptr) throw() { free(ptr); }
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0)
-#define ALIGNAS(x)
+    #define ALIGNAS(x)
 #else
-#define ALIGNAS(x) alignas(x)
+    #define ALIGNAS(x) alignas(x)
 #endif

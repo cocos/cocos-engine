@@ -1,8 +1,8 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 #include <vector>
@@ -42,11 +42,11 @@ public:
     BaseNode &operator=(const BaseNode &) = delete;
     BaseNode &operator=(const BaseNode &&) = delete;
 
-    virtual inline void updateWorldTransform(){}
-    virtual inline void updateWorldRTMatrix(){}
+    virtual inline void updateWorldTransform() {}
+    virtual inline void updateWorldRTMatrix() {}
 
-    virtual inline void setWorldPosition(float x, float y, float z){}
-    virtual inline void setWorldRotation(float x, float y, float z, float w){}
+    virtual inline void setWorldPosition(float x, float y, float z) {}
+    virtual inline void setWorldRotation(float x, float y, float z, float w) {}
     void                setParent(BaseNode *parent);
 
     inline void addChild(BaseNode *node) { _children.emplace_back(node); }
@@ -57,18 +57,18 @@ public:
         }
     }
 
-    virtual inline void setFlagsChanged(uint32_t value){}
-    virtual inline void setDirtyFlag(uint32_t value){}
-    virtual inline void setLayer(uint32_t layer){}
-    virtual inline void setWorldMatrix(const Mat4 &matrix){}
-    virtual inline void setWorldPosition(const Vec3 &pos){}
-    virtual inline void setWorldRotation(const Quaternion &rotation){}
-    virtual inline void setWorldScale(const Vec3 &scale){}
-    virtual inline void setLocalPosition(const Vec3 &pos){}
-    virtual inline void setLocalPosition(float x, float y, float z){}
-    virtual inline void setLocalRotation(const Quaternion &rotation){}
-    virtual inline void setLocalRotation(float x, float y, float z, float w){}
-    virtual inline void setLocalScale(const Vec3 &scale){}
+    virtual inline void setFlagsChanged(uint32_t value) {}
+    virtual inline void setDirtyFlag(uint32_t value) {}
+    virtual inline void setLayer(uint32_t layer) {}
+    virtual inline void setWorldMatrix(const Mat4 &matrix) {}
+    virtual inline void setWorldPosition(const Vec3 &pos) {}
+    virtual inline void setWorldRotation(const Quaternion &rotation) {}
+    virtual inline void setWorldScale(const Vec3 &scale) {}
+    virtual inline void setLocalPosition(const Vec3 &pos) {}
+    virtual inline void setLocalPosition(float x, float y, float z) {}
+    virtual inline void setLocalRotation(const Quaternion &rotation) {}
+    virtual inline void setLocalRotation(float x, float y, float z, float w) {}
+    virtual inline void setLocalScale(const Vec3 &scale) {}
 
     inline const std::vector<BaseNode *> &getChilds() { return _children; }
     inline BaseNode *                     getParent() const { return _parent; }

@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,9 +30,9 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
 
-    #include "Base.h"
-    #include "../Value.h"
     #include "../RefCounter.h"
+    #include "../Value.h"
+    #include "Base.h"
 
 namespace se {
 
@@ -363,9 +363,9 @@ public:
 
     // Private API used in wrapper
     static Object *_createJSObject(Class *cls, JSObjectRef obj);
-    JSObjectRef _getJSObject() const;
-    Class *_getClass() const;
-    void _setFinalizeCallback(JSObjectFinalizeCallback finalizeCb);
+    JSObjectRef    _getJSObject() const;
+    Class *        _getClass() const;
+    void           _setFinalizeCallback(JSObjectFinalizeCallback finalizeCb);
 
     void _cleanup(void *nativeObject = nullptr);
     bool _isNativeFunction() const;
@@ -397,9 +397,9 @@ private:
         FUNCTION
     };
 
-    Class *_cls;
-    JSObjectRef _obj;
-    void *_privateData;
+    Class *                  _cls;
+    JSObjectRef              _obj;
+    void *                   _privateData;
     JSObjectFinalizeCallback _finalizeCb;
 
     uint32_t _rootCount;

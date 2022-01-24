@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -48,14 +48,14 @@ extern uint32_t __jsbInvocationCount;
     #define SE_BIND_FUNC(funcName)                                                                        \
         bool funcName##Registry(JSContext *_cx, unsigned argc, JS::Value *_vp) {                          \
             ++__jsbInvocationCount;                                                                       \
-            bool ret = false;                                                                             \
-            JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp);                                           \
-            JS::Value _thiz = _argv.computeThis(_cx);                                                     \
+            bool           ret   = false;                                                                 \
+            JS::CallArgs   _argv = JS::CallArgsFromVp(argc, _vp);                                         \
+            JS::Value      _thiz = _argv.computeThis(_cx);                                                \
             se::ValueArray args;                                                                          \
             se::internal::jsToSeArgs(_cx, argc, _argv, &args);                                            \
             JS::RootedObject _thizObj(_cx, _thiz.toObjectOrNull());                                       \
-            void *nativeThisObject = se::internal::getPrivate(_cx, _thizObj);                             \
-            se::State state(nativeThisObject, args);                                                      \
+            void *           nativeThisObject = se::internal::getPrivate(_cx, _thizObj);                  \
+            se::State        state(nativeThisObject, args);                                               \
             ret = funcName(state);                                                                        \
             if (!ret) {                                                                                   \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
@@ -70,7 +70,7 @@ extern uint32_t __jsbInvocationCount;
     #define SE_BIND_FINALIZE_FUNC(funcName)                                                               \
         void funcName##Registry(JSFreeOp *_fop, JSObject *_obj) {                                         \
             void *nativeThisObject = JS_GetPrivate(_obj);                                                 \
-            bool ret = false;                                                                             \
+            bool  ret              = false;                                                               \
             if (nativeThisObject == nullptr)                                                              \
                 return;                                                                                   \
             se::State state(nativeThisObject);                                                            \
@@ -83,8 +83,8 @@ extern uint32_t __jsbInvocationCount;
     #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                                       \
         bool funcName##Registry(JSContext *_cx, unsigned argc, JS::Value *_vp) {                          \
             ++__jsbInvocationCount;                                                                       \
-            bool ret = false;                                                                             \
-            JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp);                                           \
+            bool           ret   = false;                                                                 \
+            JS::CallArgs   _argv = JS::CallArgsFromVp(argc, _vp);                                         \
             se::ValueArray args;                                                                          \
             se::internal::jsToSeArgs(_cx, argc, _argv, &args);                                            \
             se::Object *thisObject = se::Object::createObjectWithClass(cls);                              \
@@ -93,8 +93,8 @@ extern uint32_t __jsbInvocationCount;
             ret = funcName(state);                                                                        \
             if (ret) {                                                                                    \
                 se::Value _property;                                                                      \
-                bool _found = false;                                                                      \
-                _found = thisObject->getProperty("_ctor", &_property);                                    \
+                bool      _found = false;                                                                 \
+                _found           = thisObject->getProperty("_ctor", &_property);                          \
                 if (_found) _property.toObject()->call(args, thisObject);                                 \
             } else {                                                                                      \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
@@ -105,9 +105,9 @@ extern uint32_t __jsbInvocationCount;
     #define SE_BIND_SUB_CLS_CTOR(funcName, cls, finalizeCb)                                               \
         bool funcName##Registry(JSContext *_cx, unsigned argc, JS::Value *_vp) {                          \
             ++__jsbInvocationCount;                                                                       \
-            bool ret = false;                                                                             \
-            JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp);                                           \
-            JS::Value _thiz = _argv.computeThis(_cx);                                                     \
+            bool           ret   = false;                                                                 \
+            JS::CallArgs   _argv = JS::CallArgsFromVp(argc, _vp);                                         \
+            JS::Value      _thiz = _argv.computeThis(_cx);                                                \
             se::ValueArray args;                                                                          \
             se::internal::jsToSeArgs(_cx, argc, _argv, &args);                                            \
             se::Object *thisObject = se::Object::_createJSObject(cls, _thiz.toObjectOrNull());            \
@@ -116,8 +116,8 @@ extern uint32_t __jsbInvocationCount;
             ret = funcName(state);                                                                        \
             if (ret) {                                                                                    \
                 se::Value _property;                                                                      \
-                bool _found = false;                                                                      \
-                _found = thisObject->getProperty("_ctor", &_property);                                    \
+                bool      _found = false;                                                                 \
+                _found           = thisObject->getProperty("_ctor", &_property);                          \
                 if (_found) _property.toObject()->call(args, thisObject);                                 \
             } else {                                                                                      \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
@@ -128,12 +128,12 @@ extern uint32_t __jsbInvocationCount;
     #define SE_BIND_PROP_GET(funcName)                                                                    \
         bool funcName##Registry(JSContext *_cx, unsigned argc, JS::Value *_vp) {                          \
             ++__jsbInvocationCount;                                                                       \
-            bool ret = false;                                                                             \
-            JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp);                                           \
-            JS::Value _thiz = _argv.computeThis(_cx);                                                     \
+            bool             ret   = false;                                                               \
+            JS::CallArgs     _argv = JS::CallArgsFromVp(argc, _vp);                                       \
+            JS::Value        _thiz = _argv.computeThis(_cx);                                              \
             JS::RootedObject _thizObj(_cx, _thiz.toObjectOrNull());                                       \
-            void *nativeThisObject = se::internal::getPrivate(_cx, _thizObj);                             \
-            se::State state(nativeThisObject);                                                            \
+            void *           nativeThisObject = se::internal::getPrivate(_cx, _thizObj);                  \
+            se::State        state(nativeThisObject);                                                     \
             ret = funcName(state);                                                                        \
             if (!ret) {                                                                                   \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
@@ -145,12 +145,12 @@ extern uint32_t __jsbInvocationCount;
     #define SE_BIND_PROP_SET(funcName)                                                                    \
         bool funcName##Registry(JSContext *_cx, unsigned _argc, JS::Value *_vp) {                         \
             ++__jsbInvocationCount;                                                                       \
-            bool ret = false;                                                                             \
-            JS::CallArgs _argv = JS::CallArgsFromVp(_argc, _vp);                                          \
-            JS::Value _thiz = _argv.computeThis(_cx);                                                     \
+            bool             ret   = false;                                                               \
+            JS::CallArgs     _argv = JS::CallArgsFromVp(_argc, _vp);                                      \
+            JS::Value        _thiz = _argv.computeThis(_cx);                                              \
             JS::RootedObject _thizObj(_cx, _thiz.toObjectOrNull());                                       \
-            void *nativeThisObject = se::internal::getPrivate(_cx, _thizObj);                             \
-            se::Value data;                                                                               \
+            void *           nativeThisObject = se::internal::getPrivate(_cx, _thizObj);                  \
+            se::Value        data;                                                                        \
             se::internal::jsToSeValue(_cx, _argv[0], &data);                                              \
             se::ValueArray args;                                                                          \
             args.push_back(std::move(data));                                                              \

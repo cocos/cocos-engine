@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,8 +30,8 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
 
-    #include "Base.h"
     #include <thread>
+    #include "Base.h"
 
 namespace se {
 
@@ -273,9 +273,9 @@ public:
     uint32_t getVMId() const { return _vmId; }
 
     // Private API used in wrapper
-    void _clearException(JSValueRef exception);
+    void         _clearException(JSValueRef exception);
     JSContextRef _getContext() const { return _cx; }
-    void _setGarbageCollecting(bool isGarbageCollecting);
+    void         _setGarbageCollecting(bool isGarbageCollecting);
     //
 private:
     ScriptEngine();
@@ -288,7 +288,7 @@ private:
 
         // For compatibility
         std::string filePath;
-        uint32_t lineno;
+        uint32_t    lineno;
 
         ExceptionInfo()
         : lineno(0) {}
@@ -302,19 +302,19 @@ private:
     void callExceptionCallback(const char *, const char *, const char *);
 
     std::chrono::steady_clock::time_point _startTime;
-    std::vector<RegisterCallback> _registerCallbackArray;
-    std::vector<std::function<void()>> _beforeInitHookArray;
-    std::vector<std::function<void()>> _afterInitHookArray;
+    std::vector<RegisterCallback>         _registerCallbackArray;
+    std::vector<std::function<void()>>    _beforeInitHookArray;
+    std::vector<std::function<void()>>    _afterInitHookArray;
 
     std::vector<std::function<void()>> _beforeCleanupHookArray;
     std::vector<std::function<void()>> _afterCleanupHookArray;
 
     JSGlobalContextRef _cx;
 
-    Object *_globalObj;
+    Object *              _globalObj;
     FileOperationDelegate _fileOperationDelegate;
-    ExceptionCallback _nativeExceptionCallback = nullptr;
-    ExceptionCallback _jsExceptionCallback = nullptr;
+    ExceptionCallback     _nativeExceptionCallback = nullptr;
+    ExceptionCallback     _jsExceptionCallback     = nullptr;
 
     uint32_t _vmId;
 

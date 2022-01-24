@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -595,15 +595,15 @@ using ShaderStageFlags = ShaderStageFlagBit;
 CC_ENUM_BITWISE_OPERATORS(ShaderStageFlagBit);
 
 enum class LoadOp : uint32_t {
-    LOAD,    // Load the contents from the fbo from previous
-    CLEAR,   // Clear the fbo
-    DISCARD, // Ignore writing to the fbo and keep old data
+    LOAD,    // Load the previous content from memory
+    CLEAR,   // Clear the content to a fixed value
+    DISCARD, // Discard the previous content
 };
 CC_ENUM_CONVERSION_OPERATOR(LoadOp);
 
 enum class StoreOp : uint32_t {
-    STORE,   // Write the source to the destination
-    DISCARD, // Don't write the source to the destination
+    STORE,   // Store the pending content to memory
+    DISCARD, // Discard the pending content
 };
 CC_ENUM_CONVERSION_OPERATOR(StoreOp);
 

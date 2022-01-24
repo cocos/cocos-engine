@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -33,9 +33,9 @@
 
 @interface View : UIView
 
-@property(nonatomic, assign)BOOL preventTouch;
+@property (nonatomic, assign) BOOL preventTouch;
 #ifdef CC_USE_METAL
-@property(nonatomic, assign) id<MTLDevice> device;
+@property (nonatomic, assign) id<MTLDevice> device;
 #endif
 
 - (void)setPreventTouchEvent:(BOOL)flag;

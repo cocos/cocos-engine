@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -50,8 +50,8 @@
 namespace se {
 
 ObjectWrap::ObjectWrap() {
-    refs_ = 0;
-    _nativeObj = nullptr;
+    refs_       = 0;
+    _nativeObj  = nullptr;
     _finalizeCb = nullptr;
 }
 

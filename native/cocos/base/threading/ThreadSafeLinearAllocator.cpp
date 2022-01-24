@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -31,7 +31,7 @@ namespace cc {
 
 ThreadSafeLinearAllocator::ThreadSafeLinearAllocator(size_t size, size_t alignment) noexcept
 : _capacity(size), _alignment(alignment) {
-    if(alignment == 1) {
+    if (alignment == 1) {
         _buffer = _CC_MALLOC(size);
     } else {
         _buffer = _CC_MALLOC_ALIGN(size, alignment);
@@ -40,7 +40,7 @@ ThreadSafeLinearAllocator::ThreadSafeLinearAllocator(size_t size, size_t alignme
 }
 
 ThreadSafeLinearAllocator::~ThreadSafeLinearAllocator() {
-    if(_alignment == 1) {
+    if (_alignment == 1) {
         _CC_FREE(_buffer);
     } else {
         _CC_FREE_ALIGN(_buffer);

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -46,7 +46,7 @@ void getTextInputCallback() {
         return;
     }
 
-    auto*      global = se::ScriptEngine::getInstance()->getGlobalObject();
+    auto *    global = se::ScriptEngine::getInstance()->getGlobalObject();
     se::Value jsbVal;
     if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject()) {
         jsbVal.toObject()->getProperty("onTextInput", &textInputCallback);

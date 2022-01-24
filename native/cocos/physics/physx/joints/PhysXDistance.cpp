@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "physics/physx/joints/PhysXDistance.h"
+#include "math/Quaternion.h"
 #include "physics/physx/PhysXSharedBody.h"
 #include "physics/physx/PhysXUtils.h"
-#include "math/Quaternion.h"
 
 namespace cc {
 namespace physics {
@@ -59,7 +59,7 @@ void PhysXDistance::updateScale1() {
 void PhysXDistance::updatePose() {
     physx::PxTransform pose0{physx::PxIdentity};
     physx::PxTransform pose1{physx::PxIdentity};
-    auto* node0 = _mSharedBody->getNode();
+    auto *             node0 = _mSharedBody->getNode();
     node0->updateWorldTransform();
     pose0.p = _mPivotA * node0->getWorldScale();
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, pose0);

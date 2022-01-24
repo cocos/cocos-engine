@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -232,7 +232,7 @@ XMLHttpRequest::~XMLHttpRequest() {
     if (!_scheduler.expired()) {
         _scheduler.lock()->unscheduleAllForTarget(this);
     }
-        
+
     // Avoid HttpClient response call a released object!
     _httpRequest->setResponseCallback(nullptr);
     CC_SAFE_RELEASE(_httpRequest);
@@ -384,7 +384,7 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     if (!_scheduler.expired()) {
         _scheduler.lock()->unscheduleAllForTarget(this);
     }
-    
+
     _isSending = false;
 
     if (_isTimeout) {
@@ -484,7 +484,7 @@ void XMLHttpRequest::sendRequest() {
     }
     _isSending = true;
     _isTimeout = false;
-    
+
     _scheduler.reset();
     _scheduler = CC_CURRENT_ENGINE()->getScheduler();
 
@@ -497,7 +497,7 @@ void XMLHttpRequest::sendRequest() {
                 _isTimeout  = true;
                 _readyState = ReadyState::UNSENT;
             },
-                                                          this, _timeoutInMilliseconds / 1000.0F, 0, 0.0F, false, "XMLHttpRequest");
+                                        this, _timeoutInMilliseconds / 1000.0F, 0, 0.0F, false, "XMLHttpRequest");
         }
     }
     setHttpRequestHeader();

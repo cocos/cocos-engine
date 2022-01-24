@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,10 +28,10 @@
 #pragma once
 
 #include <cerrno>
-#include <string>
-#include <vector>
 #include <climits>
 #include <limits>
+#include <string>
+#include <vector>
 #include "base/Macros.h"
 #include "base/TypeDef.h"
 /** @file ccUtils.h
@@ -69,7 +69,7 @@ T alignTo(T size, T alignment) {
     return ((size - 1) / alignment + 1) * alignment;
 }
 
-template<uint size, uint alignment>
+template <uint size, uint alignment>
 constexpr uint ALIGN_TO = ((size - 1) / alignment + 1) * alignment;
 
 template <class T>

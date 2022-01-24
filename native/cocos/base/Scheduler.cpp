@@ -3,7 +3,7 @@
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2011 Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,12 +29,12 @@
 
 #include "base/Scheduler.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
-#include "base/Macros.h"
-#include "base/Log.h"
 #include <climits>
+#include "base/Log.h"
+#include "base/Macros.h"
 
 namespace {
 constexpr unsigned CC_REPEAT_FOREVER{UINT_MAX - 1};

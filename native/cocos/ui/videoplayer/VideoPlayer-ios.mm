@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2016-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2016-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 

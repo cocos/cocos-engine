@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,10 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
+
 #include <iostream>
 
-#include "platform/BasePlatform.h"
 #include "SDL2/SDL_main.h"
+#include "platform/BasePlatform.h"
 
 int main(int argc, char** argv) {
     START_PLATFORM(argc, (const char**)argv);

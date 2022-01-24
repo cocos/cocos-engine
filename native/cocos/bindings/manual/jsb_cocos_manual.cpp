@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -329,8 +329,8 @@ static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-i
     localStorageObj->defineProperty("length", _SE(JSB_localStorage_getLength), nullptr);
 
     std::string strFilePath = cc::FileUtils::getInstance()->getWritablePath();
-#if defined(__QNX__) 
-    // In the QNX environment, the execution of this statement will not take effect. 
+#if defined(__QNX__)
+    // In the QNX environment, the execution of this statement will not take effect.
     // Not sure why
     // strFilePath += "/jsb.sqlite";
 
@@ -643,7 +643,7 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
 
     se::ScriptEngine::getInstance()->setJSExceptionCallback([objFunc](const char *location, const char *message, const char *stack) {
         se::AutoHandleScope scope;
-        se::ValueArray jsArgs;
+        se::ValueArray      jsArgs;
         jsArgs.resize(3);
         jsArgs[0] = se::Value(location);
         jsArgs[1] = se::Value(message);

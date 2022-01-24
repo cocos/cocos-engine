@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,14 +25,12 @@
 
 #include "platform/ohos/modules/System.h"
 
-
 namespace cc {
-System::System() = default;
+System::System()  = default;
 System::~System() = default;
 
 System::OSType System::getOSType() const {
     return OSType::OHOS;
 }
-
 
 } // namespace cc

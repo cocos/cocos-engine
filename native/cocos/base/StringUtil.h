@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,10 +25,10 @@
 
 #pragma once
 
+#include <cstdarg>
 #include "Macros.h"
 #include "TypeDef.h"
 #include "memory/Memory.h"
-#include <cstdarg>
 
 namespace cc {
 

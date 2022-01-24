@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -35,10 +35,10 @@ class CCMTLDescriptorSetLayout final : public DescriptorSetLayout {
 public:
     explicit CCMTLDescriptorSetLayout();
     ~CCMTLDescriptorSetLayout();
-    CCMTLDescriptorSetLayout(const CCMTLDescriptorSetLayout &)=delete;
-    CCMTLDescriptorSetLayout(CCMTLDescriptorSetLayout &&)=delete;
-    CCMTLDescriptorSetLayout &operator=(const CCMTLDescriptorSetLayout &)=delete;
-    CCMTLDescriptorSetLayout &operator=(CCMTLDescriptorSetLayout &&)=delete;
+    CCMTLDescriptorSetLayout(const CCMTLDescriptorSetLayout &) = delete;
+    CCMTLDescriptorSetLayout(CCMTLDescriptorSetLayout &&)      = delete;
+    CCMTLDescriptorSetLayout &operator=(const CCMTLDescriptorSetLayout &) = delete;
+    CCMTLDescriptorSetLayout &operator=(CCMTLDescriptorSetLayout &&) = delete;
 
     inline CCMTLGPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
 

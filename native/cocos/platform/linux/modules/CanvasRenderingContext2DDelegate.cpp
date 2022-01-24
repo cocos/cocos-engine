@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -20,8 +20,8 @@
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.                                                                    \
- ****************************************************************************/
+ THE SOFTWARE.
+****************************************************************************/
 
 #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
 #include "SDL2/SDL.h"
@@ -36,7 +36,7 @@ namespace {
 namespace cc {
 //static const char gdefaultFontName[] = "-*-helvetica-medium-o-*-*-24-*-*-*-*-*-iso8859-*";
 //static const char gdefaultFontName[] = "lucidasanstypewriter-bold-24";
-static const char gdefaultFontName[]  = "lucidasans-24";
+static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
     SDL_SysWMinfo wmInfo;

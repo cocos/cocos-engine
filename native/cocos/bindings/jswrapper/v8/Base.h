@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -34,14 +34,14 @@
 
 #include "v8.h"
 
-#include <string>
-#include <string.h> // Resolves that memset, memcpy aren't found while APP_PLATFORM >= 22 on Android
-#include <vector>
-#include <unordered_map>
-#include <functional>
+#include <assert.h>
+#include <string.h>  // Resolves that memset, memcpy aren't found while APP_PLATFORM >= 22 on Android
 #include <algorithm> // for std::find
 #include <chrono>
-#include <assert.h>
+#include <functional>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "HelperMacros.h"
 

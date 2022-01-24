@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,7 +29,6 @@
 #include <vector>
 #include "base/Macros.h"
 #include "bindings/event/EventDispatcher.h"
-
 
 namespace cc {
 class IEventDispatch;

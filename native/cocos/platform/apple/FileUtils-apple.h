@@ -2,7 +2,7 @@
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2011 Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -33,8 +33,8 @@
 #include <string>
 #include <vector>
 
-#include "platform/FileUtils.h"
 #include "base/Macros.h"
+#include "platform/FileUtils.h"
 
 namespace cc {
 
@@ -54,7 +54,7 @@ public:
 
     virtual ValueMap getValueMapFromFile(const std::string &filename) override;
     virtual ValueMap getValueMapFromData(const char *filedata, int filesize) override;
-    virtual bool writeToFile(const ValueMap &dict, const std::string &fullPath) override;
+    virtual bool     writeToFile(const ValueMap &dict, const std::string &fullPath) override;
 
     virtual ValueVector getValueVectorFromFile(const std::string &filename) override;
 #if CC_FILEUTILS_APPLE_ENABLE_OBJC

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "MiddlewareManager.h"
-#include "SeApi.h"
 #include <algorithm>
+#include "SeApi.h"
 
 MIDDLEWARE_BEGIN
 
@@ -48,7 +48,7 @@ MiddlewareManager::~MiddlewareManager() {
 MeshBuffer *MiddlewareManager::getMeshBuffer(int format) {
     MeshBuffer *mb = _mbMap[format];
     if (!mb) {
-        mb = new MeshBuffer(format);
+        mb             = new MeshBuffer(format);
         _mbMap[format] = mb;
     }
     return mb;
@@ -57,7 +57,7 @@ MeshBuffer *MiddlewareManager::getMeshBuffer(int format) {
 void MiddlewareManager::_clearRemoveList() {
     for (std::size_t i = 0; i < _removeList.size(); i++) {
         auto editor = _removeList[i];
-        auto it = std::find(_updateList.begin(), _updateList.end(), editor);
+        auto it     = std::find(_updateList.begin(), _updateList.end(), editor);
         if (it != _updateList.end()) {
             _updateList.erase(it);
         }
@@ -81,10 +81,10 @@ void MiddlewareManager::update(float dt) {
         attachBuffer->writeUint32(0);
     }
 
-    auto isOrderDirty = false;
+    auto     isOrderDirty   = false;
     uint32_t maxRenderOrder = 0;
     for (std::size_t i = 0, n = _updateList.size(); i < n; i++) {
-        auto editor = _updateList[i];
+        auto     editor      = _updateList[i];
         uint32_t renderOrder = maxRenderOrder;
         if (_removeList.size() > 0) {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);

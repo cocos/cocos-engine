@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,16 +25,16 @@
 
 #pragma once
 
-#include "platform/interfaces/OSInterface.h"
-#include "math/Vec2.h"
 #include <array>
 #include <iostream>
+#include "math/Vec2.h"
+#include "platform/interfaces/OSInterface.h"
 
 namespace cc {
 
 class ISystemWindow : public OSInterface {
 public:
-    using Size = cc::Vec2;
+    using Size        = cc::Vec2;
     using WindowFlags = enum {
         /* !!! FIXME: change this to name = (1<<x). */
         CC_WINDOW_FULLSCREEN         = 0x00000001, /**< fullscreen window */
@@ -71,11 +71,11 @@ public:
      *@param h: Window height
      *@param flags: Window flag
      */
-    virtual bool       createWindow(const char* title,
-                                    int x, int y, int w,
-                                    int h, int flags) = 0;
-    virtual uintptr_t  getWindowHandler() const       = 0;
-    virtual Size getViewSize() const            = 0;
+    virtual bool      createWindow(const char* title,
+                                   int x, int y, int w,
+                                   int h, int flags) = 0;
+    virtual uintptr_t getWindowHandler() const       = 0;
+    virtual Size      getViewSize() const            = 0;
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -452,7 +452,6 @@ bool WindowsPlatform::createWindow(const char *title,
     _inited = true;
     return true;
 }
-
 
 uintptr_t WindowsPlatform::getWindowHandler() const {
     SDL_SysWMinfo wmInfo;

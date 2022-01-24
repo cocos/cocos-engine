@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -71,7 +71,7 @@ public:
         }
     }
 
-    void onError(cc::network::SIOClient *client, const std::string &data) override {// NOLINT
+    void onError(cc::network::SIOClient *client, const std::string &data) override { // NOLINT
         CC_LOG_DEBUG("JSB SocketIO::SIODelegate->onError method called from native with data: %s", data.c_str());
         this->fireEventToScript(client, "error", data);
 
@@ -81,7 +81,7 @@ public:
         }
     }
 
-    void fireEventToScript(cc::network::SIOClient * client, const std::string & eventName, const std::string & data) override { // NOLINT
+    void fireEventToScript(cc::network::SIOClient *client, const std::string &eventName, const std::string &data) override { // NOLINT
         CC_LOG_DEBUG("JSB SocketIO::SIODelegate->fireEventToScript method called from native with name '%s' data: %s", eventName.c_str(), data.c_str());
 
         se::ScriptEngine::getInstance()->clearException();

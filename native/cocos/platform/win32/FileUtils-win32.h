@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,10 +30,10 @@
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
-    #include "platform/FileUtils.h"
-    #include "base/Macros.h"
     #include <string>
     #include <vector>
+    #include "base/Macros.h"
+    #include "platform/FileUtils.h"
 
 namespace cc {
 
@@ -49,11 +49,11 @@ class CC_DLL FileUtilsWin32 : public FileUtils {
 
 public:
     /* override functions */
-    bool init();
+    bool                init();
     virtual std::string getWritablePath() const override;
-    virtual bool isAbsolutePath(const std::string &strPath) const override;
+    virtual bool        isAbsolutePath(const std::string &strPath) const override;
     virtual std::string getSuitableFOpen(const std::string &filenameUtf8) const override;
-    virtual long getFileSize(const std::string &filepath);
+    virtual long        getFileSize(const std::string &filepath);
 
 protected:
     virtual bool isFileExistInternal(const std::string &strFilePath) const override;

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,9 +30,9 @@
     #include "../MappingUtils.h"
     #include "../State.h"
     #include "Class.h"
+    #include "MissingSymbols.h"
     #include "Object.h"
     #include "Utils.h"
-    #include "MissingSymbols.h"
     #include "platform/FileUtils.h"
 
     #include <sstream>
@@ -339,8 +339,8 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
         // prepend error object to stack message
         v8::MaybeLocal<v8::String> maybeStr = value->ToString(isolate->GetCurrentContext());
         v8::Local<v8::String>      str      = maybeStr.IsEmpty() ? v8::String::NewFromUtf8(isolate, "[empty string]").ToLocalChecked() : maybeStr.ToLocalChecked();
-        v8::String::Utf8Value valueUtf8(isolate, str);
-        auto *                strp = *valueUtf8;
+        v8::String::Utf8Value      valueUtf8(isolate, str);
+        auto *                     strp = *valueUtf8;
         if (strp == nullptr) {
             ss << "value: null" << std::endl;
             auto                  tn = value->TypeOf(isolate);

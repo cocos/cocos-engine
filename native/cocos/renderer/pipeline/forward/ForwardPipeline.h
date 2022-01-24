@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -63,11 +63,11 @@ private:
     bool activeRenderer(gfx::Swapchain *swapchain);
     void updateUBO(scene::Camera *);
 
-    gfx::Buffer *                                     _lightsUBO = nullptr;
-    LightList                                         _validLights;
-    gfx::BufferList                                   _lightBuffers;
-    UintList                                          _lightIndexOffsets;
-    UintList                                          _lightIndices;
+    gfx::Buffer *   _lightsUBO = nullptr;
+    LightList       _validLights;
+    gfx::BufferList _lightBuffers;
+    UintList        _lightIndexOffsets;
+    UintList        _lightIndices;
 };
 
 } // namespace pipeline

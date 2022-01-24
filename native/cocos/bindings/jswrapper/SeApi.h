@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -44,8 +44,8 @@
     #include "chakracore/SeApi.h"
 #endif
 
-#include "Value.h"
-#include "Object.h"
-#include "State.h"
 #include "HandleObject.h"
 #include "MappingUtils.h"
+#include "Object.h"
+#include "State.h"
+#include "Value.h"

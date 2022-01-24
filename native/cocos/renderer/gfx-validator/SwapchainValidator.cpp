@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -100,7 +100,7 @@ void SwapchainValidator::doResize(uint32_t width, uint32_t height, SurfaceTransf
     auto *depthStencilTexture = static_cast<TextureValidator *>(_depthStencilTexture);
     colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
     colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();
-    _transform = _actor->getSurfaceTransform();
+    _transform                                                     = _actor->getSurfaceTransform();
 }
 
 void SwapchainValidator::doDestroySurface() {

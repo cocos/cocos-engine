@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -35,9 +35,9 @@ public:
     explicit CCMTLSemaphore(uint initialValue) : _semaphoreCount(initialValue) {
         _semaphore = dispatch_semaphore_create(initialValue);
     }
-    ~CCMTLSemaphore() = default;
+    ~CCMTLSemaphore()                      = default;
     CCMTLSemaphore(const CCMTLSemaphore &) = delete;
-    CCMTLSemaphore(CCMTLSemaphore &&) = delete;
+    CCMTLSemaphore(CCMTLSemaphore &&)      = delete;
     CCMTLSemaphore &operator=(const CCMTLSemaphore &) = delete;
     CCMTLSemaphore &operator=(CCMTLSemaphore &&) = delete;
 
@@ -48,7 +48,7 @@ public:
     void wait() const {
         dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
     }
-    
+
     void trySyncAll(uint64_t nanoSec) {
         for (uint i = 0; i < _semaphoreCount; i++) {
             dispatch_semaphore_wait(_semaphore, nanoSec);
@@ -62,8 +62,8 @@ public:
     }
 
 protected:
-    dispatch_semaphore_t _semaphore = nullptr;
-    uint _semaphoreCount = 0;
+    dispatch_semaphore_t _semaphore      = nullptr;
+    uint                 _semaphoreCount = 0;
 };
 
 } // namespace gfx

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -40,7 +40,7 @@ public:
      * @brief Implementation of Windows platform initialization.
      */
     int32_t init() override;
-    
+
     /**
      * @brief Start base platform initialization.
      */
@@ -50,12 +50,13 @@ public:
      */
     int32_t loop() override;
 
-    void setFps(int32_t fps) override;
+    void    setFps(int32_t fps) override;
     int32_t getFps() const override;
-    
+
     void onPause() override;
     void onResume() override;
     void onClose() override;
+
 private:
     ThreadCallback _cb;
 };

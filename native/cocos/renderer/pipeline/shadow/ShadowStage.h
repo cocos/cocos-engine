@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -57,9 +57,9 @@ private:
     static RenderStageInfo initInfo;
 
     gfx::Rect           _renderArea;
-    gfx::DescriptorSet *_globalDS      = nullptr;
-    const scene::Light *_light         = nullptr;
-    gfx::Framebuffer *  _framebuffer   = nullptr;
+    gfx::DescriptorSet *_globalDS    = nullptr;
+    const scene::Light *_light       = nullptr;
+    gfx::Framebuffer *  _framebuffer = nullptr;
 
     ShadowMapBatchedQueue *_additiveShadowQueue = nullptr;
 };

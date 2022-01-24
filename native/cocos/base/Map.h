@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -301,7 +301,7 @@ public:
      */
     V getRandomObject() const {
         if (!_data.empty()) {
-            auto randIdx = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
+            auto           randIdx  = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
             const_iterator randIter = _data.begin();
             std::advance(randIter, randIdx);
             return randIter->second;

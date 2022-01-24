@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,8 +27,8 @@
 
 #include "platform/UniversalPlatform.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
-#include "platform/ohos/OhosPlatform.h"
 #include "platform/java/modules/SystemWindow.h"
+#include "platform/ohos/OhosPlatform.h"
 
 namespace cc {
 OhosPlatform::OhosPlatform() {

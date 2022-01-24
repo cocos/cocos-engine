@@ -2,7 +2,7 @@
  Copyright (c) 2012 greathqy
  Copyright (c) 2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -545,8 +545,8 @@ private:
             return nullptr;
         }
         std::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, jstr);
-        size_t size = strValue.size() + 1;
-        char* retVal = static_cast<char *>(malloc(size));
+        size_t      size     = strValue.size() + 1;
+        char *      retVal   = static_cast<char *>(malloc(size));
         if (retVal == nullptr) {
             return nullptr;
         }

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -73,10 +73,10 @@ struct Shadow {
     ShadowType shadowType{ShadowType::PLANAR};
     float      distance{0.0F};
 
-    bool       dirty{false};
-    bool       shadowMapDirty{false};
-    Pass *     instancePass{nullptr};
-    Pass *     planarPass{nullptr};
+    bool  dirty{false};
+    bool  shadowMapDirty{false};
+    Pass *instancePass{nullptr};
+    Pass *planarPass{nullptr};
 
     Vec4 color;
     Vec2 size;

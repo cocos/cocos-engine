@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -40,8 +40,8 @@ public:
     void updateScale1() override;
 
 private:
-    void onComponentSet() override;
-    void updatePose();
+    void          onComponentSet() override;
+    void          updatePose();
     physx::PxVec3 _mPivotA;
     physx::PxVec3 _mPivotB;
 };

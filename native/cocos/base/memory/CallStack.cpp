@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -241,7 +241,7 @@ std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void*>& ca
         StackFrame frame;
         PTR_DWORD  address = reinterpret_cast<PTR_DWORD>(callstack[i]);
 
-        char moduelName[MAX_PATH];
+        char      moduelName[MAX_PATH];
         #if _WIN64
         PTR_DWORD moduleBase = SymGetModuleBase64(_process, address);
         #else

@@ -1,16 +1,41 @@
+/****************************************************************************
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #pragma once
-#include "base/Config.h"
 #include <type_traits>
+#include "base/Config.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/platform/FileUtils.h"
-#include "cocos/bindings/event/EventDispatcher.h"
-#include "cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
-#include "cocos/platform/interfaces/modules/Device.h"
 #include "cocos/platform/SAXParser.h"
+#include "cocos/platform/interfaces/modules/Device.h"
+#include "cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
 
 extern se::Object* __jsb_cc_FileUtils_proto;
-extern se::Class* __jsb_cc_FileUtils_class;
+extern se::Class*  __jsb_cc_FileUtils_class;
 
 bool js_register_cc_FileUtils(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -54,7 +79,7 @@ SE_DECLARE_FUNC(js_engine_FileUtils_normalizePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_getFileDir);
 
 extern se::Object* __jsb_cc_OSInterface_proto;
-extern se::Class* __jsb_cc_OSInterface_class;
+extern se::Class*  __jsb_cc_OSInterface_class;
 
 bool js_register_cc_OSInterface(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -62,7 +87,7 @@ bool register_all_engine(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::OSInterface);
 
 extern se::Object* __jsb_cc_ICanvasGradient_proto;
-extern se::Class* __jsb_cc_ICanvasGradient_class;
+extern se::Class*  __jsb_cc_ICanvasGradient_class;
 
 bool js_register_cc_ICanvasGradient(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -71,7 +96,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::ICanvasGradient);
 SE_DECLARE_FUNC(js_engine_ICanvasGradient_addColorStop);
 
 extern se::Object* __jsb_cc_ICanvasRenderingContext2D_proto;
-extern se::Class* __jsb_cc_ICanvasRenderingContext2D_class;
+extern se::Class*  __jsb_cc_ICanvasRenderingContext2D_class;
 
 bool js_register_cc_ICanvasRenderingContext2D(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -101,7 +126,7 @@ SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_transform);
 SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_translate);
 
 extern se::Object* __jsb_cc_CanvasGradient_proto;
-extern se::Class* __jsb_cc_CanvasGradient_class;
+extern se::Class*  __jsb_cc_CanvasGradient_class;
 
 bool js_register_cc_CanvasGradient(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -110,7 +135,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::CanvasGradient);
 SE_DECLARE_FUNC(js_engine_CanvasGradient_CanvasGradient);
 
 extern se::Object* __jsb_cc_CanvasRenderingContext2D_proto;
-extern se::Class* __jsb_cc_CanvasRenderingContext2D_class;
+extern se::Class*  __jsb_cc_CanvasRenderingContext2D_class;
 
 bool js_register_cc_CanvasRenderingContext2D(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -119,7 +144,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::CanvasRenderingContext2D);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_CanvasRenderingContext2D);
 
 extern se::Object* __jsb_cc_Device_proto;
-extern se::Class* __jsb_cc_Device_class;
+extern se::Class*  __jsb_cc_Device_class;
 
 bool js_register_cc_Device(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -138,11 +163,10 @@ SE_DECLARE_FUNC(js_engine_Device_getNetworkType);
 SE_DECLARE_FUNC(js_engine_Device_getSafeAreaEdge);
 
 extern se::Object* __jsb_cc_SAXParser_proto;
-extern se::Class* __jsb_cc_SAXParser_class;
+extern se::Class*  __jsb_cc_SAXParser_class;
 
 bool js_register_cc_SAXParser(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::SAXParser);
 SE_DECLARE_FUNC(js_engine_SAXParser_init);
-

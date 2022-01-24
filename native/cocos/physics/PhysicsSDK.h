@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "physics/sdk/World.h"
+#include "physics/sdk/Joint.h"
 #include "physics/sdk/RigidBody.h"
 #include "physics/sdk/Shape.h"
-#include "physics/sdk/Joint.h"
+#include "physics/sdk/World.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -41,7 +41,7 @@ public:
     inline const PhysXSharedBody &getSharedBody() const { return *_mSharedBody; }
     inline PhysXSharedBody &      getSharedBody() { return *_mSharedBody; }
     inline uintptr_t              getImpl() override { return reinterpret_cast<uintptr_t>(this); }
-    inline uintptr_t              getNodeHandle() override { return reinterpret_cast<uintptr_t>(this->_mSharedBody->getNode());}
+    inline uintptr_t              getNodeHandle() override { return reinterpret_cast<uintptr_t>(this->_mSharedBody->getNode()); }
     void                          initialize(scene::Node *node, ERigidBodyType t, uint32_t g) override;
     void                          onEnable() override;
     void                          onDisable() override;

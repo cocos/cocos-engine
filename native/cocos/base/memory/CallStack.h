@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -35,7 +35,6 @@
     #include <string>
     #include <vector>
     #include "../Macros.h"
-
 
 namespace cc {
 

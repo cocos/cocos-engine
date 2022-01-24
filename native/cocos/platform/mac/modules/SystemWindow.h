@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -51,6 +51,6 @@ public:
 private:
     int32_t _width{0};
     int32_t _height{0};
-    bool isInit{false};
+    bool    isInit{false};
 };
 } // namespace cc

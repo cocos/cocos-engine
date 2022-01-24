@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -308,4 +308,3 @@ void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
 } // namespace internal
 } // namespace se
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-

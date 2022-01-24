@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,13 +25,13 @@
 
 #pragma once
 
+#include <Metal/MTLComputeCommandEncoder.h>
+#include <Metal/MTLComputePipeline.h>
 #include "MTLCommandEncoder.h"
 #include "MTLStd.h"
 #include "MTLUtils.h"
 #include "base/Macros.h"
 #include "math/Math.h"
-#include <Metal/MTLComputePipeline.h>
-#include <Metal/MTLComputeCommandEncoder.h>
 
 namespace cc {
 namespace gfx {
@@ -54,7 +54,7 @@ public:
     }
 
     inline void setComputePipelineState(id<MTLComputePipelineState> pipelineState) {
-        if(_pipelineState == pipelineState)
+        if (_pipelineState == pipelineState)
             return;
         [_mtlEncoder setComputePipelineState:pipelineState];
         _pipelineState = pipelineState;
@@ -68,17 +68,17 @@ public:
         [_mtlEncoder setTexture:texture atIndex:index];
         _resourceSize = {texture.width, texture.height, texture.depth};
     }
-    
+
     inline void dispatch(MTLSize groupsPerGrid) {
         // GLSL -> SPIRV -> MSL
         // GLSL shader request to specify the compute thread size,
         // no such limit in Metal and have to set compute thread size explicity
-        NSUInteger w = _pipelineState.threadExecutionWidth;
-        NSUInteger h = _pipelineState.maxTotalThreadsPerThreadgroup / w;
-        MTLSize threadsPerThreadgroup = MTLSizeMake(w, h, 1);
+        NSUInteger w                     = _pipelineState.threadExecutionWidth;
+        NSUInteger h                     = _pipelineState.maxTotalThreadsPerThreadgroup / w;
+        MTLSize    threadsPerThreadgroup = MTLSizeMake(w, h, 1);
         [_mtlEncoder dispatchThreadgroups:groupsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
     }
-    
+
     inline void dispatch(id<MTLBuffer> indirectBuffer, NSUInteger offset, MTLSize groupsPerGrid) {
         [_mtlEncoder dispatchThreadgroupsWithIndirectBuffer:indirectBuffer indirectBufferOffset:offset threadsPerThreadgroup:groupsPerGrid];
     }
@@ -86,9 +86,9 @@ public:
     inline void endEncoding() {
         [_mtlEncoder endEncoding];
         [_mtlEncoder release];
-        _mtlEncoder  = nil;
+        _mtlEncoder    = nil;
         _pipelineState = nil;
-        _initialized = false;
+        _initialized   = false;
     }
 
     inline id<MTLComputeCommandEncoder> const getMTLEncoder() {
@@ -97,9 +97,9 @@ public:
 
 private:
     bool                         _initialized = false;
-    MTLSize _resourceSize;
-    id<MTLComputeCommandEncoder> _mtlEncoder = nil;
-    id<MTLComputePipelineState> _pipelineState = nil;
+    MTLSize                      _resourceSize;
+    id<MTLComputeCommandEncoder> _mtlEncoder    = nil;
+    id<MTLComputePipelineState>  _pipelineState = nil;
 };
 
 } // namespace gfx

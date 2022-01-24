@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,12 +25,12 @@
 
 #pragma once
 
+#include <map>
+#include <vector>
 #include "MeshBuffer.h"
 #include "MiddlewareMacro.h"
 #include "SharedBufferManager.h"
 #include "base/Ref.h"
-#include <map>
-#include <vector>
 
 MIDDLEWARE_BEGIN
 
@@ -41,8 +41,8 @@ class IMiddleware {
 public:
     IMiddleware() {}
     virtual ~IMiddleware() {}
-    virtual void update(float dt) = 0;
-    virtual void render(float dt) = 0;
+    virtual void     update(float dt)       = 0;
+    virtual void     render(float dt)       = 0;
     virtual uint32_t getRenderOrder() const = 0;
 };
 
@@ -100,9 +100,9 @@ public:
 
     se_object_ptr getVBTypedArray(int format, int bufferPos);
     se_object_ptr getIBTypedArray(int format, int bufferPos);
-    std::size_t getBufferCount(int format);
-    std::size_t getVBTypedArrayLength(int format, std::size_t bufferPos);
-    std::size_t getIBTypedArrayLength(int format, std::size_t bufferPos);
+    std::size_t   getBufferCount(int format);
+    std::size_t   getVBTypedArrayLength(int format, std::size_t bufferPos);
+    std::size_t   getIBTypedArrayLength(int format, std::size_t bufferPos);
 
     SharedBufferManager *getRenderInfoMgr();
     SharedBufferManager *getAttachInfoMgr();
@@ -112,14 +112,14 @@ public:
 
     // If manager is traversing _updateMap, will set the flag untill traverse is finished.
     bool isRendering = false;
-    bool isUpdating = false;
+    bool isUpdating  = false;
 
 private:
     void _clearRemoveList();
 
 private:
-    std::vector<IMiddleware *> _updateList;
-    std::vector<IMiddleware *> _removeList;
+    std::vector<IMiddleware *>  _updateList;
+    std::vector<IMiddleware *>  _removeList;
     std::map<int, MeshBuffer *> _mbMap;
 
     SharedBufferManager _renderInfo;

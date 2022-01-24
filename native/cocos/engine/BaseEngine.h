@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -36,7 +36,7 @@ namespace cc {
 class BaseEngine : public std::enable_shared_from_this<BaseEngine> {
 public:
     virtual ~BaseEngine();
-    using Ptr             = std::shared_ptr<BaseEngine>;
+    using Ptr = std::shared_ptr<BaseEngine>;
 
     /**
      @brief Get operating system interface template.

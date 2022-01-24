@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -65,11 +65,11 @@ public:
     inline uint32_t         getHeight() const { return _colorTexture->getHeight(); }
 
 protected:
-    virtual void doInit(const SwapchainInfo &info)         = 0;
-    virtual void doDestroy()                               = 0;
+    virtual void doInit(const SwapchainInfo &info)                                     = 0;
+    virtual void doDestroy()                                                           = 0;
     virtual void doResize(uint32_t width, uint32_t height, SurfaceTransform transform) = 0;
-    virtual void doDestroySurface()                        = 0;
-    virtual void doCreateSurface(void *windowHandle)       = 0;
+    virtual void doDestroySurface()                                                    = 0;
+    virtual void doCreateSurface(void *windowHandle)                                   = 0;
 
     static inline void initTexture(const SwapchainTextureInfo &info, Texture *texture);
 

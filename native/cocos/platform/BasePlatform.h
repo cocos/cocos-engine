@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -31,9 +31,9 @@
 #include "bindings/event/EventDispatcher.h"
 #include "platform/interfaces/modules/ISystem.h"
 
+#include <algorithm>
 #include <functional>
 #include <vector>
-#include <algorithm>
 
 namespace cc {
 
@@ -155,7 +155,6 @@ public:
     }
 
 private:
-
     std::vector<OSInterface::Ptr> _osInterfaces;
     CC_DISABLE_COPY_AND_MOVE_SEMANTICS(BasePlatform);
 };
