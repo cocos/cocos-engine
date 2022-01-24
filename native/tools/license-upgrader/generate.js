@@ -56,6 +56,7 @@ const genHeader = (history) => {
 
 const headerRE = /\/\*{5,}.*?\*{5,}\/\s*/s;
 const ownerRE = /^\s*Copyright\s*\(c\)\s*([0-9]+)(?:-([0-9]+))?\s*(.*)/gm;
+const skippingRE = /\bOGRE\b/;
 const curYear = new Date().getFullYear();
 const companyName = 'Xiamen Yaji Software Co., Ltd.';
 const update = (path) => {
@@ -69,6 +70,7 @@ const update = (path) => {
     const headerCap = content.match(headerRE);
     if (headerCap) {
         content = content.slice(headerCap.index + headerCap[0].length);
+        if (skippingRE.test(headerCap[0])) { return; }
         // extract
         let ownerCap = ownerRE.exec(headerCap[0]);
         while (ownerCap) {

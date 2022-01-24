@@ -1,3 +1,28 @@
+/****************************************************************************
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include "cocos/bindings/auto/jsb_spine_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -14264,7 +14289,7 @@ static bool js_spine_SkeletonAnimation_setCompleteListener(se::State& s) // NOLI
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -14312,7 +14337,7 @@ static bool js_spine_SkeletonAnimation_setDisposeListener(se::State& s) // NOLIN
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -14403,7 +14428,7 @@ static bool js_spine_SkeletonAnimation_setEndListener(se::State& s) // NOLINT(re
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -14451,7 +14476,7 @@ static bool js_spine_SkeletonAnimation_setEventListener(se::State& s) // NOLINT(
                 auto lambda = [=](spine::TrackEntry* larg0, spine::Event* larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
@@ -14500,7 +14525,7 @@ static bool js_spine_SkeletonAnimation_setInterruptListener(se::State& s) // NOL
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -14571,7 +14596,7 @@ static bool js_spine_SkeletonAnimation_setStartListener(se::State& s) // NOLINT(
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -14621,7 +14646,7 @@ static bool js_spine_SkeletonAnimation_setTrackCompleteListener(se::State& s) //
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -14671,7 +14696,7 @@ static bool js_spine_SkeletonAnimation_setTrackDisposeListener(se::State& s) // 
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -14721,7 +14746,7 @@ static bool js_spine_SkeletonAnimation_setTrackEndListener(se::State& s) // NOLI
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -14771,7 +14796,7 @@ static bool js_spine_SkeletonAnimation_setTrackEventListener(se::State& s) // NO
                 auto lambda = [=](spine::TrackEntry* larg0, spine::Event* larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
@@ -14822,7 +14847,7 @@ static bool js_spine_SkeletonAnimation_setTrackInterruptListener(se::State& s) /
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -14872,7 +14897,7 @@ static bool js_spine_SkeletonAnimation_setTrackStartListener(se::State& s) // NO
                 auto lambda = [=](spine::TrackEntry* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -15032,7 +15057,7 @@ static bool js_spine_SkeletonAnimation_ctor(se::State& s) // NOLINT(readability-
 SE_BIND_SUB_CLS_CTOR(js_spine_SkeletonAnimation_ctor, __jsb_spine_SkeletonAnimation_class, js_spine_SkeletonAnimation_finalize)
 
 
-    
+
 
 static bool js_spine_SkeletonAnimation_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15533,7 +15558,7 @@ static bool js_spine_SkeletonCacheAnimation_setCompleteListener(se::State& s) //
                 auto lambda = [=](std::string larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -15581,7 +15606,7 @@ static bool js_spine_SkeletonCacheAnimation_setEndListener(se::State& s) // NOLI
                 auto lambda = [=](std::string larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -15697,7 +15722,7 @@ static bool js_spine_SkeletonCacheAnimation_setStartListener(se::State& s) // NO
                 auto lambda = [=](std::string larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -16049,7 +16074,7 @@ static bool js_spine_SkeletonDataMgr_setDestroyCallback(se::State& s) // NOLINT(
                 auto lambda = [=](int larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-        
+
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
@@ -16209,4 +16234,3 @@ bool register_all_spine(se::Object* obj)
     js_register_spine_SkeletonDataMgr(ns);
     return true;
 }
-

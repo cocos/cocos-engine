@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2020 cocos.com Xiamen Yaji Software Co., Ltd.
- Copyright (c) undefined-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) undefined-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
