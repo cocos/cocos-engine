@@ -1706,10 +1706,12 @@ class Generator(object):
         implLicense = ''
 
         licensePattern = re.compile('\/\*{5,}.*?\*{5,}\/\s*', re.S)
-        with open(headfilepath, 'a+') as headReader:
+        with io.open(headfilepath, 'a+', newline="\n") as headReader:
+            headReader.seek(0)
             headMatch = licensePattern.search(headReader.read())
             if headMatch: headLicense = headMatch.group()
-        with open(implfilepath, 'a+') as implReader:
+        with io.open(implfilepath, 'a+', newline="\n") as implReader:
+            implReader.seek(0)
             implMatch = licensePattern.search(implReader.read())
             if implMatch: implLicense = implMatch.group()
 
