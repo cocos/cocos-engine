@@ -411,14 +411,16 @@ gfx::Shader *Pass::getShaderVariant(const std::vector<IMacroPatch> &patches) {
         return _shader;
     }
 
-    // cjh    if (EDITOR) {
-    //         for (let i = 0; i < patches.length; i++) {
-    //             if (!patches[i].name.startsWith('CC_')) {
-    //                 console.warn('cannot patch non-builtin macros');
-    //                 return null;
-    //             }
-    //         }
-    //     }
+#ifdef CC_EDITOR
+    for (auto i = 0; i < patches.size(); i++) {
+        std::size_t pos = patches[i].name.find_first_of("CC_");
+        if (pos != 0) { // not startsWith CC_
+            CC_LOG_WARNING("cannot patch non-builtin macros");
+            return nullptr;
+        }
+    }
+#endif
+
 
     auto *pipeline = _root->getPipeline();
     for (const auto &patch : patches) {
