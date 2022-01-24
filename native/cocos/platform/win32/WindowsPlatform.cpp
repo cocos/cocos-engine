@@ -453,7 +453,6 @@ bool WindowsPlatform::createWindow(const char *title,
     return true;
 }
 
-
 uintptr_t WindowsPlatform::getWindowHandler() const {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);

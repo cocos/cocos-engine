@@ -43,7 +43,7 @@ void forceConvertJsValueToStdString(JSContext *cx, JS::HandleValue jsval, std::s
 }
 
 std::string jsToStdString(JSContext *cx, JS::HandleString jsStr) {
-    char *str = JS_EncodeStringToUTF8(cx, jsStr);
+    char *      str = JS_EncodeStringToUTF8(cx, jsStr);
     std::string ret(str);
     JS_free(cx, str);
     return ret;
@@ -75,8 +75,8 @@ void seToJsValue(JSContext *cx, const Value &arg, JS::MutableHandleValue outVal)
         } break;
 
         case Value::Type::String: {
-            JS::UTF8Chars utf8Str(arg.toString().c_str(), arg.toString().length());
-            JSString *string = JS_NewStringCopyUTF8N(cx, utf8Str);
+            JS::UTF8Chars   utf8Str(arg.toString().c_str(), arg.toString().length());
+            JSString *      string = JS_NewStringCopyUTF8N(cx, utf8Str);
             JS::RootedValue value(cx);
             value.setString(string);
             outVal.set(value);
@@ -122,7 +122,7 @@ void jsToSeValue(JSContext *cx, JS::HandleValue jsval, Value *v) {
         Object *object = nullptr;
 
         JS::RootedObject jsobj(cx, jsval.toObjectOrNull());
-        void *nativeObj = getPrivate(cx, jsobj);
+        void *           nativeObj = getPrivate(cx, jsobj);
 
         if (nativeObj != nullptr) {
             object = Object::getObjectWithPtr(nativeObj);
@@ -151,9 +151,9 @@ void setReturnValue(JSContext *cx, const Value &data, const JS::CallArgs &argv) 
 const char *KEY_PRIVATE_DATA = "__cc_private_data";
 
 bool hasPrivate(JSContext *cx, JS::HandleObject obj) {
-    bool found = false;
-    const JSClass *cls = JS_GetClass(obj);
-    found = !!(cls->flags & JSCLASS_HAS_PRIVATE);
+    bool           found = false;
+    const JSClass *cls   = JS_GetClass(obj);
+    found                = !!(cls->flags & JSCLASS_HAS_PRIVATE);
 
     if (!found) {
         JS::RootedObject jsobj(cx, obj);
@@ -166,9 +166,9 @@ bool hasPrivate(JSContext *cx, JS::HandleObject obj) {
 }
 
 void *getPrivate(JSContext *cx, JS::HandleObject obj) {
-    bool found = false;
-    const JSClass *cls = JS_GetClass(obj);
-    found = !!(cls->flags & JSCLASS_HAS_PRIVATE);
+    bool           found = false;
+    const JSClass *cls   = JS_GetClass(obj);
+    found                = !!(cls->flags & JSCLASS_HAS_PRIVATE);
 
     if (found) {
         return JS_GetPrivate(obj);
@@ -186,18 +186,18 @@ void *getPrivate(JSContext *cx, JS::HandleObject obj) {
 }
 
 void setPrivate(JSContext *cx, JS::HandleObject obj, void *data, JSFinalizeOp finalizeCb) {
-    bool found = false;
+    bool           found = false;
     const JSClass *jsCls = JS_GetClass(obj);
-    found = !!(jsCls->flags & JSCLASS_HAS_PRIVATE);
+    found                = !!(jsCls->flags & JSCLASS_HAS_PRIVATE);
 
     if (found) {
         JS_SetPrivate(obj, data);
     } else {
         assert(finalizeCb);
-        Object *privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class);
+        Object *     privateObj  = Object::createObjectWithClass(__jsb_CCPrivateData_class);
         PrivateData *privateData = (PrivateData *)malloc(sizeof(PrivateData));
-        privateData->data = data;
-        privateData->finalizeCb = finalizeCb;
+        privateData->data        = data;
+        privateData->finalizeCb  = finalizeCb;
         JS_SetPrivate(privateObj->_getJSObject(), privateData);
 
         JS::RootedValue privateVal(cx, JS::ObjectValue(*privateObj->_getJSObject()));
@@ -207,9 +207,9 @@ void setPrivate(JSContext *cx, JS::HandleObject obj, void *data, JSFinalizeOp fi
 }
 
 void clearPrivate(JSContext *cx, JS::HandleObject obj) {
-    bool found = false;
-    const JSClass *cls = JS_GetClass(obj);
-    found = !!(cls->flags & JSCLASS_HAS_PRIVATE);
+    bool           found = false;
+    const JSClass *cls   = JS_GetClass(obj);
+    found                = !!(cls->flags & JSCLASS_HAS_PRIVATE);
 
     if (found) {
         JS_SetPrivate(obj, nullptr);

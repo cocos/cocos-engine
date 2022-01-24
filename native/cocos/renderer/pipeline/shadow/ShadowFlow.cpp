@@ -97,8 +97,8 @@ void ShadowFlow::render(scene::Camera *camera) {
     }
 
     for (uint l = 0; l < _validLights.size(); ++l) {
-        const scene::Light *light      = _validLights[l];
-        gfx::DescriptorSet *globalDS   = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
+        const scene::Light *light    = _validLights[l];
+        gfx::DescriptorSet *globalDS = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
 
         if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(_pipeline, light);
@@ -117,7 +117,7 @@ void ShadowFlow::render(scene::Camera *camera) {
 void ShadowFlow::lightCollecting() {
     _validLights.clear();
 
-    const vector<const scene::Light*> validPunctualLights = _pipeline->getPipelineSceneData()->getValidPunctualLights();
+    const vector<const scene::Light *> validPunctualLights = _pipeline->getPipelineSceneData()->getValidPunctualLights();
     for (const scene::Light *light : validPunctualLights) {
         if (light->getType() == scene::LightType::SPOT) {
             _validLights.emplace_back(light);
@@ -145,8 +145,8 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
     }
 
     for (uint l = 0; l < _validLights.size(); ++l) {
-        const scene::Light *light      = _validLights[l];
-        gfx::DescriptorSet *globalDS   = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
+        const scene::Light *light    = _validLights[l];
+        gfx::DescriptorSet *globalDS = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l);
 
         if (!shadowFramebufferMap.count(light)) {
             continue;
@@ -247,7 +247,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
     rpInfo.depthStencilAttachment = depthStencilAttachment;
 
     size_t rpHash = cc::gfx::RenderPass::computeHash(rpInfo);
-    auto iter   = renderPassHashMap.find(rpHash);
+    auto   iter   = renderPassHashMap.find(rpHash);
     if (iter != renderPassHashMap.end()) {
         _renderPass = iter->second;
     } else {

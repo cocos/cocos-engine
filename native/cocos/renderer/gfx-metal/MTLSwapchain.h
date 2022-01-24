@@ -25,8 +25,8 @@
 
 #pragma once
 #import <QuartzCore/CAMetalLayer.h>
-#import "gfx-base/GFXSwapchain.h"
 #import "MTLTexture.h"
+#import "gfx-base/GFXSwapchain.h"
 
 namespace cc {
 namespace gfx {
@@ -40,8 +40,8 @@ public:
     ~CCMTLSwapchain();
 
     inline CCMTLGPUSwapChainObject* gpuSwapChainObj() { return _gpuSwapchainObj; }
-    CCMTLTexture* colorTexture();
-    CCMTLTexture* depthStencilTexture();
+    CCMTLTexture*                   colorTexture();
+    CCMTLTexture*                   depthStencilTexture();
 
     id<CAMetalDrawable> currentDrawable();
 
@@ -50,11 +50,11 @@ public:
     void release();
 
 protected:
-    void doInit(const SwapchainInfo &info) override;
+    void doInit(const SwapchainInfo& info) override;
     void doDestroy() override;
     void doResize(uint32_t width, uint32_t height, SurfaceTransform transform) override;
     void doDestroySurface() override;
-    void doCreateSurface(void *windowHandle) override;
+    void doCreateSurface(void* windowHandle) override;
 
 private:
     CCMTLGPUSwapChainObject* _gpuSwapchainObj = nullptr;

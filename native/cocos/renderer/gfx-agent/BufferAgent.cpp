@@ -26,9 +26,9 @@
 #include "base/CoreStd.h"
 #include "base/memory/Memory.h"
 
+#include <cstring>
 #include "BufferAgent.h"
 #include "DeviceAgent.h"
-#include <cstring>
 
 namespace cc {
 namespace gfx {

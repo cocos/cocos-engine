@@ -98,11 +98,11 @@ public:
 private:
     HandleObject(const HandleObject &) = delete;
     void operator=(const HandleObject &) = delete;
-    HandleObject(HandleObject &&) = delete;
+    HandleObject(HandleObject &&)        = delete;
     void operator=(HandleObject &&) = delete;
 
-    void *operator new(size_t size) = delete;
-    void operator delete(void *, size_t) = delete;
+    void *operator new(size_t size)       = delete;
+    void  operator delete(void *, size_t) = delete;
 
     Object *_obj;
     friend class Object;

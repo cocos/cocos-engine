@@ -23,13 +23,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <cstddef>
 #include <cerrno>
+#include <cstddef>
 #include <cstring>
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
-#if __ANDROID_API__ < 21
+    #if CC_PLATFORM == CC_PLATFORM_ANDROID
+        #if __ANDROID_API__ < 21
 extern "C" {
 int localSigemptyset(void *set) {
     if (set == NULL) { // NOLINT(modernize-use-nullptr)
@@ -42,6 +42,6 @@ int localSigemptyset(void *set) {
 
 int sigemptyset(void *set) __attribute__((weak, alias("localSigemptyset")));
 }
-#endif
-#endif
+        #endif
+    #endif
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8

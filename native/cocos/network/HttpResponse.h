@@ -76,7 +76,8 @@ public:
      * @return cc::Ref* always return nullptr.
      */
     cc::Ref *autorelease() {
-        CCASSERT(false, "HttpResponse is used between network thread and ui thread \
+        CCASSERT(false,
+                 "HttpResponse is used between network thread and ui thread \
                         therefore, autorelease is forbidden here");
         return nullptr;
     }
@@ -204,13 +205,13 @@ protected:
     bool initWithRequest(HttpRequest *request);
 
     // properties
-    HttpRequest *_pHttpRequest;        /// the corresponding HttpRequest pointer who leads to this response
-    bool _succeed;                     /// to indicate if the http request is successful simply
-    std::vector<char> _responseData;   /// the returned raw data. You can also dump it as a string
-    std::vector<char> _responseHeader; /// the returned raw header data. You can also dump it as a string
-    long _responseCode;                /// the status code returned from libcurl, e.g. 200, 404
-    std::string _errorBuffer;          /// if _responseCode != 200, please read _errorBuffer to find the reason
-    std::string _responseDataString;   // the returned raw data. You can also dump it as a string
+    HttpRequest *     _pHttpRequest;       /// the corresponding HttpRequest pointer who leads to this response
+    bool              _succeed;            /// to indicate if the http request is successful simply
+    std::vector<char> _responseData;       /// the returned raw data. You can also dump it as a string
+    std::vector<char> _responseHeader;     /// the returned raw header data. You can also dump it as a string
+    long              _responseCode;       /// the status code returned from libcurl, e.g. 200, 404
+    std::string       _errorBuffer;        /// if _responseCode != 200, please read _errorBuffer to find the reason
+    std::string       _responseDataString; // the returned raw data. You can also dump it as a string
 };
 
 } // namespace network

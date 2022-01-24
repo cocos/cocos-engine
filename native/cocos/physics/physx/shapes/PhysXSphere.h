@@ -39,8 +39,8 @@ public:
 
 private:
     float _mRadius;
-    void updateGeometry();
-    void onComponentSet() override;
+    void  updateGeometry();
+    void  onComponentSet() override;
 };
 
 } // namespace physics

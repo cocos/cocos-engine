@@ -29,7 +29,6 @@
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
 
-
 #include <stdlib.h>
 #include <windows.h>
 #include <codecvt>

@@ -48,7 +48,7 @@ private:
     physx::PxConvexMesh *_mMesh;
     Cylinder             _mData;
     void                 updateGeometry();
-    void         onComponentSet() override;
+    void                 onComponentSet() override;
 };
 
 } // namespace physics

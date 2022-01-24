@@ -130,20 +130,20 @@ private:
     static void cleanup();
 
     const char *_name;
-    Object *_parent;
-    Object *_proto;
-    Object *_parentProto;
+    Object *    _parent;
+    Object *    _proto;
+    Object *    _parentProto;
 
     JSNative _ctor;
 
-    JSClass _jsCls;
+    JSClass    _jsCls;
     JSClassOps _classOps;
 
     std::vector<JSFunctionSpec> _funcs;
     std::vector<JSFunctionSpec> _staticFuncs;
     std::vector<JSPropertySpec> _properties;
     std::vector<JSPropertySpec> _staticProperties;
-    JSFinalizeOp _finalizeOp;
+    JSFinalizeOp                _finalizeOp;
 
     friend class ScriptEngine;
     friend class Object;

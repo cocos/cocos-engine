@@ -25,16 +25,15 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
-//TODO(PatriceJiang): modify this when OHOS llvm upgrade
-#if CC_PLATFORM == CC_PLATFORM_OHOS
-#include <string.h>
+    //TODO(PatriceJiang): modify this when OHOS llvm upgrade
+    #if CC_PLATFORM == CC_PLATFORM_OHOS
+        #include <string.h>
 extern "C" {
 int local_bcmp(const void *cs, const void *ct, size_t count) {
-return memcmp(cs, ct, count);
+    return memcmp(cs, ct, count);
 }
 int bcmp(const void *cs, const void *ct, size_t count) __attribute__((weak, alias("local_bcmp")));
 } // extern "C"
-#endif
-
+    #endif
 
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8

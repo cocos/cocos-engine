@@ -36,20 +36,20 @@ class CCMTLQueue final : public Queue {
 public:
     explicit CCMTLQueue();
     ~CCMTLQueue();
-    CCMTLQueue(const CCMTLQueue &)=delete;
-    CCMTLQueue(CCMTLQueue &&)=delete;
-    CCMTLQueue &operator=(const CCMTLQueue &)=delete;
-    CCMTLQueue &operator=(CCMTLQueue &&)=delete;
+    CCMTLQueue(const CCMTLQueue &) = delete;
+    CCMTLQueue(CCMTLQueue &&)      = delete;
+    CCMTLQueue &operator=(const CCMTLQueue &) = delete;
+    CCMTLQueue &operator=(CCMTLQueue &&) = delete;
 
     void submit(CommandBuffer *const *cmdBuffs, uint count) override;
-    
-    inline CCMTLGPUQueueObject* gpuQueueObj() { return _gpuQueueObj; }
+
+    inline CCMTLGPUQueueObject *gpuQueueObj() { return _gpuQueueObj; }
 
 protected:
     void doInit(const QueueInfo &info) override;
     void doDestroy() override;
-    
-    CCMTLGPUQueueObject* _gpuQueueObj = nullptr;
+
+    CCMTLGPUQueueObject *_gpuQueueObj = nullptr;
 };
 
 } // namespace gfx

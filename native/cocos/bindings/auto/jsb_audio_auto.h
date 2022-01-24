@@ -26,13 +26,13 @@
 #pragma once
 #include "base/Config.h"
 #if (USE_AUDIO > 0)
-#include <type_traits>
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/audio/include/AudioEngine.h"
+    #include <type_traits>
+    #include "cocos/audio/include/AudioEngine.h"
+    #include "cocos/bindings/jswrapper/SeApi.h"
+    #include "cocos/bindings/manual/jsb_conversions.h"
 
 extern se::Object* __jsb_cc_AudioProfile_proto;
-extern se::Class* __jsb_cc_AudioProfile_class;
+extern se::Class*  __jsb_cc_AudioProfile_class;
 
 bool js_register_cc_AudioProfile(se::Object* obj);
 bool register_all_audio(se::Object* obj);
@@ -41,7 +41,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::AudioProfile);
 SE_DECLARE_FUNC(js_audio_AudioProfile_AudioProfile);
 
 extern se::Object* __jsb_cc_AudioEngine_proto;
-extern se::Class* __jsb_cc_AudioEngine_class;
+extern se::Class*  __jsb_cc_AudioEngine_class;
 
 bool js_register_cc_AudioEngine(se::Object* obj);
 bool register_all_audio(se::Object* obj);

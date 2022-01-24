@@ -63,11 +63,11 @@ private:
     bool activeRenderer(gfx::Swapchain *swapchain);
     void updateUBO(scene::Camera *);
 
-    gfx::Buffer *                                     _lightsUBO = nullptr;
-    LightList                                         _validLights;
-    gfx::BufferList                                   _lightBuffers;
-    UintList                                          _lightIndexOffsets;
-    UintList                                          _lightIndices;
+    gfx::Buffer *   _lightsUBO = nullptr;
+    LightList       _validLights;
+    gfx::BufferList _lightBuffers;
+    UintList        _lightIndexOffsets;
+    UintList        _lightIndices;
 };
 
 } // namespace pipeline

@@ -141,8 +141,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
             attribute.isNormalized,
             static_cast<uint>(vertexBuffers.size()), // stream
             true,
-            attribute.location
-            });
+            attribute.location});
     }
 
     auto *data = static_cast<uint8_t *>(CC_MALLOC(newSize));

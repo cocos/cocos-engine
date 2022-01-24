@@ -46,7 +46,7 @@ void getTextInputCallback() {
         return;
     }
 
-    auto*      global = se::ScriptEngine::getInstance()->getGlobalObject();
+    auto *    global = se::ScriptEngine::getInstance()->getGlobalObject();
     se::Value jsbVal;
     if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject()) {
         jsbVal.toObject()->getProperty("onTextInput", &textInputCallback);

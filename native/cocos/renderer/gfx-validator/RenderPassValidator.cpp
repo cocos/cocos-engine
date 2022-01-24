@@ -55,7 +55,7 @@ void RenderPassValidator::doInit(const RenderPassInfo &info) {
         }
     }
 
-    for (auto & attachment : _colorAttachments) {
+    for (auto &attachment : _colorAttachments) {
         if (attachment.loadOp == LoadOp::LOAD && attachment.beginAccesses.empty()) {
             CCASSERT(false, "Attachment missing beginAccesses for LoadOp::LOAD");
         }

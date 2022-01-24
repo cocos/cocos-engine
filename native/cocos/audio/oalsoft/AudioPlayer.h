@@ -55,9 +55,9 @@ public:
     void destroy();
 
     //queue buffer related stuff
-    bool setTime(float time);
+    bool  setTime(float time);
     float getTime() { return _currTime; }
-    bool setLoop(bool loop);
+    bool  setLoop(bool loop);
 
 protected:
     void setCache(AudioCache *cache);
@@ -66,24 +66,24 @@ protected:
 
     AudioCache *_audioCache;
 
-    float _volume;
-    bool _loop;
+    float                                         _volume;
+    bool                                          _loop;
     std::function<void(int, const std::string &)> _finishCallbak;
 
-    bool _isDestroyed;
-    bool _removeByAudioEngine;
-    bool _ready;
+    bool   _isDestroyed;
+    bool   _removeByAudioEngine;
+    bool   _ready;
     ALuint _alSource;
 
     //play by circular buffer
-    float _currTime;
-    bool _streamingSource;
-    ALuint _bufferIds[3];
-    std::thread *_rotateBufferThread;
+    float                   _currTime;
+    bool                    _streamingSource;
+    ALuint                  _bufferIds[3];
+    std::thread *           _rotateBufferThread;
     std::condition_variable _sleepCondition;
-    std::mutex _sleepMutex;
-    bool _timeDirty;
-    bool _isRotateThreadExited;
+    std::mutex              _sleepMutex;
+    bool                    _timeDirty;
+    bool                    _isRotateThreadExited;
 
     std::mutex _play2dMutex;
 

@@ -46,7 +46,7 @@ public:
 
     void setJavascriptInterfaceScheme(const std::string &scheme);
 
-    void loadData(const cc::Data &data,
+    void loadData(const cc::Data &   data,
                   const std::string &MIMEType,
                   const std::string &encoding,
                   const std::string &baseURL);
@@ -83,7 +83,7 @@ public:
 
 private:
     UIWebViewWrapper *_uiWebViewWrapper;
-    WebView *_webView;
+    WebView *         _webView;
 };
 } //namespace cc
 

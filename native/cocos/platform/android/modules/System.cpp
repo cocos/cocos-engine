@@ -25,7 +25,6 @@
 
 #include "platform/android/modules/System.h"
 
-
 namespace cc {
 System::System() = default;
 
@@ -34,6 +33,5 @@ System::~System() = default;
 System::OSType System::getOSType() const {
     return OSType::ANDROIDOS;
 }
-
 
 } // namespace cc

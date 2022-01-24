@@ -30,7 +30,6 @@
 #include "base/Macros.h"
 #include "bindings/event/EventDispatcher.h"
 
-
 namespace cc {
 class IEventDispatch;
 

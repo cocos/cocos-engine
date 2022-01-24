@@ -78,7 +78,7 @@ public class CocosWebView extends WebView {
             try {
                 URI uri = new URI(request.getRequestUrl().toString());
                 if (uri.getScheme().equals(mJSScheme)) {
-                    CocosHelper.runOnGameThread(
+                    CocosHelper.runOnGameThreadAtForeground(
                             () -> CocosWebViewHelper._onJsCallback(mViewTag, urlString)
                     );
                     return true;
@@ -92,7 +92,7 @@ public class CocosWebView extends WebView {
             );
 
             // run worker on cocos thread
-            CocosHelper.runOnGameThread(shouldStartLoadingCB);
+            CocosHelper.runOnGameThreadAtForeground(shouldStartLoadingCB);
             // wait for result from cocos thread
 
             try {
@@ -109,7 +109,7 @@ public class CocosWebView extends WebView {
         public void onPageLoaded(WebView view, final String url) {
             super.onPageLoaded(view, url);
 
-            CocosHelper.runOnGameThread(
+            CocosHelper.runOnGameThreadAtForeground(
                     () -> CocosWebViewHelper._didFinishLoading(mViewTag, url)
             );
         }
@@ -118,7 +118,7 @@ public class CocosWebView extends WebView {
         public void onError(WebView view, ResourceRequest request, ResourceError error) {
             super.onError(view, request, error);
             final String failingUrl = request.getRequestUrl().toString();
-            CocosHelper.runOnGameThread(
+            CocosHelper.runOnGameThreadAtForeground(
                     () -> CocosWebViewHelper._didFailLoading(mViewTag, failingUrl)
             );
         }

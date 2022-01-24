@@ -109,7 +109,7 @@ import java.util.concurrent.CountDownLatch;
              try {
                  URI uri = URI.create(urlString);
                  if (uri != null && uri.getScheme().equals(mJSScheme)) {
-                     CocosHelper.runOnGameThread(new Runnable() {
+                     CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                          @Override
                          public void run() {
                              CocosWebViewHelper._onJsCallback(mViewTag, urlString);
@@ -141,7 +141,7 @@ import java.util.concurrent.CountDownLatch;
          public void onPageFinished(WebView view, final String url) {
              super.onPageFinished(view, url);
 
-             CocosHelper.runOnGameThread(new Runnable() {
+             CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                  @Override
                  public void run() {
                      CocosWebViewHelper._didFinishLoading(mViewTag, url);
@@ -153,7 +153,7 @@ import java.util.concurrent.CountDownLatch;
          public void onReceivedError(WebView view, int errorCode, String description, final String failingUrl) {
              super.onReceivedError(view, errorCode, description, failingUrl);
 
-             CocosHelper.runOnGameThread(new Runnable() {
+             CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                  @Override
                  public void run() {
                      CocosWebViewHelper._didFailLoading(mViewTag, failingUrl);

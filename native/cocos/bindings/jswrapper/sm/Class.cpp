@@ -26,8 +26,8 @@
 
 #include "Class.h"
 #include "Object.h"
-#include "Utils.h"
 #include "ScriptEngine.h"
+#include "Utils.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
@@ -104,7 +104,7 @@ bool Class::install() {
 
     _jsCls.name = _name;
     if (_finalizeOp != nullptr) {
-        _jsCls.flags = JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
+        _jsCls.flags       = JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
         _classOps.finalize = _finalizeOp;
     } else {
         _jsCls.flags = JSCLASS_HAS_PRIVATE;
@@ -112,7 +112,7 @@ bool Class::install() {
 
     _jsCls.cOps = &_classOps;
 
-    JSObject *parentObj = _parentProto != nullptr ? _parentProto->_getJSObject() : nullptr;
+    JSObject *       parentObj = _parentProto != nullptr ? _parentProto->_getJSObject() : nullptr;
     JS::RootedObject parent(__cx, _parent->_getJSObject());
     JS::RootedObject parentProto(__cx, parentObj);
 
@@ -177,7 +177,7 @@ bool Class::defineFinalizeFunction(JSFinalizeOp func) {
 //    }
 
 JSObject *Class::_createJSObjectWithClass(Class *cls) {
-    JSObject *proto = cls->_proto != nullptr ? cls->_proto->_getJSObject() : nullptr;
+    JSObject *       proto = cls->_proto != nullptr ? cls->_proto->_getJSObject() : nullptr;
     JS::RootedObject jsProto(__cx, proto);
     JS::RootedObject obj(__cx, JS_NewObjectWithGivenProto(__cx, &cls->_jsCls, jsProto));
     return obj;

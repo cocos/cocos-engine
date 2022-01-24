@@ -100,8 +100,8 @@ void PassNode::sideEffect() {
 }
 
 void PassNode::subpass(bool end, bool clearActionIgnorable) {
-    _subpass               = true;
-    _subpassEnd            = end;
+    _subpass              = true;
+    _subpassEnd           = end;
     _clearActionIgnorable = clearActionIgnorable;
 }
 

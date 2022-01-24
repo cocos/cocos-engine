@@ -30,9 +30,9 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
-    #include "Base.h"
-    #include "../Value.h"
     #include "../RefCounter.h"
+    #include "../Value.h"
+    #include "Base.h"
 
 namespace se {
 
@@ -356,10 +356,10 @@ public:
 
     // Private API used in wrapper
     static Object *_createJSObject(Class *cls, JSObject *obj);
-    void _setFinalizeCallback(JSFinalizeOp finalizeCb);
-    bool _isNativeFunction(JSNative func) const;
-    JSObject *_getJSObject() const;
-    Class *_getClass() const { return _cls; }
+    void           _setFinalizeCallback(JSFinalizeOp finalizeCb);
+    bool           _isNativeFunction(JSNative func) const;
+    JSObject *     _getJSObject() const;
+    Class *        _getClass() const { return _cls; }
     //
 
 private:
@@ -377,12 +377,12 @@ private:
     void unprotect();
     void reset();
 
-    JS::Heap<JSObject *> _heap;        /* should be untouched if in rooted mode */
+    JS::Heap<JSObject *>        _heap; /* should be untouched if in rooted mode */
     JS::PersistentRootedObject *_root; /* should be null if not in rooted mode */
 
     void *_privateData;
 
-    Class *_cls;
+    Class *      _cls;
     JSFinalizeOp _finalizeCb;
 
     uint32_t _rootCount;

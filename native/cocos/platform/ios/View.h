@@ -33,9 +33,9 @@
 
 @interface View : UIView
 
-@property(nonatomic, assign)BOOL preventTouch;
+@property (nonatomic, assign) BOOL preventTouch;
 #ifdef CC_USE_METAL
-@property(nonatomic, assign) id<MTLDevice> device;
+@property (nonatomic, assign) id<MTLDevice> device;
 #endif
 
 - (void)setPreventTouchEvent:(BOOL)flag;

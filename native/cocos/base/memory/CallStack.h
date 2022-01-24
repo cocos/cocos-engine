@@ -36,7 +36,6 @@
     #include <vector>
     #include "../Macros.h"
 
-
 namespace cc {
 
     #define MAX_STACK_FRAMES  32

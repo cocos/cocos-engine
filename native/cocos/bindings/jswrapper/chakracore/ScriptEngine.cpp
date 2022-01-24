@@ -28,11 +28,11 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
-    #include "Object.h"
-    #include "Class.h"
-    #include "Utils.h"
-    #include "../State.h"
     #include "../MappingUtils.h"
+    #include "../State.h"
+    #include "Class.h"
+    #include "Object.h"
+    #include "Utils.h"
 
 namespace se {
 
@@ -76,13 +76,13 @@ bool JSB_console_format_log(State &s, const char *prefix, int msgIndex = 0) {
         return false;
 
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     if ((argc - msgIndex) == 1) {
         std::string msg = args[msgIndex].toStringForce();
         SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
     } else if (argc > 1) {
         std::string msg = args[msgIndex].toStringForce();
-        size_t pos;
+        size_t      pos;
         for (int i = (msgIndex + 1); i < argc; ++i) {
             pos = msg.find("%");
             if (pos != std::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
@@ -198,7 +198,7 @@ bool ScriptEngine::init() {
 
     // ChakraCore isn't shipped with a console variable. Make a fake one.
     Value consoleVal;
-    bool hasConsole = _globalObj->getProperty("console", &consoleVal) && consoleVal.isObject();
+    bool  hasConsole = _globalObj->getProperty("console", &consoleVal) && consoleVal.isObject();
     assert(!hasConsole);
 
     HandleObject consoleObj(Object::createPlainObject());
@@ -252,9 +252,9 @@ void ScriptEngine::cleanup() {
     _CHECK(JsSetCurrentContext(JS_INVALID_REFERENCE));
     _CHECK(JsDisposeRuntime(_rt));
 
-    _cx = nullptr;
+    _cx        = nullptr;
     _globalObj = nullptr;
-    _isValid = false;
+    _isValid   = false;
 
     _registerCallbackArray.clear();
 
@@ -274,7 +274,7 @@ ScriptEngine::ExceptionInfo ScriptEngine::formatException(JsValueRef exception) 
         return ret;
 
     std::vector<std::string> allKeys;
-    Object *exceptionObj = Object::_createJSObject(nullptr, exception);
+    Object *                 exceptionObj = Object::_createJSObject(nullptr, exception);
     exceptionObj->getAllKeys(&allKeys);
 
     for (const auto &key : allKeys) {
@@ -325,7 +325,7 @@ bool ScriptEngine::start() {
     if (!init())
         return false;
 
-    bool ok = false;
+    bool ok    = false;
     _startTime = std::chrono::steady_clock::now();
 
     for (auto cb : _registerCallbackArray) {

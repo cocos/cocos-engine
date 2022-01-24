@@ -24,31 +24,31 @@
 ****************************************************************************/
 
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
+#include "bindings/event/EventDispatcher.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "platform/FileUtils.h"
-#include "bindings/event/EventDispatcher.h"
-#include "platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
-#include "platform/interfaces/modules/Device.h"
 #include "platform/SAXParser.h"
+#include "platform/interfaces/modules/Device.h"
+#include "platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
 
 #ifndef JSB_ALLOC
-#define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+    #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
 #endif
 
 #ifndef JSB_FREE
-#define JSB_FREE(ptr) delete ptr
+    #define JSB_FREE(ptr) delete ptr
 #endif
 se::Object* __jsb_cc_FileUtils_proto = nullptr;
-se::Class* __jsb_cc_FileUtils_class = nullptr;
+se::Class*  __jsb_cc_FileUtils_class = nullptr;
 
 static bool js_engine_FileUtils_addSearchPath(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_addSearchPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -58,7 +58,7 @@ static bool js_engine_FileUtils_addSearchPath(se::State& s) // NOLINT(readabilit
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false> arg1 = {};
+        HolderType<bool, false>       arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_addSearchPath : Error processing arguments");
@@ -74,9 +74,9 @@ static bool js_engine_FileUtils_createDirectory(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_createDirectory : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -96,9 +96,9 @@ static bool js_engine_FileUtils_fullPathForFilename(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathForFilename : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -118,9 +118,9 @@ static bool js_engine_FileUtils_fullPathFromRelativeFile(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathFromRelativeFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
@@ -142,9 +142,9 @@ static bool js_engine_FileUtils_getDataFromFile(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getDataFromFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -164,9 +164,9 @@ static bool js_engine_FileUtils_getDefaultResourceRootPath(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getDefaultResourceRootPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const std::string& result = cobj->getDefaultResourceRootPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -183,9 +183,9 @@ static bool js_engine_FileUtils_getFileExtension(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileExtension : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -205,9 +205,9 @@ static bool js_engine_FileUtils_getFileSize(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileSize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -227,9 +227,9 @@ static bool js_engine_FileUtils_getOriginalSearchPaths(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getOriginalSearchPaths : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const std::vector<std::string>& result = cobj->getOriginalSearchPaths();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -246,9 +246,9 @@ static bool js_engine_FileUtils_getSearchPaths(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSearchPaths : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const std::vector<std::string>& result = cobj->getSearchPaths();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -265,9 +265,9 @@ static bool js_engine_FileUtils_getStringFromFile(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getStringFromFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -287,9 +287,9 @@ static bool js_engine_FileUtils_getSuitableFOpen(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSuitableFOpen : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -309,12 +309,12 @@ static bool js_engine_FileUtils_getValueMapFromData(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<const char*, false> arg0 = {};
-        HolderType<int, false> arg1 = {};
+        HolderType<int, false>         arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromData : Error processing arguments");
@@ -333,9 +333,9 @@ static bool js_engine_FileUtils_getValueMapFromFile(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -355,9 +355,9 @@ static bool js_engine_FileUtils_getValueVectorFromFile(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueVectorFromFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -377,9 +377,9 @@ static bool js_engine_FileUtils_getWritablePath(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getWritablePath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         std::string result = cobj->getWritablePath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -396,9 +396,9 @@ static bool js_engine_FileUtils_isAbsolutePath(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isAbsolutePath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -418,9 +418,9 @@ static bool js_engine_FileUtils_isDirectoryExist(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isDirectoryExist : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -440,9 +440,9 @@ static bool js_engine_FileUtils_isFileExist(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isFileExist : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -462,9 +462,9 @@ static bool js_engine_FileUtils_listFiles(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_listFiles : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -485,7 +485,7 @@ static bool js_engine_FileUtils_purgeCachedEntries(se::State& s) // NOLINT(reada
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_purgeCachedEntries : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->purgeCachedEntries();
         return true;
@@ -499,9 +499,9 @@ static bool js_engine_FileUtils_removeDirectory(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_removeDirectory : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -521,9 +521,9 @@ static bool js_engine_FileUtils_removeFile(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_removeFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -541,27 +541,33 @@ SE_BIND_FUNC(js_engine_FileUtils_removeFile)
 
 static bool js_engine_FileUtils_renameFile(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
-    SE_PRECONDITION2( cobj, false, "js_engine_FileUtils_renameFile : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_renameFile : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 2) {
             HolderType<std::string, true> arg0 = {};
             HolderType<std::string, true> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             bool result = cobj->renameFile(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_engine_FileUtils_renameFile : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 3) {
@@ -570,18 +576,27 @@ static bool js_engine_FileUtils_renameFile(se::State& s) // NOLINT(readability-i
             HolderType<std::string, true> arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             bool result = cobj->renameFile(arg0.value(), arg1.value(), arg2.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_engine_FileUtils_renameFile : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -592,9 +607,9 @@ static bool js_engine_FileUtils_setDefaultResourceRootPath(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setDefaultResourceRootPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -611,9 +626,9 @@ static bool js_engine_FileUtils_setSearchPaths(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setSearchPaths : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::vector<std::string>, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -630,9 +645,9 @@ static bool js_engine_FileUtils_setWritablePath(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setWritablePath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -649,11 +664,11 @@ static bool js_engine_FileUtils_writeDataToFile(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeDataToFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<cc::Data, true> arg0 = {};
+        HolderType<cc::Data, true>    arg0 = {};
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -673,9 +688,9 @@ static bool js_engine_FileUtils_writeStringToFile(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeStringToFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
@@ -697,12 +712,12 @@ static bool js_engine_FileUtils_writeToFile(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeToFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::unordered_map<std::string, cc::Value>, true> arg0 = {};
-        HolderType<std::string, true> arg1 = {};
+        HolderType<std::string, true>                                arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_writeToFile : Error processing arguments");
@@ -721,12 +736,12 @@ static bool js_engine_FileUtils_writeValueMapToFile(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeValueMapToFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::unordered_map<std::string, cc::Value>, true> arg0 = {};
-        HolderType<std::string, true> arg1 = {};
+        HolderType<std::string, true>                                arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_writeValueMapToFile : Error processing arguments");
@@ -745,12 +760,12 @@ static bool js_engine_FileUtils_writeValueVectorToFile(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeValueVectorToFile : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::vector<cc::Value>, true> arg0 = {};
-        HolderType<std::string, true> arg1 = {};
+        HolderType<std::string, true>            arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_writeValueVectorToFile : Error processing arguments");
@@ -767,9 +782,9 @@ SE_BIND_FUNC(js_engine_FileUtils_writeValueVectorToFile)
 
 static bool js_engine_FileUtils_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         cc::FileUtils* result = cc::FileUtils::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -784,9 +799,9 @@ SE_BIND_FUNC(js_engine_FileUtils_getInstance)
 
 static bool js_engine_FileUtils_setDelegate(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<cc::FileUtils*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -801,9 +816,9 @@ SE_BIND_FUNC(js_engine_FileUtils_setDelegate)
 
 static bool js_engine_FileUtils_normalizePath(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -821,9 +836,9 @@ SE_BIND_FUNC(js_engine_FileUtils_normalizePath)
 
 static bool js_engine_FileUtils_getFileDir(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -839,12 +854,10 @@ static bool js_engine_FileUtils_getFileDir(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC(js_engine_FileUtils_getFileDir)
 
-
 static bool js_cc_FileUtils_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::FileUtils>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
         JSB_FREE(cobj);
@@ -904,9 +917,7 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     return true;
 }
 se::Object* __jsb_cc_OSInterface_proto = nullptr;
-se::Class* __jsb_cc_OSInterface_class = nullptr;
-
-
+se::Class*  __jsb_cc_OSInterface_class = nullptr;
 
 bool js_register_engine_OSInterface(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -922,17 +933,17 @@ bool js_register_engine_OSInterface(se::Object* obj) // NOLINT(readability-ident
     return true;
 }
 se::Object* __jsb_cc_ICanvasGradient_proto = nullptr;
-se::Class* __jsb_cc_ICanvasGradient_class = nullptr;
+se::Class*  __jsb_cc_ICanvasGradient_class = nullptr;
 
 static bool js_engine_ICanvasGradient_addColorStop(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasGradient>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasGradient_addColorStop : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<float, false> arg0 = {};
+        HolderType<float, false>      arg0 = {};
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -944,8 +955,6 @@ static bool js_engine_ICanvasGradient_addColorStop(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC(js_engine_ICanvasGradient_addColorStop)
-
-
 
 bool js_register_engine_ICanvasGradient(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -962,14 +971,14 @@ bool js_register_engine_ICanvasGradient(se::Object* obj) // NOLINT(readability-i
     return true;
 }
 se::Object* __jsb_cc_ICanvasRenderingContext2D_proto = nullptr;
-se::Class* __jsb_cc_ICanvasRenderingContext2D_class = nullptr;
+se::Class*  __jsb_cc_ICanvasRenderingContext2D_class = nullptr;
 
 static bool js_engine_ICanvasRenderingContext2D_beginPath(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_beginPath : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->beginPath();
         return true;
@@ -983,9 +992,9 @@ static bool js_engine_ICanvasRenderingContext2D_clearRect(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_clearRect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1009,7 +1018,7 @@ static bool js_engine_ICanvasRenderingContext2D_closePath(se::State& s) // NOLIN
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_closePath : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->closePath();
         return true;
@@ -1023,9 +1032,9 @@ static bool js_engine_ICanvasRenderingContext2D_createLinearGradient(se::State& 
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_createLinearGradient : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1052,7 +1061,7 @@ static bool js_engine_ICanvasRenderingContext2D_fill(se::State& s) // NOLINT(rea
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_fill : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->fill();
         return true;
@@ -1066,15 +1075,15 @@ static bool js_engine_ICanvasRenderingContext2D_fillImageData(se::State& s) // N
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_fillImageData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 5) {
         HolderType<cc::Data, true> arg0 = {};
-        HolderType<float, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
-        HolderType<float, false> arg3 = {};
-        HolderType<float, false> arg4 = {};
+        HolderType<float, false>   arg1 = {};
+        HolderType<float, false>   arg2 = {};
+        HolderType<float, false>   arg3 = {};
+        HolderType<float, false>   arg4 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -1093,9 +1102,9 @@ static bool js_engine_ICanvasRenderingContext2D_fillRect(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_fillRect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1118,14 +1127,14 @@ static bool js_engine_ICanvasRenderingContext2D_fillText(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_fillText : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
-        HolderType<float, false> arg3 = {};
+        HolderType<float, false>      arg1 = {};
+        HolderType<float, false>      arg2 = {};
+        HolderType<float, false>      arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -1143,9 +1152,9 @@ static bool js_engine_ICanvasRenderingContext2D_lineTo(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_lineTo : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1164,9 +1173,9 @@ static bool js_engine_ICanvasRenderingContext2D_measureText(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_measureText : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1186,9 +1195,9 @@ static bool js_engine_ICanvasRenderingContext2D_moveTo(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_moveTo : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1207,9 +1216,9 @@ static bool js_engine_ICanvasRenderingContext2D_rect(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_rect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1233,7 +1242,7 @@ static bool js_engine_ICanvasRenderingContext2D_restore(se::State& s) // NOLINT(
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_restore : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->restore();
         return true;
@@ -1247,9 +1256,9 @@ static bool js_engine_ICanvasRenderingContext2D_rotate(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_rotate : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1267,7 +1276,7 @@ static bool js_engine_ICanvasRenderingContext2D_save(se::State& s) // NOLINT(rea
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_save : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->save();
         return true;
@@ -1281,9 +1290,9 @@ static bool js_engine_ICanvasRenderingContext2D_scale(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_scale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1302,18 +1311,17 @@ static bool js_engine_ICanvasRenderingContext2D_setCanvasBufferUpdatedCallback(s
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (const cc::Data &)>, true> arg0 = {};
+        HolderType<std::function<void(const cc::Data&)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](const cc::Data & larg0) -> void {
+                auto lambda = [=](const cc::Data& larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
 
@@ -1321,22 +1329,19 @@ static bool js_engine_ICanvasRenderingContext2D_setCanvasBufferUpdatedCallback(s
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_engine_ICanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Error processing arguments");
         cobj->setCanvasBufferUpdatedCallback(arg0.value());
         return true;
@@ -1350,9 +1355,9 @@ static bool js_engine_ICanvasRenderingContext2D_setFillStyle(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setFillStyle : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1369,9 +1374,9 @@ static bool js_engine_ICanvasRenderingContext2D_setFont(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setFont : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1388,9 +1393,9 @@ static bool js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation(se::
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1407,9 +1412,9 @@ static bool js_engine_ICanvasRenderingContext2D_setHeight(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1426,9 +1431,9 @@ static bool js_engine_ICanvasRenderingContext2D_setLineCap(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setLineCap : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1445,9 +1450,9 @@ static bool js_engine_ICanvasRenderingContext2D_setLineJoin(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setLineJoin : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1464,9 +1469,9 @@ static bool js_engine_ICanvasRenderingContext2D_setLineWidth(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setLineWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1483,9 +1488,9 @@ static bool js_engine_ICanvasRenderingContext2D_setStrokeStyle(se::State& s) // 
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setStrokeStyle : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1502,9 +1507,9 @@ static bool js_engine_ICanvasRenderingContext2D_setTextAlign(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setTextAlign : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1521,9 +1526,9 @@ static bool js_engine_ICanvasRenderingContext2D_setTextBaseline(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setTextBaseline : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1540,9 +1545,9 @@ static bool js_engine_ICanvasRenderingContext2D_setTransform(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setTransform : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 6) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1569,9 +1574,9 @@ static bool js_engine_ICanvasRenderingContext2D_setWidth(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_setWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1589,7 +1594,7 @@ static bool js_engine_ICanvasRenderingContext2D_stroke(se::State& s) // NOLINT(r
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_stroke : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->stroke();
         return true;
@@ -1603,14 +1608,14 @@ static bool js_engine_ICanvasRenderingContext2D_strokeText(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_strokeText : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
-        HolderType<float, false> arg3 = {};
+        HolderType<float, false>      arg1 = {};
+        HolderType<float, false>      arg2 = {};
+        HolderType<float, false>      arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -1628,9 +1633,9 @@ static bool js_engine_ICanvasRenderingContext2D_transform(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_transform : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 6) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1657,9 +1662,9 @@ static bool js_engine_ICanvasRenderingContext2D_translate(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_translate : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -1673,8 +1678,6 @@ static bool js_engine_ICanvasRenderingContext2D_translate(se::State& s) // NOLIN
     return false;
 }
 SE_BIND_FUNC(js_engine_ICanvasRenderingContext2D_translate)
-
-
 
 bool js_register_engine_ICanvasRenderingContext2D(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1723,7 +1726,7 @@ bool js_register_engine_ICanvasRenderingContext2D(se::Object* obj) // NOLINT(rea
     return true;
 }
 se::Object* __jsb_cc_CanvasGradient_proto = nullptr;
-se::Class* __jsb_cc_CanvasGradient_class = nullptr;
+se::Class*  __jsb_cc_CanvasGradient_class = nullptr;
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_CanvasGradient_finalize)
 
@@ -1736,13 +1739,10 @@ static bool js_engine_CanvasGradient_constructor(se::State& s) // NOLINT(readabi
 }
 SE_BIND_CTOR(js_engine_CanvasGradient_constructor, __jsb_cc_CanvasGradient_class, js_cc_CanvasGradient_finalize)
 
-
-
 static bool js_cc_CanvasGradient_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::CanvasGradient>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         auto* cobj = SE_THIS_OBJECT<cc::CanvasGradient>(s);
         JSB_FREE(cobj);
@@ -1766,16 +1766,16 @@ bool js_register_engine_CanvasGradient(se::Object* obj) // NOLINT(readability-id
     return true;
 }
 se::Object* __jsb_cc_CanvasRenderingContext2D_proto = nullptr;
-se::Class* __jsb_cc_CanvasRenderingContext2D_class = nullptr;
+se::Class*  __jsb_cc_CanvasRenderingContext2D_class = nullptr;
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_CanvasRenderingContext2D_finalize)
 
 static bool js_engine_CanvasRenderingContext2D_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    float arg0 = 0;
-    float arg1 = 0;
+    CC_UNUSED bool ok   = true;
+    const auto&    args = s.args();
+    float          arg0 = 0;
+    float          arg1 = 0;
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
     ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
     SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_constructor : Error processing arguments");
@@ -1786,13 +1786,10 @@ static bool js_engine_CanvasRenderingContext2D_constructor(se::State& s) // NOLI
 }
 SE_BIND_CTOR(js_engine_CanvasRenderingContext2D_constructor, __jsb_cc_CanvasRenderingContext2D_class, js_cc_CanvasRenderingContext2D_finalize)
 
-
-
 static bool js_cc_CanvasRenderingContext2D_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
         JSB_FREE(cobj);
@@ -1816,13 +1813,13 @@ bool js_register_engine_CanvasRenderingContext2D(se::Object* obj) // NOLINT(read
     return true;
 }
 se::Object* __jsb_cc_Device_proto = nullptr;
-se::Class* __jsb_cc_Device_class = nullptr;
+se::Class*  __jsb_cc_Device_class = nullptr;
 
 static bool js_engine_Device_getDPI(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cc::Device::getDPI();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1837,9 +1834,9 @@ SE_BIND_FUNC(js_engine_Device_getDPI)
 
 static bool js_engine_Device_getDevicePixelRatio(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cc::Device::getDevicePixelRatio();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1854,9 +1851,9 @@ SE_BIND_FUNC(js_engine_Device_getDevicePixelRatio)
 
 static bool js_engine_Device_setAccelerometerEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -1871,9 +1868,9 @@ SE_BIND_FUNC(js_engine_Device_setAccelerometerEnabled)
 
 static bool js_engine_Device_setAccelerometerInterval(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -1888,9 +1885,9 @@ SE_BIND_FUNC(js_engine_Device_setAccelerometerInterval)
 
 static bool js_engine_Device_getDeviceOrientation(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         auto result = static_cast<int>(cc::Device::getDeviceOrientation());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1905,9 +1902,9 @@ SE_BIND_FUNC(js_engine_Device_getDeviceOrientation)
 
 static bool js_engine_Device_getDeviceModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         std::string result = cc::Device::getDeviceModel();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1922,9 +1919,9 @@ SE_BIND_FUNC(js_engine_Device_getDeviceModel)
 
 static bool js_engine_Device_setKeepScreenOn(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -1939,9 +1936,9 @@ SE_BIND_FUNC(js_engine_Device_setKeepScreenOn)
 
 static bool js_engine_Device_vibrate(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -1956,9 +1953,9 @@ SE_BIND_FUNC(js_engine_Device_vibrate)
 
 static bool js_engine_Device_getBatteryLevel(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cc::Device::getBatteryLevel();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1973,9 +1970,9 @@ SE_BIND_FUNC(js_engine_Device_getBatteryLevel)
 
 static bool js_engine_Device_getNetworkType(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         auto result = static_cast<int>(cc::Device::getNetworkType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1990,9 +1987,9 @@ SE_BIND_FUNC(js_engine_Device_getNetworkType)
 
 static bool js_engine_Device_getSafeAreaEdge(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         cc::Vec4 result = cc::Device::getSafeAreaEdge();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2004,8 +2001,6 @@ static bool js_engine_Device_getSafeAreaEdge(se::State& s) // NOLINT(readability
     return false;
 }
 SE_BIND_FUNC(js_engine_Device_getSafeAreaEdge)
-
-
 
 bool js_register_engine_Device(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -2032,15 +2027,15 @@ bool js_register_engine_Device(se::Object* obj) // NOLINT(readability-identifier
     return true;
 }
 se::Object* __jsb_cc_SAXParser_proto = nullptr;
-se::Class* __jsb_cc_SAXParser_class = nullptr;
+se::Class*  __jsb_cc_SAXParser_class = nullptr;
 
 static bool js_engine_SAXParser_init(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SAXParser>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_SAXParser_init : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<const char*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2056,8 +2051,6 @@ static bool js_engine_SAXParser_init(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_engine_SAXParser_init)
 
-
-
 bool js_register_engine_SAXParser(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("PlistParser", obj, nullptr, nullptr);
@@ -2072,12 +2065,10 @@ bool js_register_engine_SAXParser(se::Object* obj) // NOLINT(readability-identif
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_engine(se::Object* obj)
-{
+bool register_all_engine(se::Object* obj) {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("jsb", &nsVal))
-    {
+    if (!obj->getProperty("jsb", &nsVal)) {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         obj->setProperty("jsb", nsVal);

@@ -29,7 +29,6 @@
 #include <cstdint>
 #include "base/Macros.h"
 
-
 namespace cc {
 namespace utils {
 

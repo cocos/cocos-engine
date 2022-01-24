@@ -301,9 +301,9 @@ It should work same as apples CFSwapInt32LittleToHost(..)
         #include <Endian.h>
     #else
         #if !defined(__QNX__)
-        #include <endian.h>
+            #include <endian.h>
         #else
-        #define CC_ENDIAN CC_ENDIAN_LITTLE
+            #define CC_ENDIAN CC_ENDIAN_LITTLE
         #endif
     #endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     #
@@ -407,24 +407,24 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 #endif
 
 #define CC_ENABLE_COPY_SEMANTICS(cls) \
-    cls(const cls &) = default;    \
+    cls(const cls &) = default;       \
     cls &operator=(const cls &) = default;
 
 #define CC_DISABLE_COPY_SEMANTICS(cls) \
-    cls(const cls &) = delete;      \
+    cls(const cls &) = delete;         \
     cls &operator=(const cls &) = delete;
 
 #define CC_ENABLE_MOVE_SEMANTICS(cls) \
-    cls(cls &&) noexcept = default; \
+    cls(cls &&) noexcept = default;   \
     cls &operator=(cls &&) noexcept = default;
 
 #define CC_DISABLE_MOVE_SEMANTICS(cls) \
-    cls(cls &&) noexcept = delete;  \
+    cls(cls &&) noexcept = delete;     \
     cls &operator=(cls &&) noexcept = delete;
 
 #define CC_DISABLE_COPY_AND_MOVE_SEMANTICS(cls) \
-  CC_DISABLE_COPY_SEMANTICS(cls)         \
-  CC_DISABLE_MOVE_SEMANTICS(cls)
+    CC_DISABLE_COPY_SEMANTICS(cls)              \
+    CC_DISABLE_MOVE_SEMANTICS(cls)
 
 #if (CC_COMPILER == CC_COMPILER_MSVC)
     #define CC_ALIGN(N)        __declspec(align(N))

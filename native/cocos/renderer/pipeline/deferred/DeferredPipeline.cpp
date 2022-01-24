@@ -25,6 +25,7 @@
 
 #include "DeferredPipeline.h"
 #include "../SceneCulling.h"
+#include "../helper/Utils.h"
 #include "../shadow/ShadowFlow.h"
 #include "MainFlow.h"
 #include "gfx-base/GFXBuffer.h"
@@ -34,7 +35,6 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
-#include "../helper/Utils.h"
 
 namespace cc {
 namespace pipeline {
@@ -50,7 +50,6 @@ namespace pipeline {
 
 framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferTexture[GBUFFER_COUNT] = {
     framegraph::FrameGraph::stringToHandle("gbufferAlbedoTexture"),
-    framegraph::FrameGraph::stringToHandle("gbufferPositionTexture"),
     framegraph::FrameGraph::stringToHandle("gbufferNormalTexture"),
     framegraph::FrameGraph::stringToHandle("gbufferEmissiveTexture")};
 

@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-
 #include "bindings/auto/jsb_scene_auto.h"
 #include "jsb_scene_manual.h"
 #include "scene/Model.h"

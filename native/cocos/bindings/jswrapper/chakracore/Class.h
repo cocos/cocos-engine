@@ -126,20 +126,20 @@ private:
     static void cleanup();
 
     struct JSFunctionSpec {
-        const char *name;
+        const char *     name;
         JsNativeFunction func;
     };
 
     struct JSPropertySpec {
-        const char *name;
+        const char *     name;
         JsNativeFunction getter;
         JsNativeFunction setter;
     };
 
     std::string _name;
-    Object *_parent;
-    Object *_proto;
-    Object *_parentProto;
+    Object *    _parent;
+    Object *    _proto;
+    Object *    _parentProto;
 
     JsNativeFunction _ctor;
 
@@ -147,7 +147,7 @@ private:
     std::vector<JSFunctionSpec> _staticFuncs;
     std::vector<JSPropertySpec> _properties;
     std::vector<JSPropertySpec> _staticProperties;
-    JsFinalizeCallback _finalizeOp;
+    JsFinalizeCallback          _finalizeOp;
 
     friend class ScriptEngine;
     friend class Object;

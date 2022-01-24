@@ -30,9 +30,9 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
-    #include "Base.h"
-    #include "../Value.h"
     #include "../RefCounter.h"
+    #include "../Value.h"
+    #include "Base.h"
 
 namespace se {
 
@@ -355,11 +355,11 @@ public:
 
     // Private API used in wrapper
     static Object *_createJSObject(Class *cls, JsValueRef obj);
-    JsValueRef _getJSObject() const;
-    Class *_getClass() const;
-    void _cleanup(void *nativeObject = nullptr);
-    void _setFinalizeCallback(JsFinalizeCallback finalizeCb);
-    bool _isNativeFunction() const;
+    JsValueRef     _getJSObject() const;
+    Class *        _getClass() const;
+    void           _cleanup(void *nativeObject = nullptr);
+    void           _setFinalizeCallback(JsFinalizeCallback finalizeCb);
+    bool           _isNativeFunction() const;
     //
 private:
     static void cleanup();
@@ -368,14 +368,14 @@ private:
     virtual ~Object();
     bool init(JsValueRef obj);
 
-    Class *_cls;
-    JsValueRef _obj;
-    void *_privateData;
+    Class *            _cls;
+    JsValueRef         _obj;
+    void *             _privateData;
     JsFinalizeCallback _finalizeCb;
 
     uint32_t _rootCount;
     uint32_t _currentVMId;
-    bool _isCleanup;
+    bool     _isCleanup;
 
     friend class ScriptEngine;
 };

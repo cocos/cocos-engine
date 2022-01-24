@@ -29,11 +29,11 @@
 #include "ChakraCore.h"
 #include "ChakraCoreVersion.h"
 
-#include <string>
-#include <vector>
-#include <unordered_map>
+#include <assert.h>
 #include <chrono>
 #include <functional>
-#include <assert.h>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "HelperMacros.h"

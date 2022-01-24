@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 #include "base/Ref.h"
 
 namespace cc {
@@ -107,7 +107,7 @@ private:
      * is in the pool.
      */
     std::vector<Ref *> _managedObjectArray;
-    std::string _name;
+    std::string        _name;
 
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
     /**

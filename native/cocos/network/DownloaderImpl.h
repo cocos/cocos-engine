@@ -26,11 +26,11 @@
 
 #pragma once
 
+#include <functional>
+#include <memory>
 #include <string>
 #include <unordered_map>
-#include <memory>
 #include <vector>
-#include <functional>
 
 #include "base/Macros.h"
 
@@ -56,17 +56,17 @@ class IDownloaderImpl {
 public:
     virtual ~IDownloaderImpl() {}
 
-    std::function<void(const DownloadTask &task,
-                       int64_t bytesReceived,
-                       int64_t totalBytesReceived,
-                       int64_t totalBytesExpected,
+    std::function<void(const DownloadTask &                               task,
+                       int64_t                                            bytesReceived,
+                       int64_t                                            totalBytesReceived,
+                       int64_t                                            totalBytesExpected,
                        std::function<int64_t(void *buffer, int64_t len)> &transferDataToBuffer)>
         onTaskProgress;
 
-    std::function<void(const DownloadTask &task,
-                       int errorCode,
-                       int errorCodeInternal,
-                       const std::string &errorStr,
+    std::function<void(const DownloadTask &              task,
+                       int                               errorCode,
+                       int                               errorCodeInternal,
+                       const std::string &               errorStr,
                        const std::vector<unsigned char> &data)>
         onTaskFinish;
 

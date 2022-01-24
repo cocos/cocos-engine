@@ -60,6 +60,7 @@ public:
      @return True if the resource located by the URL was successfully opened; otherwise false.
      */
     bool openURL(const std::string& url) override;
+
 private:
     LanguageType getLanguageTypeByISO2(const char* code) const;
 };

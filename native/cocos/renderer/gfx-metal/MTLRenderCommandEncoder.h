@@ -25,15 +25,15 @@
 
 #pragma once
 
+#import <Metal/MTLCommandBuffer.h>
+#import <Metal/MTLRenderCommandEncoder.h>
+#import <Metal/MTLRenderPass.h>
+#include <unordered_map>
+#include "MTLCommandEncoder.h"
 #include "MTLStd.h"
 #include "MTLUtils.h"
 #include "base/Macros.h"
 #include "math/Math.h"
-#include "MTLCommandEncoder.h"
-#import <Metal/MTLRenderCommandEncoder.h>
-#import <Metal/MTLCommandBuffer.h>
-#import <Metal/MTLRenderPass.h>
-#include <unordered_map>
 
 namespace cc {
 namespace gfx {
@@ -43,14 +43,14 @@ struct Color;
 class CCMTLRenderCommandEncoder final : public CCMTLCommandEncoder {
     struct BufferBinding final {
         id<MTLBuffer> buffer;
-        uint offset = 0;
+        uint          offset = 0;
     };
 
 public:
-    CCMTLRenderCommandEncoder() = default;
-    ~CCMTLRenderCommandEncoder() = default;
+    CCMTLRenderCommandEncoder()                                  = default;
+    ~CCMTLRenderCommandEncoder()                                 = default;
     CCMTLRenderCommandEncoder(const CCMTLRenderCommandEncoder &) = delete;
-    CCMTLRenderCommandEncoder(CCMTLRenderCommandEncoder &&) = delete;
+    CCMTLRenderCommandEncoder(CCMTLRenderCommandEncoder &&)      = delete;
     CCMTLRenderCommandEncoder &operator=(const CCMTLRenderCommandEncoder &) = delete;
     CCMTLRenderCommandEncoder &operator=(CCMTLRenderCommandEncoder &&) = delete;
 
@@ -64,20 +64,20 @@ public:
     }
 
     inline void clearStates() {
-        _isViewportSet = false;
-        _isScissorRectSet = false;
-        _isCullModeSet = false;
-        _isFrontFacingWinding = false;
+        _isViewportSet         = false;
+        _isScissorRectSet      = false;
+        _isCullModeSet         = false;
+        _isFrontFacingWinding  = false;
         _isTriangleFillModeSet = false;
-        _isDepthClipModeSet = false;
-        _isDepthBiasSet = false;
-        _isBlendColorSet = false;
+        _isDepthClipModeSet    = false;
+        _isDepthBiasSet        = false;
+        _isBlendColorSet       = false;
 
-        _pipelineState = nil;
+        _pipelineState     = nil;
         _depthStencilState = nil;
 
         _frontReferenceValue = UINT_MAX;
-        _backReferenceValue = UINT_MAX;
+        _backReferenceValue  = UINT_MAX;
 
         _vertexBufferMap.clear();
         _fragmentBufferMap.clear();
@@ -96,7 +96,7 @@ public:
         if (_isViewportSet && _viewport == vp)
             return;
 
-        _viewport = vp;
+        _viewport      = vp;
         _isViewportSet = true;
         [_mtlEncoder setViewport:mu::toMTLViewport(_viewport)];
     }
@@ -105,7 +105,7 @@ public:
         if (_isScissorRectSet && _scissorRect == rect)
             return;
 
-        _scissorRect = rect;
+        _scissorRect      = rect;
         _isScissorRectSet = true;
         [_mtlEncoder setScissorRect:mu::toMTLScissorRect(_scissorRect)];
     }
@@ -114,7 +114,7 @@ public:
         if (_isCullModeSet && (_cullMode == mode))
             return;
 
-        _cullMode = mode;
+        _cullMode      = mode;
         _isCullModeSet = true;
         [_mtlEncoder setCullMode:mode];
     }
@@ -123,7 +123,7 @@ public:
         if (_isFrontFacingWinding && (_frontFacingWinding == winding))
             return;
 
-        _frontFacingWinding = winding;
+        _frontFacingWinding   = winding;
         _isFrontFacingWinding = true;
         [_mtlEncoder setFrontFacingWinding:_frontFacingWinding];
     }
@@ -134,7 +134,7 @@ public:
             if (_isDepthClipModeSet && (_depthClipMode == mode))
                 return;
 
-            _depthClipMode = mode;
+            _depthClipMode      = mode;
             _isDepthClipModeSet = true;
             [_mtlEncoder setDepthClipMode:_depthClipMode];
         }
@@ -145,7 +145,7 @@ public:
         if (_isTriangleFillModeSet && (_triangleFillMode == mode))
             return;
 
-        _triangleFillMode = mode;
+        _triangleFillMode      = mode;
         _isTriangleFillModeSet = true;
         [_mtlEncoder setTriangleFillMode:_triangleFillMode];
     }
@@ -163,7 +163,7 @@ public:
             return;
 
         _frontReferenceValue = frontReferenceValue;
-        _backReferenceValue = backReferenceValue;
+        _backReferenceValue  = backReferenceValue;
         [_mtlEncoder setStencilFrontReferenceValue:_frontReferenceValue
                                 backReferenceValue:_backReferenceValue];
     }
@@ -184,9 +184,9 @@ public:
             return;
         }
 
-        _depthBias = depthBias;
-        _clamp = clamp;
-        _slope = slope;
+        _depthBias      = depthBias;
+        _clamp          = clamp;
+        _slope          = slope;
         _isDepthBiasSet = true;
         [_mtlEncoder setDepthBias:_depthBias
                        slopeScale:_slope
@@ -197,7 +197,7 @@ public:
         if (_isBlendColorSet && _blendColor == color)
             return;
 
-        _blendColor = color;
+        _blendColor      = color;
         _isBlendColorSet = true;
         [_mtlEncoder setBlendColorRed:_blendColor.x
                                 green:_blendColor.y
@@ -276,33 +276,33 @@ public:
     }
 
 protected:
-    bool _isViewportSet = false;
-    bool _isScissorRectSet = false;
-    bool _isCullModeSet = false;
-    bool _isFrontFacingWinding = false;
-    bool _isTriangleFillModeSet = false;
-    bool _isDepthClipModeSet = false;
-    bool _isDepthBiasSet = false;
-    bool _isBlendColorSet = false;
-    id<MTLRenderCommandEncoder> _mtlEncoder = nil;
-    id<MTLRenderPipelineState> _pipelineState = nil;
-    id<MTLDepthStencilState> _depthStencilState = nil;
-    uint _frontReferenceValue = UINT_MAX;
-    uint _backReferenceValue = UINT_MAX;
-    float _depthBias = 0.f;
-    float _clamp = 0.f;
-    float _slope = 0.f;
-    MTLCullMode _cullMode = MTLCullModeNone;
-    MTLWinding _frontFacingWinding = MTLWindingClockwise;
-    CC_UNUSED MTLDepthClipMode _depthClipMode = MTLDepthClipModeClip;
-    MTLTriangleFillMode _triangleFillMode = MTLTriangleFillModeFill;
-    Viewport _viewport;
-    Rect _scissorRect;
-    Color _blendColor;
-    std::unordered_map<uint, BufferBinding> _vertexBufferMap;
-    std::unordered_map<uint, BufferBinding> _fragmentBufferMap;
-    std::unordered_map<uint, id<MTLTexture>> _vertexTextureMap;
-    std::unordered_map<uint, id<MTLTexture>> _fragmentTextureMap;
+    bool                                          _isViewportSet         = false;
+    bool                                          _isScissorRectSet      = false;
+    bool                                          _isCullModeSet         = false;
+    bool                                          _isFrontFacingWinding  = false;
+    bool                                          _isTriangleFillModeSet = false;
+    bool                                          _isDepthClipModeSet    = false;
+    bool                                          _isDepthBiasSet        = false;
+    bool                                          _isBlendColorSet       = false;
+    id<MTLRenderCommandEncoder>                   _mtlEncoder            = nil;
+    id<MTLRenderPipelineState>                    _pipelineState         = nil;
+    id<MTLDepthStencilState>                      _depthStencilState     = nil;
+    uint                                          _frontReferenceValue   = UINT_MAX;
+    uint                                          _backReferenceValue    = UINT_MAX;
+    float                                         _depthBias             = 0.f;
+    float                                         _clamp                 = 0.f;
+    float                                         _slope                 = 0.f;
+    MTLCullMode                                   _cullMode              = MTLCullModeNone;
+    MTLWinding                                    _frontFacingWinding    = MTLWindingClockwise;
+    CC_UNUSED MTLDepthClipMode                    _depthClipMode         = MTLDepthClipModeClip;
+    MTLTriangleFillMode                           _triangleFillMode      = MTLTriangleFillModeFill;
+    Viewport                                      _viewport;
+    Rect                                          _scissorRect;
+    Color                                         _blendColor;
+    std::unordered_map<uint, BufferBinding>       _vertexBufferMap;
+    std::unordered_map<uint, BufferBinding>       _fragmentBufferMap;
+    std::unordered_map<uint, id<MTLTexture>>      _vertexTextureMap;
+    std::unordered_map<uint, id<MTLTexture>>      _fragmentTextureMap;
     std::unordered_map<uint, id<MTLSamplerState>> _vertexSamplerMap;
     std::unordered_map<uint, id<MTLSamplerState>> _fragmentSamplerMap;
 };

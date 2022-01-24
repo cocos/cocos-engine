@@ -26,8 +26,8 @@
 #include "base/CoreStd.h"
 
 #include "DeviceValidator.h"
-#include "TextureValidator.h"
 #include "SwapchainValidator.h"
+#include "TextureValidator.h"
 #include "ValidationUtils.h"
 
 namespace cc {
@@ -36,7 +36,7 @@ namespace gfx {
 namespace {
 struct EnumHasher final {
     template <typename T, typename Enable = std::enable_if_t<std::is_enum<T>::value>>
-    size_t operator()(const T& v) const {
+    size_t operator()(const T &v) const {
         return static_cast<size_t>(v);
     }
 };
@@ -72,7 +72,7 @@ void TextureValidator::doInit(const TextureInfo &info) {
 void TextureValidator::doInit(const TextureViewInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
-    CCASSERT(info.texture && static_cast<TextureValidator*>(info.texture)->isInited(), "alread destroyed?");
+    CCASSERT(info.texture && static_cast<TextureValidator *>(info.texture)->isInited(), "alread destroyed?");
 
     /////////// execute ///////////
 
@@ -86,7 +86,7 @@ void TextureValidator::doInit(const SwapchainTextureInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
     CC_UNUSED_PARAM(info); // workaround tidy issue
-    CCASSERT(info.swapchain && static_cast<SwapchainValidator*>(info.swapchain)->isInited(), "alread destroyed?");
+    CCASSERT(info.swapchain && static_cast<SwapchainValidator *>(info.swapchain)->isInited(), "alread destroyed?");
 
     // the actor is already initialized
 }

@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "Macros.h"
 #include <memory>
+#include "Macros.h"
 
 namespace cc {
 

@@ -29,8 +29,8 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include <android/log.h>
-    #define LOGV(...) __android_log_print(ANDROID_LOG_INFO, "CocosActivity JNI", __VA_ARGS__)    
-    #define LOGD(...)       __android_log_print(ANDROID_LOG_DEBUG, JNI_IMP_LOG_TAG, __VA_ARGS__)
+    #define LOGV(...) __android_log_print(ANDROID_LOG_INFO, "CocosActivity JNI", __VA_ARGS__)
+    #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, JNI_IMP_LOG_TAG, __VA_ARGS__)
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
     #include <hilog/log.h>
     #define LOGV(...) HILOG_INFO(LOG_APP, __VA_ARGS__)

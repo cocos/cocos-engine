@@ -31,8 +31,8 @@
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXInputAssembler.h"
 #include "pipeline/ClusterLightCulling.h"
-#include "pipeline/RenderPipeline.h"
 #include "pipeline/Enum.h"
+#include "pipeline/RenderPipeline.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {
@@ -69,7 +69,7 @@ private:
     ClusterLightCulling *_clusterComp{nullptr};
 
 public:
-    static constexpr uint GBUFFER_COUNT = 4;
+    static constexpr uint GBUFFER_COUNT = 3;
 
     // deferred resource names
     static framegraph::StringHandle fgStrHandleGbufferTexture[GBUFFER_COUNT];

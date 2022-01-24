@@ -42,9 +42,9 @@ public:
 
     static Map::iterator find(void *nativeObj);
     static Map::iterator erase(Map::iterator iter);
-    static void erase(void *nativeObj);
-    static void clear();
-    static size_t size();
+    static void          erase(void *nativeObj);
+    static void          clear();
+    static size_t        size();
 
     static const Map &instance();
 
@@ -66,12 +66,12 @@ public:
     static bool init();
     static void destroy();
 
-    static void emplace(void *nativeObj);
+    static void          emplace(void *nativeObj);
     static Map::iterator find(void *nativeObj);
     static Map::iterator erase(Map::iterator iter);
-    static void erase(void *nativeObj);
-    static void clear();
-    static size_t size();
+    static void          erase(void *nativeObj);
+    static void          clear();
+    static size_t        size();
 
     static const Map &instance();
 

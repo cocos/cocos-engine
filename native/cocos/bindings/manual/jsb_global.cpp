@@ -345,7 +345,7 @@ static bool JSBCore_os(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSBCore_os)
 
 static bool JSBCore_getCurrentLanguage(se::State &s) { //NOLINT
-    ISystem *   systemIntf  = CC_GET_PLATFORM_INTERFACE(ISystem);
+    ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CCASSERT(systemIntf != nullptr, "System interface does not exist");
     std::string languageStr = systemIntf->getCurrentLanguageToString();
     s.rval().setString(languageStr);
@@ -354,16 +354,16 @@ static bool JSBCore_getCurrentLanguage(se::State &s) { //NOLINT
 SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
 static bool JSBCore_getCurrentLanguageCode(se::State &s) { //NOLINT
-    ISystem *   systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
+    ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CCASSERT(systemIntf != nullptr, "System interface does not exist");
-    std::string language   = systemIntf->getCurrentLanguageCode();
+    std::string language = systemIntf->getCurrentLanguageCode();
     s.rval().setString(language);
     return true;
 }
 SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
 
 static bool JSB_getOSVersion(se::State &s) { //NOLINT
-    ISystem *   systemIntf    = CC_GET_PLATFORM_INTERFACE(ISystem);
+    ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CCASSERT(systemIntf != nullptr, "System interface does not exist");
     std::string systemVersion = systemIntf->getSystemVersion();
     s.rval().setString(systemVersion);

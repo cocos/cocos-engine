@@ -29,8 +29,8 @@
 #include "base/Macros.h"
 // clang-format on
 
-#include <functional>
 #include <uv.h>
+#include <functional>
 
 namespace cc {
 

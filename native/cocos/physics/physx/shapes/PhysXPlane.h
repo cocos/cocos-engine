@@ -41,8 +41,8 @@ public:
 private:
     physx::PxVec3 _mNormal;
     physx::PxReal _mConstant;
-    void  updateCenter() override;
-    void  onComponentSet() override;
+    void          updateCenter() override;
+    void          onComponentSet() override;
 };
 
 } // namespace physics

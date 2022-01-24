@@ -144,10 +144,10 @@ std::string System::getSystemVersion() const {
 }
 
 bool System::openURL(const std::string& url) {
-    WCHAR*    temp       = new WCHAR[url.size() + 1];
+    WCHAR* temp    = new WCHAR[url.size() + 1];
     int    urlSize = static_cast<int>(url.size() + 1);
     MultiByteToWideChar(CP_UTF8, 0, url.c_str(), urlSize, temp, urlSize);
-    HINSTANCE r          = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);
+    HINSTANCE r = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);
     delete[] temp;
     return (size_t)r > 32;
 }

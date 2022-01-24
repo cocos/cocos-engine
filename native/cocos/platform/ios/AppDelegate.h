@@ -29,12 +29,10 @@
 
 @class ViewController;
 
-@interface AppDelegate : NSObject <UIApplicationDelegate>
-{
+@interface AppDelegate : NSObject <UIApplicationDelegate> {
 }
 
-@property(nonatomic, readonly) ViewController* viewController;
-int runUIAppicationMain(int argc, const char** argv);
+@property (nonatomic, readonly) ViewController* viewController;
+int                                             runUIAppicationMain(int argc, const char** argv);
 
 @end
-

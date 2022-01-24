@@ -124,6 +124,11 @@ void flushTasksOnGameThreadJNI() {
                                         "flushTasksOnGameThread");
 }
 
+void flushTasksOnGameThreadAtForegroundJNI() {
+    cc::JniHelper::callStaticVoidMethod(JCLS_HELPER,
+                                        "flushTasksOnGameThreadAtForeground");
+}
+
 void setAccelerometerEnabledJNI(bool isEnabled) {
     JniHelper::callStaticVoidMethod(JCLS_SENSOR, "setAccelerometerEnabled", isEnabled);
 }

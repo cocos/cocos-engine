@@ -88,8 +88,8 @@ class AudioEngine::AudioEngineThreadPool {
 public:
     explicit AudioEngineThreadPool(int threads = 4) {
         for (int index = 0; index < threads; ++index) {
-            _workers.emplace_back(std::thread([this](){
-              threadFunc();
+            _workers.emplace_back(std::thread([this]() {
+                threadFunc();
             }));
         }
     }
@@ -204,7 +204,7 @@ int AudioEngine::play2d(const std::string &filePath, bool loop, float volume, co
             break;
         }
 
-        auto* profileHelper = sDefaultProfileHelper;
+        auto *profileHelper = sDefaultProfileHelper;
         if (profile && profile != &profileHelper->profile) {
             CC_ASSERT(!profile->name.empty());
             profileHelper          = &sAudioPathProfileHelperMap[profile->name];

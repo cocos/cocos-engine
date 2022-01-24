@@ -71,9 +71,6 @@ int32_t AndroidPlatform::loop() {
 
 void AndroidPlatform::pollEvent() {
     _jniNativeGlue->execCommand();
-    if (!_jniNativeGlue->isPause()) {
-        std::this_thread::yield();
-    }
     _jniNativeGlue->flushTasksOnGameThread();
 }
 

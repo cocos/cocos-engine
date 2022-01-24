@@ -100,7 +100,7 @@ void SwapchainValidator::doResize(uint32_t width, uint32_t height, SurfaceTransf
     auto *depthStencilTexture = static_cast<TextureValidator *>(_depthStencilTexture);
     colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
     colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();
-    _transform = _actor->getSurfaceTransform();
+    _transform                                                     = _actor->getSurfaceTransform();
 }
 
 void SwapchainValidator::doDestroySurface() {

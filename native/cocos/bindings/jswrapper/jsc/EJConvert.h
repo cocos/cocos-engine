@@ -30,12 +30,12 @@
 extern "C" {
 #endif
 
-NSString *JSValueToNSString(JSContextRef ctx, JSValueRef v);
+NSString * JSValueToNSString(JSContextRef ctx, JSValueRef v);
 JSValueRef NSStringToJSValue(JSContextRef ctx, NSString *string);
-double JSValueToNumberFast(JSContextRef ctx, JSValueRef v);
-void JSValueUnprotectSafe(JSContextRef ctx, JSValueRef v);
+double     JSValueToNumberFast(JSContextRef ctx, JSValueRef v);
+void       JSValueUnprotectSafe(JSContextRef ctx, JSValueRef v);
 JSValueRef NSObjectToJSValue(JSContextRef ctx, NSObject *obj);
-NSObject *JSValueToNSObject(JSContextRef ctx, JSValueRef value);
+NSObject * JSValueToNSObject(JSContextRef ctx, JSValueRef value);
 
 static inline void *JSValueGetPrivate(JSValueRef v) {
     // On 64bit systems we can not safely call JSObjectGetPrivate with any

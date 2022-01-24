@@ -40,8 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SDKWrapper : NSObject
-@property(nonatomic,strong) NSString *name;
+@interface                              SDKWrapper : NSObject
+@property (nonatomic, strong) NSString *name;
 + (instancetype)shared;
 - (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
 - (void)applicationDidBecomeActive:(UIApplication *)application;

@@ -276,7 +276,7 @@ TextureBarrier *DeviceAgent::getTextureBarrier(const TextureBarrierInfo &info) {
     return _actor->getTextureBarrier(info);
 }
 
-template<typename T>
+template <typename T>
 void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count, MessageQueue *mq, T *actor) {
     uint32_t bufferCount = 0U;
     for (uint32_t i = 0U; i < count; i++) {

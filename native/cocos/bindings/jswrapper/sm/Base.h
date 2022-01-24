@@ -30,16 +30,16 @@
     #define UINT64_C(value) __CONCAT(value, ULL)
 #endif
 
+#include "js/Conversions.h"
+#include "js/Initialization.h"
 #include "jsapi.h"
 #include "jsfriendapi.h"
-#include "js/Initialization.h"
-#include "js/Conversions.h"
 
-#include <string>
-#include <vector>
-#include <unordered_map>
+#include <assert.h>
 #include <chrono>
 #include <functional>
-#include <assert.h>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "HelperMacros.h"

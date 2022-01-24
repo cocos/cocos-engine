@@ -60,7 +60,7 @@ int CocosApplication::init() {
     jsb_init_file_operation_delegate();
 
     se->setExceptionCallback(
-        std::bind(&CocosApplication::handleException, this,                             // NOLINT(modernize-avoid-bind)
+        std::bind(&CocosApplication::handleException, this, // NOLINT(modernize-avoid-bind)
                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
     jsb_register_all_modules();

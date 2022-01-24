@@ -32,7 +32,6 @@
 #include "renderer/gfx-base/GFXShader.h"
 #include "scene/Define.h"
 
-
 namespace cc {
 namespace scene {
 

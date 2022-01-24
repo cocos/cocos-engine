@@ -43,7 +43,7 @@ public:
     void    free(uint index);
 
 private:
-    static constexpr uint                BUFFER_MASK = ~(1 << 30);
+    static constexpr uint BUFFER_MASK = ~(1 << 30);
 
     cc::map<uint, Object *> _buffers;
     PoolType                _type = PoolType::UNKNOWN;

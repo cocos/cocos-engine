@@ -26,8 +26,8 @@
 #include "physics/physx/PhysXWorld.h"
 #include "physics/physx/PhysXFilterShader.h"
 #include "physics/physx/PhysXInc.h"
-#include "physics/physx/joints/PhysXJoint.h"
 #include "physics/physx/PhysXUtils.h"
+#include "physics/physx/joints/PhysXJoint.h"
 #include "physics/spec/IWorld.h"
 
 namespace cc {
@@ -86,7 +86,7 @@ PhysXWorld::PhysXWorld() {
 }
 
 PhysXWorld::~PhysXWorld() {
-    auto& materialMap = getPxMaterialMap();
+    auto &materialMap = getPxMaterialMap();
     // clear material cache
     materialMap.clear();
     delete _mEventMgr;
@@ -178,7 +178,7 @@ uintptr_t PhysXWorld::createMaterial(uint16_t id, float f, float df, float r,
     physx::PxMaterial *mat;
     auto &             m = getPxMaterialMap();
     if (m.find(id) == m.end()) {
-        mat   = PxGetPhysics().createMaterial(f, df, r);
+        mat = PxGetPhysics().createMaterial(f, df, r);
         // add reference count avoid auto releasing by physx
         mat->acquireReference();
         m[id] = reinterpret_cast<uintptr_t>(mat);

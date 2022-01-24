@@ -23,17 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/shapes/PhysXShape.h"
 #include "physics/physx/shapes/PhysXPlane.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
+#include "physics/physx/shapes/PhysXShape.h"
 
 namespace cc {
 namespace physics {
 
 PhysXPlane::PhysXPlane() : _mConstant(0.F),
-                           _mNormal(0.F, 1.F, 0.F)
-                           {};
+                           _mNormal(0.F, 1.F, 0.F){};
 
 void PhysXPlane::setConstant(float x) {
     _mConstant = x;
@@ -55,8 +54,8 @@ void PhysXPlane::updateScale() {
 }
 
 void PhysXPlane::updateCenter() {
-    auto *node = getSharedBody().getNode();
-    auto &geo = getPxGeometry<physx::PxPlaneGeometry>();
+    auto *             node = getSharedBody().getNode();
+    auto &             geo  = getPxGeometry<physx::PxPlaneGeometry>();
     physx::PxTransform local;
     pxSetFromTwoVectors(local.q, physx::PxVec3{1.F, 0.F, 0.F}, _mNormal);
     local.p = _mNormal * _mConstant + _mCenter;

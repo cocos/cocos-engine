@@ -27,7 +27,7 @@
 
 namespace cc {
 
-AutoReleasePool::AutoReleasePool() = default;
+AutoReleasePool::AutoReleasePool()  = default;
 AutoReleasePool::~AutoReleasePool() = default;
 
 void AutoReleasePool::drain() {

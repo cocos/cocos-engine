@@ -28,7 +28,7 @@
 #include "platform/java/jni/JniImp.h"
 
 namespace cc {
-CommonSystem::CommonSystem() = default;
+CommonSystem::CommonSystem()  = default;
 CommonSystem::~CommonSystem() = default;
 
 std::string CommonSystem::getDeviceModel() const {

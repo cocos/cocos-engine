@@ -70,8 +70,8 @@
         break;              \
     }
 
-#define BREAK_IF_ERR_LOG(condition, fmt, ...)                                   \
-    if (!!(condition)) {                                                        \
+#define BREAK_IF_ERR_LOG(condition, fmt, ...)                                          \
+    if (!!(condition)) {                                                               \
         CC_LOG_DEBUG("(" QUOTEME(condition) ") failed, message: " fmt, ##__VA_ARGS__); \
-        break;                                                                  \
+        break;                                                                         \
     }

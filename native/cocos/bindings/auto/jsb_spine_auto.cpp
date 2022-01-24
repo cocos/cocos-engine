@@ -29,22 +29,22 @@
 #include "spine-creator-support/spine-cocos2dx.h"
 
 #ifndef JSB_ALLOC
-#define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+    #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
 #endif
 
 #ifndef JSB_FREE
-#define JSB_FREE(ptr) delete ptr
+    #define JSB_FREE(ptr) delete ptr
 #endif
 se::Object* __jsb_spine_Animation_proto = nullptr;
-se::Class* __jsb_spine_Animation_class = nullptr;
+se::Class*  __jsb_spine_Animation_class = nullptr;
 
 static bool js_spine_Animation_getDuration(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Animation_getDuration : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getDuration();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -61,9 +61,9 @@ static bool js_spine_Animation_getName(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Animation_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -80,11 +80,11 @@ static bool js_spine_Animation_getTimelines(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Animation_getTimelines : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Timeline *>& result = cobj->getTimelines();
+        spine::Vector<spine::Timeline*>& result = cobj->getTimelines();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Animation_getTimelines : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -99,9 +99,9 @@ static bool js_spine_Animation_hasTimeline(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Animation_hasTimeline : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -121,9 +121,9 @@ static bool js_spine_Animation_setDuration(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Animation_setDuration : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -135,8 +135,6 @@ static bool js_spine_Animation_setDuration(se::State& s) // NOLINT(readability-i
     return false;
 }
 SE_BIND_FUNC(js_spine_Animation_setDuration)
-
-
 
 bool js_register_spine_Animation(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -157,15 +155,15 @@ bool js_register_spine_Animation(se::Object* obj) // NOLINT(readability-identifi
     return true;
 }
 se::Object* __jsb_spine_TrackEntry_proto = nullptr;
-se::Class* __jsb_spine_TrackEntry_class = nullptr;
+se::Class*  __jsb_spine_TrackEntry_class = nullptr;
 
 static bool js_spine_TrackEntry_getAlpha(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getAlpha : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAlpha();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -182,9 +180,9 @@ static bool js_spine_TrackEntry_getAnimation(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Animation* result = cobj->getAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -201,9 +199,9 @@ static bool js_spine_TrackEntry_getAnimationEnd(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getAnimationEnd : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAnimationEnd();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -220,9 +218,9 @@ static bool js_spine_TrackEntry_getAnimationLast(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getAnimationLast : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAnimationLast();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -239,9 +237,9 @@ static bool js_spine_TrackEntry_getAnimationStart(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getAnimationStart : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAnimationStart();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -258,9 +256,9 @@ static bool js_spine_TrackEntry_getAnimationTime(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getAnimationTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAnimationTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -277,9 +275,9 @@ static bool js_spine_TrackEntry_getAttachmentThreshold(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getAttachmentThreshold : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAttachmentThreshold();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -296,9 +294,9 @@ static bool js_spine_TrackEntry_getDelay(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getDelay : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getDelay();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -315,9 +313,9 @@ static bool js_spine_TrackEntry_getDrawOrderThreshold(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getDrawOrderThreshold : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getDrawOrderThreshold();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -334,9 +332,9 @@ static bool js_spine_TrackEntry_getEventThreshold(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getEventThreshold : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getEventThreshold();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -353,9 +351,9 @@ static bool js_spine_TrackEntry_getHoldPrevious(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getHoldPrevious : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->getHoldPrevious();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -372,9 +370,9 @@ static bool js_spine_TrackEntry_getLoop(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getLoop : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->getLoop();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -391,9 +389,9 @@ static bool js_spine_TrackEntry_getMixBlend(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getMixBlend : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         auto result = static_cast<unsigned int>(cobj->getMixBlend());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -410,9 +408,9 @@ static bool js_spine_TrackEntry_getMixDuration(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getMixDuration : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getMixDuration();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -429,9 +427,9 @@ static bool js_spine_TrackEntry_getMixTime(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getMixTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getMixTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -448,9 +446,9 @@ static bool js_spine_TrackEntry_getMixingFrom(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getMixingFrom : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::TrackEntry* result = cobj->getMixingFrom();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -467,9 +465,9 @@ static bool js_spine_TrackEntry_getMixingTo(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getMixingTo : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::TrackEntry* result = cobj->getMixingTo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -486,9 +484,9 @@ static bool js_spine_TrackEntry_getNext(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getNext : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::TrackEntry* result = cobj->getNext();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -505,9 +503,9 @@ static bool js_spine_TrackEntry_getTimeScale(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getTimeScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -524,9 +522,9 @@ static bool js_spine_TrackEntry_getTrackEnd(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getTrackEnd : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTrackEnd();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -543,9 +541,9 @@ static bool js_spine_TrackEntry_getTrackIndex(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getTrackIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getTrackIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -562,9 +560,9 @@ static bool js_spine_TrackEntry_getTrackTime(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_getTrackTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTrackTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -581,9 +579,9 @@ static bool js_spine_TrackEntry_isComplete(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_isComplete : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isComplete();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -601,7 +599,7 @@ static bool js_spine_TrackEntry_resetRotationDirections(se::State& s) // NOLINT(
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_resetRotationDirections : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->resetRotationDirections();
         return true;
@@ -615,9 +613,9 @@ static bool js_spine_TrackEntry_setAlpha(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setAlpha : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -634,9 +632,9 @@ static bool js_spine_TrackEntry_setAnimationEnd(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setAnimationEnd : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -653,9 +651,9 @@ static bool js_spine_TrackEntry_setAnimationLast(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setAnimationLast : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -672,9 +670,9 @@ static bool js_spine_TrackEntry_setAnimationStart(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setAnimationStart : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -691,9 +689,9 @@ static bool js_spine_TrackEntry_setAttachmentThreshold(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setAttachmentThreshold : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -710,9 +708,9 @@ static bool js_spine_TrackEntry_setDelay(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setDelay : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -729,9 +727,9 @@ static bool js_spine_TrackEntry_setDrawOrderThreshold(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setDrawOrderThreshold : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -748,9 +746,9 @@ static bool js_spine_TrackEntry_setEventThreshold(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setEventThreshold : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -767,9 +765,9 @@ static bool js_spine_TrackEntry_setHoldPrevious(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setHoldPrevious : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -786,9 +784,9 @@ static bool js_spine_TrackEntry_setLoop(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setLoop : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -805,9 +803,9 @@ static bool js_spine_TrackEntry_setMixBlend(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setMixBlend : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::MixBlend, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -824,9 +822,9 @@ static bool js_spine_TrackEntry_setMixDuration(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setMixDuration : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -843,9 +841,9 @@ static bool js_spine_TrackEntry_setMixTime(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setMixTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -862,9 +860,9 @@ static bool js_spine_TrackEntry_setTimeScale(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setTimeScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -881,9 +879,9 @@ static bool js_spine_TrackEntry_setTrackEnd(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setTrackEnd : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -900,9 +898,9 @@ static bool js_spine_TrackEntry_setTrackTime(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::TrackEntry>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TrackEntry_setTrackTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -914,8 +912,6 @@ static bool js_spine_TrackEntry_setTrackTime(se::State& s) // NOLINT(readability
     return false;
 }
 SE_BIND_FUNC(js_spine_TrackEntry_setTrackTime)
-
-
 
 bool js_register_spine_TrackEntry(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -971,58 +967,76 @@ bool js_register_spine_TrackEntry(se::Object* obj) // NOLINT(readability-identif
     return true;
 }
 se::Object* __jsb_spine_AnimationState_proto = nullptr;
-se::Class* __jsb_spine_AnimationState_class = nullptr;
+se::Class*  __jsb_spine_AnimationState_class = nullptr;
 
 static bool js_spine_AnimationState_addAnimation(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_AnimationState_addAnimation : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_addAnimation : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 4) {
-            HolderType<size_t, false> arg0 = {};
+            HolderType<size_t, false>            arg0 = {};
             HolderType<spine::Animation*, false> arg1 = {};
-            HolderType<bool, false> arg2 = {};
-            HolderType<float, false> arg3 = {};
+            HolderType<bool, false>              arg2 = {};
+            HolderType<float, false>             arg3 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::TrackEntry* result = cobj->addAnimation(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_AnimationState_addAnimation : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 4) {
-            HolderType<size_t, false> arg0 = {};
+            HolderType<size_t, false>       arg0 = {};
             HolderType<spine::String, true> arg1 = {};
-            HolderType<bool, false> arg2 = {};
-            HolderType<float, false> arg3 = {};
+            HolderType<bool, false>         arg2 = {};
+            HolderType<float, false>        arg3 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::TrackEntry* result = cobj->addAnimation(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_AnimationState_addAnimation : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -1033,13 +1047,13 @@ static bool js_spine_AnimationState_addEmptyAnimation(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_addEmptyAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 3) {
         HolderType<size_t, false> arg0 = {};
-        HolderType<float, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
+        HolderType<float, false>  arg1 = {};
+        HolderType<float, false>  arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -1059,9 +1073,9 @@ static bool js_spine_AnimationState_clearTrack(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_clearTrack : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<size_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1079,7 +1093,7 @@ static bool js_spine_AnimationState_clearTracks(se::State& s) // NOLINT(readabil
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_clearTracks : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->clearTracks();
         return true;
@@ -1094,7 +1108,7 @@ static bool js_spine_AnimationState_disableQueue(se::State& s) // NOLINT(readabi
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_disableQueue : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->disableQueue();
         return true;
@@ -1109,7 +1123,7 @@ static bool js_spine_AnimationState_enableQueue(se::State& s) // NOLINT(readabil
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_enableQueue : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->enableQueue();
         return true;
@@ -1123,9 +1137,9 @@ static bool js_spine_AnimationState_getCurrent(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_getCurrent : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<size_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1145,9 +1159,9 @@ static bool js_spine_AnimationState_getData(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_getData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::AnimationStateData* result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1164,9 +1178,9 @@ static bool js_spine_AnimationState_getTimeScale(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_getTimeScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1183,11 +1197,11 @@ static bool js_spine_AnimationState_getTracks(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_getTracks : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::TrackEntry *>& result = cobj->getTracks();
+        spine::Vector<spine::TrackEntry*>& result = cobj->getTracks();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationState_getTracks : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1200,21 +1214,27 @@ SE_BIND_FUNC(js_spine_AnimationState_getTracks)
 
 static bool js_spine_AnimationState_setAnimation(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_AnimationState_setAnimation : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_setAnimation : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 3) {
-            HolderType<size_t, false> arg0 = {};
+            HolderType<size_t, false>            arg0 = {};
             HolderType<spine::Animation*, false> arg1 = {};
-            HolderType<bool, false> arg2 = {};
+            HolderType<bool, false>              arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             spine::TrackEntry* result = cobj->setAnimation(arg0.value(), arg1.value(), arg2.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
@@ -1222,18 +1242,24 @@ static bool js_spine_AnimationState_setAnimation(se::State& s) // NOLINT(readabi
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 3) {
-            HolderType<size_t, false> arg0 = {};
+            HolderType<size_t, false>       arg0 = {};
             HolderType<spine::String, true> arg1 = {};
-            HolderType<bool, false> arg2 = {};
+            HolderType<bool, false>         arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             spine::TrackEntry* result = cobj->setAnimation(arg0.value(), arg1.value(), arg2.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
@@ -1241,7 +1267,7 @@ static bool js_spine_AnimationState_setAnimation(se::State& s) // NOLINT(readabi
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -1252,12 +1278,12 @@ static bool js_spine_AnimationState_setEmptyAnimation(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_setEmptyAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<size_t, false> arg0 = {};
-        HolderType<float, false> arg1 = {};
+        HolderType<float, false>  arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_spine_AnimationState_setEmptyAnimation : Error processing arguments");
@@ -1276,9 +1302,9 @@ static bool js_spine_AnimationState_setEmptyAnimations(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_setEmptyAnimations : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1295,9 +1321,9 @@ static bool js_spine_AnimationState_setTimeScale(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_setTimeScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1314,9 +1340,9 @@ static bool js_spine_AnimationState_update(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationState_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1328,8 +1354,6 @@ static bool js_spine_AnimationState_update(se::State& s) // NOLINT(readability-i
     return false;
 }
 SE_BIND_FUNC(js_spine_AnimationState_update)
-
-
 
 bool js_register_spine_AnimationState(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1360,15 +1384,15 @@ bool js_register_spine_AnimationState(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_spine_AnimationStateData_proto = nullptr;
-se::Class* __jsb_spine_AnimationStateData_class = nullptr;
+se::Class*  __jsb_spine_AnimationStateData_class = nullptr;
 
 static bool js_spine_AnimationStateData_getDefaultMix(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationStateData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationStateData_getDefaultMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getDefaultMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1385,9 +1409,9 @@ static bool js_spine_AnimationStateData_getMix(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationStateData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationStateData_getMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<spine::Animation*, false> arg0 = {};
         HolderType<spine::Animation*, false> arg1 = {};
@@ -1409,9 +1433,9 @@ static bool js_spine_AnimationStateData_getSkeletonData(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationStateData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationStateData_getSkeletonData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::SkeletonData* result = cobj->getSkeletonData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1428,9 +1452,9 @@ static bool js_spine_AnimationStateData_setDefaultMix(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::AnimationStateData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AnimationStateData_setDefaultMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1445,51 +1469,67 @@ SE_BIND_FUNC(js_spine_AnimationStateData_setDefaultMix)
 
 static bool js_spine_AnimationStateData_setMix(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::AnimationStateData>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_AnimationStateData_setMix : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::AnimationStateData>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_AnimationStateData_setMix : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 3) {
             HolderType<spine::Animation*, false> arg0 = {};
             HolderType<spine::Animation*, false> arg1 = {};
-            HolderType<float, false> arg2 = {};
+            HolderType<float, false>             arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             cobj->setMix(arg0.value(), arg1.value(), arg2.value());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 3) {
             HolderType<spine::String, true> arg0 = {};
             HolderType<spine::String, true> arg1 = {};
-            HolderType<float, false> arg2 = {};
+            HolderType<float, false>        arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             cobj->setMix(arg0.value(), arg1.value(), arg2.value());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_spine_AnimationStateData_setMix)
-
-
 
 bool js_register_spine_AnimationStateData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1510,15 +1550,15 @@ bool js_register_spine_AnimationStateData(se::Object* obj) // NOLINT(readability
     return true;
 }
 se::Object* __jsb_spine_Attachment_proto = nullptr;
-se::Class* __jsb_spine_Attachment_class = nullptr;
+se::Class*  __jsb_spine_Attachment_class = nullptr;
 
 static bool js_spine_Attachment_copy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::Attachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Attachment_copy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1536,7 +1576,7 @@ static bool js_spine_Attachment_dereference(se::State& s) // NOLINT(readability-
     auto* cobj = SE_THIS_OBJECT<spine::Attachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Attachment_dereference : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->dereference();
         return true;
@@ -1550,9 +1590,9 @@ static bool js_spine_Attachment_getName(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::Attachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Attachment_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1569,9 +1609,9 @@ static bool js_spine_Attachment_getRefCount(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::Attachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Attachment_getRefCount : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getRefCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1589,7 +1629,7 @@ static bool js_spine_Attachment_reference(se::State& s) // NOLINT(readability-id
     auto* cobj = SE_THIS_OBJECT<spine::Attachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Attachment_reference : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->reference();
         return true;
@@ -1598,8 +1638,6 @@ static bool js_spine_Attachment_reference(se::State& s) // NOLINT(readability-id
     return false;
 }
 SE_BIND_FUNC(js_spine_Attachment_reference)
-
-
 
 bool js_register_spine_Attachment(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1620,15 +1658,15 @@ bool js_register_spine_Attachment(se::Object* obj) // NOLINT(readability-identif
     return true;
 }
 se::Object* __jsb_spine_Timeline_proto = nullptr;
-se::Class* __jsb_spine_Timeline_class = nullptr;
+se::Class*  __jsb_spine_Timeline_class = nullptr;
 
 static bool js_spine_Timeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::Timeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Timeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1640,8 +1678,6 @@ static bool js_spine_Timeline_getPropertyId(se::State& s) // NOLINT(readability-
     return false;
 }
 SE_BIND_FUNC(js_spine_Timeline_getPropertyId)
-
-
 
 bool js_register_spine_Timeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1658,15 +1694,15 @@ bool js_register_spine_Timeline(se::Object* obj) // NOLINT(readability-identifie
     return true;
 }
 se::Object* __jsb_spine_AttachmentTimeline_proto = nullptr;
-se::Class* __jsb_spine_AttachmentTimeline_class = nullptr;
+se::Class*  __jsb_spine_AttachmentTimeline_class = nullptr;
 
 static bool js_spine_AttachmentTimeline_getAttachmentNames(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::AttachmentTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AttachmentTimeline_getAttachmentNames : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::Vector<spine::String>& result = cobj->getAttachmentNames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1683,9 +1719,9 @@ static bool js_spine_AttachmentTimeline_getFrameCount(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::AttachmentTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AttachmentTimeline_getFrameCount : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         size_t result = cobj->getFrameCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1702,9 +1738,9 @@ static bool js_spine_AttachmentTimeline_getFrames(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::AttachmentTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AttachmentTimeline_getFrames : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1721,9 +1757,9 @@ static bool js_spine_AttachmentTimeline_getPropertyId(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::AttachmentTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AttachmentTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1740,9 +1776,9 @@ static bool js_spine_AttachmentTimeline_getSlotIndex(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::AttachmentTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AttachmentTimeline_getSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         size_t result = cobj->getSlotIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1759,12 +1795,12 @@ static bool js_spine_AttachmentTimeline_setFrame(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::AttachmentTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AttachmentTimeline_setFrame : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 3) {
-        HolderType<int, false> arg0 = {};
-        HolderType<float, false> arg1 = {};
+        HolderType<int, false>          arg0 = {};
+        HolderType<float, false>        arg1 = {};
         HolderType<spine::String, true> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -1782,9 +1818,9 @@ static bool js_spine_AttachmentTimeline_setSlotIndex(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::AttachmentTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_AttachmentTimeline_setSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<size_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1796,8 +1832,6 @@ static bool js_spine_AttachmentTimeline_setSlotIndex(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC(js_spine_AttachmentTimeline_setSlotIndex)
-
-
 
 bool js_register_spine_AttachmentTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1820,15 +1854,15 @@ bool js_register_spine_AttachmentTimeline(se::Object* obj) // NOLINT(readability
     return true;
 }
 se::Object* __jsb_spine_Bone_proto = nullptr;
-se::Class* __jsb_spine_Bone_class = nullptr;
+se::Class*  __jsb_spine_Bone_class = nullptr;
 
 static bool js_spine_Bone_getA(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getA : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getA();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1845,9 +1879,9 @@ static bool js_spine_Bone_getAScaleX(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getAScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1864,9 +1898,9 @@ static bool js_spine_Bone_getAScaleY(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getAScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1883,9 +1917,9 @@ static bool js_spine_Bone_getAShearX(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getAShearX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAShearX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1902,9 +1936,9 @@ static bool js_spine_Bone_getAShearY(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getAShearY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAShearY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1921,9 +1955,9 @@ static bool js_spine_Bone_getAX(se::State& s) // NOLINT(readability-identifier-n
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getAX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1940,9 +1974,9 @@ static bool js_spine_Bone_getAY(se::State& s) // NOLINT(readability-identifier-n
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getAY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1959,9 +1993,9 @@ static bool js_spine_Bone_getAppliedRotation(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getAppliedRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAppliedRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1978,9 +2012,9 @@ static bool js_spine_Bone_getB(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getB : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1997,9 +2031,9 @@ static bool js_spine_Bone_getC(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getC : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getC();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2016,11 +2050,11 @@ static bool js_spine_Bone_getChildren(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getChildren : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Bone *>& result = cobj->getChildren();
+        spine::Vector<spine::Bone*>& result = cobj->getChildren();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getChildren : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -2035,9 +2069,9 @@ static bool js_spine_Bone_getD(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getD : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getD();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2054,9 +2088,9 @@ static bool js_spine_Bone_getData(se::State& s) // NOLINT(readability-identifier
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::BoneData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2073,9 +2107,9 @@ static bool js_spine_Bone_getParent(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getParent : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Bone* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2092,9 +2126,9 @@ static bool js_spine_Bone_getRotation(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2111,9 +2145,9 @@ static bool js_spine_Bone_getScaleX(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2130,9 +2164,9 @@ static bool js_spine_Bone_getScaleY(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2149,9 +2183,9 @@ static bool js_spine_Bone_getShearX(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getShearX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getShearX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2168,9 +2202,9 @@ static bool js_spine_Bone_getShearY(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getShearY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getShearY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2187,9 +2221,9 @@ static bool js_spine_Bone_getSkeleton(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getSkeleton : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Skeleton& result = cobj->getSkeleton();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2206,9 +2240,9 @@ static bool js_spine_Bone_getWorldRotationX(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getWorldRotationX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldRotationX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2225,9 +2259,9 @@ static bool js_spine_Bone_getWorldRotationY(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getWorldRotationY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldRotationY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2244,9 +2278,9 @@ static bool js_spine_Bone_getWorldScaleX(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getWorldScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2263,9 +2297,9 @@ static bool js_spine_Bone_getWorldScaleY(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getWorldScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2282,9 +2316,9 @@ static bool js_spine_Bone_getWorldToLocalRotationX(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getWorldToLocalRotationX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldToLocalRotationX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2301,9 +2335,9 @@ static bool js_spine_Bone_getWorldToLocalRotationY(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getWorldToLocalRotationY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldToLocalRotationY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2320,9 +2354,9 @@ static bool js_spine_Bone_getWorldX(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getWorldX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2339,9 +2373,9 @@ static bool js_spine_Bone_getWorldY(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getWorldY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2358,9 +2392,9 @@ static bool js_spine_Bone_getX(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2377,9 +2411,9 @@ static bool js_spine_Bone_getY(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_getY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2396,9 +2430,9 @@ static bool js_spine_Bone_isActive(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_isActive : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isActive();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2415,9 +2449,9 @@ static bool js_spine_Bone_isAppliedValid(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_isAppliedValid : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isAppliedValid();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2434,9 +2468,9 @@ static bool js_spine_Bone_rotateWorld(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_rotateWorld : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2453,9 +2487,9 @@ static bool js_spine_Bone_setA(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setA : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2472,9 +2506,9 @@ static bool js_spine_Bone_setAScaleX(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setAScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2491,9 +2525,9 @@ static bool js_spine_Bone_setAScaleY(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setAScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2510,9 +2544,9 @@ static bool js_spine_Bone_setAShearX(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setAShearX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2529,9 +2563,9 @@ static bool js_spine_Bone_setAShearY(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setAShearY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2548,9 +2582,9 @@ static bool js_spine_Bone_setAX(se::State& s) // NOLINT(readability-identifier-n
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setAX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2567,9 +2601,9 @@ static bool js_spine_Bone_setAY(se::State& s) // NOLINT(readability-identifier-n
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setAY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2586,9 +2620,9 @@ static bool js_spine_Bone_setActive(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setActive : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2605,9 +2639,9 @@ static bool js_spine_Bone_setAppliedRotation(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setAppliedRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2624,9 +2658,9 @@ static bool js_spine_Bone_setAppliedValid(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setAppliedValid : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2643,9 +2677,9 @@ static bool js_spine_Bone_setB(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setB : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2662,9 +2696,9 @@ static bool js_spine_Bone_setC(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setC : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2681,9 +2715,9 @@ static bool js_spine_Bone_setD(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setD : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2700,9 +2734,9 @@ static bool js_spine_Bone_setRotation(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2719,9 +2753,9 @@ static bool js_spine_Bone_setScaleX(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2738,9 +2772,9 @@ static bool js_spine_Bone_setScaleY(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2757,9 +2791,9 @@ static bool js_spine_Bone_setShearX(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setShearX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2776,9 +2810,9 @@ static bool js_spine_Bone_setShearY(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setShearY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2796,7 +2830,7 @@ static bool js_spine_Bone_setToSetupPose(se::State& s) // NOLINT(readability-ide
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setToSetupPose();
         return true;
@@ -2810,9 +2844,9 @@ static bool js_spine_Bone_setWorldX(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setWorldX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2829,9 +2863,9 @@ static bool js_spine_Bone_setWorldY(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setWorldY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2848,9 +2882,9 @@ static bool js_spine_Bone_setX(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2867,9 +2901,9 @@ static bool js_spine_Bone_setY(se::State& s) // NOLINT(readability-identifier-na
 {
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_setY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2887,7 +2921,7 @@ static bool js_spine_Bone_update(se::State& s) // NOLINT(readability-identifier-
     auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Bone_update : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->update();
         return true;
@@ -2899,11 +2933,11 @@ SE_BIND_FUNC(js_spine_Bone_update)
 
 static bool js_spine_Bone_updateWorldTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::Bone>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_Bone_updateWorldTransform : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::Bone>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_Bone_updateWorldTransform : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 7) {
             HolderType<float, false> arg0 = {};
@@ -2915,31 +2949,51 @@ static bool js_spine_Bone_updateWorldTransform(se::State& s) // NOLINT(readabili
             HolderType<float, false> arg6 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             cobj->updateWorldTransform(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 0) {
-
             cobj->updateWorldTransform();
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -2948,9 +3002,9 @@ SE_BIND_FUNC(js_spine_Bone_updateWorldTransform)
 
 static bool js_spine_Bone_setYDown(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -2965,9 +3019,9 @@ SE_BIND_FUNC(js_spine_Bone_setYDown)
 
 static bool js_spine_Bone_isYDown(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = spine::Bone::isYDown();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2979,8 +3033,6 @@ static bool js_spine_Bone_isYDown(se::State& s) // NOLINT(readability-identifier
     return false;
 }
 SE_BIND_FUNC(js_spine_Bone_isYDown)
-
-
 
 bool js_register_spine_Bone(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3056,15 +3108,15 @@ bool js_register_spine_Bone(se::Object* obj) // NOLINT(readability-identifier-na
     return true;
 }
 se::Object* __jsb_spine_BoneData_proto = nullptr;
-se::Class* __jsb_spine_BoneData_class = nullptr;
+se::Class*  __jsb_spine_BoneData_class = nullptr;
 
 static bool js_spine_BoneData_getIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3081,9 +3133,9 @@ static bool js_spine_BoneData_getLength(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getLength : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getLength();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3100,9 +3152,9 @@ static bool js_spine_BoneData_getName(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3119,9 +3171,9 @@ static bool js_spine_BoneData_getParent(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getParent : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::BoneData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3138,9 +3190,9 @@ static bool js_spine_BoneData_getRotation(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3157,9 +3209,9 @@ static bool js_spine_BoneData_getScaleX(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3176,9 +3228,9 @@ static bool js_spine_BoneData_getScaleY(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3195,9 +3247,9 @@ static bool js_spine_BoneData_getShearX(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getShearX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getShearX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3214,9 +3266,9 @@ static bool js_spine_BoneData_getShearY(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getShearY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getShearY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3233,9 +3285,9 @@ static bool js_spine_BoneData_getTransformMode(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getTransformMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         auto result = static_cast<unsigned int>(cobj->getTransformMode());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3252,9 +3304,9 @@ static bool js_spine_BoneData_getX(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3271,9 +3323,9 @@ static bool js_spine_BoneData_getY(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_getY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3290,9 +3342,9 @@ static bool js_spine_BoneData_isSkinRequired(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_isSkinRequired : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isSkinRequired();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3309,9 +3361,9 @@ static bool js_spine_BoneData_setLength(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setLength : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3328,9 +3380,9 @@ static bool js_spine_BoneData_setRotation(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3347,9 +3399,9 @@ static bool js_spine_BoneData_setScaleX(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3366,9 +3418,9 @@ static bool js_spine_BoneData_setScaleY(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3385,9 +3437,9 @@ static bool js_spine_BoneData_setShearX(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setShearX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3404,9 +3456,9 @@ static bool js_spine_BoneData_setShearY(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setShearY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3423,9 +3475,9 @@ static bool js_spine_BoneData_setSkinRequired(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setSkinRequired : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3442,9 +3494,9 @@ static bool js_spine_BoneData_setTransformMode(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setTransformMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::TransformMode, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3461,9 +3513,9 @@ static bool js_spine_BoneData_setX(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3480,9 +3532,9 @@ static bool js_spine_BoneData_setY(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoneData_setY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3494,8 +3546,6 @@ static bool js_spine_BoneData_setY(se::State& s) // NOLINT(readability-identifie
     return false;
 }
 SE_BIND_FUNC(js_spine_BoneData_setY)
-
-
 
 bool js_register_spine_BoneData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3534,15 +3584,15 @@ bool js_register_spine_BoneData(se::Object* obj) // NOLINT(readability-identifie
     return true;
 }
 se::Object* __jsb_spine_VertexAttachment_proto = nullptr;
-se::Class* __jsb_spine_VertexAttachment_class = nullptr;
+se::Class*  __jsb_spine_VertexAttachment_class = nullptr;
 
 static bool js_spine_VertexAttachment_copyTo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexAttachment_copyTo : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::VertexAttachment*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3559,9 +3609,9 @@ static bool js_spine_VertexAttachment_getDeformAttachment(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexAttachment_getDeformAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::VertexAttachment* result = cobj->getDeformAttachment();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3578,9 +3628,9 @@ static bool js_spine_VertexAttachment_getId(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexAttachment_getId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3597,9 +3647,9 @@ static bool js_spine_VertexAttachment_getVertices(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexAttachment_getVertices : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getVertices();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3616,9 +3666,9 @@ static bool js_spine_VertexAttachment_getWorldVerticesLength(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexAttachment_getWorldVerticesLength : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         size_t result = cobj->getWorldVerticesLength();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3635,9 +3685,9 @@ static bool js_spine_VertexAttachment_setDeformAttachment(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexAttachment_setDeformAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::VertexAttachment*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3654,9 +3704,9 @@ static bool js_spine_VertexAttachment_setWorldVerticesLength(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexAttachment_setWorldVerticesLength : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<size_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3668,8 +3718,6 @@ static bool js_spine_VertexAttachment_setWorldVerticesLength(se::State& s) // NO
     return false;
 }
 SE_BIND_FUNC(js_spine_VertexAttachment_setWorldVerticesLength)
-
-
 
 bool js_register_spine_VertexAttachment(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3692,15 +3740,15 @@ bool js_register_spine_VertexAttachment(se::Object* obj) // NOLINT(readability-i
     return true;
 }
 se::Object* __jsb_spine_BoundingBoxAttachment_proto = nullptr;
-se::Class* __jsb_spine_BoundingBoxAttachment_class = nullptr;
+se::Class*  __jsb_spine_BoundingBoxAttachment_class = nullptr;
 
 static bool js_spine_BoundingBoxAttachment_copy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::BoundingBoxAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_BoundingBoxAttachment_copy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3712,8 +3760,6 @@ static bool js_spine_BoundingBoxAttachment_copy(se::State& s) // NOLINT(readabil
     return false;
 }
 SE_BIND_FUNC(js_spine_BoundingBoxAttachment_copy)
-
-
 
 bool js_register_spine_BoundingBoxAttachment(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3730,15 +3776,15 @@ bool js_register_spine_BoundingBoxAttachment(se::Object* obj) // NOLINT(readabil
     return true;
 }
 se::Object* __jsb_spine_ClippingAttachment_proto = nullptr;
-se::Class* __jsb_spine_ClippingAttachment_class = nullptr;
+se::Class*  __jsb_spine_ClippingAttachment_class = nullptr;
 
 static bool js_spine_ClippingAttachment_copy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::ClippingAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ClippingAttachment_copy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3755,9 +3801,9 @@ static bool js_spine_ClippingAttachment_getEndSlot(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::ClippingAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ClippingAttachment_getEndSlot : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::SlotData* result = cobj->getEndSlot();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3774,9 +3820,9 @@ static bool js_spine_ClippingAttachment_setEndSlot(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::ClippingAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ClippingAttachment_setEndSlot : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::SlotData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3788,8 +3834,6 @@ static bool js_spine_ClippingAttachment_setEndSlot(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC(js_spine_ClippingAttachment_setEndSlot)
-
-
 
 bool js_register_spine_ClippingAttachment(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3808,15 +3852,15 @@ bool js_register_spine_ClippingAttachment(se::Object* obj) // NOLINT(readability
     return true;
 }
 se::Object* __jsb_spine_Color_proto = nullptr;
-se::Class* __jsb_spine_Color_class = nullptr;
+se::Class*  __jsb_spine_Color_class = nullptr;
 
 static bool js_spine_Color_clamp(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::Color>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Color_clamp : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Color& result = cobj->clamp();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3835,7 +3879,7 @@ static bool js_spine_Color_get_r(se::State& s) // NOLINT(readability-identifier-
     SE_PRECONDITION2(cobj, false, "js_spine_Color_get_r : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value jsret;
+    se::Value      jsret;
     ok &= nativevalue_to_se(cobj->r, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->r, s.thisObject(), s.rval());
@@ -3846,7 +3890,7 @@ SE_BIND_PROP_GET(js_spine_Color_get_r)
 static bool js_spine_Color_set_r(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<spine::Color>(s);
+    auto*       cobj = SE_THIS_OBJECT<spine::Color>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Color_set_r : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3862,7 +3906,7 @@ static bool js_spine_Color_get_g(se::State& s) // NOLINT(readability-identifier-
     SE_PRECONDITION2(cobj, false, "js_spine_Color_get_g : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value jsret;
+    se::Value      jsret;
     ok &= nativevalue_to_se(cobj->g, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->g, s.thisObject(), s.rval());
@@ -3873,7 +3917,7 @@ SE_BIND_PROP_GET(js_spine_Color_get_g)
 static bool js_spine_Color_set_g(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<spine::Color>(s);
+    auto*       cobj = SE_THIS_OBJECT<spine::Color>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Color_set_g : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3889,7 +3933,7 @@ static bool js_spine_Color_get_b(se::State& s) // NOLINT(readability-identifier-
     SE_PRECONDITION2(cobj, false, "js_spine_Color_get_b : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value jsret;
+    se::Value      jsret;
     ok &= nativevalue_to_se(cobj->b, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->b, s.thisObject(), s.rval());
@@ -3900,7 +3944,7 @@ SE_BIND_PROP_GET(js_spine_Color_get_b)
 static bool js_spine_Color_set_b(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<spine::Color>(s);
+    auto*       cobj = SE_THIS_OBJECT<spine::Color>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Color_set_b : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3916,7 +3960,7 @@ static bool js_spine_Color_get_a(se::State& s) // NOLINT(readability-identifier-
     SE_PRECONDITION2(cobj, false, "js_spine_Color_get_a : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value jsret;
+    se::Value      jsret;
     ok &= nativevalue_to_se(cobj->a, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->a, s.thisObject(), s.rval());
@@ -3927,7 +3971,7 @@ SE_BIND_PROP_GET(js_spine_Color_get_a)
 static bool js_spine_Color_set_a(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<spine::Color>(s);
+    auto*       cobj = SE_THIS_OBJECT<spine::Color>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Color_set_a : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3936,8 +3980,6 @@ static bool js_spine_Color_set_a(se::State& s) // NOLINT(readability-identifier-
     return true;
 }
 SE_BIND_PROP_SET(js_spine_Color_set_a)
-
-
 
 bool js_register_spine_Color(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3958,18 +4000,18 @@ bool js_register_spine_Color(se::Object* obj) // NOLINT(readability-identifier-n
     return true;
 }
 se::Object* __jsb_spine_CurveTimeline_proto = nullptr;
-se::Class* __jsb_spine_CurveTimeline_class = nullptr;
+se::Class*  __jsb_spine_CurveTimeline_class = nullptr;
 
 static bool js_spine_CurveTimeline_getCurvePercent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::CurveTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_CurveTimeline_getCurvePercent : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<size_t, false> arg0 = {};
-        HolderType<float, false> arg1 = {};
+        HolderType<float, false>  arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_spine_CurveTimeline_getCurvePercent : Error processing arguments");
@@ -3988,9 +4030,9 @@ static bool js_spine_CurveTimeline_getCurveType(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::CurveTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_CurveTimeline_getCurveType : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<size_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4010,9 +4052,9 @@ static bool js_spine_CurveTimeline_getFrameCount(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::CurveTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_CurveTimeline_getFrameCount : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         size_t result = cobj->getFrameCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4029,9 +4071,9 @@ static bool js_spine_CurveTimeline_getPropertyId(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::CurveTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_CurveTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4048,15 +4090,15 @@ static bool js_spine_CurveTimeline_setCurve(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::CurveTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_CurveTimeline_setCurve : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 5) {
         HolderType<size_t, false> arg0 = {};
-        HolderType<float, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
-        HolderType<float, false> arg3 = {};
-        HolderType<float, false> arg4 = {};
+        HolderType<float, false>  arg1 = {};
+        HolderType<float, false>  arg2 = {};
+        HolderType<float, false>  arg3 = {};
+        HolderType<float, false>  arg4 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -4075,9 +4117,9 @@ static bool js_spine_CurveTimeline_setLinear(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::CurveTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_CurveTimeline_setLinear : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<size_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4094,9 +4136,9 @@ static bool js_spine_CurveTimeline_setStepped(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::CurveTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_CurveTimeline_setStepped : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<size_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4108,8 +4150,6 @@ static bool js_spine_CurveTimeline_setStepped(se::State& s) // NOLINT(readabilit
     return false;
 }
 SE_BIND_FUNC(js_spine_CurveTimeline_setStepped)
-
-
 
 bool js_register_spine_CurveTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -4132,15 +4172,15 @@ bool js_register_spine_CurveTimeline(se::Object* obj) // NOLINT(readability-iden
     return true;
 }
 se::Object* __jsb_spine_ColorTimeline_proto = nullptr;
-se::Class* __jsb_spine_ColorTimeline_class = nullptr;
+se::Class*  __jsb_spine_ColorTimeline_class = nullptr;
 
 static bool js_spine_ColorTimeline_getFrames(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::ColorTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ColorTimeline_getFrames : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4157,9 +4197,9 @@ static bool js_spine_ColorTimeline_getPropertyId(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::ColorTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ColorTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4176,9 +4216,9 @@ static bool js_spine_ColorTimeline_getSlotIndex(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::ColorTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ColorTimeline_getSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getSlotIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4195,11 +4235,11 @@ static bool js_spine_ColorTimeline_setFrame(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::ColorTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ColorTimeline_setFrame : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 6) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>   arg0 = {};
         HolderType<float, false> arg1 = {};
         HolderType<float, false> arg2 = {};
         HolderType<float, false> arg3 = {};
@@ -4224,9 +4264,9 @@ static bool js_spine_ColorTimeline_setSlotIndex(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::ColorTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ColorTimeline_setSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4238,8 +4278,6 @@ static bool js_spine_ColorTimeline_setSlotIndex(se::State& s) // NOLINT(readabil
     return false;
 }
 SE_BIND_FUNC(js_spine_ColorTimeline_setSlotIndex)
-
-
 
 bool js_register_spine_ColorTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -4260,15 +4298,15 @@ bool js_register_spine_ColorTimeline(se::Object* obj) // NOLINT(readability-iden
     return true;
 }
 se::Object* __jsb_spine_ConstraintData_proto = nullptr;
-se::Class* __jsb_spine_ConstraintData_class = nullptr;
+se::Class*  __jsb_spine_ConstraintData_class = nullptr;
 
 static bool js_spine_ConstraintData_getName(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::ConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ConstraintData_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4285,9 +4323,9 @@ static bool js_spine_ConstraintData_getOrder(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::ConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ConstraintData_getOrder : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         size_t result = cobj->getOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4304,9 +4342,9 @@ static bool js_spine_ConstraintData_isSkinRequired(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::ConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ConstraintData_isSkinRequired : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isSkinRequired();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4323,9 +4361,9 @@ static bool js_spine_ConstraintData_setOrder(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::ConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ConstraintData_setOrder : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<size_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4342,9 +4380,9 @@ static bool js_spine_ConstraintData_setSkinRequired(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::ConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ConstraintData_setSkinRequired : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4356,8 +4394,6 @@ static bool js_spine_ConstraintData_setSkinRequired(se::State& s) // NOLINT(read
     return false;
 }
 SE_BIND_FUNC(js_spine_ConstraintData_setSkinRequired)
-
-
 
 bool js_register_spine_ConstraintData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -4378,15 +4414,15 @@ bool js_register_spine_ConstraintData(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_spine_DeformTimeline_proto = nullptr;
-se::Class* __jsb_spine_DeformTimeline_class = nullptr;
+se::Class*  __jsb_spine_DeformTimeline_class = nullptr;
 
 static bool js_spine_DeformTimeline_getAttachment(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::DeformTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_DeformTimeline_getAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::VertexAttachment* result = cobj->getAttachment();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4403,9 +4439,9 @@ static bool js_spine_DeformTimeline_getFrames(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::DeformTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_DeformTimeline_getFrames : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4422,9 +4458,9 @@ static bool js_spine_DeformTimeline_getPropertyId(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::DeformTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_DeformTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4441,9 +4477,9 @@ static bool js_spine_DeformTimeline_getSlotIndex(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::DeformTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_DeformTimeline_getSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getSlotIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4460,9 +4496,9 @@ static bool js_spine_DeformTimeline_setAttachment(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::DeformTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_DeformTimeline_setAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::VertexAttachment*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4479,9 +4515,9 @@ static bool js_spine_DeformTimeline_setSlotIndex(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::DeformTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_DeformTimeline_setSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4493,8 +4529,6 @@ static bool js_spine_DeformTimeline_setSlotIndex(se::State& s) // NOLINT(readabi
     return false;
 }
 SE_BIND_FUNC(js_spine_DeformTimeline_setSlotIndex)
-
-
 
 bool js_register_spine_DeformTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -4516,15 +4550,15 @@ bool js_register_spine_DeformTimeline(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_spine_DrawOrderTimeline_proto = nullptr;
-se::Class* __jsb_spine_DrawOrderTimeline_class = nullptr;
+se::Class*  __jsb_spine_DrawOrderTimeline_class = nullptr;
 
 static bool js_spine_DrawOrderTimeline_getFrameCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::DrawOrderTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_DrawOrderTimeline_getFrameCount : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         size_t result = cobj->getFrameCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4541,9 +4575,9 @@ static bool js_spine_DrawOrderTimeline_getFrames(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::DrawOrderTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_DrawOrderTimeline_getFrames : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4560,9 +4594,9 @@ static bool js_spine_DrawOrderTimeline_getPropertyId(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::DrawOrderTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_DrawOrderTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4574,8 +4608,6 @@ static bool js_spine_DrawOrderTimeline_getPropertyId(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC(js_spine_DrawOrderTimeline_getPropertyId)
-
-
 
 bool js_register_spine_DrawOrderTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -4594,15 +4626,15 @@ bool js_register_spine_DrawOrderTimeline(se::Object* obj) // NOLINT(readability-
     return true;
 }
 se::Object* __jsb_spine_Event_proto = nullptr;
-se::Class* __jsb_spine_Event_class = nullptr;
+se::Class*  __jsb_spine_Event_class = nullptr;
 
 static bool js_spine_Event_getBalance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_getBalance : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getBalance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4619,9 +4651,9 @@ static bool js_spine_Event_getData(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_getData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::EventData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4638,9 +4670,9 @@ static bool js_spine_Event_getFloatValue(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_getFloatValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getFloatValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4657,9 +4689,9 @@ static bool js_spine_Event_getIntValue(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_getIntValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getIntValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4676,9 +4708,9 @@ static bool js_spine_Event_getStringValue(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_getStringValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getStringValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4695,9 +4727,9 @@ static bool js_spine_Event_getTime(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_getTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4714,9 +4746,9 @@ static bool js_spine_Event_getVolume(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_getVolume : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getVolume();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4733,9 +4765,9 @@ static bool js_spine_Event_setBalance(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_setBalance : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4752,9 +4784,9 @@ static bool js_spine_Event_setFloatValue(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_setFloatValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4771,9 +4803,9 @@ static bool js_spine_Event_setIntValue(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_setIntValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4790,9 +4822,9 @@ static bool js_spine_Event_setStringValue(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_setStringValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4809,9 +4841,9 @@ static bool js_spine_Event_setVolume(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Event>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Event_setVolume : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4823,8 +4855,6 @@ static bool js_spine_Event_setVolume(se::State& s) // NOLINT(readability-identif
     return false;
 }
 SE_BIND_FUNC(js_spine_Event_setVolume)
-
-
 
 bool js_register_spine_Event(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -4852,15 +4882,15 @@ bool js_register_spine_Event(se::Object* obj) // NOLINT(readability-identifier-n
     return true;
 }
 se::Object* __jsb_spine_EventData_proto = nullptr;
-se::Class* __jsb_spine_EventData_class = nullptr;
+se::Class*  __jsb_spine_EventData_class = nullptr;
 
 static bool js_spine_EventData_getAudioPath(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_getAudioPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getAudioPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4877,9 +4907,9 @@ static bool js_spine_EventData_getBalance(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_getBalance : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getBalance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4896,9 +4926,9 @@ static bool js_spine_EventData_getFloatValue(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_getFloatValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getFloatValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4915,9 +4945,9 @@ static bool js_spine_EventData_getIntValue(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_getIntValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getIntValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4934,9 +4964,9 @@ static bool js_spine_EventData_getName(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4953,9 +4983,9 @@ static bool js_spine_EventData_getStringValue(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_getStringValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getStringValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4972,9 +5002,9 @@ static bool js_spine_EventData_getVolume(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_getVolume : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getVolume();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4991,9 +5021,9 @@ static bool js_spine_EventData_setAudioPath(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_setAudioPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5010,9 +5040,9 @@ static bool js_spine_EventData_setBalance(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_setBalance : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5029,9 +5059,9 @@ static bool js_spine_EventData_setFloatValue(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_setFloatValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5048,9 +5078,9 @@ static bool js_spine_EventData_setIntValue(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_setIntValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5067,9 +5097,9 @@ static bool js_spine_EventData_setStringValue(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_setStringValue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5086,9 +5116,9 @@ static bool js_spine_EventData_setVolume(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventData_setVolume : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5100,8 +5130,6 @@ static bool js_spine_EventData_setVolume(se::State& s) // NOLINT(readability-ide
     return false;
 }
 SE_BIND_FUNC(js_spine_EventData_setVolume)
-
-
 
 bool js_register_spine_EventData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -5130,17 +5158,17 @@ bool js_register_spine_EventData(se::Object* obj) // NOLINT(readability-identifi
     return true;
 }
 se::Object* __jsb_spine_EventTimeline_proto = nullptr;
-se::Class* __jsb_spine_EventTimeline_class = nullptr;
+se::Class*  __jsb_spine_EventTimeline_class = nullptr;
 
 static bool js_spine_EventTimeline_getEvents(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventTimeline_getEvents : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Event *>& result = cobj->getEvents();
+        spine::Vector<spine::Event*>& result = cobj->getEvents();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventTimeline_getEvents : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -5155,9 +5183,9 @@ static bool js_spine_EventTimeline_getFrameCount(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventTimeline_getFrameCount : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         size_t result = cobj->getFrameCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5174,9 +5202,9 @@ static bool js_spine_EventTimeline_getFrames(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventTimeline_getFrames : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float> result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5193,9 +5221,9 @@ static bool js_spine_EventTimeline_getPropertyId(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5212,11 +5240,11 @@ static bool js_spine_EventTimeline_setFrame(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::EventTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_EventTimeline_setFrame : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<size_t, false> arg0 = {};
+        HolderType<size_t, false>        arg0 = {};
         HolderType<spine::Event*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -5228,8 +5256,6 @@ static bool js_spine_EventTimeline_setFrame(se::State& s) // NOLINT(readability-
     return false;
 }
 SE_BIND_FUNC(js_spine_EventTimeline_setFrame)
-
-
 
 bool js_register_spine_EventTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -5250,15 +5276,15 @@ bool js_register_spine_EventTimeline(se::Object* obj) // NOLINT(readability-iden
     return true;
 }
 se::Object* __jsb_spine_IkConstraint_proto = nullptr;
-se::Class* __jsb_spine_IkConstraint_class = nullptr;
+se::Class*  __jsb_spine_IkConstraint_class = nullptr;
 
 static bool js_spine_IkConstraint_getBendDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_getBendDirection : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getBendDirection();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5275,11 +5301,11 @@ static bool js_spine_IkConstraint_getBones(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_getBones : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Bone *>& result = cobj->getBones();
+        spine::Vector<spine::Bone*>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getBones : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -5294,9 +5320,9 @@ static bool js_spine_IkConstraint_getCompress(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_getCompress : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->getCompress();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5313,9 +5339,9 @@ static bool js_spine_IkConstraint_getData(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_getData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::IkConstraintData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5332,9 +5358,9 @@ static bool js_spine_IkConstraint_getMix(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_getMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5351,9 +5377,9 @@ static bool js_spine_IkConstraint_getOrder(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_getOrder : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5370,9 +5396,9 @@ static bool js_spine_IkConstraint_getSoftness(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_getSoftness : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getSoftness();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5389,9 +5415,9 @@ static bool js_spine_IkConstraint_getStretch(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_getStretch : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->getStretch();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5408,9 +5434,9 @@ static bool js_spine_IkConstraint_getTarget(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_getTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Bone* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5427,9 +5453,9 @@ static bool js_spine_IkConstraint_isActive(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_isActive : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isActive();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5446,9 +5472,9 @@ static bool js_spine_IkConstraint_setActive(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_setActive : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5465,9 +5491,9 @@ static bool js_spine_IkConstraint_setBendDirection(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_setBendDirection : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5484,9 +5510,9 @@ static bool js_spine_IkConstraint_setCompress(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_setCompress : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5503,9 +5529,9 @@ static bool js_spine_IkConstraint_setMix(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_setMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5522,9 +5548,9 @@ static bool js_spine_IkConstraint_setSoftness(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_setSoftness : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5541,9 +5567,9 @@ static bool js_spine_IkConstraint_setStretch(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_setStretch : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5560,9 +5586,9 @@ static bool js_spine_IkConstraint_setTarget(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_setTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::Bone*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5580,7 +5606,7 @@ static bool js_spine_IkConstraint_update(se::State& s) // NOLINT(readability-ide
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraint_update : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->update();
         return true;
@@ -5589,8 +5615,6 @@ static bool js_spine_IkConstraint_update(se::State& s) // NOLINT(readability-ide
     return false;
 }
 SE_BIND_FUNC(js_spine_IkConstraint_update)
-
-
 
 bool js_register_spine_IkConstraint(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -5624,15 +5648,15 @@ bool js_register_spine_IkConstraint(se::Object* obj) // NOLINT(readability-ident
     return true;
 }
 se::Object* __jsb_spine_IkConstraintData_proto = nullptr;
-se::Class* __jsb_spine_IkConstraintData_class = nullptr;
+se::Class*  __jsb_spine_IkConstraintData_class = nullptr;
 
 static bool js_spine_IkConstraintData_getBendDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_getBendDirection : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getBendDirection();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5649,11 +5673,11 @@ static bool js_spine_IkConstraintData_getBones(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_getBones : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::BoneData *>& result = cobj->getBones();
+        spine::Vector<spine::BoneData*>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintData_getBones : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -5668,9 +5692,9 @@ static bool js_spine_IkConstraintData_getCompress(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_getCompress : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->getCompress();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5687,9 +5711,9 @@ static bool js_spine_IkConstraintData_getMix(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_getMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5706,9 +5730,9 @@ static bool js_spine_IkConstraintData_getSoftness(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_getSoftness : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getSoftness();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5725,9 +5749,9 @@ static bool js_spine_IkConstraintData_getStretch(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_getStretch : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->getStretch();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5744,9 +5768,9 @@ static bool js_spine_IkConstraintData_getTarget(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_getTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::BoneData* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5763,9 +5787,9 @@ static bool js_spine_IkConstraintData_getUniform(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_getUniform : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->getUniform();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5782,9 +5806,9 @@ static bool js_spine_IkConstraintData_setBendDirection(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_setBendDirection : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5801,9 +5825,9 @@ static bool js_spine_IkConstraintData_setCompress(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_setCompress : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5820,9 +5844,9 @@ static bool js_spine_IkConstraintData_setMix(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_setMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5839,9 +5863,9 @@ static bool js_spine_IkConstraintData_setSoftness(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_setSoftness : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5858,9 +5882,9 @@ static bool js_spine_IkConstraintData_setStretch(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_setStretch : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5877,9 +5901,9 @@ static bool js_spine_IkConstraintData_setTarget(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_setTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::BoneData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5896,9 +5920,9 @@ static bool js_spine_IkConstraintData_setUniform(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintData_setUniform : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5910,8 +5934,6 @@ static bool js_spine_IkConstraintData_setUniform(se::State& s) // NOLINT(readabi
     return false;
 }
 SE_BIND_FUNC(js_spine_IkConstraintData_setUniform)
-
-
 
 bool js_register_spine_IkConstraintData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -5942,15 +5964,15 @@ bool js_register_spine_IkConstraintData(se::Object* obj) // NOLINT(readability-i
     return true;
 }
 se::Object* __jsb_spine_IkConstraintTimeline_proto = nullptr;
-se::Class* __jsb_spine_IkConstraintTimeline_class = nullptr;
+se::Class*  __jsb_spine_IkConstraintTimeline_class = nullptr;
 
 static bool js_spine_IkConstraintTimeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5967,17 +5989,17 @@ static bool js_spine_IkConstraintTimeline_setFrame(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::IkConstraintTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_IkConstraintTimeline_setFrame : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 7) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>   arg0 = {};
         HolderType<float, false> arg1 = {};
         HolderType<float, false> arg2 = {};
         HolderType<float, false> arg3 = {};
-        HolderType<int, false> arg4 = {};
-        HolderType<bool, false> arg5 = {};
-        HolderType<bool, false> arg6 = {};
+        HolderType<int, false>   arg4 = {};
+        HolderType<bool, false>  arg5 = {};
+        HolderType<bool, false>  arg6 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -5993,8 +6015,6 @@ static bool js_spine_IkConstraintTimeline_setFrame(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC(js_spine_IkConstraintTimeline_setFrame)
-
-
 
 bool js_register_spine_IkConstraintTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -6012,15 +6032,15 @@ bool js_register_spine_IkConstraintTimeline(se::Object* obj) // NOLINT(readabili
     return true;
 }
 se::Object* __jsb_spine_MeshAttachment_proto = nullptr;
-se::Class* __jsb_spine_MeshAttachment_class = nullptr;
+se::Class*  __jsb_spine_MeshAttachment_class = nullptr;
 
 static bool js_spine_MeshAttachment_copy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_copy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6037,9 +6057,9 @@ static bool js_spine_MeshAttachment_getColor(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6056,9 +6076,9 @@ static bool js_spine_MeshAttachment_getEdges(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getEdges : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<unsigned short>& result = cobj->getEdges();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6075,9 +6095,9 @@ static bool js_spine_MeshAttachment_getHeight(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6094,9 +6114,9 @@ static bool js_spine_MeshAttachment_getHullLength(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getHullLength : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getHullLength();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6113,9 +6133,9 @@ static bool js_spine_MeshAttachment_getParentMesh(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getParentMesh : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::MeshAttachment* result = cobj->getParentMesh();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6132,9 +6152,9 @@ static bool js_spine_MeshAttachment_getPath(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6151,9 +6171,9 @@ static bool js_spine_MeshAttachment_getRegionDegrees(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionDegrees : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getRegionDegrees();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6170,9 +6190,9 @@ static bool js_spine_MeshAttachment_getRegionHeight(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6189,9 +6209,9 @@ static bool js_spine_MeshAttachment_getRegionOffsetX(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionOffsetX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionOffsetX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6208,9 +6228,9 @@ static bool js_spine_MeshAttachment_getRegionOffsetY(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionOffsetY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionOffsetY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6227,9 +6247,9 @@ static bool js_spine_MeshAttachment_getRegionOriginalHeight(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionOriginalHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionOriginalHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6246,9 +6266,9 @@ static bool js_spine_MeshAttachment_getRegionOriginalWidth(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionOriginalWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionOriginalWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6265,9 +6285,9 @@ static bool js_spine_MeshAttachment_getRegionRotate(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionRotate : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->getRegionRotate();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6284,9 +6304,9 @@ static bool js_spine_MeshAttachment_getRegionU(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionU : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionU();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6303,9 +6323,9 @@ static bool js_spine_MeshAttachment_getRegionU2(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionU2 : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionU2();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6322,9 +6342,9 @@ static bool js_spine_MeshAttachment_getRegionUVs(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionUVs : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getRegionUVs();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6341,9 +6361,9 @@ static bool js_spine_MeshAttachment_getRegionV(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionV : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionV();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6360,9 +6380,9 @@ static bool js_spine_MeshAttachment_getRegionV2(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionV2 : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionV2();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6379,9 +6399,9 @@ static bool js_spine_MeshAttachment_getRegionWidth(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getRegionWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6398,9 +6418,9 @@ static bool js_spine_MeshAttachment_getTriangles(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getTriangles : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<unsigned short>& result = cobj->getTriangles();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6417,9 +6437,9 @@ static bool js_spine_MeshAttachment_getUVs(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getUVs : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getUVs();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6436,9 +6456,9 @@ static bool js_spine_MeshAttachment_getWidth(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_getWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6455,9 +6475,9 @@ static bool js_spine_MeshAttachment_newLinkedMesh(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_newLinkedMesh : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::MeshAttachment* result = cobj->newLinkedMesh();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6474,9 +6494,9 @@ static bool js_spine_MeshAttachment_setHeight(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6493,9 +6513,9 @@ static bool js_spine_MeshAttachment_setHullLength(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setHullLength : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6512,9 +6532,9 @@ static bool js_spine_MeshAttachment_setParentMesh(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setParentMesh : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::MeshAttachment*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6531,9 +6551,9 @@ static bool js_spine_MeshAttachment_setPath(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6550,9 +6570,9 @@ static bool js_spine_MeshAttachment_setRegionDegrees(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionDegrees : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6569,9 +6589,9 @@ static bool js_spine_MeshAttachment_setRegionHeight(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6588,9 +6608,9 @@ static bool js_spine_MeshAttachment_setRegionOffsetX(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionOffsetX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6607,9 +6627,9 @@ static bool js_spine_MeshAttachment_setRegionOffsetY(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionOffsetY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6626,9 +6646,9 @@ static bool js_spine_MeshAttachment_setRegionOriginalHeight(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionOriginalHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6645,9 +6665,9 @@ static bool js_spine_MeshAttachment_setRegionOriginalWidth(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionOriginalWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6664,9 +6684,9 @@ static bool js_spine_MeshAttachment_setRegionRotate(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionRotate : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6683,9 +6703,9 @@ static bool js_spine_MeshAttachment_setRegionU(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionU : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6702,9 +6722,9 @@ static bool js_spine_MeshAttachment_setRegionU2(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionU2 : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6721,9 +6741,9 @@ static bool js_spine_MeshAttachment_setRegionV(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionV : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6740,9 +6760,9 @@ static bool js_spine_MeshAttachment_setRegionV2(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionV2 : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6759,9 +6779,9 @@ static bool js_spine_MeshAttachment_setRegionWidth(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setRegionWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6778,9 +6798,9 @@ static bool js_spine_MeshAttachment_setWidth(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_setWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6798,7 +6818,7 @@ static bool js_spine_MeshAttachment_updateUVs(se::State& s) // NOLINT(readabilit
     auto* cobj = SE_THIS_OBJECT<spine::MeshAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_MeshAttachment_updateUVs : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->updateUVs();
         return true;
@@ -6807,8 +6827,6 @@ static bool js_spine_MeshAttachment_updateUVs(se::State& s) // NOLINT(readabilit
     return false;
 }
 SE_BIND_FUNC(js_spine_MeshAttachment_updateUVs)
-
-
 
 bool js_register_spine_MeshAttachment(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -6866,15 +6884,15 @@ bool js_register_spine_MeshAttachment(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_spine_PathAttachment_proto = nullptr;
-se::Class* __jsb_spine_PathAttachment_class = nullptr;
+se::Class*  __jsb_spine_PathAttachment_class = nullptr;
 
 static bool js_spine_PathAttachment_copy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathAttachment_copy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6891,9 +6909,9 @@ static bool js_spine_PathAttachment_getLengths(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathAttachment_getLengths : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getLengths();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6910,9 +6928,9 @@ static bool js_spine_PathAttachment_isClosed(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathAttachment_isClosed : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isClosed();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6929,9 +6947,9 @@ static bool js_spine_PathAttachment_isConstantSpeed(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathAttachment_isConstantSpeed : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isConstantSpeed();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6948,9 +6966,9 @@ static bool js_spine_PathAttachment_setClosed(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathAttachment_setClosed : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6967,9 +6985,9 @@ static bool js_spine_PathAttachment_setConstantSpeed(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathAttachment_setConstantSpeed : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6981,8 +6999,6 @@ static bool js_spine_PathAttachment_setConstantSpeed(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC(js_spine_PathAttachment_setConstantSpeed)
-
-
 
 bool js_register_spine_PathAttachment(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -7004,14 +7020,14 @@ bool js_register_spine_PathAttachment(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_spine_PathConstraint_proto = nullptr;
-se::Class* __jsb_spine_PathConstraint_class = nullptr;
+se::Class*  __jsb_spine_PathConstraint_class = nullptr;
 
 static bool js_spine_PathConstraint_apply(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_apply : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->apply();
         return true;
@@ -7025,11 +7041,11 @@ static bool js_spine_PathConstraint_getBones(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_getBones : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Bone *>& result = cobj->getBones();
+        spine::Vector<spine::Bone*>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_getBones : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -7044,9 +7060,9 @@ static bool js_spine_PathConstraint_getData(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_getData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::PathConstraintData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7063,9 +7079,9 @@ static bool js_spine_PathConstraint_getOrder(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_getOrder : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7082,9 +7098,9 @@ static bool js_spine_PathConstraint_getPosition(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_getPosition : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getPosition();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7101,9 +7117,9 @@ static bool js_spine_PathConstraint_getRotateMix(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_getRotateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRotateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7120,9 +7136,9 @@ static bool js_spine_PathConstraint_getSpacing(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_getSpacing : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getSpacing();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7139,9 +7155,9 @@ static bool js_spine_PathConstraint_getTarget(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_getTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Slot* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7158,9 +7174,9 @@ static bool js_spine_PathConstraint_getTranslateMix(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_getTranslateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTranslateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7177,9 +7193,9 @@ static bool js_spine_PathConstraint_isActive(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_isActive : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isActive();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7196,9 +7212,9 @@ static bool js_spine_PathConstraint_setActive(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_setActive : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7215,9 +7231,9 @@ static bool js_spine_PathConstraint_setPosition(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_setPosition : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7234,9 +7250,9 @@ static bool js_spine_PathConstraint_setRotateMix(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_setRotateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7253,9 +7269,9 @@ static bool js_spine_PathConstraint_setSpacing(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_setSpacing : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7272,9 +7288,9 @@ static bool js_spine_PathConstraint_setTarget(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_setTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::Slot*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7291,9 +7307,9 @@ static bool js_spine_PathConstraint_setTranslateMix(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_setTranslateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7311,7 +7327,7 @@ static bool js_spine_PathConstraint_update(se::State& s) // NOLINT(readability-i
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraint_update : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->update();
         return true;
@@ -7320,8 +7336,6 @@ static bool js_spine_PathConstraint_update(se::State& s) // NOLINT(readability-i
     return false;
 }
 SE_BIND_FUNC(js_spine_PathConstraint_update)
-
-
 
 bool js_register_spine_PathConstraint(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -7354,17 +7368,17 @@ bool js_register_spine_PathConstraint(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_spine_PathConstraintData_proto = nullptr;
-se::Class* __jsb_spine_PathConstraintData_class = nullptr;
+se::Class*  __jsb_spine_PathConstraintData_class = nullptr;
 
 static bool js_spine_PathConstraintData_getBones(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getBones : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::BoneData *>& result = cobj->getBones();
+        spine::Vector<spine::BoneData*>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getBones : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -7379,9 +7393,9 @@ static bool js_spine_PathConstraintData_getOffsetRotation(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getOffsetRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getOffsetRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7398,9 +7412,9 @@ static bool js_spine_PathConstraintData_getPosition(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getPosition : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getPosition();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7417,9 +7431,9 @@ static bool js_spine_PathConstraintData_getPositionMode(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getPositionMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         auto result = static_cast<unsigned int>(cobj->getPositionMode());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7436,9 +7450,9 @@ static bool js_spine_PathConstraintData_getRotateMix(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getRotateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRotateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7455,9 +7469,9 @@ static bool js_spine_PathConstraintData_getRotateMode(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getRotateMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         auto result = static_cast<unsigned int>(cobj->getRotateMode());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7474,9 +7488,9 @@ static bool js_spine_PathConstraintData_getSpacing(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getSpacing : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getSpacing();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7493,9 +7507,9 @@ static bool js_spine_PathConstraintData_getSpacingMode(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getSpacingMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         auto result = static_cast<unsigned int>(cobj->getSpacingMode());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7512,9 +7526,9 @@ static bool js_spine_PathConstraintData_getTarget(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::SlotData* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7531,9 +7545,9 @@ static bool js_spine_PathConstraintData_getTranslateMix(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_getTranslateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTranslateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7550,9 +7564,9 @@ static bool js_spine_PathConstraintData_setOffsetRotation(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_setOffsetRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7569,9 +7583,9 @@ static bool js_spine_PathConstraintData_setPosition(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_setPosition : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7588,9 +7602,9 @@ static bool js_spine_PathConstraintData_setPositionMode(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_setPositionMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::PositionMode, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7607,9 +7621,9 @@ static bool js_spine_PathConstraintData_setRotateMix(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_setRotateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7626,9 +7640,9 @@ static bool js_spine_PathConstraintData_setRotateMode(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_setRotateMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::RotateMode, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7645,9 +7659,9 @@ static bool js_spine_PathConstraintData_setSpacing(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_setSpacing : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7664,9 +7678,9 @@ static bool js_spine_PathConstraintData_setSpacingMode(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_setSpacingMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::SpacingMode, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7683,9 +7697,9 @@ static bool js_spine_PathConstraintData_setTarget(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_setTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::SlotData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7702,9 +7716,9 @@ static bool js_spine_PathConstraintData_setTranslateMix(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintData_setTranslateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7716,8 +7730,6 @@ static bool js_spine_PathConstraintData_setTranslateMix(se::State& s) // NOLINT(
     return false;
 }
 SE_BIND_FUNC(js_spine_PathConstraintData_setTranslateMix)
-
-
 
 bool js_register_spine_PathConstraintData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -7752,15 +7764,15 @@ bool js_register_spine_PathConstraintData(se::Object* obj) // NOLINT(readability
     return true;
 }
 se::Object* __jsb_spine_PathConstraintMixTimeline_proto = nullptr;
-se::Class* __jsb_spine_PathConstraintMixTimeline_class = nullptr;
+se::Class*  __jsb_spine_PathConstraintMixTimeline_class = nullptr;
 
 static bool js_spine_PathConstraintMixTimeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintMixTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintMixTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7772,8 +7784,6 @@ static bool js_spine_PathConstraintMixTimeline_getPropertyId(se::State& s) // NO
     return false;
 }
 SE_BIND_FUNC(js_spine_PathConstraintMixTimeline_getPropertyId)
-
-
 
 bool js_register_spine_PathConstraintMixTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -7790,15 +7800,15 @@ bool js_register_spine_PathConstraintMixTimeline(se::Object* obj) // NOLINT(read
     return true;
 }
 se::Object* __jsb_spine_PathConstraintPositionTimeline_proto = nullptr;
-se::Class* __jsb_spine_PathConstraintPositionTimeline_class = nullptr;
+se::Class*  __jsb_spine_PathConstraintPositionTimeline_class = nullptr;
 
 static bool js_spine_PathConstraintPositionTimeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintPositionTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintPositionTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7815,11 +7825,11 @@ static bool js_spine_PathConstraintPositionTimeline_setFrame(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintPositionTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintPositionTimeline_setFrame : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 3) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>   arg0 = {};
         HolderType<float, false> arg1 = {};
         HolderType<float, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7833,8 +7843,6 @@ static bool js_spine_PathConstraintPositionTimeline_setFrame(se::State& s) // NO
     return false;
 }
 SE_BIND_FUNC(js_spine_PathConstraintPositionTimeline_setFrame)
-
-
 
 bool js_register_spine_PathConstraintPositionTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -7852,15 +7860,15 @@ bool js_register_spine_PathConstraintPositionTimeline(se::Object* obj) // NOLINT
     return true;
 }
 se::Object* __jsb_spine_PathConstraintSpacingTimeline_proto = nullptr;
-se::Class* __jsb_spine_PathConstraintSpacingTimeline_class = nullptr;
+se::Class*  __jsb_spine_PathConstraintSpacingTimeline_class = nullptr;
 
 static bool js_spine_PathConstraintSpacingTimeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::PathConstraintSpacingTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PathConstraintSpacingTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7872,8 +7880,6 @@ static bool js_spine_PathConstraintSpacingTimeline_getPropertyId(se::State& s) /
     return false;
 }
 SE_BIND_FUNC(js_spine_PathConstraintSpacingTimeline_getPropertyId)
-
-
 
 bool js_register_spine_PathConstraintSpacingTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -7890,15 +7896,15 @@ bool js_register_spine_PathConstraintSpacingTimeline(se::Object* obj) // NOLINT(
     return true;
 }
 se::Object* __jsb_spine_PointAttachment_proto = nullptr;
-se::Class* __jsb_spine_PointAttachment_class = nullptr;
+se::Class*  __jsb_spine_PointAttachment_class = nullptr;
 
 static bool js_spine_PointAttachment_copy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::PointAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PointAttachment_copy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7915,9 +7921,9 @@ static bool js_spine_PointAttachment_getRotation(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::PointAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PointAttachment_getRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7934,9 +7940,9 @@ static bool js_spine_PointAttachment_getX(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::PointAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PointAttachment_getX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7953,9 +7959,9 @@ static bool js_spine_PointAttachment_getY(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::PointAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PointAttachment_getY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7972,9 +7978,9 @@ static bool js_spine_PointAttachment_setRotation(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::PointAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PointAttachment_setRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -7991,9 +7997,9 @@ static bool js_spine_PointAttachment_setX(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::PointAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PointAttachment_setX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8010,9 +8016,9 @@ static bool js_spine_PointAttachment_setY(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::PointAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_PointAttachment_setY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8024,8 +8030,6 @@ static bool js_spine_PointAttachment_setY(se::State& s) // NOLINT(readability-id
     return false;
 }
 SE_BIND_FUNC(js_spine_PointAttachment_setY)
-
-
 
 bool js_register_spine_PointAttachment(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -8048,15 +8052,15 @@ bool js_register_spine_PointAttachment(se::Object* obj) // NOLINT(readability-id
     return true;
 }
 se::Object* __jsb_spine_RegionAttachment_proto = nullptr;
-se::Class* __jsb_spine_RegionAttachment_class = nullptr;
+se::Class*  __jsb_spine_RegionAttachment_class = nullptr;
 
 static bool js_spine_RegionAttachment_copy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_copy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8073,9 +8077,9 @@ static bool js_spine_RegionAttachment_getColor(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8092,9 +8096,9 @@ static bool js_spine_RegionAttachment_getHeight(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8111,9 +8115,9 @@ static bool js_spine_RegionAttachment_getOffset(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8130,9 +8134,9 @@ static bool js_spine_RegionAttachment_getPath(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8149,9 +8153,9 @@ static bool js_spine_RegionAttachment_getRegionHeight(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getRegionHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8168,9 +8172,9 @@ static bool js_spine_RegionAttachment_getRegionOffsetX(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getRegionOffsetX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionOffsetX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8187,9 +8191,9 @@ static bool js_spine_RegionAttachment_getRegionOffsetY(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getRegionOffsetY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionOffsetY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8206,9 +8210,9 @@ static bool js_spine_RegionAttachment_getRegionOriginalHeight(se::State& s) // N
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getRegionOriginalHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionOriginalHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8225,9 +8229,9 @@ static bool js_spine_RegionAttachment_getRegionOriginalWidth(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getRegionOriginalWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionOriginalWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8244,9 +8248,9 @@ static bool js_spine_RegionAttachment_getRegionWidth(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getRegionWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRegionWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8263,9 +8267,9 @@ static bool js_spine_RegionAttachment_getRotation(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8282,9 +8286,9 @@ static bool js_spine_RegionAttachment_getScaleX(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8301,9 +8305,9 @@ static bool js_spine_RegionAttachment_getScaleY(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8320,9 +8324,9 @@ static bool js_spine_RegionAttachment_getUVs(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getUVs : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getUVs();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8339,9 +8343,9 @@ static bool js_spine_RegionAttachment_getWidth(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8358,9 +8362,9 @@ static bool js_spine_RegionAttachment_getX(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8377,9 +8381,9 @@ static bool js_spine_RegionAttachment_getY(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_getY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8396,9 +8400,9 @@ static bool js_spine_RegionAttachment_setHeight(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8415,9 +8419,9 @@ static bool js_spine_RegionAttachment_setPath(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8434,9 +8438,9 @@ static bool js_spine_RegionAttachment_setRegionHeight(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setRegionHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8453,9 +8457,9 @@ static bool js_spine_RegionAttachment_setRegionOffsetX(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setRegionOffsetX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8472,9 +8476,9 @@ static bool js_spine_RegionAttachment_setRegionOffsetY(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setRegionOffsetY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8491,9 +8495,9 @@ static bool js_spine_RegionAttachment_setRegionOriginalHeight(se::State& s) // N
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setRegionOriginalHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8510,9 +8514,9 @@ static bool js_spine_RegionAttachment_setRegionOriginalWidth(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setRegionOriginalWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8529,9 +8533,9 @@ static bool js_spine_RegionAttachment_setRegionWidth(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setRegionWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8548,9 +8552,9 @@ static bool js_spine_RegionAttachment_setRotation(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8567,9 +8571,9 @@ static bool js_spine_RegionAttachment_setScaleX(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8586,9 +8590,9 @@ static bool js_spine_RegionAttachment_setScaleY(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8605,15 +8609,15 @@ static bool js_spine_RegionAttachment_setUVs(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setUVs : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 5) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
         HolderType<float, false> arg2 = {};
         HolderType<float, false> arg3 = {};
-        HolderType<bool, false> arg4 = {};
+        HolderType<bool, false>  arg4 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -8632,9 +8636,9 @@ static bool js_spine_RegionAttachment_setWidth(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8651,9 +8655,9 @@ static bool js_spine_RegionAttachment_setX(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8670,9 +8674,9 @@ static bool js_spine_RegionAttachment_setY(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_setY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8690,7 +8694,7 @@ static bool js_spine_RegionAttachment_updateOffset(se::State& s) // NOLINT(reada
     auto* cobj = SE_THIS_OBJECT<spine::RegionAttachment>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RegionAttachment_updateOffset : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->updateOffset();
         return true;
@@ -8699,8 +8703,6 @@ static bool js_spine_RegionAttachment_updateOffset(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC(js_spine_RegionAttachment_updateOffset)
-
-
 
 bool js_register_spine_RegionAttachment(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -8750,15 +8752,15 @@ bool js_register_spine_RegionAttachment(se::Object* obj) // NOLINT(readability-i
     return true;
 }
 se::Object* __jsb_spine_RotateTimeline_proto = nullptr;
-se::Class* __jsb_spine_RotateTimeline_class = nullptr;
+se::Class*  __jsb_spine_RotateTimeline_class = nullptr;
 
 static bool js_spine_RotateTimeline_getBoneIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::RotateTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RotateTimeline_getBoneIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getBoneIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8775,9 +8777,9 @@ static bool js_spine_RotateTimeline_getFrames(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::RotateTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RotateTimeline_getFrames : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8794,9 +8796,9 @@ static bool js_spine_RotateTimeline_getPropertyId(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::RotateTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RotateTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8813,9 +8815,9 @@ static bool js_spine_RotateTimeline_setBoneIndex(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::RotateTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RotateTimeline_setBoneIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8832,11 +8834,11 @@ static bool js_spine_RotateTimeline_setFrame(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::RotateTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_RotateTimeline_setFrame : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 3) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>   arg0 = {};
         HolderType<float, false> arg1 = {};
         HolderType<float, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -8850,8 +8852,6 @@ static bool js_spine_RotateTimeline_setFrame(se::State& s) // NOLINT(readability
     return false;
 }
 SE_BIND_FUNC(js_spine_RotateTimeline_setFrame)
-
-
 
 bool js_register_spine_RotateTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -8872,15 +8872,15 @@ bool js_register_spine_RotateTimeline(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_spine_TranslateTimeline_proto = nullptr;
-se::Class* __jsb_spine_TranslateTimeline_class = nullptr;
+se::Class*  __jsb_spine_TranslateTimeline_class = nullptr;
 
 static bool js_spine_TranslateTimeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::TranslateTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TranslateTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8897,11 +8897,11 @@ static bool js_spine_TranslateTimeline_setFrame(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::TranslateTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TranslateTimeline_setFrame : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>   arg0 = {};
         HolderType<float, false> arg1 = {};
         HolderType<float, false> arg2 = {};
         HolderType<float, false> arg3 = {};
@@ -8917,8 +8917,6 @@ static bool js_spine_TranslateTimeline_setFrame(se::State& s) // NOLINT(readabil
     return false;
 }
 SE_BIND_FUNC(js_spine_TranslateTimeline_setFrame)
-
-
 
 bool js_register_spine_TranslateTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -8936,15 +8934,15 @@ bool js_register_spine_TranslateTimeline(se::Object* obj) // NOLINT(readability-
     return true;
 }
 se::Object* __jsb_spine_ScaleTimeline_proto = nullptr;
-se::Class* __jsb_spine_ScaleTimeline_class = nullptr;
+se::Class*  __jsb_spine_ScaleTimeline_class = nullptr;
 
 static bool js_spine_ScaleTimeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::ScaleTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ScaleTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8956,8 +8954,6 @@ static bool js_spine_ScaleTimeline_getPropertyId(se::State& s) // NOLINT(readabi
     return false;
 }
 SE_BIND_FUNC(js_spine_ScaleTimeline_getPropertyId)
-
-
 
 bool js_register_spine_ScaleTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -8974,15 +8970,15 @@ bool js_register_spine_ScaleTimeline(se::Object* obj) // NOLINT(readability-iden
     return true;
 }
 se::Object* __jsb_spine_ShearTimeline_proto = nullptr;
-se::Class* __jsb_spine_ShearTimeline_class = nullptr;
+se::Class*  __jsb_spine_ShearTimeline_class = nullptr;
 
 static bool js_spine_ShearTimeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::ShearTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_ShearTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -8994,8 +8990,6 @@ static bool js_spine_ShearTimeline_getPropertyId(se::State& s) // NOLINT(readabi
     return false;
 }
 SE_BIND_FUNC(js_spine_ShearTimeline_getPropertyId)
-
-
 
 bool js_register_spine_ShearTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -9012,15 +9006,15 @@ bool js_register_spine_ShearTimeline(se::Object* obj) // NOLINT(readability-iden
     return true;
 }
 se::Object* __jsb_spine_Skeleton_proto = nullptr;
-se::Class* __jsb_spine_Skeleton_class = nullptr;
+se::Class*  __jsb_spine_Skeleton_class = nullptr;
 
 static bool js_spine_Skeleton_findBone(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_findBone : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9040,9 +9034,9 @@ static bool js_spine_Skeleton_findBoneIndex(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_findBoneIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9062,9 +9056,9 @@ static bool js_spine_Skeleton_findIkConstraint(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_findIkConstraint : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9084,9 +9078,9 @@ static bool js_spine_Skeleton_findPathConstraint(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_findPathConstraint : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9106,9 +9100,9 @@ static bool js_spine_Skeleton_findSlot(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_findSlot : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9128,9 +9122,9 @@ static bool js_spine_Skeleton_findSlotIndex(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_findSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9150,9 +9144,9 @@ static bool js_spine_Skeleton_findTransformConstraint(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_findTransformConstraint : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9170,27 +9164,33 @@ SE_BIND_FUNC(js_spine_Skeleton_findTransformConstraint)
 
 static bool js_spine_Skeleton_getAttachment(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_Skeleton_getAttachment : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getAttachment : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 2) {
-            HolderType<int, false> arg0 = {};
+            HolderType<int, false>          arg0 = {};
             HolderType<spine::String, true> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::Attachment* result = cobj->getAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getAttachment : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 2) {
@@ -9198,16 +9198,22 @@ static bool js_spine_Skeleton_getAttachment(se::State& s) // NOLINT(readability-
             HolderType<spine::String, true> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::Attachment* result = cobj->getAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getAttachment : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -9218,11 +9224,11 @@ static bool js_spine_Skeleton_getBones(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getBones : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Bone *>& result = cobj->getBones();
+        spine::Vector<spine::Bone*>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getBones : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -9237,9 +9243,9 @@ static bool js_spine_Skeleton_getColor(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9256,9 +9262,9 @@ static bool js_spine_Skeleton_getData(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::SkeletonData* result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9275,11 +9281,11 @@ static bool js_spine_Skeleton_getDrawOrder(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getDrawOrder : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Slot *>& result = cobj->getDrawOrder();
+        spine::Vector<spine::Slot*>& result = cobj->getDrawOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getDrawOrder : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -9294,11 +9300,11 @@ static bool js_spine_Skeleton_getIkConstraints(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getIkConstraints : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::IkConstraint *>& result = cobj->getIkConstraints();
+        spine::Vector<spine::IkConstraint*>& result = cobj->getIkConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getIkConstraints : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -9313,11 +9319,11 @@ static bool js_spine_Skeleton_getPathConstraints(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getPathConstraints : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::PathConstraint *>& result = cobj->getPathConstraints();
+        spine::Vector<spine::PathConstraint*>& result = cobj->getPathConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getPathConstraints : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -9332,9 +9338,9 @@ static bool js_spine_Skeleton_getRootBone(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getRootBone : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Bone* result = cobj->getRootBone();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9351,9 +9357,9 @@ static bool js_spine_Skeleton_getScaleX(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9370,9 +9376,9 @@ static bool js_spine_Skeleton_getScaleY(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9389,9 +9395,9 @@ static bool js_spine_Skeleton_getSkin(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getSkin : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Skin* result = cobj->getSkin();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9408,11 +9414,11 @@ static bool js_spine_Skeleton_getSlots(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getSlots : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Slot *>& result = cobj->getSlots();
+        spine::Vector<spine::Slot*>& result = cobj->getSlots();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getSlots : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -9427,9 +9433,9 @@ static bool js_spine_Skeleton_getTime(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9446,11 +9452,11 @@ static bool js_spine_Skeleton_getTransformConstraints(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getTransformConstraints : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::TransformConstraint *>& result = cobj->getTransformConstraints();
+        spine::Vector<spine::TransformConstraint*>& result = cobj->getTransformConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getTransformConstraints : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -9465,11 +9471,11 @@ static bool js_spine_Skeleton_getUpdateCacheList(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getUpdateCacheList : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Updatable *>& result = cobj->getUpdateCacheList();
+        spine::Vector<spine::Updatable*>& result = cobj->getUpdateCacheList();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getUpdateCacheList : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -9484,9 +9490,9 @@ static bool js_spine_Skeleton_getX(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9503,9 +9509,9 @@ static bool js_spine_Skeleton_getY(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_getY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9523,7 +9529,7 @@ static bool js_spine_Skeleton_printUpdateCache(se::State& s) // NOLINT(readabili
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_printUpdateCache : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->printUpdateCache();
         return true;
@@ -9537,9 +9543,9 @@ static bool js_spine_Skeleton_setAttachment(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<spine::String, true> arg0 = {};
         HolderType<spine::String, true> arg1 = {};
@@ -9559,7 +9565,7 @@ static bool js_spine_Skeleton_setBonesToSetupPose(se::State& s) // NOLINT(readab
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setBonesToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setBonesToSetupPose();
         return true;
@@ -9573,9 +9579,9 @@ static bool js_spine_Skeleton_setPosition(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setPosition : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -9594,9 +9600,9 @@ static bool js_spine_Skeleton_setScaleX(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9613,9 +9619,9 @@ static bool js_spine_Skeleton_setScaleY(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9630,32 +9636,38 @@ SE_BIND_FUNC(js_spine_Skeleton_setScaleY)
 
 static bool js_spine_Skeleton_setSkin(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_Skeleton_setSkin : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setSkin : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 1) {
             HolderType<spine::Skin*, false> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             cobj->setSkin(arg0.value());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 1) {
             HolderType<spine::String, true> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             cobj->setSkin(arg0.value());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -9667,7 +9679,7 @@ static bool js_spine_Skeleton_setSlotsToSetupPose(se::State& s) // NOLINT(readab
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setSlotsToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setSlotsToSetupPose();
         return true;
@@ -9681,9 +9693,9 @@ static bool js_spine_Skeleton_setTime(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9701,7 +9713,7 @@ static bool js_spine_Skeleton_setToSetupPose(se::State& s) // NOLINT(readability
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setToSetupPose();
         return true;
@@ -9715,9 +9727,9 @@ static bool js_spine_Skeleton_setX(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9734,9 +9746,9 @@ static bool js_spine_Skeleton_setY(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_setY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9753,9 +9765,9 @@ static bool js_spine_Skeleton_update(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -9773,7 +9785,7 @@ static bool js_spine_Skeleton_updateCache(se::State& s) // NOLINT(readability-id
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_updateCache : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->updateCache();
         return true;
@@ -9788,7 +9800,7 @@ static bool js_spine_Skeleton_updateWorldTransform(se::State& s) // NOLINT(reada
     auto* cobj = SE_THIS_OBJECT<spine::Skeleton>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skeleton_updateWorldTransform : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->updateWorldTransform();
         return true;
@@ -9797,8 +9809,6 @@ static bool js_spine_Skeleton_updateWorldTransform(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC(js_spine_Skeleton_updateWorldTransform)
-
-
 
 bool js_register_spine_Skeleton(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -9853,15 +9863,15 @@ bool js_register_spine_Skeleton(se::Object* obj) // NOLINT(readability-identifie
     return true;
 }
 se::Object* __jsb_spine_SkeletonBounds_proto = nullptr;
-se::Class* __jsb_spine_SkeletonBounds_class = nullptr;
+se::Class*  __jsb_spine_SkeletonBounds_class = nullptr;
 
 static bool js_spine_SkeletonBounds_aabbcontainsPoint(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonBounds>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonBounds_aabbcontainsPoint : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -9883,9 +9893,9 @@ static bool js_spine_SkeletonBounds_aabbintersectsSegment(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonBounds>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonBounds_aabbintersectsSegment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -9909,47 +9919,62 @@ SE_BIND_FUNC(js_spine_SkeletonBounds_aabbintersectsSegment)
 
 static bool js_spine_SkeletonBounds_containsPoint(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::SkeletonBounds>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_SkeletonBounds_containsPoint : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::SkeletonBounds>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_SkeletonBounds_containsPoint : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 2) {
             HolderType<float, false> arg0 = {};
             HolderType<float, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::BoundingBoxAttachment* result = cobj->containsPoint(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_containsPoint : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 3) {
             HolderType<spine::Polygon*, false> arg0 = {};
-            HolderType<float, false> arg1 = {};
-            HolderType<float, false> arg2 = {};
+            HolderType<float, false>           arg1 = {};
+            HolderType<float, false>           arg2 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             bool result = cobj->containsPoint(arg0.value(), arg1.value(), arg2.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_containsPoint : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -9960,9 +9985,9 @@ static bool js_spine_SkeletonBounds_getHeight(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonBounds>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonBounds_getHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -9979,9 +10004,9 @@ static bool js_spine_SkeletonBounds_getPolygon(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonBounds>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonBounds_getPolygon : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::BoundingBoxAttachment*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10001,9 +10026,9 @@ static bool js_spine_SkeletonBounds_getWidth(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonBounds>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonBounds_getWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10018,36 +10043,51 @@ SE_BIND_FUNC(js_spine_SkeletonBounds_getWidth)
 
 static bool js_spine_SkeletonBounds_intersectsSegment(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::SkeletonBounds>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_SkeletonBounds_intersectsSegment : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::SkeletonBounds>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_SkeletonBounds_intersectsSegment : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 5) {
             HolderType<spine::Polygon*, false> arg0 = {};
-            HolderType<float, false> arg1 = {};
-            HolderType<float, false> arg2 = {};
-            HolderType<float, false> arg3 = {};
-            HolderType<float, false> arg4 = {};
+            HolderType<float, false>           arg1 = {};
+            HolderType<float, false>           arg2 = {};
+            HolderType<float, false>           arg3 = {};
+            HolderType<float, false>           arg4 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             bool result = cobj->intersectsSegment(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_intersectsSegment : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 4) {
@@ -10057,27 +10097,37 @@ static bool js_spine_SkeletonBounds_intersectsSegment(se::State& s) // NOLINT(re
             HolderType<float, false> arg3 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::BoundingBoxAttachment* result = cobj->intersectsSegment(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_intersectsSegment : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_spine_SkeletonBounds_intersectsSegment)
-
-
 
 bool js_register_spine_SkeletonBounds(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -10100,9 +10150,7 @@ bool js_register_spine_SkeletonBounds(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_spine_Polygon_proto = nullptr;
-se::Class* __jsb_spine_Polygon_class = nullptr;
-
-
+se::Class*  __jsb_spine_Polygon_class = nullptr;
 
 bool js_register_spine_Polygon(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -10118,15 +10166,15 @@ bool js_register_spine_Polygon(se::Object* obj) // NOLINT(readability-identifier
     return true;
 }
 se::Object* __jsb_spine_SkeletonData_proto = nullptr;
-se::Class* __jsb_spine_SkeletonData_class = nullptr;
+se::Class*  __jsb_spine_SkeletonData_class = nullptr;
 
 static bool js_spine_SkeletonData_findAnimation(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10146,9 +10194,9 @@ static bool js_spine_SkeletonData_findBone(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findBone : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10168,9 +10216,9 @@ static bool js_spine_SkeletonData_findBoneIndex(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findBoneIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10190,9 +10238,9 @@ static bool js_spine_SkeletonData_findEvent(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findEvent : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10212,9 +10260,9 @@ static bool js_spine_SkeletonData_findIkConstraint(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findIkConstraint : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10234,9 +10282,9 @@ static bool js_spine_SkeletonData_findPathConstraint(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findPathConstraint : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10256,9 +10304,9 @@ static bool js_spine_SkeletonData_findPathConstraintIndex(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findPathConstraintIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10278,9 +10326,9 @@ static bool js_spine_SkeletonData_findSkin(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findSkin : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10300,9 +10348,9 @@ static bool js_spine_SkeletonData_findSlot(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findSlot : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10322,9 +10370,9 @@ static bool js_spine_SkeletonData_findSlotIndex(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10344,9 +10392,9 @@ static bool js_spine_SkeletonData_findTransformConstraint(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_findTransformConstraint : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10366,11 +10414,11 @@ static bool js_spine_SkeletonData_getAnimations(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getAnimations : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Animation *>& result = cobj->getAnimations();
+        spine::Vector<spine::Animation*>& result = cobj->getAnimations();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getAnimations : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -10385,9 +10433,9 @@ static bool js_spine_SkeletonData_getAudioPath(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getAudioPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getAudioPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10404,11 +10452,11 @@ static bool js_spine_SkeletonData_getBones(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getBones : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::BoneData *>& result = cobj->getBones();
+        spine::Vector<spine::BoneData*>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getBones : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -10423,9 +10471,9 @@ static bool js_spine_SkeletonData_getDefaultSkin(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getDefaultSkin : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Skin* result = cobj->getDefaultSkin();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10442,11 +10490,11 @@ static bool js_spine_SkeletonData_getEvents(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getEvents : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::EventData *>& result = cobj->getEvents();
+        spine::Vector<spine::EventData*>& result = cobj->getEvents();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getEvents : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -10461,9 +10509,9 @@ static bool js_spine_SkeletonData_getFps(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getFps : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getFps();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10480,9 +10528,9 @@ static bool js_spine_SkeletonData_getHash(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getHash : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10499,9 +10547,9 @@ static bool js_spine_SkeletonData_getHeight(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10518,11 +10566,11 @@ static bool js_spine_SkeletonData_getIkConstraints(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getIkConstraints : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::IkConstraintData *>& result = cobj->getIkConstraints();
+        spine::Vector<spine::IkConstraintData*>& result = cobj->getIkConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getIkConstraints : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -10537,9 +10585,9 @@ static bool js_spine_SkeletonData_getImagesPath(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getImagesPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getImagesPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10556,9 +10604,9 @@ static bool js_spine_SkeletonData_getName(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10575,11 +10623,11 @@ static bool js_spine_SkeletonData_getPathConstraints(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getPathConstraints : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::PathConstraintData *>& result = cobj->getPathConstraints();
+        spine::Vector<spine::PathConstraintData*>& result = cobj->getPathConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getPathConstraints : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -10594,11 +10642,11 @@ static bool js_spine_SkeletonData_getSkins(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getSkins : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Skin *>& result = cobj->getSkins();
+        spine::Vector<spine::Skin*>& result = cobj->getSkins();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getSkins : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -10613,11 +10661,11 @@ static bool js_spine_SkeletonData_getSlots(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getSlots : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::SlotData *>& result = cobj->getSlots();
+        spine::Vector<spine::SlotData*>& result = cobj->getSlots();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getSlots : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -10632,11 +10680,11 @@ static bool js_spine_SkeletonData_getTransformConstraints(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getTransformConstraints : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::TransformConstraintData *>& result = cobj->getTransformConstraints();
+        spine::Vector<spine::TransformConstraintData*>& result = cobj->getTransformConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getTransformConstraints : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -10651,9 +10699,9 @@ static bool js_spine_SkeletonData_getVersion(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getVersion : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getVersion();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10670,9 +10718,9 @@ static bool js_spine_SkeletonData_getWidth(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10689,9 +10737,9 @@ static bool js_spine_SkeletonData_getX(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10708,9 +10756,9 @@ static bool js_spine_SkeletonData_getY(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_getY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -10727,9 +10775,9 @@ static bool js_spine_SkeletonData_setAudioPath(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setAudioPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10746,9 +10794,9 @@ static bool js_spine_SkeletonData_setDefaultSkin(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setDefaultSkin : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::Skin*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10765,9 +10813,9 @@ static bool js_spine_SkeletonData_setFps(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setFps : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10784,9 +10832,9 @@ static bool js_spine_SkeletonData_setHash(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setHash : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10803,9 +10851,9 @@ static bool js_spine_SkeletonData_setHeight(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10822,9 +10870,9 @@ static bool js_spine_SkeletonData_setImagesPath(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setImagesPath : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10841,9 +10889,9 @@ static bool js_spine_SkeletonData_setName(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10860,9 +10908,9 @@ static bool js_spine_SkeletonData_setVersion(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setVersion : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10879,9 +10927,9 @@ static bool js_spine_SkeletonData_setWidth(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10898,9 +10946,9 @@ static bool js_spine_SkeletonData_setX(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10917,9 +10965,9 @@ static bool js_spine_SkeletonData_setY(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonData_setY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -10931,8 +10979,6 @@ static bool js_spine_SkeletonData_setY(se::State& s) // NOLINT(readability-ident
     return false;
 }
 SE_BIND_FUNC(js_spine_SkeletonData_setY)
-
-
 
 bool js_register_spine_SkeletonData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -10989,15 +11035,15 @@ bool js_register_spine_SkeletonData(se::Object* obj) // NOLINT(readability-ident
     return true;
 }
 se::Object* __jsb_spine_Skin_proto = nullptr;
-se::Class* __jsb_spine_Skin_class = nullptr;
+se::Class*  __jsb_spine_Skin_class = nullptr;
 
 static bool js_spine_Skin_addSkin(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skin>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skin_addSkin : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::Skin*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11014,9 +11060,9 @@ static bool js_spine_Skin_copySkin(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skin>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skin_copySkin : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::Skin*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11033,11 +11079,11 @@ static bool js_spine_Skin_getAttachment(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skin>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skin_getAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<size_t, false> arg0 = {};
+        HolderType<size_t, false>       arg0 = {};
         HolderType<spine::String, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -11057,11 +11103,11 @@ static bool js_spine_Skin_getBones(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skin>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skin_getBones : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::BoneData *>& result = cobj->getBones();
+        spine::Vector<spine::BoneData*>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skin_getBones : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -11076,11 +11122,11 @@ static bool js_spine_Skin_getConstraints(se::State& s) // NOLINT(readability-ide
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skin>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skin_getConstraints : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::ConstraintData *>& result = cobj->getConstraints();
+        spine::Vector<spine::ConstraintData*>& result = cobj->getConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skin_getConstraints : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -11095,9 +11141,9 @@ static bool js_spine_Skin_getName(se::State& s) // NOLINT(readability-identifier
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skin>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skin_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11114,11 +11160,11 @@ static bool js_spine_Skin_removeAttachment(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skin>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skin_removeAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<size_t, false> arg0 = {};
+        HolderType<size_t, false>       arg0 = {};
         HolderType<spine::String, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -11135,12 +11181,12 @@ static bool js_spine_Skin_setAttachment(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::Skin>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Skin_setAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 3) {
-        HolderType<size_t, false> arg0 = {};
-        HolderType<spine::String, true> arg1 = {};
+        HolderType<size_t, false>             arg0 = {};
+        HolderType<spine::String, true>       arg1 = {};
         HolderType<spine::Attachment*, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -11153,8 +11199,6 @@ static bool js_spine_Skin_setAttachment(se::State& s) // NOLINT(readability-iden
     return false;
 }
 SE_BIND_FUNC(js_spine_Skin_setAttachment)
-
-
 
 bool js_register_spine_Skin(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -11178,15 +11222,15 @@ bool js_register_spine_Skin(se::Object* obj) // NOLINT(readability-identifier-na
     return true;
 }
 se::Object* __jsb_spine_Slot_proto = nullptr;
-se::Class* __jsb_spine_Slot_class = nullptr;
+se::Class*  __jsb_spine_Slot_class = nullptr;
 
 static bool js_spine_Slot_getAttachment(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_getAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Attachment* result = cobj->getAttachment();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11203,9 +11247,9 @@ static bool js_spine_Slot_getAttachmentTime(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_getAttachmentTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAttachmentTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11222,9 +11266,9 @@ static bool js_spine_Slot_getBone(se::State& s) // NOLINT(readability-identifier
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_getBone : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Bone& result = cobj->getBone();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11241,9 +11285,9 @@ static bool js_spine_Slot_getColor(se::State& s) // NOLINT(readability-identifie
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_getColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11260,9 +11304,9 @@ static bool js_spine_Slot_getDarkColor(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_getDarkColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Color& result = cobj->getDarkColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11279,9 +11323,9 @@ static bool js_spine_Slot_getData(se::State& s) // NOLINT(readability-identifier
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_getData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::SlotData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11298,9 +11342,9 @@ static bool js_spine_Slot_getDeform(se::State& s) // NOLINT(readability-identifi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_getDeform : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Vector<float>& result = cobj->getDeform();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11317,9 +11361,9 @@ static bool js_spine_Slot_getSkeleton(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_getSkeleton : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Skeleton& result = cobj->getSkeleton();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11336,9 +11380,9 @@ static bool js_spine_Slot_hasDarkColor(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_hasDarkColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->hasDarkColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11355,9 +11399,9 @@ static bool js_spine_Slot_setAttachment(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_setAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::Attachment*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11374,9 +11418,9 @@ static bool js_spine_Slot_setAttachmentTime(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_setAttachmentTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11394,7 +11438,7 @@ static bool js_spine_Slot_setToSetupPose(se::State& s) // NOLINT(readability-ide
     auto* cobj = SE_THIS_OBJECT<spine::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_Slot_setToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setToSetupPose();
         return true;
@@ -11403,8 +11447,6 @@ static bool js_spine_Slot_setToSetupPose(se::State& s) // NOLINT(readability-ide
     return false;
 }
 SE_BIND_FUNC(js_spine_Slot_setToSetupPose)
-
-
 
 bool js_register_spine_Slot(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -11432,15 +11474,15 @@ bool js_register_spine_Slot(se::Object* obj) // NOLINT(readability-identifier-na
     return true;
 }
 se::Object* __jsb_spine_SlotData_proto = nullptr;
-se::Class* __jsb_spine_SlotData_class = nullptr;
+se::Class*  __jsb_spine_SlotData_class = nullptr;
 
 static bool js_spine_SlotData_getAttachmentName(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_getAttachmentName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getAttachmentName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11457,9 +11499,9 @@ static bool js_spine_SlotData_getBlendMode(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_getBlendMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         auto result = static_cast<unsigned int>(cobj->getBlendMode());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11476,9 +11518,9 @@ static bool js_spine_SlotData_getBoneData(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_getBoneData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::BoneData& result = cobj->getBoneData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11495,9 +11537,9 @@ static bool js_spine_SlotData_getColor(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_getColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11514,9 +11556,9 @@ static bool js_spine_SlotData_getDarkColor(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_getDarkColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Color& result = cobj->getDarkColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11533,9 +11575,9 @@ static bool js_spine_SlotData_getIndex(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_getIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11552,9 +11594,9 @@ static bool js_spine_SlotData_getName(se::State& s) // NOLINT(readability-identi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11571,9 +11613,9 @@ static bool js_spine_SlotData_hasDarkColor(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_hasDarkColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->hasDarkColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11590,9 +11632,9 @@ static bool js_spine_SlotData_setAttachmentName(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_setAttachmentName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::String, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11609,9 +11651,9 @@ static bool js_spine_SlotData_setBlendMode(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_setBlendMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::BlendMode, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11628,9 +11670,9 @@ static bool js_spine_SlotData_setHasDarkColor(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SlotData_setHasDarkColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11642,8 +11684,6 @@ static bool js_spine_SlotData_setHasDarkColor(se::State& s) // NOLINT(readabilit
     return false;
 }
 SE_BIND_FUNC(js_spine_SlotData_setHasDarkColor)
-
-
 
 bool js_register_spine_SlotData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -11670,14 +11710,14 @@ bool js_register_spine_SlotData(se::Object* obj) // NOLINT(readability-identifie
     return true;
 }
 se::Object* __jsb_spine_TransformConstraint_proto = nullptr;
-se::Class* __jsb_spine_TransformConstraint_class = nullptr;
+se::Class*  __jsb_spine_TransformConstraint_class = nullptr;
 
 static bool js_spine_TransformConstraint_apply(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_apply : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->apply();
         return true;
@@ -11691,11 +11731,11 @@ static bool js_spine_TransformConstraint_getBones(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_getBones : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::Bone *>& result = cobj->getBones();
+        spine::Vector<spine::Bone*>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_getBones : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -11710,9 +11750,9 @@ static bool js_spine_TransformConstraint_getData(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_getData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::TransformConstraintData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11729,9 +11769,9 @@ static bool js_spine_TransformConstraint_getOrder(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_getOrder : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11748,9 +11788,9 @@ static bool js_spine_TransformConstraint_getRotateMix(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_getRotateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRotateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11767,9 +11807,9 @@ static bool js_spine_TransformConstraint_getScaleMix(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_getScaleMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11786,9 +11826,9 @@ static bool js_spine_TransformConstraint_getShearMix(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_getShearMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getShearMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11805,9 +11845,9 @@ static bool js_spine_TransformConstraint_getTarget(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_getTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Bone* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11824,9 +11864,9 @@ static bool js_spine_TransformConstraint_getTranslateMix(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_getTranslateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTranslateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11843,9 +11883,9 @@ static bool js_spine_TransformConstraint_isActive(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_isActive : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isActive();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -11862,9 +11902,9 @@ static bool js_spine_TransformConstraint_setActive(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_setActive : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11881,9 +11921,9 @@ static bool js_spine_TransformConstraint_setRotateMix(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_setRotateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11900,9 +11940,9 @@ static bool js_spine_TransformConstraint_setScaleMix(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_setScaleMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11919,9 +11959,9 @@ static bool js_spine_TransformConstraint_setShearMix(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_setShearMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11938,9 +11978,9 @@ static bool js_spine_TransformConstraint_setTarget(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_setTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::Bone*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11957,9 +11997,9 @@ static bool js_spine_TransformConstraint_setTranslateMix(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_setTranslateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -11977,7 +12017,7 @@ static bool js_spine_TransformConstraint_update(se::State& s) // NOLINT(readabil
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraint>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraint_update : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->update();
         return true;
@@ -11986,8 +12026,6 @@ static bool js_spine_TransformConstraint_update(se::State& s) // NOLINT(readabil
     return false;
 }
 SE_BIND_FUNC(js_spine_TransformConstraint_update)
-
-
 
 bool js_register_spine_TransformConstraint(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -12020,17 +12058,17 @@ bool js_register_spine_TransformConstraint(se::Object* obj) // NOLINT(readabilit
     return true;
 }
 se::Object* __jsb_spine_TransformConstraintData_proto = nullptr;
-se::Class* __jsb_spine_TransformConstraintData_class = nullptr;
+se::Class*  __jsb_spine_TransformConstraintData_class = nullptr;
 
 static bool js_spine_TransformConstraintData_getBones(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getBones : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
-        spine::Vector<spine::BoneData *>& result = cobj->getBones();
+        spine::Vector<spine::BoneData*>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getBones : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -12045,9 +12083,9 @@ static bool js_spine_TransformConstraintData_getOffsetRotation(se::State& s) // 
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getOffsetRotation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getOffsetRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12064,9 +12102,9 @@ static bool js_spine_TransformConstraintData_getOffsetScaleX(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getOffsetScaleX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getOffsetScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12083,9 +12121,9 @@ static bool js_spine_TransformConstraintData_getOffsetScaleY(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getOffsetScaleY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getOffsetScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12102,9 +12140,9 @@ static bool js_spine_TransformConstraintData_getOffsetShearY(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getOffsetShearY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getOffsetShearY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12121,9 +12159,9 @@ static bool js_spine_TransformConstraintData_getOffsetX(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getOffsetX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getOffsetX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12140,9 +12178,9 @@ static bool js_spine_TransformConstraintData_getOffsetY(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getOffsetY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getOffsetY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12159,9 +12197,9 @@ static bool js_spine_TransformConstraintData_getRotateMix(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getRotateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRotateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12178,9 +12216,9 @@ static bool js_spine_TransformConstraintData_getScaleMix(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getScaleMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getScaleMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12197,9 +12235,9 @@ static bool js_spine_TransformConstraintData_getShearMix(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getShearMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getShearMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12216,9 +12254,9 @@ static bool js_spine_TransformConstraintData_getTarget(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::BoneData* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12235,9 +12273,9 @@ static bool js_spine_TransformConstraintData_getTranslateMix(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_getTranslateMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTranslateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12254,9 +12292,9 @@ static bool js_spine_TransformConstraintData_isLocal(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_isLocal : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isLocal();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12273,9 +12311,9 @@ static bool js_spine_TransformConstraintData_isRelative(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintData>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintData_isRelative : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isRelative();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12287,8 +12325,6 @@ static bool js_spine_TransformConstraintData_isRelative(se::State& s) // NOLINT(
     return false;
 }
 SE_BIND_FUNC(js_spine_TransformConstraintData_isRelative)
-
-
 
 bool js_register_spine_TransformConstraintData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -12318,15 +12354,15 @@ bool js_register_spine_TransformConstraintData(se::Object* obj) // NOLINT(readab
     return true;
 }
 se::Object* __jsb_spine_TransformConstraintTimeline_proto = nullptr;
-se::Class* __jsb_spine_TransformConstraintTimeline_class = nullptr;
+se::Class*  __jsb_spine_TransformConstraintTimeline_class = nullptr;
 
 static bool js_spine_TransformConstraintTimeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12343,16 +12379,16 @@ static bool js_spine_TransformConstraintTimeline_setFrame(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::TransformConstraintTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TransformConstraintTimeline_setFrame : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 6) {
         HolderType<size_t, false> arg0 = {};
-        HolderType<float, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
-        HolderType<float, false> arg3 = {};
-        HolderType<float, false> arg4 = {};
-        HolderType<float, false> arg5 = {};
+        HolderType<float, false>  arg1 = {};
+        HolderType<float, false>  arg2 = {};
+        HolderType<float, false>  arg3 = {};
+        HolderType<float, false>  arg4 = {};
+        HolderType<float, false>  arg5 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -12367,8 +12403,6 @@ static bool js_spine_TransformConstraintTimeline_setFrame(se::State& s) // NOLIN
     return false;
 }
 SE_BIND_FUNC(js_spine_TransformConstraintTimeline_setFrame)
-
-
 
 bool js_register_spine_TransformConstraintTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -12386,15 +12420,15 @@ bool js_register_spine_TransformConstraintTimeline(se::Object* obj) // NOLINT(re
     return true;
 }
 se::Object* __jsb_spine_TwoColorTimeline_proto = nullptr;
-se::Class* __jsb_spine_TwoColorTimeline_class = nullptr;
+se::Class*  __jsb_spine_TwoColorTimeline_class = nullptr;
 
 static bool js_spine_TwoColorTimeline_getPropertyId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TwoColorTimeline_getPropertyId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12411,9 +12445,9 @@ static bool js_spine_TwoColorTimeline_getSlotIndex(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TwoColorTimeline_getSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         int result = cobj->getSlotIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12430,11 +12464,11 @@ static bool js_spine_TwoColorTimeline_setFrame(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TwoColorTimeline_setFrame : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 9) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>   arg0 = {};
         HolderType<float, false> arg1 = {};
         HolderType<float, false> arg2 = {};
         HolderType<float, false> arg3 = {};
@@ -12465,9 +12499,9 @@ static bool js_spine_TwoColorTimeline_setSlotIndex(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_TwoColorTimeline_setSlotIndex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -12479,8 +12513,6 @@ static bool js_spine_TwoColorTimeline_setSlotIndex(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC(js_spine_TwoColorTimeline_setSlotIndex)
-
-
 
 bool js_register_spine_TwoColorTimeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -12500,9 +12532,7 @@ bool js_register_spine_TwoColorTimeline(se::Object* obj) // NOLINT(readability-i
     return true;
 }
 se::Object* __jsb_spine_VertexEffect_proto = nullptr;
-se::Class* __jsb_spine_VertexEffect_class = nullptr;
-
-
+se::Class*  __jsb_spine_VertexEffect_class = nullptr;
 
 bool js_register_spine_VertexEffect(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -12518,15 +12548,15 @@ bool js_register_spine_VertexEffect(se::Object* obj) // NOLINT(readability-ident
     return true;
 }
 se::Object* __jsb_spine_JitterVertexEffect_proto = nullptr;
-se::Class* __jsb_spine_JitterVertexEffect_class = nullptr;
+se::Class*  __jsb_spine_JitterVertexEffect_class = nullptr;
 
 static bool js_spine_JitterVertexEffect_getJitterX(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::JitterVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_JitterVertexEffect_getJitterX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getJitterX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12543,9 +12573,9 @@ static bool js_spine_JitterVertexEffect_getJitterY(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::JitterVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_JitterVertexEffect_getJitterY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getJitterY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12562,9 +12592,9 @@ static bool js_spine_JitterVertexEffect_setJitterX(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::JitterVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_JitterVertexEffect_setJitterX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -12581,9 +12611,9 @@ static bool js_spine_JitterVertexEffect_setJitterY(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::JitterVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_JitterVertexEffect_setJitterY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -12595,8 +12625,6 @@ static bool js_spine_JitterVertexEffect_setJitterY(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC(js_spine_JitterVertexEffect_setJitterY)
-
-
 
 bool js_register_spine_JitterVertexEffect(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -12616,15 +12644,15 @@ bool js_register_spine_JitterVertexEffect(se::Object* obj) // NOLINT(readability
     return true;
 }
 se::Object* __jsb_spine_SwirlVertexEffect_proto = nullptr;
-se::Class* __jsb_spine_SwirlVertexEffect_class = nullptr;
+se::Class*  __jsb_spine_SwirlVertexEffect_class = nullptr;
 
 static bool js_spine_SwirlVertexEffect_getAngle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_getAngle : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getAngle();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12641,9 +12669,9 @@ static bool js_spine_SwirlVertexEffect_getCenterX(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_getCenterX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getCenterX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12660,9 +12688,9 @@ static bool js_spine_SwirlVertexEffect_getCenterY(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_getCenterY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getCenterY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12679,9 +12707,9 @@ static bool js_spine_SwirlVertexEffect_getRadius(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_getRadius : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getRadius();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12698,9 +12726,9 @@ static bool js_spine_SwirlVertexEffect_getWorldX(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_getWorldX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12717,9 +12745,9 @@ static bool js_spine_SwirlVertexEffect_getWorldY(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_getWorldY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getWorldY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12736,9 +12764,9 @@ static bool js_spine_SwirlVertexEffect_setAngle(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_setAngle : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -12755,9 +12783,9 @@ static bool js_spine_SwirlVertexEffect_setCenterX(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_setCenterX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -12774,9 +12802,9 @@ static bool js_spine_SwirlVertexEffect_setCenterY(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_setCenterY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -12793,9 +12821,9 @@ static bool js_spine_SwirlVertexEffect_setRadius(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_setRadius : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -12812,9 +12840,9 @@ static bool js_spine_SwirlVertexEffect_setWorldX(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_setWorldX : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -12831,9 +12859,9 @@ static bool js_spine_SwirlVertexEffect_setWorldY(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SwirlVertexEffect>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SwirlVertexEffect_setWorldY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -12845,8 +12873,6 @@ static bool js_spine_SwirlVertexEffect_setWorldY(se::State& s) // NOLINT(readabi
     return false;
 }
 SE_BIND_FUNC(js_spine_SwirlVertexEffect_setWorldY)
-
-
 
 bool js_register_spine_SwirlVertexEffect(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -12874,14 +12900,14 @@ bool js_register_spine_SwirlVertexEffect(se::Object* obj) // NOLINT(readability-
     return true;
 }
 se::Object* __jsb_spine_VertexEffectDelegate_proto = nullptr;
-se::Class* __jsb_spine_VertexEffectDelegate_class = nullptr;
+se::Class*  __jsb_spine_VertexEffectDelegate_class = nullptr;
 
 static bool js_spine_VertexEffectDelegate_clear(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexEffectDelegate_clear : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->clear();
         return true;
@@ -12895,9 +12921,9 @@ static bool js_spine_VertexEffectDelegate_getEffectType(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexEffectDelegate_getEffectType : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         const std::string& result = cobj->getEffectType();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12914,9 +12940,9 @@ static bool js_spine_VertexEffectDelegate_getJitterVertexEffect(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexEffectDelegate_getJitterVertexEffect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::JitterVertexEffect* result = cobj->getJitterVertexEffect();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12933,9 +12959,9 @@ static bool js_spine_VertexEffectDelegate_getSwirlVertexEffect(se::State& s) // 
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexEffectDelegate_getSwirlVertexEffect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::SwirlVertexEffect* result = cobj->getSwirlVertexEffect();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12952,9 +12978,9 @@ static bool js_spine_VertexEffectDelegate_getVertexEffect(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexEffectDelegate_getVertexEffect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::VertexEffect* result = cobj->getVertexEffect();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -12971,9 +12997,9 @@ static bool js_spine_VertexEffectDelegate_initJitter(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexEffectDelegate_initJitter : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -12995,12 +13021,12 @@ static bool js_spine_VertexEffectDelegate_initSwirlWithPow(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexEffectDelegate_initSwirlWithPow : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
-        HolderType<int, false> arg1 = {};
+        HolderType<int, false>   arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_spine_VertexEffectDelegate_initSwirlWithPow : Error processing arguments");
@@ -13019,12 +13045,12 @@ static bool js_spine_VertexEffectDelegate_initSwirlWithPowOut(se::State& s) // N
 {
     auto* cobj = SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_VertexEffectDelegate_initSwirlWithPowOut : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
-        HolderType<int, false> arg1 = {};
+        HolderType<int, false>   arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_spine_VertexEffectDelegate_initSwirlWithPowOut : Error processing arguments");
@@ -13049,11 +13075,9 @@ static bool js_spine_VertexEffectDelegate_constructor(se::State& s) // NOLINT(re
 }
 SE_BIND_CTOR(js_spine_VertexEffectDelegate_constructor, __jsb_spine_VertexEffectDelegate_class, js_spine_VertexEffectDelegate_finalize)
 
-
-
 static bool js_spine_VertexEffectDelegate_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj =SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
+    auto* cobj = SE_THIS_OBJECT<spine::VertexEffectDelegate>(s);
     cobj->release();
     return true;
 }
@@ -13082,14 +13106,14 @@ bool js_register_spine_VertexEffectDelegate(se::Object* obj) // NOLINT(readabili
     return true;
 }
 se::Object* __jsb_spine_SkeletonRenderer_proto = nullptr;
-se::Class* __jsb_spine_SkeletonRenderer_class = nullptr;
+se::Class*  __jsb_spine_SkeletonRenderer_class = nullptr;
 
 static bool js_spine_SkeletonRenderer_beginSchedule(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_beginSchedule : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->beginSchedule();
         return true;
@@ -13103,9 +13127,9 @@ static bool js_spine_SkeletonRenderer_findBone(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_findBone : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13125,9 +13149,9 @@ static bool js_spine_SkeletonRenderer_findSlot(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_findSlot : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13147,9 +13171,9 @@ static bool js_spine_SkeletonRenderer_getAttachment(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_getAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
@@ -13171,9 +13195,9 @@ static bool js_spine_SkeletonRenderer_getBoundingBox(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_getBoundingBox : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         cc::Rect result = cobj->getBoundingBox();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -13190,9 +13214,9 @@ static bool js_spine_SkeletonRenderer_getDebugData(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_getDebugData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         se::Object* result = cobj->getDebugData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -13209,9 +13233,9 @@ static bool js_spine_SkeletonRenderer_getParamsBuffer(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_getParamsBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         se::Object* result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -13228,9 +13252,9 @@ static bool js_spine_SkeletonRenderer_getSharedBufferOffset(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_getSharedBufferOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         se::Object* result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -13247,9 +13271,9 @@ static bool js_spine_SkeletonRenderer_getSkeleton(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_getSkeleton : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Skeleton* result = cobj->getSkeleton();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -13266,9 +13290,9 @@ static bool js_spine_SkeletonRenderer_getTimeScale(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_getTimeScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -13285,9 +13309,9 @@ static bool js_spine_SkeletonRenderer_initWithSkeleton(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_initWithSkeleton : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::Skeleton*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13297,7 +13321,7 @@ static bool js_spine_SkeletonRenderer_initWithSkeleton(se::State& s) // NOLINT(r
     }
     if (argc == 2) {
         HolderType<spine::Skeleton*, false> arg0 = {};
-        HolderType<bool, false> arg1 = {};
+        HolderType<bool, false>             arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_initWithSkeleton : Error processing arguments");
@@ -13306,8 +13330,8 @@ static bool js_spine_SkeletonRenderer_initWithSkeleton(se::State& s) // NOLINT(r
     }
     if (argc == 3) {
         HolderType<spine::Skeleton*, false> arg0 = {};
-        HolderType<bool, false> arg1 = {};
-        HolderType<bool, false> arg2 = {};
+        HolderType<bool, false>             arg1 = {};
+        HolderType<bool, false>             arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -13317,9 +13341,9 @@ static bool js_spine_SkeletonRenderer_initWithSkeleton(se::State& s) // NOLINT(r
     }
     if (argc == 4) {
         HolderType<spine::Skeleton*, false> arg0 = {};
-        HolderType<bool, false> arg1 = {};
-        HolderType<bool, false> arg2 = {};
-        HolderType<bool, false> arg3 = {};
+        HolderType<bool, false>             arg1 = {};
+        HolderType<bool, false>             arg2 = {};
+        HolderType<bool, false>             arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -13337,9 +13361,9 @@ static bool js_spine_SkeletonRenderer_initWithUUID(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_initWithUUID : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13357,7 +13381,7 @@ static bool js_spine_SkeletonRenderer_initialize(se::State& s) // NOLINT(readabi
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_initialize : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->initialize();
         return true;
@@ -13371,9 +13395,9 @@ static bool js_spine_SkeletonRenderer_isOpacityModifyRGB(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_isOpacityModifyRGB : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isOpacityModifyRGB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -13391,7 +13415,7 @@ static bool js_spine_SkeletonRenderer_onDisable(se::State& s) // NOLINT(readabil
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_onDisable : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->onDisable();
         return true;
@@ -13406,7 +13430,7 @@ static bool js_spine_SkeletonRenderer_onEnable(se::State& s) // NOLINT(readabili
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_onEnable : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->onEnable();
         return true;
@@ -13420,9 +13444,9 @@ static bool js_spine_SkeletonRenderer_paused(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_paused : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13439,9 +13463,9 @@ static bool js_spine_SkeletonRenderer_render(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_render : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13458,9 +13482,9 @@ static bool js_spine_SkeletonRenderer_setAttachEnabled(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setAttachEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13475,27 +13499,33 @@ SE_BIND_FUNC(js_spine_SkeletonRenderer_setAttachEnabled)
 
 static bool js_spine_SkeletonRenderer_setAttachment(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_SkeletonRenderer_setAttachment : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setAttachment : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 2) {
             HolderType<std::string, true> arg0 = {};
-            HolderType<char*, false> arg1 = {};
+            HolderType<char*, false>      arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             bool result = cobj->setAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_setAttachment : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 2) {
@@ -13503,16 +13533,22 @@ static bool js_spine_SkeletonRenderer_setAttachment(se::State& s) // NOLINT(read
             HolderType<std::string, true> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             bool result = cobj->setAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_setAttachment : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -13523,9 +13559,9 @@ static bool js_spine_SkeletonRenderer_setBatchEnabled(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setBatchEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13543,7 +13579,7 @@ static bool js_spine_SkeletonRenderer_setBonesToSetupPose(se::State& s) // NOLIN
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setBonesToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setBonesToSetupPose();
         return true;
@@ -13557,9 +13593,9 @@ static bool js_spine_SkeletonRenderer_setColor(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -13582,9 +13618,9 @@ static bool js_spine_SkeletonRenderer_setDebugBonesEnabled(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setDebugBonesEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13601,9 +13637,9 @@ static bool js_spine_SkeletonRenderer_setDebugMeshEnabled(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setDebugMeshEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13620,9 +13656,9 @@ static bool js_spine_SkeletonRenderer_setDebugSlotsEnabled(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setDebugSlotsEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13639,9 +13675,9 @@ static bool js_spine_SkeletonRenderer_setOpacityModifyRGB(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setOpacityModifyRGB : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13656,32 +13692,38 @@ SE_BIND_FUNC(js_spine_SkeletonRenderer_setOpacityModifyRGB)
 
 static bool js_spine_SkeletonRenderer_setSkin(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_SkeletonRenderer_setSkin : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setSkin : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 1) {
             HolderType<char*, false> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             cobj->setSkin(arg0.value());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 1) {
             HolderType<std::string, true> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             cobj->setSkin(arg0.value());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -13692,9 +13734,9 @@ static bool js_spine_SkeletonRenderer_setSlotsRange(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setSlotsRange : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<int, false> arg0 = {};
         HolderType<int, false> arg1 = {};
@@ -13714,7 +13756,7 @@ static bool js_spine_SkeletonRenderer_setSlotsToSetupPose(se::State& s) // NOLIN
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setSlotsToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setSlotsToSetupPose();
         return true;
@@ -13728,9 +13770,9 @@ static bool js_spine_SkeletonRenderer_setTimeScale(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setTimeScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13748,7 +13790,7 @@ static bool js_spine_SkeletonRenderer_setToSetupPose(se::State& s) // NOLINT(rea
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setToSetupPose();
         return true;
@@ -13762,9 +13804,9 @@ static bool js_spine_SkeletonRenderer_setUseTint(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setUseTint : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13781,9 +13823,9 @@ static bool js_spine_SkeletonRenderer_setVertexEffectDelegate(se::State& s) // N
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_setVertexEffectDelegate : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::VertexEffectDelegate*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13801,7 +13843,7 @@ static bool js_spine_SkeletonRenderer_stopSchedule(se::State& s) // NOLINT(reada
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_stopSchedule : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->stopSchedule();
         return true;
@@ -13815,9 +13857,9 @@ static bool js_spine_SkeletonRenderer_update(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -13835,7 +13877,7 @@ static bool js_spine_SkeletonRenderer_updateWorldTransform(se::State& s) // NOLI
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonRenderer_updateWorldTransform : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->updateWorldTransform();
         return true;
@@ -13849,136 +13891,188 @@ SE_DECLARE_FINALIZE_FUNC(js_spine_SkeletonRenderer_finalize)
 
 static bool js_spine_SkeletonRenderer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
+    CC_UNUSED bool ok   = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
     do {
         if (argc == 1) {
             HolderType<spine::Skeleton*, false> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::SkeletonRenderer* cobj = JSB_ALLOC(spine::SkeletonRenderer, arg0.value());
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
-    } while(false);
+    } while (false);
     do {
         if (argc == 2) {
             HolderType<spine::Skeleton*, false> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<bool, false> arg1 = {};
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::SkeletonRenderer* cobj = JSB_ALLOC(spine::SkeletonRenderer, arg0.value(), arg1.value());
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
-    } while(false);
+    } while (false);
     do {
         if (argc == 3) {
             HolderType<spine::Skeleton*, false> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<bool, false> arg1 = {};
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<bool, false> arg2 = {};
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::SkeletonRenderer* cobj = JSB_ALLOC(spine::SkeletonRenderer, arg0.value(), arg1.value(), arg2.value());
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
-    } while(false);
+    } while (false);
     do {
         if (argc == 4) {
             HolderType<spine::Skeleton*, false> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<bool, false> arg1 = {};
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<bool, false> arg2 = {};
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<bool, false> arg3 = {};
             ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::SkeletonRenderer* cobj = JSB_ALLOC(spine::SkeletonRenderer, arg0.value(), arg1.value(), arg2.value(), arg3.value());
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
-    } while(false);
+    } while (false);
     do {
         if (argc == 0) {
             spine::SkeletonRenderer* cobj = JSB_ALLOC(spine::SkeletonRenderer);
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
-    } while(false);
+    } while (false);
     do {
         if (argc == 1) {
             HolderType<spine::SkeletonData*, false> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::SkeletonRenderer* cobj = JSB_ALLOC(spine::SkeletonRenderer, arg0.value());
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
-    } while(false);
+    } while (false);
     do {
         if (argc == 2) {
             HolderType<spine::SkeletonData*, false> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<bool, false> arg1 = {};
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::SkeletonRenderer* cobj = JSB_ALLOC(spine::SkeletonRenderer, arg0.value(), arg1.value());
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
-    } while(false);
+    } while (false);
     do {
         if (argc == 2) {
             HolderType<std::string, true> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<std::string, true> arg1 = {};
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::SkeletonRenderer* cobj = JSB_ALLOC(spine::SkeletonRenderer, arg0.value(), arg1.value());
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
-    } while(false);
+    } while (false);
     do {
         if (argc == 3) {
             HolderType<std::string, true> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<std::string, true> arg1 = {};
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             HolderType<float, false> arg2 = {};
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             spine::SkeletonRenderer* cobj = JSB_ALLOC(spine::SkeletonRenderer, arg0.value(), arg1.value(), arg2.value());
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
-    } while(false);
+    } while (false);
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_CTOR(js_spine_SkeletonRenderer_constructor, __jsb_spine_SkeletonRenderer_class, js_spine_SkeletonRenderer_finalize)
 
-
-
 static bool js_spine_SkeletonRenderer_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj =SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
+    auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
     cobj->release();
     return true;
 }
@@ -14036,19 +14130,19 @@ bool js_register_spine_SkeletonRenderer(se::Object* obj) // NOLINT(readability-i
     return true;
 }
 se::Object* __jsb_spine_SkeletonAnimation_proto = nullptr;
-se::Class* __jsb_spine_SkeletonAnimation_class = nullptr;
+se::Class*  __jsb_spine_SkeletonAnimation_class = nullptr;
 
 static bool js_spine_SkeletonAnimation_addAnimation(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_addAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 3) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>        arg0 = {};
         HolderType<std::string, true> arg1 = {};
-        HolderType<bool, false> arg2 = {};
+        HolderType<bool, false>       arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -14060,10 +14154,10 @@ static bool js_spine_SkeletonAnimation_addAnimation(se::State& s) // NOLINT(read
         return true;
     }
     if (argc == 4) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>        arg0 = {};
         HolderType<std::string, true> arg1 = {};
-        HolderType<bool, false> arg2 = {};
-        HolderType<float, false> arg3 = {};
+        HolderType<bool, false>       arg2 = {};
+        HolderType<float, false>      arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -14084,11 +14178,11 @@ static bool js_spine_SkeletonAnimation_addEmptyAnimation(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_addEmptyAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>   arg0 = {};
         HolderType<float, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -14100,7 +14194,7 @@ static bool js_spine_SkeletonAnimation_addEmptyAnimation(se::State& s) // NOLINT
         return true;
     }
     if (argc == 3) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>   arg0 = {};
         HolderType<float, false> arg1 = {};
         HolderType<float, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -14122,9 +14216,9 @@ static bool js_spine_SkeletonAnimation_clearTrack(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_clearTrack : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         cobj->clearTrack();
         return true;
@@ -14146,7 +14240,7 @@ static bool js_spine_SkeletonAnimation_clearTracks(se::State& s) // NOLINT(reada
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_clearTracks : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->clearTracks();
         return true;
@@ -14160,9 +14254,9 @@ static bool js_spine_SkeletonAnimation_findAnimation(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_findAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -14182,9 +14276,9 @@ static bool js_spine_SkeletonAnimation_getCurrent(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_getCurrent : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::TrackEntry* result = cobj->getCurrent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -14211,9 +14305,9 @@ static bool js_spine_SkeletonAnimation_getState(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_getState : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::AnimationState* result = cobj->getState();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -14230,13 +14324,13 @@ static bool js_spine_SkeletonAnimation_setAnimation(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 3) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>        arg0 = {};
         HolderType<std::string, true> arg1 = {};
-        HolderType<bool, false> arg2 = {};
+        HolderType<bool, false>       arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -14256,9 +14350,9 @@ static bool js_spine_SkeletonAnimation_setAnimationStateData(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setAnimationStateData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<spine::AnimationStateData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -14275,14 +14369,13 @@ static bool js_spine_SkeletonAnimation_setCompleteListener(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setCompleteListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14294,22 +14387,19 @@ static bool js_spine_SkeletonAnimation_setCompleteListener(se::State& s) // NOLI
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setCompleteListener : Error processing arguments");
         cobj->setCompleteListener(arg0.value());
         return true;
@@ -14323,14 +14413,13 @@ static bool js_spine_SkeletonAnimation_setDisposeListener(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setDisposeListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14342,22 +14431,19 @@ static bool js_spine_SkeletonAnimation_setDisposeListener(se::State& s) // NOLIN
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setDisposeListener : Error processing arguments");
         cobj->setDisposeListener(arg0.value());
         return true;
@@ -14371,11 +14457,11 @@ static bool js_spine_SkeletonAnimation_setEmptyAnimation(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setEmptyAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<int, false> arg0 = {};
+        HolderType<int, false>   arg0 = {};
         HolderType<float, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -14395,9 +14481,9 @@ static bool js_spine_SkeletonAnimation_setEmptyAnimations(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setEmptyAnimations : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -14414,14 +14500,13 @@ static bool js_spine_SkeletonAnimation_setEndListener(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setEndListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14433,22 +14518,19 @@ static bool js_spine_SkeletonAnimation_setEndListener(se::State& s) // NOLINT(re
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setEndListener : Error processing arguments");
         cobj->setEndListener(arg0.value());
         return true;
@@ -14462,14 +14544,13 @@ static bool js_spine_SkeletonAnimation_setEventListener(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setEventListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (spine::TrackEntry *, spine::Event *)>, true> arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*, spine::Event*)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14482,22 +14563,19 @@ static bool js_spine_SkeletonAnimation_setEventListener(se::State& s) // NOLINT(
                     args.resize(2);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setEventListener : Error processing arguments");
         cobj->setEventListener(arg0.value());
         return true;
@@ -14511,14 +14589,13 @@ static bool js_spine_SkeletonAnimation_setInterruptListener(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setInterruptListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14530,22 +14607,19 @@ static bool js_spine_SkeletonAnimation_setInterruptListener(se::State& s) // NOL
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setInterruptListener : Error processing arguments");
         cobj->setInterruptListener(arg0.value());
         return true;
@@ -14559,13 +14633,13 @@ static bool js_spine_SkeletonAnimation_setMix(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setMix : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
-        HolderType<float, false> arg2 = {};
+        HolderType<float, false>      arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -14582,14 +14656,13 @@ static bool js_spine_SkeletonAnimation_setStartListener(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setStartListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14601,22 +14674,19 @@ static bool js_spine_SkeletonAnimation_setStartListener(se::State& s) // NOLINT(
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setStartListener : Error processing arguments");
         cobj->setStartListener(arg0.value());
         return true;
@@ -14630,16 +14700,15 @@ static bool js_spine_SkeletonAnimation_setTrackCompleteListener(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setTrackCompleteListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<spine::TrackEntry*, false> arg0 = {};
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg1 = {};
+        HolderType<spine::TrackEntry*, false>                     arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         do {
-            if (args[1].isObject() && args[1].toObject()->isFunction())
-            {
+            if (args[1].isObject() && args[1].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14651,22 +14720,19 @@ static bool js_spine_SkeletonAnimation_setTrackCompleteListener(se::State& s) //
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg1.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg1.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setTrackCompleteListener : Error processing arguments");
         cobj->setTrackCompleteListener(arg0.value(), arg1.value());
         return true;
@@ -14680,16 +14746,15 @@ static bool js_spine_SkeletonAnimation_setTrackDisposeListener(se::State& s) // 
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setTrackDisposeListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<spine::TrackEntry*, false> arg0 = {};
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg1 = {};
+        HolderType<spine::TrackEntry*, false>                     arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         do {
-            if (args[1].isObject() && args[1].toObject()->isFunction())
-            {
+            if (args[1].isObject() && args[1].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14701,22 +14766,19 @@ static bool js_spine_SkeletonAnimation_setTrackDisposeListener(se::State& s) // 
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg1.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg1.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setTrackDisposeListener : Error processing arguments");
         cobj->setTrackDisposeListener(arg0.value(), arg1.value());
         return true;
@@ -14730,16 +14792,15 @@ static bool js_spine_SkeletonAnimation_setTrackEndListener(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setTrackEndListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<spine::TrackEntry*, false> arg0 = {};
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg1 = {};
+        HolderType<spine::TrackEntry*, false>                     arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         do {
-            if (args[1].isObject() && args[1].toObject()->isFunction())
-            {
+            if (args[1].isObject() && args[1].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14751,22 +14812,19 @@ static bool js_spine_SkeletonAnimation_setTrackEndListener(se::State& s) // NOLI
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg1.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg1.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setTrackEndListener : Error processing arguments");
         cobj->setTrackEndListener(arg0.value(), arg1.value());
         return true;
@@ -14780,16 +14838,15 @@ static bool js_spine_SkeletonAnimation_setTrackEventListener(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setTrackEventListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<spine::TrackEntry*, false> arg0 = {};
-        HolderType<std::function<void (spine::TrackEntry *, spine::Event *)>, true> arg1 = {};
+        HolderType<spine::TrackEntry*, false>                                    arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*, spine::Event*)>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         do {
-            if (args[1].isObject() && args[1].toObject()->isFunction())
-            {
+            if (args[1].isObject() && args[1].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14802,22 +14859,19 @@ static bool js_spine_SkeletonAnimation_setTrackEventListener(se::State& s) // NO
                     args.resize(2);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg1.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg1.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setTrackEventListener : Error processing arguments");
         cobj->setTrackEventListener(arg0.value(), arg1.value());
         return true;
@@ -14831,16 +14885,15 @@ static bool js_spine_SkeletonAnimation_setTrackInterruptListener(se::State& s) /
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setTrackInterruptListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<spine::TrackEntry*, false> arg0 = {};
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg1 = {};
+        HolderType<spine::TrackEntry*, false>                     arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         do {
-            if (args[1].isObject() && args[1].toObject()->isFunction())
-            {
+            if (args[1].isObject() && args[1].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14852,22 +14905,19 @@ static bool js_spine_SkeletonAnimation_setTrackInterruptListener(se::State& s) /
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg1.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg1.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setTrackInterruptListener : Error processing arguments");
         cobj->setTrackInterruptListener(arg0.value(), arg1.value());
         return true;
@@ -14881,16 +14931,15 @@ static bool js_spine_SkeletonAnimation_setTrackStartListener(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonAnimation_setTrackStartListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        HolderType<spine::TrackEntry*, false> arg0 = {};
-        HolderType<std::function<void (spine::TrackEntry *)>, true> arg1 = {};
+        HolderType<spine::TrackEntry*, false>                     arg0 = {};
+        HolderType<std::function<void(spine::TrackEntry*)>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         do {
-            if (args[1].isObject() && args[1].toObject()->isFunction())
-            {
+            if (args[1].isObject() && args[1].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -14902,22 +14951,19 @@ static bool js_spine_SkeletonAnimation_setTrackStartListener(se::State& s) // NO
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg1.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg1.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setTrackStartListener : Error processing arguments");
         cobj->setTrackStartListener(arg0.value(), arg1.value());
         return true;
@@ -14929,9 +14975,9 @@ SE_BIND_FUNC(js_spine_SkeletonAnimation_setTrackStartListener)
 
 static bool js_spine_SkeletonAnimation_create(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         auto result = spine::SkeletonAnimation::create();
         result->retain();
@@ -14947,9 +14993,9 @@ SE_BIND_FUNC(js_spine_SkeletonAnimation_create)
 
 static bool js_spine_SkeletonAnimation_createWithJsonFile(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
@@ -14966,7 +15012,7 @@ static bool js_spine_SkeletonAnimation_createWithJsonFile(se::State& s) // NOLIN
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
-        HolderType<float, false> arg2 = {};
+        HolderType<float, false>      arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
         ok &= sevalue_to_native(args[2], &arg2, nullptr);
@@ -14985,9 +15031,9 @@ SE_BIND_FUNC(js_spine_SkeletonAnimation_createWithJsonFile)
 
 static bool js_spine_SkeletonAnimation_createWithBinaryFile(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
@@ -15004,7 +15050,7 @@ static bool js_spine_SkeletonAnimation_createWithBinaryFile(se::State& s) // NOL
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
-        HolderType<float, false> arg2 = {};
+        HolderType<float, false>      arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
         ok &= sevalue_to_native(args[2], &arg2, nullptr);
@@ -15023,9 +15069,9 @@ SE_BIND_FUNC(js_spine_SkeletonAnimation_createWithBinaryFile)
 
 static bool js_spine_SkeletonAnimation_setGlobalTimeScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -15056,12 +15102,9 @@ static bool js_spine_SkeletonAnimation_ctor(se::State& s) // NOLINT(readability-
 }
 SE_BIND_SUB_CLS_CTOR(js_spine_SkeletonAnimation_ctor, __jsb_spine_SkeletonAnimation_class, js_spine_SkeletonAnimation_finalize)
 
-
-
-
 static bool js_spine_SkeletonAnimation_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj =SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
+    auto* cobj = SE_THIS_OBJECT<spine::SkeletonAnimation>(s);
     cobj->release();
     return true;
 }
@@ -15112,18 +15155,18 @@ bool js_register_spine_SkeletonAnimation(se::Object* obj) // NOLINT(readability-
     return true;
 }
 se::Object* __jsb_spine_SkeletonCacheAnimation_proto = nullptr;
-se::Class* __jsb_spine_SkeletonCacheAnimation_class = nullptr;
+se::Class*  __jsb_spine_SkeletonCacheAnimation_class = nullptr;
 
 static bool js_spine_SkeletonCacheAnimation_addAnimation(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_addAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false> arg1 = {};
+        HolderType<bool, false>       arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_addAnimation : Error processing arguments");
@@ -15132,8 +15175,8 @@ static bool js_spine_SkeletonCacheAnimation_addAnimation(se::State& s) // NOLINT
     }
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
+        HolderType<bool, false>       arg1 = {};
+        HolderType<float, false>      arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -15151,7 +15194,7 @@ static bool js_spine_SkeletonCacheAnimation_beginSchedule(se::State& s) // NOLIN
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_beginSchedule : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->beginSchedule();
         return true;
@@ -15165,9 +15208,9 @@ static bool js_spine_SkeletonCacheAnimation_findAnimation(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_findAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15187,9 +15230,9 @@ static bool js_spine_SkeletonCacheAnimation_findBone(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_findBone : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15209,9 +15252,9 @@ static bool js_spine_SkeletonCacheAnimation_findSlot(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_findSlot : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15231,9 +15274,9 @@ static bool js_spine_SkeletonCacheAnimation_getAttachment(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_getAttachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
@@ -15255,9 +15298,9 @@ static bool js_spine_SkeletonCacheAnimation_getParamsBuffer(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_getParamsBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         se::Object* result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -15274,9 +15317,9 @@ static bool js_spine_SkeletonCacheAnimation_getSharedBufferOffset(se::State& s) 
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_getSharedBufferOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         se::Object* result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -15293,9 +15336,9 @@ static bool js_spine_SkeletonCacheAnimation_getSkeleton(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_getSkeleton : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::Skeleton* result = cobj->getSkeleton();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -15312,9 +15355,9 @@ static bool js_spine_SkeletonCacheAnimation_getTimeScale(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_getTimeScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -15331,9 +15374,9 @@ static bool js_spine_SkeletonCacheAnimation_isOpacityModifyRGB(se::State& s) // 
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_isOpacityModifyRGB : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         bool result = cobj->isOpacityModifyRGB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -15351,7 +15394,7 @@ static bool js_spine_SkeletonCacheAnimation_onDisable(se::State& s) // NOLINT(re
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_onDisable : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->onDisable();
         return true;
@@ -15366,7 +15409,7 @@ static bool js_spine_SkeletonCacheAnimation_onEnable(se::State& s) // NOLINT(rea
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_onEnable : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->onEnable();
         return true;
@@ -15380,9 +15423,9 @@ static bool js_spine_SkeletonCacheAnimation_paused(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_paused : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15399,12 +15442,12 @@ static bool js_spine_SkeletonCacheAnimation_setAnimation(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setAnimation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false> arg1 = {};
+        HolderType<bool, false>       arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_setAnimation : Error processing arguments");
@@ -15420,9 +15463,9 @@ static bool js_spine_SkeletonCacheAnimation_setAttachEnabled(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setAttachEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15437,27 +15480,33 @@ SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_setAttachEnabled)
 
 static bool js_spine_SkeletonCacheAnimation_setAttachment(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_SkeletonCacheAnimation_setAttachment : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setAttachment : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 2) {
             HolderType<std::string, true> arg0 = {};
-            HolderType<char*, false> arg1 = {};
+            HolderType<char*, false>      arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             bool result = cobj->setAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_setAttachment : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 2) {
@@ -15465,16 +15514,22 @@ static bool js_spine_SkeletonCacheAnimation_setAttachment(se::State& s) // NOLIN
             HolderType<std::string, true> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             bool result = cobj->setAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_setAttachment : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -15485,9 +15540,9 @@ static bool js_spine_SkeletonCacheAnimation_setBatchEnabled(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setBatchEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15505,7 +15560,7 @@ static bool js_spine_SkeletonCacheAnimation_setBonesToSetupPose(se::State& s) //
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setBonesToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setBonesToSetupPose();
         return true;
@@ -15519,9 +15574,9 @@ static bool js_spine_SkeletonCacheAnimation_setColor(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 4) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -15544,14 +15599,13 @@ static bool js_spine_SkeletonCacheAnimation_setCompleteListener(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setCompleteListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (std::string)>, true> arg0 = {};
+        HolderType<std::function<void(std::string)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -15563,22 +15617,19 @@ static bool js_spine_SkeletonCacheAnimation_setCompleteListener(se::State& s) //
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_setCompleteListener : Error processing arguments");
         cobj->setCompleteListener(arg0.value());
         return true;
@@ -15592,14 +15643,13 @@ static bool js_spine_SkeletonCacheAnimation_setEndListener(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setEndListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (std::string)>, true> arg0 = {};
+        HolderType<std::function<void(std::string)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -15611,22 +15661,19 @@ static bool js_spine_SkeletonCacheAnimation_setEndListener(se::State& s) // NOLI
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_setEndListener : Error processing arguments");
         cobj->setEndListener(arg0.value());
         return true;
@@ -15640,9 +15687,9 @@ static bool js_spine_SkeletonCacheAnimation_setOpacityModifyRGB(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setOpacityModifyRGB : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15657,32 +15704,38 @@ SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_setOpacityModifyRGB)
 
 static bool js_spine_SkeletonCacheAnimation_setSkin(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
-    SE_PRECONDITION2( cobj, false, "js_spine_SkeletonCacheAnimation_setSkin : Invalid Native Object");
+    CC_UNUSED bool ok   = true;
+    auto*          cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
+    SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setSkin : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     do {
         if (argc == 1) {
             HolderType<char*, false> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             cobj->setSkin(arg0.value());
             return true;
         }
-    } while(false);
+    } while (false);
 
     do {
         if (argc == 1) {
             HolderType<std::string, true> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
+            if (!ok) {
+                ok = true;
+                break;
+            }
             cobj->setSkin(arg0.value());
             return true;
         }
-    } while(false);
+    } while (false);
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
@@ -15694,7 +15747,7 @@ static bool js_spine_SkeletonCacheAnimation_setSlotsToSetupPose(se::State& s) //
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setSlotsToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setSlotsToSetupPose();
         return true;
@@ -15708,14 +15761,13 @@ static bool js_spine_SkeletonCacheAnimation_setStartListener(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setStartListener : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (std::string)>, true> arg0 = {};
+        HolderType<std::function<void(std::string)>, true> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -15727,22 +15779,19 @@ static bool js_spine_SkeletonCacheAnimation_setStartListener(se::State& s) // NO
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_setStartListener : Error processing arguments");
         cobj->setStartListener(arg0.value());
         return true;
@@ -15756,9 +15805,9 @@ static bool js_spine_SkeletonCacheAnimation_setTimeScale(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setTimeScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15776,7 +15825,7 @@ static bool js_spine_SkeletonCacheAnimation_setToSetupPose(se::State& s) // NOLI
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setToSetupPose : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->setToSetupPose();
         return true;
@@ -15790,9 +15839,9 @@ static bool js_spine_SkeletonCacheAnimation_setUseTint(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_setUseTint : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15810,7 +15859,7 @@ static bool js_spine_SkeletonCacheAnimation_stopSchedule(se::State& s) // NOLINT
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_stopSchedule : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->stopSchedule();
         return true;
@@ -15824,9 +15873,9 @@ static bool js_spine_SkeletonCacheAnimation_update(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15844,7 +15893,7 @@ static bool js_spine_SkeletonCacheAnimation_updateAllAnimationCache(se::State& s
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_updateAllAnimationCache : Invalid Native Object");
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         cobj->updateAllAnimationCache();
         return true;
@@ -15858,9 +15907,9 @@ static bool js_spine_SkeletonCacheAnimation_updateAnimationCache(se::State& s) /
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheAnimation_updateAnimationCache : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15877,10 +15926,10 @@ SE_DECLARE_FINALIZE_FUNC(js_spine_SkeletonCacheAnimation_finalize)
 
 static bool js_spine_SkeletonCacheAnimation_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    std::string arg0;
-    bool arg1;
+    CC_UNUSED bool ok   = true;
+    const auto&    args = s.args();
+    std::string    arg0;
+    bool           arg1;
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
     ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
     SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_constructor : Error processing arguments");
@@ -15890,11 +15939,9 @@ static bool js_spine_SkeletonCacheAnimation_constructor(se::State& s) // NOLINT(
 }
 SE_BIND_CTOR(js_spine_SkeletonCacheAnimation_constructor, __jsb_spine_SkeletonCacheAnimation_class, js_spine_SkeletonCacheAnimation_finalize)
 
-
-
 static bool js_spine_SkeletonCacheAnimation_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj =SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
+    auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     cobj->release();
     return true;
 }
@@ -15948,15 +15995,15 @@ bool js_register_spine_SkeletonCacheAnimation(se::Object* obj) // NOLINT(readabi
     return true;
 }
 se::Object* __jsb_spine_SkeletonCacheMgr_proto = nullptr;
-se::Class* __jsb_spine_SkeletonCacheMgr_class = nullptr;
+se::Class*  __jsb_spine_SkeletonCacheMgr_class = nullptr;
 
 static bool js_spine_SkeletonCacheMgr_buildSkeletonCache(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheMgr>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheMgr_buildSkeletonCache : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15976,9 +16023,9 @@ static bool js_spine_SkeletonCacheMgr_removeSkeletonCache(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheMgr>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonCacheMgr_removeSkeletonCache : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -15993,9 +16040,9 @@ SE_BIND_FUNC(js_spine_SkeletonCacheMgr_removeSkeletonCache)
 
 static bool js_spine_SkeletonCacheMgr_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::SkeletonCacheMgr* result = spine::SkeletonCacheMgr::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -16011,7 +16058,7 @@ SE_BIND_FUNC(js_spine_SkeletonCacheMgr_getInstance)
 static bool js_spine_SkeletonCacheMgr_destroyInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 0) {
         spine::SkeletonCacheMgr::destroyInstance();
         return true;
@@ -16021,12 +16068,10 @@ static bool js_spine_SkeletonCacheMgr_destroyInstance(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_spine_SkeletonCacheMgr_destroyInstance)
 
-
 static bool js_spine_SkeletonCacheMgr_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<spine::SkeletonCacheMgr>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheMgr>(s);
         JSB_FREE(cobj);
@@ -16054,20 +16099,19 @@ bool js_register_spine_SkeletonCacheMgr(se::Object* obj) // NOLINT(readability-i
     return true;
 }
 se::Object* __jsb_spine_SkeletonDataMgr_proto = nullptr;
-se::Class* __jsb_spine_SkeletonDataMgr_class = nullptr;
+se::Class*  __jsb_spine_SkeletonDataMgr_class = nullptr;
 
 static bool js_spine_SkeletonDataMgr_setDestroyCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonDataMgr>(s);
     SE_PRECONDITION2(cobj, false, "js_spine_SkeletonDataMgr_setDestroyCallback : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::function<void (int)>, false> arg0 = {};
+        HolderType<std::function<void(int)>, false> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
@@ -16079,22 +16123,19 @@ static bool js_spine_SkeletonDataMgr_setDestroyCallback(se::State& s) // NOLINT(
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value rval;
+                    se::Value   rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            }
-            else
-            {
+            } else {
                 arg0.data = nullptr;
             }
-        } while(false)
-        ;
+        } while (false);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonDataMgr_setDestroyCallback : Error processing arguments");
         cobj->setDestroyCallback(arg0.value());
         return true;
@@ -16106,9 +16147,9 @@ SE_BIND_FUNC(js_spine_SkeletonDataMgr_setDestroyCallback)
 
 static bool js_spine_SkeletonDataMgr_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 0) {
         spine::SkeletonDataMgr* result = spine::SkeletonDataMgr::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -16132,13 +16173,10 @@ static bool js_spine_SkeletonDataMgr_constructor(se::State& s) // NOLINT(readabi
 }
 SE_BIND_CTOR(js_spine_SkeletonDataMgr_constructor, __jsb_spine_SkeletonDataMgr_class, js_spine_SkeletonDataMgr_finalize)
 
-
-
 static bool js_spine_SkeletonDataMgr_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<spine::SkeletonDataMgr>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         auto* cobj = SE_THIS_OBJECT<spine::SkeletonDataMgr>(s);
         JSB_FREE(cobj);
@@ -16163,12 +16201,10 @@ bool js_register_spine_SkeletonDataMgr(se::Object* obj) // NOLINT(readability-id
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_spine(se::Object* obj)
-{
+bool register_all_spine(se::Object* obj) {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("spine", &nsVal))
-    {
+    if (!obj->getProperty("spine", &nsVal)) {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         obj->setProperty("spine", nsVal);

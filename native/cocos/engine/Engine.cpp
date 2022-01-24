@@ -110,7 +110,7 @@ int32_t Engine::init() {
 
     BasePlatform* platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(
-        std::bind(&Engine::handleEvent, this, std::placeholders::_1));// NOLINT(modernize-avoid-bind)
+        std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
     se::ScriptEngine::getInstance()->addPermanentRegisterCallback(setCanvasCallback);
     return 0;
@@ -148,9 +148,9 @@ void Engine::close() { // NOLINT
 #if USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-//#if USE_SOCKET
-//    cc::network::WebSocket::closeAllConnections();
-//#endif
+    //#if USE_SOCKET
+    //    cc::network::WebSocket::closeAllConnections();
+    //#endif
     cc::network::HttpClient::destroyInstance();
 
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
@@ -239,9 +239,9 @@ int32_t Engine::restartVM() {
 #if USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
-//#if USE_SOCKET
-//    cc::network::WebSocket::closeAllConnections();
-//#endif
+    //#if USE_SOCKET
+    //    cc::network::WebSocket::closeAllConnections();
+    //#endif
     cc::network::HttpClient::destroyInstance();
 
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();

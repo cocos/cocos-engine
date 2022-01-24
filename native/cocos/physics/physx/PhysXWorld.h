@@ -46,20 +46,20 @@ public:
     static physx::PxPhysics &   getPhysics();
     PhysXWorld();
     ~PhysXWorld() override;
-    void                        step(float fixedTimeStep) override;
-    void                        setGravity(float x, float y, float z) override;
-    void                        setAllowSleep(bool v) override;
-    void                        emitEvents() override;
-    void                        setCollisionMatrix(uint32_t index, uint32_t mask) override;
-    bool                        raycast(RaycastOptions &opt) override;
-    bool                        raycastClosest(RaycastOptions &opt) override;
-    std::vector<RaycastResult> &raycastResult() override;
-    RaycastResult &             raycastClosestResult() override;
-    uintptr_t                   createConvex(ConvexDesc &desc) override;
-    uintptr_t                   createTrimesh(TrimeshDesc &desc) override;
-    uintptr_t                   createHeightField(HeightFieldDesc &desc) override;
-    uintptr_t                   createMaterial(uint16_t id, float f, float df, float r,
-                                               uint8_t m0, uint8_t m1) override;
+    void                                                   step(float fixedTimeStep) override;
+    void                                                   setGravity(float x, float y, float z) override;
+    void                                                   setAllowSleep(bool v) override;
+    void                                                   emitEvents() override;
+    void                                                   setCollisionMatrix(uint32_t index, uint32_t mask) override;
+    bool                                                   raycast(RaycastOptions &opt) override;
+    bool                                                   raycastClosest(RaycastOptions &opt) override;
+    std::vector<RaycastResult> &                           raycastResult() override;
+    RaycastResult &                                        raycastClosestResult() override;
+    uintptr_t                                              createConvex(ConvexDesc &desc) override;
+    uintptr_t                                              createTrimesh(TrimeshDesc &desc) override;
+    uintptr_t                                              createHeightField(HeightFieldDesc &desc) override;
+    uintptr_t                                              createMaterial(uint16_t id, float f, float df, float r,
+                                                                          uint8_t m0, uint8_t m1) override;
     inline std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override {
         return _mEventMgr->getTriggerPairs();
     }
@@ -77,10 +77,10 @@ public:
     }
 
     inline physx::PxScene &getScene() const { return *_mScene; }
-    uint32_t                  getMaskByIndex(uint32_t i);
-    void                      syncPhysicsToScene();
-    void                      addActor(const PhysXSharedBody &sb);
-    void                      removeActor(const PhysXSharedBody &sb);
+    uint32_t               getMaskByIndex(uint32_t i);
+    void                   syncPhysicsToScene();
+    void                   addActor(const PhysXSharedBody &sb);
+    void                   removeActor(const PhysXSharedBody &sb);
 
 private:
     static PhysXWorld *  instance;

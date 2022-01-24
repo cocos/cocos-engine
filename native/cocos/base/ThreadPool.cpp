@@ -25,9 +25,9 @@
 ****************************************************************************/
 
 #include "base/ThreadPool.h"
-#include "platform/StdC.h"
 #include <chrono>
 #include <memory>
+#include "platform/StdC.h"
 
 #ifdef __ANDROID__
     #include <android/log.h>

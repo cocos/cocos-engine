@@ -159,12 +159,12 @@
 
 namespace {
 // Modifier Key State
-bool stateShiftLeft = false;
-bool stateShiftRight = false;
-bool stateControlLeft = false;
+bool stateShiftLeft    = false;
+bool stateShiftRight   = false;
+bool stateControlLeft  = false;
 bool stateControlRight = false;
-bool stateOptionLeft = false;
-bool stateOptionRight = false;
+bool stateOptionLeft   = false;
+bool stateOptionRight  = false;
 
 // Refer to https://github.com/glfw/glfw/blob/master/src/cocoa_window.m.
 int keyCodes[0xff + 1] = {-1};
@@ -287,54 +287,54 @@ void init() {
 }
 } // namespace
 
-void updateModifierKeyState (int keyCodeInWeb) {
-    if (keyCodeInWeb == 16) {  // shift left
+void updateModifierKeyState(int keyCodeInWeb) {
+    if (keyCodeInWeb == 16) { // shift left
         stateShiftLeft = !stateShiftLeft;
-    } else if (keyCodeInWeb == 20016) {  // shift right
+    } else if (keyCodeInWeb == 20016) { // shift right
         stateShiftRight = !stateShiftRight;
-    } else if (keyCodeInWeb == 17) {  // ctrl left
+    } else if (keyCodeInWeb == 17) { // ctrl left
         stateControlLeft = !stateControlLeft;
-    } else if (keyCodeInWeb == 20017) {  // ctrl right
+    } else if (keyCodeInWeb == 20017) { // ctrl right
         stateControlRight = !stateControlRight;
-    } else if (keyCodeInWeb == 18) {  // alt left
+    } else if (keyCodeInWeb == 18) { // alt left
         stateOptionLeft = !stateOptionLeft;
-    } else if (keyCodeInWeb == 20018) {  // alt right
+    } else if (keyCodeInWeb == 20018) { // alt right
         stateOptionRight = !stateOptionRight;
     }
 }
 
-cc::KeyboardEvent::Action getModifierKeyAction (int keyCodeInWeb) {
-    if (keyCodeInWeb == 16) {  // shift left
+cc::KeyboardEvent::Action getModifierKeyAction(int keyCodeInWeb) {
+    if (keyCodeInWeb == 16) { // shift left
         if (stateShiftLeft) {
             return cc::KeyboardEvent::Action::PRESS;
         } else {
             return cc::KeyboardEvent::Action::RELEASE;
         }
-    } else if (keyCodeInWeb == 20016) {  // shift right
+    } else if (keyCodeInWeb == 20016) { // shift right
         if (stateShiftRight) {
             return cc::KeyboardEvent::Action::PRESS;
         } else {
             return cc::KeyboardEvent::Action::RELEASE;
         }
-    } else if (keyCodeInWeb == 17) {  // ctrl left
+    } else if (keyCodeInWeb == 17) { // ctrl left
         if (stateControlLeft) {
             return cc::KeyboardEvent::Action::PRESS;
         } else {
             return cc::KeyboardEvent::Action::RELEASE;
         }
-    } else if (keyCodeInWeb == 20017) {  // ctrl right
+    } else if (keyCodeInWeb == 20017) { // ctrl right
         if (stateControlRight) {
             return cc::KeyboardEvent::Action::PRESS;
         } else {
             return cc::KeyboardEvent::Action::RELEASE;
         }
-    } else if (keyCodeInWeb == 18) {  // alt left
+    } else if (keyCodeInWeb == 18) { // alt left
         if (stateOptionLeft) {
             return cc::KeyboardEvent::Action::PRESS;
         } else {
             return cc::KeyboardEvent::Action::RELEASE;
         }
-    } else if (keyCodeInWeb == 20018) {  // alt right
+    } else if (keyCodeInWeb == 20018) { // alt right
         if (stateOptionRight) {
             return cc::KeyboardEvent::Action::PRESS;
         } else {
@@ -352,7 +352,7 @@ int translateKeycode(int keyCode) {
     if (keyCode < 0 || keyCode > 0xff)
         return -1;
 
-    int key = keyCodes[keyCode];
+    int key      = keyCodes[keyCode];
     int keyInWeb = -1;
     if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
         keyInWeb = key;

@@ -49,7 +49,7 @@ public class CocosOrientationHelper extends OrientationEventListener {
         int curOrientation = CocosHelper.getDeviceRotation();
         if (curOrientation != mCurrentOrientation) {
             mCurrentOrientation = CocosHelper.getDeviceRotation();
-            CocosHelper.runOnGameThread(new Runnable() {
+            CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                 @Override
                 public void run() {
                     nativeOnOrientationChanged(mCurrentOrientation);

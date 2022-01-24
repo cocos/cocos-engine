@@ -63,11 +63,11 @@ public:
     bool init(v8::Local<v8::Object> handle);
     void setFinalizeCallback(V8FinalizeFunc finalizeCb);
 
-    v8::Local<v8::Object> handle();
-    v8::Local<v8::Object> handle(v8::Isolate *isolate);
+    v8::Local<v8::Object>       handle();
+    v8::Local<v8::Object>       handle(v8::Isolate *isolate);
     v8::Persistent<v8::Object> &persistent();
 
-    void wrap(void *nativeObj);
+    void         wrap(void *nativeObj);
     static void *unwrap(v8::Local<v8::Object> handle);
 
     /* Ref() marks the object as being attached to an event loop.
@@ -89,12 +89,12 @@ public:
 
 private:
     static void weakCallback(const v8::WeakCallbackInfo<ObjectWrap> &data);
-    void makeWeak();
+    void        makeWeak();
 
-    int refs_; // ro
+    int                        refs_; // ro
     v8::Persistent<v8::Object> handle_;
-    void *_nativeObj;
-    V8FinalizeFunc _finalizeCb;
+    void *                     _nativeObj;
+    V8FinalizeFunc             _finalizeCb;
 };
 
 } // namespace se

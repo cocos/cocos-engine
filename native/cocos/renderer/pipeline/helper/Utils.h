@@ -31,9 +31,9 @@
 #include "gfx-base/GFXDef.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "pipeline/Define.h"
+#include "scene/Camera.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
-#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {

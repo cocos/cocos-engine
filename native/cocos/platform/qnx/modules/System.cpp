@@ -53,8 +53,8 @@ System::LanguageType System::getCurrentLanguage() const {
 }
 
 std::string System::getCurrentLanguageCode() const {
-    static char code[3]={0};
-    char *pLanguageName = getenv("LANG");
+    static char code[3]       = {0};
+    char*       pLanguageName = getenv("LANG");
     if (!pLanguageName) {
         return "en";
     }
@@ -62,8 +62,8 @@ std::string System::getCurrentLanguageCode() const {
     if (!pLanguageName) {
         return "en";
     }
-    strncpy(code,pLanguageName,2);
-    code[2]='\0';
+    strncpy(code, pLanguageName, 2);
+    code[2] = '\0';
     return code;
 }
 
@@ -120,7 +120,7 @@ System::LanguageType System::getLanguageTypeByISO2(const char* code) const {
         ret = LanguageType::ROMANIAN;
     } else if (strncmp(code, "bg", 2) == 0) {
         ret = LanguageType::BULGARIAN;
-    } 
+    }
     return ret;
 }
 } // namespace cc

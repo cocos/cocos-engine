@@ -41,14 +41,14 @@ class CCMTLPipelineState final : public PipelineState {
 public:
     explicit CCMTLPipelineState();
     ~CCMTLPipelineState();
-    CCMTLPipelineState(const CCMTLPipelineState &)=delete;
-    CCMTLPipelineState(CCMTLPipelineState &&)=delete;
-    CCMTLPipelineState &operator=(const CCMTLPipelineState &)=delete;
-    CCMTLPipelineState &operator=(CCMTLPipelineState &&)=delete;
+    CCMTLPipelineState(const CCMTLPipelineState &) = delete;
+    CCMTLPipelineState(CCMTLPipelineState &&)      = delete;
+    CCMTLPipelineState &operator=(const CCMTLPipelineState &) = delete;
+    CCMTLPipelineState &operator=(CCMTLPipelineState &&) = delete;
 
     inline CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelineState; }
-    
-    void check(CCMTLRenderPass* renderPass = nullptr);
+
+    void check(CCMTLRenderPass *renderPass = nullptr);
 
 protected:
     void doInit(const PipelineStateInfo &info) override;
@@ -64,11 +64,11 @@ protected:
     void setBlendStates(MTLRenderPipelineDescriptor *);
     bool createMTLRenderPipeline(MTLRenderPipelineDescriptor *);
 
-    bool _renderPipelineReady = false;
-    id<MTLRenderPipelineState> _mtlRenderPipelineState = nil;
-    id<MTLDepthStencilState> _mtlDepthStencilState = nil;
-    id<MTLComputePipelineState> _mtlComputePipeline = nil;
-    CCMTLGPUPipelineState *_GPUPipelineState = nullptr;
+    bool                        _renderPipelineReady    = false;
+    id<MTLRenderPipelineState>  _mtlRenderPipelineState = nil;
+    id<MTLDepthStencilState>    _mtlDepthStencilState   = nil;
+    id<MTLComputePipelineState> _mtlComputePipeline     = nil;
+    CCMTLGPUPipelineState *     _GPUPipelineState       = nullptr;
 };
 
 } // namespace gfx

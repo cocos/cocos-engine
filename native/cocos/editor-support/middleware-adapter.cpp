@@ -35,7 +35,7 @@ Color4F::Color4F(float _r, float _g, float _b, float _a)
 : r(_r), g(_g), b(_b), a(_a) {}
 Color4F::Color4F() {}
 
-Color4F& Color4F::operator=(const Color4B &right) {
+Color4F &Color4F::operator=(const Color4B &right) {
     r = right.r / 255.0f;
     g = right.g / 255.0f;
     b = right.b / 255.0f;
@@ -47,7 +47,7 @@ Color4B::Color4B() {}
 Color4B::Color4B(uint32_t _r, uint32_t _g, uint32_t _b, uint32_t _a)
 : r(_r), g(_g), b(_b), a(_a) {}
 
-Color4B& Color4B::operator=(const Color4B &right) {
+Color4B &Color4B::operator=(const Color4B &right) {
     r = right.r;
     g = right.g;
     b = right.b;
@@ -139,11 +139,11 @@ bool SpriteFrame::initWithTexture(Texture2D *texture, const cc::Rect &rect, bool
         texture->retain();
     }
 
-    _rectInPixels = rect;
-    _offsetInPixels = offset;
+    _rectInPixels         = rect;
+    _offsetInPixels       = offset;
     _originalSizeInPixels = originalSize;
-    _rotated = rotated;
-    _anchorPoint = cc::Vec2(NAN, NAN);
+    _rotated              = rotated;
+    _anchorPoint          = cc::Vec2(NAN, NAN);
 
     return true;
 }

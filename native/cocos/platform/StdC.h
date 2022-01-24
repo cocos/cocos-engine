@@ -38,10 +38,10 @@
     #endif
 
     #include <math.h>
-    #include <string.h>
     #include <stdarg.h>
     #include <stdio.h>
     #include <stdlib.h>
+    #include <string.h>
     #include <time.h>
 
     #if _MSC_VER >= 1600
@@ -71,12 +71,12 @@
 
     #include <float.h>
     #include <math.h>
-    #include <string.h>
     #include <stdarg.h>
+    #include <stdint.h>
     #include <stdio.h>
     #include <stdlib.h>
-    #include <time.h>
+    #include <string.h>
     #include <sys/time.h>
-    #include <stdint.h>
+    #include <time.h>
 
 #endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

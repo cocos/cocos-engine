@@ -53,8 +53,8 @@ public:
 
 private:
     se::Object::TypedArrayType _arrayType = se::Object::TypedArrayType::NONE;
-    se::Object *_typeArray = nullptr;
-    bool _usePool = false;
+    se::Object *               _typeArray = nullptr;
+    bool                       _usePool   = false;
 };
 
 MIDDLEWARE_END

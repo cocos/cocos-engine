@@ -57,9 +57,9 @@ private:
     static RenderStageInfo initInfo;
 
     gfx::Rect           _renderArea;
-    gfx::DescriptorSet *_globalDS      = nullptr;
-    const scene::Light *_light         = nullptr;
-    gfx::Framebuffer *  _framebuffer   = nullptr;
+    gfx::DescriptorSet *_globalDS    = nullptr;
+    const scene::Light *_light       = nullptr;
+    gfx::Framebuffer *  _framebuffer = nullptr;
 
     ShadowMapBatchedQueue *_additiveShadowQueue = nullptr;
 };

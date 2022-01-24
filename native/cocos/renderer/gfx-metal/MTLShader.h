@@ -37,20 +37,20 @@ class CCMTLShader final : public Shader {
 public:
     explicit CCMTLShader();
     ~CCMTLShader();
-    CCMTLShader(const CCMTLShader &)=delete;
-    CCMTLShader(CCMTLShader &&)=delete;
-    CCMTLShader &operator=(const CCMTLShader &)=delete;
-    CCMTLShader &operator=(CCMTLShader &&)=delete;
+    CCMTLShader(const CCMTLShader &) = delete;
+    CCMTLShader(CCMTLShader &&)      = delete;
+    CCMTLShader &operator=(const CCMTLShader &) = delete;
+    CCMTLShader &operator=(CCMTLShader &&) = delete;
 
-    inline id<MTLFunction> getVertMTLFunction() const { return _vertFunction; }
-    inline id<MTLFunction> getFragmentMTLFunction() const { return _fragFunction; }
-    inline id<MTLFunction> getComputeMTLFunction() const { return _cmptFunction; }
+    inline id<MTLFunction>                  getVertMTLFunction() const { return _vertFunction; }
+    inline id<MTLFunction>                  getFragmentMTLFunction() const { return _fragFunction; }
+    inline id<MTLFunction>                  getComputeMTLFunction() const { return _cmptFunction; }
     inline const unordered_map<uint, uint> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
-    inline const CCMTLGPUShader *gpuShader() const { return _gpuShader; }
+    inline const CCMTLGPUShader *           gpuShader() const { return _gpuShader; }
 
     uint getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint stream);
-    
-    id<MTLFunction> getSpecializedFragFunction(uint* index, int* val, uint count);
+
+    id<MTLFunction> getSpecializedFragFunction(uint *index, int *val, uint count);
 
 #ifdef DEBUG_SHADER
     inline const String &getVertGlslShader() const { return _vertGlslShader; }
@@ -71,21 +71,21 @@ protected:
     id<MTLFunction> _vertFunction = nil;
     id<MTLFunction> _fragFunction = nil;
     id<MTLFunction> _cmptFunction = nil;
-    
+
     id<MTLLibrary> _vertLibrary = nil;
     id<MTLLibrary> _fragLibrary = nil;
     id<MTLLibrary> _cmptLibrary = nil;
-    
+
     // function constant hash , specialized MTLFunction
-    NSMutableDictionary<NSString*, id<MTLFunction>>* _specializedFragFuncs = nil;
-    
+    NSMutableDictionary<NSString *, id<MTLFunction>> *_specializedFragFuncs = nil;
+
     unordered_map<uint, uint> _mtlFragmentSamplerBindings;
-    vector<uint> _availableVertexBufferBindingIndex;
-    vector<uint> _availableFragmentBufferBindingIndex;
+    vector<uint>              _availableVertexBufferBindingIndex;
+    vector<uint>              _availableFragmentBufferBindingIndex;
 
     CCMTLGPUShader *_gpuShader = nullptr;
-    
-    static SPIRVUtils* spirv;
+
+    static SPIRVUtils *spirv;
 
     // For debug
 #ifdef DEBUG_SHADER

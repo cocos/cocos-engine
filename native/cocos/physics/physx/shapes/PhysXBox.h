@@ -39,8 +39,8 @@ public:
 
 private:
     physx::PxVec3 _mHalfExtents;
-    void updateGeometry();
-    void onComponentSet() override;
+    void          updateGeometry();
+    void          onComponentSet() override;
 };
 
 } // namespace physics

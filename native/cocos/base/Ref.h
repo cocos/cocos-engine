@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include "base/Macros.h"
 #include "base/Config.h"
+#include "base/Macros.h"
 
 #define CC_REF_LEAK_DETECTION 0
 

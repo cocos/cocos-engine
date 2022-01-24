@@ -53,10 +53,10 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
-#include "application/ApplicationManager.h"
 
 #include "platform/FileUtils.h"
 #include "platform/StdC.h"

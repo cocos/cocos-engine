@@ -40,11 +40,11 @@ public:
     void setAsTrigger(bool v) override;
 
 private:
-    bool         _mConvex;
-    uintptr_t    _mMeshHandle;
-    bool         _mIsTrigger;
-    void         updateGeometry();
-    void         onComponentSet() override;
+    bool      _mConvex;
+    uintptr_t _mMeshHandle;
+    bool      _mIsTrigger;
+    void      updateGeometry();
+    void      onComponentSet() override;
 };
 
 } // namespace physics

@@ -23,12 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "jsb_cocos2dx_extension_manual.h"
+#include "cocos/base/CCThreadPool.h"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.h"
-#include "cocos/base/CCThreadPool.h"
+#include "jsb_cocos2dx_extension_manual.h"
 
 #include "cocos2d.h"
 #include "extensions/cocos-ext.h"
@@ -38,10 +38,10 @@ using namespace cc::extension;
 
 static bool js_cocos2dx_extension_loadRemoteImage(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
 
     if (argc == 2) {
-        bool ok = false;
+        bool        ok = false;
         std::string url;
         ok = seval_to_std_string(args[0], &url);
         SE_PRECONDITION2(ok, false, "Converting 'url' failed!");
@@ -84,9 +84,9 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State &s) {
         if (texture != nullptr) {
             onSuccess(texture);
         } else {
-            auto downloader = new (std::nothrow) cc::network::Downloader();
+            auto downloader               = new (std::nothrow) cc::network::Downloader();
             downloader->onDataTaskSuccess = [downloader, url, onSuccess, onError](const cc::network::DownloadTask &task, std::vector<unsigned char> &data) {
-                Image *img = new (std::nothrow) Image();
+                Image *    img = new (std::nothrow) Image();
                 Texture2D *tex = nullptr;
                 do {
                     if (!img->initWithImageData(data.data(), data.size()))
@@ -130,7 +130,7 @@ SE_BIND_FUNC(js_cocos2dx_extension_loadRemoteImage)
 
 static bool js_cocos2dx_extension_initRemoteImage(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     if (argc != 3) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 3);
         return false;
@@ -140,7 +140,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State &s) {
 
     // get texture
     cc::Texture2D *texture = nullptr;
-    ok = seval_to_native_ptr(args[0], &texture);
+    ok                     = seval_to_native_ptr(args[0], &texture);
     SE_PRECONDITION2(ok, false, "Converting 'texture' failed!");
 
     // get url
@@ -164,7 +164,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State &s) {
         func.toObject()->call(args, nullptr);
     };
 
-    auto downloader = new (std::nothrow) cc::network::Downloader();
+    auto downloader               = new (std::nothrow) cc::network::Downloader();
     downloader->onDataTaskSuccess = [=](const cc::network::DownloadTask &task, std::vector<unsigned char> &data) {
         bool success = false;
 
@@ -196,11 +196,11 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State &s) {
 }
 SE_BIND_FUNC(js_cocos2dx_extension_initRemoteImage)
 
-static ThreadPool *_threadPool = nullptr;
+static ThreadPool *         _threadPool              = nullptr;
 static EventListenerCustom *_resetThreadPoolListener = nullptr;
-static ThreadPool *getThreadPool() {
+static ThreadPool *         getThreadPool() {
     if (_threadPool == nullptr) {
-        _threadPool = ThreadPool::newSingleThreadPool();
+        _threadPool              = ThreadPool::newSingleThreadPool();
         _resetThreadPoolListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_RESET, [](cc::EventCustom *) {
             CC_SAFE_DELETE(_threadPool);
             cc::Director::getInstance()->getEventDispatcher()->removeEventListener(_resetThreadPoolListener);

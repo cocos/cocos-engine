@@ -301,7 +301,7 @@ public:
      */
     V getRandomObject() const {
         if (!_data.empty()) {
-            auto randIdx = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
+            auto           randIdx  = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
             const_iterator randIter = _data.begin();
             std::advance(randIter, randIdx);
             return randIter->second;

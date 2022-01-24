@@ -50,8 +50,8 @@
 namespace se {
 
 ObjectWrap::ObjectWrap() {
-    refs_ = 0;
-    _nativeObj = nullptr;
+    refs_       = 0;
+    _nativeObj  = nullptr;
     _finalizeCb = nullptr;
 }
 

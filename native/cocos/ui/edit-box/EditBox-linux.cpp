@@ -38,4 +38,4 @@ void EditBox::hide() {
 bool EditBox::complete() {
     return true;
 }
-}
+} // namespace cc

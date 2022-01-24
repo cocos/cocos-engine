@@ -23,10 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/shapes/PhysXShape.h"
 #include "physics/physx/shapes/PhysXBox.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
+#include "physics/physx/shapes/PhysXShape.h"
 
 namespace cc {
 namespace physics {
@@ -52,8 +52,8 @@ void PhysXBox::updateScale() {
 }
 
 void PhysXBox::updateGeometry() {
-    auto *node = getSharedBody().getNode();
-    auto &geo = getPxGeometry<physx::PxBoxGeometry>();
+    auto *node      = getSharedBody().getNode();
+    auto &geo       = getPxGeometry<physx::PxBoxGeometry>();
     geo.halfExtents = _mHalfExtents;
     node->updateWorldTransform();
     geo.halfExtents *= node->getWorldScale();

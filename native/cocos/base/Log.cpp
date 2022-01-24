@@ -25,10 +25,10 @@
 
 #include "Log.h"
 
-#include <string>
-#include <vector>
 #include <cstdarg>
 #include <ctime>
+#include <string>
+#include <vector>
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #ifndef WIN32_LEAN_AND_MEAN
@@ -78,15 +78,15 @@ void Log::setLogFile(const std::string &filename) {
         struct tm *tm_time;
         time_t     ct_time;
         time(&ct_time);
-        tm_time = localtime(&ct_time);
-        char dateBuffer[256] = { 0 };
+        tm_time              = localtime(&ct_time);
+        char dateBuffer[256] = {0};
         snprintf(dateBuffer, sizeof(dateBuffer), "LOG DATE: %04d-%02d-%02d %02d:%02d:%02d\n",
-                                  tm_time->tm_year + 1900,
-                                  tm_time->tm_mon + 1,
-                                  tm_time->tm_mday,
-                                  tm_time->tm_hour,
-                                  tm_time->tm_min,
-                                  tm_time->tm_sec);
+                 tm_time->tm_year + 1900,
+                 tm_time->tm_mon + 1,
+                 tm_time->tm_mday,
+                 tm_time->tm_hour,
+                 tm_time->tm_min,
+                 tm_time->tm_sec);
 
         msg += dateBuffer;
 
@@ -126,7 +126,7 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
     // p += StringUtil::vprintf(p, last, formats, args);
 
     std::ptrdiff_t count = (last - p);
-    int       ret   = vsnprintf(p, count, formats, args);
+    int            ret   = vsnprintf(p, count, formats, args);
     if (ret >= count - 1) {
         p += (count - 1);
     } else if (ret >= 0) {

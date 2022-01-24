@@ -73,10 +73,10 @@ struct Shadow {
     ShadowType shadowType{ShadowType::PLANAR};
     float      distance{0.0F};
 
-    bool       dirty{false};
-    bool       shadowMapDirty{false};
-    Pass *     instancePass{nullptr};
-    Pass *     planarPass{nullptr};
+    bool  dirty{false};
+    bool  shadowMapDirty{false};
+    Pass *instancePass{nullptr};
+    Pass *planarPass{nullptr};
 
     Vec4 color;
     Vec2 size;

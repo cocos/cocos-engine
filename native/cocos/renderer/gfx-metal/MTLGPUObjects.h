@@ -34,8 +34,8 @@
 #import <QuartzCore/CAMetalLayer.h>
 #import "../../base/Utils.h"
 #import "MTLConfig.h"
-#import "MTLUtils.h"
 #import "MTLDevice.h"
+#import "MTLUtils.h"
 namespace cc {
 namespace gfx {
 class CCMTLBuffer;
@@ -52,6 +52,8 @@ class CCMTLSemaphore;
 namespace {
 constexpr size_t MegaBytesToBytes = 1024 * 1024;
 }
+
+constexpr size_t MAX_COLORATTACHMENTS = 16u;
 
 class CCMTLGPUDescriptorSetLayout : public Object {
 public:
@@ -106,8 +108,8 @@ public:
 
     NSString *shaderSrc       = nil;
     bool      specializeColor = true;
-    
-    uint32_t bufferIndex = 0;
+
+    uint32_t bufferIndex  = 0;
     uint32_t samplerIndex = 0;
 };
 

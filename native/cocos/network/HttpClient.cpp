@@ -27,13 +27,13 @@
 ****************************************************************************/
 
 #include "network/HttpClient.h"
-#include <queue>
-#include <errno.h>
 #include <curl/curl.h>
-#include "platform/FileUtils.h"
+#include <errno.h>
+#include <queue>
 #include "application/ApplicationManager.h"
-#include "platform/StdC.h"
 #include "base/Log.h"
+#include "platform/FileUtils.h"
+#include "platform/StdC.h"
 
 namespace cc {
 
@@ -50,7 +50,7 @@ typedef size_t (*write_callback)(void *ptr, size_t size, size_t nmemb, void *str
 // Callback function used by libcurl for collect response data
 static size_t writeData(void *ptr, size_t size, size_t nmemb, void *stream) {
     std::vector<char> *recvBuffer = (std::vector<char> *)stream;
-    size_t sizes = size * nmemb;
+    size_t             sizes      = size * nmemb;
 
     // add data to the end of recvBuffer
     // write data maybe called more than once in a single request
@@ -62,7 +62,7 @@ static size_t writeData(void *ptr, size_t size, size_t nmemb, void *stream) {
 // Callback function used by libcurl for collect header data
 static size_t writeHeaderData(void *ptr, size_t size, size_t nmemb, void *stream) {
     std::vector<char> *recvBuffer = (std::vector<char> *)stream;
-    size_t sizes = size * nmemb;
+    size_t             sizes      = size * nmemb;
 
     // add data to the end of recvBuffer
     // write data maybe called more than once in a single request
@@ -271,35 +271,35 @@ public:
 //Process Get Request
 static int processGetTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
     CURLRaii curl;
-    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_FOLLOWLOCATION, true) && curl.perform(responseCode);
+    bool     ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_FOLLOWLOCATION, true) && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
 
 //Process POST Request
 static int processPostTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
     CURLRaii curl;
-    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_POST, 1) && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData()) && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize()) && curl.perform(responseCode);
+    bool     ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_POST, 1) && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData()) && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize()) && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
 
 //Process PUT Request
 static int processPutTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
     CURLRaii curl;
-    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_CUSTOMREQUEST, "PUT") && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData()) && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize()) && curl.perform(responseCode);
+    bool     ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_CUSTOMREQUEST, "PUT") && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData()) && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize()) && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
 
 //Process HEAD Request
 static int processHeadTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
     CURLRaii curl;
-    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_NOBODY, "HEAD") && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData()) && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize()) && curl.perform(responseCode);
+    bool     ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_NOBODY, "HEAD") && curl.setOption(CURLOPT_POSTFIELDS, request->getRequestData()) && curl.setOption(CURLOPT_POSTFIELDSIZE, request->getRequestDataSize()) && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
 
 //Process DELETE Request
 static int processDeleteTask(HttpClient *client, HttpRequest *request, write_callback callback, void *stream, long *responseCode, write_callback headerCallback, void *headerStream, char *errorBuffer) {
     CURLRaii curl;
-    bool ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_CUSTOMREQUEST, "DELETE") && curl.setOption(CURLOPT_FOLLOWLOCATION, true) && curl.perform(responseCode);
+    bool     ok = curl.init(client, request, callback, stream, headerCallback, headerStream, errorBuffer) && curl.setOption(CURLOPT_CUSTOMREQUEST, "DELETE") && curl.setOption(CURLOPT_FOLLOWLOCATION, true) && curl.perform(responseCode);
     return ok ? 0 : 1;
 }
 
@@ -319,7 +319,7 @@ void HttpClient::destroyInstance() {
     }
 
     CC_LOG_DEBUG("HttpClient::destroyInstance begin");
-    auto thiz = _httpClient;
+    auto thiz   = _httpClient;
     _httpClient = nullptr;
 
     if (auto sche = thiz->_scheduler.lock()) {
@@ -432,7 +432,7 @@ void HttpClient::dispatchResponseCallbacks() {
     _responseQueueMutex.unlock();
 
     if (response) {
-        HttpRequest *request = response->getHttpRequest();
+        HttpRequest *                request  = response->getHttpRequest();
         const ccHttpRequestCallback &callback = request->getResponseCallback();
 
         if (callback != nullptr) {
@@ -447,9 +447,9 @@ void HttpClient::dispatchResponseCallbacks() {
 
 // Process Response
 void HttpClient::processResponse(HttpResponse *response, char *responseMessage) {
-    auto request = response->getHttpRequest();
+    auto request      = response->getHttpRequest();
     long responseCode = -1;
-    int retValue = 0;
+    int  retValue     = 0;
 
     // Process the request -> get response packet
     switch (request->getRequestType()) {

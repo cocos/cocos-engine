@@ -26,14 +26,14 @@
 
 #pragma once
 
-#include "base/Macros.h"
 #include "audio/apple/AudioMacros.h"
+#include "base/Macros.h"
 
+#include <OpenAL/al.h>
 #include <condition_variable>
 #include <mutex>
 #include <string>
 #include <thread>
-#include <OpenAL/al.h>
 
 namespace cc {
 class AudioCache;
@@ -47,9 +47,9 @@ public:
     void destroy();
 
     //queue buffer related stuff
-    bool setTime(float time);
+    bool  setTime(float time);
     float getTime() { return _currTime; }
-    bool setLoop(bool loop);
+    bool  setLoop(bool loop);
 
 protected:
     void setCache(AudioCache *cache);
@@ -59,25 +59,25 @@ protected:
 
     AudioCache *_audioCache;
 
-    float _volume;
-    bool _loop;
+    float                                         _volume;
+    bool                                          _loop;
     std::function<void(int, const std::string &)> _finishCallbak;
 
-    bool _isDestroyed;
-    bool _removeByAudioEngine;
-    bool _ready;
+    bool   _isDestroyed;
+    bool   _removeByAudioEngine;
+    bool   _ready;
     ALuint _alSource;
 
     //play by circular buffer
-    float _currTime;
-    bool _streamingSource;
-    ALuint _bufferIds[QUEUEBUFFER_NUM];
-    std::thread *_rotateBufferThread;
+    float                   _currTime;
+    bool                    _streamingSource;
+    ALuint                  _bufferIds[QUEUEBUFFER_NUM];
+    std::thread *           _rotateBufferThread;
     std::condition_variable _sleepCondition;
-    std::mutex _sleepMutex;
-    bool _timeDirty;
-    bool _isRotateThreadExited;
-    std::atomic_bool _needWakeupRotateThread;
+    std::mutex              _sleepMutex;
+    bool                    _timeDirty;
+    bool                    _isRotateThreadExited;
+    std::atomic_bool        _needWakeupRotateThread;
 
     std::mutex _play2dMutex;
 

@@ -29,6 +29,7 @@
 
 #import <Metal/MTLCommandQueue.h>
 #import <MetalKit/MTKView.h>
+#include <bitset>
 #include "MTLComputeCommandEncoder.h"
 #include "MTLGPUObjects.h"
 #include "MTLRenderCommandEncoder.h"
@@ -94,7 +95,7 @@ protected:
     void        bindDescriptorSets();
     void        updateDepthStencilState(uint32_t subPassIndex, MTLRenderPassDescriptor *descriptor);
     static bool isRenderingEntireDrawable(const Rect &rect, const CCMTLFramebuffer *renderPass);
-    
+
     id<MTLCommandBuffer> getMTLCommandBuffer();
 
     vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets; // NOLINT(bugprone-reserved-identifier)
@@ -112,8 +113,10 @@ protected:
     MTLPrimitiveType                    _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;
 
     CCMTLGPUCommandBufferObject *_gpuCommandBufferObj = nullptr;
-    
-    CCMTLSemaphore* _texCopySemaphore = nullptr;
+
+    CCMTLSemaphore *_texCopySemaphore = nullptr;
+
+    std::bitset<MAX_COLORATTACHMENTS> _colorAppearedBefore;
 };
 
 } // namespace gfx

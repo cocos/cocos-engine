@@ -25,10 +25,10 @@
 
 #pragma once
 
+#include <string.h>
+#include <climits>
 #include "base/Object.h"
 #include "base/TypeDef.h"
-#include <climits>
-#include <string.h>
 
 namespace cc {
 

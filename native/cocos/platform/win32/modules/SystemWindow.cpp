@@ -35,7 +35,6 @@
 #include "sdl2/SDL_main.h"
 #include "sdl2/SDL_syswm.h"
 
-
 namespace {
 
 } // namespace

@@ -64,6 +64,7 @@ public:
      @return accelerometer interface.
      */
     static OSInterface::Ptr createAccelerometerInterface();
+
 private:
 };
 

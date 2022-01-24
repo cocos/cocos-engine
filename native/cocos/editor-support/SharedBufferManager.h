@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "IOTypedArray.h"
 #include <functional>
+#include "IOTypedArray.h"
 
 MIDDLEWARE_BEGIN
 
@@ -44,7 +44,7 @@ public:
     }
 
     typedef std::function<void()> resizeCallback;
-    void setResizeCallback(resizeCallback callback) {
+    void                          setResizeCallback(resizeCallback callback) {
         _resizeCallback = callback;
     }
 
@@ -58,8 +58,8 @@ private:
 
 private:
     se::Object::TypedArrayType _arrayType;
-    IOTypedArray *_buffer = nullptr;
-    resizeCallback _resizeCallback = nullptr;
+    IOTypedArray *             _buffer         = nullptr;
+    resizeCallback             _resizeCallback = nullptr;
 };
 
 MIDDLEWARE_END

@@ -25,8 +25,8 @@
 
 #include <iostream>
 
-#include "platform/BasePlatform.h"
 #include "SDL2/SDL_main.h"
+#include "platform/BasePlatform.h"
 
 int main(int argc, char** argv) {
     START_PLATFORM(argc, (const char**)argv);

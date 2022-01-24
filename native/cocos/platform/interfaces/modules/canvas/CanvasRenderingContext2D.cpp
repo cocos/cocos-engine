@@ -288,7 +288,7 @@ void CanvasRenderingContext2D::setFont(const std::string &font) {
             fontSizeStr = results[2].str();
             fontName    = results[5].str();
         }
-        bool  isItalic = font.find("italic", 0) != std::string::npos;
+        bool isItalic = font.find("italic", 0) != std::string::npos;
         auto fontSize = static_cast<float>(atof(fontSizeStr.c_str()));
         //SE_LOGD("CanvasRenderingContext2D::set_font: %s, Size: %f, isBold: %b\n", fontName.c_str(), fontSize, !boldStr.empty());
         _delegate->updateFont(fontName, fontSize, !boldStr.empty(), isItalic, false, false);

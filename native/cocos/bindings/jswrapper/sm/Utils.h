@@ -41,11 +41,11 @@ class Class;
 namespace internal {
 
 struct PrivateData {
-    void *data;
+    void *       data;
     JSFinalizeOp finalizeCb;
 };
 
-void forceConvertJsValueToStdString(JSContext *cx, JS::HandleValue jsval, std::string *ret);
+void        forceConvertJsValueToStdString(JSContext *cx, JS::HandleValue jsval, std::string *ret);
 std::string jsToStdString(JSContext *cx, JS::HandleString jsStr);
 
 void jsToSeArgs(JSContext *cx, int argc, const JS::CallArgs &argv, ValueArray *outArr);
@@ -55,10 +55,10 @@ void seToJsValue(JSContext *cx, const Value &v, JS::MutableHandleValue outVal);
 
 void setReturnValue(JSContext *cx, const Value &data, const JS::CallArgs &argv);
 
-bool hasPrivate(JSContext *cx, JS::HandleObject obj);
+bool  hasPrivate(JSContext *cx, JS::HandleObject obj);
 void *getPrivate(JSContext *cx, JS::HandleObject obj);
-void setPrivate(JSContext *cx, JS::HandleObject obj, void *data, JSFinalizeOp finalizeCb);
-void clearPrivate(JSContext *cx, JS::HandleObject obj);
+void  setPrivate(JSContext *cx, JS::HandleObject obj, void *data, JSFinalizeOp finalizeCb);
+void  clearPrivate(JSContext *cx, JS::HandleObject obj);
 
 } // namespace internal
 

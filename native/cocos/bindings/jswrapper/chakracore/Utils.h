@@ -39,7 +39,7 @@ namespace se {
 namespace internal {
 
 struct PrivateData {
-    void *data;
+    void *             data;
     JsFinalizeCallback finalizeCb;
 };
 
@@ -53,10 +53,10 @@ void seToJsValue(const Value &v, JsValueRef *jsval);
 void forceConvertJsValueToStdString(JsValueRef jsval, std::string *ret);
 void jsStringToStdString(JsValueRef jsStr, std::string *ret);
 
-bool hasPrivate(JsValueRef obj);
-void setPrivate(JsValueRef obj, void *data, JsFinalizeCallback finalizeCb);
+bool  hasPrivate(JsValueRef obj);
+void  setPrivate(JsValueRef obj, void *data, JsFinalizeCallback finalizeCb);
 void *getPrivate(JsValueRef obj);
-void clearPrivate(JsValueRef obj);
+void  clearPrivate(JsValueRef obj);
 
 } // namespace internal
 } // namespace se

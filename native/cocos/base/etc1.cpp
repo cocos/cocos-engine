@@ -43,11 +43,11 @@
 
 static const char kMagic[] = {'P', 'K', 'M', ' ', '1', '0'};
 
-static const etc1_uint32 ETC1_PKM_FORMAT_OFFSET = 6;
-static const etc1_uint32 ETC1_PKM_ENCODED_WIDTH_OFFSET = 8;
+static const etc1_uint32 ETC1_PKM_FORMAT_OFFSET         = 6;
+static const etc1_uint32 ETC1_PKM_ENCODED_WIDTH_OFFSET  = 8;
 static const etc1_uint32 ETC1_PKM_ENCODED_HEIGHT_OFFSET = 10;
-static const etc1_uint32 ETC1_PKM_WIDTH_OFFSET = 12;
-static const etc1_uint32 ETC1_PKM_HEIGHT_OFFSET = 14;
+static const etc1_uint32 ETC1_PKM_WIDTH_OFFSET          = 12;
+static const etc1_uint32 ETC1_PKM_HEIGHT_OFFSET         = 14;
 
 static const etc1_uint32 ETC1_RGB_NO_MIPMAPS = 0;
 
@@ -61,11 +61,11 @@ etc1_bool etc1_pkm_is_valid(const etc1_byte *pHeader) {
     if (memcmp(pHeader, kMagic, sizeof(kMagic))) {
         return false;
     }
-    etc1_uint32 format = readBEUint16(pHeader + ETC1_PKM_FORMAT_OFFSET);
-    etc1_uint32 encodedWidth = readBEUint16(pHeader + ETC1_PKM_ENCODED_WIDTH_OFFSET);
+    etc1_uint32 format        = readBEUint16(pHeader + ETC1_PKM_FORMAT_OFFSET);
+    etc1_uint32 encodedWidth  = readBEUint16(pHeader + ETC1_PKM_ENCODED_WIDTH_OFFSET);
     etc1_uint32 encodedHeight = readBEUint16(pHeader + ETC1_PKM_ENCODED_HEIGHT_OFFSET);
-    etc1_uint32 width = readBEUint16(pHeader + ETC1_PKM_WIDTH_OFFSET);
-    etc1_uint32 height = readBEUint16(pHeader + ETC1_PKM_HEIGHT_OFFSET);
+    etc1_uint32 width         = readBEUint16(pHeader + ETC1_PKM_WIDTH_OFFSET);
+    etc1_uint32 height        = readBEUint16(pHeader + ETC1_PKM_HEIGHT_OFFSET);
     return format == ETC1_RGB_NO_MIPMAPS &&
            encodedWidth >= width && encodedWidth - width < 4 &&
            encodedHeight >= height && encodedHeight - height < 4;

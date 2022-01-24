@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "taskflow/taskflow.hpp"
 #include <algorithm>
 #include <thread>
+#include "taskflow/taskflow.hpp"
 
 namespace cc {
 

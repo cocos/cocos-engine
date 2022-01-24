@@ -35,6 +35,7 @@ public:
     ~System() override;
 
     OSType getOSType() const override;
+
 private:
 };
 

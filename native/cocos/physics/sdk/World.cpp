@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/PhysicsSelector.h"
 #include "physics/sdk/World.h"
 #include <memory>
+#include "physics/PhysicsSelector.h"
 
 namespace cc {
 namespace physics {
@@ -55,7 +55,7 @@ void World::setGravity(float x, float y, float z) {
 }
 
 uintptr_t World::createMaterial(uint16_t id, float f, float df, float r,
-                               uint8_t m0, uint8_t m1) {
+                                uint8_t m0, uint8_t m1) {
     return _impl->createMaterial(id, f, df, r, m0, m1);
 }
 

@@ -42,15 +42,15 @@
 #endif
 
 #if CC_DEBUG > 0
-#define VK_CHECK(x)                                                      \
-    do {                                                                 \
-        VkResult err = x;                                                \
-        if (err) {                                                       \
-            CC_LOG_ERROR("%s returned Vulkan error: %d", #x, err);       \
-            CCASSERT(false, "Vulkan Error");                             \
-        }                                                                \
-    } while (0)
+    #define VK_CHECK(x)                                                \
+        do {                                                           \
+            VkResult err = x;                                          \
+            if (err) {                                                 \
+                CC_LOG_ERROR("%s returned Vulkan error: %d", #x, err); \
+                CCASSERT(false, "Vulkan Error");                       \
+            }                                                          \
+        } while (0)
 
 #else
-#define VK_CHECK(x) x
+    #define VK_CHECK(x) x
 #endif

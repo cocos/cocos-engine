@@ -28,8 +28,8 @@
 #include "Image.h"
 #include <cassert>
 #include <cctype>
-#include <string>
 #include <cstring>
+#include <string>
 #include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
 
 #if CC_USE_JPEG

@@ -46,11 +46,11 @@ class RenderBatchedQueue;
 class ForwardPipeline;
 
 struct AdditiveLightPass {
-    const scene::SubModel *      subModel = nullptr;
-    const scene::Pass *          pass     = nullptr;
-    gfx::Shader *                shader   = nullptr;
-    vector<uint>                 dynamicOffsets;
-    vector<uint>                 lights;
+    const scene::SubModel *subModel = nullptr;
+    const scene::Pass *    pass     = nullptr;
+    gfx::Shader *          shader   = nullptr;
+    vector<uint>           dynamicOffsets;
+    vector<uint>           lights;
 };
 
 class RenderAdditiveLightQueue : public Object {
@@ -65,12 +65,12 @@ private:
     static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
     static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
 
-    void                clear();
-    void                addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx);
-    void                updateUBOs(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void                updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    bool                getLightPassIndex(const scene::Model *model, vector<uint> *lightPassIndices) const;
-    void                lightCulling(const scene::Model *model);
+    void clear();
+    void addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx);
+    void updateUBOs(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
+    void updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
+    bool getLightPassIndex(const scene::Model *model, vector<uint> *lightPassIndices) const;
+    void lightCulling(const scene::Model *model);
 
     RenderPipeline *                  _pipeline = nullptr;
     vector<vector<scene::SubModel *>> _sortedSubModelsArray;
@@ -85,7 +85,7 @@ private:
     gfx::Buffer *                     _lightBuffer          = nullptr;
     gfx::Buffer *                     _firstLightBufferView = nullptr;
 
-    std::array<float, UBOShadow::COUNT>                            _shadowUBO{};
+    std::array<float, UBOShadow::COUNT> _shadowUBO{};
 
     uint  _lightBufferStride       = 0;
     uint  _lightBufferElementCount = 0;

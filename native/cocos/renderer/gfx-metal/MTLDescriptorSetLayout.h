@@ -35,10 +35,10 @@ class CCMTLDescriptorSetLayout final : public DescriptorSetLayout {
 public:
     explicit CCMTLDescriptorSetLayout();
     ~CCMTLDescriptorSetLayout();
-    CCMTLDescriptorSetLayout(const CCMTLDescriptorSetLayout &)=delete;
-    CCMTLDescriptorSetLayout(CCMTLDescriptorSetLayout &&)=delete;
-    CCMTLDescriptorSetLayout &operator=(const CCMTLDescriptorSetLayout &)=delete;
-    CCMTLDescriptorSetLayout &operator=(CCMTLDescriptorSetLayout &&)=delete;
+    CCMTLDescriptorSetLayout(const CCMTLDescriptorSetLayout &) = delete;
+    CCMTLDescriptorSetLayout(CCMTLDescriptorSetLayout &&)      = delete;
+    CCMTLDescriptorSetLayout &operator=(const CCMTLDescriptorSetLayout &) = delete;
+    CCMTLDescriptorSetLayout &operator=(CCMTLDescriptorSetLayout &&) = delete;
 
     inline CCMTLGPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
 

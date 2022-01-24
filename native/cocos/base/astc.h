@@ -29,14 +29,14 @@
 
 #pragma once
 
-using astc_byte = unsigned char;
+using astc_byte   = unsigned char;
 using astc_uint32 = unsigned int;
 
 // Size of a ASTC header
 
-    #define ASTC_HEADER_SIZE 16
+#define ASTC_HEADER_SIZE 16
 
-    #define ASTC_HEADER_MAGIC 4
+#define ASTC_HEADER_MAGIC 4
 
 // Check if a ASTC header is correctly formatted
 

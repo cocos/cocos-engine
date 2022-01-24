@@ -30,8 +30,8 @@
 /// @cond DO_NOT_SHOW
 
 typedef unsigned char etc2_byte;
-typedef int etc2_bool;
-typedef unsigned int etc2_uint32;
+typedef int           etc2_bool;
+typedef unsigned int  etc2_uint32;
 
 #ifndef GL_COMPRESSED_RGB8_ETC2
     #define GL_COMPRESSED_RGB8_ETC2 0x9274

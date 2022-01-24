@@ -308,4 +308,3 @@ void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
 } // namespace internal
 } // namespace se
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-

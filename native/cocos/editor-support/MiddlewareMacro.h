@@ -37,17 +37,21 @@
 #define MIN_TYPE_ARRAY_SIZE 1024
 
 #ifndef MIDDLEWARE_BEGIN
-#define MIDDLEWARE_BEGIN namespace cc { namespace middleware {
+    #define MIDDLEWARE_BEGIN \
+        namespace cc {       \
+        namespace middleware {
 #endif // MIDDLEWARE_BEGIN
 
 #ifndef MIDDLEWARE_END
-#define MIDDLEWARE_END }}
+    #define MIDDLEWARE_END \
+        }                  \
+        }
 #endif // MIDDLEWARE_END
 
 #ifndef USING_NS_MW
-#define USING_NS_MW using namespace cc::middleware
+    #define USING_NS_MW using namespace cc::middleware
 #endif
 
 // R G B A �ֱ�ռ��32λ
-#define VF_XYZUVC 9
+#define VF_XYZUVC  9
 #define VF_XYZUVCC 13

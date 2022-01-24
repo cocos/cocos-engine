@@ -25,9 +25,9 @@
 
 #pragma once
 
+#include "base/Macros.h"
 #include "concurrentqueue/concurrentqueue.h"
 #include "concurrentqueue/lightweightsemaphore.h"
-#include "base/Macros.h"
 namespace cc {
 
 class Semaphore final {

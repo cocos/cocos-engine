@@ -48,7 +48,7 @@ private:
     physx::PxConvexMesh *_mMesh;
     Cone                 _mData;
     void                 updateGeometry();
-    void         onComponentSet() override;
+    void                 onComponentSet() override;
 };
 
 } // namespace physics

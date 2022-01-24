@@ -65,8 +65,8 @@ public:
     void clear();
     void setDynamicOffset(uint idx, uint value);
 
-    inline const BatchedItemList &getBatches() const { return _batches; }
-    inline const scene::Pass *getPass() const { return _pass; }
+    inline const BatchedItemList &  getBatches() const { return _batches; }
+    inline const scene::Pass *      getPass() const { return _pass; }
     inline const DynamicOffsetList &getDynamicOffset() const { return _dynamicOffsets; }
 
 private:

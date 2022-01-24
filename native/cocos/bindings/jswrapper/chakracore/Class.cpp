@@ -28,11 +28,11 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
-    #include "Object.h"
-    #include "Utils.h"
-    #include "State.h"
-    #include "ScriptEngine.h"
     #include "../HandleObject.h"
+    #include "Object.h"
+    #include "ScriptEngine.h"
+    #include "State.h"
+    #include "Utils.h"
 
 namespace se {
 
@@ -53,7 +53,7 @@ JsValueRef emptyContructor(JsValueRef callee, bool isConstructCall, JsValueRef *
 
 void defaultFinalizeCallback(void *nativeThisObject) {
     if (nativeThisObject != nullptr) {
-        State state(nativeThisObject);
+        State   state(nativeThisObject);
         Object *_thisObject = state.thisObject();
         if (_thisObject) _thisObject->_cleanup(nativeThisObject);
         SAFE_DEC_REF(_thisObject);
@@ -83,7 +83,7 @@ Class *Class::create(const std::string &className, Object *obj, Object *parentPr
 }
 
 bool Class::init(const std::string &clsName, Object *parent, Object *parentProto, JsNativeFunction ctor) {
-    _name = clsName;
+    _name   = clsName;
     _parent = parent;
     if (_parent != nullptr)
         _parent->incRef();

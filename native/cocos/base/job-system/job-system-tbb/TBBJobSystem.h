@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "tbb/global_control.h"
 #include <algorithm>
 #include <thread>
+#include "tbb/global_control.h"
 
 namespace cc {
 

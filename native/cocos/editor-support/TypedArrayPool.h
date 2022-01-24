@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #pragma once
-#include "MiddlewareMacro.h"
-#include "SeApi.h"
 #include <map>
 #include <vector>
+#include "MiddlewareMacro.h"
+#include "SeApi.h"
 
 MIDDLEWARE_BEGIN
 /** 
@@ -54,9 +54,9 @@ public:
 
 private:
     using arrayType = se::Object::TypedArrayType;
-    using objPool = std::vector<se::Object *>;
-    using fitMap = std::map<std::size_t, objPool *>;
-    using typeMap = std::map<arrayType, fitMap *>;
+    using objPool   = std::vector<se::Object *>;
+    using fitMap    = std::map<std::size_t, objPool *>;
+    using typeMap   = std::map<arrayType, fitMap *>;
 
     objPool *getObjPool(arrayType type, std::size_t size);
 
@@ -72,9 +72,8 @@ private:
     void afterCleanupHandle();
     void afterInitHandle();
 
-
     typeMap _pool;
-    bool _allowPush = true;
+    bool    _allowPush = true;
 
 public:
     /**

@@ -41,10 +41,10 @@
     #include "AL/alc.h"
     #include "AL/alext.h"
 #endif
+#include "application/ApplicationManager.h"
 #include "audio/include/AudioEngine.h"
 #include "audio/oalsoft/AudioDecoderManager.h"
 #include "base/Scheduler.h"
-#include "application/ApplicationManager.h"
 #include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS

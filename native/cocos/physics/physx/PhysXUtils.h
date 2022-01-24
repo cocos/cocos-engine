@@ -25,16 +25,16 @@
 
 #pragma once
 
-#include "physics/physx/PhysXInc.h"
-#include "physics/physx/PhysXFilterShader.h"
+#include <unordered_map>
+#include <vector>
 #include "base/Macros.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
-#include <vector>
-#include <unordered_map>
+#include "physics/physx/PhysXFilterShader.h"
+#include "physics/physx/PhysXInc.h"
 
-#define PX_RELEASE(x) \
-    if (x) {          \
+#define PX_RELEASE(x)   \
+    if (x) {            \
         (x)->release(); \
         (x) = NULL;     \
     }

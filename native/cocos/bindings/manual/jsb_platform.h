@@ -31,5 +31,5 @@ namespace se {
 class Object;
 }
 
-bool register_platform_bindings(se::Object *obj); // NOLINT[readability-identifier-naming]
+bool                                                register_platform_bindings(se::Object *obj); // NOLINT[readability-identifier-naming]
 const std::unordered_map<std::string, std::string> &getFontFamilyNameMap();

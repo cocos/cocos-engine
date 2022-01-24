@@ -28,12 +28,12 @@
 
 #pragma once
 
-#include <thread>
 #include <condition_variable>
+#include <thread>
 #include "base/Vector.h"
+#include "network/HttpCookie.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
-#include "network/HttpCookie.h"
 
 /**
  * @addtogroup network
@@ -173,29 +173,29 @@ private:
 private: // NOLINT(readability-redundant-access-specifiers)
     bool _isInited;
 
-    int _timeoutForConnect;
+    int        _timeoutForConnect;
     std::mutex _timeoutForConnectMutex;
 
-    int _timeoutForRead;
+    int        _timeoutForRead;
     std::mutex _timeoutForReadMutex;
 
-    int _threadCount;
+    int        _threadCount;
     std::mutex _threadCountMutex;
 
     std::weak_ptr<Scheduler> _scheduler;
-    std::mutex _schedulerMutex;
+    std::mutex               _schedulerMutex;
 
     Vector<HttpRequest *> _requestQueue;
-    std::mutex _requestQueueMutex;
+    std::mutex            _requestQueueMutex;
 
     Vector<HttpResponse *> _responseQueue;
-    std::mutex _responseQueueMutex;
+    std::mutex             _responseQueueMutex;
 
     std::string _cookieFilename;
-    std::mutex _cookieFileMutex;
+    std::mutex  _cookieFileMutex;
 
     std::string _sslCaFilename;
-    std::mutex _sslCaFileMutex;
+    std::mutex  _sslCaFileMutex;
 
     HttpCookie *_cookie;
 

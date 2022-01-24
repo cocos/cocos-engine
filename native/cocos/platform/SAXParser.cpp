@@ -107,7 +107,7 @@ bool SAXParser::parse(const char *xmlData, size_t dataLength) {
 }
 
 bool SAXParser::parse(const std::string &filename) {
-    bool ret = false;
+    bool ret  = false;
     Data data = FileUtils::getInstance()->getDataFromFile(filename);
     if (!data.isNull()) {
         ret = parse((const char *)data.getBytes(), data.getSize());

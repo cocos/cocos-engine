@@ -36,7 +36,7 @@ namespace cc {
 class BaseEngine : public std::enable_shared_from_this<BaseEngine> {
 public:
     virtual ~BaseEngine();
-    using Ptr             = std::shared_ptr<BaseEngine>;
+    using Ptr = std::shared_ptr<BaseEngine>;
 
     /**
      @brief Get operating system interface template.

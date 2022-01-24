@@ -33,7 +33,6 @@
 #include "SDL2/SDL_sysvideo.h"
 #include "SDL2/SDL_syswm.h"
 
-
 #include "platform/interfaces/OSInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 

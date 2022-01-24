@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include <random>
 #include <cstdlib>
+#include <random>
 
 #include "base/Macros.h"
 
@@ -43,21 +43,21 @@ public:
     template <typename T>
     static inline T randomReal(T min, T max) {
         std::uniform_real_distribution<T> dist(min, max);
-        auto &mt = RandomHelper::getEngine();
+        auto &                            mt = RandomHelper::getEngine();
         return dist(mt);
     }
 
     template <typename T>
     static inline T randomInt(T min, T max) {
         std::uniform_int_distribution<T> dist(min, max);
-        auto &mt = RandomHelper::getEngine();
+        auto &                           mt = RandomHelper::getEngine();
         return dist(mt);
     }
 
 private:
     static inline std::mt19937 &getEngine() {
         static std::random_device seedGen;
-        static std::mt19937 engine(seedGen());
+        static std::mt19937       engine(seedGen());
         return engine;
     }
 };

@@ -29,12 +29,12 @@
 
 #include "base/Scheduler.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
-#include "base/Macros.h"
-#include "base/Log.h"
 #include <climits>
+#include "base/Log.h"
+#include "base/Macros.h"
 
 namespace {
 constexpr unsigned CC_REPEAT_FOREVER{UINT_MAX - 1};

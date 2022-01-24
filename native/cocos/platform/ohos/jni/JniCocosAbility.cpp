@@ -42,7 +42,6 @@
 #include "platform/ohos/FileUtils-ohos.h"
 #include "platform/ohos/jni/AbilityConsts.h"
 
-
 #define LOGV(...) HILOG_INFO(LOG_APP, __VA_ARGS__)
 //NOLINTNEXTLINE
 using namespace cc::ohos;

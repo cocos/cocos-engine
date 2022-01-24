@@ -30,8 +30,8 @@
 #define __CCSAXPARSER_H__
 /// @cond DO_NOT_SHOW
 
-#include "base/Macros.h"
 #include <string>
+#include "base/Macros.h"
 
 namespace cc {
 

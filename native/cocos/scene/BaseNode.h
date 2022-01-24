@@ -42,11 +42,11 @@ public:
     BaseNode &operator=(const BaseNode &) = delete;
     BaseNode &operator=(const BaseNode &&) = delete;
 
-    virtual inline void updateWorldTransform(){}
-    virtual inline void updateWorldRTMatrix(){}
+    virtual inline void updateWorldTransform() {}
+    virtual inline void updateWorldRTMatrix() {}
 
-    virtual inline void setWorldPosition(float x, float y, float z){}
-    virtual inline void setWorldRotation(float x, float y, float z, float w){}
+    virtual inline void setWorldPosition(float x, float y, float z) {}
+    virtual inline void setWorldRotation(float x, float y, float z, float w) {}
     void                setParent(BaseNode *parent);
 
     inline void addChild(BaseNode *node) { _children.emplace_back(node); }
@@ -57,18 +57,18 @@ public:
         }
     }
 
-    virtual inline void setFlagsChanged(uint32_t value){}
-    virtual inline void setDirtyFlag(uint32_t value){}
-    virtual inline void setLayer(uint32_t layer){}
-    virtual inline void setWorldMatrix(const Mat4 &matrix){}
-    virtual inline void setWorldPosition(const Vec3 &pos){}
-    virtual inline void setWorldRotation(const Quaternion &rotation){}
-    virtual inline void setWorldScale(const Vec3 &scale){}
-    virtual inline void setLocalPosition(const Vec3 &pos){}
-    virtual inline void setLocalPosition(float x, float y, float z){}
-    virtual inline void setLocalRotation(const Quaternion &rotation){}
-    virtual inline void setLocalRotation(float x, float y, float z, float w){}
-    virtual inline void setLocalScale(const Vec3 &scale){}
+    virtual inline void setFlagsChanged(uint32_t value) {}
+    virtual inline void setDirtyFlag(uint32_t value) {}
+    virtual inline void setLayer(uint32_t layer) {}
+    virtual inline void setWorldMatrix(const Mat4 &matrix) {}
+    virtual inline void setWorldPosition(const Vec3 &pos) {}
+    virtual inline void setWorldRotation(const Quaternion &rotation) {}
+    virtual inline void setWorldScale(const Vec3 &scale) {}
+    virtual inline void setLocalPosition(const Vec3 &pos) {}
+    virtual inline void setLocalPosition(float x, float y, float z) {}
+    virtual inline void setLocalRotation(const Quaternion &rotation) {}
+    virtual inline void setLocalRotation(float x, float y, float z, float w) {}
+    virtual inline void setLocalScale(const Vec3 &scale) {}
 
     inline const std::vector<BaseNode *> &getChilds() { return _children; }
     inline BaseNode *                     getParent() const { return _parent; }

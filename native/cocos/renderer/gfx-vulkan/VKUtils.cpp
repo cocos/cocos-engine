@@ -586,9 +586,9 @@ bool isExtensionSupported(const char *required, const vector<VkExtensionProperti
 }
 
 bool isFormatSupported(VkPhysicalDevice device, VkFormat format) {
-	VkFormatProperties properties;
-	vkGetPhysicalDeviceFormatProperties(device, format, &properties);
-	return (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) != 0;
+    VkFormatProperties properties;
+    vkGetPhysicalDeviceFormatProperties(device, format, &properties);
+    return (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) != 0;
 }
 
 } // namespace gfx

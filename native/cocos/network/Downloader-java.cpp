@@ -26,11 +26,11 @@
 
 #include "network/Downloader-java.h"
 
+#include <mutex>
+#include "application/ApplicationManager.h"
 #include "network/Downloader.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
-#include "application/ApplicationManager.h"
-#include <mutex>
 
 #ifndef JCLS_DOWNLOADER
     #define JCLS_DOWNLOADER "com/cocos/lib/CocosDownloader"

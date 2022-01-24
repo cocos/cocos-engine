@@ -73,7 +73,7 @@ public:
 
 private:
     void fillData();
-    void unMultiplyAlpha(unsigned char *ptr, ssize_t size) const ;
+    void unMultiplyAlpha(unsigned char *ptr, ssize_t size) const;
 
 public:
 private:

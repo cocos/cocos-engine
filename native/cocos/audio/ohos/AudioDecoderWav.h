@@ -36,14 +36,14 @@ public:
     AudioDecoderWav();
     ~AudioDecoderWav() override;
 
-    bool open(const char *path) override;
-    void close() override;
+    bool     open(const char *path) override;
+    void     close() override;
     uint32_t read(uint32_t framesToRead, char *pcmBuf) override;
-    bool seek(uint32_t frameOffset) override;
+    bool     seek(uint32_t frameOffset) override;
     uint32_t tell() const override;
 
 private:
-    SF_INFO _sndInfo;
+    SF_INFO  _sndInfo;
     SNDFILE *_sndHandle{};
 };
 

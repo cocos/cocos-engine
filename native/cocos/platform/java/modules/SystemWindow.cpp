@@ -35,7 +35,6 @@
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 
-
 namespace {
 
 } // namespace

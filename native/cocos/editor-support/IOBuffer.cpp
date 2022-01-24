@@ -35,9 +35,9 @@ void IOBuffer::resize(std::size_t newLen, bool needCopy) {
         }
 
         delete[] _buffer;
-        _buffer = newBuffer;
+        _buffer     = newBuffer;
         _bufferSize = newLen;
-        _outRange = false;
+        _outRange   = false;
     }
 }
 

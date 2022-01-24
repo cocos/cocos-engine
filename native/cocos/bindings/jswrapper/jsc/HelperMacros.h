@@ -51,11 +51,11 @@
 
     #define SE_BIND_FUNC(funcName)                                                                                                                                        \
         JSValueRef funcName##Registry(JSContextRef _cx, JSObjectRef _function, JSObjectRef _thisObject, size_t _argc, const JSValueRef _argv[], JSValueRef *_exception) { \
-            unsigned short argc = (unsigned short)_argc;                                                                                                                  \
-            JSValueRef _jsRet = JSValueMakeUndefined(_cx);                                                                                                                \
-            void *nativeThisObject = se::internal::getPrivate(_thisObject);                                                                                               \
+            unsigned short argc             = (unsigned short)_argc;                                                                                                      \
+            JSValueRef     _jsRet           = JSValueMakeUndefined(_cx);                                                                                                  \
+            void *         nativeThisObject = se::internal::getPrivate(_thisObject);                                                                                      \
             if (nativeThisObject != (void *)std::numeric_limits<unsigned long>::max()) {                                                                                  \
-                bool ret = true;                                                                                                                                          \
+                bool           ret = true;                                                                                                                                \
                 se::ValueArray args;                                                                                                                                      \
                 se::internal::jsToSeArgs(_cx, argc, _argv, &args);                                                                                                        \
                 se::State state(nativeThisObject, args);                                                                                                                  \
@@ -74,8 +74,8 @@
             se->_setGarbageCollecting(true);                                                                  \
             void *nativeThisObject = JSObjectGetPrivate(_obj);                                                \
             if (nativeThisObject != nullptr) {                                                                \
-                bool ret = false;                                                                             \
-                se::State state(nativeThisObject);                                                            \
+                bool        ret = false;                                                                      \
+                se::State   state(nativeThisObject);                                                          \
                 se::Object *_thisObject = state.thisObject();                                                 \
                 if (_thisObject) _thisObject->_cleanup(nativeThisObject);                                     \
                 ret = funcName(state);                                                                        \
@@ -98,19 +98,19 @@
     // HOW TO FIX: Use a rooted se::Value to save the se::Object poiner returned by se::Object::createObjectWithClass.
     #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                                                                                 \
         JSObjectRef funcName##Registry(JSContextRef _cx, JSObjectRef _constructor, size_t argc, const JSValueRef _argv[], JSValueRef *_exception) { \
-            bool ret = true;                                                                                                                        \
+            bool           ret = true;                                                                                                              \
             se::ValueArray args;                                                                                                                    \
             se::internal::jsToSeArgs(_cx, argc, _argv, &args);                                                                                      \
-            se::Value thisVal(se::Object::createObjectWithClass(cls), true);                                                                        \
+            se::Value   thisVal(se::Object::createObjectWithClass(cls), true);                                                                      \
             se::Object *thisObject = thisVal.toObject();                                                                                            \
-            JSValueRef _jsRet = JSValueMakeUndefined(_cx);                                                                                          \
-            se::State state(thisObject, args);                                                                                                      \
+            JSValueRef  _jsRet     = JSValueMakeUndefined(_cx);                                                                                     \
+            se::State   state(thisObject, args);                                                                                                    \
             ret = funcName(state);                                                                                                                  \
             if (ret) {                                                                                                                              \
                 _jsRet = thisObject->_getJSObject();                                                                                                \
                 se::Value _property;                                                                                                                \
-                bool _found = false;                                                                                                                \
-                _found = thisObject->getProperty("_ctor", &_property);                                                                              \
+                bool      _found = false;                                                                                                           \
+                _found           = thisObject->getProperty("_ctor", &_property);                                                                    \
                 if (_found) _property.toObject()->call(args, thisObject);                                                                           \
             } else {                                                                                                                                \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__);                                           \
@@ -120,8 +120,8 @@
 
     #define SE_BIND_SUB_CLS_CTOR(funcName, cls, finalizeCb)                                                                                                              \
         JSValueRef funcName##Registry(JSContextRef _cx, JSObjectRef _function, JSObjectRef _thisObject, size_t argc, const JSValueRef _argv[], JSValueRef *_exception) { \
-            bool ret = true;                                                                                                                                             \
-            JSValueRef _jsRet = JSValueMakeUndefined(_cx);                                                                                                               \
+            bool           ret    = true;                                                                                                                                \
+            JSValueRef     _jsRet = JSValueMakeUndefined(_cx);                                                                                                           \
             se::ValueArray args;                                                                                                                                         \
             se::internal::jsToSeArgs(_cx, argc, _argv, &args);                                                                                                           \
             se::Object *thisObject = se::Object::_createJSObject(cls, _thisObject);                                                                                      \
@@ -130,8 +130,8 @@
             ret = funcName(state);                                                                                                                                       \
             if (ret) {                                                                                                                                                   \
                 se::Value _property;                                                                                                                                     \
-                bool _found = false;                                                                                                                                     \
-                _found = thisObject->getProperty("_ctor", &_property);                                                                                                   \
+                bool      _found = false;                                                                                                                                \
+                _found           = thisObject->getProperty("_ctor", &_property);                                                                                         \
                 if (_found) _property.toObject()->call(args, thisObject);                                                                                                \
             } else {                                                                                                                                                     \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__);                                                                \
@@ -142,8 +142,8 @@
     #define SE_BIND_PROP_GET(funcName)                                                                                                                                   \
         JSValueRef funcName##Registry(JSContextRef _cx, JSObjectRef _function, JSObjectRef _thisObject, size_t argc, const JSValueRef _argv[], JSValueRef *_exception) { \
             assert(argc == 0);                                                                                                                                           \
-            JSValueRef _jsRet = JSValueMakeUndefined(_cx);                                                                                                               \
-            void *nativeThisObject = se::internal::getPrivate(_thisObject);                                                                                              \
+            JSValueRef _jsRet           = JSValueMakeUndefined(_cx);                                                                                                     \
+            void *     nativeThisObject = se::internal::getPrivate(_thisObject);                                                                                         \
             if (nativeThisObject != (void *)std::numeric_limits<unsigned long>::max()) {                                                                                 \
                 se::State state(nativeThisObject);                                                                                                                       \
                 if (funcName(state)) {                                                                                                                                   \
@@ -158,10 +158,10 @@
     #define SE_BIND_PROP_SET(funcName)                                                                                                                                   \
         JSValueRef funcName##Registry(JSContextRef _cx, JSObjectRef _function, JSObjectRef _thisObject, size_t argc, const JSValueRef _argv[], JSValueRef *_exception) { \
             assert(argc == 1);                                                                                                                                           \
-            JSValueRef _jsRet = JSValueMakeUndefined(_cx);                                                                                                               \
-            void *nativeThisObject = se::internal::getPrivate(_thisObject);                                                                                              \
+            JSValueRef _jsRet           = JSValueMakeUndefined(_cx);                                                                                                     \
+            void *     nativeThisObject = se::internal::getPrivate(_thisObject);                                                                                         \
             if (nativeThisObject != (void *)std::numeric_limits<unsigned long>::max()) {                                                                                 \
-                bool ret = true;                                                                                                                                         \
+                bool      ret = true;                                                                                                                                    \
                 se::Value data;                                                                                                                                          \
                 se::internal::jsToSeValue(_cx, _argv[0], &data);                                                                                                         \
                 se::ValueArray args;                                                                                                                                     \

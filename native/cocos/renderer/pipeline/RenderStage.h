@@ -64,7 +64,7 @@ public:
     inline RenderFlow *  getFlow() const { return _flow; }
 
 protected:
-    gfx::Rect             _renderArea;
+    gfx::Rect _renderArea;
     // Generate quad ia, cannot be updated inside renderpass
     gfx::InputAssembler * _inputAssembler{nullptr};
     RenderQueueDescList   _renderQueueDescriptors;

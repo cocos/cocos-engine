@@ -58,7 +58,6 @@
         }                             \
     } while (false)
 
-
 struct android_app;
 
 namespace cc {
@@ -284,6 +283,7 @@ public:
 #ifndef __OHOS__
             ccDeleteLocalRef(t.env, t.classID);
 #endif
+            ccDeleteLocalRef(t.env, array);
             deleteLocalRefs(t.env, &localRefs);
             return &ret[0];
         }
@@ -314,6 +314,7 @@ public:
 #ifndef __OHOS__
             ccDeleteLocalRef(t.env, t.classID);
 #endif
+            ccDeleteLocalRef(t.env, array);
             deleteLocalRefs(t.env, &localRefs);
         } else {
             reportError(className, methodName, signature);

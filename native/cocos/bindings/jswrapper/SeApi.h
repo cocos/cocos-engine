@@ -44,8 +44,8 @@
     #include "chakracore/SeApi.h"
 #endif
 
-#include "Value.h"
-#include "Object.h"
-#include "State.h"
 #include "HandleObject.h"
 #include "MappingUtils.h"
+#include "Object.h"
+#include "State.h"
+#include "Value.h"

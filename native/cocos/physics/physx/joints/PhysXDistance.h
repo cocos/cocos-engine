@@ -40,8 +40,8 @@ public:
     void updateScale1() override;
 
 private:
-    void onComponentSet() override;
-    void updatePose();
+    void          onComponentSet() override;
+    void          updatePose();
     physx::PxVec3 _mPivotA;
     physx::PxVec3 _mPivotB;
 };

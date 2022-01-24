@@ -26,9 +26,9 @@
 #include "base/CoreStd.h"
 #include "base/Utils.h"
 
+#include <boost/functional/hash.hpp>
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
-#include <boost/functional/hash.hpp>
 
 namespace cc {
 namespace gfx {

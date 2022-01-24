@@ -408,7 +408,7 @@ extern PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC glFramebufferTexture2DMultisa
 extern PFNGLREADBUFFERINDEXEDEXTPROC  glReadBufferIndexedEXT;
 extern PFNGLDRAWBUFFERSINDEXEDEXTPROC glDrawBuffersIndexedEXT;
 extern PFNGLGETINTEGERI_VEXTPROC      glGetIntegeri_vEXT; // NOLINT(readability-identifier-naming)
-#endif /* defined(GL_EXT_multiview_draw_buffers) */
+#endif                                                    /* defined(GL_EXT_multiview_draw_buffers) */
 
 #if defined(GL_EXT_polygon_offset_clamp)
 extern PFNGLPOLYGONOFFSETCLAMPEXTPROC glPolygonOffsetClampEXT;
@@ -1034,7 +1034,7 @@ extern PFNGLSCISSORINDEXEDVOESPROC    glScissorIndexedvOES;
 extern PFNGLDEPTHRANGEARRAYFVOESPROC  glDepthRangeArrayfvOES;
 extern PFNGLDEPTHRANGEINDEXEDFOESPROC glDepthRangeIndexedfOES;
 extern PFNGLGETFLOATI_VOESPROC        glGetFloati_vOES; // NOLINT(readability-identifier-naming)
-#endif /* defined(GL_OES_viewport_array) */
+#endif                                                  /* defined(GL_OES_viewport_array) */
 
 #if defined(GL_OVR_multiview)
 extern PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC glFramebufferTextureMultiviewOVR;

@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXFilterShader.h"
+#include "physics/physx/PhysXInc.h"
 
 namespace cc {
 namespace physics {
@@ -32,7 +32,7 @@ namespace physics {
 physx::PxFilterFlags simpleFilterShader(
     physx::PxFilterObjectAttributes attributes0, physx::PxFilterData fd0,
     physx::PxFilterObjectAttributes attributes1, physx::PxFilterData fd1,
-    physx::PxPairFlags &pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize){
+    physx::PxPairFlags& pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize) {
     PX_UNUSED(constantBlock);
     PX_UNUSED(constantBlockSize);
     // group mask filter
@@ -56,7 +56,7 @@ physx::PxFilterFlags simpleFilterShader(
 physx::PxFilterFlags advanceFilterShader(
     physx::PxFilterObjectAttributes attributes0, physx::PxFilterData fd0,
     physx::PxFilterObjectAttributes attributes1, physx::PxFilterData fd1,
-    physx::PxPairFlags &pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize){
+    physx::PxPairFlags& pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize) {
     PX_UNUSED(constantBlock);
     PX_UNUSED(constantBlockSize);
     // group mask filter

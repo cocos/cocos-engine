@@ -30,8 +30,8 @@
     #include "cocos/bindings/manual/jsb_conversions.h"
     #include "cocos/bindings/manual/jsb_global.h"
 
-    #include "base/UTF8.h"
     #include "application/ApplicationManager.h"
+    #include "base/UTF8.h"
 
 /*
  [Constructor(in DOMString url, in optional DOMString protocols)]

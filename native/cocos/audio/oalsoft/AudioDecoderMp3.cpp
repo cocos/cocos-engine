@@ -31,9 +31,9 @@
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
     #include "mpg123/mpg123.h"
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
+    #include <unistd.h>
     #include "cocos/platform/ohos/FileUtils-ohos.h"
     #include "mpg123.h"
-    #include <unistd.h>
 #endif
 
 #include <sys/stat.h>

@@ -30,19 +30,16 @@
 namespace cc {
 namespace pipeline {
 
-void PipelineSceneData::activate(gfx::Device *device, RenderPipeline *pipeline)
-{
-    _device = device;
+void PipelineSceneData::activate(gfx::Device *device, RenderPipeline *pipeline) {
+    _device   = device;
     _pipeline = pipeline;
 }
 
-void PipelineSceneData::setPipelineSharedSceneData(scene::PipelineSharedSceneData *data)
-{
+void PipelineSceneData::setPipelineSharedSceneData(scene::PipelineSharedSceneData *data) {
     _sharedSceneData = data;
 }
 
-void PipelineSceneData::destroy()
-{
+void PipelineSceneData::destroy() {
     for (auto &pair : _shadowFrameBufferMap) {
         pair.second->destroy();
         delete pair.second;

@@ -38,8 +38,8 @@ struct Hasher final { size_t operator()(const T& info) const; };
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
 size_t hash_value(const T& info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
 
-#define DEFINE_CMP_OP(type)                            \
-    bool operator==(const type& lhs, const type& rhs); \
+#define DEFINE_CMP_OP(type)                                   \
+    bool        operator==(const type& lhs, const type& rhs); \
     inline bool operator!=(const type& lhs, const type& rhs) { return !(lhs == rhs); }
 
 DEFINE_CMP_OP(DepthStencilAttachment)

@@ -104,9 +104,11 @@ bool JniNativeGlue::isRunning() const {
 }
 
 void JniNativeGlue::flushTasksOnGameThread() const {
+    // Handle java events send by UI thread. Input events are handled here too.
+
+    flushTasksOnGameThreadJNI();
     if (_animating) {
-        // Handle java events send by UI thread. Input events are handled here too.
-        flushTasksOnGameThreadJNI();
+        flushTasksOnGameThreadAtForegroundJNI();
     }
 }
 
@@ -126,6 +128,10 @@ void JniNativeGlue::writeCommandSync(JniCommand cmd) {
 
 int JniNativeGlue::readCommand(CommandMsg* msg) {
     return _messagePipe->readCommand(msg, sizeof(CommandMsg));
+}
+
+int JniNativeGlue::readCommandWithTimeout(CommandMsg* cmd, int delayMS) {
+    return _messagePipe->readCommandWithTimeout(cmd, sizeof(CommandMsg), delayMS);
 }
 
 void JniNativeGlue::setEventDispatch(IEventDispatch* eventDispatcher) {
@@ -168,7 +174,10 @@ void JniNativeGlue::onLowMemory() {
 
 void JniNativeGlue::execCommand() {
     static CommandMsg msg;
-    if (readCommand(&msg) > 0) {
+    static bool       runInLowRate{false};
+    runInLowRate = !_animating || JniCommand::JNI_CMD_PAUSE == _appState;
+
+    if (readCommandWithTimeout(&msg, runInLowRate ? 50 : 0) > 0) {
         preExecCmd(msg.cmd);
         engineHandleCmd(msg.cmd);
         postExecCmd(msg.cmd);
