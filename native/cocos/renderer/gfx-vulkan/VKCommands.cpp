@@ -608,7 +608,6 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         // first, gather necessary statistics for each attachment
         auto updateLifeCycle = [](AttachmentStatistics &statistics, uint32_t index, VkImageLayout layout, AttachmentStatistics::SubpassUsage usage) {
             if (statistics.records.count(index)) {
-                CC_ASSERT(statistics.records[index].layout == layout);
                 statistics.records[index].usage |= usage;
             } else {
                 statistics.records[index] = {layout, usage};

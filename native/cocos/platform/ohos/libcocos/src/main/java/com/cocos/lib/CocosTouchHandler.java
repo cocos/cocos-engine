@@ -69,7 +69,7 @@ public class CocosTouchHandler {
                 MmiPoint pos = pMotionEvent.getPointerPosition(indexPointerDown);
                 final float xPointerDown = pos.getX();
                 final float yPointerDown = pos.getY();
-                CocosHelper.runOnGameThread(new Runnable() {
+                CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
                         handleActionDown(idPointerDown, xPointerDown, yPointerDown);
@@ -78,7 +78,7 @@ public class CocosTouchHandler {
                 break;
 
             case TouchEvent.POINT_MOVE:
-                CocosHelper.runOnGameThread(new Runnable() {
+                CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
                         handleActionMove(ids, xs, ys);
@@ -95,7 +95,7 @@ public class CocosTouchHandler {
                 MmiPoint posUP = pMotionEvent.getPointerPosition(indexPointUp);
                 final float xPointerUp = posUP.getX();
                 final float yPointerUp = posUP.getY();
-                CocosHelper.runOnGameThread(new Runnable() {
+                CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
                         handleActionUp(idPointerUp, xPointerUp, yPointerUp);
@@ -105,7 +105,7 @@ public class CocosTouchHandler {
                 break;
 
             case TouchEvent.CANCEL:
-                CocosHelper.runOnGameThread(new Runnable() {
+                CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
                         handleActionCancel(ids, xs, ys);

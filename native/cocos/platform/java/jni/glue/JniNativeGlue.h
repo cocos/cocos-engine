@@ -89,6 +89,7 @@ public:
     void writeCommandAsync(JniCommand cmd);
     void writeCommandSync(JniCommand cmd);
     int  readCommand(CommandMsg* msg);
+    int  readCommandWithTimeout(CommandMsg* cmd, int delayMS);
 
     void setEventDispatch(IEventDispatch* eventDispatcher);
     void dispatchEvent(const OSEvent& ev);

@@ -170,7 +170,7 @@ public class CocosVideoHelper {
 
         @Override
         public void onVideoEvent(int tag,int event) {
-            CocosHelper.runOnGameThread(new Runnable() {
+            CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                 @Override
                 public void run() {
                     nativeExecuteVideoCallback(tag, event);
@@ -282,7 +282,7 @@ public class CocosVideoHelper {
             CocosVideoView videoView = sVideoViews.get(key);
             if (videoView != null) {
                 videoView.setFullScreenEnabled(false);
-                CocosHelper.runOnGameThread(new Runnable() {
+                CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
                         nativeExecuteVideoCallback(key, KeyEventBack);

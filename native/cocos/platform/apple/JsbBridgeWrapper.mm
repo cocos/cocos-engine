@@ -22,10 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include "JsbBridgeWrapper.h"
 #include <iostream>
 #include <string>
 #include "JsbBridge.h"
+#include "JsbBridgeWrapper.h"
 
 @implementation JsbBridgeWrapper {
     JsbBridge* jb;

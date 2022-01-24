@@ -34,9 +34,9 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXShader.h"
+#include "scene/AABB.h"
 #include "scene/Model.h"
 #include "scene/RenderScene.h"
-#include "scene/AABB.h"
 
 namespace cc {
 namespace pipeline {
@@ -109,7 +109,7 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
     const PipelineSceneData *             sceneData  = _pipeline->getPipelineSceneData();
     const scene::PipelineSharedSceneData *sharedData = sceneData->getSharedData();
     const scene::Shadow *                 shadowInfo = sharedData->shadow;
-    if (!shadowInfo->enabled || shadowInfo->shadowType != scene::ShadowType::PLANAR) {
+    if (!shadowInfo->enabled || shadowInfo->shadowType != scene::ShadowType::PLANAR || shadowInfo->normal.length() < 0.000001F) {
         return;
     }
 

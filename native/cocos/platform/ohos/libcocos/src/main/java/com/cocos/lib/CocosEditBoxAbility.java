@@ -397,19 +397,19 @@ public class CocosEditBoxAbility extends AbilitySlice {
      Native functions invoked by UI.
      **************************************************************************************/
     private void onKeyboardInput(String text) {
-        CocosHelper.runOnGameThread(() ->
+        CocosHelper.runOnGameThreadAtForeground(() ->
                 CocosEditBoxAbility.onKeyboardInputNative(text)
         );
     }
 
     private void onKeyboardComplete(String text) {
-        CocosHelper.runOnGameThread(() ->
+        CocosHelper.runOnGameThreadAtForeground(() ->
                 CocosEditBoxAbility.onKeyboardCompleteNative(text)
         );
     }
 
     private void onKeyboardConfirm(String text) {
-        CocosHelper.runOnGameThread(() ->
+        CocosHelper.runOnGameThreadAtForeground(() ->
                 CocosEditBoxAbility.onKeyboardConfirmNative(text)
         );
     }

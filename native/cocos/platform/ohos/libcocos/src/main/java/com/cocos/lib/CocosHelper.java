@@ -80,8 +80,26 @@ public class CocosHelper {
     private static String sObbFilePath = "";
 
 
-    private static List<Runnable> sTaskOnGameThread = Collections.synchronizedList(new ArrayList<>());
+    static class LockedTaskQ {
+        private final Object readMtx = new Object();
+        private Queue<Runnable> sTaskQ = new LinkedList<>();
+        public synchronized void addTask(Runnable runnable) {
+            sTaskQ.add(runnable);
+        }
+        public void runTasks(){
+            Queue<Runnable> tmp;
+            synchronized (readMtx) {
+                tmp = sTaskQ;
+                sTaskQ = new LinkedList<>();
+            }
+            for(Runnable runnable : tmp){
+                runnable.run();
+            }
+        }
+    }
 
+    private static LockedTaskQ sTaskQOnGameThread = new LockedTaskQ();
+    private static LockedTaskQ sForegroundTaskQOnGameThread = new LockedTaskQ();
     /**
      * Battery receiver to getting battery level.
      */
@@ -130,18 +148,20 @@ public class CocosHelper {
         }
     }
 
+    //Run on game thread forever, no matter foreground or background
     public static void runOnGameThread(final Runnable runnable) {
-        sTaskOnGameThread.add(runnable);
+        sTaskQOnGameThread.addTask(runnable);
     }
-
     @SuppressWarnings("unused")
     static void flushTasksOnGameThread() {
-        while (sTaskOnGameThread.size() > 0) {
-            Runnable r = sTaskOnGameThread.remove(0);
-            if (r != null) {
-                r.run();
-            }
-        }
+        sTaskQOnGameThread.runTasks();
+    }
+    public static void runOnGameThreadAtForeground(final Runnable runnable) {
+        sForegroundTaskQOnGameThread.addTask(runnable);
+    }
+    @SuppressWarnings("unused")
+    static void flushTasksOnGameThreadAtForeground() {
+        sForegroundTaskQOnGameThread.runTasks();
     }
 
     @SuppressWarnings("unused")
