@@ -35,13 +35,13 @@ import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components/sprite';
 import { Renderable2D } from '../../framework/renderable-2d';
 import { IAssembler } from '../../renderer/base';
+import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
-
-const _perVertexLength = 9;
+const matrix = new Mat4();
 
 export const tiled: IAssembler = {
     createData (sprite: Renderable2D) {
@@ -57,7 +57,7 @@ export const tiled: IAssembler = {
 
         renderData.updateRenderData(sprite, frame);
 
-        if (!renderData.uvDirty && !renderData.vertDirty) {
+        if (!renderData.vertDirty) {
             return;
         }
 
@@ -88,45 +88,65 @@ export const tiled: IAssembler = {
         this.updateVerts(sprite, sizableWidth, sizableHeight, row, col);
 
         // update data property
-        renderData.vertexCount = row * col * 4;
-        renderData.indicesCount = row * col * 6;
-        renderData.uvDirty = false;
-        renderData.vertDirty = false;
-        // Tiled mode create data is after updateColor
-        this.updateColor(sprite);
+        renderData.resize(row * col * 4, row * col * 6);
+    },
+
+    updateUVs (sprite: Sprite) {
+        const renderData = sprite.renderData!;
+        renderData.vertDirty = true;
+        sprite.markForUpdateRenderData();
     },
 
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
         const node = sprite.node;
-        const uiTrans = sprite.node._uiProps.uiTransformComp!;
-        const contentWidth = Math.abs(uiTrans.width);
-        const contentHeight = Math.abs(uiTrans.height);
-        const renderData = sprite.renderData!;
-
-        // buffer
-        let buffer = renderer.acquireBufferBatch()!;
-        // buffer data may be realloc, need get reference after request.
-        let indicesOffset = buffer.indicesOffset;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let vertexId = buffer.vertexOffset;
-        const vertexCount = renderData.vertexCount;
-        const indicesCount = renderData.indicesCount;
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-
-        const isRecreate = buffer.request(vertexCount, indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
+        const renderData: RenderData = sprite.renderData!;
+        const chunk = renderData.chunk;
+        if (node.hasChangedFlags || renderData.vertDirty) {
+            this.updateWorldVertexAndUVData(sprite, chunk);
+            renderData.vertDirty = false;
         }
 
+        // forColor
+        this.updataColorLate(sprite);
+
+        // update indices
+        const bid = chunk.bufferId;
+        let vid = chunk.vertexOffset;
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        let indexOffset = meshBuffer.indexOffset;
+        for (let i = 0; i < renderData.indexCount; i += 6) {
+            ib[indexOffset++] = vid;
+            ib[indexOffset++] = vid + 1;
+            ib[indexOffset++] = vid + 2;
+            ib[indexOffset++] = vid + 1;
+            ib[indexOffset++] = vid + 3;
+            ib[indexOffset++] = vid + 2;
+            vid += 4;
+            meshBuffer.indexOffset += 6;
+        }
+        meshBuffer.setDirty();
+    },
+
+    updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk) {
+        const node = sprite.node;
+        node.getWorldMatrix(matrix);
+
+        const renderData = sprite.renderData!;
+        const stride = renderData.floatStride;
+        const dataList: IRenderData[] = renderData.data;
+        const vData = chunk.vb;
+
+        const uiTrans = node._uiProps.uiTransformComp!;
+        const contentWidth = Math.abs(uiTrans.width);
+        const contentHeight = Math.abs(uiTrans.height);
+
         const frame = sprite.spriteFrame!;
-        const rotated = frame.isRotated();
+        const rotated = frame.rotated;
         const uv = frame.uv;
-        const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
-        const rect = frame.getRect();
+        const uvSliced: IUV[] = frame.uvSliced;
+        const rect = frame.rect;
+
         const leftWidth = frame.insetLeft;
         const rightWidth = frame.insetRight;
         const centerWidth = rect.width - leftWidth - rightWidth;
@@ -137,18 +157,41 @@ export const tiled: IAssembler = {
         let sizableHeight = contentHeight - topHeight - bottomHeight;
         sizableWidth = sizableWidth > 0 ? sizableWidth : 0;
         sizableHeight = sizableHeight > 0 ? sizableHeight : 0;
-
         const hRepeat = centerWidth === 0 ? sizableWidth : sizableWidth / centerWidth;
         const vRepeat = centerHeight === 0 ? sizableHeight : sizableHeight / centerHeight;
         const row = Math.ceil(vRepeat + 2);
         const col = Math.ceil(hRepeat + 2);
 
-        const matrix = node.worldMatrix;
+        // update Vertex
+        let vertexOffset = 0;
+        let x = 0; let x1 = 0; let y = 0; let y1 = 0;
+        for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
+            y = dataList[yIndex].y;
+            y1 = dataList[yIndex + 1].y;
+            for (let xIndex = 0, xLength = col; xIndex < xLength; ++xIndex) {
+                x = dataList[xIndex].x;
+                x1 = dataList[xIndex + 1].x;
 
-        const datalist = renderData.data;
-        this.fillVertices(vBuf, vertexOffset, matrix, row, col, datalist);
+                Vec3.set(vec3_temps[0], x, y, 0);
+                Vec3.set(vec3_temps[1], x1, y, 0);
+                Vec3.set(vec3_temps[2], x, y1, 0);
+                Vec3.set(vec3_temps[3], x1, y1, 0);
 
-        const offset = _perVertexLength;
+                for (let i = 0; i < 4; i++) {
+                    const vec3_temp = vec3_temps[i];
+                    Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+                    const offset = i * stride;
+                    vData[vertexOffset + offset] = vec3_temp.x;
+                    vData[vertexOffset + offset + 1] = vec3_temp.y;
+                    vData[vertexOffset + offset + 2] = vec3_temp.z;
+                }
+                vertexOffset += 4 * stride;
+            }
+        }
+
+        // update UVs
+        vertexOffset = 0;
+        const offset = stride;
         const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
         let coefU = 0; let coefV = 0;
         const tempXVerts :any = [];
@@ -237,63 +280,19 @@ export const tiled: IAssembler = {
                     tempYVerts[3] = tempYVerts[2];
                 }
                 // lb
-                vBuf[vertexOffsetU] = tempXVerts[0];
-                vBuf[vertexOffsetV] = tempYVerts[0];
+                vData[vertexOffsetU] = tempXVerts[0];
+                vData[vertexOffsetV] = tempYVerts[0];
                 // rb
-                vBuf[vertexOffsetU + offset1] = tempXVerts[1];
-                vBuf[vertexOffsetV + offset1] = tempYVerts[1];
+                vData[vertexOffsetU + offset1] = tempXVerts[1];
+                vData[vertexOffsetV + offset1] = tempYVerts[1];
                 // lt
-                vBuf[vertexOffsetU + offset2] = tempXVerts[2];
-                vBuf[vertexOffsetV + offset2] = tempYVerts[2];
+                vData[vertexOffsetU + offset2] = tempXVerts[2];
+                vData[vertexOffsetV + offset2] = tempYVerts[2];
                 // rt
-                vBuf[vertexOffsetU + offset3] = tempXVerts[3];
-                vBuf[vertexOffsetV + offset3] = tempYVerts[3];
-                // color
-                // Hack: the color is same
-                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + 1);
-                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + offset1 + 1);
-                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + offset2 + 1);
-                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + offset3 + 1);
+                vData[vertexOffsetU + offset3] = tempXVerts[3];
+                vData[vertexOffsetV + offset3] = tempYVerts[3];
+
                 vertexOffset += offset4;
-            }
-        }
-
-        // update indices
-        for (let i = 0; i < indicesCount; i += 6) {
-            iBuf[indicesOffset++] = vertexId;
-            iBuf[indicesOffset++] = vertexId + 1;
-            iBuf[indicesOffset++] = vertexId + 2;
-            iBuf[indicesOffset++] = vertexId + 1;
-            iBuf[indicesOffset++] = vertexId + 3;
-            iBuf[indicesOffset++] = vertexId + 2;
-            vertexId += 4;
-        }
-    },
-
-    fillVertices (vBuf: Float32Array, vertexOffset: number, matrix: Mat4, row: number, col: number, dataList: IRenderData[]) {
-        let x = 0; let x1 = 0; let y = 0; let y1 = 0;
-        for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
-            y = dataList[yIndex].y;
-            y1 = dataList[yIndex + 1].y;
-            for (let xIndex = 0, xLength = col; xIndex < xLength; ++xIndex) {
-                x = dataList[xIndex].x;
-                x1 = dataList[xIndex + 1].x;
-
-                Vec3.set(vec3_temps[0], x, y, 0);
-                Vec3.set(vec3_temps[1], x1, y, 0);
-                Vec3.set(vec3_temps[2], x, y1, 0);
-                Vec3.set(vec3_temps[3], x1, y1, 0);
-
-                for (let i = 0; i < 4; i++) {
-                    const vec3_temp = vec3_temps[i];
-                    Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-                    const offset = i * _perVertexLength;
-                    vBuf[vertexOffset + offset] = vec3_temp.x;
-                    vBuf[vertexOffset + offset + 1] = vec3_temp.y;
-                    vBuf[vertexOffset + offset + 2] = vec3_temp.z;
-                }
-
-                vertexOffset += 36;
             }
         }
     },
@@ -304,7 +303,7 @@ export const tiled: IAssembler = {
         const data: IRenderData[] = renderData!.data;
         const frame = sprite.spriteFrame!;
 
-        const rect = frame.getRect();
+        const rect = frame.rect;
         const contentWidth = Math.abs(uiTrans.width);
         const contentHeight = Math.abs(uiTrans.height);
         const appx = uiTrans.anchorX * contentWidth;
@@ -376,20 +375,29 @@ export const tiled: IAssembler = {
         }
     },
 
-    updateColor (sprite: Sprite) {
-        const datalist = sprite.renderData!.data;
-        const length = datalist.length;
-        if (length === 0) return;
+    // fill color here
+    updataColorLate (sprite: Sprite) {
+        const renderData = sprite.renderData!;
+        const vData = renderData.chunk.vb;
+        const stride = renderData.floatStride;
+        const vertexCount = renderData.vertexCount;
+
+        let colorOffset = 5;
         const color = sprite.color;
-        const colorR = color.r;
-        const colorG = color.g;
-        const colorB = color.b;
-        const colorA = sprite.node._uiProps.opacity * 255;
-        for (let i = 0; i < length; i++) {
-            datalist[i].color.r = colorR;
-            datalist[i].color.g = colorG;
-            datalist[i].color.b = colorB;
-            datalist[i].color.a = colorA;
+        const colorR = color.r / 255;
+        const colorG = color.g / 255;
+        const colorB = color.b / 255;
+        const colorA = sprite.node._uiProps.opacity;
+        for (let i = 0; i < vertexCount; i++) {
+            vData[colorOffset] = colorR;
+            vData[colorOffset + 1] = colorG;
+            vData[colorOffset + 2] = colorB;
+            vData[colorOffset + 3] = colorA;
+            colorOffset += stride;
         }
+    },
+
+    // Too early
+    updateColor (sprite: Sprite) {
     },
 };

@@ -42,6 +42,7 @@ import { warnID } from '../platform/debug';
 import { SceneGlobals } from './scene-globals';
 import { SystemEventType } from '../../input/types';
 import { SystemEvent } from '../../input';
+import { NodeUIProperties } from './node-ui-properties';
 
 replaceProperty(BaseNode.prototype, 'BaseNode', [
     {
@@ -191,6 +192,13 @@ removeProperty(Node.prototype, 'Node.prototype', [
     },
     {
         name: 'removeLayer',
+    },
+]);
+
+replaceProperty(NodeUIProperties.prototype, 'NodeUIProperties', [
+    {
+        name: 'opacityDirty',
+        newName: 'colorDirty',
     },
 ]);
 

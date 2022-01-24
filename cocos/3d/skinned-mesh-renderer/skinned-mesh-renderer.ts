@@ -40,6 +40,7 @@ import type { SkeletalAnimation } from '../skeletal-animation';
 import { legacyCC } from '../../core/global-exports';
 import { SkinningModel } from '../models/skinning-model';
 import { BakedSkinningModel } from '../models/baked-skinning-model';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 
 /**
  * @en The skinned mesh renderer component.
@@ -85,9 +86,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     set skinningRoot (value) {
-        if (value === this._skinningRoot) { return; }
         this._skinningRoot = value;
         this._tryBindAnimation();
+        if (value === this._skinningRoot) { return; }
         this._update();
     }
 
@@ -95,21 +96,28 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         return this._model as SkinningModel | BakedSkinningModel | null;
     }
 
+    /**
+     * Set associated animation.
+     * @internal This method only friends to skeletal animation component.
+     */
+    public associatedAnimation: SkeletalAnimation | null = null;
+
     constructor () {
         super();
         this._modelType = BakedSkinningModel;
     }
 
-    public onDestroy () {
-        if (this._animation) {
-            this._animation.removeUser(this);
-            this._animation = null;
-        }
-        super.onDestroy();
+    public onLoad () {
+        this._tryBindAnimation();
     }
 
-    public __preload () {
-        this._tryBindAnimation();
+    public onDestroy () {
+        if (this.associatedAnimation) {
+            this.associatedAnimation.notifySkinnedMeshRemoved(this);
+            assertIsTrue(this.associatedAnimation === null);
+        }
+
+        super.onDestroy();
     }
 
     public uploadAnimation (clip: AnimationClip | null) {
@@ -146,43 +154,31 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 
-    /**
-     * Notifies this renderer that an animation is usable.
-     * @internal This method only friends to skeletal animation component.
-     */
-    public notifyAnimationUsable (animation: SkeletalAnimation) {
-        if (this._animation) {
-            this._animation.removeUser(this);
-            this._animation = null;
-        }
-
-        animation.addUser(this);
-        this._animation = animation;
-    }
-
-    /**
-     * Notifies this renderer that the used animation is no longer usable.
-     * @internal This method only friends to skeletal animation component.
-     */
-    public notifyAnimationUnusable () {
-        this._animation = null;
-    }
-
     protected _updateModelParams () {
         this._update(); // should bind skeleton before super create pso
         super._updateModelParams();
     }
-
-    private _animation: SkeletalAnimation | null = null;
 
     private _tryBindAnimation () {
         const { _skinningRoot: skinningRoot } = this;
         if (!skinningRoot) {
             return;
         }
+
+        let skinningRootIsParent = false;
+        for (let current: Node | null = this.node; current; current = current.parent) {
+            if (current === skinningRoot) {
+                skinningRootIsParent = true;
+                break;
+            }
+        }
+        if (!skinningRootIsParent) {
+            return;
+        }
+
         const animation = skinningRoot.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
         if (animation) {
-            animation.addUser(this);
+            animation.notifySkinnedMeshAdded(this);
         } else {
             this.setUseBakedAnimation(false);
         }
