@@ -195,7 +195,7 @@ export class MeshRenderer extends RenderableComponent {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 0 } })
     @disallowAnimation
     get shadowBias () {
         return this._shadowBias;
@@ -213,7 +213,7 @@ export class MeshRenderer extends RenderableComponent {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_normal_bias')
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @disallowAnimation
     get shadowNormalBias () {
         return this._shadowNormalBias;
@@ -231,6 +231,7 @@ export class MeshRenderer extends RenderableComponent {
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2 } })
     @disallowAnimation
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -247,6 +248,7 @@ export class MeshRenderer extends RenderableComponent {
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
     @disallowAnimation
     get receiveShadow () {
         return this._shadowReceivingMode;
