@@ -30,7 +30,6 @@
  */
 
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
-import { UI_GPU_DRIVEN } from 'internal:constants';
 import { Component } from '../core/components';
 import { Sprite } from '../2d/components/sprite';
 import { Label } from '../2d/components/label';
@@ -275,10 +274,6 @@ export class TiledObjectGroup extends Component {
                 label.horizontalAlign = object.halign;
                 label.verticalAlign = object.valign;
                 label.fontSize = object.pixelsize;
-                if (UI_GPU_DRIVEN) {
-                    // @ts-expect-error HACK for Tiled
-                    label._canDrawByFourVertex = false;
-                }
 
                 textTransComp.setContentSize(object.width, object.height);
             } else if (objType === TMXObjectType.IMAGE) {
@@ -370,10 +365,6 @@ export class TiledObjectGroup extends Component {
                 spf.rotated = grid._rotated!;
                 spf.rect = grid._rect!;
                 sprite.spriteFrame = spf;
-                if (UI_GPU_DRIVEN) {
-                    // @ts-expect-error HACK for Tiled
-                    sprite._canDrawByFourVertex = false;
-                }
 
                 imgTrans.setContentSize(object.width, object.height);
 

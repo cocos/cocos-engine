@@ -30,7 +30,7 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
-import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
@@ -516,17 +516,9 @@ export class Label extends Renderable2D {
 
         if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
             this._ttfSpriteFrame._resetDynamicAtlasFrame();
-            // macro.UI_GPU_DRIVEN
-            if (UI_GPU_DRIVEN) {
-                this._canDrawByFourVertex = true;
-            }
         }
         if (this._cacheMode === CacheMode.CHAR) {
             this._ttfSpriteFrame = null;
-            // macro.UI_GPU_DRIVEN
-            if (UI_GPU_DRIVEN) {
-                this._canDrawByFourVertex = false;
-            }
         }
 
         this._cacheMode = value;
@@ -688,9 +680,6 @@ export class Label extends Renderable2D {
 
     constructor () {
         super();
-        if (UI_GPU_DRIVEN) {
-            this._canDrawByFourVertex = true;
-        }
         if (EDITOR) {
             this._userDefinedFont = null;
         }
@@ -776,9 +765,6 @@ export class Label extends Renderable2D {
             if (!spriteFrame || !spriteFrame.texture) {
                 return false;
             }
-            if (UI_GPU_DRIVEN) {
-                this._canDrawByFourVertex = false;
-            }
         }
 
         return true;
@@ -815,18 +801,10 @@ export class Label extends Renderable2D {
                     this._assembler.updateRenderData(this);
                 }
             }
-            // macro.UI_GPU_DRIVEN
-            if (UI_GPU_DRIVEN) {
-                this._canDrawByFourVertex = false;
-            }
         } else {
             if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler!.getAssemblerData();
                 this._texture = this._letterTexture;
-                // macro.UI_GPU_DRIVEN
-                if (UI_GPU_DRIVEN) {
-                    this._canDrawByFourVertex = false;
-                }
             } else if (!this._ttfSpriteFrame) {
                 this._ttfSpriteFrame = new SpriteFrame();
                 this._assemblerData = this._assembler!.getAssemblerData();
@@ -839,10 +817,6 @@ export class Label extends Renderable2D {
             if (this.cacheMode !== CacheMode.CHAR) {
                 // this._frame._refreshTexture(this._texture);
                 this._texture = this._ttfSpriteFrame;
-                // macro.UI_GPU_DRIVEN
-                if (UI_GPU_DRIVEN) {
-                    this._canDrawByFourVertex = true;
-                }
             }
             this.changeMaterialForDefine();
         }
