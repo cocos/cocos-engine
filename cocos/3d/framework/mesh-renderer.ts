@@ -44,6 +44,8 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { MorphRenderingInstance } from '../assets/morph';
 import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { CCFloat } from '../../core/data/utils/attribute';
+import { property } from '../../core/data/class-decorator';
 
 /**
  * @en Shadow projection mode.

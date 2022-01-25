@@ -40,7 +40,6 @@ export const NativeModel: Constructor<{
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
     updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
-    updateLocalShadowBias(val: Vec2): void;
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
 
@@ -65,7 +64,6 @@ export const NativeSkinningModel: Constructor<{
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
     updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
-    updateLocalShadowBias(val: Vec2): void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
@@ -105,7 +103,6 @@ export const NativeBakedSkinningModel: Constructor<{
     setAnimInfoIdx(idx: number): void;
     updateModelBounds(val: NativeAABB | null): void;
     updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
-    updateLocalShadowBias(val: Vec2): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 
