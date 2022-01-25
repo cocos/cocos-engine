@@ -26,12 +26,12 @@ CCProgram sky-vs %{
 
     // orthographic projection adaptation
     if (cc_matProj[3].w > 0.0) {
+      mat4 matProj = cc_matProj;
       // default ortho height 10 approximate to default FOV 45
       // stretch x by 2 to remedy perspective effect
-      mat4 matProj = cc_matProj;
-      vec2 scale = vec2(48.0, 24.0);
-      matProj[0].xy *= scale;
-      matProj[1].xy *= scale;
+      // w = sin(45/2), h = 2 * w, _11 = 2 / w, _22 = 2 / h
+      matProj[0].x = 5.2;
+      matProj[1].y = 2.6;
       matProj[2].zw = vec2(-1.0);
       matProj[3].zw = vec2(0.0);
       // position is modified inside branches to work around a vk driver bug seen in
