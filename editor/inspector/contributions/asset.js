@@ -481,7 +481,10 @@ exports.close = async function close() {
 };
 
 exports.config = {
-    header: require('../assets-header'),
-    section: require('../assets'),
-    footer: require('../assets-footer'),
+    type: 'asset',
+    slot: {
+        header: require('../assets-header'),
+        section: require('../assets'),
+        footer: require('../assets-footer'),
+    },
 };

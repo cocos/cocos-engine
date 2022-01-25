@@ -1456,5 +1456,8 @@ exports.beforeClose = async function beforeClose() {
 };
 
 exports.config = {
-    section: require('../components.js'),
+    type: 'node',
+    slot: {
+        section: require('../components.js'),
+    },
 };
