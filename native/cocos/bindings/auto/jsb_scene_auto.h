@@ -24,31 +24,32 @@
 ****************************************************************************/
 
 #pragma once
-#include <type_traits>
 #include "base/Config.h"
-#include "cocos/bindings/auto/jsb_gfx_auto.h"
+#include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/scene/AABB.h"
-#include "cocos/scene/BaseNode.h"
-#include "cocos/scene/Camera.h"
-#include "cocos/scene/Define.h"
-#include "cocos/scene/DirectionalLight.h"
-#include "cocos/scene/DrawBatch2D.h"
-#include "cocos/scene/Light.h"
-#include "cocos/scene/Model.h"
+#include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/scene/Node.h"
+#include "cocos/scene/BaseNode.h"
+#include "cocos/scene/Scene.h"
+#include "cocos/scene/Light.h"
+#include "cocos/scene/DirectionalLight.h"
+#include "cocos/scene/SpotLight.h"
+#include "cocos/scene/SphereLight.h"
+#include "cocos/scene/Model.h"
+#include "cocos/scene/SubModel.h"
 #include "cocos/scene/Pass.h"
 #include "cocos/scene/RenderScene.h"
+#include "cocos/scene/DrawBatch2D.h"
+#include "cocos/scene/Camera.h"
 #include "cocos/scene/RenderWindow.h"
-#include "cocos/scene/Scene.h"
+#include "cocos/scene/Camera.h"
+#include "cocos/scene/Define.h"
+#include "cocos/scene/AABB.h"
 #include "cocos/scene/Sphere.h"
-#include "cocos/scene/SphereLight.h"
-#include "cocos/scene/SpotLight.h"
-#include "cocos/scene/SubModel.h"
 
 extern se::Object* __jsb_cc_scene_BaseNode_proto;
-extern se::Class*  __jsb_cc_scene_BaseNode_class;
+extern se::Class* __jsb_cc_scene_BaseNode_class;
 
 bool js_register_cc_scene_BaseNode(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -59,7 +60,7 @@ SE_DECLARE_FUNC(js_scene_BaseNode_setParent);
 SE_DECLARE_FUNC(js_scene_BaseNode_BaseNode);
 
 extern se::Object* __jsb_cc_scene_Scene_proto;
-extern se::Class*  __jsb_cc_scene_Scene_class;
+extern se::Class* __jsb_cc_scene_Scene_class;
 
 bool js_register_cc_scene_Scene(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -68,7 +69,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::Scene);
 SE_DECLARE_FUNC(js_scene_Scene_Scene);
 
 extern se::Object* __jsb_cc_scene_Node_proto;
-extern se::Class*  __jsb_cc_scene_Node_class;
+extern se::Class* __jsb_cc_scene_Node_class;
 
 bool js_register_cc_scene_Node(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -78,7 +79,7 @@ SE_DECLARE_FUNC(js_scene_Node_initWithData);
 SE_DECLARE_FUNC(js_scene_Node_Node);
 
 extern se::Object* __jsb_cc_scene_Light_proto;
-extern se::Class*  __jsb_cc_scene_Light_class;
+extern se::Class* __jsb_cc_scene_Light_class;
 
 bool js_register_cc_scene_Light(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -94,7 +95,7 @@ SE_DECLARE_FUNC(js_scene_Light_setUseColorTemperature);
 SE_DECLARE_FUNC(js_scene_Light_update);
 
 extern se::Object* __jsb_cc_scene_DirectionalLight_proto;
-extern se::Class*  __jsb_cc_scene_DirectionalLight_class;
+extern se::Class* __jsb_cc_scene_DirectionalLight_class;
 
 bool js_register_cc_scene_DirectionalLight(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -128,26 +129,26 @@ SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowSaturation);
 SE_DECLARE_FUNC(js_scene_DirectionalLight_DirectionalLight);
 
 extern se::Object* __jsb_cc_scene_Plane_proto;
-extern se::Class*  __jsb_cc_scene_Plane_class;
+extern se::Class* __jsb_cc_scene_Plane_class;
 
 bool js_register_cc_scene_Plane(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::Plane*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::Plane *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Plane);
 SE_DECLARE_FUNC(js_scene_Plane_clone);
 SE_DECLARE_FUNC(js_scene_Plane_define);
 SE_DECLARE_FUNC(js_scene_Plane_distance);
 
 extern se::Object* __jsb_cc_scene_Frustum_proto;
-extern se::Class*  __jsb_cc_scene_Frustum_class;
+extern se::Class* __jsb_cc_scene_Frustum_class;
 
 bool js_register_cc_scene_Frustum(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::Frustum*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::Frustum *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Frustum);
 SE_DECLARE_FUNC(js_scene_Frustum_clone);
 SE_DECLARE_FUNC(js_scene_Frustum_createOrtho);
@@ -155,7 +156,7 @@ SE_DECLARE_FUNC(js_scene_Frustum_split);
 SE_DECLARE_FUNC(js_scene_Frustum_transform);
 
 extern se::Object* __jsb_cc_scene_AABB_proto;
-extern se::Class*  __jsb_cc_scene_AABB_class;
+extern se::Class* __jsb_cc_scene_AABB_class;
 
 bool js_register_cc_scene_AABB(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -167,7 +168,7 @@ SE_DECLARE_FUNC(js_scene_AABB_initWithData);
 SE_DECLARE_FUNC(js_scene_AABB_AABB);
 
 extern se::Object* __jsb_cc_scene_SpotLight_proto;
-extern se::Class*  __jsb_cc_scene_SpotLight_class;
+extern se::Class* __jsb_cc_scene_SpotLight_class;
 
 bool js_register_cc_scene_SpotLight(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -195,7 +196,7 @@ SE_DECLARE_FUNC(js_scene_SpotLight_setSize);
 SE_DECLARE_FUNC(js_scene_SpotLight_SpotLight);
 
 extern se::Object* __jsb_cc_scene_SphereLight_proto;
-extern se::Class*  __jsb_cc_scene_SphereLight_class;
+extern se::Class* __jsb_cc_scene_SphereLight_class;
 
 bool js_register_cc_scene_SphereLight(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -210,7 +211,7 @@ SE_DECLARE_FUNC(js_scene_SphereLight_setSize);
 SE_DECLARE_FUNC(js_scene_SphereLight_SphereLight);
 
 extern se::Object* __jsb_cc_scene_Model_proto;
-extern se::Class*  __jsb_cc_scene_Model_class;
+extern se::Class* __jsb_cc_scene_Model_class;
 
 bool js_register_cc_scene_Model(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -250,77 +251,77 @@ SE_DECLARE_FUNC(js_scene_Model_updateWorldBoundUBOs);
 SE_DECLARE_FUNC(js_scene_Model_Model);
 
 extern se::Object* __jsb_cc_scene_Fog_proto;
-extern se::Class*  __jsb_cc_scene_Fog_class;
+extern se::Class* __jsb_cc_scene_Fog_class;
 
 bool js_register_cc_scene_Fog(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::Fog*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::Fog *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Fog);
 
 extern se::Object* __jsb_cc_scene_Shadow_proto;
-extern se::Class*  __jsb_cc_scene_Shadow_class;
+extern se::Class* __jsb_cc_scene_Shadow_class;
 
 bool js_register_cc_scene_Shadow(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::Shadow*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::Shadow *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Shadow);
 
 extern se::Object* __jsb_cc_scene_Skybox_proto;
-extern se::Class*  __jsb_cc_scene_Skybox_class;
+extern se::Class* __jsb_cc_scene_Skybox_class;
 
 bool js_register_cc_scene_Skybox(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::Skybox*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::Skybox *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Skybox);
 
 extern se::Object* __jsb_cc_scene_Ambient_proto;
-extern se::Class*  __jsb_cc_scene_Ambient_class;
+extern se::Class* __jsb_cc_scene_Ambient_class;
 
 bool js_register_cc_scene_Ambient(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::Ambient*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::Ambient *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Ambient);
 
 extern se::Object* __jsb_cc_scene_OctreeInfo_proto;
-extern se::Class*  __jsb_cc_scene_OctreeInfo_class;
+extern se::Class* __jsb_cc_scene_OctreeInfo_class;
 
 bool js_register_cc_scene_OctreeInfo(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::OctreeInfo*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::OctreeInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::OctreeInfo);
 
 extern se::Object* __jsb_cc_scene_PipelineSharedSceneData_proto;
-extern se::Class*  __jsb_cc_scene_PipelineSharedSceneData_class;
+extern se::Class* __jsb_cc_scene_PipelineSharedSceneData_class;
 
 bool js_register_cc_scene_PipelineSharedSceneData(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::PipelineSharedSceneData*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::PipelineSharedSceneData *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::PipelineSharedSceneData);
 
 extern se::Object* __jsb_cc_scene_Root_proto;
-extern se::Class*  __jsb_cc_scene_Root_class;
+extern se::Class* __jsb_cc_scene_Root_class;
 
 bool js_register_cc_scene_Root(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::Root*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::Root *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Root);
 
 extern se::Object* __jsb_cc_scene_SubModel_proto;
-extern se::Class*  __jsb_cc_scene_SubModel_class;
+extern se::Class* __jsb_cc_scene_SubModel_class;
 
 bool js_register_cc_scene_SubModel(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -349,7 +350,7 @@ SE_DECLARE_FUNC(js_scene_SubModel_update);
 SE_DECLARE_FUNC(js_scene_SubModel_SubModel);
 
 extern se::Object* __jsb_cc_scene_Pass_proto;
-extern se::Class*  __jsb_cc_scene_Pass_class;
+extern se::Class* __jsb_cc_scene_Pass_class;
 
 bool js_register_cc_scene_Pass(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -385,28 +386,28 @@ SE_DECLARE_FUNC(js_scene_Pass_update);
 SE_DECLARE_FUNC(js_scene_Pass_Pass);
 
 extern se::Object* __jsb_cc_scene_BakedAnimInfo_proto;
-extern se::Class*  __jsb_cc_scene_BakedAnimInfo_class;
+extern se::Class* __jsb_cc_scene_BakedAnimInfo_class;
 
 bool js_register_cc_scene_BakedAnimInfo(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::BakedAnimInfo*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::BakedAnimInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::BakedAnimInfo);
 SE_DECLARE_FUNC(js_scene_BakedAnimInfo_getDirty);
 
 extern se::Object* __jsb_cc_scene_BakedJointInfo_proto;
-extern se::Class*  __jsb_cc_scene_BakedJointInfo_class;
+extern se::Class* __jsb_cc_scene_BakedJointInfo_class;
 
 bool js_register_cc_scene_BakedJointInfo(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::BakedJointInfo*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::BakedJointInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::BakedJointInfo);
 
 extern se::Object* __jsb_cc_scene_BakedSkinningModel_proto;
-extern se::Class*  __jsb_cc_scene_BakedSkinningModel_class;
+extern se::Class* __jsb_cc_scene_BakedSkinningModel_class;
 
 bool js_register_cc_scene_BakedSkinningModel(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -418,37 +419,37 @@ SE_DECLARE_FUNC(js_scene_BakedSkinningModel_updateModelBounds);
 SE_DECLARE_FUNC(js_scene_BakedSkinningModel_BakedSkinningModel);
 
 extern se::Object* __jsb_cc_scene_DrawBatch2D_proto;
-extern se::Class*  __jsb_cc_scene_DrawBatch2D_class;
+extern se::Class* __jsb_cc_scene_DrawBatch2D_class;
 
 bool js_register_cc_scene_DrawBatch2D(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::DrawBatch2D*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::DrawBatch2D *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::DrawBatch2D);
 
 extern se::Object* __jsb_cc_scene_JointTransform_proto;
-extern se::Class*  __jsb_cc_scene_JointTransform_class;
+extern se::Class* __jsb_cc_scene_JointTransform_class;
 
 bool js_register_cc_scene_JointTransform(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::JointTransform*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::JointTransform *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::JointTransform);
 
 extern se::Object* __jsb_cc_scene_JointInfo_proto;
-extern se::Class*  __jsb_cc_scene_JointInfo_class;
+extern se::Class* __jsb_cc_scene_JointInfo_class;
 
 bool js_register_cc_scene_JointInfo(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::JointInfo*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::JointInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::JointInfo);
 
 extern se::Object* __jsb_cc_scene_SkinningModel_proto;
-extern se::Class*  __jsb_cc_scene_SkinningModel_class;
+extern se::Class* __jsb_cc_scene_SkinningModel_class;
 
 bool js_register_cc_scene_SkinningModel(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -461,7 +462,7 @@ SE_DECLARE_FUNC(js_scene_SkinningModel_updateLocalDescriptors);
 SE_DECLARE_FUNC(js_scene_SkinningModel_SkinningModel);
 
 extern se::Object* __jsb_cc_scene_RenderScene_proto;
-extern se::Class*  __jsb_cc_scene_RenderScene_class;
+extern se::Class* __jsb_cc_scene_RenderScene_class;
 
 bool js_register_cc_scene_RenderScene(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -492,29 +493,29 @@ SE_DECLARE_FUNC(js_scene_RenderScene_update);
 SE_DECLARE_FUNC(js_scene_RenderScene_RenderScene);
 
 extern se::Object* __jsb_cc_scene_RenderWindow_proto;
-extern se::Class*  __jsb_cc_scene_RenderWindow_class;
+extern se::Class* __jsb_cc_scene_RenderWindow_class;
 
 bool js_register_cc_scene_RenderWindow(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::RenderWindow*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::RenderWindow *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderWindow);
 SE_DECLARE_FUNC(js_scene_RenderWindow_getHeight);
 SE_DECLARE_FUNC(js_scene_RenderWindow_getWidth);
 
 extern se::Object* __jsb_cc_scene_Camera_proto;
-extern se::Class*  __jsb_cc_scene_Camera_class;
+extern se::Class* __jsb_cc_scene_Camera_class;
 
 bool js_register_cc_scene_Camera(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
-template <>
-bool sevalue_to_native(const se::Value&, cc::scene::Camera*, se::Object* ctx);
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::Camera *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Camera);
 
 extern se::Object* __jsb_cc_scene_Sphere_proto;
-extern se::Class*  __jsb_cc_scene_Sphere_class;
+extern se::Class* __jsb_cc_scene_Sphere_class;
 
 bool js_register_cc_scene_Sphere(se::Object* obj);
 bool register_all_scene(se::Object* obj);
@@ -525,3 +526,4 @@ SE_DECLARE_FUNC(js_scene_Sphere_getRadius);
 SE_DECLARE_FUNC(js_scene_Sphere_setCenter);
 SE_DECLARE_FUNC(js_scene_Sphere_setRadius);
 SE_DECLARE_FUNC(js_scene_Sphere_Sphere);
+

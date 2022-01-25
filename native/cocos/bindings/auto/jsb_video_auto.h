@@ -26,13 +26,13 @@
 #pragma once
 #include "base/Config.h"
 #if (USE_VIDEO > 0)
-    #include <type_traits>
-    #include "cocos/bindings/jswrapper/SeApi.h"
-    #include "cocos/bindings/manual/jsb_conversions.h"
-    #include "cocos/ui/videoplayer/VideoPlayer.h"
+#include <type_traits>
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/ui/videoplayer/VideoPlayer.h"
 
 extern se::Object* __jsb_cc_VideoPlayer_proto;
-extern se::Class*  __jsb_cc_VideoPlayer_class;
+extern se::Class* __jsb_cc_VideoPlayer_class;
 
 bool js_register_cc_VideoPlayer(se::Object* obj);
 bool register_all_video(se::Object* obj);

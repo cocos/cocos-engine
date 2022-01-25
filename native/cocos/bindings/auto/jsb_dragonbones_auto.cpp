@@ -25,26 +25,26 @@
 
 #include "cocos/bindings/auto/jsb_dragonbones_auto.h"
 #if USE_DRAGONBONES > 0
-    #include "cocos/bindings/manual/jsb_conversions.h"
-    #include "cocos/bindings/manual/jsb_global.h"
-    #include "editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/bindings/manual/jsb_global.h"
+#include "editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h"
 
-    #ifndef JSB_ALLOC
-        #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
-    #endif
+#ifndef JSB_ALLOC
+#define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+#endif
 
-    #ifndef JSB_FREE
-        #define JSB_FREE(ptr) delete ptr
-    #endif
+#ifndef JSB_FREE
+#define JSB_FREE(ptr) delete ptr
+#endif
 se::Object* __jsb_dragonBones_BaseObject_proto = nullptr;
-se::Class*  __jsb_dragonBones_BaseObject_class = nullptr;
+se::Class* __jsb_dragonBones_BaseObject_class = nullptr;
 
 static bool js_dragonbones_BaseObject_returnToPool(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseObject_returnToPool : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->returnToPool();
         return true;
@@ -56,11 +56,11 @@ SE_BIND_FUNC(js_dragonbones_BaseObject_returnToPool)
 
 static bool js_dragonbones_BaseObject_setMaxCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<size_t, false>       arg0 = {};
+        HolderType<size_t, false> arg0 = {};
         HolderType<unsigned int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
@@ -75,9 +75,9 @@ SE_BIND_FUNC(js_dragonbones_BaseObject_setMaxCount)
 
 static bool js_dragonbones_BaseObject_clearPool(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::BaseObject::clearPool();
         return true;
@@ -93,6 +93,8 @@ static bool js_dragonbones_BaseObject_clearPool(se::State& s) // NOLINT(readabil
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_BaseObject_clearPool)
+
+
 
 bool js_register_dragonbones_BaseObject(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -111,14 +113,14 @@ bool js_register_dragonbones_BaseObject(se::Object* obj) // NOLINT(readability-i
     return true;
 }
 se::Object* __jsb_dragonBones_Rectangle_proto = nullptr;
-se::Class*  __jsb_dragonBones_Rectangle_class = nullptr;
+se::Class* __jsb_dragonBones_Rectangle_class = nullptr;
 
 static bool js_dragonbones_Rectangle_clear(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Rectangle>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Rectangle_clear : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->clear();
         return true;
@@ -139,10 +141,13 @@ static bool js_dragonbones_Rectangle_constructor(se::State& s) // NOLINT(readabi
 }
 SE_BIND_CTOR(js_dragonbones_Rectangle_constructor, __jsb_dragonBones_Rectangle_class, js_dragonBones_Rectangle_finalize)
 
+
+
 static bool js_dragonBones_Rectangle_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<dragonBones::Rectangle>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         auto* cobj = SE_THIS_OBJECT<dragonBones::Rectangle>(s);
         JSB_FREE(cobj);
@@ -167,7 +172,7 @@ bool js_register_dragonbones_Rectangle(se::Object* obj) // NOLINT(readability-id
     return true;
 }
 se::Object* __jsb_dragonBones_Matrix_proto = nullptr;
-se::Class*  __jsb_dragonBones_Matrix_class = nullptr;
+se::Class* __jsb_dragonBones_Matrix_class = nullptr;
 
 static bool js_dragonbones_Matrix_get_a(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -175,7 +180,7 @@ static bool js_dragonbones_Matrix_get_a(se::State& s) // NOLINT(readability-iden
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_get_a : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->a, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->a, s.thisObject(), s.rval());
@@ -186,7 +191,7 @@ SE_BIND_PROP_GET(js_dragonbones_Matrix_get_a)
 static bool js_dragonbones_Matrix_set_a(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_set_a : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -202,7 +207,7 @@ static bool js_dragonbones_Matrix_get_b(se::State& s) // NOLINT(readability-iden
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_get_b : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->b, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->b, s.thisObject(), s.rval());
@@ -213,7 +218,7 @@ SE_BIND_PROP_GET(js_dragonbones_Matrix_get_b)
 static bool js_dragonbones_Matrix_set_b(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_set_b : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -229,7 +234,7 @@ static bool js_dragonbones_Matrix_get_c(se::State& s) // NOLINT(readability-iden
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_get_c : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->c, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->c, s.thisObject(), s.rval());
@@ -240,7 +245,7 @@ SE_BIND_PROP_GET(js_dragonbones_Matrix_get_c)
 static bool js_dragonbones_Matrix_set_c(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_set_c : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -256,7 +261,7 @@ static bool js_dragonbones_Matrix_get_d(se::State& s) // NOLINT(readability-iden
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_get_d : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->d, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->d, s.thisObject(), s.rval());
@@ -267,7 +272,7 @@ SE_BIND_PROP_GET(js_dragonbones_Matrix_get_d)
 static bool js_dragonbones_Matrix_set_d(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_set_d : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -283,7 +288,7 @@ static bool js_dragonbones_Matrix_get_tx(se::State& s) // NOLINT(readability-ide
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_get_tx : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->tx, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->tx, s.thisObject(), s.rval());
@@ -294,7 +299,7 @@ SE_BIND_PROP_GET(js_dragonbones_Matrix_get_tx)
 static bool js_dragonbones_Matrix_set_tx(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_set_tx : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -310,7 +315,7 @@ static bool js_dragonbones_Matrix_get_ty(se::State& s) // NOLINT(readability-ide
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_get_ty : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->ty, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->ty, s.thisObject(), s.rval());
@@ -321,7 +326,7 @@ SE_BIND_PROP_GET(js_dragonbones_Matrix_get_ty)
 static bool js_dragonbones_Matrix_set_ty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Matrix>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Matrix_set_ty : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -330,6 +335,8 @@ static bool js_dragonbones_Matrix_set_ty(se::State& s) // NOLINT(readability-ide
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_Matrix_set_ty)
+
+
 
 bool js_register_dragonbones_Matrix(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -351,13 +358,13 @@ bool js_register_dragonbones_Matrix(se::Object* obj) // NOLINT(readability-ident
     return true;
 }
 se::Object* __jsb_dragonBones_Transform_proto = nullptr;
-se::Class*  __jsb_dragonBones_Transform_class = nullptr;
+se::Class* __jsb_dragonBones_Transform_class = nullptr;
 
 static bool js_dragonbones_Transform_normalizeRadian(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
@@ -379,7 +386,7 @@ static bool js_dragonbones_Transform_get_x(se::State& s) // NOLINT(readability-i
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_get_x : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->x, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->x, s.thisObject(), s.rval());
@@ -390,7 +397,7 @@ SE_BIND_PROP_GET(js_dragonbones_Transform_get_x)
 static bool js_dragonbones_Transform_set_x(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_set_x : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -406,7 +413,7 @@ static bool js_dragonbones_Transform_get_y(se::State& s) // NOLINT(readability-i
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_get_y : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->y, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->y, s.thisObject(), s.rval());
@@ -417,7 +424,7 @@ SE_BIND_PROP_GET(js_dragonbones_Transform_get_y)
 static bool js_dragonbones_Transform_set_y(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_set_y : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -433,7 +440,7 @@ static bool js_dragonbones_Transform_get_skew(se::State& s) // NOLINT(readabilit
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_get_skew : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->skew, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->skew, s.thisObject(), s.rval());
@@ -444,7 +451,7 @@ SE_BIND_PROP_GET(js_dragonbones_Transform_get_skew)
 static bool js_dragonbones_Transform_set_skew(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_set_skew : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -460,7 +467,7 @@ static bool js_dragonbones_Transform_get_rotation(se::State& s) // NOLINT(readab
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_get_rotation : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->rotation, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->rotation, s.thisObject(), s.rval());
@@ -471,7 +478,7 @@ SE_BIND_PROP_GET(js_dragonbones_Transform_get_rotation)
 static bool js_dragonbones_Transform_set_rotation(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_set_rotation : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -487,7 +494,7 @@ static bool js_dragonbones_Transform_get_scaleX(se::State& s) // NOLINT(readabil
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_get_scaleX : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->scaleX, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->scaleX, s.thisObject(), s.rval());
@@ -498,7 +505,7 @@ SE_BIND_PROP_GET(js_dragonbones_Transform_get_scaleX)
 static bool js_dragonbones_Transform_set_scaleX(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_set_scaleX : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -514,7 +521,7 @@ static bool js_dragonbones_Transform_get_scaleY(se::State& s) // NOLINT(readabil
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_get_scaleY : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->scaleY, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->scaleY, s.thisObject(), s.rval());
@@ -525,7 +532,7 @@ SE_BIND_PROP_GET(js_dragonbones_Transform_get_scaleY)
 static bool js_dragonbones_Transform_set_scaleY(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Transform>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Transform_set_scaleY : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -534,6 +541,8 @@ static bool js_dragonbones_Transform_set_scaleY(se::State& s) // NOLINT(readabil
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_Transform_set_scaleY)
+
+
 
 bool js_register_dragonbones_Transform(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -556,15 +565,15 @@ bool js_register_dragonbones_Transform(se::Object* obj) // NOLINT(readability-id
     return true;
 }
 se::Object* __jsb_dragonBones_TextureAtlasData_proto = nullptr;
-se::Class*  __jsb_dragonBones_TextureAtlasData_class = nullptr;
+se::Class* __jsb_dragonBones_TextureAtlasData_class = nullptr;
 
 static bool js_dragonbones_TextureAtlasData_addTexture(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureAtlasData_addTexture : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::TextureData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -581,9 +590,9 @@ static bool js_dragonbones_TextureAtlasData_createTexture(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureAtlasData_createTexture : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::TextureData* result = cobj->createTexture();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -600,9 +609,9 @@ static bool js_dragonbones_TextureAtlasData_getTexture(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureAtlasData_getTexture : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -624,7 +633,7 @@ static bool js_dragonbones_TextureAtlasData_get_name(se::State& s) // NOLINT(rea
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureAtlasData_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
@@ -635,7 +644,7 @@ SE_BIND_PROP_GET(js_dragonbones_TextureAtlasData_get_name)
 static bool js_dragonbones_TextureAtlasData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::TextureAtlasData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureAtlasData_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -644,6 +653,8 @@ static bool js_dragonbones_TextureAtlasData_set_name(se::State& s) // NOLINT(rea
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_TextureAtlasData_set_name)
+
+
 
 bool js_register_dragonbones_TextureAtlasData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -663,15 +674,15 @@ bool js_register_dragonbones_TextureAtlasData(se::Object* obj) // NOLINT(readabi
     return true;
 }
 se::Object* __jsb_dragonBones_TextureData_proto = nullptr;
-se::Class*  __jsb_dragonBones_TextureData_class = nullptr;
+se::Class* __jsb_dragonBones_TextureData_class = nullptr;
 
 static bool js_dragonbones_TextureData_getFrame(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureData_getFrame : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::Rectangle* result = cobj->getFrame();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -688,9 +699,9 @@ static bool js_dragonbones_TextureData_getParent(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureData_getParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::TextureAtlasData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -707,9 +718,9 @@ static bool js_dragonbones_TextureData_getRegion(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureData_getRegion : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Rectangle* result = cobj->getRegion();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -726,9 +737,9 @@ static bool js_dragonbones_TextureData_setFrame(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureData_setFrame : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::Rectangle*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -745,9 +756,9 @@ static bool js_dragonbones_TextureData_setParent(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TextureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TextureData_setParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::TextureAtlasData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -762,9 +773,9 @@ SE_BIND_FUNC(js_dragonbones_TextureData_setParent)
 
 static bool js_dragonbones_TextureData_createRectangle(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Rectangle* result = dragonBones::TextureData::createRectangle();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -776,6 +787,8 @@ static bool js_dragonbones_TextureData_createRectangle(se::State& s) // NOLINT(r
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_TextureData_createRectangle)
+
+
 
 bool js_register_dragonbones_TextureData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -797,15 +810,15 @@ bool js_register_dragonbones_TextureData(se::Object* obj) // NOLINT(readability-
     return true;
 }
 se::Object* __jsb_dragonBones_ArmatureData_proto = nullptr;
-se::Class*  __jsb_dragonBones_ArmatureData_class = nullptr;
+se::Class* __jsb_dragonBones_ArmatureData_class = nullptr;
 
 static bool js_dragonbones_ArmatureData_getAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getAABB : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Rectangle* result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -822,9 +835,9 @@ static bool js_dragonbones_ArmatureData_getAnimation(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getAnimation : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -844,9 +857,9 @@ static bool js_dragonbones_ArmatureData_getAnimationNames(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getAnimationNames : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<std::string>& result = cobj->getAnimationNames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -863,9 +876,9 @@ static bool js_dragonbones_ArmatureData_getBone(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getBone : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -885,9 +898,9 @@ static bool js_dragonbones_ArmatureData_getDefaultAnimation(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getDefaultAnimation : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::AnimationData* result = cobj->getDefaultAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -904,9 +917,9 @@ static bool js_dragonbones_ArmatureData_getDefaultSkin(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getDefaultSkin : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::SkinData* result = cobj->getDefaultSkin();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -923,9 +936,9 @@ static bool js_dragonbones_ArmatureData_getMesh(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getMesh : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
@@ -949,9 +962,9 @@ static bool js_dragonbones_ArmatureData_getParent(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::DragonBonesData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -968,9 +981,9 @@ static bool js_dragonbones_ArmatureData_getSkin(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getSkin : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -990,9 +1003,9 @@ static bool js_dragonbones_ArmatureData_getSlot(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getSlot : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1012,9 +1025,9 @@ static bool js_dragonbones_ArmatureData_getType(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_getType : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getType();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1031,9 +1044,9 @@ static bool js_dragonbones_ArmatureData_setDefaultAnimation(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_setDefaultAnimation : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::AnimationData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1050,9 +1063,9 @@ static bool js_dragonbones_ArmatureData_setDefaultSkin(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_setDefaultSkin : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::SkinData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1069,9 +1082,9 @@ static bool js_dragonbones_ArmatureData_setParent(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_setParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::DragonBonesData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1088,9 +1101,9 @@ static bool js_dragonbones_ArmatureData_setType(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_setType : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1108,7 +1121,7 @@ static bool js_dragonbones_ArmatureData_sortBones(se::State& s) // NOLINT(readab
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_sortBones : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->sortBones();
         return true;
@@ -1124,7 +1137,7 @@ static bool js_dragonbones_ArmatureData_get_frameRate(se::State& s) // NOLINT(re
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_get_frameRate : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->frameRate, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->frameRate, s.thisObject(), s.rval());
@@ -1135,7 +1148,7 @@ SE_BIND_PROP_GET(js_dragonbones_ArmatureData_get_frameRate)
 static bool js_dragonbones_ArmatureData_set_frameRate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_set_frameRate : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1151,7 +1164,7 @@ static bool js_dragonbones_ArmatureData_get_name(se::State& s) // NOLINT(readabi
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
@@ -1162,7 +1175,7 @@ SE_BIND_PROP_GET(js_dragonbones_ArmatureData_get_name)
 static bool js_dragonbones_ArmatureData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureData_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1171,6 +1184,8 @@ static bool js_dragonbones_ArmatureData_set_name(se::State& s) // NOLINT(readabi
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_ArmatureData_set_name)
+
+
 
 bool js_register_dragonbones_ArmatureData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1204,15 +1219,15 @@ bool js_register_dragonbones_ArmatureData(se::Object* obj) // NOLINT(readability
     return true;
 }
 se::Object* __jsb_dragonBones_BoneData_proto = nullptr;
-se::Class*  __jsb_dragonBones_BoneData_class = nullptr;
+se::Class* __jsb_dragonBones_BoneData_class = nullptr;
 
 static bool js_dragonbones_BoneData_getParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BoneData_getParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::BoneData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1229,9 +1244,9 @@ static bool js_dragonbones_BoneData_getTransfrom(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BoneData_getTransfrom : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Transform* result = cobj->getTransfrom();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1248,9 +1263,9 @@ static bool js_dragonbones_BoneData_setParent(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BoneData_setParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::BoneData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1269,7 +1284,7 @@ static bool js_dragonbones_BoneData_get_name(se::State& s) // NOLINT(readability
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BoneData_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
@@ -1280,7 +1295,7 @@ SE_BIND_PROP_GET(js_dragonbones_BoneData_get_name)
 static bool js_dragonbones_BoneData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::BoneData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BoneData_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1296,7 +1311,7 @@ static bool js_dragonbones_BoneData_get_parent(se::State& s) // NOLINT(readabili
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BoneData_get_parent : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->parent, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->parent, s.thisObject(), s.rval());
@@ -1307,7 +1322,7 @@ SE_BIND_PROP_GET(js_dragonbones_BoneData_get_parent)
 static bool js_dragonbones_BoneData_set_parent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::BoneData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::BoneData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BoneData_set_parent : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1316,6 +1331,8 @@ static bool js_dragonbones_BoneData_set_parent(se::State& s) // NOLINT(readabili
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_BoneData_set_parent)
+
+
 
 bool js_register_dragonbones_BoneData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1336,15 +1353,15 @@ bool js_register_dragonbones_BoneData(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_dragonBones_SlotData_proto = nullptr;
-se::Class*  __jsb_dragonBones_SlotData_class = nullptr;
+se::Class* __jsb_dragonBones_SlotData_class = nullptr;
 
 static bool js_dragonbones_SlotData_getBlendMode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SlotData_getBlendMode : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getBlendMode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1361,9 +1378,9 @@ static bool js_dragonbones_SlotData_getParent(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SlotData_getParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::BoneData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1380,9 +1397,9 @@ static bool js_dragonbones_SlotData_setBlendMode(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SlotData_setBlendMode : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1399,9 +1416,9 @@ static bool js_dragonbones_SlotData_setParent(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SlotData_setParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::BoneData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1420,7 +1437,7 @@ static bool js_dragonbones_SlotData_get_name(se::State& s) // NOLINT(readability
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SlotData_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
@@ -1431,7 +1448,7 @@ SE_BIND_PROP_GET(js_dragonbones_SlotData_get_name)
 static bool js_dragonbones_SlotData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::SlotData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SlotData_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1447,7 +1464,7 @@ static bool js_dragonbones_SlotData_get_parent(se::State& s) // NOLINT(readabili
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SlotData_get_parent : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->parent, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->parent, s.thisObject(), s.rval());
@@ -1458,7 +1475,7 @@ SE_BIND_PROP_GET(js_dragonbones_SlotData_get_parent)
 static bool js_dragonbones_SlotData_set_parent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::SlotData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::SlotData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SlotData_set_parent : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1467,6 +1484,8 @@ static bool js_dragonbones_SlotData_set_parent(se::State& s) // NOLINT(readabili
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_SlotData_set_parent)
+
+
 
 bool js_register_dragonbones_SlotData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1488,15 +1507,15 @@ bool js_register_dragonbones_SlotData(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_dragonBones_DragonBonesData_proto = nullptr;
-se::Class*  __jsb_dragonBones_DragonBonesData_class = nullptr;
+se::Class* __jsb_dragonBones_DragonBonesData_class = nullptr;
 
 static bool js_dragonbones_DragonBonesData_addArmature(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_DragonBonesData_addArmature : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::ArmatureData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1513,9 +1532,9 @@ static bool js_dragonbones_DragonBonesData_getArmature(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_DragonBonesData_getArmature : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1535,9 +1554,9 @@ static bool js_dragonbones_DragonBonesData_getArmatureNames(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_DragonBonesData_getArmatureNames : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<std::string>& result = cobj->getArmatureNames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1554,9 +1573,9 @@ static bool js_dragonbones_DragonBonesData_getFrameIndices(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_DragonBonesData_getFrameIndices : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         std::vector<unsigned int>* result = cobj->getFrameIndices();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1575,7 +1594,7 @@ static bool js_dragonbones_DragonBonesData_get_name(se::State& s) // NOLINT(read
     SE_PRECONDITION2(cobj, false, "js_dragonbones_DragonBonesData_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
@@ -1586,7 +1605,7 @@ SE_BIND_PROP_GET(js_dragonbones_DragonBonesData_get_name)
 static bool js_dragonbones_DragonBonesData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::DragonBonesData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_DragonBonesData_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1595,6 +1614,8 @@ static bool js_dragonbones_DragonBonesData_set_name(se::State& s) // NOLINT(read
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_DragonBonesData_set_name)
+
+
 
 bool js_register_dragonbones_DragonBonesData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1615,7 +1636,7 @@ bool js_register_dragonbones_DragonBonesData(se::Object* obj) // NOLINT(readabil
     return true;
 }
 se::Object* __jsb_dragonBones_SkinData_proto = nullptr;
-se::Class*  __jsb_dragonBones_SkinData_class = nullptr;
+se::Class* __jsb_dragonBones_SkinData_class = nullptr;
 
 static bool js_dragonbones_SkinData_get_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1623,7 +1644,7 @@ static bool js_dragonbones_SkinData_get_name(se::State& s) // NOLINT(readability
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SkinData_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
@@ -1634,7 +1655,7 @@ SE_BIND_PROP_GET(js_dragonbones_SkinData_get_name)
 static bool js_dragonbones_SkinData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::SkinData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::SkinData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_SkinData_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1643,6 +1664,8 @@ static bool js_dragonbones_SkinData_set_name(se::State& s) // NOLINT(readability
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_SkinData_set_name)
+
+
 
 bool js_register_dragonbones_SkinData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1659,15 +1682,15 @@ bool js_register_dragonbones_SkinData(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_dragonBones_AnimationData_proto = nullptr;
-se::Class*  __jsb_dragonBones_AnimationData_class = nullptr;
+se::Class* __jsb_dragonBones_AnimationData_class = nullptr;
 
 static bool js_dragonbones_AnimationData_getBoneCachedFrameIndices(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_getBoneCachedFrameIndices : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1687,9 +1710,9 @@ static bool js_dragonbones_AnimationData_getParent(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_getParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::ArmatureData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1706,9 +1729,9 @@ static bool js_dragonbones_AnimationData_getSlotCachedFrameIndices(se::State& s)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_getSlotCachedFrameIndices : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1728,9 +1751,9 @@ static bool js_dragonbones_AnimationData_getZOrderTimeline(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_getZOrderTimeline : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::TimelineData* result = cobj->getZOrderTimeline();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -1747,9 +1770,9 @@ static bool js_dragonbones_AnimationData_setParent(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_setParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::ArmatureData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1768,7 +1791,7 @@ static bool js_dragonbones_AnimationData_get_frameCount(se::State& s) // NOLINT(
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_get_frameCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->frameCount, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->frameCount, s.thisObject(), s.rval());
@@ -1779,7 +1802,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_frameCount)
 static bool js_dragonbones_AnimationData_set_frameCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_set_frameCount : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1795,7 +1818,7 @@ static bool js_dragonbones_AnimationData_get_playTimes(se::State& s) // NOLINT(r
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_get_playTimes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->playTimes, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->playTimes, s.thisObject(), s.rval());
@@ -1806,7 +1829,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_playTimes)
 static bool js_dragonbones_AnimationData_set_playTimes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_set_playTimes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1822,7 +1845,7 @@ static bool js_dragonbones_AnimationData_get_duration(se::State& s) // NOLINT(re
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_get_duration : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->duration, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->duration, s.thisObject(), s.rval());
@@ -1833,7 +1856,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_duration)
 static bool js_dragonbones_AnimationData_set_duration(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_set_duration : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1849,7 +1872,7 @@ static bool js_dragonbones_AnimationData_get_fadeInTime(se::State& s) // NOLINT(
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_get_fadeInTime : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->fadeInTime, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->fadeInTime, s.thisObject(), s.rval());
@@ -1860,7 +1883,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_fadeInTime)
 static bool js_dragonbones_AnimationData_set_fadeInTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_set_fadeInTime : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1876,7 +1899,7 @@ static bool js_dragonbones_AnimationData_get_name(se::State& s) // NOLINT(readab
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
@@ -1887,7 +1910,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_name)
 static bool js_dragonbones_AnimationData_set_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationData>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationData_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -1896,6 +1919,8 @@ static bool js_dragonbones_AnimationData_set_name(se::State& s) // NOLINT(readab
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_AnimationData_set_name)
+
+
 
 bool js_register_dragonbones_AnimationData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -1921,15 +1946,15 @@ bool js_register_dragonbones_AnimationData(se::Object* obj) // NOLINT(readabilit
     return true;
 }
 se::Object* __jsb_dragonBones_Armature_proto = nullptr;
-se::Class*  __jsb_dragonBones_Armature_class = nullptr;
+se::Class* __jsb_dragonBones_Armature_class = nullptr;
 
 static bool js_dragonbones_Armature__addBone(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature__addBone : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::Bone*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1946,9 +1971,9 @@ static bool js_dragonbones_Armature__addSlot(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature__addSlot : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::Slot*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1965,12 +1990,12 @@ static bool js_dragonbones_Armature__bufferAction(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature__bufferAction : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<dragonBones::EventObject*, false> arg0 = {};
-        HolderType<bool, false>                      arg1 = {};
+        HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature__bufferAction : Error processing arguments");
@@ -1986,9 +2011,9 @@ static bool js_dragonbones_Armature_advanceTime(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_advanceTime : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2005,9 +2030,9 @@ static bool js_dragonbones_Armature_containsPoint(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_containsPoint : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -2030,7 +2055,7 @@ static bool js_dragonbones_Armature_dispose(se::State& s) // NOLINT(readability-
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_dispose : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->dispose();
         return true;
@@ -2044,9 +2069,9 @@ static bool js_dragonbones_Armature_getAnimation(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getAnimation : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Animation* result = cobj->getAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2063,9 +2088,9 @@ static bool js_dragonbones_Armature_getArmatureData(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getArmatureData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::ArmatureData* result = cobj->getArmatureData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2082,9 +2107,9 @@ static bool js_dragonbones_Armature_getBone(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getBone : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2104,9 +2129,9 @@ static bool js_dragonbones_Armature_getCacheFrameRate(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getCacheFrameRate : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         unsigned int result = cobj->getCacheFrameRate();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2123,9 +2148,9 @@ static bool js_dragonbones_Armature_getClock(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getClock : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::WorldClock* result = cobj->getClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2142,9 +2167,9 @@ static bool js_dragonbones_Armature_getEventDispatcher(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getEventDispatcher : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::IEventDispatcher* result = cobj->getEventDispatcher();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2161,9 +2186,9 @@ static bool js_dragonbones_Armature_getFlipX(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getFlipX : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->getFlipX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2180,9 +2205,9 @@ static bool js_dragonbones_Armature_getFlipY(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getFlipY : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->getFlipY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2199,9 +2224,9 @@ static bool js_dragonbones_Armature_getName(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getName : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2218,9 +2243,9 @@ static bool js_dragonbones_Armature_getParent(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Slot* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2237,9 +2262,9 @@ static bool js_dragonbones_Armature_getProxy(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getProxy : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::IArmatureProxy* result = cobj->getProxy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2256,9 +2281,9 @@ static bool js_dragonbones_Armature_getSlot(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_getSlot : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2278,9 +2303,9 @@ static bool js_dragonbones_Armature_invalidUpdate(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_invalidUpdate : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         cobj->invalidUpdate();
         return true;
@@ -2294,7 +2319,7 @@ static bool js_dragonbones_Armature_invalidUpdate(se::State& s) // NOLINT(readab
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false>       arg1 = {};
+        HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_invalidUpdate : Error processing arguments");
@@ -2311,7 +2336,7 @@ static bool js_dragonbones_Armature_render(se::State& s) // NOLINT(readability-i
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_render : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->render();
         return true;
@@ -2325,9 +2350,9 @@ static bool js_dragonbones_Armature_setCacheFrameRate(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_setCacheFrameRate : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2344,9 +2369,9 @@ static bool js_dragonbones_Armature_setClock(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_setClock : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::WorldClock*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2363,9 +2388,9 @@ static bool js_dragonbones_Armature_setFlipX(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_setFlipX : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2382,9 +2407,9 @@ static bool js_dragonbones_Armature_setFlipY(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Armature>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Armature_setFlipY : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2396,6 +2421,8 @@ static bool js_dragonbones_Armature_setFlipY(se::State& s) // NOLINT(readability
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_Armature_setFlipY)
+
+
 
 bool js_register_dragonbones_Armature(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -2435,15 +2462,15 @@ bool js_register_dragonbones_Armature(se::Object* obj) // NOLINT(readability-ide
     return true;
 }
 se::Object* __jsb_dragonBones_TransformObject_proto = nullptr;
-se::Class*  __jsb_dragonBones_TransformObject_class = nullptr;
+se::Class* __jsb_dragonBones_TransformObject_class = nullptr;
 
 static bool js_dragonbones_TransformObject_getArmature(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TransformObject_getArmature : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Armature* result = cobj->getArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2460,9 +2487,9 @@ static bool js_dragonbones_TransformObject_getGlobal(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TransformObject_getGlobal : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Transform* result = cobj->getGlobal();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2479,9 +2506,9 @@ static bool js_dragonbones_TransformObject_getGlobalTransformMatrix(se::State& s
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TransformObject_getGlobalTransformMatrix : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Matrix* result = cobj->getGlobalTransformMatrix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2498,9 +2525,9 @@ static bool js_dragonbones_TransformObject_getOffset(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TransformObject_getOffset : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Transform* result = cobj->getOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2517,9 +2544,9 @@ static bool js_dragonbones_TransformObject_getOrigin(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TransformObject_getOrigin : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::Transform* result = cobj->getOrigin();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2537,7 +2564,7 @@ static bool js_dragonbones_TransformObject_updateGlobalTransform(se::State& s) /
     auto* cobj = SE_THIS_OBJECT<dragonBones::TransformObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_TransformObject_updateGlobalTransform : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->updateGlobalTransform();
         return true;
@@ -2546,6 +2573,8 @@ static bool js_dragonbones_TransformObject_updateGlobalTransform(se::State& s) /
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_TransformObject_updateGlobalTransform)
+
+
 
 bool js_register_dragonbones_TransformObject(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -2567,15 +2596,15 @@ bool js_register_dragonbones_TransformObject(se::Object* obj) // NOLINT(readabil
     return true;
 }
 se::Object* __jsb_dragonBones_AnimationState_proto = nullptr;
-se::Class*  __jsb_dragonBones_AnimationState_class = nullptr;
+se::Class* __jsb_dragonBones_AnimationState_class = nullptr;
 
 static bool js_dragonbones_AnimationState_addBoneMask(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_addBoneMask : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2585,7 +2614,7 @@ static bool js_dragonbones_AnimationState_addBoneMask(se::State& s) // NOLINT(re
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false>       arg1 = {};
+        HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_addBoneMask : Error processing arguments");
@@ -2601,9 +2630,9 @@ static bool js_dragonbones_AnimationState_advanceTime(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_advanceTime : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -2622,9 +2651,9 @@ static bool js_dragonbones_AnimationState_containsBoneMask(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_containsBoneMask : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2644,9 +2673,9 @@ static bool js_dragonbones_AnimationState_fadeOut(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_fadeOut : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2656,7 +2685,7 @@ static bool js_dragonbones_AnimationState_fadeOut(se::State& s) // NOLINT(readab
     }
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
-        HolderType<bool, false>  arg1 = {};
+        HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_fadeOut : Error processing arguments");
@@ -2672,9 +2701,9 @@ static bool js_dragonbones_AnimationState_getAnimationData(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_getAnimationData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::AnimationData* result = cobj->getAnimationData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2691,9 +2720,9 @@ static bool js_dragonbones_AnimationState_getCurrentPlayTimes(se::State& s) // N
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_getCurrentPlayTimes : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         unsigned int result = cobj->getCurrentPlayTimes();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2710,9 +2739,9 @@ static bool js_dragonbones_AnimationState_getCurrentTime(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_getCurrentTime : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getCurrentTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2729,9 +2758,9 @@ static bool js_dragonbones_AnimationState_getName(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_getName : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2748,9 +2777,9 @@ static bool js_dragonbones_AnimationState_getTotalTime(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_getTotalTime : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getTotalTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2767,9 +2796,9 @@ static bool js_dragonbones_AnimationState_isCompleted(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_isCompleted : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isCompleted();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2786,9 +2815,9 @@ static bool js_dragonbones_AnimationState_isFadeComplete(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_isFadeComplete : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isFadeComplete();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2805,9 +2834,9 @@ static bool js_dragonbones_AnimationState_isFadeIn(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_isFadeIn : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isFadeIn();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2824,9 +2853,9 @@ static bool js_dragonbones_AnimationState_isFadeOut(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_isFadeOut : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isFadeOut();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2843,9 +2872,9 @@ static bool js_dragonbones_AnimationState_isPlaying(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_isPlaying : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isPlaying();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -2863,7 +2892,7 @@ static bool js_dragonbones_AnimationState_play(se::State& s) // NOLINT(readabili
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_play : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->play();
         return true;
@@ -2878,7 +2907,7 @@ static bool js_dragonbones_AnimationState_removeAllBoneMask(se::State& s) // NOL
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_removeAllBoneMask : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->removeAllBoneMask();
         return true;
@@ -2892,9 +2921,9 @@ static bool js_dragonbones_AnimationState_removeBoneMask(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_removeBoneMask : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2904,7 +2933,7 @@ static bool js_dragonbones_AnimationState_removeBoneMask(se::State& s) // NOLINT
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false>       arg1 = {};
+        HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_removeBoneMask : Error processing arguments");
@@ -2920,9 +2949,9 @@ static bool js_dragonbones_AnimationState_setCurrentTime(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_setCurrentTime : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -2940,7 +2969,7 @@ static bool js_dragonbones_AnimationState_stop(se::State& s) // NOLINT(readabili
     auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_stop : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->stop();
         return true;
@@ -2956,7 +2985,7 @@ static bool js_dragonbones_AnimationState_get_additiveBlending(se::State& s) // 
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_get_additiveBlending : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->additiveBlending, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->additiveBlending, s.thisObject(), s.rval());
@@ -2967,7 +2996,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_additiveBlending)
 static bool js_dragonbones_AnimationState_set_additiveBlending(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_set_additiveBlending : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -2983,7 +3012,7 @@ static bool js_dragonbones_AnimationState_get_displayControl(se::State& s) // NO
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_get_displayControl : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->displayControl, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->displayControl, s.thisObject(), s.rval());
@@ -2994,7 +3023,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_displayControl)
 static bool js_dragonbones_AnimationState_set_displayControl(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_set_displayControl : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3010,7 +3039,7 @@ static bool js_dragonbones_AnimationState_get_playTimes(se::State& s) // NOLINT(
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_get_playTimes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->playTimes, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->playTimes, s.thisObject(), s.rval());
@@ -3021,7 +3050,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_playTimes)
 static bool js_dragonbones_AnimationState_set_playTimes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_set_playTimes : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3037,7 +3066,7 @@ static bool js_dragonbones_AnimationState_get_timeScale(se::State& s) // NOLINT(
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_get_timeScale : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->timeScale, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->timeScale, s.thisObject(), s.rval());
@@ -3048,7 +3077,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_timeScale)
 static bool js_dragonbones_AnimationState_set_timeScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_set_timeScale : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3064,7 +3093,7 @@ static bool js_dragonbones_AnimationState_get_weight(se::State& s) // NOLINT(rea
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_get_weight : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->weight, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->weight, s.thisObject(), s.rval());
@@ -3075,7 +3104,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_weight)
 static bool js_dragonbones_AnimationState_set_weight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_set_weight : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3091,7 +3120,7 @@ static bool js_dragonbones_AnimationState_get_autoFadeOutTime(se::State& s) // N
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_get_autoFadeOutTime : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->autoFadeOutTime, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->autoFadeOutTime, s.thisObject(), s.rval());
@@ -3102,7 +3131,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_autoFadeOutTime)
 static bool js_dragonbones_AnimationState_set_autoFadeOutTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_set_autoFadeOutTime : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3118,7 +3147,7 @@ static bool js_dragonbones_AnimationState_get_fadeTotalTime(se::State& s) // NOL
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_get_fadeTotalTime : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->fadeTotalTime, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->fadeTotalTime, s.thisObject(), s.rval());
@@ -3129,7 +3158,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_fadeTotalTime)
 static bool js_dragonbones_AnimationState_set_fadeTotalTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_set_fadeTotalTime : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3145,7 +3174,7 @@ static bool js_dragonbones_AnimationState_get_name(se::State& s) // NOLINT(reada
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
@@ -3156,7 +3185,7 @@ SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_name)
 static bool js_dragonbones_AnimationState_set_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::AnimationState>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_AnimationState_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3165,6 +3194,8 @@ static bool js_dragonbones_AnimationState_set_name(se::State& s) // NOLINT(reada
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_AnimationState_set_name)
+
+
 
 bool js_register_dragonbones_AnimationState(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3207,15 +3238,15 @@ bool js_register_dragonbones_AnimationState(se::Object* obj) // NOLINT(readabili
     return true;
 }
 se::Object* __jsb_dragonBones_Bone_proto = nullptr;
-se::Class*  __jsb_dragonBones_Bone_class = nullptr;
+se::Class* __jsb_dragonBones_Bone_class = nullptr;
 
 static bool js_dragonbones_Bone_contains(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_contains : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<const dragonBones::Bone*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3235,9 +3266,9 @@ static bool js_dragonbones_Bone_getBoneData(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_getBoneData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::BoneData* result = cobj->getBoneData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3254,9 +3285,9 @@ static bool js_dragonbones_Bone_getName(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_getName : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3273,9 +3304,9 @@ static bool js_dragonbones_Bone_getOffsetMode(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_getOffsetMode : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getOffsetMode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3292,9 +3323,9 @@ static bool js_dragonbones_Bone_getParent(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_getParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Bone* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3311,9 +3342,9 @@ static bool js_dragonbones_Bone_getVisible(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_getVisible : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->getVisible();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3330,12 +3361,12 @@ static bool js_dragonbones_Bone_init(se::State& s) // NOLINT(readability-identif
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_init : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<const dragonBones::BoneData*, false> arg0 = {};
-        HolderType<dragonBones::Armature*, false>       arg1 = {};
+        HolderType<dragonBones::Armature*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_Bone_init : Error processing arguments");
@@ -3352,7 +3383,7 @@ static bool js_dragonbones_Bone_invalidUpdate(se::State& s) // NOLINT(readabilit
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_invalidUpdate : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->invalidUpdate();
         return true;
@@ -3366,9 +3397,9 @@ static bool js_dragonbones_Bone_setOffsetMode(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_setOffsetMode : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3385,9 +3416,9 @@ static bool js_dragonbones_Bone_setVisible(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_setVisible : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3404,9 +3435,9 @@ static bool js_dragonbones_Bone_update(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_update : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3424,7 +3455,7 @@ static bool js_dragonbones_Bone_updateByConstraint(se::State& s) // NOLINT(reada
     auto* cobj = SE_THIS_OBJECT<dragonBones::Bone>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Bone_updateByConstraint : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->updateByConstraint();
         return true;
@@ -3433,6 +3464,8 @@ static bool js_dragonbones_Bone_updateByConstraint(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_Bone_updateByConstraint)
+
+
 
 bool js_register_dragonbones_Bone(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3460,15 +3493,15 @@ bool js_register_dragonbones_Bone(se::Object* obj) // NOLINT(readability-identif
     return true;
 }
 se::Object* __jsb_dragonBones_Slot_proto = nullptr;
-se::Class*  __jsb_dragonBones_Slot_class = nullptr;
+se::Class* __jsb_dragonBones_Slot_class = nullptr;
 
 static bool js_dragonbones_Slot__setZorder(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot__setZorder : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3489,7 +3522,7 @@ static bool js_dragonbones_Slot__updateColor(se::State& s) // NOLINT(readability
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot__updateColor : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->_updateColor();
         return true;
@@ -3503,9 +3536,9 @@ static bool js_dragonbones_Slot_containsPoint(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_containsPoint : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -3527,9 +3560,9 @@ static bool js_dragonbones_Slot_getBoundingBoxData(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_getBoundingBoxData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::BoundingBoxData* result = cobj->getBoundingBoxData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3546,9 +3579,9 @@ static bool js_dragonbones_Slot_getChildArmature(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_getChildArmature : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Armature* result = cobj->getChildArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3565,9 +3598,9 @@ static bool js_dragonbones_Slot_getName(se::State& s) // NOLINT(readability-iden
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_getName : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3584,9 +3617,9 @@ static bool js_dragonbones_Slot_getParent(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_getParent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Bone* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3603,9 +3636,9 @@ static bool js_dragonbones_Slot_getSlotData(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_getSlotData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const dragonBones::SlotData* result = cobj->getSlotData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3622,9 +3655,9 @@ static bool js_dragonbones_Slot_getVisible(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_getVisible : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->getVisible();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3642,7 +3675,7 @@ static bool js_dragonbones_Slot_invalidUpdate(se::State& s) // NOLINT(readabilit
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_invalidUpdate : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->invalidUpdate();
         return true;
@@ -3656,9 +3689,9 @@ static bool js_dragonbones_Slot_setChildArmature(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_setChildArmature : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::Armature*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3675,9 +3708,9 @@ static bool js_dragonbones_Slot_setVisible(se::State& s) // NOLINT(readability-i
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_setVisible : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3694,9 +3727,9 @@ static bool js_dragonbones_Slot_update(se::State& s) // NOLINT(readability-ident
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_update : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3714,7 +3747,7 @@ static bool js_dragonbones_Slot_updateTransformAndMatrix(se::State& s) // NOLINT
     auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_updateTransformAndMatrix : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->updateTransformAndMatrix();
         return true;
@@ -3730,7 +3763,7 @@ static bool js_dragonbones_Slot_get_displayController(se::State& s) // NOLINT(re
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_get_displayController : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->displayController, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->displayController, s.thisObject(), s.rval());
@@ -3741,7 +3774,7 @@ SE_BIND_PROP_GET(js_dragonbones_Slot_get_displayController)
 static bool js_dragonbones_Slot_set_displayController(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_set_displayController : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3757,7 +3790,7 @@ static bool js_dragonbones_Slot_get__zOrder(se::State& s) // NOLINT(readability-
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_get__zOrder : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->_zOrder, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->_zOrder, s.thisObject(), s.rval());
@@ -3768,7 +3801,7 @@ SE_BIND_PROP_GET(js_dragonbones_Slot_get__zOrder)
 static bool js_dragonbones_Slot_set__zOrder(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Slot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Slot_set__zOrder : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -3777,6 +3810,8 @@ static bool js_dragonbones_Slot_set__zOrder(se::State& s) // NOLINT(readability-
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_Slot_set__zOrder)
+
+
 
 bool js_register_dragonbones_Slot(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3808,15 +3843,15 @@ bool js_register_dragonbones_Slot(se::Object* obj) // NOLINT(readability-identif
     return true;
 }
 se::Object* __jsb_dragonBones_WorldClock_proto = nullptr;
-se::Class*  __jsb_dragonBones_WorldClock_class = nullptr;
+se::Class* __jsb_dragonBones_WorldClock_class = nullptr;
 
 static bool js_dragonbones_WorldClock_advanceTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_WorldClock_advanceTime : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3834,7 +3869,7 @@ static bool js_dragonbones_WorldClock_clear(se::State& s) // NOLINT(readability-
     auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_WorldClock_clear : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->clear();
         return true;
@@ -3848,9 +3883,9 @@ static bool js_dragonbones_WorldClock_getClock(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_WorldClock_getClock : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::WorldClock* result = cobj->getClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3868,7 +3903,7 @@ static bool js_dragonbones_WorldClock_render(se::State& s) // NOLINT(readability
     auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_WorldClock_render : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->render();
         return true;
@@ -3882,9 +3917,9 @@ static bool js_dragonbones_WorldClock_setClock(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::WorldClock>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_WorldClock_setClock : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::WorldClock*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3899,9 +3934,9 @@ SE_BIND_FUNC(js_dragonbones_WorldClock_setClock)
 
 static bool js_dragonbones_WorldClock_getStaticClock(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::WorldClock* result = dragonBones::WorldClock::getStaticClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -3913,6 +3948,8 @@ static bool js_dragonbones_WorldClock_getStaticClock(se::State& s) // NOLINT(rea
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_WorldClock_getStaticClock)
+
+
 
 bool js_register_dragonbones_WorldClock(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -3934,15 +3971,15 @@ bool js_register_dragonbones_WorldClock(se::Object* obj) // NOLINT(readability-i
     return true;
 }
 se::Object* __jsb_dragonBones_Animation_proto = nullptr;
-se::Class*  __jsb_dragonBones_Animation_class = nullptr;
+se::Class* __jsb_dragonBones_Animation_class = nullptr;
 
 static bool js_dragonbones_Animation_advanceTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_advanceTime : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3959,9 +3996,9 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_fadeIn : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -3974,7 +4011,7 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s) // NOLINT(readability-
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
+        HolderType<float, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_fadeIn : Error processing arguments");
@@ -3986,8 +4023,8 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s) // NOLINT(readability-
     }
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
-        HolderType<int, false>        arg2 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -4000,9 +4037,9 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s) // NOLINT(readability-
     }
     if (argc == 4) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
-        HolderType<int, false>        arg2 = {};
-        HolderType<int, false>        arg3 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<int, false> arg2 = {};
+        HolderType<int, false> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -4016,9 +4053,9 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s) // NOLINT(readability-
     }
     if (argc == 5) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
-        HolderType<int, false>        arg2 = {};
-        HolderType<int, false>        arg3 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<int, false> arg2 = {};
+        HolderType<int, false> arg3 = {};
         HolderType<std::string, true> arg4 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -4033,11 +4070,11 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s) // NOLINT(readability-
         return true;
     }
     if (argc == 6) {
-        HolderType<std::string, true>                        arg0 = {};
-        HolderType<float, false>                             arg1 = {};
-        HolderType<int, false>                               arg2 = {};
-        HolderType<int, false>                               arg3 = {};
-        HolderType<std::string, true>                        arg4 = {};
+        HolderType<std::string, true> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<int, false> arg2 = {};
+        HolderType<int, false> arg3 = {};
+        HolderType<std::string, true> arg4 = {};
         HolderType<dragonBones::AnimationFadeOutMode, false> arg5 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -4061,9 +4098,9 @@ static bool js_dragonbones_Animation_getAnimationNames(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_getAnimationNames : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<std::string>& result = cobj->getAnimationNames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4080,9 +4117,9 @@ static bool js_dragonbones_Animation_getLastAnimationName(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_getLastAnimationName : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getLastAnimationName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4099,9 +4136,9 @@ static bool js_dragonbones_Animation_getLastAnimationState(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_getLastAnimationState : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::AnimationState* result = cobj->getLastAnimationState();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4118,9 +4155,9 @@ static bool js_dragonbones_Animation_getState(se::State& s) // NOLINT(readabilit
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_getState : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4140,9 +4177,9 @@ static bool js_dragonbones_Animation_gotoAndPlayByFrame(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_gotoAndPlayByFrame : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4154,7 +4191,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByFrame(se::State& s) // NOLINT(
         return true;
     }
     if (argc == 2) {
-        HolderType<std::string, true>   arg0 = {};
+        HolderType<std::string, true> arg0 = {};
         HolderType<unsigned int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -4166,9 +4203,9 @@ static bool js_dragonbones_Animation_gotoAndPlayByFrame(se::State& s) // NOLINT(
         return true;
     }
     if (argc == 3) {
-        HolderType<std::string, true>   arg0 = {};
+        HolderType<std::string, true> arg0 = {};
         HolderType<unsigned int, false> arg1 = {};
-        HolderType<int, false>          arg2 = {};
+        HolderType<int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -4188,9 +4225,9 @@ static bool js_dragonbones_Animation_gotoAndPlayByProgress(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_gotoAndPlayByProgress : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4203,7 +4240,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByProgress(se::State& s) // NOLI
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
+        HolderType<float, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByProgress : Error processing arguments");
@@ -4215,8 +4252,8 @@ static bool js_dragonbones_Animation_gotoAndPlayByProgress(se::State& s) // NOLI
     }
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
-        HolderType<int, false>        arg2 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -4236,9 +4273,9 @@ static bool js_dragonbones_Animation_gotoAndPlayByTime(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_gotoAndPlayByTime : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4251,7 +4288,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByTime(se::State& s) // NOLINT(r
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
+        HolderType<float, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByTime : Error processing arguments");
@@ -4263,8 +4300,8 @@ static bool js_dragonbones_Animation_gotoAndPlayByTime(se::State& s) // NOLINT(r
     }
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
-        HolderType<int, false>        arg2 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -4284,9 +4321,9 @@ static bool js_dragonbones_Animation_gotoAndStopByFrame(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_gotoAndStopByFrame : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4298,7 +4335,7 @@ static bool js_dragonbones_Animation_gotoAndStopByFrame(se::State& s) // NOLINT(
         return true;
     }
     if (argc == 2) {
-        HolderType<std::string, true>   arg0 = {};
+        HolderType<std::string, true> arg0 = {};
         HolderType<unsigned int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -4318,9 +4355,9 @@ static bool js_dragonbones_Animation_gotoAndStopByProgress(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_gotoAndStopByProgress : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4333,7 +4370,7 @@ static bool js_dragonbones_Animation_gotoAndStopByProgress(se::State& s) // NOLI
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
+        HolderType<float, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndStopByProgress : Error processing arguments");
@@ -4352,9 +4389,9 @@ static bool js_dragonbones_Animation_gotoAndStopByTime(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_gotoAndStopByTime : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4367,7 +4404,7 @@ static bool js_dragonbones_Animation_gotoAndStopByTime(se::State& s) // NOLINT(r
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<float, false>      arg1 = {};
+        HolderType<float, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndStopByTime : Error processing arguments");
@@ -4386,9 +4423,9 @@ static bool js_dragonbones_Animation_hasAnimation(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_hasAnimation : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4408,9 +4445,9 @@ static bool js_dragonbones_Animation_init(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_init : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::Armature*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4427,9 +4464,9 @@ static bool js_dragonbones_Animation_isCompleted(se::State& s) // NOLINT(readabi
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_isCompleted : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isCompleted();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4446,9 +4483,9 @@ static bool js_dragonbones_Animation_isPlaying(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_isPlaying : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isPlaying();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4465,9 +4502,9 @@ static bool js_dragonbones_Animation_play(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_play : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::AnimationState* result = cobj->play();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4487,7 +4524,7 @@ static bool js_dragonbones_Animation_play(se::State& s) // NOLINT(readability-id
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<int, false>        arg1 = {};
+        HolderType<int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_play : Error processing arguments");
@@ -4507,7 +4544,7 @@ static bool js_dragonbones_Animation_reset(se::State& s) // NOLINT(readability-i
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_reset : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->reset();
         return true;
@@ -4521,9 +4558,9 @@ static bool js_dragonbones_Animation_stop(se::State& s) // NOLINT(readability-id
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_stop : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4542,7 +4579,7 @@ static bool js_dragonbones_Animation_get_timeScale(se::State& s) // NOLINT(reada
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_get_timeScale : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->timeScale, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->timeScale, s.thisObject(), s.rval());
@@ -4553,7 +4590,7 @@ SE_BIND_PROP_GET(js_dragonbones_Animation_get_timeScale)
 static bool js_dragonbones_Animation_set_timeScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::Animation>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_Animation_set_timeScale : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4562,6 +4599,8 @@ static bool js_dragonbones_Animation_set_timeScale(se::State& s) // NOLINT(reada
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_Animation_set_timeScale)
+
+
 
 bool js_register_dragonbones_Animation(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -4597,15 +4636,15 @@ bool js_register_dragonbones_Animation(se::Object* obj) // NOLINT(readability-id
     return true;
 }
 se::Object* __jsb_dragonBones_EventObject_proto = nullptr;
-se::Class*  __jsb_dragonBones_EventObject_class = nullptr;
+se::Class* __jsb_dragonBones_EventObject_class = nullptr;
 
 static bool js_dragonbones_EventObject_getAnimationState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_getAnimationState : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::AnimationState* result = cobj->getAnimationState();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4622,9 +4661,9 @@ static bool js_dragonbones_EventObject_getArmature(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_getArmature : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Armature* result = cobj->getArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4641,9 +4680,9 @@ static bool js_dragonbones_EventObject_getBone(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_getBone : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Bone* result = cobj->getBone();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4660,9 +4699,9 @@ static bool js_dragonbones_EventObject_getSlot(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_getSlot : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Slot* result = cobj->getSlot();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -4681,7 +4720,7 @@ static bool js_dragonbones_EventObject_get_type(se::State& s) // NOLINT(readabil
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_get_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->type, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->type, s.thisObject(), s.rval());
@@ -4692,7 +4731,7 @@ SE_BIND_PROP_GET(js_dragonbones_EventObject_get_type)
 static bool js_dragonbones_EventObject_set_type(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_set_type : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4708,7 +4747,7 @@ static bool js_dragonbones_EventObject_get_name(se::State& s) // NOLINT(readabil
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
@@ -4719,7 +4758,7 @@ SE_BIND_PROP_GET(js_dragonbones_EventObject_get_name)
 static bool js_dragonbones_EventObject_set_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4735,7 +4774,7 @@ static bool js_dragonbones_EventObject_get_armature(se::State& s) // NOLINT(read
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_get_armature : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->armature, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->armature, s.thisObject(), s.rval());
@@ -4746,7 +4785,7 @@ SE_BIND_PROP_GET(js_dragonbones_EventObject_get_armature)
 static bool js_dragonbones_EventObject_set_armature(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_set_armature : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4762,7 +4801,7 @@ static bool js_dragonbones_EventObject_get_bone(se::State& s) // NOLINT(readabil
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_get_bone : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->bone, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->bone, s.thisObject(), s.rval());
@@ -4773,7 +4812,7 @@ SE_BIND_PROP_GET(js_dragonbones_EventObject_get_bone)
 static bool js_dragonbones_EventObject_set_bone(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_set_bone : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4789,7 +4828,7 @@ static bool js_dragonbones_EventObject_get_slot(se::State& s) // NOLINT(readabil
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_get_slot : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->slot, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->slot, s.thisObject(), s.rval());
@@ -4800,7 +4839,7 @@ SE_BIND_PROP_GET(js_dragonbones_EventObject_get_slot)
 static bool js_dragonbones_EventObject_set_slot(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_set_slot : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4816,7 +4855,7 @@ static bool js_dragonbones_EventObject_get_animationState(se::State& s) // NOLIN
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_get_animationState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    se::Value      jsret;
+    se::Value jsret;
     ok &= nativevalue_to_se(cobj->animationState, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     SE_HOLD_RETURN_VALUE(cobj->animationState, s.thisObject(), s.rval());
@@ -4827,7 +4866,7 @@ SE_BIND_PROP_GET(js_dragonbones_EventObject_get_animationState)
 static bool js_dragonbones_EventObject_set_animationState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto*       cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
+    auto* cobj = SE_THIS_OBJECT<dragonBones::EventObject>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_EventObject_set_animationState : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -4836,6 +4875,8 @@ static bool js_dragonbones_EventObject_set_animationState(se::State& s) // NOLIN
     return true;
 }
 SE_BIND_PROP_SET(js_dragonbones_EventObject_set_animationState)
+
+
 
 bool js_register_dragonbones_EventObject(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -4861,15 +4902,15 @@ bool js_register_dragonbones_EventObject(se::Object* obj) // NOLINT(readability-
     return true;
 }
 se::Object* __jsb_dragonBones_BaseFactory_proto = nullptr;
-se::Class*  __jsb_dragonBones_BaseFactory_class = nullptr;
+se::Class* __jsb_dragonBones_BaseFactory_class = nullptr;
 
 static bool js_dragonbones_BaseFactory_addDragonBonesData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_addDragonBonesData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::DragonBonesData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4879,7 +4920,7 @@ static bool js_dragonbones_BaseFactory_addDragonBonesData(se::State& s) // NOLIN
     }
     if (argc == 2) {
         HolderType<dragonBones::DragonBonesData*, false> arg0 = {};
-        HolderType<std::string, true>                    arg1 = {};
+        HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_addDragonBonesData : Error processing arguments");
@@ -4895,9 +4936,9 @@ static bool js_dragonbones_BaseFactory_addTextureAtlasData(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_addTextureAtlasData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::TextureAtlasData*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4907,7 +4948,7 @@ static bool js_dragonbones_BaseFactory_addTextureAtlasData(se::State& s) // NOLI
     }
     if (argc == 2) {
         HolderType<dragonBones::TextureAtlasData*, false> arg0 = {};
-        HolderType<std::string, true>                     arg1 = {};
+        HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_addTextureAtlasData : Error processing arguments");
@@ -4923,9 +4964,9 @@ static bool js_dragonbones_BaseFactory_buildArmature(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_buildArmature : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -4987,12 +5028,12 @@ static bool js_dragonbones_BaseFactory_changeSkin(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_changeSkin : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 3) {
-        HolderType<dragonBones::Armature*, false>  arg0 = {};
-        HolderType<dragonBones::SkinData*, false>  arg1 = {};
+        HolderType<dragonBones::Armature*, false> arg0 = {};
+        HolderType<dragonBones::SkinData*, false> arg1 = {};
         HolderType<std::vector<std::string>, true> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -5013,9 +5054,9 @@ static bool js_dragonbones_BaseFactory_clear(se::State& s) // NOLINT(readability
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_clear : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         cobj->clear();
         return true;
@@ -5036,9 +5077,9 @@ static bool js_dragonbones_BaseFactory_getArmatureData(se::State& s) // NOLINT(r
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_getArmatureData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5070,9 +5111,9 @@ static bool js_dragonbones_BaseFactory_getClock(se::State& s) // NOLINT(readabil
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_getClock : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::WorldClock* result = cobj->getClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5089,9 +5130,9 @@ static bool js_dragonbones_BaseFactory_getDragonBonesData(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_getDragonBonesData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5111,9 +5152,9 @@ static bool js_dragonbones_BaseFactory_parseDragonBonesData(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_parseDragonBonesData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<const char*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5126,7 +5167,7 @@ static bool js_dragonbones_BaseFactory_parseDragonBonesData(se::State& s) // NOL
     }
     if (argc == 2) {
         HolderType<const char*, false> arg0 = {};
-        HolderType<std::string, true>  arg1 = {};
+        HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_parseDragonBonesData : Error processing arguments");
@@ -5138,8 +5179,8 @@ static bool js_dragonbones_BaseFactory_parseDragonBonesData(se::State& s) // NOL
     }
     if (argc == 3) {
         HolderType<const char*, false> arg0 = {};
-        HolderType<std::string, true>  arg1 = {};
-        HolderType<float, false>       arg2 = {};
+        HolderType<std::string, true> arg1 = {};
+        HolderType<float, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -5159,9 +5200,9 @@ static bool js_dragonbones_BaseFactory_removeDragonBonesData(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_removeDragonBonesData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5171,7 +5212,7 @@ static bool js_dragonbones_BaseFactory_removeDragonBonesData(se::State& s) // NO
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false>       arg1 = {};
+        HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_removeDragonBonesData : Error processing arguments");
@@ -5187,9 +5228,9 @@ static bool js_dragonbones_BaseFactory_removeTextureAtlasData(se::State& s) // N
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_removeTextureAtlasData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5199,7 +5240,7 @@ static bool js_dragonbones_BaseFactory_removeTextureAtlasData(se::State& s) // N
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false>       arg1 = {};
+        HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_removeTextureAtlasData : Error processing arguments");
@@ -5215,11 +5256,11 @@ static bool js_dragonbones_BaseFactory_replaceAnimation(se::State& s) // NOLINT(
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_replaceAnimation : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<dragonBones::Armature*, false>     arg0 = {};
+        HolderType<dragonBones::Armature*, false> arg0 = {};
         HolderType<dragonBones::ArmatureData*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -5231,9 +5272,9 @@ static bool js_dragonbones_BaseFactory_replaceAnimation(se::State& s) // NOLINT(
         return true;
     }
     if (argc == 3) {
-        HolderType<dragonBones::Armature*, false>     arg0 = {};
+        HolderType<dragonBones::Armature*, false> arg0 = {};
         HolderType<dragonBones::ArmatureData*, false> arg1 = {};
-        HolderType<bool, false>                       arg2 = {};
+        HolderType<bool, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -5253,13 +5294,13 @@ static bool js_dragonbones_BaseFactory_replaceSkin(se::State& s) // NOLINT(reada
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_replaceSkin : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 4) {
-        HolderType<dragonBones::Armature*, false>  arg0 = {};
-        HolderType<dragonBones::SkinData*, false>  arg1 = {};
-        HolderType<bool, false>                    arg2 = {};
+        HolderType<dragonBones::Armature*, false> arg0 = {};
+        HolderType<dragonBones::SkinData*, false> arg1 = {};
+        HolderType<bool, false> arg2 = {};
         HolderType<std::vector<std::string>, true> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -5281,14 +5322,14 @@ static bool js_dragonbones_BaseFactory_replaceSlotDisplay(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::BaseFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_BaseFactory_replaceSlotDisplay : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 5) {
-        HolderType<std::string, true>         arg0 = {};
-        HolderType<std::string, true>         arg1 = {};
-        HolderType<std::string, true>         arg2 = {};
-        HolderType<std::string, true>         arg3 = {};
+        HolderType<std::string, true> arg0 = {};
+        HolderType<std::string, true> arg1 = {};
+        HolderType<std::string, true> arg2 = {};
+        HolderType<std::string, true> arg3 = {};
         HolderType<dragonBones::Slot*, false> arg4 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -5303,12 +5344,12 @@ static bool js_dragonbones_BaseFactory_replaceSlotDisplay(se::State& s) // NOLIN
         return true;
     }
     if (argc == 6) {
-        HolderType<std::string, true>         arg0 = {};
-        HolderType<std::string, true>         arg1 = {};
-        HolderType<std::string, true>         arg2 = {};
-        HolderType<std::string, true>         arg3 = {};
+        HolderType<std::string, true> arg0 = {};
+        HolderType<std::string, true> arg1 = {};
+        HolderType<std::string, true> arg2 = {};
+        HolderType<std::string, true> arg3 = {};
         HolderType<dragonBones::Slot*, false> arg4 = {};
-        HolderType<int, false>                arg5 = {};
+        HolderType<int, false> arg5 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -5326,6 +5367,8 @@ static bool js_dragonbones_BaseFactory_replaceSlotDisplay(se::State& s) // NOLIN
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_BaseFactory_replaceSlotDisplay)
+
+
 
 bool js_register_dragonbones_BaseFactory(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -5355,14 +5398,14 @@ bool js_register_dragonbones_BaseFactory(se::Object* obj) // NOLINT(readability-
     return true;
 }
 se::Object* __jsb_dragonBones_CCSlot_proto = nullptr;
-se::Class*  __jsb_dragonBones_CCSlot_class = nullptr;
+se::Class* __jsb_dragonBones_CCSlot_class = nullptr;
 
 static bool js_dragonbones_CCSlot_updateWorldMatrix(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCSlot>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCSlot_updateWorldMatrix : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->updateWorldMatrix();
         return true;
@@ -5371,6 +5414,8 @@ static bool js_dragonbones_CCSlot_updateWorldMatrix(se::State& s) // NOLINT(read
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_CCSlot_updateWorldMatrix)
+
+
 
 bool js_register_dragonbones_CCSlot(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -5387,45 +5432,49 @@ bool js_register_dragonbones_CCSlot(se::Object* obj) // NOLINT(readability-ident
     return true;
 }
 se::Object* __jsb_dragonBones_CCArmatureDisplay_proto = nullptr;
-se::Class*  __jsb_dragonBones_CCArmatureDisplay_class = nullptr;
+se::Class* __jsb_dragonBones_CCArmatureDisplay_class = nullptr;
 
 static bool js_dragonbones_CCArmatureDisplay_addDBEventListener(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_addDBEventListener : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<std::string, true>                                    arg0 = {};
-        HolderType<std::function<void(dragonBones::EventObject*)>, true> arg1 = {};
+        HolderType<std::string, true> arg0 = {};
+        HolderType<std::function<void (dragonBones::EventObject *)>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         do {
-            if (args[1].isObject() && args[1].toObject()->isFunction()) {
+            if (args[1].isObject() && args[1].toObject()->isFunction())
+            {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](dragonBones::EventObject* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-
+        
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value   rval;
+                    se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool        succeed = funcObj->call(args, thisObj, &rval);
+                    bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg1.data = lambda;
-            } else {
+            }
+            else
+            {
                 arg1.data = nullptr;
             }
-        } while (false);
+        } while(false)
+        ;
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_addDBEventListener : Error processing arguments");
         cobj->addDBEventListener(arg0.value(), arg1.value());
         return true;
@@ -5439,9 +5488,9 @@ static bool js_dragonbones_CCArmatureDisplay_getArmature(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_getArmature : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Armature* result = cobj->getArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5458,9 +5507,9 @@ static bool js_dragonbones_CCArmatureDisplay_convertToRootSpace(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_convertToRootSpace : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -5483,7 +5532,7 @@ static bool js_dragonbones_CCArmatureDisplay_dbClear(se::State& s) // NOLINT(rea
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_dbClear : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->dbClear();
         return true;
@@ -5497,9 +5546,9 @@ static bool js_dragonbones_CCArmatureDisplay_dbInit(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_dbInit : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::Armature*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5517,7 +5566,7 @@ static bool js_dragonbones_CCArmatureDisplay_dbRender(se::State& s) // NOLINT(re
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_dbRender : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->dbRender();
         return true;
@@ -5532,7 +5581,7 @@ static bool js_dragonbones_CCArmatureDisplay_dbUpdate(se::State& s) // NOLINT(re
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_dbUpdate : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->dbUpdate();
         return true;
@@ -5546,11 +5595,11 @@ static bool js_dragonbones_CCArmatureDisplay_dispatchDBEvent(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_dispatchDBEvent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<std::string, true>                arg0 = {};
+        HolderType<std::string, true> arg0 = {};
         HolderType<dragonBones::EventObject*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -5567,9 +5616,9 @@ static bool js_dragonbones_CCArmatureDisplay_dispose(se::State& s) // NOLINT(rea
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_dispose : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         cobj->dispose();
         return true;
@@ -5590,9 +5639,9 @@ static bool js_dragonbones_CCArmatureDisplay_getAnimation(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_getAnimation : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Animation* result = cobj->getAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5609,9 +5658,9 @@ static bool js_dragonbones_CCArmatureDisplay_getDebugData(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_getDebugData : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         se::Object* result = cobj->getDebugData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5628,9 +5677,9 @@ static bool js_dragonbones_CCArmatureDisplay_getParamsBuffer(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_getParamsBuffer : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         se::Object* result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5647,9 +5696,9 @@ static bool js_dragonbones_CCArmatureDisplay_getRootDisplay(se::State& s) // NOL
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_getRootDisplay : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::CCArmatureDisplay* result = cobj->getRootDisplay();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5666,9 +5715,9 @@ static bool js_dragonbones_CCArmatureDisplay_getSharedBufferOffset(se::State& s)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_getSharedBufferOffset : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         se::Object* result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -5685,9 +5734,9 @@ static bool js_dragonbones_CCArmatureDisplay_hasDBEventListener(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_hasDBEventListener : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5707,39 +5756,43 @@ static bool js_dragonbones_CCArmatureDisplay_removeDBEventListener(se::State& s)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_removeDBEventListener : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<std::string, true>                                    arg0 = {};
-        HolderType<std::function<void(dragonBones::EventObject*)>, true> arg1 = {};
+        HolderType<std::string, true> arg0 = {};
+        HolderType<std::function<void (dragonBones::EventObject *)>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         do {
-            if (args[1].isObject() && args[1].toObject()->isFunction()) {
+            if (args[1].isObject() && args[1].toObject()->isFunction())
+            {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](dragonBones::EventObject* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-
+        
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value   rval;
+                    se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool        succeed = funcObj->call(args, thisObj, &rval);
+                    bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg1.data = lambda;
-            } else {
+            }
+            else
+            {
                 arg1.data = nullptr;
             }
-        } while (false);
+        } while(false)
+        ;
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_removeDBEventListener : Error processing arguments");
         cobj->removeDBEventListener(arg0.value(), arg1.value());
         return true;
@@ -5753,9 +5806,9 @@ static bool js_dragonbones_CCArmatureDisplay_setAttachEnabled(se::State& s) // N
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_setAttachEnabled : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5772,9 +5825,9 @@ static bool js_dragonbones_CCArmatureDisplay_setBatchEnabled(se::State& s) // NO
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_setBatchEnabled : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5791,9 +5844,9 @@ static bool js_dragonbones_CCArmatureDisplay_setColor(se::State& s) // NOLINT(re
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_setColor : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 4) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -5816,37 +5869,41 @@ static bool js_dragonbones_CCArmatureDisplay_setDBEventCallback(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_setDBEventCallback : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void(dragonBones::EventObject*)>, false> arg0 = {};
+        HolderType<std::function<void (dragonBones::EventObject *)>, false> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction()) {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](dragonBones::EventObject* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-
+        
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value   rval;
+                    se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool        succeed = funcObj->call(args, thisObj, &rval);
+                    bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            } else {
+            }
+            else
+            {
                 arg0.data = nullptr;
             }
-        } while (false);
+        } while(false)
+        ;
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_setDBEventCallback : Error processing arguments");
         cobj->setDBEventCallback(arg0.value());
         return true;
@@ -5860,9 +5917,9 @@ static bool js_dragonbones_CCArmatureDisplay_setDebugBonesEnabled(se::State& s) 
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_setDebugBonesEnabled : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5879,9 +5936,9 @@ static bool js_dragonbones_CCArmatureDisplay_setOpacityModifyRGB(se::State& s) /
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureDisplay_setOpacityModifyRGB : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -5896,9 +5953,9 @@ SE_BIND_FUNC(js_dragonbones_CCArmatureDisplay_setOpacityModifyRGB)
 
 static bool js_dragonbones_CCArmatureDisplay_create(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         auto result = dragonBones::CCArmatureDisplay::create();
         result->retain();
@@ -5922,9 +5979,11 @@ static bool js_dragonbones_CCArmatureDisplay_constructor(se::State& s) // NOLINT
 }
 SE_BIND_CTOR(js_dragonbones_CCArmatureDisplay_constructor, __jsb_dragonBones_CCArmatureDisplay_class, js_dragonBones_CCArmatureDisplay_finalize)
 
+
+
 static bool js_dragonBones_CCArmatureDisplay_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
+    auto* cobj =SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
     cobj->release();
     return true;
 }
@@ -5968,15 +6027,15 @@ bool js_register_dragonbones_CCArmatureDisplay(se::Object* obj) // NOLINT(readab
     return true;
 }
 se::Object* __jsb_dragonBones_ArmatureCacheMgr_proto = nullptr;
-se::Class*  __jsb_dragonBones_ArmatureCacheMgr_class = nullptr;
+se::Class* __jsb_dragonBones_ArmatureCacheMgr_class = nullptr;
 
 static bool js_dragonbones_ArmatureCacheMgr_buildArmatureCache(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureCacheMgr>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureCacheMgr_buildArmatureCache : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
@@ -6000,9 +6059,9 @@ static bool js_dragonbones_ArmatureCacheMgr_removeArmatureCache(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureCacheMgr>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_ArmatureCacheMgr_removeArmatureCache : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6017,9 +6076,9 @@ SE_BIND_FUNC(js_dragonbones_ArmatureCacheMgr_removeArmatureCache)
 
 static bool js_dragonbones_ArmatureCacheMgr_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::ArmatureCacheMgr* result = dragonBones::ArmatureCacheMgr::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6035,7 +6094,7 @@ SE_BIND_FUNC(js_dragonbones_ArmatureCacheMgr_getInstance)
 static bool js_dragonbones_ArmatureCacheMgr_destroyInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         dragonBones::ArmatureCacheMgr::destroyInstance();
         return true;
@@ -6045,10 +6104,12 @@ static bool js_dragonbones_ArmatureCacheMgr_destroyInstance(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_dragonbones_ArmatureCacheMgr_destroyInstance)
 
+
 static bool js_dragonBones_ArmatureCacheMgr_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<dragonBones::ArmatureCacheMgr>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         auto* cobj = SE_THIS_OBJECT<dragonBones::ArmatureCacheMgr>(s);
         JSB_FREE(cobj);
@@ -6076,15 +6137,15 @@ bool js_register_dragonbones_ArmatureCacheMgr(se::Object* obj) // NOLINT(readabi
     return true;
 }
 se::Object* __jsb_dragonBones_CCArmatureCacheDisplay_proto = nullptr;
-se::Class*  __jsb_dragonBones_CCArmatureCacheDisplay_class = nullptr;
+se::Class* __jsb_dragonBones_CCArmatureCacheDisplay_class = nullptr;
 
 static bool js_dragonbones_CCArmatureCacheDisplay_addDBEventListener(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_addDBEventListener : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6101,9 +6162,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getArmature(se::State& s) // N
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_getArmature : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Armature* result = cobj->getArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6121,7 +6182,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_beginSchedule(se::State& s) //
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_beginSchedule : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->beginSchedule();
         return true;
@@ -6135,11 +6196,11 @@ static bool js_dragonbones_CCArmatureCacheDisplay_dispatchDBEvent(se::State& s) 
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_dispatchDBEvent : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<std::string, true>                arg0 = {};
+        HolderType<std::string, true> arg0 = {};
         HolderType<dragonBones::EventObject*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -6157,7 +6218,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_dispose(se::State& s) // NOLIN
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_dispose : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->dispose();
         return true;
@@ -6171,9 +6232,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getAnimation(se::State& s) // 
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_getAnimation : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Animation* result = cobj->getAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6190,9 +6251,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getParamsBuffer(se::State& s) 
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_getParamsBuffer : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         se::Object* result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6209,9 +6270,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getSharedBufferOffset(se::Stat
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_getSharedBufferOffset : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         se::Object* result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6228,9 +6289,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getTimeScale(se::State& s) // 
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_getTimeScale : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6248,7 +6309,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_onDisable(se::State& s) // NOL
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_onDisable : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->onDisable();
         return true;
@@ -6263,7 +6324,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_onEnable(se::State& s) // NOLI
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_onEnable : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->onEnable();
         return true;
@@ -6277,12 +6338,12 @@ static bool js_dragonbones_CCArmatureCacheDisplay_playAnimation(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_playAnimation : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<int, false>        arg1 = {};
+        HolderType<int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureCacheDisplay_playAnimation : Error processing arguments");
@@ -6298,9 +6359,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_removeDBEventListener(se::Stat
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_removeDBEventListener : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6317,9 +6378,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_render(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_render : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6336,9 +6397,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_setAttachEnabled(se::State& s)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_setAttachEnabled : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6355,9 +6416,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_setBatchEnabled(se::State& s) 
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_setBatchEnabled : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6374,9 +6435,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_setColor(se::State& s) // NOLI
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_setColor : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 4) {
         HolderType<float, false> arg0 = {};
         HolderType<float, false> arg1 = {};
@@ -6399,37 +6460,41 @@ static bool js_dragonbones_CCArmatureCacheDisplay_setDBEventCallback(se::State& 
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_setDBEventCallback : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void(dragonBones::EventObject*)>, false> arg0 = {};
+        HolderType<std::function<void (dragonBones::EventObject *)>, false> arg0 = {};
         do {
-            if (args[0].isObject() && args[0].toObject()->isFunction()) {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](dragonBones::EventObject* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
-
+        
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
-                    se::Value   rval;
+                    se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
-                    bool        succeed = funcObj->call(args, thisObj, &rval);
+                    bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
                 arg0.data = lambda;
-            } else {
+            }
+            else
+            {
                 arg0.data = nullptr;
             }
-        } while (false);
+        } while(false)
+        ;
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureCacheDisplay_setDBEventCallback : Error processing arguments");
         cobj->setDBEventCallback(arg0.value());
         return true;
@@ -6443,9 +6508,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_setOpacityModifyRGB(se::State&
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_setOpacityModifyRGB : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6462,9 +6527,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_setTimeScale(se::State& s) // 
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_setTimeScale : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6482,7 +6547,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_stopSchedule(se::State& s) // 
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_stopSchedule : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->stopSchedule();
         return true;
@@ -6496,9 +6561,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_update(se::State& s) // NOLINT
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_update : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6516,7 +6581,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_updateAllAnimationCache(se::St
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_updateAllAnimationCache : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->updateAllAnimationCache();
         return true;
@@ -6530,9 +6595,9 @@ static bool js_dragonbones_CCArmatureCacheDisplay_updateAnimationCache(se::State
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCArmatureCacheDisplay_updateAnimationCache : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6549,12 +6614,12 @@ SE_DECLARE_FINALIZE_FUNC(js_dragonBones_CCArmatureCacheDisplay_finalize)
 
 static bool js_dragonbones_CCArmatureCacheDisplay_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    CC_UNUSED bool ok   = true;
-    const auto&    args = s.args();
-    std::string    arg0;
-    std::string    arg1;
-    std::string    arg2;
-    bool           arg3;
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    std::string arg0;
+    std::string arg1;
+    std::string arg2;
+    bool arg3;
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
     ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
     ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -6566,9 +6631,11 @@ static bool js_dragonbones_CCArmatureCacheDisplay_constructor(se::State& s) // N
 }
 SE_BIND_CTOR(js_dragonbones_CCArmatureCacheDisplay_constructor, __jsb_dragonBones_CCArmatureCacheDisplay_class, js_dragonBones_CCArmatureCacheDisplay_finalize)
 
+
+
 static bool js_dragonBones_CCArmatureCacheDisplay_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
+    auto* cobj =SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     cobj->release();
     return true;
 }
@@ -6613,15 +6680,15 @@ bool js_register_dragonbones_CCArmatureCacheDisplay(se::Object* obj) // NOLINT(r
     return true;
 }
 se::Object* __jsb_dragonBones_CCFactory_proto = nullptr;
-se::Class*  __jsb_dragonBones_CCFactory_class = nullptr;
+se::Class* __jsb_dragonBones_CCFactory_class = nullptr;
 
 static bool js_dragonbones_CCFactory_add(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_add : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::Armature*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6638,9 +6705,9 @@ static bool js_dragonbones_CCFactory_buildArmatureDisplay(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_buildArmatureDisplay : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6702,9 +6769,9 @@ static bool js_dragonbones_CCFactory_getDragonBones(se::State& s) // NOLINT(read
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_getDragonBones : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::DragonBones* result = cobj->getDragonBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6721,9 +6788,9 @@ static bool js_dragonbones_CCFactory_getSoundEventManager(se::State& s) // NOLIN
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_getSoundEventManager : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::CCArmatureDisplay* result = cobj->getSoundEventManager();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6740,12 +6807,12 @@ static bool js_dragonbones_CCFactory_getTextureAtlasDataByIndex(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_getTextureAtlasDataByIndex : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<int, false>        arg1 = {};
+        HolderType<int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_getTextureAtlasDataByIndex : Error processing arguments");
@@ -6764,9 +6831,9 @@ static bool js_dragonbones_CCFactory_getTimeScale(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_getTimeScale : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6783,9 +6850,9 @@ static bool js_dragonbones_CCFactory_parseDragonBonesDataByPath(se::State& s) //
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_parseDragonBonesDataByPath : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6811,7 +6878,7 @@ static bool js_dragonbones_CCFactory_parseDragonBonesDataByPath(se::State& s) //
     if (argc == 3) {
         HolderType<std::string, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
-        HolderType<float, false>      arg2 = {};
+        HolderType<float, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -6831,9 +6898,9 @@ static bool js_dragonbones_CCFactory_remove(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_remove : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<dragonBones::Armature*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6850,9 +6917,9 @@ static bool js_dragonbones_CCFactory_removeDragonBonesDataByUUID(se::State& s) /
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_removeDragonBonesDataByUUID : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6862,7 +6929,7 @@ static bool js_dragonbones_CCFactory_removeDragonBonesDataByUUID(se::State& s) /
     }
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<bool, false>       arg1 = {};
+        HolderType<bool, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_removeDragonBonesDataByUUID : Error processing arguments");
@@ -6878,12 +6945,12 @@ static bool js_dragonbones_CCFactory_removeTextureAtlasDataByIndex(se::State& s)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_removeTextureAtlasDataByIndex : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<int, false>        arg1 = {};
+        HolderType<int, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_removeTextureAtlasDataByIndex : Error processing arguments");
@@ -6899,9 +6966,9 @@ static bool js_dragonbones_CCFactory_render(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_render : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6918,9 +6985,9 @@ static bool js_dragonbones_CCFactory_setTimeScale(se::State& s) // NOLINT(readab
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_setTimeScale : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6938,7 +7005,7 @@ static bool js_dragonbones_CCFactory_stopSchedule(se::State& s) // NOLINT(readab
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_stopSchedule : Invalid Native Object");
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->stopSchedule();
         return true;
@@ -6952,9 +7019,9 @@ static bool js_dragonbones_CCFactory_update(se::State& s) // NOLINT(readability-
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
     SE_PRECONDITION2(cobj, false, "js_dragonbones_CCFactory_update : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<float, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -6969,9 +7036,9 @@ SE_BIND_FUNC(js_dragonbones_CCFactory_update)
 
 static bool js_dragonbones_CCFactory_isInit(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = dragonBones::CCFactory::isInit();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -6986,9 +7053,9 @@ SE_BIND_FUNC(js_dragonbones_CCFactory_isInit)
 
 static bool js_dragonbones_CCFactory_getFactory(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::CCFactory* result = dragonBones::CCFactory::getFactory();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7004,7 +7071,7 @@ SE_BIND_FUNC(js_dragonbones_CCFactory_getFactory)
 static bool js_dragonbones_CCFactory_destroyFactory(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    size_t      argc = args.size();
+    size_t argc = args.size();
     if (argc == 0) {
         dragonBones::CCFactory::destroyFactory();
         return true;
@@ -7016,9 +7083,9 @@ SE_BIND_FUNC(js_dragonbones_CCFactory_destroyFactory)
 
 static bool js_dragonbones_CCFactory_getClock(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::WorldClock* result = dragonBones::CCFactory::getClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
@@ -7042,10 +7109,13 @@ static bool js_dragonbones_CCFactory_constructor(se::State& s) // NOLINT(readabi
 }
 SE_BIND_CTOR(js_dragonbones_CCFactory_constructor, __jsb_dragonBones_CCFactory_class, js_dragonBones_CCFactory_finalize)
 
+
+
 static bool js_dragonBones_CCFactory_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<dragonBones::CCFactory>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         auto* cobj = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
         JSB_FREE(cobj);
@@ -7087,7 +7157,9 @@ bool js_register_dragonbones_CCFactory(se::Object* obj) // NOLINT(readability-id
     return true;
 }
 se::Object* __jsb_dragonBones_CCTextureAtlasData_proto = nullptr;
-se::Class*  __jsb_dragonBones_CCTextureAtlasData_class = nullptr;
+se::Class* __jsb_dragonBones_CCTextureAtlasData_class = nullptr;
+
+
 
 bool js_register_dragonbones_CCTextureAtlasData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -7103,7 +7175,9 @@ bool js_register_dragonbones_CCTextureAtlasData(se::Object* obj) // NOLINT(reada
     return true;
 }
 se::Object* __jsb_dragonBones_CCTextureData_proto = nullptr;
-se::Class*  __jsb_dragonBones_CCTextureData_class = nullptr;
+se::Class* __jsb_dragonBones_CCTextureData_class = nullptr;
+
+
 
 bool js_register_dragonbones_CCTextureData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -7118,10 +7192,12 @@ bool js_register_dragonbones_CCTextureData(se::Object* obj) // NOLINT(readabilit
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_dragonbones(se::Object* obj) {
+bool register_all_dragonbones(se::Object* obj)
+{
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("dragonBones", &nsVal)) {
+    if (!obj->getProperty("dragonBones", &nsVal))
+    {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         obj->setProperty("dragonBones", nsVal);

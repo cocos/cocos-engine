@@ -24,18 +24,18 @@
 ****************************************************************************/
 
 #pragma once
-#include <type_traits>
 #include "base/Config.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/platform/FileUtils.h"
-#include "cocos/platform/SAXParser.h"
-#include "cocos/platform/interfaces/modules/Device.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
+#include "cocos/platform/interfaces/modules/Device.h"
+#include "cocos/platform/SAXParser.h"
 
 extern se::Object* __jsb_cc_FileUtils_proto;
-extern se::Class*  __jsb_cc_FileUtils_class;
+extern se::Class* __jsb_cc_FileUtils_class;
 
 bool js_register_cc_FileUtils(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -79,7 +79,7 @@ SE_DECLARE_FUNC(js_engine_FileUtils_normalizePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_getFileDir);
 
 extern se::Object* __jsb_cc_OSInterface_proto;
-extern se::Class*  __jsb_cc_OSInterface_class;
+extern se::Class* __jsb_cc_OSInterface_class;
 
 bool js_register_cc_OSInterface(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -87,7 +87,7 @@ bool register_all_engine(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::OSInterface);
 
 extern se::Object* __jsb_cc_ICanvasGradient_proto;
-extern se::Class*  __jsb_cc_ICanvasGradient_class;
+extern se::Class* __jsb_cc_ICanvasGradient_class;
 
 bool js_register_cc_ICanvasGradient(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -96,7 +96,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::ICanvasGradient);
 SE_DECLARE_FUNC(js_engine_ICanvasGradient_addColorStop);
 
 extern se::Object* __jsb_cc_ICanvasRenderingContext2D_proto;
-extern se::Class*  __jsb_cc_ICanvasRenderingContext2D_class;
+extern se::Class* __jsb_cc_ICanvasRenderingContext2D_class;
 
 bool js_register_cc_ICanvasRenderingContext2D(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -126,7 +126,7 @@ SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_transform);
 SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_translate);
 
 extern se::Object* __jsb_cc_CanvasGradient_proto;
-extern se::Class*  __jsb_cc_CanvasGradient_class;
+extern se::Class* __jsb_cc_CanvasGradient_class;
 
 bool js_register_cc_CanvasGradient(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -135,7 +135,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::CanvasGradient);
 SE_DECLARE_FUNC(js_engine_CanvasGradient_CanvasGradient);
 
 extern se::Object* __jsb_cc_CanvasRenderingContext2D_proto;
-extern se::Class*  __jsb_cc_CanvasRenderingContext2D_class;
+extern se::Class* __jsb_cc_CanvasRenderingContext2D_class;
 
 bool js_register_cc_CanvasRenderingContext2D(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -144,7 +144,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::CanvasRenderingContext2D);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_CanvasRenderingContext2D);
 
 extern se::Object* __jsb_cc_Device_proto;
-extern se::Class*  __jsb_cc_Device_class;
+extern se::Class* __jsb_cc_Device_class;
 
 bool js_register_cc_Device(se::Object* obj);
 bool register_all_engine(se::Object* obj);
@@ -163,10 +163,11 @@ SE_DECLARE_FUNC(js_engine_Device_getNetworkType);
 SE_DECLARE_FUNC(js_engine_Device_getSafeAreaEdge);
 
 extern se::Object* __jsb_cc_SAXParser_proto;
-extern se::Class*  __jsb_cc_SAXParser_class;
+extern se::Class* __jsb_cc_SAXParser_class;
 
 bool js_register_cc_SAXParser(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::SAXParser);
 SE_DECLARE_FUNC(js_engine_SAXParser_init);
+
