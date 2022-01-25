@@ -280,7 +280,7 @@ export const effects = [
     "shaders": [
       {
         "name": "particle|particle-vs-legacy:lpvs_main|tinted-fs:add",
-        "hash": 2554907268,
+        "hash": 585841727,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 53, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -412,7 +412,7 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 2222879962,
+        "hash": 3932095562,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 223, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 115 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -576,7 +576,7 @@ export const effects = [
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 3380260607,
+        "hash": 157231798,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 111, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 111 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -928,7 +928,7 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 4034100087,
+        "hash": 2194127789,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 109 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
@@ -982,7 +982,7 @@ export const effects = [
     "shaders": [
       {
         "name": "planar-shadow|planar-shadow-vs:vert|planar-shadow-fs:frag",
-        "hash": 1019709510,
+        "hash": 2741503341,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 217, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 59 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
