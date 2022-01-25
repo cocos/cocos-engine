@@ -14,6 +14,7 @@ CCEffect %{
         blendDst: one_minus_src_alpha
         blendSrcAlpha: zero
         blendDstAlpha: one
+        blendAlphaEq: max
     b3: &b3
       targets:
       - blend: true
