@@ -48,3 +48,7 @@ export { legacyCC as cclegacy };
 
 export * from '../cocos/input/types';
 export * from '../cocos/input';
+
+type Constructor_<T = unknown> = Constructor<T>;
+
+export type { Constructor_ as Constructor };

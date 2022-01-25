@@ -116,12 +116,26 @@ export class AnimationGraphEval {
 }
 
 export interface TransitionStatus {
+    /**
+     * The duration of the transition.
+     */
     duration: number;
+
+    /**
+     * The progress of the transition.
+     */
     time: number;
 }
 
 export interface ClipStatus {
+    /**
+     * The clip object.
+     */
     clip: AnimationClip;
+
+    /**
+     * The clip's weight.
+     */
     weight: number;
 }
 
@@ -129,6 +143,7 @@ export interface MotionStateStatus {
     /**
      * For testing.
      * TODO: remove it.
+     * @internal
      */
     __DEBUG_ID__?: string;
 

@@ -66,6 +66,7 @@ export interface IMask {
 export enum DispatcherEventType {
     ADD_POINTER_EVENT_PROCESSOR,
     REMOVE_POINTER_EVENT_PROCESSOR,
+    MARK_LIST_DIRTY,
 }
 
 /**
@@ -81,12 +82,16 @@ export class NodeEventProcessor {
         return this._isEnabled;
     }
     public setEnabled (value: boolean, recursive = false) {
+        if (this._isEnabled === value) {
+            return;
+        }
         this._isEnabled = value;
         const node = this.node;
         const children = node.children;
         if (value) {
             this._attachMask();
         }
+        NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
         if (recursive && children.length > 0) {
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];

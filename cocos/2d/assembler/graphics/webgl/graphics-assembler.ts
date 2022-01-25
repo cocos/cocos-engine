@@ -287,14 +287,14 @@ export const graphicsAssembler: IAssembler = {
             }
 
             // stroke indices
-            let indicesOffset = meshBuffer.indicesStart;
+            let indicesOffset = meshBuffer.indexStart;
             for (let begin = offset + 2, over = meshBuffer.vertexStart; begin < over; begin++) {
                 iData[indicesOffset++] = begin - 2;
                 iData[indicesOffset++] = begin - 1;
                 iData[indicesOffset++] = begin;
             }
 
-            meshBuffer.indicesStart = indicesOffset;
+            meshBuffer.indexStart = indicesOffset;
         }
         _renderData = null;
         _impl = null;
@@ -342,7 +342,7 @@ export const graphicsAssembler: IAssembler = {
                 this._vSet!(pts[j].x, pts[j].y);
             }
 
-            let indicesOffset = renderData.indicesStart;
+            let indicesOffset = renderData.indexStart;
 
             if (path.complex) {
                 const earcutData: number[] = [];
@@ -371,7 +371,7 @@ export const graphicsAssembler: IAssembler = {
                 }
             }
 
-            meshBuffer.indicesStart = indicesOffset;
+            meshBuffer.indexStart = indicesOffset;
         }
 
         _renderData = null;

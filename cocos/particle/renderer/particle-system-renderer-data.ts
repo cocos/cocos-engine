@@ -258,6 +258,7 @@ export default class ParticleSystemRenderer {
             this._particleSystem.processor = null!;
         }
         this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        this._particleSystem.processor.updateAlignSpace(this.alignSpace);
         this._particleSystem.processor.onInit(this._particleSystem);
         this._particleSystem.processor.onEnable();
         this._particleSystem.bindModule();

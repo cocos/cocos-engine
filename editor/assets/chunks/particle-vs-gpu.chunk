@@ -164,7 +164,7 @@ vec4 toQuat(vec3 rotation) {
     mulFactor = -1.0;
   }
   vec4 rot = vec4(rotTmp, 0.0);
-  rot.w = mulFactor * sqrt(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z);
+  rot.w = mulFactor * sqrt(abs(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z));
   return rot;
 }
 

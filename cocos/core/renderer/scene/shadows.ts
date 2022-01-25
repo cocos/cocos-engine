@@ -342,16 +342,9 @@ export class Shadows {
 
     public activate () {
         if (this.enabled) {
-            if (this.type === ShadowType.ShadowMap) {
-                this._updatePipeline();
-            } else {
+            if (this.type === ShadowType.Planar) {
                 this._updatePlanarInfo();
             }
-        } else {
-            const root = legacyCC.director.root;
-            const pipeline = root.pipeline;
-            pipeline.macros.CC_ENABLE_DIR_SHADOW = 0;
-            root.onGlobalPipelineStateChanged();
         }
     }
 
@@ -370,18 +363,6 @@ export class Shadows {
                 this._nativeObj!.instancePass = this._instancingMaterial.passes[0].native;
             }
         }
-
-        const root = legacyCC.director.root;
-        const pipeline = root.pipeline;
-        pipeline.macros.CC_ENABLE_DIR_SHADOW = 0;
-        root.onGlobalPipelineStateChanged();
-    }
-
-    protected _updatePipeline () {
-        const root = legacyCC.director.root;
-        const pipeline = root.pipeline;
-        pipeline.macros.CC_ENABLE_DIR_SHADOW = 1;
-        root.onGlobalPipelineStateChanged();
     }
 
     protected _destroy () {
