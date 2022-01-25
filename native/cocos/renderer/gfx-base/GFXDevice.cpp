@@ -41,6 +41,7 @@ Device *Device::getInstance() {
 Device::Device() {
     Device::instance = this;
     _features.fill(false);
+    _formatFeatures.fill(FormatFeature::NONE);
 }
 
 Device::~Device() {

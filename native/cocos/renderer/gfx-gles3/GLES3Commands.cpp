@@ -832,7 +832,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
         return;
     }
 
-    if (gpuTexture->glSamples > 1 || hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT, gpuTexture->usage)) {
+    if (!device->isTextureExclusive(gpuTexture->format) && (gpuTexture->glSamples > 1 || hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT, gpuTexture->usage))) {
         switch (gpuTexture->type) {
             case TextureType::TEX2D: {
                 gpuTexture->glTarget = GL_RENDERBUFFER;

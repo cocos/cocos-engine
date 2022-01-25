@@ -83,6 +83,8 @@ public:
         });
     }
 
+    inline bool isTextureExclusive(const Format &format) { return _textureExclusive[static_cast<size_t>(format)]; };
+
 protected:
     static GLES3Device *instance;
 
@@ -116,6 +118,8 @@ protected:
 
     void bindContext(bool bound) override;
 
+    void initFormatFeature();
+
     GLES3GPUContext *            _gpuContext{nullptr};
     GLES3GPUStateCache *         _gpuStateCache{nullptr};
     GLES3GPUFramebufferHub *     _gpuFramebufferHub{nullptr};
@@ -128,6 +132,8 @@ protected:
     GLESBindingMapping _bindingMappings;
 
     StringArray _extensions;
+
+    std::array<bool, static_cast<size_t>(Format::COUNT)> _textureExclusive;
 };
 
 } // namespace gfx

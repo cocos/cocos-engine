@@ -20861,6 +20861,28 @@ static bool js_gfx_Device_getDeviceName(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_gfx_Device_getDeviceName)
 
+static bool js_gfx_Device_getFormatFeatures(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getFormatFeatures : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Format, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getFormatFeatures : Error processing arguments");
+        auto result = static_cast<int>(cobj->getFormatFeatures(arg0.value()));
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getFormatFeatures : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_getFormatFeatures)
+
 static bool js_gfx_Device_getGfxAPI(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
@@ -21209,6 +21231,7 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("createSwapchain", _SE(js_gfx_Device_createSwapchain));
     cls->defineFunction("destroy", _SE(js_gfx_Device_destroy));
     cls->defineFunction("flushCommands", _SE(js_gfx_Device_flushCommands));
+    cls->defineFunction("getFormatFeatures", _SE(js_gfx_Device_getFormatFeatures));
     cls->defineFunction("getGlobalBarrier", _SE(js_gfx_Device_getGlobalBarrier));
     cls->defineFunction("getQueryPool", _SE(js_gfx_Device_getQueryPool));
     cls->defineFunction("getQueryPoolResults", _SE(js_gfx_Device_getQueryPoolResults));

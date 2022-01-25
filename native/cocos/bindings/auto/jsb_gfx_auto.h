@@ -891,6 +891,7 @@ SE_DECLARE_FUNC(js_gfx_Device_createShader);
 SE_DECLARE_FUNC(js_gfx_Device_createSwapchain);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
 SE_DECLARE_FUNC(js_gfx_Device_flushCommands);
+SE_DECLARE_FUNC(js_gfx_Device_getFormatFeatures);
 SE_DECLARE_FUNC(js_gfx_Device_getGlobalBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPool);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPoolResults);

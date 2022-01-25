@@ -1024,7 +1024,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         CC_LOG_ERROR("Implementation limits: Should not use more than %d entries in the sampler state argument table", device->getMaximumSamplerUnits());
         return "";
     }
-
+    
     // avoid conflict index with input attachments.
     const uint8_t rtOffsets = executionModel == spv::ExecutionModelFragment ? resources.subpass_inputs.size() : 0;
     for (const auto &sampler : resources.sampled_images) {
@@ -1416,6 +1416,51 @@ bool mu::isLinearTextureSupported(uint family) {
         case GPUFamily::Apple4:
         case GPUFamily::Apple5:
         case GPUFamily::Apple6:
+        case GPUFamily::Mac1:
+        case GPUFamily::Mac2:
+            return true;
+    }
+}
+
+bool mu::isUISamplerSupported(uint family) {
+    switch (static_cast<GPUFamily>(family)) {
+        case GPUFamily::Apple1:
+        case GPUFamily::Apple2:
+        case GPUFamily::Apple3:
+        case GPUFamily::Apple4:
+        case GPUFamily::Apple5:
+        case GPUFamily::Apple6:
+            return false;
+        case GPUFamily::Mac1:
+        case GPUFamily::Mac2:
+            return true;
+    }
+}
+
+bool mu::isRGB10A2UIStorageSupported(uint family) {
+    switch (static_cast<GPUFamily>(family)) {
+        case GPUFamily::Apple1:
+        case GPUFamily::Apple2:
+            return false;
+        case GPUFamily::Apple3:
+        case GPUFamily::Apple4:
+        case GPUFamily::Apple5:
+        case GPUFamily::Apple6:
+        case GPUFamily::Mac1:
+        case GPUFamily::Mac2:
+            return true;
+    }
+}
+
+bool mu::isDDepthStencilFilterSupported(uint family) {
+    switch (static_cast<GPUFamily>(family)) {
+        case GPUFamily::Apple1:
+        case GPUFamily::Apple2:
+        case GPUFamily::Apple3:
+        case GPUFamily::Apple4:
+        case GPUFamily::Apple5:
+        case GPUFamily::Apple6:
+            return false;
         case GPUFamily::Mac1:
         case GPUFamily::Mac2:
             return true;
