@@ -31,7 +31,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { EDITOR, TEST, BUILD, UI_GPU_DRIVEN } from 'internal:constants';
+import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { Rect, Size, Vec2 } from '../../core/math';
 import { Asset } from '../../core/assets/asset';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -500,10 +500,6 @@ export class SpriteFrame extends Asset {
      */
     public uv: number[] = [];
 
-    // macro.UI_GPU_DRIVEN
-    public declare tillingOffset: number[];
-    public declare slicedData: number[];
-
     public unbiasUV:number[] = [];
 
     /**
@@ -544,10 +540,6 @@ export class SpriteFrame extends Asset {
 
     constructor () {
         super();
-        if (UI_GPU_DRIVEN) {
-            this.tillingOffset = [];
-            this.slicedData = [];
-        }
 
         if (EDITOR) {
             // Atlas asset uuid
@@ -804,9 +796,6 @@ export class SpriteFrame extends Asset {
 
     // Calculate UV for sliced
     public _calculateSlicedUV () {
-        if (UI_GPU_DRIVEN) {
-            this._calculateSlicedData();
-        }
         const rect = this._rect;
         // const texture = this._getCalculateTarget()!;
         const tex = this.texture;
@@ -1098,9 +1087,6 @@ export class SpriteFrame extends Asset {
         }
 
         this._calculateSlicedUV();
-        if (UI_GPU_DRIVEN) {
-            this._calculateTillingOffset();
-        }
     }
 
     public _setDynamicAtlasFrame (frame) {
@@ -1305,43 +1291,6 @@ export class SpriteFrame extends Asset {
 
     public validate () {
         return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;
-    }
-
-    // macro.UI_GPU_DRIVEN
-    private _calculateTillingOffset () {
-        if (this._rotated) {
-            this.tillingOffset[0] = (this.uv[4] - this.uv[0]);//r-l
-            this.tillingOffset[1] = (this.uv[3] - this.uv[5]);//b-t
-            this.tillingOffset[2] = (this.uv[0]);//l
-            this.tillingOffset[3] = (this.uv[5]);//t
-            this.tillingOffset[0] = -this.tillingOffset[0];// For rotation
-        } else {
-            this.tillingOffset[0] = (this.uv[2] - this.uv[0]);//r-l
-            this.tillingOffset[1] = (this.uv[1] - this.uv[5]);//b-t
-            this.tillingOffset[2] = (this.uv[4]);//l
-            this.tillingOffset[3] = (this.uv[5]);//t
-        }
-    }
-
-    // macro.UI_GPU_DRIVEN
-    private _calculateSlicedData () {
-        const rect = this._rect;
-
-        const leftWidth = this._capInsets[INSET_LEFT];
-        const rightWidth = this._capInsets[INSET_RIGHT];
-        const centerWidth = rect.width - leftWidth - rightWidth;
-        const topHeight = this._capInsets[INSET_TOP];
-        const bottomHeight = this._capInsets[INSET_BOTTOM];
-        const centerHeight = rect.height - topHeight - bottomHeight;
-
-        const uvSliced = this.slicedData;
-        uvSliced.length = 0;
-
-        // In the algorithm in the shader, it is always for the renderable region (i.e. after trim, for the sliced point)
-        uvSliced[0] = leftWidth / rect.width;
-        uvSliced[1] = topHeight / rect.height;
-        uvSliced[2] = (leftWidth + centerWidth) / rect.width;
-        uvSliced[3] = (topHeight + centerHeight) / rect.height;
     }
 }
 
