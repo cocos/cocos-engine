@@ -30,6 +30,7 @@
 
 import './polyfill-legacy-cc';
 import './deprecated-3.0.0';
+import './deprecated-3.5.0';
 
 export * from './base/descriptor-set';
 export * from './base/buffer';
