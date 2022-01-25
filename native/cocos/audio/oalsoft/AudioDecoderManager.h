@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -32,10 +32,10 @@ class AudioDecoder;
 
 class AudioDecoderManager {
 public:
-    static bool init();
-    static void destroy();
+    static bool          init();
+    static void          destroy();
     static AudioDecoder *createDecoder(const char *path);
-    static void destroyDecoder(AudioDecoder *decoder);
+    static void          destroyDecoder(AudioDecoder *decoder);
 };
 
 } // namespace cc

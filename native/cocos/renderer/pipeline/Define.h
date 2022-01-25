@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -228,9 +228,6 @@ enum class CC_DLL PipelineGlobalBindings {
 };
 CC_ENUM_CONVERSION_OPERATOR(PipelineGlobalBindings)
 
-extern CC_DLL int globalUBOCount;
-extern CC_DLL int globalSamplerCount;
-
 enum class CC_DLL ModelLocalBindings {
     UBO_LOCAL,
     UBO_FORWARD_LIGHTS,
@@ -251,9 +248,6 @@ enum class CC_DLL ModelLocalBindings {
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ModelLocalBindings)
-
-extern CC_DLL int localUBOCount;
-extern CC_DLL int localSamplerCount;
 
 enum class CC_DLL SetIndex {
     GLOBAL,
@@ -459,7 +453,8 @@ struct CC_DLL UBOShadow : public Object {
     static constexpr uint                        SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET      = UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET   = UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_COLOR_OFFSET                           = UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
-    static constexpr uint                        COUNT                                         = UBOShadow::SHADOW_COLOR_OFFSET + 4;
+    static constexpr uint                        PLANAR_NORMAL_DISTANCE_INFO_OFFSET            = UBOShadow::SHADOW_COLOR_OFFSET + 4;
+    static constexpr uint                        COUNT                                         = UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
     static constexpr uint                        SIZE                                          = UBOShadow::COUNT * 4;
     static constexpr uint                        BINDING                                       = static_cast<uint>(PipelineGlobalBindings::UBO_SHADOW);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;

@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,14 +29,14 @@
 
 #pragma once
 
-using astc_byte = unsigned char;
+using astc_byte   = unsigned char;
 using astc_uint32 = unsigned int;
 
 // Size of a ASTC header
 
-    #define ASTC_HEADER_SIZE 16
+#define ASTC_HEADER_SIZE 16
 
-    #define ASTC_HEADER_MAGIC 4
+#define ASTC_HEADER_MAGIC 4
 
 // Check if a ASTC header is correctly formatted
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -39,8 +39,8 @@ GLES3QueryPool::~GLES3QueryPool() {
     destroy();
 }
 
-void GLES3QueryPool::doInit(const QueryPoolInfo& /*info*/) {
-    GLES3Device* device = GLES3Device::getInstance();
+void GLES3QueryPool::doInit(const QueryPoolInfo & /*info*/) {
+    GLES3Device *device = GLES3Device::getInstance();
     if (device->getCapabilities().supportQuery) {
         _gpuQueryPool                  = CC_NEW(GLES3GPUQueryPool);
         _gpuQueryPool->type            = _type;

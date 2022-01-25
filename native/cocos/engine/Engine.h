@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -87,7 +87,7 @@ public:
      @param evtype:event type.
      @param cb:event callback.
      */
-    void addEventCallback(OSEventType evtype, const EventCb& cb) override;
+    void addEventCallback(OSEventType evtype, const EventCb &cb) override;
     /**
      @brief Remove Event Listening.
      @param evtype:event type.
@@ -99,7 +99,7 @@ public:
      @param evtype:event information.
      @return whether it's been handled.
      */
-    bool handleEvent(const OSEvent& ev);
+    bool handleEvent(const OSEvent &ev);
     /**
      @brief Get engine scheduler.
      */
@@ -107,9 +107,9 @@ public:
 
 private:
     void    tick();
-    bool    dispatchWindowEvent(const WindowEvent& ev);
-    bool    dispatchDeviceEvent(const DeviceEvent& ev);
-    bool    dispatchEventToApp(OSEventType type, const OSEvent& ev);
+    bool    dispatchWindowEvent(const WindowEvent &ev);
+    bool    dispatchDeviceEvent(const DeviceEvent &ev);
+    bool    dispatchEventToApp(OSEventType type, const OSEvent &ev);
     void    onPause();
     void    onResume();
     void    onClose();

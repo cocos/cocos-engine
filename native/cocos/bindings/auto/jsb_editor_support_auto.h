@@ -56,4 +56,4 @@ SE_DECLARE_FUNC(js_editor_support_MiddlewareManager_destroyInstance);
 SE_DECLARE_FUNC(js_editor_support_MiddlewareManager_generateModuleID);
 SE_DECLARE_FUNC(js_editor_support_MiddlewareManager_getInstance);
 SE_DECLARE_FUNC(js_editor_support_MiddlewareManager_MiddlewareManager);
-    // clang-format on
+// clang-format on

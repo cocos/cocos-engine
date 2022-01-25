@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -35,8 +35,8 @@
 namespace cc {
 
 std::wstring CC_DLL StringUtf8ToWideChar(const std::string &strUtf8);
-std::string CC_DLL StringWideCharToUtf8(const std::wstring &strWideChar);
-std::string CC_DLL UTF8StringToMultiByte(const std::string &strUtf8);
+std::string CC_DLL  StringWideCharToUtf8(const std::wstring &strWideChar);
+std::string CC_DLL  UTF8StringToMultiByte(const std::string &strUtf8);
 
 } // namespace cc
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -36,7 +36,6 @@
     #include <vector>
     #include "../Macros.h"
 
-
 namespace cc {
 
     #define MAX_STACK_FRAMES  32
@@ -59,10 +58,10 @@ struct CC_DLL StackFrame {
  */
 class CC_DLL CallStack {
 public:
-    static std::string basename(const std::string& path);
+    static std::string basename(const std::string &path);
 
-    static std::vector<void*>      backtrace();
-    static std::vector<StackFrame> backtraceSymbols(const std::vector<void*>& callstack);
+    static std::vector<void *>     backtrace();
+    static std::vector<StackFrame> backtraceSymbols(const std::vector<void *> &callstack);
 
     #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     static void initSym();

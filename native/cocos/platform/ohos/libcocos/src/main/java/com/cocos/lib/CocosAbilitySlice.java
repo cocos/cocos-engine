@@ -152,7 +152,7 @@ public class CocosAbilitySlice extends AbilitySlice implements SurfaceOps.Callba
         mSurfaceProvider.setTouchEventListener(this);
         mSurfaceProvider.setLayoutRefreshedListener(component -> {
             // dispatch resize event
-            CocosHelper.runOnGameThread(()->{
+            CocosHelper.runOnGameThreadAtForeground(()->{
                 onOrientationChangedNative(getDisplayOrientation(), component.getWidth(), component.getHeight());
             });
         });

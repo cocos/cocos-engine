@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2016-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2016-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,8 +28,8 @@
 #include "Image.h"
 #include <cassert>
 #include <cctype>
-#include <string>
 #include <cstring>
+#include <string>
 #include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
 
 #if CC_USE_JPEG

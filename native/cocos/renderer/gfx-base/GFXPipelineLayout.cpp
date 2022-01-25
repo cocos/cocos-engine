@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -37,7 +37,7 @@ PipelineLayout::PipelineLayout()
 
 PipelineLayout::~PipelineLayout() = default;
 
-void PipelineLayout::initialize(const PipelineLayoutInfo& info) {
+void PipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _setLayouts = info.setLayouts;
 
     doInit(info);

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "platform/win32/modules/Screen.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
 #include "base/Macros.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 
 #include <Windows.h>
 

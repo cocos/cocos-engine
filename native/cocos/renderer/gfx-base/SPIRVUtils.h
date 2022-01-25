@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -34,15 +34,15 @@ namespace gfx {
 
 class SPIRVUtils {
 public:
-    static SPIRVUtils* getInstance() { return &instance; }
+    static SPIRVUtils *getInstance() { return &instance; }
 
     void initialize(int vulkanMinorVersion);
     void destroy();
 
-    void compileGLSL(ShaderStageFlagBit type, const String& source);
-    void compressInputLocations(gfx::AttributeList& attributes);
+    void compileGLSL(ShaderStageFlagBit type, const String &source);
+    void compressInputLocations(gfx::AttributeList &attributes);
 
-    inline uint32_t* getOutputData() {
+    inline uint32_t *getOutputData() {
         _shader.reset();
         _program.reset();
         return _output.data();

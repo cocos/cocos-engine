@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -64,6 +64,7 @@ public:
      @return accelerometer interface.
      */
     static OSInterface::Ptr createAccelerometerInterface();
+
 private:
 };
 

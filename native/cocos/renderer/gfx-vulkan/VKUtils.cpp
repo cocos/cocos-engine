@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -586,9 +586,9 @@ bool isExtensionSupported(const char *required, const vector<VkExtensionProperti
 }
 
 bool isFormatSupported(VkPhysicalDevice device, VkFormat format) {
-	VkFormatProperties properties;
-	vkGetPhysicalDeviceFormatProperties(device, format, &properties);
-	return (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) != 0;
+    VkFormatProperties properties;
+    vkGetPhysicalDeviceFormatProperties(device, format, &properties);
+    return (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) != 0;
 }
 
 } // namespace gfx

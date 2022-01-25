@@ -50,7 +50,7 @@ public class CocosKeyCodeHandler {
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
             case KeyEvent.KEYCODE_DPAD_CENTER:
-                CocosHelper.runOnGameThread(new Runnable() {
+                CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
                         handleKeyDown(keyCode);
@@ -73,7 +73,7 @@ public class CocosKeyCodeHandler {
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
             case KeyEvent.KEYCODE_DPAD_CENTER:
-                CocosHelper.runOnGameThread(new Runnable() {
+                CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
                         handleKeyUp(keyCode);

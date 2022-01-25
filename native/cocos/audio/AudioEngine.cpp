@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -88,8 +88,8 @@ class AudioEngine::AudioEngineThreadPool {
 public:
     explicit AudioEngineThreadPool(int threads = 4) {
         for (int index = 0; index < threads; ++index) {
-            _workers.emplace_back(std::thread([this](){
-              threadFunc();
+            _workers.emplace_back(std::thread([this]() {
+                threadFunc();
             }));
         }
     }
@@ -204,7 +204,7 @@ int AudioEngine::play2d(const std::string &filePath, bool loop, float volume, co
             break;
         }
 
-        auto* profileHelper = sDefaultProfileHelper;
+        auto *profileHelper = sDefaultProfileHelper;
         if (profile && profile != &profileHelper->profile) {
             CC_ASSERT(!profile->name.empty());
             profileHelper          = &sAudioPathProfileHelperMap[profile->name];

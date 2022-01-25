@@ -1,6 +1,6 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+
  http://www.cocos.com
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -173,7 +173,6 @@ public:
     inline void              setWorldBounds(geometry::AABB *bounds) { _worldBounds = bounds; }
     inline void              setModelBounds(geometry::AABB *bounds) { _modelBounds = bounds; }
     inline bool              isModelImplementedInJS() const { return (_type != Type::DEFAULT && _type != Type::SKINNING && _type != Type::BAKED_SKINNING); };
-    //
 
 protected:
     static void uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3);

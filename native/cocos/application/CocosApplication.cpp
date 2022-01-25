@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -60,7 +60,7 @@ int CocosApplication::init() {
     jsb_init_file_operation_delegate();
 
     se->setExceptionCallback(
-        std::bind(&CocosApplication::handleException, this,                             // NOLINT(modernize-avoid-bind)
+        std::bind(&CocosApplication::handleException, this, // NOLINT(modernize-avoid-bind)
                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
     jsb_register_all_modules();

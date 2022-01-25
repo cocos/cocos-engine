@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,20 +26,20 @@
 
 #include "base/Value.h"
 
+#include <memory.h>
+#include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <cstdlib>
 #include <iomanip>
-#include <memory.h>
 #include <sstream>
-#include <algorithm>
 
 #include "base/Utils.h"
 
 namespace cc {
 
 const ValueVector    VALUE_VECTOR_NULL;
-const ValueMap       VALUE_MAP_NULL = {};
+const ValueMap       VALUE_MAP_NULL         = {};
 const ValueMapIntKey VALUE_MAP_INT_KEY_NULL = {};
 
 const Value Value::VALUE_NULL;

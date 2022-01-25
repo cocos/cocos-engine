@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -35,7 +35,7 @@ class BatchedBuffer;
 
 class CC_DLL RenderBatchedQueue : public Object {
 public:
-    RenderBatchedQueue()  = default;
+    RenderBatchedQueue()           = default;
     ~RenderBatchedQueue() override = default;
 
     void clear();

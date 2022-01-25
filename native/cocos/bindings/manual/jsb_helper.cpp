@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,7 +29,7 @@
 /* static */
 void CleanupTask::pushTaskToAutoReleasePool(const std::function<void()> &cb) {
     auto *ret = new (std::nothrow) CleanupTask();
-    ret->_cb = cb;
+    ret->_cb  = cb;
     cc::DeferredReleasePool::add(ret);
 }
 

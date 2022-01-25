@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -37,7 +37,7 @@ CommandBuffer::CommandBuffer()
 
 CommandBuffer::~CommandBuffer() = default;
 
-void CommandBuffer::initialize(const CommandBufferInfo& info) {
+void CommandBuffer::initialize(const CommandBufferInfo &info) {
     _type  = info.type;
     _queue = info.queue;
 

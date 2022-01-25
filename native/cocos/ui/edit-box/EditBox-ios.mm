@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -326,7 +326,15 @@ void removeKeyboardEventLisnters() {
 }
 
 - (void)keyboardWillHide:(NSNotification *)notification {
-    cc::EditBox::hide();
+    NSDictionary *info = [notification userInfo];
+    
+    CGRect beginKeyboardRect = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+    CGRect endKeyboardRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGFloat yOffset = endKeyboardRect.origin.y - beginKeyboardRect.origin.y;
+    
+    if (yOffset <= 0) {
+        cc::EditBox::hide();
+    }
 }
 @end
 

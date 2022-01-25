@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,9 +26,9 @@
 ****************************************************************************/
 
 #include "platform/win32/Utils-win32.h"
-#include "platform/StdC.h"
 #include <sstream>
 #include "base/Log.h"
+#include "platform/StdC.h"
 
 namespace cc {
 
@@ -38,7 +38,7 @@ std::wstring StringUtf8ToWideChar(const std::string &strUtf8) {
         int nNum = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, nullptr, 0);
         if (nNum) {
             WCHAR *wideCharString = new WCHAR[nNum + 1];
-            wideCharString[0] = 0;
+            wideCharString[0]     = 0;
 
             nNum = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, wideCharString, nNum + 1);
 
@@ -57,7 +57,7 @@ std::string StringWideCharToUtf8(const std::wstring &strWideChar) {
         int nNum = WideCharToMultiByte(CP_UTF8, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
         if (nNum) {
             char *utf8String = new char[nNum + 1];
-            utf8String[0] = 0;
+            utf8String[0]    = 0;
 
             nNum = WideCharToMultiByte(CP_UTF8, 0, strWideChar.c_str(), -1, utf8String, nNum + 1, nullptr, FALSE);
 
@@ -75,10 +75,10 @@ std::string UTF8StringToMultiByte(const std::string &strUtf8) {
     std::string ret;
     if (!strUtf8.empty()) {
         std::wstring strWideChar = StringUtf8ToWideChar(strUtf8);
-        int nNum = WideCharToMultiByte(CP_ACP, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
+        int          nNum        = WideCharToMultiByte(CP_ACP, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
         if (nNum) {
             char *ansiString = new char[nNum + 1];
-            ansiString[0] = 0;
+            ansiString[0]    = 0;
 
             nNum = WideCharToMultiByte(CP_ACP, 0, strWideChar.c_str(), -1, ansiString, nNum + 1, nullptr, FALSE);
 

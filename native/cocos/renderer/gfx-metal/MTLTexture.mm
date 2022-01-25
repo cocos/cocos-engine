@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -269,9 +269,14 @@ void CCMTLTexture::doResize(uint width, uint height, uint size) {
         CC_LOG_ERROR("CCMTLTexture: create MTLTexture failed when try to resize the texture.");
         return;
     }
-
-    CCMTLDevice::getInstance()->getMemoryStatus().textureSize += size;
-
+    
+    // texture is a wrapper of drawable when _swapchain is active, drawable is not a resource alloc by gfx,
+    // but the system so skip here.
+    if(!_swapchain) {
+        CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= oldSize;
+        CCMTLDevice::getInstance()->getMemoryStatus().textureSize += size;
+    }
+    
     if (oldMTLTexture) {
         std::function<void(void)> destroyFunc = [=]() {
             if (oldMTLTexture) {
@@ -282,7 +287,6 @@ void CCMTLTexture::doResize(uint width, uint height, uint size) {
         };
         //gpu object only
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
-        CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= oldSize;
     }
 }
 

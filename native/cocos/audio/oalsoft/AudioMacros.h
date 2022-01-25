@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -70,8 +70,8 @@
         break;              \
     }
 
-#define BREAK_IF_ERR_LOG(condition, fmt, ...)                                   \
-    if (!!(condition)) {                                                        \
+#define BREAK_IF_ERR_LOG(condition, fmt, ...)                                          \
+    if (!!(condition)) {                                                               \
         CC_LOG_DEBUG("(" QUOTEME(condition) ") failed, message: " fmt, ##__VA_ARGS__); \
-        break;                                                                  \
+        break;                                                                         \
     }

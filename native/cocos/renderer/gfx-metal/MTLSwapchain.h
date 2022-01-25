@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,8 +25,8 @@
 
 #pragma once
 #import <QuartzCore/CAMetalLayer.h>
-#import "gfx-base/GFXSwapchain.h"
 #import "MTLTexture.h"
+#import "gfx-base/GFXSwapchain.h"
 
 namespace cc {
 namespace gfx {
@@ -39,9 +39,9 @@ public:
     CCMTLSwapchain();
     ~CCMTLSwapchain();
 
-    inline CCMTLGPUSwapChainObject* gpuSwapChainObj() { return _gpuSwapchainObj; }
-    CCMTLTexture* colorTexture();
-    CCMTLTexture* depthStencilTexture();
+    inline CCMTLGPUSwapChainObject *gpuSwapChainObj() { return _gpuSwapchainObj; }
+    CCMTLTexture *                  colorTexture();
+    CCMTLTexture *                  depthStencilTexture();
 
     id<CAMetalDrawable> currentDrawable();
 
@@ -57,7 +57,7 @@ protected:
     void doCreateSurface(void *windowHandle) override;
 
 private:
-    CCMTLGPUSwapChainObject* _gpuSwapchainObj = nullptr;
+    CCMTLGPUSwapChainObject *_gpuSwapchainObj = nullptr;
 };
 
 } // namespace gfx

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -33,6 +33,8 @@ namespace gfx {
 
 class CC_DLL BufferValidator final : public Agent<Buffer> {
 public:
+    static bool recordInitStack;
+
     explicit BufferValidator(Buffer *actor);
     ~BufferValidator() override;
 

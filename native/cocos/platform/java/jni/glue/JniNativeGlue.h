@@ -1,5 +1,5 @@
 /****************************************************************************
-Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,6 +22,7 @@ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
+
 #pragma once
 
 #include <future>
@@ -60,20 +61,20 @@ public:
         JNI_CMD_UNKNOW,
     };
     virtual ~JniNativeGlue();
-    static JniNativeGlue* getInstance();
+    static JniNativeGlue *getInstance();
 
-    virtual void start(int argc, const char** argv);
+    virtual void start(int argc, const char **argv);
 
-    void              setWindowHandler(NativeWindowType* window);
-    NativeWindowType* getWindowHandler();
+    void              setWindowHandler(NativeWindowType *window);
+    NativeWindowType *getWindowHandler();
 
-    void                 setResourceManager(ResourceManagerType* resourceManager);
-    ResourceManagerType* getResourceManager();
+    void                 setResourceManager(ResourceManagerType *resourceManager);
+    ResourceManagerType *getResourceManager();
 
     void setSdkVersion(int sdkVersion);
     int  getSdkVersion() const;
 
-    void        setObbPath(const std::string& path);
+    void        setObbPath(const std::string &path);
     std::string getObbPath() const;
 
     bool isRunning() const;
@@ -88,11 +89,12 @@ public:
     };
     void writeCommandAsync(JniCommand cmd);
     void writeCommandSync(JniCommand cmd);
-    int  readCommand(CommandMsg* msg);
+    int  readCommand(CommandMsg *msg);
+    int  readCommandWithTimeout(CommandMsg *cmd, int delayMS);
 
-    void setEventDispatch(IEventDispatch* eventDispatcher);
-    void dispatchEvent(const OSEvent& ev);
-    void dispatchTouchEvent(const OSEvent& ev);
+    void setEventDispatch(IEventDispatch *eventDispatcher);
+    void dispatchEvent(const OSEvent &ev);
+    void dispatchTouchEvent(const OSEvent &ev);
 
     void onPause();
     void onResume();
@@ -116,11 +118,11 @@ private:
 
     std::promise<void>           _threadPromise;
     std::string                  _obbPath;
-    ResourceManagerType*         _resourceManager{nullptr};
-    NativeWindowType*            _window{nullptr};
-    NativeWindowType*            _pendingWindow{nullptr};
+    ResourceManagerType *        _resourceManager{nullptr};
+    NativeWindowType *           _window{nullptr};
+    NativeWindowType *           _pendingWindow{nullptr};
     JniCommand                   _appState{JniCommand::JNI_CMD_UNKNOW};
-    IEventDispatch*              _eventDispatcher{nullptr};
+    IEventDispatch *             _eventDispatcher{nullptr};
     std::unique_ptr<MessagePipe> _messagePipe{nullptr};
 };
 

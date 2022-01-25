@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -42,6 +42,7 @@ extern float *     getSafeAreaEdgeJNI();
 extern int         getDeviceRotationJNI();
 extern float       getBatteryLevelJNI();
 extern void        flushTasksOnGameThreadJNI();
+extern void        flushTasksOnGameThreadAtForegroundJNI();
 extern void        setAccelerometerEnabledJNI(bool isEnabled);
 extern void        setAccelerometerIntervalJNI(float interval);
 extern float *     getDeviceMotionValueJNI();

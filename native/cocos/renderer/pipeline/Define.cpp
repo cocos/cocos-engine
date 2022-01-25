@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,20 +30,25 @@
 namespace cc {
 namespace pipeline {
 
-int globalUBOCount     = static_cast<int>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
-int globalSamplerCount = static_cast<int>(PipelineGlobalBindings::COUNT) - globalUBOCount;
+static uint32_t globalUBOCount     = static_cast<uint32_t>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
+static uint32_t globalSamplerCount = static_cast<uint32_t>(PipelineGlobalBindings::COUNT) - globalUBOCount;
 
-int localUBOCount     = static_cast<int>(ModelLocalBindings::SAMPLER_JOINTS);
-int localSamplerCount = static_cast<int>(ModelLocalBindings::COUNT) - localUBOCount;
+static uint32_t localUBOCount     = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_JOINTS);
+static uint32_t localSamplerCount = static_cast<uint32_t>(ModelLocalBindings::COUNT) - localUBOCount;
 
 uint globalSet   = static_cast<uint>(SetIndex::GLOBAL);
 uint materialSet = static_cast<uint>(SetIndex::MATERIAL);
 uint localSet    = static_cast<uint>(SetIndex::LOCAL);
 
 gfx::BindingMappingInfo bindingMappingInfo = {
-    {0, globalUBOCount + localUBOCount, globalUBOCount},
-    {-globalUBOCount, globalSamplerCount + localSamplerCount, globalSamplerCount - localUBOCount},
-    1,
+    {globalUBOCount, 0, localUBOCount},         // Uniform Buffer Counts
+    {globalSamplerCount, 0, localSamplerCount}, // Combined Sampler Texture Counts
+    {0, 0, 0},                                  // Sampler Counts
+    {0, 0, 0},                                  // Texture Counts
+    {0, 0, 0},                                  // Storage Buffer Counts
+    {0, 0, 0},                                  // Storage Image Counts
+    {0, 0, 0},                                  // Subpass Input Counts
+    {0, 2, 1},                                  // Set Order Indices
 };
 
 DescriptorSetLayoutInfos              globalDescriptorSetLayout;
@@ -144,6 +149,7 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
         {"cc_shadowWHPBInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowLPNNInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowColor", gfx::Type::FLOAT4, 1},
+        {"cc_planarNDInfo", gfx::Type::FLOAT4, 1},
     },
     1,
 };

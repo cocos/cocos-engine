@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -41,9 +41,9 @@ const std::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
 }
 
 static bool JSB_loadFont(se::State &s) {
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc >= 1) {
         s.rval().setNull();
 
@@ -55,8 +55,8 @@ static bool JSB_loadFont(se::State &s) {
         ok &= sevalue_to_native(args[1], &source);
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: source");
 
-        std::string fontFilePath;
-        std::regex re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
+        std::string                                     fontFilePath;
+        std::regex                                      re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(source.cbegin(), source.cend(), results, re)) {
             fontFilePath = results[1].str();

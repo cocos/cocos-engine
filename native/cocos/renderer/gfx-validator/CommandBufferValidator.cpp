@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -58,7 +58,7 @@ void CommandBufferValidator::initValidator() {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
 
-    size_t descriptorSetCount = DeviceValidator::getInstance()->bindingMappingInfo().bufferOffsets.size();
+    size_t descriptorSetCount = DeviceValidator::getInstance()->bindingMappingInfo().setIndices.size();
     _curStates.descriptorSets.resize(descriptorSetCount);
     _curStates.dynamicOffsets.resize(descriptorSetCount);
 }
@@ -238,7 +238,7 @@ void CommandBufferValidator::bindDescriptorSet(uint32_t set, DescriptorSet *desc
     CCASSERT(isInited(), "alread destroyed?");
     CCASSERT(descriptorSet && static_cast<DescriptorSetValidator *>(descriptorSet)->isInited(), "already destroyed?");
 
-    CCASSERT(set < DeviceValidator::getInstance()->bindingMappingInfo().bufferOffsets.size(), "invalid set index");
+    CCASSERT(set < DeviceValidator::getInstance()->bindingMappingInfo().setIndices.size(), "invalid set index");
     //CCASSERT(descriptorSet->getLayout()->getDynamicBindings().size() == dynamicOffsetCount, "wrong number of dynamic offsets"); // be more lenient on this
 
     _curStates.descriptorSets[set] = descriptorSet;

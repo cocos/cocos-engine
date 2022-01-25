@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -80,7 +80,7 @@ struct Id {
     uint32_t  opcode{0};
     uint32_t  typeId{0};
     uint32_t  storageClass{0};
-    uint32_t* pLocation{nullptr};
+    uint32_t *pLocation{nullptr};
 };
 } // namespace
 
@@ -99,9 +99,9 @@ void SPIRVUtils::destroy() {
     _output.clear();
 }
 
-void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const String& source) {
+void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const String &source) {
     EShLanguage stage  = getShaderStage(type);
-    const char* string = source.c_str();
+    const char *string = source.c_str();
 
     _shader = std::make_unique<glslang::TShader>(stage);
     _shader->setStrings(&string, 1);
@@ -136,12 +136,12 @@ void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const String& source) {
     glslang::GlslangToSpv(*_program->getIntermediate(stage), _output, &logger, &spvOptions);
 }
 
-void SPIRVUtils::compressInputLocations(gfx::AttributeList& attributes) {
+void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
     static std::vector<Id>  ids;
     static vector<uint32_t> activeLocations;
     static vector<uint32_t> newLocations;
 
-    uint32_t* code     = _output.data();
+    uint32_t *code     = _output.data();
     uint32_t  codeSize = utils::toUint(_output.size());
 
     CC_ASSERT(code[0] == SpvMagicNumber);
@@ -149,7 +149,7 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList& attributes) {
     uint32_t idBound = code[3];
     ids.assign(idBound, {});
 
-    uint32_t* insn = code + 5;
+    uint32_t *insn = code + 5;
     while (insn != code + codeSize) {
         auto opcode    = static_cast<uint16_t>(insn[0]);
         auto wordCount = static_cast<uint16_t>(insn[0] >> 16);
@@ -196,7 +196,7 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList& attributes) {
     uint32_t unusedLocation = activeCount;
     newLocations.assign(attributes.size(), UINT_MAX);
 
-    for (auto& id : ids) {
+    for (auto &id : ids) {
         if (id.opcode == SpvOpVariable && id.storageClass == SpvStorageClassInput && id.pLocation) {
             uint32_t oldLocation = *id.pLocation;
 
@@ -226,7 +226,7 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList& attributes) {
         attributes[i].location = newLocations[i];
     }
 
-    attributes.erase(std::remove_if(attributes.begin(), attributes.end(), [](const auto& attr) {
+    attributes.erase(std::remove_if(attributes.begin(), attributes.end(), [](const auto &attr) {
                          return attr.location == UINT_MAX;
                      }),
                      attributes.end());

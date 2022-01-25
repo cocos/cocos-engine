@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -100,8 +100,8 @@ void PassNode::sideEffect() {
 }
 
 void PassNode::subpass(bool end, bool clearActionIgnorable) {
-    _subpass               = true;
-    _subpassEnd            = end;
+    _subpass              = true;
+    _subpassEnd           = end;
     _clearActionIgnorable = clearActionIgnorable;
 }
 

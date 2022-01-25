@@ -13,7 +13,6 @@
                 "external/sources",
                 "external/sources/khronos",
                 "external/win32/include",
-                "external/win32/include/glslang",
                 "external/win32/include/v8"
             ],
             "compileCommands": "${workspaceFolder}/compile_commands.json"

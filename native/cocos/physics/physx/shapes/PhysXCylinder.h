@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -48,7 +48,7 @@ private:
     physx::PxConvexMesh *_mMesh;
     Cylinder             _mData;
     void                 updateGeometry();
-    void         onComponentSet() override;
+    void                 onComponentSet() override;
 };
 
 } // namespace physics

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -41,7 +41,7 @@ GLES2Texture::~GLES2Texture() {
     destroy();
 }
 
-void GLES2Texture::doInit(const TextureInfo& /*info*/) {
+void GLES2Texture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture             = CC_NEW(GLES2GPUTexture);
     _gpuTexture->type       = _info.type;
     _gpuTexture->format     = _info.format;
@@ -64,7 +64,7 @@ void GLES2Texture::doInit(const TextureInfo& /*info*/) {
     }
 }
 
-void GLES2Texture::doInit(const TextureViewInfo& /*info*/) {
+void GLES2Texture::doInit(const TextureViewInfo & /*info*/) {
     CC_LOG_ERROR("GLES2 doesn't support texture view");
 }
 
@@ -98,7 +98,7 @@ void GLES2Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
-void GLES2Texture::doInit(const SwapchainTextureInfo& /*info*/) {
+void GLES2Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     _gpuTexture             = CC_NEW(GLES2GPUTexture);
     _gpuTexture->type       = _info.type;
     _gpuTexture->format     = _info.format;
@@ -112,7 +112,7 @@ void GLES2Texture::doInit(const SwapchainTextureInfo& /*info*/) {
     _gpuTexture->flags      = _info.flags;
     _gpuTexture->size       = _size;
     _gpuTexture->memoryless = true;
-    _gpuTexture->swapchain  = static_cast<GLES2Swapchain*>(_swapchain)->gpuSwapchain();
+    _gpuTexture->swapchain  = static_cast<GLES2Swapchain *>(_swapchain)->gpuSwapchain();
 }
 
 } // namespace gfx

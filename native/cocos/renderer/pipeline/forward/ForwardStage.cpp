@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -163,8 +163,8 @@ void ForwardStage::render(scene::Camera *camera) {
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
         colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT;
-        colorTexInfo.width  = static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale);
-        colorTexInfo.height = static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale);
+        colorTexInfo.width  = static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
+        colorTexInfo.height = static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
         if (shadingScale != 1.F) {
             colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
         }
@@ -174,8 +174,7 @@ void ForwardStage::render(scene::Camera *camera) {
         colorAttachmentInfo.clearColor = _clearColors[0];
         colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
         auto clearFlags                = static_cast<gfx::ClearFlagBit>(camera->getClearFlag());
-        bool isSwapchain               = !!camera->getWindow()->getSwapchain();
-        if (isSwapchain && !hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
+        if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
             if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
             } else {
@@ -191,8 +190,8 @@ void ForwardStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
             gfx::Format::DEPTH_STENCIL,
-            static_cast<uint>(static_cast<float>(pipeline->getWidth()) * shadingScale),
-            static_cast<uint>(static_cast<float>(pipeline->getHeight()) * shadingScale),
+            static_cast<uint>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale),
+            static_cast<uint>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale),
         };
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
@@ -202,7 +201,7 @@ void ForwardStage::render(scene::Camera *camera) {
         depthAttachmentInfo.clearStencil  = camera->getClearStencil();
         depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
         depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
-        if (isSwapchain && static_cast<gfx::ClearFlagBit>(clearFlags & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL && (!hasFlag(clearFlags, gfx::ClearFlagBit::DEPTH) || !hasFlag(clearFlags, gfx::ClearFlagBit::STENCIL))) {
+        if (static_cast<gfx::ClearFlagBit>(clearFlags & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL && (!hasFlag(clearFlags, gfx::ClearFlagBit::DEPTH) || !hasFlag(clearFlags, gfx::ClearFlagBit::STENCIL))) {
             depthAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
         }
         data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -39,14 +39,14 @@ GLES3DescriptorSetLayout::~GLES3DescriptorSetLayout() {
     destroy();
 }
 
-void GLES3DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo& /*info*/) {
+void GLES3DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
     _gpuDescriptorSetLayout                    = CC_NEW(GLES3GPUDescriptorSetLayout);
     _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
     _gpuDescriptorSetLayout->bindingIndices    = _bindingIndices;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindings          = _bindings;
 
-    for (auto& binding : _bindings) {
+    for (auto &binding : _bindings) {
         if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
             for (uint32_t j = 0U; j < binding.count; j++) {
                 _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);

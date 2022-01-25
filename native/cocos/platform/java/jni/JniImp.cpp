@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -128,6 +128,11 @@ float getBatteryLevelJNI() {
 void flushTasksOnGameThreadJNI() {
     cc::JniHelper::callStaticVoidMethod(JCLS_HELPER,
                                         "flushTasksOnGameThread");
+}
+
+void flushTasksOnGameThreadAtForegroundJNI() {
+    cc::JniHelper::callStaticVoidMethod(JCLS_HELPER,
+                                        "flushTasksOnGameThreadAtForeground");
 }
 
 void setAccelerometerEnabledJNI(bool isEnabled) {

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -40,7 +40,7 @@ public:
     explicit CCMTLTexture();
     ~CCMTLTexture();
     CCMTLTexture(const CCMTLTexture &) = delete;
-    CCMTLTexture(CCMTLTexture &&) = delete;
+    CCMTLTexture(CCMTLTexture &&)      = delete;
     CCMTLTexture &operator=(const CCMTLTexture &) = delete;
     CCMTLTexture &operator=(CCMTLTexture &&) = delete;
 
@@ -48,17 +48,17 @@ public:
         return _isTextureView ? _mtlTextureView : _mtlTexture;
     }
     inline Format getConvertedFormat() const { return _convertedFormat; }
-    inline bool isArray() const { return _isArray; }
-    inline bool isPVRTC() const { return _isPVRTC; }
-    
+    inline bool   isArray() const { return _isArray; }
+    inline bool   isPVRTC() const { return _isPVRTC; }
+
     //update drawable from swapchain.
     void update();
-    
-    const TextureInfo& textureInfo();
-    CCMTLSwapchain* swapChain();
-    
-    static CCMTLTexture* getDefaultTexture();
-    static void deleteDefaultTexture();
+
+    const TextureInfo &textureInfo();
+    CCMTLSwapchain *   swapChain();
+
+    static CCMTLTexture *getDefaultTexture();
+    static void          deleteDefaultTexture();
 
 protected:
     void doInit(const TextureInfo &info) override;
@@ -70,10 +70,10 @@ protected:
     bool createMTLTexture();
 
     Format _convertedFormat = Format::UNKNOWN;
-    bool _isArray = false;
-    bool _isPVRTC = false;
+    bool   _isArray         = false;
+    bool   _isPVRTC         = false;
 
-    id<MTLTexture> _mtlTexture = nil;
+    id<MTLTexture> _mtlTexture     = nil;
     id<MTLTexture> _mtlTextureView = nil;
 };
 

@@ -57,7 +57,6 @@ DeferredPipeline::DeferredPipeline() {
 
 framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferTexture[GBUFFER_COUNT] = {
     framegraph::FrameGraph::stringToHandle("gbufferAlbedoTexture"),
-    framegraph::FrameGraph::stringToHandle("gbufferPositionTexture"),
     framegraph::FrameGraph::stringToHandle("gbufferNormalTexture"),
     framegraph::FrameGraph::stringToHandle("gbufferEmissiveTexture")};
 

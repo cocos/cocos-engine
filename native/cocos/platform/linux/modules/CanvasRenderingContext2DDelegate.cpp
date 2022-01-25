@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -20,8 +20,8 @@
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.                                                                    \
- ****************************************************************************/
+ THE SOFTWARE.
+****************************************************************************/
 
 #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
 #include "SDL2/SDL.h"
@@ -33,36 +33,15 @@ namespace {
 #define RGBA(r, g, b, a) (int)((int)r | (((int)g) << 8) | (((int)b) << 16) | (((int)a) << 24))
 } // namespace
 
-namespace {
-void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    assert(x + width <= totalWidth);
-    assert(y + height <= totalHeight);
-
-    uint32_t y0 = y;
-    uint32_t y1 = y + height;
-    uint8_t *p;
-    for (uint32_t offsetY = y0; offsetY < y1; ++offsetY) {
-        for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX) {
-            p    = buf + (totalWidth * offsetY + offsetX) * 4;
-            *p++ = r;
-            *p++ = g;
-            *p++ = b;
-            *p++ = a;
-        }
-    }
-}
-} // namespace
-
 namespace cc {
 //static const char gdefaultFontName[] = "-*-helvetica-medium-o-*-*-24-*-*-*-*-*-iso8859-*";
 //static const char gdefaultFontName[] = "lucidasanstypewriter-bold-24";
-static const char gdefaultFontName[]  = "lucidasans-24";
-static const char gdefaultFontName1[] = "lucidasans";
+static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
-    LinuxPlatform *platform = nullptr;
+    LinuxPlatform *platform = dynamic_cast<LinuxPlatform *>(BasePlatform::getPlatform());
     CCASSERT(platform != nullptr, "Platform pointer can't be null");
     SDL_GetWindowWMInfo(reinterpret_cast<SDL_Window *>(platform->getWindow()), &wmInfo);
     _dis = wmInfo.info.x11.display;

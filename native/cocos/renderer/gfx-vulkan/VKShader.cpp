@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -44,8 +44,6 @@ void CCVKShader::doInit(const ShaderInfo & /*info*/) {
     _gpuShader             = CC_NEW(CCVKGPUShader);
     _gpuShader->name       = _name;
     _gpuShader->attributes = _attributes;
-    _gpuShader->blocks     = _blocks;
-    _gpuShader->samplers   = _samplers;
     for (ShaderStage &stage : _stages) {
         _gpuShader->gpuStages.push_back({stage.stage, stage.source});
     }

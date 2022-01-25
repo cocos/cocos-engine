@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXFilterShader.h"
+#include "physics/physx/PhysXInc.h"
 
 namespace cc {
 namespace physics {
@@ -32,7 +32,7 @@ namespace physics {
 physx::PxFilterFlags simpleFilterShader(
     physx::PxFilterObjectAttributes attributes0, physx::PxFilterData fd0,
     physx::PxFilterObjectAttributes attributes1, physx::PxFilterData fd1,
-    physx::PxPairFlags &pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize){
+    physx::PxPairFlags &pairFlags, const void *constantBlock, physx::PxU32 constantBlockSize) {
     PX_UNUSED(constantBlock);
     PX_UNUSED(constantBlockSize);
     // group mask filter
@@ -56,7 +56,7 @@ physx::PxFilterFlags simpleFilterShader(
 physx::PxFilterFlags advanceFilterShader(
     physx::PxFilterObjectAttributes attributes0, physx::PxFilterData fd0,
     physx::PxFilterObjectAttributes attributes1, physx::PxFilterData fd1,
-    physx::PxPairFlags &pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize){
+    physx::PxPairFlags &pairFlags, const void *constantBlock, physx::PxU32 constantBlockSize) {
     PX_UNUSED(constantBlock);
     PX_UNUSED(constantBlockSize);
     // group mask filter
@@ -101,8 +101,8 @@ physx::PxFilterFlags advanceFilterShader(
     return physx::PxFilterFlag::eDEFAULT;
 }
 
-physx::PxQueryHitType::Enum QueryFilterShader::preFilter(const physx::PxFilterData& filterData, const physx::PxShape* shape,
-                                                         const physx::PxRigidActor* actor, physx::PxHitFlags& queryFlags) {
+physx::PxQueryHitType::Enum QueryFilterShader::preFilter(const physx::PxFilterData &filterData, const physx::PxShape *shape,
+                                                         const physx::PxRigidActor *actor, physx::PxHitFlags &queryFlags) {
     PX_UNUSED(actor);
     PX_UNUSED(queryFlags);
     if ((filterData.word3 & QUERY_CHECK_TRIGGER) && shape->getFlags().isSet(physx::PxShapeFlag::eTRIGGER_SHAPE)) {

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
+
 #include "platform/interfaces/OSInterface.h"
 #include "platform/IEventDispatch.h"
 
@@ -31,17 +32,17 @@ OSInterface::OSInterface()
 : OSInterface(nullptr) {
 }
 
-OSInterface::OSInterface(IEventDispatch* evDispatchInterface)
+OSInterface::OSInterface(IEventDispatch *evDispatchInterface)
 : _evDispatchInterface(evDispatchInterface) {
 }
 
-void OSInterface::dispatchEvent(const OSEvent& ev) {
+void OSInterface::dispatchEvent(const OSEvent &ev) {
     if (_evDispatchInterface) {
         _evDispatchInterface->dispatchEvent(ev);
     }
 }
 
-void OSInterface::dispatchTouchEvent(const OSEvent& ev) {
+void OSInterface::dispatchTouchEvent(const OSEvent &ev) {
     if (_evDispatchInterface) {
         _evDispatchInterface->dispatchTouchEvent(ev);
     }

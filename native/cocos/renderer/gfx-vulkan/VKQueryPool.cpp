@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,7 +27,6 @@
 #include "VKCommandBuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
-#include "vulkan/vulkan_core.h"
 
 namespace cc {
 namespace gfx {
@@ -40,8 +39,8 @@ CCVKQueryPool::~CCVKQueryPool() {
     destroy();
 }
 
-void CCVKQueryPool::doInit(const QueryPoolInfo& /*info*/) {
-    CCVKDevice* device             = CCVKDevice::getInstance();
+void CCVKQueryPool::doInit(const QueryPoolInfo & /*info*/) {
+    CCVKDevice *device             = CCVKDevice::getInstance();
     _gpuQueryPool                  = CC_NEW(CCVKGPUQueryPool);
     _gpuQueryPool->type            = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;

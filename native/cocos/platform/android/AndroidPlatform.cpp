@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
+
 #include <thread>
 
 #include "platform/android/AndroidPlatform.h"
@@ -36,7 +37,7 @@ int AndroidPlatform::getSdkVersion() const {
     return _jniNativeGlue->getSdkVersion();
 }
 
-int32_t AndroidPlatform::run(int argc, const char** argv) {
+int32_t AndroidPlatform::run(int argc, const char **argv) {
     std::thread mainLogicThread([this, argc, argv]() {
         waitWindowInitialized();
         UniversalPlatform::run(argc, argv);
@@ -51,7 +52,7 @@ void AndroidPlatform::waitWindowInitialized() {
     _jniNativeGlue->setRunning(true);
     while (_jniNativeGlue->isRunning()) {
         pollEvent();
-        NativeWindowType* wndHandle = _jniNativeGlue->getWindowHandler();
+        NativeWindowType *wndHandle = _jniNativeGlue->getWindowHandler();
         if (wndHandle != nullptr) {
             break;
         }
@@ -70,9 +71,6 @@ int32_t AndroidPlatform::loop() {
 
 void AndroidPlatform::pollEvent() {
     _jniNativeGlue->execCommand();
-    if (!_jniNativeGlue->isPause()) {
-        std::this_thread::yield();
-    }
     _jniNativeGlue->flushTasksOnGameThread();
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -218,7 +218,9 @@ Java_com_cocos_lib_JsbBridge_nativeSendToScript(JNIEnv *env, jclass clazz, jstri
 ScriptNativeBridge *ScriptNativeBridge::bridgeCxxInstance{nullptr};
 
 JavaScriptJavaBridge::CallInfo::~CallInfo() {
+    _mEnv->DeleteLocalRef(_mClassID);
     if (_mReturnType == ValueType::STRING && _mRet.stringValue) {
+        _mEnv->DeleteLocalRef(_mRetjstring);
         delete _mRet.stringValue;
     }
 }

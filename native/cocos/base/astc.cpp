@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,9 +28,9 @@
 #include "base/astc.h"
 #include "platform/Image.h"
 
-static const unsigned int MAGIC = 0x5CA1AB13;
-static const astc_byte ASTC_HEADER_SIZE_X_BEGIN = 7;
-static const astc_byte ASTC_HEADER_SIZE_Y_BEGIN = 10;
+static const unsigned int MAGIC                    = 0x5CA1AB13;
+static const astc_byte    ASTC_HEADER_SIZE_X_BEGIN = 7;
+static const astc_byte    ASTC_HEADER_SIZE_Y_BEGIN = 10;
 
 bool astcIsValid(const astc_byte *pHeader) {
     uint32_t magicval = static_cast<uint32_t>(pHeader[0]) +
@@ -46,8 +46,8 @@ bool astcIsValid(const astc_byte *pHeader) {
     int ydim = pHeader[ASTC_HEADER_MAGIC + 1];
     int zdim = pHeader[ASTC_HEADER_MAGIC + 2];
     return !((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6) &&
-        (xdim < 4 || xdim == 7 || xdim == 9 || xdim == 11 || xdim > 12 ||
-         ydim < 4 || ydim == 7 || ydim == 9 || ydim == 11 || ydim > 12 || zdim != 1));
+             (xdim < 4 || xdim == 7 || xdim == 9 || xdim == 11 || xdim > 12 ||
+              ydim < 4 || ydim == 7 || ydim == 9 || ydim == 11 || ydim > 12 || zdim != 1));
 }
 
 int astcGetWidth(const astc_byte *pHeader) {

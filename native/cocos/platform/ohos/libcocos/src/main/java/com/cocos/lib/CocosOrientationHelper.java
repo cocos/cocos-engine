@@ -63,7 +63,7 @@ public class CocosOrientationHelper implements ICategoryOrientationDataCallback 
         final int curOrientation = CocosHelper.getDeviceRotation();
         if (curOrientation != mCurrentOrientation) {
             mCurrentOrientation = curOrientation;
-            CocosHelper.runOnGameThread(new Runnable() {
+            CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                 @Override
                 public void run() {
                     nativeOnOrientationChanged(mCurrentOrientation);

@@ -1,27 +1,27 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2010-2012 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos2d-x.org
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  ****************************************************************************/
 package com.cocos.lib;
 
@@ -58,8 +58,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class CocosHelper {
@@ -77,7 +80,7 @@ public class CocosHelper {
     private static BatteryReceiver sBatteryReceiver = new BatteryReceiver();
 
     public static final int NETWORK_TYPE_NONE = 0;
-    public static final int NETWORK_TYPE_LAN  = 1;
+    public static final int NETWORK_TYPE_LAN = 1;
     public static final int NETWORK_TYPE_WWAN = 2;
 
     // The absolute path to the OBB if it exists.
@@ -86,8 +89,26 @@ public class CocosHelper {
     // The OBB file
     private static ZipResourceFile sOBBFile = null;
 
-    private static List<Runnable> sTaskOnGameThread = Collections.synchronizedList(new ArrayList<>());
+    static class LockedTaskQ {
+        private final Object readMtx = new Object();
+        private Queue<Runnable> sTaskQ = new LinkedList<>();
+        public synchronized void addTask(Runnable runnable) {
+            sTaskQ.add(runnable);
+        }
+        public void runTasks(){
+            Queue<Runnable> tmp;
+            synchronized (readMtx) {
+                tmp = sTaskQ;
+                sTaskQ = new LinkedList<>();
+            }
+            for(Runnable runnable : tmp){
+                runnable.run();
+            }
+        }
+    }
 
+    private static LockedTaskQ sTaskQOnGameThread = new LockedTaskQ();
+    private static LockedTaskQ sForegroundTaskQOnGameThread = new LockedTaskQ();
     /**
      * Battery receiver to getting battery level.
      */
@@ -119,17 +140,20 @@ public class CocosHelper {
         context.unregisterReceiver(sBatteryReceiver);
     }
 
+    //Run on game thread forever, no matter foreground or background
     public static void runOnGameThread(final Runnable runnable) {
-        sTaskOnGameThread.add(runnable);
+        sTaskQOnGameThread.addTask(runnable);
     }
 
     static void flushTasksOnGameThread() {
-        while(sTaskOnGameThread.size() > 0) {
-            Runnable r = sTaskOnGameThread.remove(0);
-            if(r != null) {
-                r.run();
-            }
-        }
+        sTaskQOnGameThread.runTasks();
+    }
+    public static void runOnGameThreadAtForeground(final Runnable runnable) {
+        sForegroundTaskQOnGameThread.addTask(runnable);
+    }
+
+    static void flushTasksOnGameThreadAtForeground() {
+        sForegroundTaskQOnGameThread.runTasks();
     }
 
     public static int getNetworkType() {
@@ -159,10 +183,11 @@ public class CocosHelper {
     // ===========================================================
 
     private static boolean sInited = false;
+
     public static void init(final Activity activity) {
         sActivity = activity;
         if (!sInited) {
-            CocosHelper.sVibrateService = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
+            CocosHelper.sVibrateService = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
             CocosHelper.initObbFilePath();
             CocosHelper.initializeOBBFile();
 
@@ -170,20 +195,30 @@ public class CocosHelper {
         }
     }
 
-    public static float getBatteryLevel() { return sBatteryReceiver.sBatteryLevel; }
-    public static String getObbFilePath() { return CocosHelper.sObbFilePath; }
+    public static float getBatteryLevel() {
+        return sBatteryReceiver.sBatteryLevel;
+    }
+
+    public static String getObbFilePath() {
+        return CocosHelper.sObbFilePath;
+    }
+
     public static String getWritablePath() {
         return sActivity.getFilesDir().getAbsolutePath();
     }
+
     public static String getCurrentLanguage() {
         return Locale.getDefault().getLanguage();
     }
+
     public static String getCurrentLanguageCode() {
         return Locale.getDefault().toString();
     }
-    public static String getDeviceModel(){
+
+    public static String getDeviceModel() {
         return Build.MODEL;
     }
+
     public static String getSystemVersion() {
         return Build.VERSION.RELEASE;
     }
@@ -193,7 +228,7 @@ public class CocosHelper {
             if (sVibrateService != null && sVibrateService.hasVibrator()) {
                 if (android.os.Build.VERSION.SDK_INT >= 26) {
                     Class<?> vibrationEffectClass = Class.forName("android.os.VibrationEffect");
-                    if(vibrationEffectClass != null) {
+                    if (vibrationEffectClass != null) {
                         final int DEFAULT_AMPLITUDE = CocosReflectionHelper.<Integer>getConstantValue(vibrationEffectClass,
                                 "DEFAULT_AMPLITUDE");
                         //VibrationEffect.createOneShot(long milliseconds, int amplitude)
@@ -201,10 +236,10 @@ public class CocosHelper {
                                 new Class[]{Long.TYPE, Integer.TYPE});
                         Class<?> type = method.getReturnType();
 
-                        Object effect =  method.invoke(vibrationEffectClass,
+                        Object effect = method.invoke(vibrationEffectClass,
                                 new Object[]{(long) (duration * 1000), DEFAULT_AMPLITUDE});
                         //sVibrateService.vibrate(VibrationEffect effect);
-                        CocosReflectionHelper.invokeInstanceMethod(sVibrateService,"vibrate",
+                        CocosReflectionHelper.invokeInstanceMethod(sVibrateService, "vibrate",
                                 new Class[]{type}, new Object[]{(effect)});
                     }
                 } else {
@@ -228,11 +263,11 @@ public class CocosHelper {
         return ret;
     }
 
-    public static void copyTextToClipboard(final String text){
+    public static void copyTextToClipboard(final String text) {
         sActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ClipboardManager myClipboard = (ClipboardManager)sActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipboardManager myClipboard = (ClipboardManager) sActivity.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData myClip = ClipData.newPlainText("text", text);
                 myClipboard.setPrimaryClip(myClip);
             }
@@ -246,8 +281,8 @@ public class CocosHelper {
             if (descriptor != null) {
                 try {
                     ParcelFileDescriptor parcel = descriptor.getParcelFileDescriptor();
-                    Method method = parcel.getClass().getMethod("getFd", new Class[] {});
-                    array[0] = (Integer)method.invoke(parcel);
+                    Method method = parcel.getClass().getMethod("getFd", new Class[]{});
+                    array[0] = (Integer) method.invoke(parcel);
                     array[1] = descriptor.getStartOffset();
                     array[2] = descriptor.getLength();
                 } catch (NoSuchMethodException e) {
@@ -313,14 +348,14 @@ public class CocosHelper {
             do {
                 Object windowInsectObj = GlobalObject.getActivity().getWindow().getDecorView().getRootWindowInsets();
 
-                if(windowInsectObj == null) break;
+                if (windowInsectObj == null) break;
 
                 Class<?> windowInsets = WindowInsets.class;
                 try {
                     Method wiGetDisplayCutout = windowInsets.getMethod("getDisplayCutout");
                     Object cutout = wiGetDisplayCutout.invoke(windowInsectObj);
 
-                    if(cutout == null) break;
+                    if (cutout == null) break;
 
                     Class<?> displayCutout = cutout.getClass();
                     Method dcGetLeft = displayCutout.getMethod("getSafeInsetLeft");
@@ -342,15 +377,15 @@ public class CocosHelper {
                 } catch (InvocationTargetException e) {
                     e.printStackTrace();
                 }
-            }while(false);
+            } while (false);
         }
-        return new float[]{0,0,0,0};
+        return new float[]{0, 0, 0, 0};
     }
 
     public static void setKeepScreenOn(boolean keepScreenOn) {
-        if(keepScreenOn) {
+        if (keepScreenOn) {
             sActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }else {
+        } else {
             sActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }

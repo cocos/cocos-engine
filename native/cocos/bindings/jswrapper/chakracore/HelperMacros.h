@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -53,11 +53,11 @@
         JsValueRef funcName##Registry(JsValueRef _callee, bool _isConstructCall, JsValueRef *_argv, unsigned short argc, void *_callbackState) { \
             assert(argc > 0);                                                                                                                    \
             --argc;                                                                                                                              \
-            JsValueRef _jsRet = JS_INVALID_REFERENCE;                                                                                            \
-            bool ret = true;                                                                                                                     \
+            JsValueRef     _jsRet = JS_INVALID_REFERENCE;                                                                                        \
+            bool           ret    = true;                                                                                                        \
             se::ValueArray args;                                                                                                                 \
             se::internal::jsToSeArgs(argc, _argv + 1, &args);                                                                                    \
-            void *nativeThisObject = se::internal::getPrivate(_argv[0]);                                                                         \
+            void *    nativeThisObject = se::internal::getPrivate(_argv[0]);                                                                     \
             se::State state(nativeThisObject, args);                                                                                             \
             ret = funcName(state);                                                                                                               \
             if (!ret) {                                                                                                                          \
@@ -72,8 +72,8 @@
             if (nativeThisObject != nullptr) {                                                                \
                 auto se = se::ScriptEngine::getInstance();                                                    \
                 se->_setGarbageCollecting(true);                                                              \
-                bool ret = false;                                                                             \
-                se::State state(nativeThisObject);                                                            \
+                bool        ret = false;                                                                      \
+                se::State   state(nativeThisObject);                                                          \
                 se::Object *_thisObject = state.thisObject();                                                 \
                 if (_thisObject) _thisObject->_cleanup(nativeThisObject);                                     \
                 ret = funcName(state);                                                                        \
@@ -97,18 +97,18 @@
         JsValueRef funcName##Registry(JsValueRef _callee, bool _isConstructCall, JsValueRef *_argv, unsigned short argc, void *_callbackState) { \
             assert(argc > 0);                                                                                                                    \
             --argc;                                                                                                                              \
-            bool ret = true;                                                                                                                     \
+            bool           ret = true;                                                                                                           \
             se::ValueArray args;                                                                                                                 \
             se::internal::jsToSeArgs(argc, _argv + 1, &args);                                                                                    \
-            se::Value thisVal(se::Object::createObjectWithClass(cls), true);                                                                     \
+            se::Value   thisVal(se::Object::createObjectWithClass(cls), true);                                                                   \
             se::Object *thisObject = thisVal.toObject();                                                                                         \
-            JsValueRef _jsRet = thisObject->_getJSObject();                                                                                      \
-            se::State state(thisObject, args);                                                                                                   \
+            JsValueRef  _jsRet     = thisObject->_getJSObject();                                                                                 \
+            se::State   state(thisObject, args);                                                                                                 \
             ret = funcName(state);                                                                                                               \
             if (ret) {                                                                                                                           \
                 se::Value _property;                                                                                                             \
-                bool _found = false;                                                                                                             \
-                _found = thisObject->getProperty("_ctor", &_property);                                                                           \
+                bool      _found = false;                                                                                                        \
+                _found           = thisObject->getProperty("_ctor", &_property);                                                                 \
                 if (_found) _property.toObject()->call(args, thisObject);                                                                        \
             } else {                                                                                                                             \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__);                                        \
@@ -120,8 +120,8 @@
         JsValueRef funcName##Registry(JsValueRef _callee, bool _isConstructCall, JsValueRef *_argv, unsigned short argc, void *_callbackState) { \
             assert(argc > 0);                                                                                                                    \
             --argc;                                                                                                                              \
-            JsValueRef _jsRet = JS_INVALID_REFERENCE;                                                                                            \
-            bool ret = true;                                                                                                                     \
+            JsValueRef     _jsRet = JS_INVALID_REFERENCE;                                                                                        \
+            bool           ret    = true;                                                                                                        \
             se::ValueArray args;                                                                                                                 \
             se::internal::jsToSeArgs(argc, _argv + 1, &args);                                                                                    \
             se::Object *thisObject = se::Object::_createJSObject(cls, _argv[0]);                                                                 \
@@ -130,8 +130,8 @@
             ret = funcName(state);                                                                                                               \
             if (ret) {                                                                                                                           \
                 se::Value _property;                                                                                                             \
-                bool _found = false;                                                                                                             \
-                _found = thisObject->getProperty("_ctor", &_property);                                                                           \
+                bool      _found = false;                                                                                                        \
+                _found           = thisObject->getProperty("_ctor", &_property);                                                                 \
                 if (_found) _property.toObject()->call(args, thisObject);                                                                        \
             } else {                                                                                                                             \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__);                                        \
@@ -142,10 +142,10 @@
     #define SE_BIND_PROP_GET(funcName)                                                                                                            \
         JsValueRef funcName##Registry(JsValueRef _callee, bool _isConstructCall, JsValueRef *_argv, unsigned short _argc, void *_callbackState) { \
             assert(_argc == 1);                                                                                                                   \
-            JsValueRef _jsRet = JS_INVALID_REFERENCE;                                                                                             \
-            bool ret = true;                                                                                                                      \
-            void *nativeThisObject = se::internal::getPrivate(_argv[0]);                                                                          \
-            se::State state(nativeThisObject);                                                                                                    \
+            JsValueRef _jsRet           = JS_INVALID_REFERENCE;                                                                                   \
+            bool       ret              = true;                                                                                                   \
+            void *     nativeThisObject = se::internal::getPrivate(_argv[0]);                                                                     \
+            se::State  state(nativeThisObject);                                                                                                   \
             ret = funcName(state);                                                                                                                \
             if (!ret) {                                                                                                                           \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__);                                         \
@@ -157,8 +157,8 @@
     #define SE_BIND_PROP_SET(funcName)                                                                                                            \
         JsValueRef funcName##Registry(JsValueRef _callee, bool _isConstructCall, JsValueRef *_argv, unsigned short _argc, void *_callbackState) { \
             assert(_argc == 2);                                                                                                                   \
-            bool ret = true;                                                                                                                      \
-            void *nativeThisObject = se::internal::getPrivate(_argv[0]);                                                                          \
+            bool      ret              = true;                                                                                                    \
+            void *    nativeThisObject = se::internal::getPrivate(_argv[0]);                                                                      \
             se::Value data;                                                                                                                       \
             se::internal::jsToSeValue(_argv[1], &data);                                                                                           \
             se::ValueArray args;                                                                                                                  \

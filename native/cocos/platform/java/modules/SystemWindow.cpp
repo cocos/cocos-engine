@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -34,7 +34,6 @@
 #include "base/Macros.h"
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
-
 
 namespace {
 

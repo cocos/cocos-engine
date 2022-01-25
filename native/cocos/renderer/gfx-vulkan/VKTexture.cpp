@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -126,6 +126,7 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     cmdFuncCCVKCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
 
     CCVKDevice::getInstance()->gpuFramebufferHub()->update(_gpuTexture);
+    CCVKDevice::getInstance()->gpuDescriptorHub()->update(_gpuTexture);
 }
 
 ///////////////////////////// Swapchain Specific /////////////////////////////

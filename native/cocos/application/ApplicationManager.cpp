@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,7 +28,7 @@
 
 namespace cc {
 // static
-ApplicationManager* ApplicationManager::getInstance() {
+ApplicationManager *ApplicationManager::getInstance() {
     static ApplicationManager mgr;
     return &mgr;
 }

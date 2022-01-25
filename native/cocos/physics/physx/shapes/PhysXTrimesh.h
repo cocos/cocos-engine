@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -40,11 +40,11 @@ public:
     void setAsTrigger(bool v) override;
 
 private:
-    bool         _mConvex;
-    uintptr_t    _mMeshHandle;
-    bool         _mIsTrigger;
-    void         updateGeometry();
-    void         onComponentSet() override;
+    bool      _mConvex;
+    uintptr_t _mMeshHandle;
+    bool      _mIsTrigger;
+    void      updateGeometry();
+    void      onComponentSet() override;
 };
 
 } // namespace physics

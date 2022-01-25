@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,19 +22,31 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
+
 #include <jni.h>
 #include "cocos/bindings/event/EventDispatcher.h"
+#include "platform/interfaces/modules/Device.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
-#include "platform/interfaces/modules/Device.h"
 
 extern "C" {
-
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrientationChanged(JNIEnv *env, jobject thiz, jint rotation) {
+    int orientation;
+    switch (rotation) {
+        case 0: //ROTATION_0
+            orientation = (int)cc::Device::Orientation::PORTRAIT;
+        case 1: //ROTATION_90
+            orientation = (int)cc::Device::Orientation::LANDSCAPE_RIGHT;
+        case 2: //ROTATION_180
+            orientation = (int)cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN;
+        case 3: //ROTATION_270
+            orientation = (int)cc::Device::Orientation::LANDSCAPE_LEFT;
+    }
+
     cc::DeviceEvent ev;
     ev.type           = cc::DeviceEvent::Type::DEVICE_ORIENTATION;
-    ev.args[0].intVal = static_cast<int>(cc::Device::getDeviceOrientation());
+    ev.args[0].intVal = orientation;
     JNI_NATIVE_GLUE()->dispatchEvent(ev);
 }
 }

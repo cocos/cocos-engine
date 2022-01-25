@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -73,7 +73,6 @@ void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
         _gpuQueueObj->numTriangles += cmdBuffer->getNumTris();
         id<MTLCommandBuffer> mtlCmdBuffer = cmdBuffer->gpuCommandBufferObj()->mtlCommandBuffer;
         [mtlCmdBuffer commit];
-        [mtlCmdBuffer release];
         cmdBuffer->reset();
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,7 +27,7 @@
 
 namespace se {
 
-#define CAST_POOL_TYPE(type) static_cast<uint>(type)
+#define CAST_POOL_TYPE(type)     static_cast<uint>(type)
 #define GET_BUFFER_POOL_ID(type) CAST_POOL_TYPE(type)
 
 enum class PoolType {

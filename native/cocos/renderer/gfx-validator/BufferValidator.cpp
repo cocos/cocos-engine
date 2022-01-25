@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -40,6 +40,8 @@
 namespace cc {
 namespace gfx {
 
+bool BufferValidator::recordInitStack{true};
+
 BufferValidator::BufferValidator(Buffer *actor)
 : Agent<Buffer>(actor) {
     _typedID = actor->getTypedID();
@@ -66,7 +68,7 @@ void BufferValidator::doInit(const BufferInfo &info) {
     CCASSERT(info.size, "zero-sized buffer?");
     CCASSERT(info.size / info.stride * info.stride == info.size, "size is not multiple of stride?");
 
-    _initStack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+    if (recordInitStack) _initStack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
 
     _creationFrame    = DeviceValidator::getInstance()->currentFrame();
     _totalUpdateTimes = 0U;

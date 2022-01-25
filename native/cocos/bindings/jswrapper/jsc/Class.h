@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -126,27 +126,27 @@ private:
     static void cleanup();
 
     struct JSPropertySpec {
-        const char *name;
+        const char *                   name;
         JSObjectCallAsFunctionCallback getter;
         JSObjectCallAsFunctionCallback setter;
-        JSPropertyAttributes attributes;
+        JSPropertyAttributes           attributes;
     };
 
     std::string _name;
-    Object *_parent;
-    Object *_proto;
-    Object *_parentProto;
+    Object *    _parent;
+    Object *    _proto;
+    Object *    _parentProto;
 
     JSObjectCallAsConstructorCallback _ctor;
 
-    JSClassRef _jsCls;
+    JSClassRef        _jsCls;
     JSClassDefinition _jsClsDef;
 
     std::vector<JSStaticFunction> _funcs;
     std::vector<JSStaticFunction> _staticFuncs;
-    std::vector<JSPropertySpec> _properties;
-    std::vector<JSPropertySpec> _staticProperties;
-    JSObjectFinalizeCallback _finalizeOp;
+    std::vector<JSPropertySpec>   _properties;
+    std::vector<JSPropertySpec>   _staticProperties;
+    JSObjectFinalizeCallback      _finalizeOp;
 
     friend class ScriptEngine;
     friend class Object;

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
+
 #pragma once
 
 #include "cocos/renderer/gfx-base/GFXDef.h"
@@ -40,7 +41,7 @@ struct ShaderStrings {
 
 class ClusterLightCulling {
 public:
-    explicit ClusterLightCulling(RenderPipeline* pipeline) : _pipeline(pipeline){};
+    explicit ClusterLightCulling(RenderPipeline *pipeline) : _pipeline(pipeline){};
     ~ClusterLightCulling();
 
     static constexpr uint CLUSTERS_X = 16;
@@ -59,27 +60,27 @@ public:
 
     static constexpr uint MAX_LIGHTS_GLOBAL = 1000;
 
-    void initialize(gfx::Device* dev);
+    void initialize(gfx::Device *dev);
 
-    void clusterLightCulling(scene::Camera* camera);
+    void clusterLightCulling(scene::Camera *camera);
 
-    inline const gfx::DescriptorSet* getBuildingDescriptorSet() const { return _buildingDescriptorSet; }
-    inline const gfx::PipelineState* getBuildingPipelineState() const { return _buildingPipelineState; }
-    inline const gfx::DescriptorSet* getResetCounterDescriptorSet() const { return _resetCounterDescriptorSet; }
-    inline const gfx::PipelineState* getResetCounterPipelineState() const { return _resetCounterPipelineState; }
-    inline const gfx::DescriptorSet* getCullingDescriptorSet() const { return _cullingDescriptorSet; }
-    inline const gfx::PipelineState* getCullingPipelineState() const { return _cullingPipelineState; }
+    inline const gfx::DescriptorSet *getBuildingDescriptorSet() const { return _buildingDescriptorSet; }
+    inline const gfx::PipelineState *getBuildingPipelineState() const { return _buildingPipelineState; }
+    inline const gfx::DescriptorSet *getResetCounterDescriptorSet() const { return _resetCounterDescriptorSet; }
+    inline const gfx::PipelineState *getResetCounterPipelineState() const { return _resetCounterPipelineState; }
+    inline const gfx::DescriptorSet *getCullingDescriptorSet() const { return _cullingDescriptorSet; }
+    inline const gfx::PipelineState *getCullingPipelineState() const { return _cullingPipelineState; }
 
-    inline const gfx::Buffer* getConstantsBuffer() const { return _constantsBuffer; }
+    inline const gfx::Buffer *getConstantsBuffer() const { return _constantsBuffer; }
 
-    inline const gfx::DispatchInfo& getBuildingDispatchInfo() const { return _buildingDispatchInfo; }
-    inline const gfx::DispatchInfo& getResetCounterDispatchInfo() const { return _resetDispatchInfo; }
-    inline const gfx::DispatchInfo& getCullingDispatchInfo() const { return _cullingDispatchInfo; }
+    inline const gfx::DispatchInfo &getBuildingDispatchInfo() const { return _buildingDispatchInfo; }
+    inline const gfx::DispatchInfo &getResetCounterDispatchInfo() const { return _resetDispatchInfo; }
+    inline const gfx::DispatchInfo &getCullingDispatchInfo() const { return _cullingDispatchInfo; }
 
     inline bool isInitialized() const { return _initialized; }
 
 private:
-    String& getShaderSource(ShaderStrings& sources);
+    String &getShaderSource(ShaderStrings &sources);
 
     void initBuildingSatge();
 
@@ -91,7 +92,7 @@ private:
 
     void updateLights();
 
-    static bool isProjMatChange(const Mat4& curProj, const Mat4& oldProj) {
+    static bool isProjMatChange(const Mat4 &curProj, const Mat4 &oldProj) {
         for (uint i = 0; i < sizeof(curProj.m) / sizeof(float); i++) {
             if (math::IsNotEqualF(curProj.m[i], oldProj.m[i])) {
                 return true;
@@ -100,27 +101,27 @@ private:
         return false;
     }
 
-    gfx::Device*    _device{nullptr};
-    scene::Camera*  _camera{nullptr};
-    RenderPipeline* _pipeline{nullptr};
+    gfx::Device *   _device{nullptr};
+    scene::Camera * _camera{nullptr};
+    RenderPipeline *_pipeline{nullptr};
 
-    gfx::Shader*              _buildingShader{nullptr};
-    gfx::DescriptorSetLayout* _buildingDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout*      _buildingPipelineLayout{nullptr};
-    gfx::PipelineState*       _buildingPipelineState{nullptr};
-    gfx::DescriptorSet*       _buildingDescriptorSet{nullptr};
+    gfx::Shader *             _buildingShader{nullptr};
+    gfx::DescriptorSetLayout *_buildingDescriptorSetLayout{nullptr};
+    gfx::PipelineLayout *     _buildingPipelineLayout{nullptr};
+    gfx::PipelineState *      _buildingPipelineState{nullptr};
+    gfx::DescriptorSet *      _buildingDescriptorSet{nullptr};
 
-    gfx::Shader*              _resetCounterShader{nullptr};
-    gfx::DescriptorSetLayout* _resetCounterDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout*      _resetCounterPipelineLayout{nullptr};
-    gfx::PipelineState*       _resetCounterPipelineState{nullptr};
-    gfx::DescriptorSet*       _resetCounterDescriptorSet{nullptr};
+    gfx::Shader *             _resetCounterShader{nullptr};
+    gfx::DescriptorSetLayout *_resetCounterDescriptorSetLayout{nullptr};
+    gfx::PipelineLayout *     _resetCounterPipelineLayout{nullptr};
+    gfx::PipelineState *      _resetCounterPipelineState{nullptr};
+    gfx::DescriptorSet *      _resetCounterDescriptorSet{nullptr};
 
-    gfx::Shader*              _cullingShader{nullptr};
-    gfx::DescriptorSetLayout* _cullingDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout*      _cullingPipelineLayout{nullptr};
-    gfx::PipelineState*       _cullingPipelineState{nullptr};
-    gfx::DescriptorSet*       _cullingDescriptorSet{nullptr};
+    gfx::Shader *             _cullingShader{nullptr};
+    gfx::DescriptorSetLayout *_cullingDescriptorSetLayout{nullptr};
+    gfx::PipelineLayout *     _cullingPipelineLayout{nullptr};
+    gfx::PipelineState *      _cullingPipelineState{nullptr};
+    gfx::DescriptorSet *      _cullingDescriptorSet{nullptr};
 
     static constexpr uint NEAR_FAR_OFFSET     = 0;
     static constexpr uint VIEW_PORT_OFFSET    = 4;
@@ -128,12 +129,12 @@ private:
     static constexpr uint MAT_PROJ_INV_OFFSET = 24;
 
     std::array<float, (2 * sizeof(Vec4) + 2 * sizeof(Mat4)) / sizeof(float)> _constants{};
-    gfx::Buffer*                                                             _constantsBuffer{nullptr};
+    gfx::Buffer *                                                            _constantsBuffer{nullptr};
 
-    vector<scene::Light*> _validLights;
-    std::vector<float>    _lightBufferData;
+    vector<scene::Light *> _validLights;
+    std::vector<float>     _lightBufferData;
 
-    gfx::GlobalBarrier* _resetBarrier{nullptr};
+    gfx::GlobalBarrier *_resetBarrier{nullptr};
 
     gfx::DispatchInfo _buildingDispatchInfo;
     gfx::DispatchInfo _resetDispatchInfo;
