@@ -55,12 +55,6 @@ Device::~Device() {
 
 bool Device::initialize(const DeviceInfo &info) {
     _bindingMappingInfo = info.bindingMappingInfo;
-    if (_bindingMappingInfo.bufferOffsets.empty()) {
-        _bindingMappingInfo.bufferOffsets.push_back(0);
-    }
-    if (_bindingMappingInfo.samplerOffsets.empty()) {
-        _bindingMappingInfo.samplerOffsets.push_back(0);
-    }
 
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     static_assert(sizeof(void *) == 4, "pointer size assumption broken");
@@ -90,9 +84,6 @@ void Device::destroy() {
         CC_SAFE_DELETE(pair.second);
     }
     _textureBarriers.clear();
-
-    _bindingMappingInfo.bufferOffsets.clear();
-    _bindingMappingInfo.samplerOffsets.clear();
 
     doDestroy();
 

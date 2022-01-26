@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -53,8 +53,8 @@ public:
 
 private:
     se::Object::TypedArrayType _arrayType = se::Object::TypedArrayType::NONE;
-    se::Object *_typeArray = nullptr;
-    bool _usePool = false;
+    se::Object *               _typeArray = nullptr;
+    bool                       _usePool   = false;
 };
 
 MIDDLEWARE_END

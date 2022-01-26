@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,6 +28,7 @@
 #include "GLES3Std.h"
 #include "base/Any.h"
 #include "gfx-base/GFXDevice.h"
+#include "gfx-gles-common/GLESCommandPool.h"
 
 namespace cc {
 namespace gfx {
@@ -67,6 +68,8 @@ public:
 
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
+
+    inline const GLESBindingMapping &bindingMappings() const { return _bindingMappings; }
 
     inline GLES3GPUContext *            context() const { return _gpuContext; }
     inline GLES3GPUStateCache *         stateCache() const { return _gpuStateCache; }
@@ -122,6 +125,8 @@ protected:
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
 
     vector<GLES3GPUSwapchain *> _swapchains;
+
+    GLESBindingMapping _bindingMappings;
 
     StringArray _extensions;
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -52,16 +52,16 @@ ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const scene::Light *light, gfx::CommandBuffer *cmdBuffer) {
     clear();
 
-    const PipelineSceneData *sceneData         = _pipeline->getPipelineSceneData();
-    const scene::Shadows *   shadows           = sceneData->getShadows();
-    const RenderObjectList & dirShadowObjects  = sceneData->getDirShadowObjects();
-    const RenderObjectList & castShadowObjects = sceneData->isCastShadowObjects();
+    const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
+    const scene::Shadows *   shadows   = sceneData->getShadows();
     if (light && shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP) {
+        const RenderObjectList &dirShadowObjects  = sceneData->getDirShadowObjects();
+        const RenderObjectList &castShadowObjects = sceneData->isCastShadowObjects();
         switch (light->getType()) {
             case scene::LightType::DIRECTIONAL: {
                 for (const auto ro : dirShadowObjects) {
                     const auto *model = ro.model;
-                    add(model, cmdBuffer);
+                    add(model);
                 }
             } break;
 
@@ -81,7 +81,7 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                     if (model->getWorldBounds()) {
                         model->getWorldBounds()->transform(matShadowViewProj, &ab);
                         if (ab.aabbFrustum(camera->getFrustum())) {
-                            add(model, cmdBuffer);
+                            add(model);
                         }
                     }
                 }
@@ -96,6 +96,9 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
             default: {
             } break;
         }
+
+        _instancedQueue->uploadBuffers(cmdBuffer);
+        _batchedQueue->uploadBuffers(cmdBuffer);
     }
 }
 
@@ -107,7 +110,7 @@ void ShadowMapBatchedQueue::clear() {
     if (_batchedQueue) _batchedQueue->clear();
 }
 
-void ShadowMapBatchedQueue::add(const scene::Model *model, gfx::CommandBuffer *cmdBuffer) {
+void ShadowMapBatchedQueue::add(const scene::Model *model) {
     // this assumes light pass index is the same for all subModels
     const auto shadowPassIdx = getShadowPassIndex(model);
     if (shadowPassIdx == -1) {
@@ -132,9 +135,6 @@ void ShadowMapBatchedQueue::add(const scene::Model *model, gfx::CommandBuffer *c
             _passes.emplace_back(pass);
         }
     }
-
-    _instancedQueue->uploadBuffers(cmdBuffer);
-    _batchedQueue->uploadBuffers(cmdBuffer);
 }
 
 void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const {

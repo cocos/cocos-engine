@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -20,8 +20,8 @@
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.                                                                    \
- ****************************************************************************/
+ THE SOFTWARE.
+****************************************************************************/
 
 #include "platform/qnx/modules/CanvasRenderingContext2DDelegate.h"
 #include <iostream>
@@ -259,10 +259,10 @@ std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point po
         point[1] += extents.height;
     }
     if (text == ".") {
-		// The calculation of points is not the same as the calculation of numbers, 
-		// which will cause the drawing of points and numbers to be different from the same horizontal line.
-		// Therefore, here is manually adjusted to calculate the drawing coordinates of 
-		// the point according to the numerical calculation method
+        // The calculation of points is not the same as the calculation of numbers,
+        // which will cause the drawing of points and numbers to be different from the same horizontal line.
+        // Therefore, here is manually adjusted to calculate the drawing coordinates of
+        // the point according to the numerical calculation method
         cairo_text_extents_t extentNumber;
         cairo_text_extents(_cr, "1", &extentNumber);
         point[1] += extents.y_bearing - extentNumber.y_bearing;

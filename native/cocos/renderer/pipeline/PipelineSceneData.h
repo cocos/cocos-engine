@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -88,9 +88,12 @@ public:
     inline const std::vector<IntrusivePtr<Material>> &                         getGeometryRendererMaterials() const { return _geometryRendererMaterials; }
     inline const std::vector<scene::Pass *> &                                  getGeometryRendererPasses() const { return _geometryRendererPasses; }
     inline const std::vector<gfx::Shader *> &                                  getGeometryRendererShaders() const { return _geometryRendererShaders; }
-
-    inline float getShadingScale() const { return _shadingScale; }
-    inline void  setShadingScale(float val) { _shadingScale = val; }
+    inline void                                                                addRenderObject(RenderObject &&obj) { _renderObjects.emplace_back(obj); }
+    inline void                                                                clearRenderObjects() { _renderObjects.clear(); }
+    inline void                                                                addValidPunctualLight(scene::Light *light) { _validPunctualLights.emplace_back(light); }
+    inline void                                                                clearValidPunctualLights() { _validPunctualLights.clear(); }
+    inline float                                                               getShadingScale() const { return _shadingScale; }
+    inline void                                                                setShadingScale(float val) { _shadingScale = val; }
 
     scene::Pass *getOcclusionQueryPass();
 

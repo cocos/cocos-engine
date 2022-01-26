@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cc-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,6 +24,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
+
 #pragma once
 
 #include <jni.h>
@@ -56,7 +57,6 @@
             env->ExceptionClear();    \
         }                             \
     } while (false)
-
 
 struct android_app;
 
@@ -283,6 +283,7 @@ public:
 #ifndef __OHOS__
             ccDeleteLocalRef(t.env, t.classID);
 #endif
+            ccDeleteLocalRef(t.env, array);
             deleteLocalRefs(t.env, &localRefs);
             return &ret[0];
         }
@@ -313,6 +314,7 @@ public:
 #ifndef __OHOS__
             ccDeleteLocalRef(t.env, t.classID);
 #endif
+            ccDeleteLocalRef(t.env, array);
             deleteLocalRefs(t.env, &localRefs);
         } else {
             reportError(className, methodName, signature);

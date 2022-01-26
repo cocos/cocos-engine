@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -34,15 +34,15 @@ class EditBox {
 public:
     struct ShowInfo {
         std::string defaultValue = "";
-        std::string confirmType = "";
-        std::string inputType = "";
-        int maxLength = 0;
-        int x = 0;
-        int y = 0;
-        int width = 0;
-        int height = 0;
-        bool confirmHold = false;
-        bool isMultiline = false;
+        std::string confirmType  = "";
+        std::string inputType    = "";
+        int         maxLength    = 0;
+        int         x            = 0;
+        int         y            = 0;
+        int         width        = 0;
+        int         height       = 0;
+        bool        confirmHold  = false;
+        bool        isMultiline  = false;
     };
 
     static void show(const ShowInfo &showInfo);

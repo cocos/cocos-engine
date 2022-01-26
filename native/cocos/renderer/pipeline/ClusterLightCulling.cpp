@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -230,8 +230,10 @@ void ClusterLightCulling::updateLights() {
                 break;
         }
     }
-    // the count of lights is set to cc_lightDir[0].w
-    _lightBufferData[3 * 4 + 3] = static_cast<float>(validLightCount);
+    if (validLightCount > 0) {
+        // the count of lights is set to cc_lightDir[0].w
+        _lightBufferData[3 * 4 + 3] = static_cast<float>(validLightCount);
+    }
 }
 
 void ClusterLightCulling::initBuildingSatge() {
@@ -662,6 +664,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
     if (!_initialized || _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset() != 0) return;
     _camera = camera;
     update(); // update ubo and light data
+    if (_validLights.empty()) return;
 
     struct DataClusterBuild {
         framegraph::BufferHandle clusterBuffer;     // cluster build storage buffer

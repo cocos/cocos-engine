@@ -79,4 +79,4 @@ SE_DECLARE_FUNC(js_extension_AssetsManagerEx_setVersionCompareHandle);
 SE_DECLARE_FUNC(js_extension_AssetsManagerEx_update);
 SE_DECLARE_FUNC(js_extension_AssetsManagerEx_create);
 SE_DECLARE_FUNC(js_extension_AssetsManagerEx_AssetsManagerEx);
-    // clang-format on
+// clang-format on

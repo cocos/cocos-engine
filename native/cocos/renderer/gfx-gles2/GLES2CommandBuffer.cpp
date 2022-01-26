@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -54,7 +54,7 @@ void GLES2CommandBuffer::doInit(const CommandBufferInfo &info) {
     _cmdAllocator  = CC_NEW(GLES2GPUCommandAllocator);
     _curCmdPackage = CC_NEW(GLES2CmdPackage);
 
-    size_t setCount = GLES2Device::getInstance()->bindingMappingInfo().bufferOffsets.size();
+    size_t setCount = GLES2Device::getInstance()->bindingMappingInfo().setIndices.size();
     _curGPUDescriptorSets.resize(setCount);
     _curDynamicOffsets.resize(setCount);
 }

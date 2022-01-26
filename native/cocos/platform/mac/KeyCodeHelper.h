@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,6 +26,6 @@
 #import "cocos/bindings/event/EventDispatcher.h"
 #pragma once
 
-extern int translateKeycode(int);
-extern void updateModifierKeyState (int keyCodeInWeb);
-extern cc::KeyboardEvent::Action getModifierKeyAction (int keyCodeInWeb);
+extern int                       translateKeycode(int);
+extern void                      updateModifierKeyState(int keyCodeInWeb);
+extern cc::KeyboardEvent::Action getModifierKeyAction(int keyCodeInWeb);

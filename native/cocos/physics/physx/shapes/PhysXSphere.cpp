@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -53,7 +53,7 @@ void PhysXSphere::updateScale() {
 
 void PhysXSphere::updateGeometry() {
     physx::PxVec3 scale;
-    auto *node = getSharedBody().getNode();
+    auto *        node = getSharedBody().getNode();
     node->updateWorldTransform();
     pxSetVec3Ext(scale, node->getWorldScale());
     auto &geo  = getPxGeometry<physx::PxSphereGeometry>();

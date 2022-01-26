@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -254,8 +254,8 @@ public:
 
     // Private API used in wrapper
     JSContext *_getContext() { return _cx; }
-    void _setGarbageCollecting(bool isGarbageCollecting);
-    void _debugProcessInput(const std::string &str);
+    void       _setGarbageCollecting(bool isGarbageCollecting);
+    void       _debugProcessInput(const std::string &str);
     //
 private:
     ScriptEngine();
@@ -267,7 +267,7 @@ private:
     bool getScript(const std::string &path, JS::MutableHandleScript script);
     bool compileScript(const std::string &path, JS::MutableHandleScript script);
 
-    JSContext *_cx;
+    JSContext *    _cx;
     JSCompartment *_oldCompartment;
 
     Object *_globalObj;
@@ -275,7 +275,7 @@ private:
 
     FileOperationDelegate _fileOperationDelegate;
 
-    std::vector<RegisterCallback> _registerCallbackArray;
+    std::vector<RegisterCallback>         _registerCallbackArray;
     std::chrono::steady_clock::time_point _startTime;
 
     std::vector<std::function<void()>> _beforeInitHookArray;
@@ -289,7 +289,7 @@ private:
     std::unordered_map<std::string, JS::PersistentRootedScript *> _filenameScriptMap;
 
     std::string _debuggerServerAddr;
-    uint32_t _debuggerServerPort;
+    uint32_t    _debuggerServerPort;
 
     uint32_t _vmId;
 

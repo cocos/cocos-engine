@@ -3,7 +3,7 @@
  Copyright (c) 2010 cocos2d-x.org
  Copyright (c) 2013 Martell Malone
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -107,7 +107,7 @@ bool SAXParser::parse(const char *xmlData, size_t dataLength) {
 }
 
 bool SAXParser::parse(const std::string &filename) {
-    bool ret = false;
+    bool ret  = false;
     Data data = FileUtils::getInstance()->getDataFromFile(filename);
     if (!data.isNull()) {
         ret = parse((const char *)data.getBytes(), data.getSize());

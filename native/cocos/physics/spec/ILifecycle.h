@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include "base/TypeDef.h"
 #include <cstdint>
+#include "base/TypeDef.h"
 
 namespace cc {
 namespace physics {
 class ILifecycle {
 public:
-    virtual ~ILifecycle() = default;
-    virtual void onEnable() = 0;
+    virtual ~ILifecycle()    = default;
+    virtual void onEnable()  = 0;
     virtual void onDisable() = 0;
     virtual void onDestroy() = 0;
 };

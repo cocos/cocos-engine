@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -46,7 +46,7 @@ public:
 
     void setJavascriptInterfaceScheme(const std::string &scheme);
 
-    void loadData(const cc::Data &data,
+    void loadData(const cc::Data &   data,
                   const std::string &MIMEType,
                   const std::string &encoding,
                   const std::string &baseURL);
@@ -83,7 +83,7 @@ public:
 
 private:
     UIWebViewWrapper *_uiWebViewWrapper;
-    WebView *_webView;
+    WebView *         _webView;
 };
 } //namespace cc
 

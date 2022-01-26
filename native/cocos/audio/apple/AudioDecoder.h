@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <stdint.h>
 #import <AudioToolbox/ExtendedAudioFile.h>
+#include <stdint.h>
 
 namespace cc {
 
@@ -107,12 +107,12 @@ public:
     uint32_t getChannelCount() const;
 
 private:
-    bool _isOpened;
+    bool            _isOpened;
     ExtAudioFileRef _extRef;
-    uint32_t _totalFrames;
-    uint32_t _bytesPerFrame;
-    uint32_t _sampleRate;
-    uint32_t _channelCount;
+    uint32_t        _totalFrames;
+    uint32_t        _bytesPerFrame;
+    uint32_t        _sampleRate;
+    uint32_t        _channelCount;
 
     AudioStreamBasicDescription _outputFormat;
 };

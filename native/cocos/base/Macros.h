@@ -3,7 +3,7 @@
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2011 Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -357,8 +357,8 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     TypeName(TypeName &&)      = delete;       \
     CC_DISALLOW_ASSIGN(TypeName)
 
-#define ENABLE_COPY_SEMANTICS(cls) \
-    cls(const cls &) = default;    \
+#define CC_ENABLE_COPY_SEMANTICS(cls) \
+    cls(const cls &) = default;       \
     cls &operator=(const cls &) = default;
 
 #define CC_DISABLE_COPY_SEMANTICS(cls) \

@@ -41,7 +41,7 @@ public class CocosSurfaceView extends SurfaceView {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        CocosHelper.runOnGameThread(new Runnable() {
+        CocosHelper.runOnGameThreadAtForeground(new Runnable() {
             @Override
             public void run() {
                 nativeOnSizeChanged(w, h);

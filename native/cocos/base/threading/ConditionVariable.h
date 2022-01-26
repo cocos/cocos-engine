@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,9 +26,9 @@
 #pragma once
 
 #include <condition_variable>
+#include <functional>
 #include <mutex>
 #include <thread>
-#include <functional>
 
 namespace cc {
 
@@ -36,7 +36,7 @@ class ConditionVariable final {
 public:
     void wait() noexcept;
     template <typename Function, typename... Args>
-    void wait(Function func, Args &&... args) noexcept;
+    void wait(Function func, Args &&...args) noexcept;
     void signal() noexcept;
     void signalAll() noexcept;
 
@@ -47,7 +47,7 @@ private:
 
 // DO NOT MANIPULATE ANY SYCHRONIZATION PRIMITIVES INSIDE THE CALLBACK
 template <typename Function, typename... Args>
-void ConditionVariable::wait(Function func, Args &&... args) noexcept {
+void ConditionVariable::wait(Function func, Args &&...args) noexcept {
     std::unique_lock<std::mutex> lock(_mutex);
     _condVar.wait(lock, std::bind(std::forward<Function>(func), std::forward<Args>(args)...));
 }

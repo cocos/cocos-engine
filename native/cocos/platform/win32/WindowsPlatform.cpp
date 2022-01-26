@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -65,7 +65,7 @@ void PVRFrameEnableControlWindow(bool bEnable) {
         || (ERROR_SUCCESS == status                  // or the hide_gui value is exist
             && 0 != wcscmp(wszNewData, wszOldData))) // but new data and old data not equal
     {
-        dwSize = sizeof(WCHAR) * (wcslen(wszNewData) + 1);
+        dwSize = static_cast<DWORD>(sizeof(WCHAR) * (wcslen(wszNewData) + 1));
         RegSetValueEx(hKey, wszValue, 0, REG_SZ, (const BYTE *)wszNewData, dwSize);
     }
 

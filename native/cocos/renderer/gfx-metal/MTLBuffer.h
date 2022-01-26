@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -50,9 +50,9 @@ public:
 
     void encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
 
-    id<MTLBuffer>       getMTLBuffer() const;
-    
-    inline CCMTLGPUBuffer* gpuBuffer() { return _gpuBuffer; }
+    id<MTLBuffer> getMTLBuffer() const;
+
+    inline CCMTLGPUBuffer *    gpuBuffer() { return _gpuBuffer; }
     inline MTLIndexType        getIndexType() const { return _indexType; }
     inline bool                isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
     inline const DrawInfoList &getDrawInfos() const { return _drawInfos; }
@@ -75,8 +75,8 @@ protected:
     vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
     vector<MTLDrawPrimitivesIndirectArguments>        _primitiveIndirectArguments;
     DrawInfoList                                      _drawInfos;
-    
-    CCMTLGPUBuffer*                                   _gpuBuffer = nullptr;
+
+    CCMTLGPUBuffer *_gpuBuffer = nullptr;
 };
 
 } // namespace gfx

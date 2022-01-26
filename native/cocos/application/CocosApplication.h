@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -44,7 +44,7 @@ public:
     /**
      * @brief Application main business logic.
      */
-    int32_t run(int argc, const char** argv) override;
+    int32_t run(int argc, const char **argv) override;
     /**
      * @brief Pause the application.
      */
@@ -87,7 +87,7 @@ public:
      * @param h: Window height
      * @param flags: Window flag
      */
-    virtual void createWindow(const char* title,
+    virtual void createWindow(const char *title,
                               int32_t x, int32_t y, int32_t w,
                               int32_t h, int32_t flags);
     /**
@@ -96,25 +96,25 @@ public:
      * @param port:Server port.
      * @param isWaitForConnect:Is Wait for connect.
      */
-    virtual void setJsDebugIpAndPort(const std::string& serverAddr, uint32_t port, bool isWaitForConnect);
+    virtual void setJsDebugIpAndPort(const std::string &serverAddr, uint32_t port, bool isWaitForConnect);
     /**
      * @brief Run the js code file
      * @param filePath:Js file path.
      */
-    virtual void runJsScript(const std::string& filePath);
+    virtual void runJsScript(const std::string &filePath);
     /**
      * @brief Js exception handling
      * @param location,Exception location
      * @param message,Exception message
      * @param stack,Exception stack
      */
-    virtual void handleException(const char* location, const char* message, const char* stack);
-    virtual void setXXTeaKey(const std::string& key);
+    virtual void handleException(const char *location, const char *message, const char *stack);
+    virtual void setXXTeaKey(const std::string &key);
 
 private:
-    void handleAppEvent(const OSEvent& ev);
+    void handleAppEvent(const OSEvent &ev);
 
-    ISystemWindow*  _systemWidow{nullptr};
+    ISystemWindow * _systemWidow{nullptr};
     BaseEngine::Ptr _engine{nullptr};
 };
 } // namespace cc

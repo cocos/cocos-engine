@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -41,8 +41,8 @@ public:
 private:
     physx::PxVec3 _mNormal;
     physx::PxReal _mConstant;
-    void  updateCenter() override;
-    void  onComponentSet() override;
+    void          updateCenter() override;
+    void          onComponentSet() override;
 };
 
 } // namespace physics

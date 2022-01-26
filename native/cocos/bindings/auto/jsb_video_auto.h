@@ -33,4 +33,4 @@ SE_DECLARE_FUNC(js_video_VideoPlayer_setVisible);
 SE_DECLARE_FUNC(js_video_VideoPlayer_stop);
 SE_DECLARE_FUNC(js_video_VideoPlayer_VideoPlayer);
 #endif //#if (USE_VIDEO > 0)
-    // clang-format on
+// clang-format on

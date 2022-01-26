@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -276,18 +276,18 @@ private:
     ExceptionInfo formatException(JsValueRef exception);
 
     std::chrono::steady_clock::time_point _startTime;
-    std::vector<RegisterCallback> _registerCallbackArray;
-    std::vector<std::function<void()>> _beforeInitHookArray;
-    std::vector<std::function<void()>> _afterInitHookArray;
-    std::vector<std::function<void()>> _beforeCleanupHookArray;
-    std::vector<std::function<void()>> _afterCleanupHookArray;
+    std::vector<RegisterCallback>         _registerCallbackArray;
+    std::vector<std::function<void()>>    _beforeInitHookArray;
+    std::vector<std::function<void()>>    _afterInitHookArray;
+    std::vector<std::function<void()>>    _beforeCleanupHookArray;
+    std::vector<std::function<void()>>    _afterCleanupHookArray;
 
     JsRuntimeHandle _rt;
-    JsContextRef _cx;
-    Object *_globalObj;
+    JsContextRef    _cx;
+    Object *        _globalObj;
 
     FileOperationDelegate _fileOperationDelegate;
-    ExceptionCallback _exceptionCallback;
+    ExceptionCallback     _exceptionCallback;
 
     uint32_t _currentSourceContext;
     uint32_t _vmId;

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -49,8 +49,8 @@
 #endif
 
 typedef unsigned char etc1_byte;
-typedef int etc1_bool;
-typedef unsigned int etc1_uint32;
+typedef int           etc1_bool;
+typedef unsigned int  etc1_uint32;
 
 #ifdef __cplusplus
 extern "C" {

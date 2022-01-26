@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -56,7 +56,7 @@ static void *libegl  = nullptr;
 static void *libgles = nullptr;
 
 bool gles3wOpen() {
-    libegl = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
+    libegl  = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
     #if __OHOS__
     libgles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_GLOBAL);
     #else

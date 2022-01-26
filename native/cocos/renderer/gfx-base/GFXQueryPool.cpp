@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -34,7 +34,7 @@ QueryPool::QueryPool()
 
 QueryPool::~QueryPool() = default;
 
-void QueryPool::initialize(const QueryPoolInfo& info) {
+void QueryPool::initialize(const QueryPoolInfo &info) {
     _type            = info.type;
     _maxQueryObjects = info.maxQueryObjects;
     _forceWait       = info.forceWait;

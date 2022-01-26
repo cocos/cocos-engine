@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -123,6 +123,7 @@ enum class API : uint32_t {
     GLES3,
     METAL,
     VULKAN,
+    NVN,
     WEBGL,
     WEBGL2,
     WEBGPU,
@@ -594,15 +595,15 @@ using ShaderStageFlags = ShaderStageFlagBit;
 CC_ENUM_BITWISE_OPERATORS(ShaderStageFlagBit);
 
 enum class LoadOp : uint32_t {
-    LOAD,    // Load the contents from the fbo from previous
-    CLEAR,   // Clear the fbo
-    DISCARD, // Ignore writing to the fbo and keep old data
+    LOAD,    // Load the previous content from memory
+    CLEAR,   // Clear the content to a fixed value
+    DISCARD, // Discard the previous content
 };
 CC_ENUM_CONVERSION_OPERATOR(LoadOp);
 
 enum class StoreOp : uint32_t {
-    STORE,   // Write the source to the destination
-    DISCARD, // Don't write the source to the destination
+    STORE,   // Store the pending content to memory
+    DISCARD, // Discard the pending content
 };
 CC_ENUM_CONVERSION_OPERATOR(StoreOp);
 
@@ -884,12 +885,22 @@ using ColorList = vector<Color>;
  * The GFX layer assumes the binding numbers for each descriptor type inside each set
  * are guaranteed to be consecutive, so the mapping procedure is reduced
  * to a simple shifting operation. This data structure specifies the
- * offsets for each descriptor type in each set.
+ * capacity for each descriptor type in each set.
+ *
+ * The `setIndices` field defines the binding ordering between different sets.
+ * The last set index is treated as the 'flexible set', whose capacity is dynamically
+ * assigned based on the total available descriptor slots on the runtime device.
  */
 struct BindingMappingInfo {
-    std::vector<int32_t> bufferOffsets;
-    std::vector<int32_t> samplerOffsets;
-    uint32_t             flexibleSet{0U};
+    std::vector<uint32_t> maxBlockCounts{0};
+    std::vector<uint32_t> maxSamplerTextureCounts{0};
+    std::vector<uint32_t> maxSamplerCounts{0};
+    std::vector<uint32_t> maxTextureCounts{0};
+    std::vector<uint32_t> maxBufferCounts{0};
+    std::vector<uint32_t> maxImageCounts{0};
+    std::vector<uint32_t> maxSubpassInputCounts{0};
+
+    std::vector<uint32_t> setIndices{0};
 };
 
 struct SwapchainInfo {

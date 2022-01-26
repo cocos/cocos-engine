@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -36,9 +36,9 @@ void Accelerometer::setAccelerometerInterval(float interval) {
     setAccelerometerIntervalJNI(interval);
 }
 
-const Accelerometer::MotionValue& Accelerometer::getDeviceMotionValue() {
+const Accelerometer::MotionValue &Accelerometer::getDeviceMotionValue() {
     static MotionValue motionValue;
-    float*             v = getDeviceMotionValueJNI();
+    float *            v = getDeviceMotionValueJNI();
 
     if (v) {
         motionValue.accelerationIncludingGravityX = v[0];

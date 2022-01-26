@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,9 +28,9 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
+    #include "../HandleObject.h"
     #include "Object.h"
     #include "ScriptEngine.h"
-    #include "../HandleObject.h"
 
 namespace se {
 
@@ -44,9 +44,9 @@ bool defineProperty(JsValueRef obj, const char *name, JsNativeFunction getter, J
     JsValueRef propertyDescriptor;
     _CHECK(JsCreateObject(&propertyDescriptor));
 
-    const char *tmp = nullptr;
-    JsValueRef jsValue = JS_INVALID_REFERENCE;
-    JsPropertyIdRef id = JS_INVALID_REFERENCE;
+    const char *    tmp     = nullptr;
+    JsValueRef      jsValue = JS_INVALID_REFERENCE;
+    JsPropertyIdRef id      = JS_INVALID_REFERENCE;
 
     if (getter != nullptr) {
         tmp = "get";
@@ -113,8 +113,8 @@ void jsToSeValue(JsValueRef jsValue, Value *data) {
         forceConvertJsValueToStdString(jsValue, &str);
         data->setString(str);
     } else if (type == JsObject || type == JsFunction || type == JsArrayBuffer || type == JsTypedArray || type == JsArray) {
-        void *nativePtr = internal::getPrivate(jsValue);
-        Object *obj = nullptr;
+        void *  nativePtr = internal::getPrivate(jsValue);
+        Object *obj       = nullptr;
         if (nativePtr != nullptr) {
             obj = Object::getObjectWithPtr(nativePtr);
         }
@@ -185,8 +185,8 @@ bool hasPrivate(JsValueRef obj) {
         return nullptr;
     }
 
-    bool isExist = false;
-    JsErrorCode err = JsHasExternalData(obj, &isExist);
+    bool        isExist = false;
+    JsErrorCode err     = JsHasExternalData(obj, &isExist);
     assert(err == JsNoError);
     if (isExist)
         return true;
@@ -210,8 +210,8 @@ void setPrivate(JsValueRef obj, void *data, JsFinalizeCallback finalizeCb) {
     privateObj->root();
 
     internal::PrivateData *privateData = (internal::PrivateData *)malloc(sizeof(internal::PrivateData));
-    privateData->data = data;
-    privateData->finalizeCb = finalizeCb;
+    privateData->data                  = data;
+    privateData->finalizeCb            = finalizeCb;
     _CHECK(JsSetExternalData(privateObj->_getJSObject(), privateData));
     //        SE_LOGD("setPrivate: %p\n", data);
 
@@ -230,8 +230,8 @@ void *getPrivate(JsValueRef obj) {
         return nullptr;
     }
 
-    void *data = nullptr;
-    bool isExist = false;
+    void *data    = nullptr;
+    bool  isExist = false;
     _CHECK(JsHasExternalData(obj, &isExist));
     if (isExist) {
         _CHECK(JsGetExternalData(obj, &data));
@@ -261,8 +261,8 @@ void clearPrivate(JsValueRef obj) {
         return;
     }
 
-    bool isExist = false;
-    JsErrorCode err = JsHasExternalData(obj, &isExist);
+    bool        isExist = false;
+    JsErrorCode err     = JsHasExternalData(obj, &isExist);
     assert(err == JsNoError);
     if (isExist) {
         _CHECK(JsSetExternalData(obj, nullptr));

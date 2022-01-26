@@ -69,7 +69,7 @@ private:
     ClusterLightCulling *_clusterComp{nullptr};
 
 public:
-    static constexpr uint GBUFFER_COUNT = 4;
+    static constexpr uint GBUFFER_COUNT = 3;
 
     // deferred resource names
     static framegraph::StringHandle fgStrHandleGbufferTexture[GBUFFER_COUNT];

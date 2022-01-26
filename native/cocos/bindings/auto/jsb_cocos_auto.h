@@ -173,4 +173,4 @@ SE_DECLARE_FUNC(js_engine_CCObject_destroy);
 SE_DECLARE_FUNC(js_engine_CCObject_destroyImmediate);
 SE_DECLARE_FUNC(js_engine_CCObject_toString);
 SE_DECLARE_FUNC(js_engine_CCObject_deferredDestroy);
-    // clang-format on
+// clang-format on

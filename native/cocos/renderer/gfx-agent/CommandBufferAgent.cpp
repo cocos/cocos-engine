@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "CommandBufferAgent.h"
+#include <cstring>
 #include "BufferAgent.h"
 #include "DescriptorSetAgent.h"
 #include "DeviceAgent.h"
@@ -39,8 +40,6 @@
 #include "base/job-system/JobSystem.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
-#include <cstring>
-
 
 namespace cc {
 namespace gfx {

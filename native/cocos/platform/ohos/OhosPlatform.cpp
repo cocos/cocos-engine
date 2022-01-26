@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,8 +27,8 @@
 
 #include "platform/UniversalPlatform.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
-#include "platform/ohos/OhosPlatform.h"
 #include "platform/java/modules/SystemWindow.h"
+#include "platform/ohos/OhosPlatform.h"
 
 namespace cc {
 OhosPlatform::OhosPlatform() {
@@ -39,7 +39,7 @@ int OhosPlatform::getSdkVersion() const {
     return _jniNativeGlue->getSdkVersion();
 }
 
-int32_t OhosPlatform::run(int argc, const char** argv) {
+int32_t OhosPlatform::run(int argc, const char **argv) {
     std::thread mainLogicThread([this, argc, argv]() {
         waitWindowInitialized();
         UniversalPlatform::run(argc, argv);
@@ -54,7 +54,7 @@ void OhosPlatform::waitWindowInitialized() {
     _jniNativeGlue->setRunning(true);
     while (_jniNativeGlue->isRunning()) {
         pollEvent();
-        NativeWindowType* wndHandle = _jniNativeGlue->getWindowHandler();
+        NativeWindowType *wndHandle = _jniNativeGlue->getWindowHandler();
         if (wndHandle != nullptr) {
             break;
         }

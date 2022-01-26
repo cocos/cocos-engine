@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -164,11 +164,6 @@ void CCMTLDevice::doDestroy() {
     //    }
 
     CC_DELETE(_gpuDeviceObj);
-
-    if (_autoreleasePool) {
-        [(NSAutoreleasePool *)_autoreleasePool drain];
-        _autoreleasePool = nullptr;
-    }
     
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
     CC_SAFE_DESTROY_AND_DELETE(_queue);
@@ -208,10 +203,6 @@ void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
         swapchain->acquire();
     }
 
-    if (!_autoreleasePool) {
-        _autoreleasePool = [[NSAutoreleasePool alloc] init];
-        //        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
-    }
     // Clear queue stats
     CCMTLQueue *queue                  = static_cast<CCMTLQueue *>(_queue);
     queue->gpuQueueObj()->numDrawCalls = 0;
@@ -240,7 +231,7 @@ void CCMTLDevice::present() {
 
     // present drawable
     {
-        id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBufferWithUnretainedReferences];
+        id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBuffer];
         [cmdBuffer enqueue];
 
         for (auto drawable : releaseQ) {
@@ -251,12 +242,6 @@ void CCMTLDevice::present() {
             onPresentCompleted();
         }];
         [cmdBuffer commit];
-    }
-    
-    if (_autoreleasePool) {
-        //        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
-        [(NSAutoreleasePool *)_autoreleasePool drain];
-        _autoreleasePool = nullptr;
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -35,9 +35,9 @@ void IOBuffer::resize(std::size_t newLen, bool needCopy) {
         }
 
         delete[] _buffer;
-        _buffer = newBuffer;
+        _buffer     = newBuffer;
         _bufferSize = newLen;
-        _outRange = false;
+        _outRange   = false;
     }
 }
 

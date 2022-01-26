@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,7 +29,6 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKQueue.h"
-#include "vulkan/vulkan_core.h"
 
 namespace cc {
 namespace gfx {

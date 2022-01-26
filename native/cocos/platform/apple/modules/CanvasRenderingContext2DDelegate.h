@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -73,7 +73,7 @@ public:
 
 private:
     void fillData();
-    void unMultiplyAlpha(unsigned char *ptr, ssize_t size) const ;
+    void unMultiplyAlpha(unsigned char *ptr, ssize_t size) const;
 
 public:
 private:

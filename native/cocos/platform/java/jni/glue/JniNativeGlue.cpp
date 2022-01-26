@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -37,22 +37,22 @@
 namespace cc {
 JniNativeGlue::~JniNativeGlue() = default;
 
-JniNativeGlue* JniNativeGlue::getInstance() {
+JniNativeGlue *JniNativeGlue::getInstance() {
     static JniNativeGlue jniNativeGlue;
     return &jniNativeGlue;
 }
 
-void JniNativeGlue::start(int argc, const char** argv) {
+void JniNativeGlue::start(int argc, const char **argv) {
     _messagePipe = std::make_unique<MessagePipe>();
 
-    BasePlatform* platform = cc::BasePlatform::getPlatform();
+    BasePlatform *platform = cc::BasePlatform::getPlatform();
     if (platform->init()) {
         LOGV("Platform initialization failed");
     }
     platform->run(argc, argv);
 }
 
-void JniNativeGlue::setWindowHandler(NativeWindowType* window) {
+void JniNativeGlue::setWindowHandler(NativeWindowType *window) {
     if (_pendingWindow) {
         writeCommandSync(JniCommand::JNI_CMD_TERM_WINDOW);
     }
@@ -62,15 +62,15 @@ void JniNativeGlue::setWindowHandler(NativeWindowType* window) {
     }
 }
 
-void JniNativeGlue::setResourceManager(ResourceManagerType* resourceManager) {
+void JniNativeGlue::setResourceManager(ResourceManagerType *resourceManager) {
     _resourceManager = resourceManager;
 }
 
-ResourceManagerType* JniNativeGlue::getResourceManager() {
+ResourceManagerType *JniNativeGlue::getResourceManager() {
     return _resourceManager;
 }
 
-NativeWindowType* JniNativeGlue::getWindowHandler() {
+NativeWindowType *JniNativeGlue::getWindowHandler() {
     return _window;
 }
 
@@ -82,7 +82,7 @@ int JniNativeGlue::getSdkVersion() const {
     return _sdkVersion;
 }
 
-void JniNativeGlue::setObbPath(const std::string& path) {
+void JniNativeGlue::setObbPath(const std::string &path) {
     _obbPath = path;
 }
 
@@ -104,9 +104,11 @@ bool JniNativeGlue::isRunning() const {
 }
 
 void JniNativeGlue::flushTasksOnGameThread() const {
+    // Handle java events send by UI thread. Input events are handled here too.
+
+    flushTasksOnGameThreadJNI();
     if (_animating) {
-        // Handle java events send by UI thread. Input events are handled here too.
-        flushTasksOnGameThreadJNI();
+        flushTasksOnGameThreadAtForegroundJNI();
     }
 }
 
@@ -124,21 +126,25 @@ void JniNativeGlue::writeCommandSync(JniCommand cmd) {
     fu.get_future().get();
 }
 
-int JniNativeGlue::readCommand(CommandMsg* msg) {
+int JniNativeGlue::readCommand(CommandMsg *msg) {
     return _messagePipe->readCommand(msg, sizeof(CommandMsg));
 }
 
-void JniNativeGlue::setEventDispatch(IEventDispatch* eventDispatcher) {
+int JniNativeGlue::readCommandWithTimeout(CommandMsg *cmd, int delayMS) {
+    return _messagePipe->readCommandWithTimeout(cmd, sizeof(CommandMsg), delayMS);
+}
+
+void JniNativeGlue::setEventDispatch(IEventDispatch *eventDispatcher) {
     _eventDispatcher = eventDispatcher;
 }
 
-void JniNativeGlue::dispatchEvent(const OSEvent& ev) {
+void JniNativeGlue::dispatchEvent(const OSEvent &ev) {
     if (_eventDispatcher) {
         _eventDispatcher->dispatchEvent(ev);
     }
 }
 
-void JniNativeGlue::dispatchTouchEvent(const OSEvent& ev) {
+void JniNativeGlue::dispatchTouchEvent(const OSEvent &ev) {
     if (_eventDispatcher) {
         _eventDispatcher->dispatchTouchEvent(ev);
     }
@@ -168,7 +174,10 @@ void JniNativeGlue::onLowMemory() {
 
 void JniNativeGlue::execCommand() {
     static CommandMsg msg;
-    if (readCommand(&msg) > 0) {
+    static bool       runInLowRate{false};
+    runInLowRate = !_animating || JniCommand::JNI_CMD_PAUSE == _appState;
+
+    if (readCommandWithTimeout(&msg, runInLowRate ? 50 : 0) > 0) {
         preExecCmd(msg.cmd);
         engineHandleCmd(msg.cmd);
         postExecCmd(msg.cmd);
@@ -213,13 +222,13 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
             }
             cc::CustomEvent event;
             event.name         = EVENT_RECREATE_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
+            event.args->ptrVal = reinterpret_cast<void *>(getWindowHandler());
             dispatchEvent(event);
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
             event.name         = EVENT_DESTROY_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
+            event.args->ptrVal = reinterpret_cast<void *>(getWindowHandler());
             dispatchEvent(event);
         } break;
         case JniCommand::JNI_CMD_RESUME: {

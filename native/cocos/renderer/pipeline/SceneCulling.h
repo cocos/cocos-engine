@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -48,6 +48,7 @@ void         validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera 
 void         sceneCulling(RenderPipeline *, scene::Camera *);
 void         updateSphereLight(scene::Shadows *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *);
 void         updateDirLight(scene::Shadows *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *);
+void         updatePlanarNormalAndDistance(scene::Shadows *shadows, std::array<float, UBOShadow::COUNT> *shadowUBO);
 void         getShadowWorldMatrix(const geometry::Sphere *sphere, const cc::Quaternion &rotation, const cc::Vec3 &dir, cc::Mat4 *shadowWorldMat, cc::Vec3 *out);
 Mat4         getCameraWorldMatrix(const scene::Camera *camera);
 void         updateDirFrustum(const geometry::Sphere *cameraBoundingSphere, const Quaternion &rotation, float range, geometry::Frustum *dirLightFrustum);

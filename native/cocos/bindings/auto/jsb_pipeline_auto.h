@@ -97,6 +97,10 @@ extern se::Class * __jsb_cc_pipeline_PipelineSceneData_class; // NOLINT
 bool js_register_cc_pipeline_PipelineSceneData(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_activate);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_addRenderObject);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_addValidPunctualLight);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_clearRenderObjects);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_clearValidPunctualLights);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_destroy);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getDirShadowObjects);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererMaterials);
@@ -334,4 +338,4 @@ extern se::Class * __jsb_cc_pipeline_GeometryRenderer_class; // NOLINT
 bool js_register_cc_pipeline_GeometryRenderer(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
-    // clang-format on
+// clang-format on

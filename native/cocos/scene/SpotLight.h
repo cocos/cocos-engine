@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -83,19 +83,38 @@ public:
 
     inline void setFrustum(const geometry::Frustum &frustum) { *_frustum = frustum; }
 
+    inline void setShadowEnabled(bool enabled) { _shadowEnabled = enabled; }
+    inline bool getShadowEnabled() const { return _shadowEnabled; }
+
+    inline float getShadowPcf() const { return _shadowPcf; }
+    inline void  setShadowPcf(float pcf) { _shadowPcf = pcf; }
+
+    inline void  setShadowBias(float bias) { _shadowBias = bias; }
+    inline float getShadowBias() const { return _shadowBias; }
+
+    inline void  setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
+    inline float getShadowNormalBias() const { return _shadowNormalBias; }
+
 private:
-    bool              _needUpdate{false};
-    float             _luminanceHDR{0.F};
-    float             _luminanceLDR{0.F};
-    float             _range{0.F};
-    float             _size{0.F};
-    float             _angle{0.F};
-    float             _spotAngle{0.F};
-    float             _aspect{0.F};
-    Vec3              _dir;
-    Vec3              _pos;
-    geometry::AABB*    _aabb{nullptr};
-    geometry::Frustum* _frustum{nullptr};
+    bool               _needUpdate{false};
+    float              _luminanceHDR{0.F};
+    float              _luminanceLDR{0.F};
+    float              _range{0.F};
+    float              _size{0.F};
+    float              _angle{0.F};
+    float              _spotAngle{0.F};
+    float              _aspect{0.F};
+    Vec3               _dir;
+    Vec3               _pos;
+    geometry::AABB *   _aabb{nullptr};
+    geometry::Frustum *_frustum{nullptr};
+
+    // shadow info
+    bool _shadowEnabled{false};
+    // TODO(minggo): use PCTFType instead.
+    float _shadowPcf{0.f};
+    float _shadowBias{0.00001F};
+    float _shadowNormalBias{0.0F};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(SpotLight);
 };

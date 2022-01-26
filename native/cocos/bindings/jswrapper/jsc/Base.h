@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,11 +28,11 @@
 
 #include <JavaScriptCore/JavaScript.h>
 
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <chrono>
 #include <functional>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include <assert.h>
 

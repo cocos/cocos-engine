@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,9 +29,9 @@
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
 
     #include "Object.h"
-    #include "Utils.h"
     #include "ScriptEngine.h"
     #include "State.h"
+    #include "Utils.h"
 
 namespace se {
 
@@ -44,13 +44,13 @@ namespace se {
 
 namespace {
 //        std::unordered_map<std::string, Class *> __clsMap;
-JSContextRef __cx = nullptr;
+JSContextRef         __cx = nullptr;
 std::vector<Class *> __allClasses;
 
 void defaultFinalizeCallback(JSObjectRef _obj) {
     void *nativeThisObject = JSObjectGetPrivate(_obj);
     if (nativeThisObject != nullptr) {
-        State state(nativeThisObject);
+        State   state(nativeThisObject);
         Object *_thisObject = state.thisObject();
         if (_thisObject) _thisObject->_cleanup(nativeThisObject);
         JSObjectSetPrivate(_obj, nullptr);
@@ -83,7 +83,7 @@ Class *Class::create(const std::string &className, Object *obj, Object *parentPr
 }
 
 bool Class::init(const std::string &clsName, Object *parent, Object *parentProto, JSObjectCallAsConstructorCallback ctor) {
-    _name = clsName;
+    _name   = clsName;
     _parent = parent;
     SAFE_INC_REF(_parent);
     _parentProto = parentProto;
@@ -97,9 +97,9 @@ bool Class::install() {
     //
     //        __clsMap.emplace(_name, this);
 
-    _jsClsDef.version = 0;
+    _jsClsDef.version    = 0;
     _jsClsDef.attributes = kJSClassAttributeNone;
-    _jsClsDef.className = _name.c_str();
+    _jsClsDef.className  = _name.c_str();
     if (_parentProto != nullptr) {
         _jsClsDef.parentClass = _parentProto->_getClass()->_jsCls;
     }
@@ -121,7 +121,7 @@ bool Class::install() {
 
     _jsCls = JSClassCreate(&_jsClsDef);
 
-    JSObjectRef jsCtor = JSObjectMakeConstructor(__cx, _jsCls, _ctor);
+    JSObjectRef  jsCtor = JSObjectMakeConstructor(__cx, _jsCls, _ctor);
     HandleObject ctorObj(Object::_createJSObject(nullptr, jsCtor));
 
     Value functionCtor;
@@ -141,11 +141,11 @@ bool Class::install() {
         JSStringRelease(name);
     }
 
-    JSValueRef prototypeObj = nullptr;
+    JSValueRef  prototypeObj  = nullptr;
     JSStringRef prototypeName = JSStringCreateWithUTF8CString("prototype");
-    bool exist = JSObjectHasProperty(__cx, jsCtor, prototypeName);
+    bool        exist         = JSObjectHasProperty(__cx, jsCtor, prototypeName);
     if (exist) {
-        exception = nullptr;
+        exception    = nullptr;
         prototypeObj = JSObjectGetProperty(__cx, jsCtor, prototypeName, &exception);
         if (exception != nullptr) {
             ScriptEngine::getInstance()->_clearException(exception);
@@ -154,7 +154,7 @@ bool Class::install() {
     JSStringRelease(prototypeName);
     assert(prototypeObj != nullptr);
 
-    exception = nullptr;
+    exception              = nullptr;
     JSObjectRef protoJSObj = JSValueToObject(__cx, prototypeObj, &exception);
     if (exception != nullptr) {
         ScriptEngine::getInstance()->_clearException(exception);

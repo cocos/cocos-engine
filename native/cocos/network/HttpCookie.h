@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -33,9 +33,9 @@
 
 struct CookiesInfo {
     std::string domain;
-    bool tailmatch;
+    bool        tailmatch;
     std::string path;
-    bool secure;
+    bool        secure;
     std::string name;
     std::string value;
     std::string expires;
@@ -49,11 +49,11 @@ public:
     void setCookieFileName(const std::string &fileName);
 
     const std::vector<CookiesInfo> *getCookies() const;
-    const CookiesInfo *getMatchCookie(const std::string &url) const;
-    void updateOrAddCookie(CookiesInfo *cookie);
+    const CookiesInfo *             getMatchCookie(const std::string &url) const;
+    void                            updateOrAddCookie(CookiesInfo *cookie);
 
 private:
-    std::string _cookieFileName;
+    std::string              _cookieFileName;
     std::vector<CookiesInfo> _cookies;
 };
 

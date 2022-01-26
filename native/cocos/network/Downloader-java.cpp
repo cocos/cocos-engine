@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2015-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,11 +26,11 @@
 
 #include "network/Downloader-java.h"
 
+#include <mutex>
+#include "application/ApplicationManager.h"
 #include "network/Downloader.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
-#include "application/ApplicationManager.h"
-#include <mutex>
 
 #ifndef JCLS_DOWNLOADER
     #define JCLS_DOWNLOADER "com/cocos/lib/CocosDownloader"

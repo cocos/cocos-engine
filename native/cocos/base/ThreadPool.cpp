@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016-2017 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,9 +25,9 @@
 ****************************************************************************/
 
 #include "base/ThreadPool.h"
-#include "platform/StdC.h"
 #include <chrono>
 #include <memory>
+#include "platform/StdC.h"
 
 #ifdef __ANDROID__
     #include <android/log.h>

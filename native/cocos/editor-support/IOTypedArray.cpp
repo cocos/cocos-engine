@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -31,9 +31,9 @@
 MIDDLEWARE_BEGIN
 
 IOTypedArray::IOTypedArray(se::Object::TypedArrayType arrayType, std::size_t defaultSize, bool usePool) {
-    _arrayType = arrayType;
+    _arrayType  = arrayType;
     _bufferSize = defaultSize;
-    _usePool = usePool;
+    _usePool    = usePool;
 
     if (_usePool) {
         _typeArray = TypedArrayPool::getInstance()->pop(_arrayType, _bufferSize);
@@ -55,7 +55,7 @@ IOTypedArray::~IOTypedArray() {
         _typeArray->decRef();
     }
     _typeArray = nullptr;
-    _buffer = nullptr;
+    _buffer    = nullptr;
 }
 
 void IOTypedArray::resize(std::size_t newLen, bool needCopy) {
@@ -71,7 +71,7 @@ void IOTypedArray::resize(std::size_t newLen, bool needCopy) {
         newTypeBuffer->root();
     }
 
-    uint8_t *newBuffer = nullptr;
+    uint8_t *           newBuffer = nullptr;
     se::AutoHandleScope hs;
     newTypeBuffer->getTypedArrayData(&newBuffer, static_cast<size_t *>(&newLen));
 
@@ -86,10 +86,10 @@ void IOTypedArray::resize(std::size_t newLen, bool needCopy) {
         _typeArray->decRef();
     }
 
-    _typeArray = newTypeBuffer;
-    _buffer = newBuffer;
+    _typeArray  = newTypeBuffer;
+    _buffer     = newBuffer;
     _bufferSize = newLen;
-    _outRange = false;
+    _outRange   = false;
 }
 
 MIDDLEWARE_END

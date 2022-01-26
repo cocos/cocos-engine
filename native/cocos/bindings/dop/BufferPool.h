@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -39,7 +39,7 @@ class CC_DLL BufferPool final : public cc::Object {
 public:
     using Chunk = uint8_t *;
 
-    inline static uint                            getPoolFlag() { return POOL_FLAG; }
+    inline static uint getPoolFlag() { return POOL_FLAG; }
 
     BufferPool(PoolType type, uint entryBits, uint bytesPerEntry);
     ~BufferPool() override;
@@ -55,7 +55,7 @@ public:
     Object *allocateNewChunk();
 
 private:
-    static constexpr uint           POOL_FLAG = 1 << 30;
+    static constexpr uint POOL_FLAG = 1 << 30;
 
     BufferAllocator   _allocator;
     cc::vector<Chunk> _chunks;

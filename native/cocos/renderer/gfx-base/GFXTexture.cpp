@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,9 +26,9 @@
 #include "base/CoreStd.h"
 #include "base/Utils.h"
 
+#include <boost/functional/hash.hpp>
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
-#include <boost/functional/hash.hpp>
 
 namespace cc {
 namespace gfx {

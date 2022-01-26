@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -54,7 +54,7 @@ public:
     inline const String &getName() const { return _name; }
     inline uint          getPriority() const { return _priority; }
     inline uint          getTag() const { return _tag; }
-    RenderStage         *getRenderstageByName(const String &name) const;
+    RenderStage *        getRenderstageByName(const String &name) const;
 
 protected:
     RenderStageList _stages;

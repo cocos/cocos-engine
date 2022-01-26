@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -98,11 +98,11 @@ public:
 private:
     HandleObject(const HandleObject &) = delete;
     void operator=(const HandleObject &) = delete;
-    HandleObject(HandleObject &&) = delete;
+    HandleObject(HandleObject &&)        = delete;
     void operator=(HandleObject &&) = delete;
 
-    void *operator new(size_t size) = delete;
-    void operator delete(void *, size_t) = delete;
+    void *operator new(size_t size)       = delete;
+    void  operator delete(void *, size_t) = delete;
 
     Object *_obj;
     friend class Object;

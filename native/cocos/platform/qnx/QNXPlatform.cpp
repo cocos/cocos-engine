@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -32,7 +32,6 @@
 #include "SDL2/SDL_main.h"
 #include "SDL2/SDL_sysvideo.h"
 #include "SDL2/SDL_syswm.h"
-
 
 #include "platform/interfaces/OSInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -59,6 +59,13 @@ enum class GLESCmdType : uint8_t {
     BARRIER,
     QUERY,
     COUNT,
+};
+
+class GLESBindingMapping {
+public:
+    vector<int32_t> blockOffsets;
+    vector<int32_t> samplerTextureOffsets;
+    uint32_t        flexibleSet{0};
 };
 
 class GLESCmd : public Object {

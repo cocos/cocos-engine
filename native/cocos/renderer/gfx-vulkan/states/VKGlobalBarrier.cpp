@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "VKGlobalBarrier.h"
-#include "../VKCommands.h"
+#include "../VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -314,24 +314,58 @@ bool isASTCFormat(Format format) {
     }
 }
 
-gfx::Shader *createShader(CCMTLDevice *device) {
+gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass* renderPass) {
     String vs = R"(
             layout(location = 0) in vec2 a_position;
             void main() {
                 gl_Position = vec4(a_position, 1.0, 1.0);
             }
     )";
+//    String fs = R"(
+//            precision mediump float;
+//            layout(set = 0, binding = 0) uniform Color {
+//                vec4 u_color;
+//            };
+//            layout(location = 0) out vec4 o_color;
+//
+//            void main() {
+//                o_color = u_color;
+//            }
+//    )";
+    
     String fs = R"(
             precision mediump float;
             layout(set = 0, binding = 0) uniform Color {
                 vec4 u_color;
             };
-            layout(location = 0) out vec4 o_color;
-
-            void main() {
-                o_color = u_color;
-            }
     )";
+    
+    //TODO_Zeqiang: gather info in framegraph.
+    if(renderPass->getSubpasses().empty()) {
+        for (size_t i = 0; i < renderPass->getColorAttachments().size(); ++i) {
+            fs += "\n layout(location = " + std::to_string(i) + ") out vec4 o_color" + std::to_string(i) + ";";
+        }
+        
+        fs += "\nvoid main() {\n    o_color0 = u_color;\n";
+        
+        for (size_t i = 1; i < renderPass->getColorAttachments().size(); ++i) {
+            fs += "    o_color" + std::to_string(i) + " = vec4(0.0);\n";
+        }
+    } else {
+        const auto& subpasses = renderPass->getSubpasses();
+        for (size_t i = 0; i < subpasses[renderPass->getCurrentSubpassIndex()].colors.size(); ++i) {
+            fs += "\n layout(location = " + std::to_string(i) + ") out vec4 o_color" + std::to_string(i) + ";";
+        }
+        
+        fs += "\nvoid main() {\n    o_color0 = u_color;\n";
+        
+        for (size_t i = 1; i < subpasses[renderPass->getCurrentSubpassIndex()].colors.size(); ++i) {
+            fs += "    o_color" + std::to_string(i) + " = vec4(0.0);\n";
+        }
+    }
+    
+    fs += "}";
+    
     gfx::ShaderStageList shaderStageList;
     gfx::ShaderStage vertexShaderStage;
     vertexShaderStage.stage = gfx::ShaderStageFlagBit::VERTEX;
@@ -367,10 +401,10 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
-    pipelineInfo.shader = createShader(device);
+    pipelineInfo.shader = createShader(device, static_cast<CCMTLRenderPass*>(curPass));
     pipelineInfo.inputState = {{position}};
     pipelineInfo.renderPass = curPass;
-    
+
     DepthStencilState dsState;
     dsState.depthWrite  = 0;
     dsState.depthTest   = 1;
@@ -881,7 +915,7 @@ bool mu::isImageBlockSupported() {
     if(!mu::isFramebufferFetchSupported()) {
         return false;
     }
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) || TARGET_CPU_ARM64
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) //|| TARGET_CPU_ARM64
     return true;
 #else
     return false;
@@ -889,7 +923,7 @@ bool mu::isImageBlockSupported() {
 }
 
 bool mu::isFramebufferFetchSupported() {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) || TARGET_CPU_ARM64
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) //|| TARGET_CPU_ARM64
     return true;
 #else
     return false;
@@ -931,7 +965,6 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     // TODO: bindings from shader just kind of validation, cannot be directly input
     // Get all uniform buffers in the shader.
     uint maxBufferBindingIndex = device->getMaximumBufferBindingIndex();
-    const auto &bufferBindingOffset = device->bindingMappingInfo().bufferOffsets;
     for (const auto &ubo : resources.uniform_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
@@ -969,7 +1002,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         if (binding >= maxBufferBindingIndex) {
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
-        
+
         uint nameHash = static_cast<uint>(std::hash<String>{}(ubo.name));
         if (gpuShader->blocks.find(nameHash) == gpuShader->blocks.end()) {
             auto mappedBinding = gpuShader->bufferIndex;
@@ -996,9 +1029,6 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         return "";
     }
 
-    // Get all sampled images in the shader.
-    const auto &samplerBindingOffset = device->bindingMappingInfo().samplerOffsets;
-    
     // avoid conflict index with input attachments.
     const uint8_t rtOffsets = executionModel == spv::ExecutionModelFragment ? resources.subpass_inputs.size() : 0;
     for (const auto &sampler : resources.sampled_images) {
@@ -1638,7 +1668,7 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> render
     const auto gpuPSO = getClearRenderPassPipelineState(device, renderPass);
     const auto mtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
     uint slot = 0u;
-    
+
     const auto &renderTargetSizes = mtlRenderPass->getRenderTargetSizes();
     float renderTargetWidth = renderTargetSizes[slot].x;
     float renderTargetHeight = renderTargetSizes[slot].y;

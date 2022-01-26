@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,6 +29,7 @@
 #include "GLES3Device.h"
 #include "GLES3QueryPool.h"
 #include "gfx-base/GFXDef-common.h"
+#include "gfx-gles-common/GLESCommandPool.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
@@ -1147,7 +1148,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             if (block.name == glBlock.name) {
                 glBlock.set       = block.set;
                 glBlock.binding   = block.binding;
-                glBlock.glBinding = block.binding + device->bindingMappingInfo().bufferOffsets[block.set];
+                glBlock.glBinding = block.binding + device->bindingMappings().blockOffsets[block.set];
                 GL_CHECK(glUniformBlockBinding(gpuShader->glProgram, i, glBlock.glBinding));
                 break;
             }
@@ -1216,14 +1217,14 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     // texture unit index mapping optimization
     vector<GLES3GPUUniformSamplerTexture> glActiveSamplerTextures;
     vector<GLint>                         glActiveSamplerLocations;
-    const BindingMappingInfo &            bindingMappingInfo = device->bindingMappingInfo();
-    unordered_map<String, uint32_t> &     texUnitCacheMap    = device->stateCache()->texUnitCacheMap;
+    const GLESBindingMapping &            bindingMappings = device->bindingMappings();
+    unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
     // sampler bindings in the flexible set comes strictly after buffer bindings
     // so we need to subtract the buffer count for these samplers
     uint32_t flexibleSetBaseOffset = 0U;
-    for (GLES3GPUUniformBuffer &buffer : gpuShader->glBuffers) {
-        if (buffer.set == bindingMappingInfo.flexibleSet) {
+    for (const auto &buffer : gpuShader->blocks) {
+        if (buffer.set == bindingMappings.flexibleSet) {
             flexibleSetBaseOffset++;
         }
     }
@@ -1239,8 +1240,8 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             glActiveSamplerLocations.push_back(glLoc);
 
             if (texUnitCacheMap.count(samplerTexture.name) == 0U) {
-                uint32_t binding = samplerTexture.binding + bindingMappingInfo.samplerOffsets[samplerTexture.set] + arrayOffset;
-                if (samplerTexture.set == bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
+                uint32_t binding = samplerTexture.binding + bindingMappings.samplerTextureOffsets[samplerTexture.set] + arrayOffset;
+                if (samplerTexture.set == bindingMappings.flexibleSet) binding -= flexibleSetBaseOffset;
                 texUnitCacheMap[samplerTexture.name] = binding % device->getCapabilities().maxTextureUnits;
                 arrayOffset += samplerTexture.count - 1;
             }

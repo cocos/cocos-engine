@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -36,10 +36,10 @@ class CCMTLDescriptorSet final : public DescriptorSet {
 public:
     explicit CCMTLDescriptorSet();
     ~CCMTLDescriptorSet();
-    CCMTLDescriptorSet(const CCMTLDescriptorSet &)=delete;
-    CCMTLDescriptorSet(CCMTLDescriptorSet &&)=delete;
-    CCMTLDescriptorSet &operator=(const CCMTLDescriptorSet &)=delete;
-    CCMTLDescriptorSet &operator=(CCMTLDescriptorSet &&)=delete;
+    CCMTLDescriptorSet(const CCMTLDescriptorSet &) = delete;
+    CCMTLDescriptorSet(CCMTLDescriptorSet &&)      = delete;
+    CCMTLDescriptorSet &operator=(const CCMTLDescriptorSet &) = delete;
+    CCMTLDescriptorSet &operator=(CCMTLDescriptorSet &&) = delete;
 
     void update() override;
 

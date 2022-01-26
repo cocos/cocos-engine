@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -62,7 +62,7 @@ void PhysXCone::setCone(float r, float h, EAxisDirection d) {
 void PhysXCone::updateGeometry() {
     if (!_mShape) return;
     static physx::PxMeshScale scale;
-    auto *node = getSharedBody().getNode();
+    auto *                    node = getSharedBody().getNode();
     node->updateWorldTransform();
     pxSetVec3Ext(scale.scale, node->getWorldScale());
     scale.scale.y *= std::max(0.0001F, _mData.height / 2);

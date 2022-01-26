@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -108,7 +108,7 @@ void PlanarShadowQueue::clear() {
 void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
     const auto *             shadows   = sceneData->getShadows();
-    if (shadows == nullptr || !shadows->isEnabled() || shadows->getType() != scene::ShadowType::PLANAR) {
+    if (shadows == nullptr || !shadows->isEnabled() || shadows->getType() != scene::ShadowType::PLANAR || shadows->getNormal().length() < 0.000001F) {
         return;
     }
 

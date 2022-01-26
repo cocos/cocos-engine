@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,10 +25,10 @@
 
 #include "StringUtil.h"
 
+#include <algorithm>
 #include <cctype>
 #include <cstdarg>
 #include <string>
-#include <algorithm>
 #include "base/ZipUtils.h"
 #include "base/base64.h"
 #include "memory/Memory.h"

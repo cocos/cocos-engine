@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -44,7 +44,7 @@ namespace cc {
 BasePlatform::BasePlatform()  = default;
 BasePlatform::~BasePlatform() = default;
 
-BasePlatform* BasePlatform::getPlatform() {
+BasePlatform *BasePlatform::getPlatform() {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     static WindowsPlatform platform;
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)

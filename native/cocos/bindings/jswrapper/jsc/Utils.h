@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -39,7 +39,7 @@ namespace se {
 namespace internal {
 
 struct PrivateData {
-    void *data;
+    void *                   data;
     JSObjectFinalizeCallback finalizeCb;
 };
 
@@ -55,10 +55,10 @@ void seToJsValue(JSContextRef cx, const Value &v, JSValueRef *jsval);
 void forceConvertJsValueToStdString(JSContextRef cx, JSValueRef jsval, std::string *ret, bool ignoreException = false);
 void jsStringToStdString(JSContextRef cx, JSStringRef jsStr, std::string *ret);
 
-bool hasPrivate(JSObjectRef obj);
-void setPrivate(JSObjectRef obj, void *data, JSObjectFinalizeCallback finalizeCb);
+bool  hasPrivate(JSObjectRef obj);
+void  setPrivate(JSObjectRef obj, void *data, JSObjectFinalizeCallback finalizeCb);
 void *getPrivate(JSObjectRef obj);
-void clearPrivate(JSObjectRef obj);
+void  clearPrivate(JSObjectRef obj);
 
 } // namespace internal
 } // namespace se
