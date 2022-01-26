@@ -115,7 +115,7 @@ public:
     inline void          setProfiler(scene::Model *value) { _profiler = value; }
 
     inline GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer; }
-    inline void              setGeometryRenderer(GeometryRenderer *geometryRenderer) { _geometryRenderer = geometryRenderer; }
+    void                     setGeometryRenderer(GeometryRenderer *geometryRenderer);
 
     inline bool isClusterEnabled() const { return _clusterEnabled; }
     inline void setClusterEnabled(bool enable) { _clusterEnabled = enable; }

@@ -66,7 +66,7 @@ public:
      */
     using Filter = Filter;
 
-    ~TextureBase() override = default;
+    ~TextureBase() override;
     /**
      * @en Whether the pixel data is compressed.
      * @zh 此贴图是否为压缩的像素格式。

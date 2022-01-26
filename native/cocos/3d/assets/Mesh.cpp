@@ -169,6 +169,8 @@ DataWritterCallback getWriter(DataView &dataView, gfx::Format format) {
 
 } // namespace
 
+Mesh::~Mesh() = default;
+
 cc::any Mesh::getNativeAsset() const {
     return _data; //cjh FIXME: need copy? could be _data pointer?
 }

@@ -5,6 +5,7 @@
 #include "3d/misc/BufferBlob.h"
 #include "core/ArrayBuffer.h"
 #include "core/DataView.h"
+#include "core/assets/RenderingSubMesh.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -178,8 +179,8 @@ Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOpt
 
     // Fill index buffer.
     ArrayBuffer::Ptr indexBuffer;
-    uint32_t       idxCount  = 0;
-    const uint32_t idxStride = 2;
+    uint32_t         idxCount  = 0;
+    const uint32_t   idxStride = 2;
     if (geometry.indices.has_value()) {
         const std::vector<uint32_t> &indices = geometry.indices.value();
         idxCount                             = static_cast<uint32_t>(indices.size());

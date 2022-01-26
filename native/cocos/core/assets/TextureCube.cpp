@@ -70,6 +70,8 @@ TextureCube *TextureCube::fromTexture2DArray(const std::vector<Texture2D *> &tex
     return out;
 }
 
+TextureCube::~TextureCube() = default;
+
 void TextureCube::setMipmaps(const std::vector<ITextureCubeMipmap> &value) {
     _mipmaps = value;
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));

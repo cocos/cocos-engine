@@ -341,5 +341,9 @@ void RenderPipeline::framegraphGC() {
     }
 }
 
+void RenderPipeline::setGeometryRenderer(GeometryRenderer *geometryRenderer) {
+    _geometryRenderer = geometryRenderer;
+}
+
 } // namespace pipeline
 } // namespace cc

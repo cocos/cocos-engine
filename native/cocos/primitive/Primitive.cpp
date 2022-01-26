@@ -24,12 +24,14 @@
 ****************************************************************************/
 #include "primitive/Primitive.h"
 #include "3d/misc/CreateMesh.h"
+#include "core/assets/RenderingSubMesh.h"
 
 namespace cc {
 
-Primitive::Primitive(PrimitiveType type)
-: Mesh(), type(type) {
+Primitive::Primitive(PrimitiveType type) : type(type) {
 }
+
+Primitive::~Primitive() = default;
 
 void Primitive::onLoaded() {
     reset(createMeshInfo(createGeometry(type)));

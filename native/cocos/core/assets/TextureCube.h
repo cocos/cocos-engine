@@ -73,8 +73,8 @@ class TextureCube final : public SimpleTexture {
 public:
     using Super = SimpleTexture;
 
-    explicit TextureCube()  = default;
-    ~TextureCube() override = default;
+    explicit TextureCube() = default;
+    ~TextureCube() override;
 
     /**
      * @en The index for all faces of the cube
@@ -122,7 +122,7 @@ public:
 
     void setMipmaps(const std::vector<ITextureCubeMipmap> &value);
 
-    void setMipmapsForJS(const std::vector<ITextureCubeMipmap>& value) {
+    void setMipmapsForJS(const std::vector<ITextureCubeMipmap> &value) {
         _mipmaps = value;
     }
 

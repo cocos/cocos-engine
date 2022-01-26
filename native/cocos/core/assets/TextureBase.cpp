@@ -46,6 +46,8 @@ TextureBase::TextureBase() {
     _textureHash = murmurhash2::MurmurHash2(_id.data(), static_cast<int>(_id.length()), 666); //cjh TODO: How about using boost hash functionality?
 }
 
+TextureBase::~TextureBase() = default;
+
 void TextureBase::setWrapMode(WrapMode wrapS, WrapMode wrapT, WrapMode wrapR) {
     _wrapS                = wrapS;
     _samplerInfo.addressU = static_cast<gfx::Address>(wrapS),

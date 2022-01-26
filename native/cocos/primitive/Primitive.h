@@ -81,7 +81,7 @@ public:
     Record<std::string, float> info; //cjh float?
 
     explicit Primitive(PrimitiveType type = PrimitiveType::BOX);
-    ~Primitive() override = default;
+    ~Primitive() override;
     /**
      * @en
      * Construct the primitive mesh with `type` and `info`.

@@ -51,11 +51,11 @@ public:
     inline scene::FogInfo *    getFogInfo() const { return _fogInfo.get(); }
     inline scene::OctreeInfo * getOctreeInfo() const { return _octreeInfo.get(); }
 
-    inline void setAmbientInfo(scene::AmbientInfo *info) { _ambientInfo = info; }
-    inline void setShadowsInfo(scene::ShadowsInfo *info) { _shadowInfo = info; }
-    inline void setSkyboxInfo(scene::SkyboxInfo *info) { _skyboxInfo = info; }
-    inline void setFogInfo(scene::FogInfo *info) { _fogInfo = info; }
-    inline void setOctreeInfo(scene::OctreeInfo *info) { _octreeInfo = info; }
+    void setAmbientInfo(scene::AmbientInfo *info);
+    void setShadowsInfo(scene::ShadowsInfo *info);
+    void setSkyboxInfo(scene::SkyboxInfo *info);
+    void setFogInfo(scene::FogInfo *info);
+    void setOctreeInfo(scene::OctreeInfo *info);
 
 private:
     IntrusivePtr<scene::AmbientInfo> _ambientInfo;

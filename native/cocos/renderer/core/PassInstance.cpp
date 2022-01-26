@@ -26,6 +26,8 @@
 #include "renderer/core/PassInstance.h"
 #include <cstdint>
 #include "renderer/core/ProgramLib.h"
+#include "renderer/pipeline/BatchedBuffer.h"
+#include "renderer/pipeline/InstancedBuffer.h"
 
 namespace cc {
 

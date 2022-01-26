@@ -64,4 +64,10 @@ void SceneGlobals::activate() {
     }
 }
 
+void SceneGlobals::setAmbientInfo(scene::AmbientInfo *info) { _ambientInfo = info; }
+void SceneGlobals::setShadowsInfo(scene::ShadowsInfo *info) { _shadowInfo = info; }
+void SceneGlobals::setSkyboxInfo(scene::SkyboxInfo *info) { _skyboxInfo = info; }
+void SceneGlobals::setFogInfo(scene::FogInfo *info) { _fogInfo = info; }
+void SceneGlobals::setOctreeInfo(scene::OctreeInfo *info) { _octreeInfo = info; }
+
 } // namespace cc

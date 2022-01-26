@@ -160,8 +160,8 @@ public:
         Uint8Array data;
     };
 
-    Mesh()           = default;
-    ~Mesh() override = default;
+    Mesh() = default;
+    ~Mesh() override;
 
     cc::any getNativeAsset() const override;
     void    setNativeAsset(const cc::any &obj) override;

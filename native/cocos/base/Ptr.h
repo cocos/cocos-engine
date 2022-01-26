@@ -78,7 +78,6 @@
 #pragma once
 
 #include <utility>
-#include "base/RefCounted.h"
 
 namespace cc {
 
@@ -88,44 +87,38 @@ public:
     using element_type = T;
 
     IntrusivePtr() {
-        static_assert(std::is_base_of<RefCounted, T>::value, "RefCounted required!");
     }
 
     IntrusivePtr(T *p) : _ptr(p) { // NOLINT
-        static_assert(std::is_base_of<RefCounted, T>::value, "RefCounted required!");
         if (_ptr) {
-            reinterpret_cast<RefCounted *>(_ptr)->addRef();
+            _ptr->addRef();
         }
     }
 
     IntrusivePtr(const IntrusivePtr<T> &r) : _ptr(r._ptr) {
-        static_assert(std::is_base_of<RefCounted, T>::value, "RefCounted required!");
         if (_ptr) {
-            reinterpret_cast<RefCounted *>(_ptr)->addRef();
+            _ptr->addRef();
         }
     }
 
     template <typename U>
     IntrusivePtr(const IntrusivePtr<U> &r) : _ptr(r.get()) { // NOLINT
-        static_assert(std::is_base_of<RefCounted, T>::value, "RefCounted required!");
         if (_ptr) {
-            reinterpret_cast<RefCounted *>(_ptr)->addRef();
+            _ptr->addRef();
         }
     }
 
     // Move constructors.
     IntrusivePtr(IntrusivePtr<T> &&r) noexcept : _ptr(r.release()) {
-        static_assert(std::is_base_of<RefCounted, T>::value, "RefCounted required!");
     }
 
     template <typename U>
     IntrusivePtr(IntrusivePtr<U> &&r) noexcept : _ptr(r.release()) { // NOLINT
-        static_assert(std::is_base_of<RefCounted, T>::value, "RefCounted required!");
     }
 
     ~IntrusivePtr() {
         if (_ptr) {
-            reinterpret_cast<RefCounted *>(_ptr)->release();
+            _ptr->release();
         }
     }
 
@@ -139,10 +132,10 @@ public:
     IntrusivePtr<T> &operator=(T *p) {
         // AddRef first so that self assignment should work
         if (p) {
-            reinterpret_cast<RefCounted *>(p)->addRef();
+            p->addRef();
         }
         if (_ptr) {
-            reinterpret_cast<RefCounted *>(_ptr)->release();
+            _ptr->release();
         }
         _ptr = p;
         return *this;
