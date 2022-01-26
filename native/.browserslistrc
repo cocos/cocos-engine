@@ -1,0 +1,12 @@
+# This file provides [browserslist](https://github.com/browserslist/browserslist) query.
+# Syntax and meaning of this file obeys browserslist's document.
+#
+# Lite currently use V8 as its backend.
+# We can deduce browserslist query according to [Google chrome version history](https://en.wikipedia.org/wiki/Google_Chrome_version_history).
+# For example,
+# Lite 1.2 use V8@8.0.426.16.
+# According to that table, the Google chrome 80.0.3987
+# is the minimal version which compatible with V8 at this version.
+# So we could use browserslist query "chrome 80" to bound the specification we're supporting.
+
+chrome 80 # We currently use V8@8.0.426.16
