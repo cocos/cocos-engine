@@ -219,8 +219,9 @@ enum class KEY {
     * @en The Delete key
     * @zh 删除键
     * @readonly
+    * DELETE may be used as platform's macro, such as winnt.h,thus use DELETE_ instead here.
     */
-    DELETE = 46,
+    DELETE_ = 46,// NOLINT(readability-identifier-naming) 
 
     /**
     * @en The a key

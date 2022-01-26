@@ -36,10 +36,9 @@ void DeferredPipelineSceneData::initPipelinePassInfo() {
 
     _postProcessMaterial = new Material();
     _postProcessMaterial->setUuid("builtin-post-process-material");
-    //TODO(minggo):
-    //    if (macro.ENABLE_ANTIALIAS_FXAA) {
-    //        _antiAliasing = AntiAliasing::FXAA;
-    //    }
+#if ENABLE_ANTIALIAS_FXAA > 0
+    _antiAliasing = AntiAliasing::FXAA;
+#endif
     materialInfo.effectName = "post-process";
     MacroRecord record{{"ANTIALIAS_TYPE", static_cast<int32_t>(_antiAliasing)}};
     materialInfo.defines = record;

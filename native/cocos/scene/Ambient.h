@@ -74,7 +74,7 @@ public:
      * @en Ground color
      * @zh 地面颜色
      */
-    Vec4 &getGroundAlbedo();
+    const Vec4 &getGroundAlbedo(); 
     void  setGroundAlbedo(const Vec4 &color);
 
 protected:

@@ -151,10 +151,14 @@ void Skybox::setEnvMaps(TextureCube *envmapHDR, TextureCube *envmapLDR) {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         if (envmapHDR) {
-            Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->getGroundAlbedo().w = static_cast<float>(envmapHDR->mipmapLevel());
+            Vec4 groundAlbedo = Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->getGroundAlbedo();
+            groundAlbedo.w    = static_cast<float>(envmapHDR->mipmapLevel());
+            Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->setGroundAlbedo(groundAlbedo);
         }
     } else if (envmapLDR) {
-        Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->getGroundAlbedo().w = static_cast<float>(envmapLDR->mipmapLevel());
+        Vec4 groundAlbedo = Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->getGroundAlbedo();
+        groundAlbedo.w    = static_cast<float>(envmapLDR->mipmapLevel());
+        Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->setGroundAlbedo(groundAlbedo);
     }
 
     updateGlobalBinding();

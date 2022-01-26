@@ -44,23 +44,23 @@ IGeometry createGeometry(PrimitiveType type, const cc::optional<PrimitiveOptions
             break;
         }
         case PrimitiveType::SPHERE: {
-            return sphere(); //TODO(xwx): now for test, need to add options usage
+            return options.has_value() ? sphere(0.5F, cc::get<ISphereOptions>(options.value())) : sphere();
             break;
         }
         case PrimitiveType::CYLINDER: {
-            return cylinder(); //TODO(xwx): now for test, need to add options usage
+            return options.has_value() ? cylinder(0.5F, 0.5F, 2, cc::get<4>(options.value())) : cylinder();
             break;
         }
         case PrimitiveType::CONE: {
-            return cone(); //TODO(xwx): now for test, need to add options usage
+            return options.has_value() ? cone(0.5F, 1.0F, cc::get<5>(options.value())) : cone();
             break;
         }
         case PrimitiveType::CAPSULE: {
-            return capsule(); //TODO(xwx): now for test, need to add options usage
+            return options.has_value() ? capsule(0.5F, 0.5F, 2, cc::get<ICapsuleOptions>(options.value())) : capsule();
             break;
         }
         case PrimitiveType::TORUS: {
-            return torus(); //TODO(xwx): now for test, need to add options usage
+            return options.has_value() ? torus(0.4F, 0.1F, cc::get<ITorusOptions>(options.value())) : torus();
             break;
         }
         case PrimitiveType::PLANE: {

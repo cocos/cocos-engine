@@ -122,7 +122,6 @@ void updateDirLight(scene::Shadows *shadows, const scene::Light *light, std::arr
     const auto  nx       = normal.x;
     const auto  ny       = normal.y;
     const auto  nz       = normal.z;
-    // TODO(): how to avoid create Mat4 every time?
     auto &matLight = shadows->getMatLight();
     matLight.m[0]  = 1 - nx * lx;
     matLight.m[1]  = -nx * ly;

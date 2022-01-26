@@ -541,7 +541,7 @@ void LightingStage::putTransparentObj2Queue() {
         for (const auto &subModel : model->getSubModels()) {
             p = 0;
             for (const auto &pass : subModel->getPasses()) {
-                // TODO(xwx): need to fallback unlit and gizmo material.
+                // TODO(): need to fallback unlit and gizmo material.
                 if (pass->getPhase() != _phaseID) continue;
                 for (k = 0; k < _renderQueues.size(); k++) {
                     if (_renderQueues[k]->insertRenderPass(ro, m, p)) _isTransparentQueueEmpty = false;
