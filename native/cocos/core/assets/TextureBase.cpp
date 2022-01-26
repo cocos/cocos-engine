@@ -31,7 +31,7 @@
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
 
-#include "MurmurHash2/MurmurHash2.h"
+#include "boost/container_hash/hash.hpp"
 
 namespace cc {
 
@@ -43,7 +43,9 @@ TextureBase::TextureBase() {
     // Id for generate hash in material
     _id          = idGenerator.getNewId();
     _gfxDevice   = getGFXDevice();
-    _textureHash = murmurhash2::MurmurHash2(_id.data(), static_cast<int>(_id.length()), 666); //cjh TODO: How about using boost hash functionality?
+    std::size_t seed = 666;
+    boost::hash_range(seed, _id.begin(), _id.end());
+    _textureHash = static_cast<uint32_t>(seed);
 }
 
 TextureBase::~TextureBase() = default;

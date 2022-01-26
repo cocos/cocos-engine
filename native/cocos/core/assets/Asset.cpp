@@ -25,6 +25,7 @@
 
 #include "core/assets/Asset.h"
 #include "base/Macros.h"
+#include "base/DeferredReleasePool.h"
 #include "core/utils/Path.h"
 
 namespace cc {

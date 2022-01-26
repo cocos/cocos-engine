@@ -31,7 +31,7 @@
 #include "core/assets/RenderingSubMesh.h"
 #include "math/Quaternion.h"
 
-#include "MurmurHash2/MurmurHash2.h"
+#include "boost/container_hash/hash.hpp"
 #include "renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
@@ -196,7 +196,9 @@ const Vec3 &Mesh::getMaxPosition() const {
 
 uint64_t Mesh::getHash() {
     if (_hash == 0) {
-        _hash = murmurhash2::MurmurHash2(_data.buffer()->getData(), static_cast<int>(_data.length()), 666);
+        std::size_t seed = 666;
+        boost::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
+        _hash = static_cast<uint32_t>(seed);
     }
 
     return _hash;

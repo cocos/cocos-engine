@@ -28,7 +28,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "MurmurHash2/MurmurHash2.h"
+#include "boost/container_hash/hash.hpp"
 
 namespace cc {
 
@@ -54,7 +54,9 @@ uint64_t Skeleton::getHash() {
                  << ibm.m[12] << " " << ibm.m[13] << " " << ibm.m[14] << " " << ibm.m[15] << "\n";
         }
         std::string str{sstr.str()};
-        _hash = murmurhash2::MurmurHash2(str.c_str(), static_cast<int32_t>(str.size()), 666);
+        std::size_t seed = 666;
+        boost::hash_range(seed, str.begin(), str.end());
+        _hash = static_cast<uint32_t>(seed);
     }
     return _hash;
 }

@@ -27,7 +27,7 @@
 
 #include <sstream>
 
-#include "MurmurHash2/MurmurHash2.h"
+#include "boost/container_hash/hash.hpp"
 #include "core/Root.h"
 #include "core/assets/TextureBase.h"
 #include "core/builtin/BuiltinResMgr.h"
@@ -115,7 +115,9 @@ uint64_t Pass::getPassHash(Pass *pass) {
     res << serializeRasterizerState(pass->_rs);
 
     std::string str{res.str()};
-    return murmurhash2::MurmurHash2(str.data(), static_cast<int>(str.size()), 666);
+    std::size_t seed = 666;
+    boost::hash_range(seed, str.begin(), str.end());
+    return static_cast<uint32_t>(seed);
 }
 
 Pass::Pass() : Pass(Root::getInstance()) {}

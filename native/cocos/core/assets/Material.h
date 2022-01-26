@@ -312,9 +312,8 @@ public:
     //        return nullptr;
     //    }
 
-    void update(bool keepProps = true); // TODO(xwx): temporary use as public by demo
-
 protected:
+    void update(bool keepProps = true);
     bool uploadProperty(scene::Pass *pass, const std::string &name, const MaterialPropertyVariant &val);
     void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, index_t index = CC_INVALID_INDEX);
 
