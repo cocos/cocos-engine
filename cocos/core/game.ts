@@ -50,6 +50,7 @@ import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
 import { screen } from './platform/screen';
+import { builtinResMgr } from './builtin/builtin-res-mgr';
 
 interface ISceneInfo {
     url: string;
@@ -642,15 +643,17 @@ export class Game extends EventTarget {
         }
         garbageCollectionManager.init();
 
-        return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash()).then(() => {
-            if (!HTML5) {
-                // @ts-expect-error access private method.
-                screen._init({
-                    configOrientation: 'auto',
-                    exactFitScreen: true,
-                });
-            }
-        });
+        return Promise.resolve(initPromise)
+            .then(() => Promise.resolve(builtinResMgr.initBuiltinRes(this._gfxDevice!)))
+            .then(() => this._setRenderPipelineNShowSplash()).then(() => {
+                if (!HTML5) {
+                    // @ts-expect-error access private method.
+                    screen._init({
+                        configOrientation: 'auto',
+                        exactFitScreen: true,
+                    });
+                }
+            });
     }
 
     //  @ Persist root node section
