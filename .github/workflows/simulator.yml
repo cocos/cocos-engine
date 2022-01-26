@@ -42,7 +42,7 @@ jobs:
         run: |
           python -V
           export NDK_ROOT=${HOME}/bin/android-ndk
-          cd ./tools/tojs
+          cd ./native/tools/tojs
           echo "Create auto-generated jsbinding glue codes."
           python ./genbindings.py
           rm userconf.ini
@@ -87,7 +87,7 @@ jobs:
   #         export NDK_ROOT=${HOME}/bin/android-ndk
   #         cd ${{github.workspace}}/tools/travis-scripts
   #         echo "Create auto-generated jsbinding glue codes."
-  #         pushd ${{github.workspace}}/tools/tojs
+  #         pushd ${{github.workspace}}/native/tools/tojs
   #         python ./genbindings.py
   #         rm userconf.ini
   #         popd

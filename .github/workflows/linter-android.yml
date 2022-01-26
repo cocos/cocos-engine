@@ -27,14 +27,14 @@ jobs:
       - name: Download external
         run: |
           EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
-          rm external/config.json
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+          rm native/external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
 
       - name: Generate bindings
         shell: bash
         run: |
           python -V
-          cd ./tools/tojs
+          cd ./native/tools/tojs
           python ./genbindings.py
           rm userconf.ini
       - name: Get changed files
@@ -72,7 +72,7 @@ jobs:
       - name: Generate Compile database
         shell: bash
         run: |
-          utils/generate_compile_commands_android.sh
+          native/utils/generate_compile_commands_android.sh
 
       - name: Generate clang-fix.yaml
         shell: bash
