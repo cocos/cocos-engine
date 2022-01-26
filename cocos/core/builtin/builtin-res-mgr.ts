@@ -533,7 +533,6 @@ class BuiltinResMgr {
                 }
             }));
         }
-        return Promise.resolve();
     }
 }
 
