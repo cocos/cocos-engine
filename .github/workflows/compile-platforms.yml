@@ -46,8 +46,8 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win32/proj/cfg.cmake
           mkdir build-win32/assets
           cd build-win32
-          RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win32
-          COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}
+          RES_DIR=${GITHUB_WORKSPACE//\\//}/native/templates/windows/build-win32
+          COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}/native
           cmake ../ -G"Visual Studio 15 2017" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Awin32
           cmake --build . --config Release
           echo "Compile Win32 Release Done!"

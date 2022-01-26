@@ -16,7 +16,7 @@ jobs:
         run: |
           npm install
           npm install gulp -g
-          node ./utils/download-deps.js
+          node ./native/utils/download-deps.js
 
       - name: Generate bindings
         shell: bash
