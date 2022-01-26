@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Download external libraries
         run: |
-          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
           rm native/external/config.json
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
           rm -rf external/.git
