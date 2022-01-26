@@ -99,7 +99,7 @@ void GLES2Swapchain::doInit(const SwapchainInfo &info) {
     textureInfo.format = Format::DEPTH_STENCIL;
     initTexture(textureInfo, _depthStencilTexture);
 
-    _gpuSwapchain->gpuColorTexture = static_cast<GLES2Texture *>(_colorTexture)->gpuTexture();
+    _gpuSwapchain->gpuColorTexture = static_cast<GLES2Texture *>(_colorTexture.get())->gpuTexture();
 }
 
 void GLES2Swapchain::doDestroy() {
