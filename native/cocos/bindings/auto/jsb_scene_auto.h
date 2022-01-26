@@ -554,6 +554,28 @@ extern se::Class * __jsb_cc_scene_DirectionalLight_class; // NOLINT
 
 bool js_register_cc_scene_DirectionalLight(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowBias);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowDistance);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowEnabled);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowFar);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowFixedArea);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowInvisibleOcclusionRange);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowNear);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowNormalBias);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowOrthoSize);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowPcf);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_getShadowSaturation);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowBias);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowDistance);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowEnabled);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowFar);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowFixedArea);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowInvisibleOcclusionRange);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowNear);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowNormalBias);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowOrthoSize);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowPcf);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setShadowSaturation);
 SE_DECLARE_FUNC(js_scene_DirectionalLight_DirectionalLight);
 
 extern se::Object *__jsb_cc_scene_SpotLight_proto; // NOLINT
@@ -561,6 +583,14 @@ extern se::Class * __jsb_cc_scene_SpotLight_class; // NOLINT
 
 bool js_register_cc_scene_SpotLight(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_scene_SpotLight_getShadowBias);
+SE_DECLARE_FUNC(js_scene_SpotLight_getShadowEnabled);
+SE_DECLARE_FUNC(js_scene_SpotLight_getShadowNormalBias);
+SE_DECLARE_FUNC(js_scene_SpotLight_getShadowPcf);
+SE_DECLARE_FUNC(js_scene_SpotLight_setShadowBias);
+SE_DECLARE_FUNC(js_scene_SpotLight_setShadowEnabled);
+SE_DECLARE_FUNC(js_scene_SpotLight_setShadowNormalBias);
+SE_DECLARE_FUNC(js_scene_SpotLight_setShadowPcf);
 SE_DECLARE_FUNC(js_scene_SpotLight_SpotLight);
 
 extern se::Object *__jsb_cc_IMaterialInstanceInfo_proto; // NOLINT

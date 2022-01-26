@@ -338,4 +338,4 @@ extern se::Class * __jsb_cc_pipeline_GeometryRenderer_class; // NOLINT
 bool js_register_cc_pipeline_GeometryRenderer(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
-// clang-format on
+    // clang-format on

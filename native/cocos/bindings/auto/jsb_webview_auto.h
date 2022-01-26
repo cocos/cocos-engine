@@ -44,4 +44,4 @@ SE_DECLARE_FUNC(js_webview_WebView_setVisible);
 SE_DECLARE_FUNC(js_webview_WebView_stopLoading);
 SE_DECLARE_FUNC(js_webview_WebView_create);
 #endif //#if USE_WEBVIEW > 0
-// clang-format on
+    // clang-format on

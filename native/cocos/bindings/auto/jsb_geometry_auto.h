@@ -143,4 +143,4 @@ SE_DECLARE_FUNC(js_geometry_Triangle_create);
 SE_DECLARE_FUNC(js_geometry_Triangle_fromPoints);
 SE_DECLARE_FUNC(js_geometry_Triangle_set);
 SE_DECLARE_FUNC(js_geometry_Triangle_Triangle);
-// clang-format on
+    // clang-format on

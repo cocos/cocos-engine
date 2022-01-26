@@ -1098,4 +1098,4 @@ bool js_register_spine_SkeletonDataMgr(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_spine_SkeletonDataMgr_setDestroyCallback);
 SE_DECLARE_FUNC(js_spine_SkeletonDataMgr_getInstance);
 SE_DECLARE_FUNC(js_spine_SkeletonDataMgr_SkeletonDataMgr);
-// clang-format on
+    // clang-format on

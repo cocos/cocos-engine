@@ -10,7 +10,8 @@
 
 bool register_all_physics(se::Object *obj);                   // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(cc::physics::World);
+JSB_REGISTER_OBJECT_TYPE(cc::physics::RevoluteJoint);
+JSB_REGISTER_OBJECT_TYPE(cc::physics::DistanceJoint);
 JSB_REGISTER_OBJECT_TYPE(cc::physics::RigidBody);
 JSB_REGISTER_OBJECT_TYPE(cc::physics::SphereShape);
 JSB_REGISTER_OBJECT_TYPE(cc::physics::BoxShape);
@@ -20,34 +21,41 @@ JSB_REGISTER_OBJECT_TYPE(cc::physics::TrimeshShape);
 JSB_REGISTER_OBJECT_TYPE(cc::physics::CylinderShape);
 JSB_REGISTER_OBJECT_TYPE(cc::physics::ConeShape);
 JSB_REGISTER_OBJECT_TYPE(cc::physics::TerrainShape);
-JSB_REGISTER_OBJECT_TYPE(cc::physics::RevoluteJoint);
-JSB_REGISTER_OBJECT_TYPE(cc::physics::DistanceJoint);
+JSB_REGISTER_OBJECT_TYPE(cc::physics::World);
 
 
-extern se::Object *__jsb_cc_physics_World_proto; // NOLINT
-extern se::Class * __jsb_cc_physics_World_class; // NOLINT
+extern se::Object *__jsb_cc_physics_RevoluteJoint_proto; // NOLINT
+extern se::Class * __jsb_cc_physics_RevoluteJoint_class; // NOLINT
 
-bool js_register_cc_physics_World(se::Object *obj); // NOLINT
+bool js_register_cc_physics_RevoluteJoint(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_physics_World_createConvex);
-SE_DECLARE_FUNC(js_physics_World_createHeightField);
-SE_DECLARE_FUNC(js_physics_World_createMaterial);
-SE_DECLARE_FUNC(js_physics_World_createTrimesh);
-SE_DECLARE_FUNC(js_physics_World_destroy);
-SE_DECLARE_FUNC(js_physics_World_emitEvents);
-SE_DECLARE_FUNC(js_physics_World_getContactEventPairs);
-SE_DECLARE_FUNC(js_physics_World_getTriggerEventPairs);
-SE_DECLARE_FUNC(js_physics_World_raycast);
-SE_DECLARE_FUNC(js_physics_World_raycastClosest);
-SE_DECLARE_FUNC(js_physics_World_raycastClosestResult);
-SE_DECLARE_FUNC(js_physics_World_raycastResult);
-SE_DECLARE_FUNC(js_physics_World_setAllowSleep);
-SE_DECLARE_FUNC(js_physics_World_setCollisionMatrix);
-SE_DECLARE_FUNC(js_physics_World_setGravity);
-SE_DECLARE_FUNC(js_physics_World_step);
-SE_DECLARE_FUNC(js_physics_World_syncSceneToPhysics);
-SE_DECLARE_FUNC(js_physics_World_syncSceneWithCheck);
-SE_DECLARE_FUNC(js_physics_World_World);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_getImpl);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_initialize);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_onDestroy);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_onDisable);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_onEnable);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_setAxis);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_setConnectedBody);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_setEnableCollision);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_setPivotA);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_setPivotB);
+SE_DECLARE_FUNC(js_physics_RevoluteJoint_RevoluteJoint);
+
+extern se::Object *__jsb_cc_physics_DistanceJoint_proto; // NOLINT
+extern se::Class * __jsb_cc_physics_DistanceJoint_class; // NOLINT
+
+bool js_register_cc_physics_DistanceJoint(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_physics_DistanceJoint_getImpl);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_initialize);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_onDestroy);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_onDisable);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_onEnable);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_setConnectedBody);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_setEnableCollision);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_setPivotA);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_setPivotB);
+SE_DECLARE_FUNC(js_physics_DistanceJoint_DistanceJoint);
 
 extern se::Object *__jsb_cc_physics_RigidBody_proto; // NOLINT
 extern se::Class * __jsb_cc_physics_RigidBody_class; // NOLINT
@@ -285,36 +293,28 @@ SE_DECLARE_FUNC(js_physics_TerrainShape_setTerrain);
 SE_DECLARE_FUNC(js_physics_TerrainShape_updateEventListener);
 SE_DECLARE_FUNC(js_physics_TerrainShape_TerrainShape);
 
-extern se::Object *__jsb_cc_physics_RevoluteJoint_proto; // NOLINT
-extern se::Class * __jsb_cc_physics_RevoluteJoint_class; // NOLINT
+extern se::Object *__jsb_cc_physics_World_proto; // NOLINT
+extern se::Class * __jsb_cc_physics_World_class; // NOLINT
 
-bool js_register_cc_physics_RevoluteJoint(se::Object *obj); // NOLINT
+bool js_register_cc_physics_World(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_getImpl);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_initialize);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_onDestroy);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_onDisable);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_onEnable);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_setAxis);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_setConnectedBody);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_setEnableCollision);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_setPivotA);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_setPivotB);
-SE_DECLARE_FUNC(js_physics_RevoluteJoint_RevoluteJoint);
-
-extern se::Object *__jsb_cc_physics_DistanceJoint_proto; // NOLINT
-extern se::Class * __jsb_cc_physics_DistanceJoint_class; // NOLINT
-
-bool js_register_cc_physics_DistanceJoint(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_physics_DistanceJoint_getImpl);
-SE_DECLARE_FUNC(js_physics_DistanceJoint_initialize);
-SE_DECLARE_FUNC(js_physics_DistanceJoint_onDestroy);
-SE_DECLARE_FUNC(js_physics_DistanceJoint_onDisable);
-SE_DECLARE_FUNC(js_physics_DistanceJoint_onEnable);
-SE_DECLARE_FUNC(js_physics_DistanceJoint_setConnectedBody);
-SE_DECLARE_FUNC(js_physics_DistanceJoint_setEnableCollision);
-SE_DECLARE_FUNC(js_physics_DistanceJoint_setPivotA);
-SE_DECLARE_FUNC(js_physics_DistanceJoint_setPivotB);
-SE_DECLARE_FUNC(js_physics_DistanceJoint_DistanceJoint);
+SE_DECLARE_FUNC(js_physics_World_createConvex);
+SE_DECLARE_FUNC(js_physics_World_createHeightField);
+SE_DECLARE_FUNC(js_physics_World_createMaterial);
+SE_DECLARE_FUNC(js_physics_World_createTrimesh);
+SE_DECLARE_FUNC(js_physics_World_destroy);
+SE_DECLARE_FUNC(js_physics_World_emitEvents);
+SE_DECLARE_FUNC(js_physics_World_getContactEventPairs);
+SE_DECLARE_FUNC(js_physics_World_getTriggerEventPairs);
+SE_DECLARE_FUNC(js_physics_World_raycast);
+SE_DECLARE_FUNC(js_physics_World_raycastClosest);
+SE_DECLARE_FUNC(js_physics_World_raycastClosestResult);
+SE_DECLARE_FUNC(js_physics_World_raycastResult);
+SE_DECLARE_FUNC(js_physics_World_setAllowSleep);
+SE_DECLARE_FUNC(js_physics_World_setCollisionMatrix);
+SE_DECLARE_FUNC(js_physics_World_setGravity);
+SE_DECLARE_FUNC(js_physics_World_step);
+SE_DECLARE_FUNC(js_physics_World_syncSceneToPhysics);
+SE_DECLARE_FUNC(js_physics_World_syncSceneWithCheck);
+SE_DECLARE_FUNC(js_physics_World_World);
     // clang-format on

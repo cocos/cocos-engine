@@ -819,4 +819,4 @@ bool js_register_cc_gfx_DeviceManager(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_gfx_DeviceManager_addSurfaceEventListener);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
-// clang-format on
+    // clang-format on

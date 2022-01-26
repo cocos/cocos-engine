@@ -55,4 +55,4 @@ SE_DECLARE_FUNC(js_audio_AudioEngine_stopAll);
 SE_DECLARE_FUNC(js_audio_AudioEngine_uncache);
 SE_DECLARE_FUNC(js_audio_AudioEngine_uncacheAll);
 #endif //#if (USE_AUDIO > 0)
-// clang-format on
+    // clang-format on
