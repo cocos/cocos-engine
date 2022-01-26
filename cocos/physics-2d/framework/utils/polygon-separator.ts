@@ -202,6 +202,12 @@ function Right (a: number | IVec2Like, b: IVec2Like | IVec2Like[], c?: IVec2Like
         a = At(i - 1, vertices);
         b = At(i, vertices);
         c = At(i + 1, vertices);
+        if (typeof a === 'undefined') {
+            a = b;
+        }
+        if (typeof c === 'undefined') {
+            c = b;
+        }
     }
 
     return Area(a as IVec2Like, b as IVec2Like, c) < 0;
@@ -316,9 +322,5 @@ function FloatEquals (value1, value2) {
 
 // returns a positive number if c is to the left of the line going from a to b. Positive number if povar is left, negative if povar is right, and 0 if points are collinear.</returns>
 function Area (a: IVec2Like, b: IVec2Like, c: IVec2Like) {
-    if (a === undefined || b === undefined || c === undefined) {
-        return 0;
-    } else {
-        return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
-    }
+    return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 }
