@@ -396,7 +396,6 @@ SE_DECLARE_FUNC(js_assets_Material_setPropertyVec3);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec3Array);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4Array);
-SE_DECLARE_FUNC(js_assets_Material_update);
 SE_DECLARE_FUNC(js_assets_Material_getHashForMaterialForJS);
 SE_DECLARE_FUNC(js_assets_Material_Material);
 

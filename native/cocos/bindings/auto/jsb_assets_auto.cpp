@@ -10597,29 +10597,6 @@ static bool js_assets_Material_setPropertyVec4Array(se::State& s) // NOLINT(read
 }
 SE_BIND_FUNC(js_assets_Material_setPropertyVec4Array)
 
-static bool js_assets_Material_update(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::Material>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_Material_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cobj->update();
-        return true;
-    }
-    if (argc == 1) {
-        HolderType<bool, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_Material_update : Error processing arguments");
-        cobj->update(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_assets_Material_update)
-
 static bool js_assets_Material_getHashForMaterialForJS_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -10835,7 +10812,6 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("setPropertyVec3Array", _SE(js_assets_Material_setPropertyVec3Array));
     cls->defineFunction("setPropertyVec4", _SE(js_assets_Material_setPropertyVec4));
     cls->defineFunction("setPropertyVec4Array", _SE(js_assets_Material_setPropertyVec4Array));
-    cls->defineFunction("update", _SE(js_assets_Material_update));
     cls->defineStaticFunction("getHashForMaterial", _SE(js_assets_Material_getHashForMaterialForJS_static));
     cls->defineFinalizeFunction(_SE(js_cc_Material_finalize));
     cls->install();
