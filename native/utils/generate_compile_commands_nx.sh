@@ -21,8 +21,8 @@ else
     exit 1
 fi
 
-mkdir -p build
-cp utils/CMakeLists.header.txt  build/CMakeLists.txt
+mkdir -p native/build
+cp native/utils/CMakeLists.header.txt  native/build/CMakeLists.txt
 set -x
 cmake -Sbuild -Bbuild -DCC_USE_NVN=ON -DCC_USE_VULKAN=ON -DCC_USE_GLES2=ON -DCC_USE_GLES3=ON \
     -DNX=ON \
@@ -30,4 +30,4 @@ cmake -Sbuild -Bbuild -DCC_USE_NVN=ON -DCC_USE_VULKAN=ON -DCC_USE_GLES2=ON -DCC_
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -GNinja $MAKE_BIN
 
-cp build/compile_commands.json .
+cp native/build/compile_commands.json .

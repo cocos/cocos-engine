@@ -50,21 +50,21 @@ jobs:
               - added|modified: '**/*.m'
               - added|modified: '**/*.mm'
               - added|modified: '**/*.c'
-              - exclude: 'cocos/editor-support/**'
-              - exclude: 'cocos/base/etc1.*'
-              - exclude: 'cocos/base/etc2.*'
-              - exclude: 'cocos/bindings/manual/jsb_global.cpp'
-              - exclude: 'cocos/bindings/manual/jsb_dragonbones_manual.cpp'
-              - exclude: 'cocos/bindings/manual/jsb_spine_manual.cpp'
-              - exclude: 'cocos/bindings/manual/jsb_socketio.cpp'
-              - exclude: 'cocos/bindings/manual/jsb_conversions.*'
-              - exclude: 'cocos/bindings/jswrapper/v8/debugger/**'
-              - exclude: 'cocos/audio/android/audio_utils/**'
+              - exclude: 'native/cocos/editor-support/**'
+              - exclude: 'native/cocos/base/etc1.*'
+              - exclude: 'native/cocos/base/etc2.*'
+              - exclude: 'native/cocos/bindings/manual/jsb_global.cpp'
+              - exclude: 'native/cocos/bindings/manual/jsb_dragonbones_manual.cpp'
+              - exclude: 'native/cocos/bindings/manual/jsb_spine_manual.cpp'
+              - exclude: 'native/cocos/bindings/manual/jsb_socketio.cpp'
+              - exclude: 'native/cocos/bindings/manual/jsb_conversions.*'
+              - exclude: 'native/cocos/bindings/jswrapper/v8/debugger/**'
+              - exclude: 'native/cocos/audio/android/audio_utils/**'
             allChanges:
               - added|modified|deleted: '**'
             skipedDebug:
               - added|modified|deleted: '**'
-              - exclude: 'cocos/editor-support/**'
+              - exclude: 'native/cocos/editor-support/**'
       - name: Install CMake & Clang Tidy
         run: |
           sudo apt install -y cmake llvm clang-tidy-11

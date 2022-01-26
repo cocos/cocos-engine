@@ -9,8 +9,8 @@ fi
 
 proj_dir=I:/Github/test-cases-3d
 
-mkdir -p build
-cp utils/CMakeLists.header.txt build/CMakeLists.txt
+mkdir -p native/build
+cp native/utils/CMakeLists.header.txt build/CMakeLists.txt
 cmake -Bbuild \
     -DRES_DIR=$proj_dir/build/ohos \
     -S$proj_dir/native/engine/ohos/ \
@@ -34,4 +34,4 @@ cmake -Bbuild \
     
 
     
-cp build/compile_commands.json .
+cp native/build/compile_commands.json .

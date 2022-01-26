@@ -6,10 +6,10 @@ else
     echo "Cannot find NDK root path"
     exit 1
 fi
-mkdir -p build
-cp utils/CMakeLists.header.txt build/CMakeLists.txt
-cmake -Bbuild \
-    -S build\
+mkdir -p native/build
+cp native/utils/CMakeLists.header.txt native/build/CMakeLists.txt
+cmake -B native/build \
+    -S native/build \
     -D USE_VIDEO=ON \
     -DCC_USE_GLES3=ON \
     -DCC_USE_GLES2=OFF \
@@ -30,4 +30,4 @@ cmake -Bbuild \
     
 
     
-cp build/compile_commands.json .
+cp native/build/compile_commands.json .
