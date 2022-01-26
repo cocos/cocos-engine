@@ -24,7 +24,7 @@ fi
 mkdir -p native/build
 cp native/utils/CMakeLists.header.txt  native/build/CMakeLists.txt
 set -x
-cmake -Sbuild -Bbuild -DCC_USE_NVN=ON -DCC_USE_VULKAN=ON -DCC_USE_GLES2=ON -DCC_USE_GLES3=ON \
+cmake -S native/build -B native/build -DCC_USE_NVN=ON -DCC_USE_VULKAN=ON -DCC_USE_GLES2=ON -DCC_USE_GLES3=ON \
     -DNX=ON \
     -DCC_NX_WINDOWS=ON \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
