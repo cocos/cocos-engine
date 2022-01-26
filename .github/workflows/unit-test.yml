@@ -13,6 +13,7 @@ jobs:
           python-version: "3.x"
 
       - name: Downlad external libraties
+        working-directory: ${{github.workspace}}/native
         run: |
           npm install
           npm install gulp -g

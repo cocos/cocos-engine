@@ -17,6 +17,7 @@ jobs:
           python-version: "3.x"
 
       - name: npm install
+        working-directory: ${{github.workspace}}/native
         run: |
           npm install
       - name: download external libraries
