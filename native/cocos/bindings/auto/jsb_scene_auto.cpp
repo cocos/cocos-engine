@@ -15554,7 +15554,7 @@ static bool js_scene_Ambient_getGroundAlbedo(se::State& s) // NOLINT(readability
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::Vec4& result = cobj->getGroundAlbedo();
+        const cc::Vec4& result = cobj->getGroundAlbedo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_scene_Ambient_getGroundAlbedo : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
