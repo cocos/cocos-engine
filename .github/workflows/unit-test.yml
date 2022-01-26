@@ -6,6 +6,9 @@ jobs:
   unit-test-with-cmake:
     name: "Run on windows"
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/native
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -13,24 +16,23 @@ jobs:
           python-version: "3.x"
 
       - name: Downlad external libraties
-        working-directory: ${{github.workspace}}/native
         run: |
           npm install
           npm install gulp -g
-          node ./native/utils/download-deps.js
+          node ./utils/download-deps.js
 
       - name: Generate bindings
         shell: bash
         run: |
           python -m pip install PyYAML==5.4.1 Cheetah3
-          python ./native/tools/tojs/genbindings.py
+          python ./tools/tojs/genbindings.py
 
       - name: Run Unit Tests
         shell: bash
         run: |
-          cmake -B native/tests/unit-test/build -S native/tests/unit-test -G"Visual Studio 16 2019" -A win32
-          cmake --build native/tests/unit-test/build --config Release
-          ./native/tests/unit-test/build/src/Release/CocosTest.exe
+          cmake -B tests/unit-test/build -S tests/unit-test -G"Visual Studio 16 2019" -A win32
+          cmake --build tests/unit-test/build --config Release
+          ./tests/unit-test/build/src/Release/CocosTest.exe
       
       #### TODO(PatriceJiang): model split
       # - name: Run Module Tests

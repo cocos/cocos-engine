@@ -15,8 +15,8 @@ jobs:
           EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
           rm native/external/config.json
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
-          rm -rf external/.git
-          git checkout HEAD external/config.json
+          rm -rf native/external/.git
+          git checkout HEAD native/external/config.json
 
       - name: Run genbindings.py
         run: |
@@ -42,7 +42,7 @@ jobs:
           
       #- name: Make PR
       #  run: |
-      #    cd tools/travis-scripts && bash generate-pr.sh
+      #    cd native/tools/travis-scripts && bash generate-pr.sh
       #  env:
       #    TRAVIS_OS_NAME: linux
       #    TRAVIS_PULL_REQUEST: "false"
