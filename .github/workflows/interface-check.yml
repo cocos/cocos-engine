@@ -29,14 +29,13 @@ jobs:
         working-directory: ./engine
         run: |
           npm run build-declaration
-          cp ./bin/.declarations/cc.d.ts ./bin/cc_base.d.ts
+          cp ./bin/.declarations/cc.d.ts ../cc_base.d.ts
 
       - name: clear dependencies
         working-directory: ./engine
         run: |
           git checkout .
-          rm -r ./node_modules
-          rm ./package-lock.json
+          git clean -xfd
           ls -la
 
       - name: checkout HEAD branch
@@ -65,7 +64,7 @@ jobs:
 
       - uses: LouisBrunner/diff-action@v0.1.2
         with:
-          old: ./engine/bin/cc_base.d.ts
+          old: ./cc_base.d.ts
           new: ./engine/bin/.declarations/cc.d.ts
           mode: addition
           tolerance: worse

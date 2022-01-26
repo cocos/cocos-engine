@@ -20,7 +20,7 @@ layout(set = 0, binding = 1) uniform CCCamera {
   highp   vec4 cc_cameraPos; // xyz: camera position
   mediump vec4 cc_screenScale; // xy: screen scale, zw: inverse screen scale
   mediump vec4 cc_exposure; // x: exposure, y: inverse exposure, z: HDR flag, w: unused
-  mediump vec4 cc_mainLitDir; // xyz: main direcitonal light direction
+  mediump vec4 cc_mainLitDir; // xyz: main direcitonal light direction, w: enable shadow
   mediump vec4 cc_mainLitColor; // xyz: main direcitonal light color, w: intensity
   mediump vec4 cc_ambientSky; //xyz: sky illumination color, w: intensity
   mediump vec4 cc_ambientGround; // xyz: ground albedo color, w: envmap LOD

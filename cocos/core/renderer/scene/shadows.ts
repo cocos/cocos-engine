@@ -149,6 +149,18 @@ export class Shadows {
     }
 
     /**
+     * @en Shadow type.
+     * @zh 阴影类型。
+     */
+    get type (): number {
+        return this._type;
+    }
+    set type (val: number) {
+        this._type = this.enabled ? val : SHADOW_TYPE_NONE;
+        this.activate();
+    }
+
+    /**
      * @en The normal of the plane which receives shadow.
      * @zh 阴影接收平面的法线。
      */
@@ -185,73 +197,6 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow invisible Occlusion Range.
-     * @zh 控制潜在遮挡体产生的范围。
-     */
-    public get invisibleOcclusionRange (): number {
-        return this._invisibleOcclusionRange;
-    }
-    public set invisibleOcclusionRange (val: number) {
-        this._invisibleOcclusionRange = val;
-    }
-
-    /**
-     * @en get or set shadow distance.
-     * @zh 控制阴影的可视范围。
-     */
-    public get shadowDistance (): number {
-        return this._shadowDistance;
-    }
-    public set shadowDistance (val: number) {
-        this._shadowDistance = val;
-    }
-
-    /**
-     * @en Shadow type.
-     * @zh 阴影类型。
-     */
-    get type (): number {
-        return this._type;
-    }
-    set type (val: number) {
-        this._type = this.enabled ? val : SHADOW_TYPE_NONE;
-        this.activate();
-    }
-
-    /**
-     * @en get or set shadow camera near.
-     * @zh 获取或者设置阴影相机近裁剪面。
-     */
-    public get near (): number {
-        return this._near;
-    }
-    public set near (val: number) {
-        this._near = val;
-    }
-
-    /**
-     * @en get or set shadow camera far.
-     * @zh 获取或者设置阴影相机远裁剪面。
-     */
-    public get far (): number {
-        return this._far;
-    }
-    public set far (val: number) {
-        this._far = val;
-    }
-
-    /**
-     * @en get or set shadow camera orthoSize.
-     * @zh 获取或者设置阴影相机正交大小。
-     */
-    public get orthoSize (): number {
-        return this._orthoSize;
-    }
-    public set orthoSize (val: number) {
-        this._orthoSize = val;
-    }
-
-    /**
      * @en get or set shadow camera orthoSize.
      * @zh 获取或者设置阴影纹理大小。
      */
@@ -263,17 +208,6 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow pcf.
-     * @zh 获取或者设置阴影pcf等级。
-     */
-    public get pcf (): number {
-        return this._pcf;
-    }
-    public set pcf (val: number) {
-        this._pcf = val;
-    }
-
-    /**
      * @en shadow Map size has been modified.
      * @zh 阴影贴图大小是否被修改。
      */
@@ -282,51 +216,7 @@ export class Shadows {
     }
     public set shadowMapDirty (val: boolean) {
         this._shadowMapDirty = val;
-    }
 
-    /**
-     * @en get or set shadow bias.
-     * @zh 获取或者设置阴影偏移量。
-     */
-    public get bias (): number {
-        return this._bias;
-    }
-    public set bias (val: number) {
-        this._bias = val;
-    }
-
-    /**
-     * @en get or set normal bias.
-     * @zh 设置或者获取法线偏移。
-     */
-    public get normalBias (): number {
-        return this._normalBias;
-    }
-    public set normalBias (val: number) {
-        this._normalBias = val;
-    }
-
-    /**
-     * @en get or set shadow saturation.
-     * @zh 设置或者获取阴影饱和度。
-     */
-    public get saturation (): number {
-        return this._saturation;
-    }
-    public set saturation (val: number) {
-        this._saturation = val;
-    }
-
-    /**
-     * @en get or set fixed area shadow
-     * @zh 是否是固定区域阴影
-     */
-    public get fixedArea (): boolean {
-        return this._fixedArea;
-    }
-
-    public set fixedArea (val: boolean) {
-        this._fixedArea = val;
     }
 
     public get matLight () {
@@ -360,26 +250,18 @@ export class Shadows {
     public matShadowProj = new Mat4();
     public matShadowViewProj = new Mat4();
 
+    protected _enabled = false;
+    protected _type = SHADOW_TYPE_NONE;
+    protected _distance = 0;
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
+    protected _size: Vec2 = new Vec2(512, 512);
+    protected _shadowMapDirty = false;
+
     protected _matLight = new Mat4();
     protected _material: Material | null = null;
     protected _instancingMaterial: Material | null = null;
-    protected _size: Vec2 = new Vec2(512, 512);
-    protected _enabled = false;
-    protected _distance = 0;
-    protected _type = SHADOW_TYPE_NONE;
-    protected _near = 0.1;
-    protected _far = 10;
-    protected _invisibleOcclusionRange = 200;
-    protected _shadowDistance = 100;
-    protected _orthoSize = 1;
-    protected _pcf = 0;
-    protected _shadowMapDirty = false;
-    protected _bias = 0;
-    protected _normalBias = 0;
-    protected _fixedArea = false;
-    protected _saturation = 0.75;
+
 
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._material) {
@@ -400,37 +282,21 @@ export class Shadows {
     }
 
     public initialize (shadowsInfo: ShadowsInfo) {
-        this.near = shadowsInfo.near;
-        this.far = shadowsInfo.far;
-        this.invisibleOcclusionRange = shadowsInfo.invisibleOcclusionRange;
-        this.shadowDistance = shadowsInfo.shadowDistance;
-        this.orthoSize = shadowsInfo.orthoSize;
-        this.size = shadowsInfo.size;
-        this.pcf = shadowsInfo.pcf;
+        this._enabled = shadowsInfo.enabled;
+        this._type = this.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE;
+
         this.normal = shadowsInfo.normal;
         this.distance = shadowsInfo.distance;
         this.shadowColor = shadowsInfo.shadowColor;
-        this.bias = shadowsInfo.bias;
-        this.normalBias = shadowsInfo.normalBias;
         this.maxReceived = shadowsInfo.maxReceived;
-        this.fixedArea = shadowsInfo.fixedArea;
-        this._enabled = shadowsInfo.enabled;
-        this._type = this.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE;
-        this.saturation = shadowsInfo.saturation;
+        this.size = shadowsInfo.size;
     }
 
     public activate () {
         if (this.enabled) {
-            if (this.type === ShadowType.ShadowMap) {
-                this._updatePipeline();
-            } else {
+            if (this.type === ShadowType.Planar) {
                 this._updatePlanarInfo();
             }
-        } else {
-            const root = legacyCC.director.root;
-            const pipeline = root.pipeline;
-            pipeline.macros.CC_ENABLE_DIR_SHADOW = 0;
-            root.onGlobalPipelineStateChanged();
         }
     }
 
@@ -443,18 +309,6 @@ export class Shadows {
             this._instancingMaterial = new Material();
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
         }
-
-        const root = legacyCC.director.root;
-        const pipeline = root.pipeline;
-        pipeline.macros.CC_ENABLE_DIR_SHADOW = 0;
-        root.onGlobalPipelineStateChanged();
-    }
-
-    protected _updatePipeline () {
-        const root = legacyCC.director.root;
-        const pipeline = root.pipeline;
-        pipeline.macros.CC_ENABLE_DIR_SHADOW = 1;
-        root.onGlobalPipelineStateChanged();
     }
 
     public destroy () {

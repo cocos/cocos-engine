@@ -40,18 +40,15 @@ cocos2d : getActionByTag(tag = %s): Action not found
 
 ### 1006
 
-<!-- DEPRECATED -->
 [Action step]. override me
 
 ### 1007
 
-<!-- DEPRECATED -->
 [Action update]. override me
 
 ### 1008
 
-<!-- DEPRECATED -->
-cocos2d: FiniteTimeAction#reverse: Implement me
+[Action reverse]. override me
 
 ### 1009
 
@@ -621,6 +618,7 @@ Invalid index in MultiplexLayer switchTo message
 cc.Layer.addLayer(): layer should be non-null
 
 ### 2104
+
 Layer collision. The name of layer (%s) is collided with the name or value of some layer
 
 ### 2200
@@ -2889,6 +2887,14 @@ saveToFile isn't supported on Cocos2d-Html5
 
 newCCImage isn't supported on Cocos2d-Html5
 
+### 7606
+
+GFXTexture is null
+
+### 7607
+
+readPixels buffer size smaller than %d
+
 ### 7700
 
 On the web is always keep the aspect ratio
@@ -3058,6 +3064,22 @@ Stencil manager does not support level bigger than %d in this device.
 ### 9001
 
 Stencil manager is already empty, cannot pop any mask
+
+### 9002
+
+Failed to request any buffer from a mesh buffer without accessor
+
+### 9003
+
+The internal state of LinearBufferAccessor have severe issue and irreversible, please check the reason
+
+### 9004
+
+Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too large: %d bytes
+
+### 9005
+
+BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 * 9 * 4 / 1024 = 2304KB)
 
 ### 9100
 

@@ -1,4 +1,4 @@
-import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED, VIVO } from 'internal:constants';
+import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -22,11 +22,6 @@ try {
             }).data).screenOrientation;
             rotateLandscape = (screenOrientation === 'landscape');
         }
-    } else if (COCOSPLAY) {
-        // @ts-expect-error TODO: use pal/fs
-        const fs = ral.getFileSystemManager();
-        const deviceOrientation = JSON.parse(fs.readFileSync('game.config.json', 'utf8')).deviceOrientation;
-        rotateLandscape = (deviceOrientation === 'landscape');
     }
 } catch (e) {
     console.error(e);
@@ -55,7 +50,7 @@ class ScreenAdapter extends EventTarget {
         const dpr = ((ALIPAY && systemInfo.os === OS.ANDROID) || VIVO) ? 1 : this.devicePixelRatio;
         let screenWidth = sysInfo.screenWidth;
         let screenHeight = sysInfo.screenHeight;
-        if ((COCOSPLAY || ALIPAY) && rotateLandscape  && screenWidth < screenHeight) {
+        if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {
             const temp = screenWidth;
             screenWidth = screenHeight;
             screenHeight = temp;
@@ -132,6 +127,11 @@ class ScreenAdapter extends EventTarget {
     constructor () {
         super();
         // TODO: onResize or onOrientationChange is not supported well
+        if (WECHAT || COCOSPLAY) {
+            minigame.onWindowResize?.(() => {
+                this.emit('window-resize');
+            });
+        }
     }
 
     public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {

@@ -80,7 +80,8 @@ export const simple: IAssembler = {
         _moveY = comp.leftDownToCenterY;
         _renderData = renderData;
 
-        if (comp.colorChanged || comp.isCullingDirty() || comp.isUserNodeDirty() || comp.hasAnimation() || comp.hasTiledNode()) {
+        if (comp.colorChanged || comp.isCullingDirty() || comp.isUserNodeDirty() || comp.hasAnimation()
+            || comp.hasTiledNode() || comp.node.hasChangedFlags) {
             comp.colorChanged = false;
 
             comp.destroyRenderData();
@@ -128,7 +129,7 @@ export const simple: IAssembler = {
         colorV[0] = color.r / 255;
         colorV[1] = color.g / 255;
         colorV[2] = color.b / 255;
-        colorV[0] = color.a / 255;
+        colorV[3] = color.a / 255;
         const rs = tiled.meshRenderDataArray;
         if (rs) {
             for (const r of rs) {
@@ -146,52 +147,23 @@ export const simple: IAssembler = {
         if (!layer || !layer.meshRenderDataArray) return;
 
         const dataArray = layer.meshRenderDataArray;
-        const node = layer.node;
-
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
 
         // 当前渲染的数据
         const data = dataArray[layer._meshRenderDataArrayIdx] as TiledMeshData;
         const renderData = data.renderData;
+        const iBuf = renderData.iData;
 
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
-
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-        const matrix = node.worldMatrix;
-
-        const srcVBuf = renderData.vData;
-        const srcVIdx = renderData.vertexStart;
-
-        // copy all vertexData
-        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * 9), vertexOffset);
-        for (let i = 0; i < renderData.vertexCount; i++) {
-            const pOffset = vertexOffset + i * 9;
-            _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
-            _vec3u_temp.transformMat4(matrix);
-            vBuf[pOffset] = _vec3u_temp.x;
-            vBuf[pOffset + 1] = _vec3u_temp.y;
-            vBuf[pOffset + 2] = _vec3u_temp.z;
-        }
-
+        let indexOffset = 0;
+        let vertexId = 0;
         const quadCount = renderData.vertexCount / 4;
         for (let i = 0; i < quadCount; i += 1) {
-            iBuf[indicesOffset] = vertexId;
-            iBuf[indicesOffset + 1] = vertexId + 1;
-            iBuf[indicesOffset + 2] = vertexId + 2;
-            iBuf[indicesOffset + 3] = vertexId + 2;
-            iBuf[indicesOffset + 4] = vertexId + 1;
-            iBuf[indicesOffset + 5] = vertexId + 3;
-            indicesOffset += 6;
+            iBuf[indexOffset] = vertexId;
+            iBuf[indexOffset + 1] = vertexId + 1;
+            iBuf[indexOffset + 2] = vertexId + 2;
+            iBuf[indexOffset + 3] = vertexId + 2;
+            iBuf[indexOffset + 4] = vertexId + 1;
+            iBuf[indexOffset + 5] = vertexId + 3;
+            indexOffset += 6;
             vertexId += 4;
         }
     },
@@ -345,6 +317,8 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     let vertexBuf: Float32Array = _renderData.renderData.vData;
     // let idxBuf: Uint16Array = _renderData!.renderData.iData;
 
+    const matrix = comp.node.worldMatrix;
+
     _fillGrids = 0;
     _vfOffset = 0;
 
@@ -409,6 +383,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             cols = checkColRange && leftDown.col < rowData.minCol ? rowData.minCol : leftDown.col;
         }
 
+        const renderData = _renderData!.renderData;
         // traverse col
         for (; (cols - col) * colMoveDir >= 0; col += colMoveDir) {
             colData = rowData && rowData[col];
@@ -449,45 +424,65 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             // begin to fill vertex buffer
             tiledNode = tiledTiles[colData.index];
 
-            _renderData!.renderData.reserve(4, 0);
-            _vfOffset = _renderData!.renderData.vertexCount * 9;
-            vertexBuf = _renderData!.renderData.vData;
+            renderData.reserve(4, 0);
+            _vfOffset = renderData.vertexCount * 9;
+            vertexBuf = renderData.vData;
             if (!tiledNode) {
                 if (diamondTile) {
                     const centerX = (left + right) / 2;
                     const centerY = (top + bottom) / 2;
                     // ct
-                    vertexBuf[_vfOffset] = centerX;
-                    vertexBuf[_vfOffset + 1] = top;
+                    vec3_temps[0].x = centerX;
+                    vec3_temps[0].y = top;
 
                     // lc
-                    vertexBuf[_vfOffset + vertStep] = left;
-                    vertexBuf[_vfOffset + vertStep + 1] = centerY;
+                    vec3_temps[1].x = left;
+                    vec3_temps[1].y = centerY;
 
                     // rc
-                    vertexBuf[_vfOffset + vertStep2] = right;
-                    vertexBuf[_vfOffset + vertStep2 + 1] = centerY;
+                    vec3_temps[2].x = right;
+                    vec3_temps[2].y = centerY;
 
                     // cb
-                    vertexBuf[_vfOffset + vertStep3] = centerX;
-                    vertexBuf[_vfOffset + vertStep3 + 1] = bottom;
+                    vec3_temps[3].x = centerX;
+                    vec3_temps[3].y = bottom;
                 } else {
                     // lt
-                    vertexBuf[_vfOffset] = left;
-                    vertexBuf[_vfOffset + 1] = top;
+                    vec3_temps[0].x = left;
+                    vec3_temps[0].y = top;
 
                     // lb
-                    vertexBuf[_vfOffset + vertStep] = left;
-                    vertexBuf[_vfOffset + vertStep + 1] = bottom;
+                    vec3_temps[1].x = left;
+                    vec3_temps[1].y = bottom;
 
                     // rt
-                    vertexBuf[_vfOffset + vertStep2] = right;
-                    vertexBuf[_vfOffset + vertStep2 + 1] = top;
+                    vec3_temps[2].x = right;
+                    vec3_temps[2].y = top;
 
                     // rb
-                    vertexBuf[_vfOffset + vertStep3] = right;
-                    vertexBuf[_vfOffset + vertStep3 + 1] = bottom;
+                    vec3_temps[3].x = right;
+                    vec3_temps[3].y = bottom;
                 }
+
+                vec3_temps[0].transformMat4(matrix);
+                vertexBuf[_vfOffset] = vec3_temps[0].x;
+                vertexBuf[_vfOffset + 1] = vec3_temps[0].y;
+                vertexBuf[_vfOffset + 2] = vec3_temps[0].z;
+
+                vec3_temps[1].transformMat4(matrix);
+                vertexBuf[_vfOffset + vertStep] = vec3_temps[1].x;
+                vertexBuf[_vfOffset + vertStep + 1] = vec3_temps[1].y;
+                vertexBuf[_vfOffset + vertStep + 2] = vec3_temps[1].z;
+
+                vec3_temps[2].transformMat4(matrix);
+                vertexBuf[_vfOffset + vertStep2] = vec3_temps[2].x;
+                vertexBuf[_vfOffset + vertStep2 + 1] = vec3_temps[2].y;
+                vertexBuf[_vfOffset + vertStep2 + 2] = vec3_temps[2].z;
+
+                vec3_temps[3].transformMat4(matrix);
+                vertexBuf[_vfOffset + vertStep3] = vec3_temps[3].x;
+                vertexBuf[_vfOffset + vertStep3 + 1] = vec3_temps[3].y;
+                vertexBuf[_vfOffset + vertStep3 + 2] = vec3_temps[3].z;
 
                 vertexBuf.set(color, _vfOffset + 5);
                 vertexBuf.set(color, _vfOffset + vertStep + 5);
@@ -517,7 +512,8 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 
             _fillGrids++;
 
-            _renderData!.renderData.advance(4, 6);
+            renderData.request(4, 6);
+            renderData.resize(renderData.vertexCount, renderData.indexCount);
 
             // check render users node
             // if (colNodesCount > 0) _renderNodes(row, col);

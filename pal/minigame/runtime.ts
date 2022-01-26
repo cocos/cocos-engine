@@ -50,9 +50,13 @@ if (VIVO) {
         sys.windowHeight = sys.screenHeight;
         return sys;
     };
-} else if (LINKSURE) {
+} else if (LINKSURE || COCOSPLAY) {
     // TODO: update system info when view resized, currently the resize callback is not supported.
-    const cachedSystemInfo = ral.getSystemInfoSync() as SystemInfo;
+    let cachedSystemInfo = ral.getSystemInfoSync() as SystemInfo;
+    minigame.onWindowResize?.(() => {
+        // update cached system info
+        cachedSystemInfo = ral.getSystemInfoSync() as SystemInfo;
+    });
     minigame.getSystemInfoSync = function () {
         return cachedSystemInfo;
     };

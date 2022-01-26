@@ -64,6 +64,7 @@ import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
 import { WebGLDeviceManager } from './webgl-define';
+import { IWebGLBindingMapping } from './webgl-gpu-objects';
 
 export class WebGLDevice extends Device {
     get gl () {
@@ -86,16 +87,41 @@ export class WebGLDevice extends Device {
         return this._swapchain!.nullTexCube;
     }
 
+    get bindingMappings () {
+        return this._bindingMappings!;
+    }
+
     private _swapchain: WebGLSwapchain | null = null;
     private _context: WebGLRenderingContext | null = null;
+    private _bindingMappings: IWebGLBindingMapping | null = null;
 
     public initialize (info: DeviceInfo): boolean {
         WebGLDeviceManager.setInstance(this);
         this._gfxAPI = API.WEBGL;
 
-        this._bindingMappingInfo = info.bindingMappingInfo;
-        if (!this._bindingMappingInfo.bufferOffsets.length) this._bindingMappingInfo.bufferOffsets.push(0);
-        if (!this._bindingMappingInfo.samplerOffsets.length) this._bindingMappingInfo.samplerOffsets.push(0);
+        const mapping = this._bindingMappingInfo = info.bindingMappingInfo;
+        const blockOffsets: number[] = [];
+        const samplerTextureOffsets: number[] = [];
+        const firstSet = mapping.setIndices[0];
+        blockOffsets[firstSet] = 0;
+        samplerTextureOffsets[firstSet] = 0;
+        for (let i = 1; i < mapping.setIndices.length; ++i) {
+            const curSet = mapping.setIndices[i];
+            const prevSet = mapping.setIndices[i - 1];
+            // accumulate the per set offset according to the specified capacity
+            blockOffsets[curSet] = mapping.maxBlockCounts[prevSet] + blockOffsets[prevSet];
+            samplerTextureOffsets[curSet] = mapping.maxSamplerTextureCounts[prevSet] + samplerTextureOffsets[prevSet];
+        }
+        for (let i = 0; i < mapping.setIndices.length; ++i) {
+            const curSet = mapping.setIndices[i];
+            // textures always come after UBOs
+            samplerTextureOffsets[curSet] -= mapping.maxBlockCounts[curSet];
+        }
+        this._bindingMappings = {
+            blockOffsets,
+            samplerTextureOffsets,
+            flexibleSet: mapping.setIndices[mapping.setIndices.length - 1],
+        };
 
         const gl = this._context = getContext(Device.canvas);
 
@@ -115,6 +141,10 @@ export class WebGLDevice extends Device {
         this._caps.maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         this._caps.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
         this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
+
+        // WebGL doesn't support UBOs at all, so here we return
+        // the guaranteed minimum number of available bindings in WebGL2
+        this._caps.maxUniformBufferBindings = 16;
 
         const extensions = gl.getSupportedExtensions();
         let extStr = '';

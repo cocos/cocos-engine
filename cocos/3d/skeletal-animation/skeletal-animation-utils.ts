@@ -459,6 +459,7 @@ export interface IAnimInfo {
     data: Float32Array;
     dirty: boolean;
     dirtyForJSB: Uint8Array;
+    currentClip: AnimationClip | null;
 }
 
 export class JointAnimationInfo {
@@ -481,7 +482,7 @@ export class JointAnimationInfo {
         ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
-        const info = { buffer, data, dirty: false, dirtyForJSB: new Uint8Array([0]) };
+        const info = { buffer, data, dirty: false, dirtyForJSB: new Uint8Array([0]), currentClip: null };
 
         this._pool.set(nodeID, info);
         return info;
@@ -495,7 +496,8 @@ export class JointAnimationInfo {
     }
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
-        info.data[0] = 0;
+        info.currentClip = clip;
+        info.data[0] = -1;
         info.buffer.update(info.data);
         info.dirty = false;
         if (JSB) {

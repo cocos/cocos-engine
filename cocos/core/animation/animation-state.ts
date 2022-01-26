@@ -295,7 +295,7 @@ export class AnimationState extends Playable {
     private _playbackDuration = 0.0;
     private _invDuration = 1.0;
     private _poseOutput: PoseOutput | null = null;
-    private _weight = 0.0;
+    private _weight = 1.0;
     private _clipEval: ReturnType<AnimationClip['createEvaluator']> | undefined;
     private _clipEventEval: ReturnType<AnimationClip['createEventEvaluator']> | undefined;
     /**
