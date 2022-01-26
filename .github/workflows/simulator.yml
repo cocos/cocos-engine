@@ -9,6 +9,9 @@ jobs:
     #runs-on: windows-latest
     runs-on: windows-2016
     name: Windows
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/native
 
     steps:
       - uses: actions/checkout@v2
@@ -17,12 +20,11 @@ jobs:
           python-version: "3.x"
 
       - name: npm install
-        working-directory: ${{github.workspace}}/native
         run: |
           npm install
       - name: download external libraries
         run: |
-          node ./native/utils/download-deps.js
+          node ./utils/download-deps.js
       - name: install vulkan-sdk
         run: |
           choco install vulkan-sdk
@@ -31,7 +33,6 @@ jobs:
           python -m pip install PyYAML==5.4.1 Cheetah3
       - name: install android ndk
         shell: bash
-        working-directory: ${{github.workspace}}
         run: |
           curl -O http://dl.google.com/android/repository/android-ndk-r16b-windows-x86_64.zip
           unzip -q android-ndk-r16b-windows-x86_64.zip
@@ -43,7 +44,7 @@ jobs:
         run: |
           python -V
           export NDK_ROOT=${HOME}/bin/android-ndk
-          cd ./native/tools/tojs
+          cd ./tools/tojs
           echo "Create auto-generated jsbinding glue codes."
           python ./genbindings.py
           rm userconf.ini
@@ -52,8 +53,8 @@ jobs:
           gulp gen-simulator-release
       - name: check result
         run: |
-          Get-ChildItem ./native/simulator/Debug -Name SimulatorApp-Win32.exe
-          if(Test-Path ./native/simulator/Debug/SimulatorApp-Win32.exe) {exit 0} else {exit 1}
+          Get-ChildItem ./simulator/Debug -Name SimulatorApp-Win32.exe
+          if(Test-Path ./simulator/Debug/SimulatorApp-Win32.exe) {exit 0} else {exit 1}
   # mac_gen_simulator:
   #   runs-on: macos-latest
   #   name: MacOS
@@ -68,7 +69,7 @@ jobs:
   #         npm install gulp -g
   #     - name: download external libraries
   #       run: |
-  #         node ./native/utils/download-deps.js
+  #         node ./utils/download-deps.js
   #     - name: pip install
   #       run: |
   #         python -m pip install PyYAML Cheetah3
@@ -88,7 +89,7 @@ jobs:
   #         export NDK_ROOT=${HOME}/bin/android-ndk
   #         cd ${{github.workspace}}/tools/travis-scripts
   #         echo "Create auto-generated jsbinding glue codes."
-  #         pushd ${{github.workspace}}/native/tools/tojs
+  #         pushd ${{github.workspace}}/tools/tojs
   #         python ./genbindings.py
   #         rm userconf.ini
   #         popd
@@ -98,4 +99,4 @@ jobs:
   #     - name: check result
   #       run: |
   #         find ./ -name SimulatorApp-Mac
-  #         [ -f ./native/simulator/Debug/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac ] && exit 0 || exit 1
+  #         [ -f ./simulator/Debug/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac ] && exit 0 || exit 1
