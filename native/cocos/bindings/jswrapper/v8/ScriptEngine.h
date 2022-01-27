@@ -117,12 +117,25 @@ public:
     bool start();
 
     /**
+         *  @brief Starts the script engine with isolate.
+         *  @return true if succeed, otherwise false.
+         *  @note This method will invoke all callbacks of native binding modules by the order of registration.
+         */
+    bool start(v8::Isolate *isolate);
+
+    /**
          *  @brief Initializes script engine.
          *  @return true if succeed, otherwise false.
          *  @note This method will create JavaScript context and global object.
          */
     bool init();
 
+    /**
+         *  @brief Initializes script engine  with isolate.
+         *  @return true if succeed, otherwise false.
+         *  @note This method will create JavaScript context and global object.
+         */
+    bool init(v8::Isolate *isolate);
     /**
          *  @brief Adds a hook function before initializing script engine.
          *  @param[in] hook A hook function to be invoked before initializing script engine.
@@ -345,6 +358,8 @@ private:
          */
     bool runByteCodeFile(const std::string &pathBc, Value *ret /* = nullptr */);
     void callExceptionCallback(const char *, const char *, const char *);
+    bool callRegisteredCallback();
+    bool postInit();
 
     std::chrono::steady_clock::time_point _startTime;
     std::vector<RegisterCallback>         _registerCallbackArray;

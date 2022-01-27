@@ -35,7 +35,7 @@ Scene::Scene(const std::string &name)
     // _activeInHierarchy is initalized to 'false', so doesn't need to set it to false again
     //    _activeInHierarchy = false;
     _renderScene = Root::getInstance()->createScene({});
-    //    _globals           = new SceneGlobals();
+    _globals     = new SceneGlobals();
 }
 
 Scene::Scene() : Scene("") {}
