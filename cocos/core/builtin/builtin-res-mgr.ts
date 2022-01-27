@@ -34,7 +34,7 @@ import { effects } from './effects';
 import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
-import { Color } from '../math';
+import { AssetManager } from '../asset-manager/asset-manager';
 
 class BuiltinResMgr {
     protected _device: Device | null = null;
@@ -44,7 +44,6 @@ class BuiltinResMgr {
     public initBuiltinRes (device: Device): Promise<void> {
         this._device = device;
         const resources = this._resources;
-
         const len = 2;
         const numChannels = 4;
 
@@ -294,13 +293,16 @@ class BuiltinResMgr {
                 effect.onLoaded();
             });
             this._initMaterials();
-        });
+        }).then(() => this._preloadAssets());
     }
 
     public get<T extends Asset> (uuid: string) {
         return this._resources[uuid] as T;
     }
 
+    /**
+     * @internal
+     */
     private _initMaterials () {
         const resources = this._resources;
         const materialsToBeCompiled: any[] = [];
@@ -513,6 +515,24 @@ class BuiltinResMgr {
                 }
             }
         });
+    }
+
+    /**
+     * @internal
+     */
+    private async _preloadAssets () {
+        const resources = this._resources;
+        if (window._CCSettings && window._CCSettings.preloadAssets && window._CCSettings.preloadAssets.length > 0) {
+            const preloadedAssets = window._CCSettings.preloadAssets as string[];
+            return new Promise<void>((resolve, reject) => (legacyCC.assetManager as AssetManager).loadAny(preloadedAssets, { __outputAsArray__: true }, (err, assets) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    assets.forEach((asset) => resources[asset._uuid] = asset);
+                    resolve();
+                }
+            }));
+        }
     }
 }
 
