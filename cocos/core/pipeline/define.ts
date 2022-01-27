@@ -145,12 +145,14 @@ export enum ModelLocalBindings {
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
     SAMPLER_REFLECTION,
+
     STORAGE_REFLECTION,
 
     COUNT,
 }
 const LOCAL_UBO_COUNT = ModelLocalBindings.SAMPLER_JOINTS;
-const LOCAL_SAMPLER_COUNT = ModelLocalBindings.COUNT - LOCAL_UBO_COUNT;
+const LOCAL_SAMPLER_COUNT = ModelLocalBindings.STORAGE_REFLECTION - LOCAL_UBO_COUNT;
+const LOCAL_STORAGE_IMAGE_COUNT = ModelLocalBindings.COUNT - LOCAL_UBO_COUNT - LOCAL_SAMPLER_COUNT;
 
 export enum SetIndex {
     GLOBAL,
@@ -164,7 +166,7 @@ export const bindingMappingInfo = new BindingMappingInfo(
     [0, 0, 0],                                      // Sampler Counts
     [0, 0, 0],                                      // Texture Counts
     [0, 0, 0],                                      // Storage Buffer Counts
-    [0, 0, 0],                                      // Storage Image Counts
+    [0, 0, LOCAL_STORAGE_IMAGE_COUNT],              // Storage Image Counts
     [0, 0, 0],                                      // Subpass Input Counts
     [0, 2, 1],                                      // Set Order Indices
 );
