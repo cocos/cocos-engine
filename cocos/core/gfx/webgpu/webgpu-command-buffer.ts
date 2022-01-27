@@ -152,14 +152,6 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]) {
-        const fbos = (this._frameBuffer as Framebuffer).colorTextures;
-        for (let i = 0; i < fbos.length; ++i) {
-            if (fbos[i]) {
-                if (descriptorSet.textures.includes(fbos[i]!)) {
-                    console.log(set, descriptorSet, fbos[i]);
-                }
-            }
-        }
         if (dynamicOffsets) {
             const dynOffsets = new nativeLib.vector_uint32();
             for (let i = 0; i < dynamicOffsets.length; i++) {
