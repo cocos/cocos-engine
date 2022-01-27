@@ -1007,10 +1007,16 @@ export class TiledLayer extends Renderable2D {
         // record max rect, when viewPort is bigger than layer, can make it smaller
         if (rightTop.row < cullingRow) {
             rightTop.row = cullingRow;
+            if (layerOrientation === Orientation.ISO) {
+                rightTop.row += 1;
+            }
         }
 
         if (rightTop.col < cullingCol) {
             rightTop.col = cullingCol;
+            if (layerOrientation === Orientation.ISO) {
+                rightTop.col += 1;
+            }
         }
 
         // _offset is whole layer offset
@@ -1397,9 +1403,10 @@ export class TiledLayer extends Renderable2D {
             this._meshRenderDataArray = [];
         }
         const arr = this._meshRenderDataArray as any[];
-        while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.byteCount === 0) {
-            arr.pop();
-        }
+        // TODO temporary fix for shield node test case
+        // while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.vertexCount === 0) {
+        // arr.pop();
+        // }
         if (arr.length > 0) {
             if (arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
                 return arr[arr.length - 1] as TiledSubNodeData;

@@ -220,9 +220,7 @@ export class RenderData extends BaseRenderData {
             this.hashDirty = true;
         }
         if (this.hashDirty) {
-            const hashString = ` ${this.layer} ${this.blendHash} ${this.textureHash}`;
-            this.dataHash = murmurhash2_32_gc(hashString, 666);
-            this.hashDirty = false;
+            this.updateHash();
         }
     }
 
@@ -391,7 +389,7 @@ export class MeshRenderData extends BaseRenderData {
         this._initIAInfo(device);
         const ia = this._iaPool!.add();
         ia.firstIndex = this.indexStart;
-        ia.indexCount = this.indexRange;
+        ia.indexCount = this.indexCount;
         return ia;
     }
 

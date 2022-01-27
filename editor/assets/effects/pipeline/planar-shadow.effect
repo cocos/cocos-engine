@@ -46,9 +46,10 @@ CCProgram planar-shadow-vs %{
     float dist = (-d - dot(P, N)) / (dot(L, N) + 0.0001);
     vec3 shadowPos = P + L * dist;
   
+    // avoid z-fighting with shadow plane
     vec3 view = normalize(cc_cameraPos.xyz - shadowPos);
     float viewLength = length(cc_cameraPos.xyz - shadowPos);
-    shadowPos += view * max(0.02, 0.001 * viewLength);
+    shadowPos += view * min(1.0, 0.005 * viewLength);
 
     position = cc_matProj * cc_matView * vec4(shadowPos, 1.0);
     v_dist = dist;
@@ -64,7 +65,7 @@ CCProgram planar-shadow-fs %{
   in float v_dist;
 
   vec4 frag () {
-    if(v_dist < 0.02)
+    if(v_dist < 0.0)
       discard;
     return CCFragOutput(cc_shadowColor);
   }

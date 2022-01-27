@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @module ui
  */
-import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -289,16 +289,6 @@ export class Renderable2D extends RenderableComponent {
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
 
-    // macro.UI_GPU_DRIVEN
-    protected declare _canDrawByFourVertex: boolean;
-
-    constructor () {
-        super();
-        if (UI_GPU_DRIVEN) {
-            this._canDrawByFourVertex = false;
-        }
-    }
-
     /**
      * TODO mark internal
      */
@@ -445,7 +435,6 @@ export class Renderable2D extends RenderableComponent {
 
     protected _postCanRender () {}
 
-    // macro.UI_GPU_DRIVEN
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
@@ -455,9 +444,6 @@ export class Renderable2D extends RenderableComponent {
                 this._renderData.passDirty = true;
             }
             this._blendHash = -1; // a flag to check merge
-            if (UI_GPU_DRIVEN) {
-                this._canDrawByFourVertex = false;
-            }
             return;
         }
         const mat = this._updateBuiltinMaterial();
@@ -470,13 +456,6 @@ export class Renderable2D extends RenderableComponent {
     }
 
     protected _updateColor () {
-        if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
-            if (this.node._uiProps.colorDirty) {
-                this._renderFlag = this._canRender();
-                this.node._uiProps.colorDirty = false;
-            }
-            return;
-        }
         this.node._uiProps.colorDirty = true;
         if (this._assembler) {
             this._assembler.updateColor(this);
@@ -531,30 +510,23 @@ export class Renderable2D extends RenderableComponent {
         super._onMaterialModified(idx, material);
     }
 
-    // macro.UI_GPU_DRIVEN
     protected _updateBuiltinMaterial () : Material {
-        let gpuMat = '';
-        if (UI_GPU_DRIVEN) {
-            if (this._canDrawByFourVertex) {
-                gpuMat = '-gpu';
-            }
-        }
         let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
-            mat = builtinResMgr.get(`ui-base${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-base-material`);
             break;
         case InstanceMaterialType.GRAYSCALE:
-            mat = builtinResMgr.get(`ui-sprite-gray${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-sprite-gray-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED:
-            mat = builtinResMgr.get(`ui-sprite-alpha-sep${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-sprite-alpha-sep-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
-            mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep-material`);
             break;
         default:
-            mat = builtinResMgr.get(`ui-sprite${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-sprite-material`);
             break;
         }
         return mat;
