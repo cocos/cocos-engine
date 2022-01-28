@@ -195,7 +195,7 @@ class CCObject implements EditorExtendableObject {
 
         if (JSB) {
             // release objects which hold for delay GC
-            // @ts-expect-error: jsb function call
+            // jsb function call
             jsb.CCObject._deferredDestroyReleaseObjects();
         }
     }
