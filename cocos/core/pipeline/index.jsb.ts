@@ -29,7 +29,8 @@ import { getPhaseID } from './pass-phase';
 import { setClassName } from '../../core/utils/js';
 import { PipelineEventType } from './pipeline-event';
 import { GeometryRenderer } from './geometry-renderer';
-
+import * as pipeline from './define';
+export { pipeline };
 nr.getPhaseID = getPhaseID;
 
 export const RenderPipeline = nr.RenderPipeline;

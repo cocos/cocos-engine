@@ -195,7 +195,7 @@ class CCObject implements EditorExtendableObject {
 
         if (JSB) {
             // release objects which hold for delay GC
-            // @ts-expect-error: jsb function call
+            // jsb function call
             jsb.CCObject._deferredDestroyReleaseObjects();
         }
     }
@@ -326,7 +326,7 @@ class CCObject implements EditorExtendableObject {
         if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && !legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
             // @ts-expect-error no function
-            deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
+            deferredDestroyTimer = setTimeout(CCObject._deferredDestroy);
         }
         return true;
     }
@@ -671,3 +671,11 @@ if (EDITOR || TEST) {
 
 legacyCC.Object = CCObject;
 export { CCObject };
+
+declare const jsb: any;
+
+if (JSB) {
+    CCClass.fastDefine('jsb.CCObject', jsb.CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
+    CCClass.Attr.setClassAttr(jsb.CCObject, editorExtrasTag, 'editorOnly', true);
+    CCClass.Attr.setClassAttr(jsb.CCObject, 'replicated', 'visible', false);
+}
