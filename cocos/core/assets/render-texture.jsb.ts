@@ -30,6 +30,7 @@ import {
 } from '../data/utils/decorator-jsb-utils';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import { EDITOR, TEST } from '../default-constants';
 
 declare const jsb: any;
 const renderTextureProto: any = jsb.RenderTexture.prototype;
