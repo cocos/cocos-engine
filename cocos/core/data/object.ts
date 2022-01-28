@@ -671,3 +671,11 @@ if (EDITOR || TEST) {
 
 legacyCC.Object = CCObject;
 export { CCObject };
+
+declare const jsb: any;
+
+if (JSB) {
+    CCClass.fastDefine('jsb.CCObject', jsb.CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
+    CCClass.Attr.setClassAttr(jsb.CCObject, editorExtrasTag, 'editorOnly', true);
+    CCClass.Attr.setClassAttr(jsb.CCObject, 'replicated', 'visible', false);
+}

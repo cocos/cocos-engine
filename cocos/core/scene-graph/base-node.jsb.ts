@@ -35,8 +35,6 @@ baseNodeProto.createNode = null!;
 export type BaseNode = jsb.BaseNode;
 export const BaseNode = jsb.BaseNode;
 
-
-
 const clsDecorator = ccclass('cc.BaseNode');
 
 // const _class2$u = BaseNode;

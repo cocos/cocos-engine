@@ -35,13 +35,9 @@ import { createMap } from '../utils/js-typed';
 import { property } from '../data/class-decorator';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { extname } from '../utils/path';
-import { CCClass } from '../data/class';
-import { editorExtrasTag } from '../data/editor-extras-tag';
-declare const jsb: any;
+import '../data/object';
 
-CCClass.fastDefine('jsb.CCObject', jsb.CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
-CCClass.Attr.setClassAttr(jsb.CCObject, editorExtrasTag, 'editorOnly', true);
-CCClass.Attr.setClassAttr(jsb.CCObject, 'replicated', 'visible', false);
+declare const jsb: any;
 
 /**
  * @param error - null or the error info
