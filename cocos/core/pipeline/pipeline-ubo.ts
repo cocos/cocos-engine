@@ -75,6 +75,7 @@ export class PipelineUBO {
         const sceneData = pipeline.pipelineSceneData;
         const ambient = sceneData.ambient;
         const fog = sceneData.fog;
+        const shadowInfo = sceneData.shadows;
         const cv = bufferView;
         const exposure = camera.exposure;
         const isHDR = sceneData.isHDR;
@@ -91,7 +92,7 @@ export class PipelineUBO {
         cv[UBOCamera.EXPOSURE_OFFSET + 3] = 0.0;
 
         if (mainLight) {
-            const shadowEnable = (mainLight.shadowEnable && mainLight.shadowType === ShadowType.ShadowMap) ? 1.0 : 0.0;
+            const shadowEnable = (mainLight.shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
             const mainLightDir = mainLight.direction;
             _lightDir.set(mainLightDir.x, mainLightDir.y, mainLightDir.z, shadowEnable);
             Vec4.toArray(cv, _lightDir, UBOCamera.MAIN_LIT_DIR_OFFSET);
