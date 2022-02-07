@@ -346,6 +346,8 @@ export class DirectionalLight extends Light {
             this._light.shadowBias = this._shadowBias;
             this._light.shadowNormalBias = this._shadowNormalBias;
             this._light.shadowSaturation = this._shadowSaturation;
+            this._light.shadowDistance = this._shadowDistance;
+            this._light.shadowInvisibleOcclusionRange = this._shadowInvisibleOcclusionRange;
             this._light.fixedArea = this._shadowFixedArea;
             this._light.fixedNear = this._shadowNear;
             this._light.fixedFar = this._shadowFar;
