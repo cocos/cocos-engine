@@ -44,8 +44,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#ifndef SRC_NODE_OBJECT_WRAP_H_
-#define SRC_NODE_OBJECT_WRAP_H_
+#pragma once
 
 #include "../config.h"
 
@@ -68,7 +67,7 @@ public:
     v8::Local<v8::Object>       handle(v8::Isolate *isolate);
     v8::Persistent<v8::Object> &persistent();
 
-    void         wrap(void *privateData, uint32_t fieldIndex);
+    void         wrap(void *nativeObj, uint32_t fieldIndex);
     static void *unwrap(v8::Local<v8::Object> handle, uint32_t fieldIndex);
     /* Ref() marks the object as being attached to an event loop.
          * Refed objects will not be garbage collected, even if
@@ -91,8 +90,8 @@ private:
     static void weakCallback(const v8::WeakCallbackInfo<ObjectWrap> &data);
     void        makeWeak();
 
-    int                        refs_; // ro
-    v8::Persistent<v8::Object> handle_;
+    int                        _refs; // ro
+    v8::Persistent<v8::Object> _handle;
     PrivateObjectBase *        _privateObject;
     V8FinalizeFunc             _finalizeCb;
 };
@@ -100,5 +99,3 @@ private:
 } // namespace se
 
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-
-#endif // SRC_NODE_OBJECT_WRAP_H_
