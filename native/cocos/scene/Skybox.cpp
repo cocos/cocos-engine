@@ -51,20 +51,29 @@ void SkyboxInfo::setEnabled(bool val) {
     }
 }
 
-void SkyboxInfo::setUseIBL(bool val) {
-    _useIBL = val;
+void SkyboxInfo::setUseIBL(bool val) const{
     if (_resource != nullptr) {
-        _resource->setUseIBL(_useIBL);
+        _resource->setUseIBL(val);
     }
 }
 
-void SkyboxInfo::setApplyDiffuseMap(bool val) {
-    _applyDiffuseMap = val;
+void SkyboxInfo::setApplyDiffuseMap(bool val) const{
     if (_resource != nullptr) {
         _resource->setUseDiffuseMap(val);
     }
 }
-
+void SkyboxInfo::setEnvLightingType(EnvironmentLightingType val) {
+    if (EnvironmentLightingType::HEMISPHERE_DIFFUSE == val) {
+        setUseIBL(false);
+    } else if (EnvironmentLightingType::AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION == val) {
+        setUseIBL(true);
+        setApplyDiffuseMap(false);
+    } else if (EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION == val) {
+        setUseIBL(true);
+        setApplyDiffuseMap(true);
+    }
+    _envLightingType = val;
+}
 void SkyboxInfo::setUseHDR(bool val) {
     Root::getInstance()->getPipeline()->getPipelineSceneData()->setHDR(val);
     _useHDR = val;
@@ -94,14 +103,15 @@ void SkyboxInfo::setEnvmap(TextureCube *val) {
 
     if (!_envmapHDR) {
         _diffuseMapHDR   = nullptr;
-        _applyDiffuseMap = false;
+        setApplyDiffuseMap(false);
         setUseIBL(false);
+        setEnvLightingType(EnvironmentLightingType::HEMISPHERE_DIFFUSE);
     }
 
     if (_resource) {
         _resource->setEnvMaps(_envmapHDR, _envmapLDR);
         _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
-        _resource->setUseDiffuseMap(_applyDiffuseMap);
+        _resource->setUseDiffuseMap(isApplyDiffuseMap());
         _resource->setEnvmap(val);
     }
 }
@@ -121,6 +131,7 @@ void SkyboxInfo::setDiffuseMap(TextureCube *val) {
 
 void SkyboxInfo::activate(Skybox *resource) {
     _resource = resource; // weak reference
+    setEnvLightingType(this->_envLightingType);
     if (_resource != nullptr) {
         _resource->initialize(*this);
         _resource->setEnvMaps(_envmapHDR, _envmapLDR);
