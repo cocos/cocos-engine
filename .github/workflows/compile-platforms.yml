@@ -108,8 +108,8 @@ jobs:
           ./gradlew :CocosGame:assembleDebug --quiet
           echo "Compile Android Debug Done!"
 
-  compile_mac:
-    name: "MacOS"
+  compile_mac_x86_64:
+    name: "MacOS x86_64"
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -160,11 +160,56 @@ jobs:
           fi
           echo "Compile MacOSX x86_64 Release Done!"
 
-          cd ..
-          mkdir build-mac-apple-silicon
-          cd build-mac-apple-silicon
+  compile_mac_arm64:
+    name: "MacOS arm64"
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
+          rm native/external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+      - name: Generate bindings
+        run: |
+          python -m pip install PyYAML==5.4.1 Cheetah3
+          python ./native/tools/tojs/genbindings.py
+          rm ./native/tools/tojs/userconf.ini
+      - name: Compile
+        env:
+          COCOS_ENGINE_DEV: 1
+        run: |
+          NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
+          COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
+          echo "Compiling MacOSX ... "
+          cd  $COCOS2DX_ROOT/templates/mac
+          mkdir -p build-mac/proj
+          touch build-mac/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 OFF)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
+          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
+          mkdir build-mac/assets
+
+          RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
+          cd build-mac
           cmake ../ -GXcode -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+          set +e
           cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch arm64
+          retcode=$?
+          set -e
+          if [ $retcode -ne 0 ]; then
+              echo "-----------------------------------------------------------------------------------------------"
+              echo "------------------------------------ recompile without `-quiet` -------------------------------"
+              echo "-----------------------------------------------------------------------------------------------"
+              cmake --build . --config Release -- -jobs $NUM_OF_CORES -arch arm64
+          fi
           echo "Compile MacOSX ARM64 Release Done!"
 
   compile_iOS:
