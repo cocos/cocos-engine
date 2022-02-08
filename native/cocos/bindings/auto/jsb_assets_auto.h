@@ -594,6 +594,7 @@ bool js_register_cc_BuiltinResMgr(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_initBuiltinRes);
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_isInitialized);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_destroyInstance);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getInstance);
 
