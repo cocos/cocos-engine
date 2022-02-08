@@ -40,7 +40,7 @@ export class WebGL2Sampler extends Sampler {
         super(info, hash);
 
         this._gpuSampler = {
-            glSampler: null,
+            glSamplers: new Map<number, IWebGL2GPUSampler>(),
             minFilter: this._info.minFilter,
             magFilter: this._info.magFilter,
             mipFilter: this._info.mipFilter,
@@ -55,7 +55,7 @@ export class WebGL2Sampler extends Sampler {
             glWrapR: 0,
         };
 
-        WebGL2CmdFuncCreateSampler(WebGL2DeviceManager.instance, this._gpuSampler);
+        WebGL2CmdFuncCreateSampler(WebGL2DeviceManager.instance, this._gpuSampler, 0, 1000);
     }
 
     destroy () {

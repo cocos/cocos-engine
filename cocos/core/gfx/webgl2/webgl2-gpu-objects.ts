@@ -144,6 +144,14 @@ export interface IWebGL2GPUTexture {
     isSwapchainTexture: boolean;
 }
 
+export interface IWebGL2GPUTextureView {
+    gpuTexture: IWebGL2GPUTexture;
+    type: TextureType;
+    format: Format;
+    baseLevel: number;
+    levelCount: number;
+}
+
 export interface IWebGL2GPURenderPass {
     colorAttachments: ColorAttachment[];
     depthStencilAttachment: DepthStencilAttachment | null;
@@ -151,8 +159,8 @@ export interface IWebGL2GPURenderPass {
 
 export interface IWebGL2GPUFramebuffer {
     gpuRenderPass: IWebGL2GPURenderPass;
-    gpuColorTextures: IWebGL2GPUTexture[];
-    gpuDepthStencilTexture: IWebGL2GPUTexture | null;
+    gpuColorViews: IWebGL2GPUTextureView[];
+    gpuDepthStencilView: IWebGL2GPUTextureView | null;
     glFramebuffer: WebGLFramebuffer | null;
     isOffscreen: boolean;
     width: number;
@@ -160,7 +168,8 @@ export interface IWebGL2GPUFramebuffer {
 }
 
 export interface IWebGL2GPUSampler {
-    glSampler: WebGLSampler | null;
+    glSamplers: Map<number, IWebGL2GPUSampler>;
+
     minFilter: Filter;
     magFilter: Filter;
     mipFilter: Filter;
@@ -271,7 +280,7 @@ export interface IWebGL2GPUPipelineState {
 export interface IWebGL2GPUDescriptor {
     type: DescriptorType;
     gpuBuffer: IWebGL2GPUBuffer | null;
-    gpuTexture: IWebGL2GPUTexture | null;
+    gpuTextureView: IWebGL2GPUTextureView | null;
     gpuSampler: IWebGL2GPUSampler | null;
 }
 

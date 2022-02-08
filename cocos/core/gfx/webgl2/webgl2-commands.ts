@@ -48,6 +48,7 @@ import {
     IWebGL2GPUUniformBlock,
     IWebGL2GPUUniformSamplerTexture,
     IWebGL2GPURenderPass,
+    IWebGL2GPUTextureView,
 } from './webgl2-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
@@ -1238,8 +1239,14 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
     }
 }
 
-export function WebGL2CmdFuncCreateSampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler) {
+export function WebGL2CmdFuncCreateSampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler, minLod: number, maxLod: number) {
     const { gl } = device;
+    const samplerHash = minLod << 16 | maxLod;
+
+    if (gpuSampler.glSamplers.has(samplerHash)) {
+        return;
+    }
+
     const glSampler = gl.createSampler();
     if (glSampler) {
         if (gpuSampler.minFilter === Filter.LINEAR || gpuSampler.minFilter === Filter.ANISOTROPIC) {
@@ -1268,7 +1275,8 @@ export function WebGL2CmdFuncCreateSampler (device: WebGL2Device, gpuSampler: IW
         gpuSampler.glWrapT = WebGLWraps[gpuSampler.addressV];
         gpuSampler.glWrapR = WebGLWraps[gpuSampler.addressW];
 
-        gpuSampler.glSampler = glSampler;
+        gpuSampler.glSamplers[samplerHash] = glSampler;
+
         gl.samplerParameteri(glSampler, gl.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
         gl.samplerParameteri(glSampler, gl.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_S, gpuSampler.glWrapS);
@@ -1281,22 +1289,39 @@ export function WebGL2CmdFuncCreateSampler (device: WebGL2Device, gpuSampler: IW
 
 export function WebGL2CmdFuncDestroySampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler) {
     const { gl } = device;
-    if (gpuSampler.glSampler) {
-        gl.deleteSampler(gpuSampler.glSampler);
+    const it = gpuSampler.glSamplers.values();
+    const res = it.next();
+
+    while (!res.done) {
+        gl.deleteSampler(res.value);
+
         const glSamplerUnits = device.stateCache.glSamplerUnits;
         for (let i = 0; i < glSamplerUnits.length; ++i) {
-            if (glSamplerUnits[i] === gpuSampler.glSampler) {
+            if (glSamplerUnits[i] === res.value) {
                 gl.bindSampler(i, null);
                 glSamplerUnits[i] = null;
             }
         }
-        gpuSampler.glSampler = null;
     }
+
+    gpuSampler.glSamplers.clear();
+}
+
+function getGLSampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler, minLod: number, maxLod: number) : IWebGL2GPUSampler {
+    // better if WebGL2CmdFuncCreateSampler can return value
+    const samplerHash = minLod << 16 | maxLod;
+    let sampler: IWebGL2GPUSampler = null!;
+    if (gpuSampler.glSamplers.has(samplerHash)) {
+        WebGL2CmdFuncCreateSampler(device, gpuSampler, minLod, maxLod);
+    } else {
+        sampler = gpuSampler.glSamplers[samplerHash];
+    }
+    return sampler;
 }
 
 export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebuffer: IWebGL2GPUFramebuffer) {
-    for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
-        const tex = gpuFramebuffer.gpuColorTextures[i];
+    for (let i = 0; i < gpuFramebuffer.gpuColorViews.length; ++i) {
+        const tex = gpuFramebuffer.gpuColorViews[i].gpuTexture;
         if (tex.isSwapchainTexture) {
             gpuFramebuffer.isOffscreen = false;
             return;
@@ -1314,8 +1339,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
         }
 
-        for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
-            const colorTexture = gpuFramebuffer.gpuColorTextures[i];
+        for (let i = 0; i < gpuFramebuffer.gpuColorViews.length; ++i) {
+            const colorTexture = gpuFramebuffer.gpuColorViews[i].gpuTexture;
             if (colorTexture) {
                 if (colorTexture.glTexture) {
                     gl.framebufferTexture2D(
@@ -1340,7 +1365,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
             }
         }
 
-        const dst = gpuFramebuffer.gpuDepthStencilTexture;
+        const dst = gpuFramebuffer.gpuDepthStencilView!.gpuTexture;
         if (dst) {
             const glAttachment = FormatInfos[dst.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
             if (dst.glTexture) {
@@ -1349,7 +1374,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                     glAttachment,
                     dst.glTarget,
                     dst.glTexture,
-                    0,
+                    gpuFramebuffer.gpuDepthStencilView!.baseLevel,
                 ); // level must be 0
             } else {
                 gl.framebufferRenderbuffer(
@@ -2221,14 +2246,17 @@ export function WebGL2CmdFuncBindStates (
 
                 const glTexUnit = cache.glTexUnits[texUnit];
 
-                if (!gpuDescriptor || !gpuDescriptor.gpuTexture || !gpuDescriptor.gpuSampler) {
+                if (!gpuDescriptor || !gpuDescriptor.gpuTextureView || !gpuDescriptor.gpuTextureView.gpuTexture || !gpuDescriptor.gpuSampler) {
                     error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} index ${l} is not bounded`);
                     continue;
                 }
 
-                if (gpuDescriptor.gpuTexture
-                    && gpuDescriptor.gpuTexture.size > 0) {
-                    const { gpuTexture } = gpuDescriptor;
+                const gpuTextureView = gpuDescriptor.gpuTextureView;
+                const gpuTexture = gpuTextureView.gpuTexture;
+                const  minLod = gpuTextureView.baseLevel;
+                const  maxLod = minLod + gpuTextureView.levelCount;
+
+                if (gpuTexture.size > 0) {
                     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                         if (cache.texUnit !== texUnit) {
                             gl.activeTexture(gl.TEXTURE0 + texUnit);
@@ -2242,10 +2270,11 @@ export function WebGL2CmdFuncBindStates (
                         glTexUnit.glTexture = gpuTexture.glTexture;
                     }
 
-                    const { gpuSampler } = gpuDescriptor;
-                    if (cache.glSamplerUnits[texUnit] !== gpuSampler.glSampler) {
-                        gl.bindSampler(texUnit, gpuSampler.glSampler);
-                        cache.glSamplerUnits[texUnit] = gpuSampler.glSampler;
+                    const { gpuSampler } = gpuDescriptor; // get sampler with different mipmap levels
+                    const glSampler = getGLSampler(device, gpuSampler, minLod, maxLod);
+                    if (cache.glSamplerUnits[texUnit] !== glSampler) {
+                        gl.bindSampler(texUnit, glSampler);
+                        cache.glSamplerUnits[texUnit] = glSampler;
                     }
                 }
 
@@ -2759,13 +2788,13 @@ export function WebGL2CmdFuncBlitFramebuffer (
     }
 
     let mask = 0;
-    if (src.gpuColorTextures.length > 0) {
+    if (src.gpuColorViews.length > 0) {
         mask |= gl.COLOR_BUFFER_BIT;
     }
 
-    if (src.gpuDepthStencilTexture) {
+    if (src.gpuDepthStencilView) {
         mask |= gl.DEPTH_BUFFER_BIT;
-        if (FormatInfos[src.gpuDepthStencilTexture.format].hasStencil) {
+        if (FormatInfos[src.gpuDepthStencilView.gpuTexture.format].hasStencil) {
             mask |= gl.STENCIL_BUFFER_BIT;
         }
     }

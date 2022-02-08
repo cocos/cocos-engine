@@ -37,57 +37,71 @@ export class WebGLTexture extends Texture {
     private _gpuTexture: IWebGLGPUTexture | null = null;
 
     public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean) {
+        let texInfo = info as TextureInfo;
+        const viewInfo = info as TextureViewInfo;
         if ('texture' in info) {
-            console.log('WebGL does not support texture view.');
-            return;
+            texInfo = viewInfo.texture.info;
+            this._isTextureView = true;
         }
 
-        this._type = info.type;
-        this._usage = info.usage;
-        this._format = info.format;
-        this._width = info.width;
-        this._height = info.height;
-        this._depth = info.depth;
-        this._layerCount = info.layerCount;
-        this._levelCount = info.levelCount;
-        this._samples = info.samples;
-        this._flags = info.flags;
-        this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
-        this._size = FormatSurfaceSize(this._format, this.width, this.height,
-            this.depth, this._levelCount) * this._layerCount;
+        this._viewInfo.texture = viewInfo.texture;
+        this._viewInfo.type = viewInfo.type;
+        this._viewInfo.format = viewInfo.format;
+        this._viewInfo.baseLevel = viewInfo.baseLevel;
+        this._viewInfo.levelCount = viewInfo.levelCount;
+        this._viewInfo.baseLayer = viewInfo.baseLayer;
+        this._viewInfo.layerCount = viewInfo.layerCount;
 
-        this._gpuTexture = {
-            type: this._type,
-            format: this._format,
-            usage: this._usage,
-            width: this._width,
-            height: this._height,
-            depth: this._depth,
-            size: this._size,
-            arrayLayer: this._layerCount,
-            mipLevel: this._levelCount,
-            samples: this._samples,
-            flags: this._flags,
-            isPowerOf2: this._isPowerOf2,
+        this._info.type = texInfo.type;
+        this._info.usage = texInfo.usage;
+        this._info.format = texInfo.format;
+        this._info.width = texInfo.width;
+        this._info.height = texInfo.height;
+        this._info.depth = texInfo.depth;
+        this._info.layerCount = texInfo.layerCount;
+        this._info.levelCount = texInfo.levelCount;
+        this._info.samples = texInfo.samples;
+        this._info.flags = texInfo.flags;
+        this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
+        this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
+            this.depth, this._info.levelCount) * this._info.layerCount;
 
-            glTarget: 0,
-            glInternalFmt: 0,
-            glFormat: 0,
-            glType: 0,
-            glUsage: 0,
-            glTexture: null,
-            glRenderbuffer: null,
-            glWrapS: 0,
-            glWrapT: 0,
-            glMinFilter: 0,
-            glMagFilter: 0,
+        if (!this._isTextureView) {
+            this._gpuTexture = {
+                type: texInfo.type,
+                format: texInfo.format,
+                usage: texInfo.usage,
+                width: texInfo.width,
+                height: texInfo.height,
+                depth: texInfo.depth,
+                size: this._size,
+                arrayLayer: texInfo.layerCount,
+                mipLevel: texInfo.levelCount,
+                samples: texInfo.samples,
+                flags: texInfo.flags,
+                isPowerOf2: this._isPowerOf2,
 
-            isSwapchainTexture: isSwapchainTexture || false,
-        };
+                glTarget: 0,
+                glInternalFmt: 0,
+                glFormat: 0,
+                glType: 0,
+                glUsage: 0,
+                glTexture: null,
+                glRenderbuffer: null,
+                glWrapS: 0,
+                glWrapT: 0,
+                glMinFilter: 0,
+                glMagFilter: 0,
 
-        WebGLCmdFuncCreateTexture(WebGLDeviceManager.instance, this._gpuTexture);
+                isSwapchainTexture: isSwapchainTexture || false,
+            };
 
-        WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+            WebGLCmdFuncCreateTexture(WebGLDeviceManager.instance, this._gpuTexture);
+
+            WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+        } else {
+            this._gpuTexture = (viewInfo.texture as WebGLTexture)._gpuTexture;
+        }
     }
 
     public destroy () {
@@ -100,12 +114,12 @@ export class WebGLTexture extends Texture {
 
     public resize (width: number, height: number) {
         const oldSize = this._size;
-        this._width = width;
-        this._height = height;
-        this._size = FormatSurfaceSize(this._format, this.width, this.height,
-            this.depth, this._levelCount) * this._layerCount;
+        this._info.width = width;
+        this._info.height = height;
+        this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
+            this.depth, this._info.levelCount) * this._info.layerCount;
 
-        if (this._gpuTexture) {
+        if (!this._isTextureView && this._gpuTexture) {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;

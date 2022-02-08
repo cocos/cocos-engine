@@ -55,7 +55,7 @@ export class WebGL2DescriptorSet extends DescriptorSet {
                 gpuDescriptors.push({
                     type: binding.descriptorType,
                     gpuBuffer: null,
-                    gpuTexture: null,
+                    gpuTextureView: null,
                     gpuSampler: null,
                 });
             }
@@ -77,7 +77,7 @@ export class WebGL2DescriptorSet extends DescriptorSet {
                     }
                 } else if (descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
                     if (this._textures[i]) {
-                        descriptors[i].gpuTexture = (this._textures[i] as WebGL2Texture).gpuTexture;
+                        descriptors[i].gpuTextureView = (this._textures[i] as WebGL2Texture).gpuTextureView;
                     }
                     if (this._samplers[i]) {
                         descriptors[i].gpuSampler = (this._samplers[i] as WebGL2Sampler).gpuSampler;

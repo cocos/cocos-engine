@@ -27,7 +27,7 @@ import { FramebufferInfo } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { WebGL2CmdFuncCreateFramebuffer, WebGL2CmdFuncDestroyFramebuffer } from './webgl2-commands';
 import { WebGL2DeviceManager } from './webgl2-define';
-import { IWebGL2GPUFramebuffer, IWebGL2GPUTexture } from './webgl2-gpu-objects';
+import { IWebGL2GPUFramebuffer, IWebGL2GPUTexture, IWebGL2GPUTextureView } from './webgl2-gpu-objects';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2Texture } from './webgl2-texture';
 
@@ -43,35 +43,35 @@ export class WebGL2Framebuffer extends Framebuffer {
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
 
-        const gpuColorTextures: IWebGL2GPUTexture[] = [];
+        const gpuColorViews: IWebGL2GPUTextureView[] = [];
         for (let i = 0; i < info.colorTextures.length; i++) {
             const colorTexture = info.colorTextures[i];
             if (colorTexture) {
-                gpuColorTextures.push((colorTexture as WebGL2Texture).gpuTexture);
+                gpuColorViews.push((colorTexture as WebGL2Texture).gpuTextureView);
             }
         }
 
-        let gpuDepthStencilTexture: IWebGL2GPUTexture | null = null;
+        let gpuDepthStencilView: IWebGL2GPUTextureView | null = null;
         if (info.depthStencilTexture) {
-            gpuDepthStencilTexture = (info.depthStencilTexture as WebGL2Texture).gpuTexture;
+            gpuDepthStencilView = (info.depthStencilTexture as WebGL2Texture).gpuTextureView;
         }
 
         let width = Number.MAX_SAFE_INTEGER;
         let height = Number.MAX_SAFE_INTEGER;
         this._gpuFramebuffer = {
             gpuRenderPass: (info.renderPass as WebGL2RenderPass).gpuRenderPass,
-            gpuColorTextures,
-            gpuDepthStencilTexture,
+            gpuColorViews,
+            gpuDepthStencilView,
             glFramebuffer: null,
             isOffscreen: true,
             get width () {
-                return this.isOffscreen ? width : this.gpuColorTextures[0].width;
+                return this.isOffscreen ? width : this.gpuColorViews[0].gpuTexture.width;
             },
             set width (val) {
                 width = val;
             },
             get height () {
-                return this.isOffscreen ? height : this.gpuColorTextures[0].height;
+                return this.isOffscreen ? height : this.gpuColorViews[0].gpuTexture.height;
             },
             set height (val) {
                 height = val;
