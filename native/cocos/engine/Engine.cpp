@@ -312,7 +312,8 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
         onClose();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
-        onClose();
+        // There is no need to process the quit message, 
+        // the quit message is a custom message for the application
         isHandled = true;
     }
     return isHandled;
