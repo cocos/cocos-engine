@@ -243,6 +243,7 @@ enum class CC_DLL ModelLocalBindings {
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
     SAMPLER_REFLECTION,
+
     STORAGE_REFLECTION,
 
     COUNT,
@@ -492,9 +493,9 @@ const uint CAMERA_DEFAULT_MASK = ~static_cast<uint>(LayerList::UI_2D) & ~static_
 
 uint nextPow2(uint val);
 
-bool supportsHalfFloatTexture(gfx::Device *device);
+bool supportsR16HalfFloatTexture(gfx::Device *device);
 
-bool supportsFloatTexture(gfx::Device *device);
+bool supportsR32FloatTexture(gfx::Device *device);
 
 extern CC_DLL uint skyboxFlag;
 

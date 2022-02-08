@@ -170,7 +170,7 @@ void ShadowFlow::resizeShadowMap() {
     auto *     device    = gfx::Device::getInstance();
     const auto width     = static_cast<uint>(shadows->getSize().x);
     const auto height    = static_cast<uint>(shadows->getSize().y);
-    const auto format    = supportsFloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
+    const auto format    = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
 
     for (const auto &pair : sceneData->getShadowFramebufferMap()) {
         gfx::Framebuffer *framebuffer = pair.second;
@@ -224,7 +224,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
     const auto  shadowMapSize = shadows->getSize();
     const auto  width         = static_cast<uint>(shadowMapSize.x);
     const auto  height        = static_cast<uint>(shadowMapSize.y);
-    const auto  format        = supportsFloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
+    const auto  format        = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
 
     const gfx::ColorAttachment colorAttachment = {
         format,

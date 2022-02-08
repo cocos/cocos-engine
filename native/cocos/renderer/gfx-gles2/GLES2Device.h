@@ -83,6 +83,9 @@ public:
         });
     }
 
+    // check the specified format is texture-exclusive (no renderbuffers allowed)
+    inline bool isTextureExclusive(const Format &format) { return _textureExclusive[static_cast<size_t>(format)]; };
+
 protected:
     static GLES2Device *instance;
 
@@ -115,7 +118,7 @@ protected:
 
     void bindContext(bool bound) override;
 
-    static bool checkForETC2();
+    void initFormatFeature();
 
     GLES2GPUContext *            _gpuContext{nullptr};
     GLES2GPUStateCache *         _gpuStateCache{nullptr};
@@ -125,6 +128,8 @@ protected:
     GLES2GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
 
     vector<GLES2GPUSwapchain *> _swapchains;
+
+    std::array<bool, static_cast<size_t>(Format::COUNT)> _textureExclusive;
 
     GLESBindingMapping _bindingMappings;
 

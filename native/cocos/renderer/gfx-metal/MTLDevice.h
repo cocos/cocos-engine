@@ -115,6 +115,7 @@ protected:
     void                 getQueryPoolResults(QueryPool *queryPool) override;
 
     void onMemoryWarning();
+    void initFormatFeatures(uint family);
 
     void *                     _mtlCommandQueue                             = nullptr;
     void *                     _mtlDevice                                   = nullptr;

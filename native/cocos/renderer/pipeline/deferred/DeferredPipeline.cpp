@@ -155,7 +155,7 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
 
     // update global defines when all states initialized.
     _macros["CC_USE_HDR"]               = static_cast<bool>(_pipelineSceneData->isHDR());
-    _macros["CC_SUPPORT_FLOAT_TEXTURE"] = _device->hasFeature(gfx::Feature::TEXTURE_FLOAT);
+    _macros["CC_SUPPORT_FLOAT_TEXTURE"] = hasAnyFlags(_device->getFormatFeatures(gfx::Format::RGBA32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 
     // step 2 create index buffer
     uint ibStride = 4;

@@ -131,8 +131,7 @@ protected:
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
     void getQueryPoolResults(QueryPool *queryPool) override;
 
-    void destroySwapchain();
-    bool checkSwapchainStatus();
+    void initFormatFeature();
 
     CCVKGPUDevice *       _gpuDevice  = nullptr;
     CCVKGPUContext *      _gpuContext = nullptr;

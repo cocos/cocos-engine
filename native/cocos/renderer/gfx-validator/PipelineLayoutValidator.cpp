@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
+#include "base/Macros.h"
 #include "base/threading/MessageQueue.h"
 
 #include "DescriptorSetLayoutValidator.h"
@@ -48,8 +49,19 @@ void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
 
-    for (auto *layout : info.setLayouts) {
-        CCASSERT(layout && static_cast<DescriptorSetLayoutValidator *>(layout)->isInited(), "already destroyed?");
+    const auto &bindingMappings{DeviceValidator::getInstance()->bindingMappingInfo()};
+    for (uint32_t i = 0; i < info.setLayouts.size(); ++i) {
+        auto *layout{static_cast<DescriptorSetLayoutValidator *>(info.setLayouts[i])};
+        CCASSERT(layout && layout->isInited(), "already destroyed?");
+        // check against limits specified in BindingMappingInfo
+        if (bindingMappings.setIndices.back() == i) continue; // flexible set
+        CCASSERT(layout->_typeCounts[0] <= bindingMappings.maxBlockCounts[i], "Exceeds descriptor type limit");
+        CCASSERT(layout->_typeCounts[1] <= bindingMappings.maxSamplerTextureCounts[i], "Exceeds descriptor type limit");
+        CCASSERT(layout->_typeCounts[2] <= bindingMappings.maxSamplerCounts[i], "Exceeds descriptor type limit");
+        CCASSERT(layout->_typeCounts[3] <= bindingMappings.maxTextureCounts[i], "Exceeds descriptor type limit");
+        CCASSERT(layout->_typeCounts[4] <= bindingMappings.maxBufferCounts[i], "Exceeds descriptor type limit");
+        CCASSERT(layout->_typeCounts[5] <= bindingMappings.maxImageCounts[i], "Exceeds descriptor type limit");
+        CCASSERT(layout->_typeCounts[6] <= bindingMappings.maxSubpassInputCounts[i], "Exceeds descriptor type limit");
     }
 
     /////////// execute ///////////

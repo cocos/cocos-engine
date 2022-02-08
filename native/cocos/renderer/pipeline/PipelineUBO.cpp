@@ -191,7 +191,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
     const PipelineSceneData *            sceneData  = pipeline->getPipelineSceneData();
     scene::Shadows *const                shadowInfo = sceneData->getShadows();
     std::array<float, UBOShadow::COUNT> &shadowUBO  = *bufferView;
-    const bool                           hFTexture  = supportsFloatTexture(device);
+    const bool                           hFTexture  = supportsR32FloatTexture(device);
 
     if (shadowInfo->isEnabled()) {
         if (mainLight && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
@@ -244,7 +244,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
     const auto *shadowInfo = sceneData->getShadows();
     auto *      device     = gfx::Device::getInstance();
     auto &      shadowUBO  = *bufferView;
-    const bool  hFTexture  = supportsFloatTexture(device);
+    const bool  hFTexture  = supportsR32FloatTexture(device);
     const float linear     = 0.0F;
     const float packing    = hFTexture ? 0.0F : 1.0F;
     switch (light->getType()) {

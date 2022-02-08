@@ -175,12 +175,11 @@ while (structCap) {
             let readonly = false;
             if (typedefMap.lists[type]) {
                 type = typedefMap.lists[type];
-            } else {
-                type = type.replace(/(\b)(void)(\b)/, '$1number$1');
-                type = type.replace(/(\b)(?:uint\w+?_t|int\w+?_t|float)(\b)/, '$1number$1');
-                type = type.replace(/(\b)(?:bool)(\b)/, '$1boolean$2');
-                type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
             }
+            type = type.replace(/(\b)(void)(\b)/, '$1number$1');
+            type = type.replace(/(\b)(?:uint\w+?_t|int\w+?_t|float)(\b)/, '$1number$1');
+            type = type.replace(/(\b)(?:bool)(\b)/, '$1boolean$2');
+            type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
             if (memberCap[1]) { readonly = true; }
             const isArray = type.endsWith('[]');
             const decayedType = isArray ? type.slice(0, -2) : type;
@@ -189,10 +188,14 @@ while (structCap) {
             let n = Number.parseInt(value);
             if (!Number.isNaN(n)) {
                 if (!value.startsWith('0x')) { value = n; } // keep hexadecimal numbers
-                if (isArray) { value = `[${value}]`; }
+                else if (value.endsWith('U')) { value = value.slice(0, -1); }
+                if (isArray) {
+                    if (decayedType === 'number') { value = `[${value}]`; } // vector<int> v{3};
+                    else { value = getArrayValue(decayedType, value); } // vector<Object> v{3};
+                }
             } else if (value) {
                 value = replaceConstants(value);
-                if (isArray) { value = getArrayValue(decayedType, value); }
+                if (isArray) { value = `[${value}]`; }
             } else {
                 if (isArray) { value = '[]'; }
                 else if (type === 'string') { value = '\'\''; }
@@ -209,6 +212,9 @@ while (structCap) {
                 if (directives.startsWith('nullable')) {
                     info.type += ' | null';
                     info.value = 'null';
+                } else if (directives.startsWith('boolean')) {
+                    info.type = 'boolean';
+                    info.value = !!info.value;
                 } else if (directives.startsWith('overrides')) {
                     let overrides = {};
                     try { overrides = yaml.load(memberCap[5].slice(9)); }
@@ -264,7 +270,7 @@ for (const name of Object.keys(structMap)) {
     for (const key in struct.member) {
         const { readonly, type, value } = struct.member[key];
         const decl = readonly ? `readonly ${key}` : key;
-        if (value || value === 0) {
+        if (value || value === 0 || value === false) {
             output += `        public ${decl}: ${type} = ${value},\n`;
         } else {
             output += `        public ${decl}: ${type},\n`;
