@@ -7,6 +7,7 @@
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/core/assets/AssetsModuleHeader.h"
+#include "cocos/core/builtin/BuiltinResMgr.h"
 #include "cocos/3d/assets/Mesh.h"
 #include "cocos/3d/assets/Morph.h"
 #include "cocos/3d/assets/MorphRendering.h"
@@ -66,6 +67,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeMipmap);
 JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeSerializeMipmapData);
 JSB_REGISTER_OBJECT_TYPE(cc::ITextureCubeSerializeData);
 JSB_REGISTER_OBJECT_TYPE(cc::TextureCube);
+JSB_REGISTER_OBJECT_TYPE(cc::BuiltinResMgr);
 JSB_REGISTER_OBJECT_TYPE(cc::MorphRendering);
 JSB_REGISTER_OBJECT_TYPE(cc::MorphRenderingInstance);
 JSB_REGISTER_OBJECT_TYPE(cc::StdMorphRendering);
@@ -584,6 +586,16 @@ SE_DECLARE_FUNC(js_assets_TextureCube_setMipmaps);
 SE_DECLARE_FUNC(js_assets_TextureCube_setMipmapsForJS);
 SE_DECLARE_FUNC(js_assets_TextureCube_fromTexture2DArray);
 SE_DECLARE_FUNC(js_assets_TextureCube_TextureCube);
+
+extern se::Object *__jsb_cc_BuiltinResMgr_proto; // NOLINT
+extern se::Class * __jsb_cc_BuiltinResMgr_class; // NOLINT
+
+bool js_register_cc_BuiltinResMgr(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getAsset);
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_initBuiltinRes);
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_destroyInstance);
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getInstance);
 
 extern se::Object *__jsb_cc_MorphRendering_proto; // NOLINT
 extern se::Class * __jsb_cc_MorphRendering_class; // NOLINT

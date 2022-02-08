@@ -121,24 +121,31 @@ BuiltinResMgr *BuiltinResMgr::instance = nullptr;
 BuiltinResMgr *BuiltinResMgr::getInstance() {
     if (BuiltinResMgr::instance == nullptr) {
         BuiltinResMgr::instance = new BuiltinResMgr();
-        //cjh FIXME: hacking code
-#if !defined(CC_RUN_IN_CPP_MODE) || !CC_RUN_IN_CPP_MODE
-        instance->initBuiltinRes(gfx::Device::getInstance());
-        instance->tryCompileAllPasses();
-#endif
-        //
+        BuiltinResMgr::instance->addRef();
     }
     return instance;
 }
 
 void BuiltinResMgr::destroyInstance() {
-    if (BuiltinResMgr::instance) {
-        delete BuiltinResMgr::instance;
-        BuiltinResMgr::instance = nullptr;
+    CC_SAFE_RELEASE_NULL(BuiltinResMgr::instance);
+}
+
+Asset *BuiltinResMgr::getAsset(const std::string &uuid) {
+    auto iter = _resources.find(uuid);
+    if (iter != _resources.end()) {
+        return iter->second.get();
     }
+
+    return nullptr;
 }
 
 bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
+    if (_isInitialized) {
+        return true;
+    }
+
+    _isInitialized = true;
+
     // black texture
     initTexture2DWithUuid("black-texture", BLACK_IMAGE_RGBA_DATA_2X2, sizeof(BLACK_IMAGE_RGBA_DATA_2X2), 2, 2, 4);
 
@@ -199,7 +206,7 @@ bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
     rapidjson::Type type              = doc.GetType();
     auto            assetDeserializer = AssetDeserializerFactory::createAssetDeserializer(DeserializeAssetType::EFFECT);
     for (const auto &e : doc.GetArray()) {
-        auto *effect = new EffectAsset();
+        IntrusivePtr<EffectAsset> effect = new EffectAsset();
         assetDeserializer->deserialize(e, effect);
 
         index_t shaderIndex = 0;
@@ -222,8 +229,6 @@ bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
 
         effect->hideInEditor = true;
         effect->onLoaded();
-
-        delete effect;
 
         ++effectIndex;
     }
@@ -453,7 +458,7 @@ void BuiltinResMgr::initMaterials() {
     _materialsToBeCompiled.emplace_back(spineTwoColorMtl);
     //
     //cjh TODO:    game.on(Game.EVENT_GAME_INITED, () => {
-    // tryCompileAllPasses();
+    tryCompileAllPasses();
     //    });
 }
 

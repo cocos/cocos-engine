@@ -37,29 +37,27 @@ class Device;
 
 class Material;
 
-class BuiltinResMgr final {
+class BuiltinResMgr final : public RefCounted {
 public:
     static BuiltinResMgr *getInstance();
     static void           destroyInstance();
 
-    bool initBuiltinRes(gfx::Device *device);
+    bool        initBuiltinRes(gfx::Device *device);
+    inline bool isInitialized() const { return _isInitialized; }
+
+    Asset *getAsset(const std::string &uuid);
 
     template <typename T, typename Enabled = std::enable_if_t<std::is_base_of<Asset, T>::value>>
     T *get(const std::string &uuid) {
-        auto iter = _resources.find(uuid);
-        if (iter != _resources.end()) {
-            return static_cast<T *>(iter->second.get());
-        }
-
-        return nullptr;
+        return static_cast<T *>(getAsset(uuid));
     }
 
-    void tryCompileAllPasses();
-
 private:
-    explicit BuiltinResMgr() = default;
-    ~BuiltinResMgr()         = default;
+    explicit BuiltinResMgr()  = default;
+    ~BuiltinResMgr() override = default;
+
     void initMaterials();
+    void tryCompileAllPasses();
     void initTexture2DWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height, uint32_t bytesPerPixel);
     void initTextureCubeWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height, uint32_t bytesPerPixel);
 
@@ -68,6 +66,7 @@ private:
     gfx::Device *                            _device{nullptr};
     Record<std::string, IntrusivePtr<Asset>> _resources;
     std::vector<IntrusivePtr<Material>>      _materialsToBeCompiled;
+    bool                                     _isInitialized{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BuiltinResMgr);
 };

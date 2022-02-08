@@ -57,7 +57,9 @@ Material::Material() {
 
 void Material::initialize(const IMaterialInfo &info) {
     // cjh FIXME: remove hacking code here
-    BuiltinResMgr::getInstance();
+    if (!BuiltinResMgr::getInstance()->isInitialized()) {
+        BuiltinResMgr::getInstance()->initBuiltinRes(gfx::Device::getInstance());
+    }
     //
     auto &passes = *_passes;
     if (!passes.empty()) {
