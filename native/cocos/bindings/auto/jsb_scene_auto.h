@@ -508,6 +508,8 @@ extern se::Class * __jsb_cc_scene_SkyboxInfo_class; // NOLINT
 bool js_register_cc_scene_SkyboxInfo(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_SkyboxInfo_activate);
+SE_DECLARE_FUNC(js_scene_SkyboxInfo_getDiffuseMap);
+SE_DECLARE_FUNC(js_scene_SkyboxInfo_setDiffuseMap);
 SE_DECLARE_FUNC(js_scene_SkyboxInfo_SkyboxInfo);
 
 extern se::Object *__jsb_cc_scene_Skybox_proto; // NOLINT

@@ -14640,7 +14640,26 @@ static bool js_scene_SkyboxInfo_getDiffuseMap(se::State& s) // NOLINT(readabilit
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_getDiffuseMap)
+SE_BIND_FUNC(js_scene_SkyboxInfo_getDiffuseMap)
+
+static bool js_scene_SkyboxInfo_getEnvLightingType(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_getEnvLightingType : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        auto result = static_cast<int>(cobj->getEnvLightingType());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_getEnvLightingType : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_getEnvLightingType)
 
 static bool js_scene_SkyboxInfo_getEnvmap(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14792,7 +14811,7 @@ static bool js_scene_SkyboxInfo_setDiffuseMap(se::State& s) // NOLINT(readabilit
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setDiffuseMap)
+SE_BIND_FUNC(js_scene_SkyboxInfo_setDiffuseMap)
 
 static bool js_scene_SkyboxInfo_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14812,6 +14831,25 @@ static bool js_scene_SkyboxInfo_setEnabled(se::State& s) // NOLINT(readability-i
     return false;
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setEnabled)
+
+static bool js_scene_SkyboxInfo_setEnvLightingType(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_setEnvLightingType : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::scene::EnvironmentLightingType, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_setEnvLightingType : Error processing arguments");
+        cobj->setEnvLightingType(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_SkyboxInfo_setEnvLightingType)
 
 static bool js_scene_SkyboxInfo_setEnvmap(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14888,33 +14926,6 @@ static bool js_scene_SkyboxInfo_setUseIBL(se::State& s) // NOLINT(readability-id
     return false;
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_SkyboxInfo_setUseIBL)
-
-static bool js_scene_SkyboxInfo_get__applyDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__applyDiffuseMap : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_applyDiffuseMap, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_applyDiffuseMap, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_SkyboxInfo_get__applyDiffuseMap)
-
-static bool js_scene_SkyboxInfo_set__applyDiffuseMap(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__applyDiffuseMap : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_applyDiffuseMap, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__applyDiffuseMap : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__applyDiffuseMap)
 
 static bool js_scene_SkyboxInfo_get__envmapHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15051,33 +15062,6 @@ static bool js_scene_SkyboxInfo_set__enabled(se::State& s) // NOLINT(readability
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__enabled)
 
-static bool js_scene_SkyboxInfo_get__useIBL(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__useIBL : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_useIBL, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_useIBL, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_SkyboxInfo_get__useIBL)
-
-static bool js_scene_SkyboxInfo_set__useIBL(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__useIBL : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_useIBL, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__useIBL : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__useIBL)
-
 static bool js_scene_SkyboxInfo_get__useHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
@@ -15105,6 +15089,33 @@ static bool js_scene_SkyboxInfo_set__useHDR(se::State& s) // NOLINT(readability-
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__useHDR)
 
+static bool js_scene_SkyboxInfo_get__envLightingType(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_get__envLightingType : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_envLightingType, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_envLightingType, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_SkyboxInfo_get__envLightingType)
+
+static bool js_scene_SkyboxInfo_set__envLightingType(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SkyboxInfo_set__envLightingType : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_envLightingType, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_SkyboxInfo_set__envLightingType : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__envLightingType)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_SkyboxInfo_finalize)
 
 static bool js_scene_SkyboxInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -15125,22 +15136,23 @@ bool js_register_scene_SkyboxInfo(se::Object* obj) // NOLINT(readability-identif
 {
     auto* cls = se::Class::create("SkyboxInfo", obj, nullptr, _SE(js_scene_SkyboxInfo_constructor));
 
-    cls->defineProperty("_applyDiffuseMap", _SE(js_scene_SkyboxInfo_get__applyDiffuseMap), _SE(js_scene_SkyboxInfo_set__applyDiffuseMap));
     cls->defineProperty("_envmapHDR", _SE(js_scene_SkyboxInfo_get__envmapHDR), _SE(js_scene_SkyboxInfo_set__envmapHDR));
     cls->defineProperty("_envmapLDR", _SE(js_scene_SkyboxInfo_get__envmapLDR), _SE(js_scene_SkyboxInfo_set__envmapLDR));
     cls->defineProperty("_diffuseMapHDR", _SE(js_scene_SkyboxInfo_get__diffuseMapHDR), _SE(js_scene_SkyboxInfo_set__diffuseMapHDR));
     cls->defineProperty("_diffuseMapLDR", _SE(js_scene_SkyboxInfo_get__diffuseMapLDR), _SE(js_scene_SkyboxInfo_set__diffuseMapLDR));
     cls->defineProperty("_enabled", _SE(js_scene_SkyboxInfo_get__enabled), _SE(js_scene_SkyboxInfo_set__enabled));
-    cls->defineProperty("_useIBL", _SE(js_scene_SkyboxInfo_get__useIBL), _SE(js_scene_SkyboxInfo_set__useIBL));
     cls->defineProperty("_useHDR", _SE(js_scene_SkyboxInfo_get__useHDR), _SE(js_scene_SkyboxInfo_set__useHDR));
+    cls->defineProperty("_envLightingType", _SE(js_scene_SkyboxInfo_get__envLightingType), _SE(js_scene_SkyboxInfo_set__envLightingType));
     cls->defineProperty("_envmap", _SE(js_scene_SkyboxInfo_getEnvmapForJS_asGetter), _SE(js_scene_SkyboxInfo_setEnvmapForJS_asSetter));
     cls->defineProperty("applyDiffuseMap", _SE(js_scene_SkyboxInfo_isApplyDiffuseMap_asGetter), _SE(js_scene_SkyboxInfo_setApplyDiffuseMap_asSetter));
     cls->defineProperty("enabled", _SE(js_scene_SkyboxInfo_isEnabled_asGetter), _SE(js_scene_SkyboxInfo_setEnabled_asSetter));
     cls->defineProperty("useIBL", _SE(js_scene_SkyboxInfo_isUseIBL_asGetter), _SE(js_scene_SkyboxInfo_setUseIBL_asSetter));
     cls->defineProperty("useHDR", _SE(js_scene_SkyboxInfo_isUseHDR_asGetter), _SE(js_scene_SkyboxInfo_setUseHDR_asSetter));
     cls->defineProperty("envmap", _SE(js_scene_SkyboxInfo_getEnvmap_asGetter), _SE(js_scene_SkyboxInfo_setEnvmap_asSetter));
-    cls->defineProperty("diffuseMap", _SE(js_scene_SkyboxInfo_getDiffuseMap_asGetter), _SE(js_scene_SkyboxInfo_setDiffuseMap_asSetter));
+    cls->defineProperty("diffuseMap", _SE(js_scene_SkyboxInfo_setEnvLightingType_asGetter), _SE(js_scene_SkyboxInfo_getEnvLightingType_asSetter));
     cls->defineFunction("activate", _SE(js_scene_SkyboxInfo_activate));
+    cls->defineFunction("getDiffuseMap", _SE(js_scene_SkyboxInfo_getDiffuseMap));
+    cls->defineFunction("setDiffuseMap", _SE(js_scene_SkyboxInfo_setDiffuseMap));
     cls->defineFinalizeFunction(_SE(js_cc_scene_SkyboxInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::scene::SkyboxInfo>(cls);
