@@ -414,7 +414,10 @@ public:
      */
     void clear() {
         for (auto it = std::begin(_data); it != std::end(_data); ++it) {
-            (*it)->release();
+            auto *ptr = *it;
+            if (ptr) {
+                ptr->release();
+            }
         }
         _data.clear();
     }
