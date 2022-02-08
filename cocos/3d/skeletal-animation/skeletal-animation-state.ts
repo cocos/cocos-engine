@@ -83,19 +83,16 @@ export class SkeletalAnimationState extends AnimationState {
         this._frames = frames - 1;
         this._animInfo = this._animInfoMgr.getData(root.uuid);
         this._bakedDuration = this._frames / samples; // last key
+        this.setUseBaked(baked);
     }
 
-    public onPlay () {
-        super.onPlay();
-        const baked = this._parent!.useBakedAnimation;
-        if (baked) {
+    /**
+     * @internal This method only friends to `SkeletalAnimation`.
+     */
+    public setUseBaked (useBaked: boolean) {
+        if (useBaked) {
             this._sampleCurves = this._sampleCurvesBaked;
             this.duration = this._bakedDuration;
-            this._animInfoMgr.switchClip(this._animInfo!, this.clip);
-            const users = this._parent!.getUsers();
-            users.forEach((user) => {
-                user.uploadAnimation(this.clip);
-            });
         } else {
             this._sampleCurves = super._sampleCurves;
             this.duration = this.clip.duration;
@@ -168,6 +165,19 @@ export class SkeletalAnimationState extends AnimationState {
     private _sampleCurvesBaked (time: number) {
         const ratio = time / this.duration;
         const info = this._animInfo!;
+        const clip = this.clip;
+
+        // Ensure I'm the one on which the anim info is sampling.
+        if (info.currentClip !== clip) {
+            // If not, switch to me.
+            this._animInfoMgr.switchClip(this._animInfo!, clip);
+
+            const users = this._parent!.getUsers();
+            users.forEach((user) => {
+                user.uploadAnimation(clip);
+            });
+        }
+
         const curFrame = (ratio * this._frames + 0.5) | 0;
         if (curFrame === info.data[0]) { return; }
         info.data[0] = curFrame;

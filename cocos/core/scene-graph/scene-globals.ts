@@ -31,7 +31,7 @@ import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
-import { Skybox } from '../renderer/scene/skybox';
+import { Skybox, EnvironmentLightingType } from '../renderer/scene/skybox';
 import { Octree } from '../renderer/scene/octree';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
@@ -222,7 +222,7 @@ legacyCC.AmbientInfo = AmbientInfo;
 @help('i18n:cc.Skybox')
 export class SkyboxInfo {
     @serializable
-    protected _applyDiffuseMap = false;
+    protected _envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
     @serializable
     @type(TextureCube)
     @formerlySerializedAs('_envmap')
@@ -239,8 +239,6 @@ export class SkyboxInfo {
     @serializable
     protected _enabled = false;
     @serializable
-    protected _useIBL = false;
-    @serializable
     protected _useHDR = true;
 
     protected _resource: Skybox | null = null;
@@ -249,25 +247,17 @@ export class SkyboxInfo {
      * @en Whether to use diffuse convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
      * @zh 是否为IBL启用漫反射卷积图？不启用的话将使用默认的半球光照
      */
-    @visible(function (this : SkyboxInfo) {
-        if (this.useIBL) {
-            return true;
-        }
-        return false;
-    })
-    @editable
-    @tooltip('i18n:skybox.applyDiffuseMap')
     set applyDiffuseMap (val) {
-        this._applyDiffuseMap = val;
-
         if (this._resource) {
             this._resource.useDiffuseMap = val;
         }
     }
     get applyDiffuseMap () {
-        return this._applyDiffuseMap;
+        if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === this._envLightingType) {
+            return true;
+        }
+        return false;
     }
-
     /**
      * @en Whether activate skybox in the scene
      * @zh 是否启用天空盒？
@@ -287,20 +277,41 @@ export class SkyboxInfo {
     }
 
     /**
+     * @zh 环境反射类型
+     * @en environment reflection type
+     */
+    @editable
+    @type(EnvironmentLightingType)
+    @tooltip('i18n:skybox.EnvironmentLightingType')
+    set envLightingType (val) {
+        if(EnvironmentLightingType.HEMISPHERE_DIFFUSE === val) {
+            this.useIBL = false;
+        }else if(EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION === val) {
+            this.useIBL = true;
+            this.applyDiffuseMap = false;
+        }else if(EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === val) {
+            this.useIBL = true;
+            this.applyDiffuseMap = true;
+        }
+        this._envLightingType = val;
+    }
+    get envLightingType () {
+        return this._envLightingType;
+    }
+    /**
      * @en Whether use environment lighting
      * @zh 是否启用环境光照？
      */
-    @editable
-    @tooltip('i18n:skybox.useIBL')
     set useIBL (val) {
-        this._useIBL = val;
-
         if (this._resource) {
-            this._resource.useIBL = this._useIBL;
+            this._resource.useIBL = val;
         }
     }
     get useIBL () {
-        return this._useIBL;
+        if (EnvironmentLightingType.HEMISPHERE_DIFFUSE !== this._envLightingType) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -347,14 +358,15 @@ export class SkyboxInfo {
 
         if (!this._envmapHDR) {
             this._diffuseMapHDR = null;
-            this._applyDiffuseMap = false;
+            this.applyDiffuseMap = false;
             this.useIBL = false;
+            this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
         }
 
         if (this._resource) {
             this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
             this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
-            this._resource.useDiffuseMap = this._applyDiffuseMap;
+            this._resource.useDiffuseMap = this.applyDiffuseMap;
             this._resource.envmap = val;
         }
     }
@@ -402,6 +414,7 @@ export class SkyboxInfo {
     }
 
     public activate (resource: Skybox) {
+        this.envLightingType = this._envLightingType;
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
@@ -641,9 +654,9 @@ export class FogInfo {
 @help('i18n:cc.Shadow')
 export class ShadowsInfo {
     @serializable
-    protected _type = ShadowType.Planar;
-    @serializable
     protected _enabled = false;
+    @serializable
+    protected _type = ShadowType.Planar;
     @serializable
     protected _normal = new Vec3(0, 1, 0);
     @serializable
@@ -651,31 +664,9 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
-    protected _firstSetCSM = false;
-    @serializable
-    protected _fixedArea = false;
-    @serializable
-    protected _pcf = PCFType.HARD;
-    @serializable
-    protected _bias = 0.00001;
-    @serializable
-    protected _normalBias = 0.0;
-    @serializable
-    protected _near = 0.1;
-    @serializable
-    protected _far = 10.0;
-    @serializable
-    protected _shadowDistance = 100;
-    @serializable
-    protected _invisibleOcclusionRange = 200;
-    @serializable
-    protected _orthoSize = 5;
-    @serializable
     protected _maxReceived = 4;
     @serializable
     protected _size = new Vec2(512, 512);
-    @serializable
-    protected _saturation = 0.75;
 
     protected _resource: Shadows | null = null;
 
@@ -746,52 +737,14 @@ export class ShadowsInfo {
      * @zh 阴影接收平面与原点的距离
      */
     @type(CCFloat)
-    @tooltip('i18n:shadow.distance')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
+    @tooltip('i18n:shadow.distance')
     set distance (val: number) {
         this._distance = val;
         if (this._resource) { this._resource.distance = val; }
     }
     get distance () {
         return this._distance;
-    }
-
-    /**
-     * @en Shadow color saturation
-     * @zh 阴影颜色饱和度
-     */
-    @editable
-    @range([0.0, 1.0, 0.01])
-    @slide
-    @type(CCFloat)
-    @tooltip('i18n:shadow.saturation')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set saturation (val: number) {
-        if (val > 1.0) {
-            this._saturation = val / val;
-            if (this._resource) { this._resource.saturation = val / val; }
-        } else {
-            this._saturation = val;
-            if (this._resource) { this._resource.saturation = val; }
-        }
-    }
-    get saturation () {
-        return this._saturation;
-    }
-
-    /**
-     * @en The normal of the plane which receives shadow
-     * @zh 阴影接收平面的法线
-     */
-    @type(PCFType)
-    @tooltip('i18n:shadow.pcf')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set pcf (val) {
-        this._pcf = val;
-        if (this._resource) { this._resource.pcf = val; }
-    }
-    get pcf () {
-        return this._pcf;
     }
 
     /**
@@ -806,36 +759,6 @@ export class ShadowsInfo {
     }
     get maxReceived () {
         return this._maxReceived;
-    }
-
-    /**
-     * @en get or set shadow map sampler offset
-     * @zh 获取或者设置阴影纹理偏移值
-     */
-    @type(CCFloat)
-    @tooltip('i18n:shadow.bias')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set bias (val: number) {
-        this._bias = val;
-        if (this._resource) { this._resource.bias = val; }
-    }
-    get bias () {
-        return this._bias;
-    }
-
-    /**
-     * @en on or off Self-shadowing.
-     * @zh 打开或者关闭自阴影。
-     */
-    @type(CCFloat)
-    @tooltip('i18n:shadow.normalBias')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set normalBias (val: number) {
-        this._normalBias = val;
-        if (this._resource) { this._resource.normalBias = val; }
-    }
-    get normalBias () {
-        return this._normalBias;
     }
 
     /**
@@ -860,106 +783,6 @@ export class ShadowsInfo {
     }
 
     /**
-     * @en get or set fixed area shadow
-     * @zh 是否是固定区域阴影
-     */
-    @type(CCBoolean)
-    @tooltip('i18n:shadow.fixedArea')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set fixedArea (val) {
-        this._fixedArea = val;
-        if (this._resource) { this._resource.fixedArea = val; }
-    }
-    get fixedArea () {
-        return this._fixedArea;
-    }
-
-    /**
-     * @en get or set shadow camera near
-     * @zh 获取或者设置阴影相机近裁剪面
-     */
-    @type(CCFloat)
-    @tooltip('i18n:shadow.near')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
-    set near (val: number) {
-        this._near = val;
-        if (this._resource) { this._resource.near = val; }
-    }
-    get near () {
-        return this._near;
-    }
-
-    /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置阴影相机远裁剪面
-     */
-    @type(CCFloat)
-    @tooltip('i18n:shadow.far')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
-    set far (val: number) {
-        this._far = Math.min(val, Shadows.MAX_FAR);
-        if (this._resource) { this._resource.far = this._far; }
-    }
-    get far () {
-        return this._far;
-    }
-
-    /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置潜在阴影产生的范围
-     */
-    @editable
-    @range([0.0, 2000.0, 0.1])
-    @slide
-    @type(CCFloat)
-    @tooltip('i18n:shadow.invisibleOcclusionRange')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
-    set invisibleOcclusionRange (val: number) {
-        this._invisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
-        if (this._resource) {
-            this._resource.invisibleOcclusionRange = this._invisibleOcclusionRange;
-        }
-    }
-    get invisibleOcclusionRange () {
-        return this._invisibleOcclusionRange;
-    }
-
-    /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置潜在阴影产生的范围
-     */
-    @editable
-    @range([0.0, 2000.0, 0.1])
-    @slide
-    @type(CCFloat)
-    @tooltip('i18n:shadow.shadowDistance')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
-    set shadowDistance (val: number) {
-        this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
-        if (this._resource) {
-            this._resource.shadowDistance = this._shadowDistance;
-        }
-    }
-    get shadowDistance () {
-        return this._shadowDistance;
-    }
-
-    /**
-     * @en get or set shadow camera orthoSize
-     * @zh 获取或者设置阴影相机正交大小
-     */
-    @type(CCFloat)
-    @tooltip('i18n:shadow.orthoSize')
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
-    set orthoSize (val: number) {
-        this._orthoSize = val;
-        if (this._resource) { this._resource.orthoSize = val; }
-    }
-    get orthoSize () {
-        return this._orthoSize;
-    }
-
-    /**
      * @en Set plane which receives shadow with the given node's world transformation
      * @zh 根据指定节点的世界变换设置阴影接收平面的信息
      * @param node The node for setting up the plane
@@ -972,20 +795,7 @@ export class ShadowsInfo {
     }
 
     public activate (resource: Shadows) {
-        this.pcf = Math.min(this._pcf, PCFType.SOFT_2X);
-
         this._resource = resource;
-        if (EDITOR && this._firstSetCSM) {
-            this._resource.firstSetCSM = this._firstSetCSM;
-            // Only the first time render in editor will trigger the auto calculation of shadowDistance
-            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => {
-                // Sync automatic calculated shadowDistance in renderer
-                this._firstSetCSM = false;
-                if (this._resource) {
-                    this.shadowDistance = Math.min(this._resource.shadowDistance, Shadows.MAX_FAR);
-                }
-            });
-        }
         this._resource.initialize(this);
         this._resource.activate();
     }

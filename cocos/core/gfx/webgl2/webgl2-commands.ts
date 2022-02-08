@@ -1577,7 +1577,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 // blockIdx = gl.getUniformBlockIndex(gpuShader.glProgram, blockName);
                 blockIdx = b;
                 blockSize = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, gl.UNIFORM_BLOCK_DATA_SIZE);
-                const glBinding = block.binding + (device.bindingMappingInfo.bufferOffsets[block.set] || 0);
+                const glBinding = block.binding + (device.bindingMappings.blockOffsets[block.set] || 0);
 
                 gl.uniformBlockBinding(gpuShader.glProgram, blockIdx, glBinding);
 
@@ -1628,7 +1628,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
 
     let flexibleSetBaseOffset = 0;
     for (let i = 0; i < gpuShader.blocks.length; ++i) {
-        if (gpuShader.blocks[i].set === device.bindingMappingInfo.flexibleSet) {
+        if (gpuShader.blocks[i].set === device.bindingMappings.flexibleSet) {
             flexibleSetBaseOffset++;
         }
     }
@@ -1643,8 +1643,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
             glActiveSamplerLocations.push(glLoc);
         }
         if (texUnitCacheMap[sampler.name] === undefined) {
-            let binding = sampler.binding + device.bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
-            if (sampler.set === device.bindingMappingInfo.flexibleSet) { binding -= flexibleSetBaseOffset; }
+            let binding = sampler.binding + device.bindingMappings.samplerTextureOffsets[sampler.set] + arrayOffset;
+            if (sampler.set === device.bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
             texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
             arrayOffset += sampler.count - 1;
         }

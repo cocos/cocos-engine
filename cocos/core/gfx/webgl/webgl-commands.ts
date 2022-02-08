@@ -826,7 +826,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
-        if (!device.extensions.WEBGL_depth_texture && FormatInfos[gpuTexture.format].hasDepth) {
+        if (!device.textureExclusive[gpuTexture.format] && (!device.extensions.WEBGL_depth_texture && FormatInfos[gpuTexture.format].hasDepth)) {
             gpuTexture.glInternalFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format, gl);
             gpuTexture.glRenderbuffer = gl.createRenderbuffer();
             if (gpuTexture.size > 0) {
@@ -1432,12 +1432,12 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     // texture unit index mapping optimization
     const glActiveSamplers: IWebGLGPUUniformSamplerTexture[] = [];
     const glActiveSamplerLocations: WebGLUniformLocation[] = [];
-    const { bindingMappingInfo } = device;
+    const { bindingMappings } = device;
     const { texUnitCacheMap } = device.stateCache;
 
     let flexibleSetBaseOffset = 0;
     for (let i = 0; i < gpuShader.blocks.length; ++i) {
-        if (gpuShader.blocks[i].set === bindingMappingInfo.flexibleSet) {
+        if (gpuShader.blocks[i].set === bindingMappings.flexibleSet) {
             flexibleSetBaseOffset++;
         }
     }
@@ -1451,8 +1451,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
             glActiveSamplerLocations.push(glLoc);
         }
         if (texUnitCacheMap[sampler.name] === undefined) {
-            let binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
-            if (sampler.set === bindingMappingInfo.flexibleSet) { binding -= flexibleSetBaseOffset; }
+            let binding = sampler.binding + bindingMappings.samplerTextureOffsets[sampler.set] + arrayOffset;
+            if (sampler.set === bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
             texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
             arrayOffset += sampler.count - 1;
         }

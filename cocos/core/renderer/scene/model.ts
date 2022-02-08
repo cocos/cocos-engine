@@ -36,18 +36,15 @@ import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { NativeBakedSkinningModel, NativeModel, NativeSkinningModel } from './native-scene';
-import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
 
 const shadowMapPatches: IMacroPatch[] = [
-    { name: 'CC_ENABLE_DIR_SHADOW', value: true },
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 

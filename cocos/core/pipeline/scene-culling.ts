@@ -261,11 +261,11 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
     dirLight: DirectionalLight, camera: Camera, shadowInfo: Shadows) {
     const device = pipeline.device;
 
-    if (shadowInfo.fixedArea) {
-        const x = shadowInfo.orthoSize;
-        const y = shadowInfo.orthoSize;
-        const near = shadowInfo.near;
-        const far = shadowInfo.far;
+    if (dirLight.fixedArea) {
+        const x = dirLight.fixedOrthoSize;
+        const y = dirLight.fixedOrthoSize;
+        const near = dirLight.fixedNear;
+        const far = dirLight.fixedFar;
         Mat4.fromRT(_matShadowTrans, dirLight.node!.getWorldRotation(), dirLight.node!.getWorldPosition());
         Mat4.invert(_matShadowView, _matShadowTrans);
         Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
@@ -278,12 +278,12 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
 
         Frustum.createOrtho(out, x * 2.0, y * 2.0, near,  far, _matShadowViewInv);
     } else {
-        const invisibleOcclusionRange = shadowInfo.invisibleOcclusionRange;
+        const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
         const shadowMapWidth = shadowInfo.size.x;
 
         // Raw data
         getCameraWorldMatrix(_mat4_trans, camera);
-        Frustum.split(_validFrustum, camera, _mat4_trans, 0.1, shadowInfo.shadowDistance);
+        Frustum.split(_validFrustum, camera, _mat4_trans, 0.1, dirLight.shadowDistance);
         _lightViewFrustum = Frustum.clone(_validFrustum);
 
         // view matrix with range back
@@ -433,11 +433,5 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 renderObjects.push(getRenderObject(model, camera));
             }
         }
-    }
-
-    // FirstSetCSM flag Bit Control
-    if (shadows.firstSetCSM) {
-        shadows.shadowDistance = _castWorldBounds.halfExtents.length() * 2.0;
-        shadows.firstSetCSM = false;
     }
 }

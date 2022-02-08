@@ -92,6 +92,12 @@ export class WebGL2IndirectDrawInfos {
     }
 }
 
+export interface IWebGL2BindingMapping {
+    blockOffsets: number[];
+    samplerTextureOffsets: number[];
+    flexibleSet: number;
+}
+
 export interface IWebGL2GPUUniformInfo {
     name: string;
     type: Type;

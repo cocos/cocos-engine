@@ -56,14 +56,15 @@ import {
     CommandBufferType, ShaderInfo,
     QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
     RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GlobalBarrierInfo,
-    QueueType, API, Feature, BufferTextureCopy, SwapchainInfo,
+    QueueType, API, Feature, BufferTextureCopy, SwapchainInfo, FormatFeature, FormatFeatureBit, Format,
 } from '../base/define';
 import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers, WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { GlobalBarrier } from '../base/states/global-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
-import { WebGLDeviceManager } from './webgl-define';
+import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
+import { IWebGLBindingMapping } from './webgl-gpu-objects';
 
 export class WebGLDevice extends Device {
     get gl () {
@@ -86,16 +87,47 @@ export class WebGLDevice extends Device {
         return this._swapchain!.nullTexCube;
     }
 
+    get textureExclusive (): boolean[] {
+        return this._textureExclusive;
+    }
+
+    get bindingMappings () {
+        return this._bindingMappings!;
+    }
+
     private _swapchain: WebGLSwapchain | null = null;
     private _context: WebGLRenderingContext | null = null;
+    private _bindingMappings: IWebGLBindingMapping | null = null;
+
+    protected _textureExclusive = new Array<boolean>(Format.COUNT);
 
     public initialize (info: DeviceInfo): boolean {
         WebGLDeviceManager.setInstance(this);
         this._gfxAPI = API.WEBGL;
 
-        this._bindingMappingInfo = info.bindingMappingInfo;
-        if (!this._bindingMappingInfo.bufferOffsets.length) this._bindingMappingInfo.bufferOffsets.push(0);
-        if (!this._bindingMappingInfo.samplerOffsets.length) this._bindingMappingInfo.samplerOffsets.push(0);
+        const mapping = this._bindingMappingInfo = info.bindingMappingInfo;
+        const blockOffsets: number[] = [];
+        const samplerTextureOffsets: number[] = [];
+        const firstSet = mapping.setIndices[0];
+        blockOffsets[firstSet] = 0;
+        samplerTextureOffsets[firstSet] = 0;
+        for (let i = 1; i < mapping.setIndices.length; ++i) {
+            const curSet = mapping.setIndices[i];
+            const prevSet = mapping.setIndices[i - 1];
+            // accumulate the per set offset according to the specified capacity
+            blockOffsets[curSet] = mapping.maxBlockCounts[prevSet] + blockOffsets[prevSet];
+            samplerTextureOffsets[curSet] = mapping.maxSamplerTextureCounts[prevSet] + samplerTextureOffsets[prevSet];
+        }
+        for (let i = 0; i < mapping.setIndices.length; ++i) {
+            const curSet = mapping.setIndices[i];
+            // textures always come after UBOs
+            samplerTextureOffsets[curSet] -= mapping.maxBlockCounts[curSet];
+        }
+        this._bindingMappings = {
+            blockOffsets,
+            samplerTextureOffsets,
+            flexibleSet: mapping.setIndices[mapping.setIndices.length - 1],
+        };
 
         const gl = this._context = getContext(Device.canvas);
 
@@ -142,39 +174,11 @@ export class WebGLDevice extends Device {
 
         this._features.fill(false);
 
-        if (exts.EXT_sRGB) {
-            this._features[Feature.FORMAT_SRGB] = true;
-        }
+        this.initFormatFeatures(exts);
 
         if (exts.EXT_blend_minmax) {
             this._features[Feature.BLEND_MINMAX] = true;
         }
-
-        if (exts.WEBGL_color_buffer_float) {
-            this._features[Feature.COLOR_FLOAT] = true;
-        }
-
-        if (exts.EXT_color_buffer_half_float) {
-            this._features[Feature.COLOR_HALF_FLOAT] = true;
-        }
-
-        if (exts.OES_texture_float) {
-            this._features[Feature.TEXTURE_FLOAT] = true;
-        }
-
-        if (exts.OES_texture_half_float) {
-            this._features[Feature.TEXTURE_HALF_FLOAT] = true;
-        }
-
-        if (exts.OES_texture_float_linear) {
-            this._features[Feature.TEXTURE_FLOAT_LINEAR] = true;
-        }
-
-        if (exts.OES_texture_half_float_linear) {
-            this._features[Feature.TEXTURE_HALF_FLOAT_LINEAR] = true;
-        }
-
-        this._features[Feature.FORMAT_RGB8] = true;
 
         if (exts.OES_element_index_uint) {
             this._features[Feature.ELEMENT_INDEX_UINT] = true;
@@ -190,28 +194,23 @@ export class WebGLDevice extends Device {
 
         let compressedFormat = '';
 
-        if (exts.WEBGL_compressed_texture_etc1) {
-            this._features[Feature.FORMAT_ETC1] = true;
+        if (this.getFormatFeatures(Format.ETC_RGB8)) {
             compressedFormat += 'etc1 ';
         }
 
-        if (exts.WEBGL_compressed_texture_etc) {
-            this._features[Feature.FORMAT_ETC2] = true;
+        if (this.getFormatFeatures(Format.ETC2_RGB8)) {
             compressedFormat += 'etc2 ';
         }
 
-        if (exts.WEBGL_compressed_texture_s3tc) {
-            this._features[Feature.FORMAT_DXT] = true;
+        if (this.getFormatFeatures(Format.BC1)) {
             compressedFormat += 'dxt ';
         }
 
-        if (exts.WEBGL_compressed_texture_pvrtc) {
-            this._features[Feature.FORMAT_PVRTC] = true;
+        if (this.getFormatFeatures(Format.PVRTC_RGB2)) {
             compressedFormat += 'pvrtc ';
         }
 
-        if (exts.WEBGL_compressed_texture_astc) {
-            this._features[Feature.FORMAT_ASTC] = true;
+        if (this.getFormatFeatures(Format.ASTC_RGBA_4X4)) {
             compressedFormat += 'astc ';
         }
 
@@ -247,6 +246,167 @@ export class WebGLDevice extends Device {
         this._numInstances = queue.numInstances;
         this._numTris = queue.numTris;
         queue.clear();
+    }
+
+    protected initFormatFeatures (exts: IWebGLExtensions) {
+        this._formatFeatures.fill(FormatFeatureBit.NONE);
+
+        this._textureExclusive.fill(true);
+
+        const tempFeature: FormatFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
+            | FormatFeatureBit.LINEAR_FILTER;
+
+        this._formatFeatures[Format.RGB8] = tempFeature;
+        this._formatFeatures[Format.R5G6B5] = tempFeature;
+        this._textureExclusive[Format.R5G6B5] = false;
+
+        this._formatFeatures[Format.RGBA8] = tempFeature;
+        this._formatFeatures[Format.RGBA4] = tempFeature;
+        this._textureExclusive[Format.RGBA4] = false;
+
+        this._formatFeatures[Format.RGB5A1] = tempFeature;
+        this._textureExclusive[Format.RGB5A1] = false;
+
+        this._formatFeatures[Format.DEPTH] = FormatFeatureBit.RENDER_TARGET;
+        this._textureExclusive[Format.DEPTH] = false;
+        this._formatFeatures[Format.DEPTH_STENCIL] = FormatFeatureBit.RENDER_TARGET;
+        this._textureExclusive[Format.DEPTH_STENCIL] = false;
+
+        this._formatFeatures[Format.R8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RG8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGB8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGBA8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+
+        this._formatFeatures[Format.R8UI] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RG8UI] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGB8UI] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGBA8UI] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+
+        this._formatFeatures[Format.R8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RG8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGB8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGBA8I] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+
+        this._formatFeatures[Format.R8UI] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RG8UI] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGB8UI] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGBA8UI] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+
+        this._formatFeatures[Format.R32F] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RG32F] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+        this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.VERTEX_ATTRIBUTE;
+
+        if (exts.EXT_sRGB) {
+            this._formatFeatures[Format.SRGB8] = tempFeature;
+            this._formatFeatures[Format.SRGB8_A8] = tempFeature;
+
+            this._textureExclusive[Format.SRGB8_A8] = false;
+        }
+
+        if (exts.WEBGL_depth_texture) {
+            this._formatFeatures[Format.DEPTH] |= tempFeature;
+            this._formatFeatures[Format.DEPTH_STENCIL] |= tempFeature;
+        }
+
+        if (exts.WEBGL_color_buffer_float) {
+            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET;
+            this._textureExclusive[Format.RGB32F] = false;
+            this._textureExclusive[Format.RGBA32F] = false;
+        }
+
+        if (exts.EXT_color_buffer_half_float) {
+            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.RENDER_TARGET;
+            this._textureExclusive[Format.RGB16F] = false;
+            this._textureExclusive[Format.RGBA16F] = false;
+        }
+
+        if (exts.OES_texture_float) {
+            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
+        }
+
+        if (exts.OES_texture_half_float) {
+            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE;
+        }
+
+        if (exts.OES_texture_float_linear) {
+            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.LINEAR_FILTER;
+        }
+
+        if (exts.OES_texture_half_float_linear) {
+            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.LINEAR_FILTER;
+        }
+
+        const compressedFeature: FormatFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+
+        if (exts.WEBGL_compressed_texture_etc1) {
+            this._formatFeatures[Format.ETC_RGB8] = compressedFeature;
+        }
+
+        if (exts.WEBGL_compressed_texture_etc) {
+            this._formatFeatures[Format.ETC2_RGB8] = compressedFeature;
+            this._formatFeatures[Format.ETC2_RGBA8] = compressedFeature;
+            this._formatFeatures[Format.ETC2_SRGB8] = compressedFeature;
+            this._formatFeatures[Format.ETC2_SRGB8_A8] = compressedFeature;
+            this._formatFeatures[Format.ETC2_RGB8_A1] = compressedFeature;
+            this._formatFeatures[Format.ETC2_SRGB8_A1] = compressedFeature;
+        }
+
+        if (exts.WEBGL_compressed_texture_s3tc) {
+            this._formatFeatures[Format.BC1] = compressedFeature;
+            this._formatFeatures[Format.BC1_ALPHA] = compressedFeature;
+            this._formatFeatures[Format.BC1_SRGB] = compressedFeature;
+            this._formatFeatures[Format.BC1_SRGB_ALPHA] = compressedFeature;
+            this._formatFeatures[Format.BC2] = compressedFeature;
+            this._formatFeatures[Format.BC2_SRGB] = compressedFeature;
+            this._formatFeatures[Format.BC3] = compressedFeature;
+            this._formatFeatures[Format.BC3_SRGB] = compressedFeature;
+        }
+
+        if (exts.WEBGL_compressed_texture_pvrtc) {
+            this._formatFeatures[Format.PVRTC_RGB2] |= compressedFeature;
+            this._formatFeatures[Format.PVRTC_RGBA2] |= compressedFeature;
+            this._formatFeatures[Format.PVRTC_RGB4] |= compressedFeature;
+            this._formatFeatures[Format.PVRTC_RGBA4] |= compressedFeature;
+        }
+
+        if (exts.WEBGL_compressed_texture_astc) {
+            this._formatFeatures[Format.ASTC_RGBA_4X4] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_5X4] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_5X5] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_6X5] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_6X6] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_8X5] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_8X6] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_8X8] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_10X5] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_10X6] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_10X8] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_10X10] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_12X10] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_RGBA_12X12] |= compressedFeature;
+
+            this._formatFeatures[Format.ASTC_SRGBA_4X4] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_5X4] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_5X5] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_6X5] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_6X6] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_8X5] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_8X6] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_8X8] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_10X5] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_10X6] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_10X8] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_10X10] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_12X10] |= compressedFeature;
+            this._formatFeatures[Format.ASTC_SRGBA_12X12] |= compressedFeature;
+        }
     }
 
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {

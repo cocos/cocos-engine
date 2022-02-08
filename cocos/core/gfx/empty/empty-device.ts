@@ -67,8 +67,6 @@ export class EmptyDevice extends Device {
         this._gfxAPI = API.UNKNOWN;
 
         this._bindingMappingInfo = info.bindingMappingInfo;
-        if (!this._bindingMappingInfo.bufferOffsets.length) this._bindingMappingInfo.bufferOffsets.push(0);
-        if (!this._bindingMappingInfo.samplerOffsets.length) this._bindingMappingInfo.samplerOffsets.push(0);
 
         this._queue = this.createQueue(new QueueInfo(QueueType.GRAPHICS));
         this._cmdBuff = this.createCommandBuffer(new CommandBufferInfo(this._queue));

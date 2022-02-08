@@ -28,7 +28,7 @@
 Object.defineProperty(jsb, 'bridge', {
     get () {
         if (jsb.__ccbridge !== undefined) return jsb.__ccbridge;
-        if (window.ScriptNativeBridge && cc.sys.os === cc.sys.OS.ANDROID || cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX) {
+        if (window.ScriptNativeBridge && cc.sys.os === cc.sys.OS.ANDROID || cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX || cc.sys.os === cc.sys.OS.OHOS) {
             jsb.__ccbridge = new ScriptNativeBridge();
         } else {
             jsb.__ccbridge = null;

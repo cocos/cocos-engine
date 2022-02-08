@@ -45,7 +45,7 @@ vec4 lpvs_main () {
         mulFactor = -1.0;
     }
     vec4 rot = vec4(rotTmp, 0.0);
-    rot.w = mulFactor * sqrt(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z);
+    rot.w = mulFactor * sqrt(abs(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z));
   #else
     #if CC_RENDER_MODE != RENDER_MODE_MESH
       #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
