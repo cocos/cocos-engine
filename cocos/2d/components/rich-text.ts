@@ -34,7 +34,7 @@ import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { assert, warnID } from '../../core/platform';
-import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../utils/text-utils';
+import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, isEnglishWordPartAtFirst, isEnglishWordPartAtLast, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
@@ -617,6 +617,21 @@ export class RichText extends UIComponent {
                 curStringSize = this._calculateSize(styleIndex, curString);
 
                 tryCount--;
+            }
+
+            //validate the last english word is truncated
+            for (let i = 0; i < partStringArr.length; i++) {
+                if (i + 1 < partStringArr.length) {
+                    if (isEnglishWordPartAtFirst(partStringArr[i + 1])) {
+                        const lastPartExec = getEnglishWordPartAtLast(partStringArr[i]);
+                        if (lastPartExec && lastPartExec[0] !== partStringArr[i]) {
+                            const keepLength =  partStringArr[i].length - lastPartExec[0].length;
+                            const moveStr = partStringArr[i].substring(keepLength);
+                            partStringArr[i] =  partStringArr[i].substring(0, keepLength);
+                            partStringArr[i + 1] = moveStr + partStringArr[i + 1];
+                        }
+                    }
+                }
             }
 
             return partStringArr;

@@ -227,6 +227,19 @@ function _safeSubstring (targetString, startIndex, endIndex?) {
     return targetString.substring(newStartIndex, newEndIndex) as string;
 }
 
+export function isEnglishWordPartAtFirst (stringToken: string) {
+    return FIRST_ENGLISH_REG.test(stringToken);
+}
+
+export function isEnglishWordPartAtLast (stringToken: string) {
+    return LAST_ENGLISH_REG.test(stringToken);
+}
+
+export function getEnglishWordPartAtLast (stringToken: string) {
+    const result = LAST_ENGLISH_REG.exec(stringToken);
+    return result;
+}
+
 export function fragmentText (stringToken: string, allWidth: number, maxWidth: number, measureText: (string: string) => number) {
     // check the first character
     const wrappedWords: string[] = [];
