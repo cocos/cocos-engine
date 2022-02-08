@@ -44,7 +44,7 @@ import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
 import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
-    UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, supportsFloatTexture } from './define';
+    UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, supportsR32FloatTexture } from './define';
 import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
 import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
@@ -294,7 +294,7 @@ export class RenderAdditiveLightQueue {
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
         const linear = 0.0;
-        const packing = supportsFloatTexture(device) ? 0.0 : 1.0;
+        const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         const validPunctualLights = sceneData.validPunctualLights;
 

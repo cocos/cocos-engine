@@ -36,7 +36,7 @@ import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
 import { Address, BufferUsageBit, Filter, Format, FormatInfos,
-    MemoryUsageBit, Feature, Device, Buffer, BufferInfo, Sampler, SamplerInfo } from '../../core/gfx';
+    MemoryUsageBit, Feature, Device, Buffer, BufferInfo, Sampler, SamplerInfo, FormatFeatureBit } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { UBOSkinningAnimation } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
@@ -47,7 +47,7 @@ export const uploadJointData = uploadJointDataLBS;
 export const MINIMUM_JOINT_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: Device): Format {
-    if (device.hasFeature(Feature.TEXTURE_FLOAT)) {
+    if (device.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE) {
         return Format.RGBA32F;
     }
     return Format.RGBA8;

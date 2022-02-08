@@ -103,20 +103,6 @@ export enum SurfaceTransform {
 }
 
 export enum Feature {
-    COLOR_FLOAT,
-    COLOR_HALF_FLOAT,
-    TEXTURE_FLOAT,
-    TEXTURE_HALF_FLOAT,
-    TEXTURE_FLOAT_LINEAR,
-    TEXTURE_HALF_FLOAT_LINEAR,
-    FORMAT_R11G11B10F,
-    FORMAT_SRGB,
-    FORMAT_ETC1,
-    FORMAT_ETC2,
-    FORMAT_DXT,
-    FORMAT_PVRTC,
-    FORMAT_ASTC,
-    FORMAT_RGB8,
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
@@ -211,24 +197,24 @@ export enum Format {
     // Compressed Format
 
     // Block Compression Format, DDS (DirectDraw Surface)
-    // DXT1: 3 channels (5:6:5), 1/8 origianl size, with 0 or 1 bit of alpha
+    // DXT1: 3 channels (5:6:5), 1/8 original size, with 0 or 1 bit of alpha
     BC1,
     BC1_ALPHA,
     BC1_SRGB,
     BC1_SRGB_ALPHA,
-    // DXT3: 4 channels (5:6:5), 1/4 origianl size, with 4 bits of alpha
+    // DXT3: 4 channels (5:6:5), 1/4 original size, with 4 bits of alpha
     BC2,
     BC2_SRGB,
-    // DXT5: 4 channels (5:6:5), 1/4 origianl size, with 8 bits of alpha
+    // DXT5: 4 channels (5:6:5), 1/4 original size, with 8 bits of alpha
     BC3,
     BC3_SRGB,
-    // 1 channel (8), 1/4 origianl size
+    // 1 channel (8), 1/4 original size
     BC4,
     BC4_SNORM,
-    // 2 channels (8:8), 1/2 origianl size
+    // 2 channels (8:8), 1/2 original size
     BC5,
     BC5_SNORM,
-    // 3 channels (16:16:16), half-floating point, 1/6 origianl size
+    // 3 channels (16:16:16), half-floating point, 1/6 original size
     // UF16: unsigned float, 5 exponent bits + 11 mantissa bits
     // SF16: signed float, 1 signed bit + 5 exponent bits + 10 mantissa bits
     BC6H_UF16,
@@ -411,6 +397,15 @@ export enum TextureFlagBit {
     NONE           = 0,
     GEN_MIPMAP     = 0x1, // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+}
+
+export enum FormatFeatureBit {
+    NONE             = 0,
+    RENDER_TARGET    = 0x1,  // Allow usages as render pass attachments
+    SAMPLED_TEXTURE  = 0x2,  // Allow sampled reads in shaders
+    LINEAR_FILTER    = 0x4,  // Allow linear filtering when sampling in shaders or blitting
+    STORAGE_TEXTURE  = 0x8,  // Allow storage reads & writes in shaders
+    VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
 }
 
 export enum SampleCount {
@@ -682,6 +677,7 @@ export type MemoryAccess = MemoryAccessBit;
 export type MemoryUsage = MemoryUsageBit;
 export type TextureUsage = TextureUsageBit;
 export type TextureFlags = TextureFlagBit;
+export type FormatFeature = FormatFeatureBit;
 export type ShaderStageFlags = ShaderStageFlagBit;
 export type DynamicStateFlags = DynamicStateFlagBit;
 export type ClearFlags = ClearFlagBit;

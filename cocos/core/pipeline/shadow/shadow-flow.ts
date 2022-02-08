@@ -29,7 +29,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, supportsFloatTexture } from '../define';
+import { PIPELINE_FLOW_SHADOW, supportsR32FloatTexture } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../enum';
 import { ShadowStage } from './shadow-stage';
@@ -171,7 +171,7 @@ export class ShadowFlow extends RenderFlow {
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = supportsFloatTexture(device) ? Format.R32F : Format.RGBA8;
+        const format = supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8;
 
         if (!this._shadowRenderPass) {
             const colorAttachment = new ColorAttachment();
@@ -259,7 +259,7 @@ export class ShadowFlow extends RenderFlow {
         const pipeline = this._pipeline;
         const device = pipeline.device;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = supportsFloatTexture(device) ? Format.R32F : Format.RGBA8;
+        const format = supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8;
 
         const it = shadowFrameBufferMap.values();
         let res = it.next();
