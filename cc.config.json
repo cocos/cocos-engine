@@ -69,6 +69,7 @@
                 "cocos/core/scene-graph/scene-globals.ts": "cocos/core/scene-graph/scene-globals.jsb.ts",
                 "cocos/core/scene-graph/index.ts": "cocos/core/scene-graph/index.jsb.ts",
                 "cocos/core/root.ts": "cocos/core/root.jsb.ts",
+                "cocos/core/builtin/builtin-res-mgr.ts": "cocos/core/builtin/builtin-res-mgr.jsb.ts",
                 "cocos/core/assets/index.ts": "cocos/core/assets/index.jsb.ts",
                 "cocos/core/assets/asset.ts": "cocos/core/assets/asset.jsb.ts",
                 "cocos/core/assets/buffer-asset.ts": "cocos/core/assets/buffer-asset.jsb.ts",
