@@ -29,6 +29,7 @@
 #include "SwapchainValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
+#include "gfx-base/GFXDef-common.h"
 
 
 namespace cc {
@@ -62,11 +63,15 @@ void TextureValidator::doInit(const TextureInfo &info) {
     CCASSERT(info.width && info.height && info.depth, "zero-sized texture?");
 
     FormatFeature ff = FormatFeature::NONE;
-    if (hasAnyFlags(info.usage, TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT)) ff |= FormatFeature::RENDER_TARGET;
-    if (hasAnyFlags(info.usage, TextureUsage::SAMPLED)) ff |= FormatFeature::SAMPLED_TEXTURE;
-    if (hasAnyFlags(info.usage, TextureUsage::STORAGE)) ff |= FormatFeature::STORAGE_TEXTURE;
+    if (hasAnyFlags(info.usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT)) ff |= FormatFeature::RENDER_TARGET;
+    if (hasAnyFlags(info.usage, TextureUsageBit::SAMPLED)) ff |= FormatFeature::SAMPLED_TEXTURE;
+    if (hasAnyFlags(info.usage, TextureUsageBit::STORAGE)) ff |= FormatFeature::STORAGE_TEXTURE;
     if (ff != FormatFeature::NONE) {
         CCASSERT(hasAllFlags(DeviceValidator::getInstance()->getFormatFeatures(info.format), ff), "Format not supported for the specified features");
+    }
+
+    if (hasFlag(info.flags, TextureFlagBit::GEN_MIPMAP)) {
+        CCASSERT(info.levelCount > 1, "Generating mipmaps with level count 1?");
     }
 
     /////////// execute ///////////

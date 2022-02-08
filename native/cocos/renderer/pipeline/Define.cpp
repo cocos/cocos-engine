@@ -33,8 +33,9 @@ namespace pipeline {
 static uint32_t globalUBOCount     = static_cast<uint32_t>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
 static uint32_t globalSamplerCount = static_cast<uint32_t>(PipelineGlobalBindings::COUNT) - globalUBOCount;
 
-static uint32_t localUBOCount     = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_JOINTS);
-static uint32_t localSamplerCount = static_cast<uint32_t>(ModelLocalBindings::COUNT) - localUBOCount;
+static uint32_t localUBOCount          = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_JOINTS);
+static uint32_t localSamplerCount      = static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION) - localUBOCount;
+static uint32_t localStorageImageCount = static_cast<uint32_t>(ModelLocalBindings::COUNT) - localUBOCount - localSamplerCount;
 
 uint globalSet   = static_cast<uint>(SetIndex::GLOBAL);
 uint materialSet = static_cast<uint>(SetIndex::MATERIAL);
@@ -46,7 +47,7 @@ gfx::BindingMappingInfo bindingMappingInfo = {
     {0, 0, 0},                                  // Sampler Counts
     {0, 0, 0},                                  // Texture Counts
     {0, 0, 0},                                  // Storage Buffer Counts
-    {0, 0, 0},                                  // Storage Image Counts
+    {0, 0, localStorageImageCount},             // Storage Image Counts
     {0, 0, 0},                                  // Subpass Input Counts
     {0, 2, 1},                                  // Set Order Indices
 };

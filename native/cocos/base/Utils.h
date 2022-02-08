@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <bitset>
 #include <cerrno>
 #include <climits>
 #include <limits>
@@ -64,8 +65,48 @@ CC_DLL uint nextPOT(uint x);
  */
 CC_DLL double atof(const char *str);
 
+template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value>>
+inline T getLowestBit(T mask) {
+    return mask & (-mask);
+}
+
+template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value>>
+inline T clearLowestBit(T mask) {
+    return mask & (mask - 1);
+}
+
+// v must be power of 2
+inline uint32_t getBitPosition(uint32_t v) {
+    if (!v) return 0;
+    uint32_t c = 32;
+    if (v & 0x0000FFFF) c -= 16;
+    if (v & 0x00FF00FF) c -= 8;
+    if (v & 0x0F0F0F0F) c -= 4;
+    if (v & 0x33333333) c -= 2;
+    if (v & 0x55555555) c -= 1;
+    return c;
+}
+
+// v must be power of 2
+inline uint64_t getBitPosition(uint64_t v) {
+    if (!v) return 0;
+    uint64_t c = 64;
+    if (v & 0x00000000FFFFFFFFLL) c -= 32;
+    if (v & 0x0000FFFF0000FFFFLL) c -= 16;
+    if (v & 0x00FF00FF00FF00FFLL) c -= 8;
+    if (v & 0x0F0F0F0F0F0F0F0FLL) c -= 4;
+    if (v & 0x3333333333333333LL) c -= 2;
+    if (v & 0x5555555555555555LL) c -= 1;
+    return c;
+}
+
 template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value>>
-T alignTo(T size, T alignment) {
+inline size_t popcount(T mask) {
+    return std::bitset<sizeof(T)>(mask).count();
+}
+
+template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value>>
+inline T alignTo(T size, T alignment) {
     return ((size - 1) / alignment + 1) * alignment;
 }
 
@@ -73,7 +114,7 @@ template <uint size, uint alignment>
 constexpr uint ALIGN_TO = ((size - 1) / alignment + 1) * alignment;
 
 template <class T>
-uint toUint(T value) {
+inline uint toUint(T value) {
     static_assert(std::is_arithmetic<T>::value, "T must be numeric");
 
     CCASSERT(static_cast<uintmax_t>(value) <= static_cast<uintmax_t>(std::numeric_limits<uint>::max()),
