@@ -2477,20 +2477,18 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             const uint32_t               descriptorIndex  = gpuDescriptorSet->descriptorIndices->at(glImage.binding);
             const GLES3GPUDescriptor *   gpuDescriptor    = &gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
-            const GLES3GPUTextureView *gpuTextureView = gpuDescriptor->gpuTextureView;
-            const GLES3GPUTexture *    gpuTexture     = gpuTextureView ? gpuTextureView->gpuTexture : nullptr;
-
-            uint32_t minLod = gpuTextureView->baseLevel;
-            uint32_t maxLod = minLod + gpuTextureView->levelCount;
+            GLES3GPUTexture *gpuTexture = nullptr;
 
             for (size_t u = 0; u < glImage.units.size(); u++, gpuDescriptor++) {
                 auto unit = static_cast<uint32_t>(glImage.units[u]);
 
-                if (!gpuTexture) {
+                if (!gpuDescriptor->gpuTextureView || !gpuDescriptor->gpuTextureView->gpuTexture) {
                     //CC_LOG_ERROR("Storage image '%s' at binding %d set %d index %d is not bounded",
                     //             glImage.name.c_str(), glImage.set, glImage.binding, u);
                     continue;
                 }
+
+                gpuTexture = gpuDescriptor->gpuTextureView->gpuTexture;
 
                 if (gpuTexture->size > 0) {
                     GLuint glTexture = gpuTexture->glTexture;

@@ -89,7 +89,6 @@ void GLES3Texture::createTextureView() {
 
 void GLES3Texture::doDestroy() {
     if (_gpuTextureView) {
-        // dont forget to clean the descriptor set
         CC_DELETE(_gpuTextureView);
         _gpuTextureView = nullptr;
     }
@@ -108,7 +107,7 @@ void GLES3Texture::doDestroy() {
 }
 
 void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
-    if (!_gpuTexture->memoryless) {
+    if (!_isTextureView && !_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
     }
 
@@ -121,7 +120,7 @@ void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
     GLES3Device::getInstance()->framebufferHub()->update(_gpuTexture);
 
-    if (!_gpuTexture->memoryless) {
+    if (!_isTextureView && !_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize += size;
     }
 }
