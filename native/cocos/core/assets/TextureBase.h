@@ -66,6 +66,7 @@ public:
      */
     using Filter = Filter;
 
+    TextureBase(); // NOTE: Editor needs to invoke 'new TextureBase' in JS, so we need to make the constructor public.
     ~TextureBase() override;
     /**
      * @en Whether the pixel data is compressed.
@@ -210,8 +211,6 @@ public:
 protected:
     static gfx::Device *getGFXDevice();
     static gfx::Format  getGFXPixelFormat(PixelFormat format);
-
-    TextureBase();
 
     gfx::Format getGFXFormat() const;
 
