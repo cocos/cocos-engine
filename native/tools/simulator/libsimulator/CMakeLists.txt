@@ -191,7 +191,7 @@ if(WINDOWS)
         )
     endif()
     
-    target_compile_options(cocos PUBLIC /MP)
+    target_compile_options(${ENGINE_NAME} PUBLIC /MP)
 elseif(APPLE)
     target_include_directories(${libsimulator_name} PRIVATE 
         PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../../../external/mac/include/v8

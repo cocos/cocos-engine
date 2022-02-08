@@ -3,6 +3,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/predefine.cmake)
 ################################# engine source code ##################################
 set(CWD ${CMAKE_CURRENT_LIST_DIR})
 set(COCOS_SOURCE_LIST)
+set(ENGINE_NAME cocos_engine)
 
 # Should be enable someday in the future
 # set(CMAKE_CXX_FLAGS "${WERROR_FLAGS}")
@@ -2684,10 +2685,10 @@ else()
     )
 endif()
 
-add_library(cocos ${COCOS_SOURCE_LIST})
+add_library(${ENGINE_NAME} ${COCOS_SOURCE_LIST})
 
 if(USE_MODULES)
-    target_link_libraries(cocos PUBLIC
+    target_link_libraries(${ENGINE_NAME} PUBLIC
         ccmath
         cclog
         ccfilesystem
@@ -2738,7 +2739,7 @@ function(cc_apply_definations target)
 endfunction()
 
 # setup default flags
-cc_apply_definations(cocos)
+cc_apply_definations(${ENGINE_NAME})
 
 if(USE_MODULES)
     cc_apply_definations(ccmath)
@@ -2763,7 +2764,7 @@ if(MSVC)
             ${CWD}/external/win64/libs/glslang/*.dll
         )
     endif()
-    target_compile_options(cocos PUBLIC /MP 
+    target_compile_options(${ENGINE_NAME} PUBLIC /MP 
         /bigobj
         /wd4018 # signed/unsigned mismatch
         /wd4244 # type conversion data lost
@@ -2777,37 +2778,37 @@ endif()
 
 if(CC_USE_VULKAN)
 
-    target_compile_definitions(cocos PUBLIC VK_NO_PROTOTYPES)
-    target_compile_definitions(cocos PUBLIC CC_USE_VULKAN)
+    target_compile_definitions(${ENGINE_NAME} PUBLIC VK_NO_PROTOTYPES)
+    target_compile_definitions(${ENGINE_NAME} PUBLIC CC_USE_VULKAN)
 
     if(WIN32)
-        target_compile_definitions(cocos PUBLIC VK_USE_PLATFORM_WIN32_KHR)
+        target_compile_definitions(${ENGINE_NAME} PUBLIC VK_USE_PLATFORM_WIN32_KHR)
     elseif(NX)
-        target_compile_definitions(cocos PUBLIC VK_USE_PLATFORM_VI_NN)
+        target_compile_definitions(${ENGINE_NAME} PUBLIC VK_USE_PLATFORM_VI_NN)
     elseif(ANDROID)
-        target_compile_definitions(cocos PUBLIC VK_USE_PLATFORM_ANDROID_KHR)
+        target_compile_definitions(${ENGINE_NAME} PUBLIC VK_USE_PLATFORM_ANDROID_KHR)
     elseif(IOS)
-        target_compile_definitions(cocos PUBLIC VK_USE_PLATFORM_IOS_MVK)
+        target_compile_definitions(${ENGINE_NAME} PUBLIC VK_USE_PLATFORM_IOS_MVK)
     elseif(MACOSX)
-        target_compile_definitions(cocos PUBLIC VK_USE_PLATFORM_MACOS_MVK)
+        target_compile_definitions(${ENGINE_NAME} PUBLIC VK_USE_PLATFORM_MACOS_MVK)
     else()
-        target_compile_definitions(cocos PUBLIC VK_USE_PLATFORM_XCB_KHR)
+        target_compile_definitions(${ENGINE_NAME} PUBLIC VK_USE_PLATFORM_XCB_KHR)
     endif()
 endif()
 
 if(CC_USE_METAL)
-    target_compile_definitions(cocos PUBLIC CC_USE_METAL)
+    target_compile_definitions(${ENGINE_NAME} PUBLIC CC_USE_METAL)
 endif()
 
 if(CC_USE_GLES3)
-    target_compile_definitions(cocos PUBLIC CC_USE_GLES3)
+    target_compile_definitions(${ENGINE_NAME} PUBLIC CC_USE_GLES3)
 endif()
 
 if(CC_USE_GLES2)
-    target_compile_definitions(cocos PUBLIC CC_USE_GLES2)
+    target_compile_definitions(${ENGINE_NAME} PUBLIC CC_USE_GLES2)
 endif()
 
-target_include_directories(cocos
+target_include_directories(${ENGINE_NAME}
     PUBLIC
         ${CC_EXTERNAL_INCLUDES}
         ${CWD}
@@ -2821,29 +2822,29 @@ target_include_directories(cocos
         ${CC_EXTERNAL_PRIVATE_INCLUDES}
 )
 
-target_compile_definitions(cocos
+target_compile_definitions(${ENGINE_NAME}
     PRIVATE
         ${CC_EXTERNAL_PRIVATE_DEFINITIONS}
 )
 
 if(NOT APPLE)
-    target_include_directories(cocos PUBLIC
+    target_include_directories(${ENGINE_NAME} PUBLIC
         ${CWD}/external/sources/EGL
     )
 endif()
 
-target_include_directories(cocos PUBLIC
+target_include_directories(${ENGINE_NAME} PUBLIC
     ${CWD}/external/sources/khronos
 )
 
 if(NX)
     include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
 elseif(WINDOWS)
-    target_link_libraries(cocos PUBLIC
+    target_link_libraries(${ENGINE_NAME} PUBLIC
         ws2_32 userenv psapi winmm Iphlpapi
         ${CC_EXTERNAL_LIBS}
     )
-    cc_win32_definations(cocos)
+    cc_win32_definations(${ENGINE_NAME})
 
     if(USE_MODULES)
         cc_win32_definations(ccmath)
@@ -2863,13 +2864,13 @@ elseif(WINDOWS)
 endif()
 
 if(ANDROID)
-    target_compile_options(cocos PRIVATE
+    target_compile_options(${ENGINE_NAME} PRIVATE
         -Wno-comment # nested block comments are actually useful sometimes
     )
 
     find_library(LIB_EGL NAMES EGL)
     find_library(LIB_GLESv2 NAMES GLESv2)
-    target_link_libraries(cocos PUBLIC
+    target_link_libraries(${ENGINE_NAME} PUBLIC
         android
         OpenSLES
         ${LIB_EGL}
@@ -2880,7 +2881,7 @@ if(ANDROID)
 endif()
 
 if(OHOS)
-    target_link_libraries(cocos PUBLIC
+    target_link_libraries(${ENGINE_NAME} PUBLIC
         EGL
         GLESv3
         zgraphic.z
@@ -2894,14 +2895,14 @@ endif()
 
 if(APPLE)
 
-    target_compile_options(cocos PRIVATE
+    target_compile_options(${ENGINE_NAME} PRIVATE
         -Wno-objc-method-access
     )
 
-    target_include_directories(cocos PUBLIC
+    target_include_directories(${ENGINE_NAME} PUBLIC
         ${CWD}/cocos/platform/ios
     )
-    target_link_libraries(cocos PUBLIC
+    target_link_libraries(${ENGINE_NAME} PUBLIC
         "-liconv"
         "-framework AudioToolbox"
         "-framework Foundation"
@@ -2917,21 +2918,21 @@ if(APPLE)
         "$(inherited)"
         ${CC_EXTERNAL_LIBS}
     )
-    set_target_properties(cocos PROPERTIES
+    set_target_properties(${ENGINE_NAME} PROPERTIES
         XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "YES"
         OSX_ARCHITECTURES "arm64;x86_64"
         ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/archives
     )
     if(MACOSX)
-        target_link_libraries(cocos PUBLIC
+        target_link_libraries(${ENGINE_NAME} PUBLIC
             "-framework OpenGL"
             "-framework AppKit"
         )
-        target_compile_definitions(cocos PUBLIC
+        target_compile_definitions(${ENGINE_NAME} PUBLIC
             CC_KEYBOARD_SUPPORT
         )
     elseif(IOS)
-        target_link_libraries(cocos PUBLIC
+        target_link_libraries(${ENGINE_NAME} PUBLIC
             "-framework QuartzCore"
             "-framework MetalPerformanceShaders"
             "-framework UIKit"
@@ -2948,21 +2949,21 @@ if(APPLE)
             "-framework OpenGLES"
             "-framework JavaScriptCore"
         )
-        set_property(TARGET cocos PROPERTY XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${TARGET_IOS_VERSION})
-        set_property(TARGET cocos PROPERTY XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")
+        set_property(TARGET ${ENGINE_NAME} PROPERTY XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${TARGET_IOS_VERSION})
+        set_property(TARGET ${ENGINE_NAME} PROPERTY XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")
     endif()
 
 endif()
 
 if(QNX)
-    target_link_libraries(cocos PUBLIC
+    target_link_libraries(${ENGINE_NAME} PUBLIC
         socket
         ssl
         screen
         ${CC_EXTERNAL_LIBS}
     )
 elseif(LINUX)
-    target_link_libraries(cocos PUBLIC
+    target_link_libraries(${ENGINE_NAME} PUBLIC
         X11
         ${CC_EXTERNAL_LIBS}
     )

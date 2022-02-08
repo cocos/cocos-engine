@@ -6,7 +6,7 @@ project(${APP_NAME} CXX)
 include(${CMAKE_CURRENT_LIST_DIR}/../common/CMakeLists.txt)
 
 
-set(LIB_NAME game)
+set(LIB_NAME cocos)
 
 set(PROJ_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.h
@@ -18,7 +18,7 @@ add_library(${LIB_NAME} SHARED ${PROJ_SOURCES})
 
 target_link_libraries(${LIB_NAME}
     "-Wl,--whole-archive" cocos_jni "-Wl,--no-whole-archive"
-    cocos
+    ${ENGINE_NAME}
 )
 
 target_include_directories(${LIB_NAME} PRIVATE

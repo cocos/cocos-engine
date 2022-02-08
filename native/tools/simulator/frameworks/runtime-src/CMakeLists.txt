@@ -149,7 +149,7 @@ else()
     add_executable(${LIB_NAME} ${PROJ_SOURCES} ${PROJ_EXTRA_SOURCE})
 endif()
 
-target_link_libraries(${LIB_NAME} cocos simulator)
+target_link_libraries(${LIB_NAME} ${ENGINE_NAME} simulator)
 target_include_directories(${LIB_NAME} PRIVATE
     Classes
 )

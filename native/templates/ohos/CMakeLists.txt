@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS_DEBUG  "-Werror=return-type")
 set(COMMON_DIR ${CMAKE_CURRENT_LIST_DIR}/../common)
 include(${COMMON_DIR}/CMakeLists.txt)
 
-set(LIB_NAME game)
+set(LIB_NAME cocos)
 
 
 set(PROJ_SOURCES
@@ -23,7 +23,7 @@ add_library(${LIB_NAME} SHARED ${PROJ_SOURCES})
 
 target_link_libraries(${LIB_NAME}
     "-Wl,--whole-archive" cocos_jni "-Wl,--no-whole-archive"
-    cocos
+    ${ENGINE_NAME}
 )
 
 target_include_directories(${LIB_NAME} PRIVATE

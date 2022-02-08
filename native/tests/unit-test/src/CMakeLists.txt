@@ -6,5 +6,5 @@ add_executable(${BINARY} ${SOURCES})
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 
-target_link_libraries(${BINARY} PUBLIC gtest cocos)
+target_link_libraries(${BINARY} PUBLIC gtest ${ENGINE_NAME})
 target_include_directories(${BINARY} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../..)
