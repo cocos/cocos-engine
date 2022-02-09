@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "core/Root.h"
 #include "math/Vec3.h"
 #include "scene/Ambient.h"
 #include "scene/Light.h"
@@ -35,8 +34,8 @@ namespace scene {
 
 class DirectionalLight final : public Light {
 public:
-    DirectionalLight() { _type = LightType::DIRECTIONAL; }
-    ~DirectionalLight() override = default;
+    DirectionalLight();
+    ~DirectionalLight() override;
 
     void initialize() override;
     void update() override;
@@ -71,21 +70,8 @@ public:
     inline void        setIlluminanceLDR(float value) { _illuminanceLDR = value; }
     inline float       getIlluminanceHDR() const { return _illuminanceHDR; }
     inline float       getIlluminanceLDR() const { return _illuminanceLDR; }
-    inline float       getIlluminance() const {
-        const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
-        if (isHDR) {
-            return _illuminanceHDR;
-        }
-        return _illuminanceLDR;
-    }
-    inline void setIlluminance(float value) {
-        const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
-        if (isHDR) {
-            _illuminanceHDR = value;
-        } else {
-            _illuminanceLDR = value;
-        }
-    }
+    float              getIlluminance() const;
+    void               setIlluminance(float value);
 
 private:
     float _illuminanceHDR{Ambient::SUN_ILLUM};

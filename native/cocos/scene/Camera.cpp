@@ -26,10 +26,10 @@
 #include "scene/Camera.h"
 #include <vector>
 #include "core/Root.h"
+#include "core/scene-graph/Node.h"
 #include "math/MathUtil.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
-
 namespace cc {
 namespace scene {
 
@@ -331,6 +331,8 @@ Mat4 Camera::worldMatrixToScreen(const Mat4 &worldMatrix, uint32_t width, uint32
 
     return out;
 }
+
+void Camera::setNode(Node *val) { _node = val; }
 
 void Camera::setExposure(float ev100) {
     _exposure = 0.833333F / std::pow(2.0F, ev100);

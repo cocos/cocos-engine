@@ -29,14 +29,10 @@
 #include "base/Vector.h"
 #include "cocos/base/Optional.h"
 #include "renderer/gfx-base/GFXDef-common.h"
-#include "renderer/gfx-base/GFXDevice.h"
-#include "renderer/gfx-base/GFXFramebuffer.h"
-#include "renderer/gfx-base/GFXSwapchain.h"
-#include "renderer/gfx-base/GFXTexture.h"
-#include "scene/Camera.h"
 
 namespace cc {
 namespace scene {
+class Camera;
 
 struct IRenderWindowInfo {
     cc::optional<std::string> title;
@@ -52,8 +48,8 @@ struct IRenderWindowInfo {
  */
 class RenderWindow : public RefCounted {
 public:
-    RenderWindow()           = default;
-    ~RenderWindow() override = default;
+    RenderWindow();
+    ~RenderWindow() override;
 
     bool initialize(gfx::Device *device, IRenderWindowInfo &info);
     void destroy();
@@ -116,7 +112,7 @@ public:
      * @en Get window frame buffer.
      * @zh 帧缓冲对象。
      */
-    inline gfx::Framebuffer *getFramebuffer() const { return _frameBuffer; }
+    inline gfx::Framebuffer *getFramebuffer() const { return _frameBuffer.get(); }
 
     inline const std::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
 

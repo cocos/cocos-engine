@@ -25,6 +25,7 @@
 
 #include "scene/Ambient.h"
 #include "core/Root.h"
+#include "renderer/pipeline/RenderPipeline.h"
 
 namespace {
 cc::Color col;
@@ -88,6 +89,11 @@ void AmbientInfo::setSkyIllum(float val) {
     if (_resource != nullptr) {
         _resource->setSkyIllum(val);
     }
+}
+
+float AmbientInfo::getSkyIllum() const {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    return isHDR ? _skyIllumHDR : _skyIllumLDR;
 }
 
 void AmbientInfo::setGroundLightingColor(const Color &val) {

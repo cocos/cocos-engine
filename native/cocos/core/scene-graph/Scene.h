@@ -26,10 +26,9 @@
 #pragma once
 
 #include "core/scene-graph/Node.h"
-#include "core/scene-graph/SceneGlobals.h"
 
 namespace cc {
-
+class SceneGlobals;
 namespace scene {
 class RenderScene;
 }
@@ -43,7 +42,7 @@ public:
 
     inline scene::RenderScene *getRenderScene() const { return _renderScene; }
     inline SceneGlobals *      getSceneGlobals() const { return _globals.get(); }
-    inline void                setSceneGlobals(SceneGlobals *globals) { _globals = globals; }
+    void                       setSceneGlobals(SceneGlobals *globals);
     inline bool                isAutoReleaseAssets() const { return _autoReleaseAssets; }
     inline void                setAutoReleaseAssets(bool val) { _autoReleaseAssets = val; }
 

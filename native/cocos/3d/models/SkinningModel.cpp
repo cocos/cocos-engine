@@ -28,8 +28,9 @@
 #include <utility>
 
 #include "3d/assets/Mesh.h"
+#include "3d/assets/Skeleton.h"
 #include "core/scene-graph/Node.h"
-#include "renderer/gfx-base/GFXDevice.h"
+#include "renderer/gfx-base/GFXBuffer.h"
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 

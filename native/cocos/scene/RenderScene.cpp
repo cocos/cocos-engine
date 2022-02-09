@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "scene/RenderScene.h"
+#include "scene/Camera.h"
 
 #include <utility>
 #include "3d/models/BakedSkinningModel.h"
@@ -41,6 +42,7 @@
 
 namespace cc {
 namespace scene {
+RenderScene::RenderScene() = default;
 
 RenderScene::~RenderScene() = default;
 

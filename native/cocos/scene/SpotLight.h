@@ -27,7 +27,6 @@
 
 #include "core/geometry/AABB.h"
 #include "core/geometry/Frustum.h"
-#include "renderer/pipeline/RenderPipeline.h"
 #include "scene/Light.h"
 
 namespace cc {
@@ -112,7 +111,7 @@ private:
     // shadow info
     bool _shadowEnabled{false};
     // TODO(minggo): use PCTFType instead.
-    float _shadowPcf{0.f};
+    float _shadowPcf{0.F};
     float _shadowBias{0.00001F};
     float _shadowNormalBias{0.0F};
 

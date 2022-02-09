@@ -24,22 +24,29 @@
  ****************************************************************************/
 
 #include "scene/RenderWindow.h"
-#include "scene/Camera.h"
 #include "platform/interfaces/modules/Device.h"
+#include "renderer/gfx-base/GFXDevice.h"
+#include "renderer/gfx-base/GFXFramebuffer.h"
+#include "renderer/gfx-base/GFXSwapchain.h"
+#include "renderer/gfx-base/GFXTexture.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace scene {
 
 namespace {
 
-const std::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> orientationMap {
-    { IScreen::Orientation::PORTRAIT, gfx::SurfaceTransform::IDENTITY },
-    { IScreen::Orientation::LANDSCAPE_RIGHT, gfx::SurfaceTransform::ROTATE_90 },
-    { IScreen::Orientation::PORTRAIT_UPSIDE_DOWN, gfx::SurfaceTransform::ROTATE_180 },
-    { IScreen::Orientation::LANDSCAPE_LEFT, gfx::SurfaceTransform::ROTATE_270 },
+const std::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> ORIENTATION_MAP{
+    {IScreen::Orientation::PORTRAIT, gfx::SurfaceTransform::IDENTITY},
+    {IScreen::Orientation::LANDSCAPE_RIGHT, gfx::SurfaceTransform::ROTATE_90},
+    {IScreen::Orientation::PORTRAIT_UPSIDE_DOWN, gfx::SurfaceTransform::ROTATE_180},
+    {IScreen::Orientation::LANDSCAPE_LEFT, gfx::SurfaceTransform::ROTATE_270},
 };
 
 }
+
+RenderWindow::RenderWindow()  = default;
+RenderWindow::~RenderWindow() = default;
 
 bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
     if (info.title.has_value() && !info.title.value().empty()) {
@@ -101,7 +108,7 @@ void RenderWindow::destroy() {
 
 void RenderWindow::resize(uint32_t width, uint32_t height) {
     if (_swapchain != nullptr) {
-        _swapchain->resize(width, height, orientationMap.at(Device::getDeviceOrientation()));
+        _swapchain->resize(width, height, ORIENTATION_MAP.at(Device::getDeviceOrientation()));
         _width  = _swapchain->getWidth();
         _height = _swapchain->getHeight();
     } else {

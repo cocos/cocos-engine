@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "core/scene-graph/Scene.h"
+#include "core/scene-graph/SceneGlobals.h"
 // #include "core/Director.h"
 #include "core/Root.h"
 //#include "core/scene-graph/NodeActivator.h"
@@ -41,6 +42,8 @@ Scene::Scene(const std::string &name)
 Scene::Scene() : Scene("") {}
 
 Scene::~Scene() = default;
+
+void Scene::setSceneGlobals(SceneGlobals *globals) { _globals = globals; }
 
 void Scene::load() {
     if (!_inited) {

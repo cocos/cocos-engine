@@ -28,10 +28,7 @@
 #include <vector>
 //#include "3d/skeletal-animation/DataPoolManager.h"
 #include "core/memop/Pool.h"
-#include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/RenderPipeline.h"
-#include "scene/Camera.h"
-#include "scene/DrawBatch2D.h"
 #include "scene/Light.h"
 #include "scene/Model.h"
 #include "scene/RenderScene.h"
@@ -39,11 +36,14 @@
 #include "scene/SphereLight.h"
 
 namespace cc {
-
+namespace scene {
+class Camera;
+struct DrawBatch2D;
+} // namespace scene
 namespace gfx {
 class SwapChain;
-}
-
+class Device;
+} // namespace gfx
 class CallbacksInvoker;
 
 class Root final {
@@ -147,10 +147,7 @@ public:
 
     void destroyLight(scene::Light *light);
 
-    inline scene::Camera *createCamera() const {
-        return new scene::Camera(_device);
-    }
-
+    scene::Camera *createCamera() const;
     /**
      * @zh
      * GFX 设备

@@ -30,7 +30,6 @@
 #include "3d/assets/Skeleton.h"
 #include "core/TypedArray.h"
 #include "core/geometry/AABB.h"
-#include "core/scene-graph/Node.h"
 #include "gfx-base/GFXDef-common.h"
 #include "renderer/core/TextureBufferPool.h"
 #include "renderer/gfx-base/GFXBuffer.h"
@@ -38,6 +37,7 @@
 
 namespace cc {
 
+class Node;
 class Mesh;
 
 // _chunkIdxMap[key] = skeleton ^ clips[i]
@@ -83,7 +83,7 @@ public:
     explicit JointTexturePool(gfx::Device *device);
     ~JointTexturePool() override = default;
 
-    inline float getPixelsPerJoint() const { return _pixelsPerJoint; }
+    inline uint32_t getPixelsPerJoint() const { return _pixelsPerJoint; }
 
     void clear();
 

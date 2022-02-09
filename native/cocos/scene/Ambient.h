@@ -28,7 +28,6 @@
 #include <array>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
-#include "core/Root.h"
 #include "math/Color.h"
 
 namespace cc {
@@ -141,11 +140,8 @@ public:
     // @editable
     // @type(CCFloat)
     // @tooltip('i18n:ambient.skyIllum')
-    void         setSkyIllum(float val);
-    inline float getSkyIllum() const {
-        const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
-        return isHDR ? _skyIllumHDR : _skyIllumLDR;
-    }
+    void  setSkyIllum(float val);
+    float getSkyIllum() const;
 
     /**
      * @en Ground lighting color configurable in editor with color picker

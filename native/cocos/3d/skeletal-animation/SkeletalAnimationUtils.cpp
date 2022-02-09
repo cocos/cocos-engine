@@ -25,6 +25,7 @@
 
 #include "3d/skeletal-animation/SkeletalAnimationUtils.h"
 #include "3d/assets/Mesh.h"
+#include "core/scene-graph/Node.h"
 #include "renderer/pipeline/Define.h"
 
 namespace {

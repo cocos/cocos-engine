@@ -27,17 +27,14 @@
 
 #include <utility>
 #include <vector>
-#include "3d/assets/Skeleton.h"
 #include "3d/models/MorphModel.h"
 #include "core/animation/SkeletalAnimationUtils.h"
 #include "math/Mat4.h"
-#include "renderer/gfx-base/GFXBuffer.h"
-#include "renderer/gfx-base/GFXDescriptorSet.h"
+#include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/Define.h"
-#include "scene/Model.h"
 
 namespace cc {
-
+class Skeleton;
 namespace geometry {
 class AABB;
 }

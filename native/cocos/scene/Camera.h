@@ -34,7 +34,6 @@
 #include "cocos/math/Utils.h"
 #include "core/geometry/Frustum.h"
 #include "core/geometry/Ray.h"
-#include "core/scene-graph/Node.h"
 #include "math/Mat4.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
@@ -42,7 +41,7 @@
 #include "renderer/pipeline/Define.h"
 
 namespace cc {
-
+class Node;
 namespace scene {
 
 // As RenderScene includes Camera.h, so use forward declaration here.
@@ -176,7 +175,7 @@ public:
      */
     Mat4 worldMatrixToScreen(const Mat4 &worldMatrix, uint32_t width, uint32_t height);
 
-    inline void  setNode(Node *val) { _node = val; }
+    void         setNode(Node *val);
     inline Node *getNode() const { return _node.get(); }
 
     inline void setEnabled(bool val) { _enabled = val; }

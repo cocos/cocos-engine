@@ -28,10 +28,13 @@
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
 #include "renderer/gfx-base/GFXDef.h"
+#include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
+#include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
+#include "scene/DrawBatch2D.h"
 #include "scene/SpotLight.h"
 
 namespace cc {
@@ -297,6 +300,10 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
             light->getScene()->removeSpotLight(static_cast<scene::SpotLight *>(light));
         }
     }
+}
+
+scene::Camera *Root::createCamera() const {
+    return new scene::Camera(_device);
 }
 
 void Root::destroyScenes() {

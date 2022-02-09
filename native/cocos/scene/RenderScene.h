@@ -29,8 +29,8 @@
 #include <vector>
 #include "base/Macros.h"
 #include "base/Ptr.h"
+#include "base/RefCounted.h"
 #include "base/TypeDef.h"
-#include "scene/Camera.h"
 
 namespace cc {
 
@@ -40,6 +40,8 @@ class BakedSkinningModel;
 
 namespace scene {
 
+class Model;
+class Camera;
 class Octree;
 struct DrawBatch2D;
 class DirectionalLight;
@@ -57,7 +59,7 @@ struct IRenderSceneInfo {
 
 class RenderScene : public RefCounted {
 public:
-    RenderScene() = default;
+    RenderScene();
     ~RenderScene() override;
 
     bool initialize(const IRenderSceneInfo &info);
