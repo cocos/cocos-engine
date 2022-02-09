@@ -144,6 +144,7 @@ SE_DECLARE_FUNC(js_assets_TextureBase_setAnisotropy);
 SE_DECLARE_FUNC(js_assets_TextureBase_setFilters);
 SE_DECLARE_FUNC(js_assets_TextureBase_setMipFilter);
 SE_DECLARE_FUNC(js_assets_TextureBase_setWrapMode);
+SE_DECLARE_FUNC(js_assets_TextureBase_TextureBase);
 
 extern se::Object *__jsb_cc_IPropertyInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_IPropertyInfo_class; // NOLINT

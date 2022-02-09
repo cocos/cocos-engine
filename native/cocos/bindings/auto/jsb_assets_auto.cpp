@@ -1522,6 +1522,17 @@ static bool js_assets_TextureBase_set__height(se::State& s) // NOLINT(readabilit
     return true;
 }
 SE_BIND_PROP_SET(js_assets_TextureBase_set__height)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_TextureBase_finalize)
+
+static bool js_assets_TextureBase_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::TextureBase);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_TextureBase_constructor, __jsb_cc_TextureBase_class, js_cc_TextureBase_finalize)
+
 static bool js_cc_TextureBase_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
@@ -1530,7 +1541,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_TextureBase_finalize)
 
 bool js_register_assets_TextureBase(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("TextureBase", obj, __jsb_cc_Asset_proto, nullptr);
+    auto* cls = se::Class::create("TextureBase", obj, __jsb_cc_Asset_proto, _SE(js_assets_TextureBase_constructor));
 
     cls->defineProperty("_format", _SE(js_assets_TextureBase_get__format), _SE(js_assets_TextureBase_set__format));
     cls->defineProperty("_minFilter", _SE(js_assets_TextureBase_get__minFilter), _SE(js_assets_TextureBase_set__minFilter));
