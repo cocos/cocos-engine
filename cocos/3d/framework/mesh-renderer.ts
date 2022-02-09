@@ -221,7 +221,7 @@ export class MeshRenderer extends RenderableComponent {
 
     set shadowNormalBias (val) {
         this._shadowNormalBias = val;
-        this._updateShadowBias();
+        this._updateShadowNormalBias();
         this._onUpdateLocalShadowBias();
     }
 
@@ -330,6 +330,8 @@ export class MeshRenderer extends RenderableComponent {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
+        this._updateShadowBias();
+        this._updateShadowNormalBias();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -340,6 +342,8 @@ export class MeshRenderer extends RenderableComponent {
         }
         this._updateCastShadow();
         this._updateReceiveShadow();
+        this._updateShadowBias();
+        this._updateShadowNormalBias();
     }
 
     public onEnable () {
@@ -348,6 +352,8 @@ export class MeshRenderer extends RenderableComponent {
         }
         this._updateCastShadow();
         this._updateReceiveShadow();
+        this._updateShadowBias();
+        this._updateShadowNormalBias();
         this._attachToScene();
     }
 
