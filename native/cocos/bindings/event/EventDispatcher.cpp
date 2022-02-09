@@ -27,10 +27,9 @@
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    #include "cocos/application/ApplicationManager.h"
-    #include "cocos/platform/interfaces/modules/ISystemWindow.h"
-#endif
+#include "cocos/application/ApplicationManager.h"
+#include "cocos/platform/interfaces/modules/ISystemWindow.h"
+
 namespace {
 se::Value                 tickVal;
 se::ValueArray            tickArgsValArr(1);
@@ -326,10 +325,9 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
     if (eventName) {
         CustomEvent event;
         event.name = eventName;
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
         CCASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr, "System window interface does not exist");
         event.args->ptrVal = reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler());
-#endif
+
         EventDispatcher::dispatchCustomEvent(event);
     }
 
