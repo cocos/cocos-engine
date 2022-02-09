@@ -1,0 +1,56 @@
+apply plugin: 'com.huawei.ohos.hap'
+
+ohos {
+    signingConfigs {
+        debug {
+            storeFile file('/Users/pt/ohos_store.p12')
+            storePassword '00000019384DE9BDCF1EA5C039BC10DCA9FC1F6EFC5909898CEEBE9004FDB97457A91F771FB920D3F6'
+            keyAlias 'key0'
+            keyPassword '00000019FA7166FAF18CD1DEFC5B91D32190F05E888F2CA7B4565157C5ADCCDAF2DB18D85F8CF175B2'
+            signAlg 'SHA256withECDSA'
+            profile file('/Users/pt/Documents/debug_demo1Debug.p7b')
+            certpath file('/Users/pt/ohos_store.cer')
+        }
+        release {
+            storeFile file('/Users/pt/ohos_release.p12')
+            storePassword '00000019795583239C3E8DEB416AF92E5073B9711069699029C566D5313A7C48B939787F421AC7EDD0'
+            keyAlias 'key0'
+            keyPassword '000000193B2200D3FAAE63D6F98756FA3646AE016AF11C100A89271D2D07DE27DA4BD52B09ECBFAB67'
+            signAlg 'SHA256withECDSA'
+            profile file('/Users/pt/Documents/release_demo1Release.p7b')
+            certpath file('/Users/pt/ohos_release.cer')
+        }
+    }
+    compileSdkVersion 5
+    defaultConfig {
+        compatibleSdkVersion 5
+    }
+    externalNativeBuild {
+        path "../CMakeLists.txt"
+        arguments "-v", "-DRES_DIR=${RES_PATH}","-DCOCOS_X_PATH=${ENGINE_ROOT}","-DCOMMON_DIR=${COMMON_DIR}"
+        abiFilters "arm64-v8a"
+        cppFlags "-std=c++14"
+    }
+
+//     sourceSets.main {
+//         java.srcDirs 'src/main/java' //, "${ENGINE_ROOT}/cocos/platform/ohos/java/src"
+//     }
+
+    // sync resource
+    def resOutputDir ="${projectDir}/src/main/resources/rawfile"
+    def resSourceDir = "${RES_PATH}/assets"
+    assert file("${resSourceDir}/main.js").exists()
+    assert file(resOutputDir).exists()
+    task syncResourcesToRawfile(type: Sync) {
+        from resSourceDir
+        into resOutputDir
+    }
+    tasks.getByName("preBuild").dependsOn syncResourcesToRawfile
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.har'])
+    implementation project(path: ':libcocos')
+    testImplementation 'junit:junit:4.12'
+}

@@ -1,0 +1,96 @@
+{
+    "init_cfg":{
+        "isLandscape": true,
+        "isWindowTop": false,
+        "waitForConnect": false,
+        "name": "Simulator",
+        "width": 960,
+        "height": 640,
+        "entry": "main.js",
+        "consolePort": 6050,
+        "uploadPort": 6060,
+        "debugPort": 5086
+    },
+    "simulator_screen_size": [
+        {
+            "title": "Apple iPhone 5 (640x1136)",
+            "width": 640,
+            "height": 1136
+        },
+        {
+            "title": "Apple iPhone 6 (750x1334)",
+            "width": 750,
+            "height": 1334
+        },
+        {
+            "title": "Apple iPhone 6Plus (1080x1920)",
+            "width": 1080,
+            "height": 1920
+        },
+        {
+            "title": "Apple iPhone 7 (750x1334)",
+            "width": 750,
+            "height": 1334
+        },
+        {
+            "title": "Apple iPhone 7Plus (1080x1920)",
+            "width": 1080,
+            "height": 1920
+        },
+        {
+            "title": "Apple iPhone X (1125x2436)",
+            "width": 1125,
+            "height": 2436
+        },
+        {
+            "title": "Apple iPad (2048x1536)",
+            "width": 2048,
+            "height": 1536
+        },
+        {
+            "title": "Apple iPad Air 2 (1536x2048)",
+            "width": 1536,
+            "height": 2048
+        },
+        {
+            "title": "Apple iPad Pro 10.5-inch (1668x2224)",
+            "width": 1668,
+            "height": 2224
+        },
+        {
+            "title": "Apple iPad Pro 12.9-inch (2048x2732)",
+            "width": 2048,
+            "height": 2732
+        },
+        {
+          "title": "Huawei P9 (1080x1920)",
+          "width": 1080,
+          "height": 1920
+        },
+        {
+          "title": "Huawei Mate9 Pro (1440x2560)",
+          "width": 1440,
+          "height": 2560
+        },
+        {
+          "title": "Goolge Nexus 5 (1080x2880)",
+          "width": 1080,
+          "height": 2880
+        },
+        {
+          "title": "Goolge Nexus 5X (1079x1919)",
+          "width": 1079,
+          "height": 1919
+        },
+        {
+          "title": "Goolge Nexus 6 (1442x2562)",
+          "width": 1442,
+          "height": 2562
+        },
+        {
+          "title": "Goolge Nexus 7 (1920x1200)",
+          "width": 1920,
+          "height": 1200
+        }
+    ]
+}

@@ -1,0 +1,29 @@
+language: cpp
+
+jobs:
+  include:
+    - os: linux
+      name: Android
+      dist: xenial
+      sudo: required
+      env:
+        - BUILD_TARGET=genbindings
+      language: cpp
+      before_install:
+        - nvm install 12
+        - tools/travis-scripts/before-install.sh
+
+jdk:
+  - oraclejdk8
+script:
+  - tools/travis-scripts/run-script.sh
+# blocklist
+# branches:
+#  except:
+#    - develop
+
+#env:
+#  global:
+#  - secure: bUrk522Qw5Mc3SfDXHZtJ/aF9QbLXYDnUVSOJXt1wUB1d8xAQphTcZ1ARNYu7I5m3ZXqRfzTS4POOT58qeS3sYPpJ8urWW18hgX3I/dmsL1WJXmwnOV+0J3xLt6AT3ttqj7/emaf0xxuBvZ0szyRz0rU4wprtWftWMFiUrsF8G1an2Qa/g/f5LhilnDiKAqFdHMkn0ogaggL0PbgliHeHo7SEOfSF2gQaSIBta7jzE/BEZZ3R4AuReB3oNDwxr+1E4BpPaGO1lMLzdr8MAjWBGVLBRlpVDihgFTTmdka8UYasjEWDs6GbSjJRsTZQkluOo+1UylSiLn5o1tnWMqINo5DDaayBSKWRV/x+Sx+KMG221BwHLGFHrhEm8Jwc3g5IBiFrc9Xn/PAoCL3Zi/m0m8Y/TVIlA2nWuU0jeMZYXOb0ALCplAQMrG/Yt7euzgSjZ9iPvO7HO8BkaRkUxafcp6svWyMedNeDczG6liLSquJak+XIbOpWCOW+KVxc2S2Unz37MSOQR/aB9dJ8fKI/4e3LCdYrSKW9MSKAz9BSYA2IK2F8Fgr6zY3IPTANQCi6o8i/N54wsmpY17uvzqNDGuag5m/FkNpFWVQUy/TdONanXV6m1jvREaxtDHucSnP3olmvx6pi1awRspDfRmcILK08yvul+yLol0nQwenlx0=
+#  - secure: g7YPNjmnfzksSu2OqIAjoU3wyogplkOOnACJF8jOsacs0wvZ/JieNBusnkbsOmWhxk1exdpbP01j+ApeJQiqSACPsEXyImrIP0MaErH8SfzBIYtxJKVGZLO292aKmES0BlJTUeLHBGv3kzLg1uOZAfMiLVFgH00oHWx0dr+T9qpRJ8brmJ6orosV8D55A12IHTz3tJLmvJRNuVidrCFxJar9xK5HSPwT6NgH2PXPQKdLCoRqZe6N/uMtrDXgwqGHzLzkR0w+O0iyai2iK6ACTXhNIk88yh7QkV+oa8KoYNLsajGu+Yab1YAQgKSqBM8FvRMGJdJ8Jk4z8btX9sN1AUyJxjgrVic/kqsWlIu6rsSAUbVQ4O1Rhw74r0GJLObQOXZsUUApYQAcYdwPV/Ln0k3GXLxZ8AdEUnDDIQpklJfPmmsLYDSyaj1qQjrECIX3piS4kFhiNak5izxgweLMScig6HOg/q1gWOSuAgmz0WJ/0IdP7q+CF6B70/sxp5jomERGEcfgtIn/N8He+X4swFVHvYiFWyF5jJ+GpFbZQZbhn3dtFcj9/Yr5UPoR9q2RJD1ayO+3yuN4fbq3VO4ZlXmHY9CAH4b1NIAGdmF1vdIgW9QSX+suc8dBex7wCu3+74N54CnFZWl4KbLX3dq86IIjihimUJtUmSjHPOH8m20=
+#  - secure: 0OmLJ6Y5zfybz3fnQWb9GI5z4Mljlg9q1JGwN5j6IDdsXc8QKBXoBQSIFMQmDaDvb91NQl/gWRXcG409t4ysKSImOIxtsSE4A5ZLYu2pI7c09xXbGP6pvP9pGKnqvIVH6N7DERYi0R8kZdjCyttCLaLsMgX6DU+OoqlszetSOwct6uQ+L8jhU2xRzVB6oTgZqLUI8PDNMOXH0ftrroWc7vjtTinJQ54xTFKCat5FEXCMK6XX4lfeayJuS1m2dg8vabhW347PDa2pOa/gnVEeoqUM9qSDWUmA2LRUO5Z6vgI/1I3H4xd2uRmYsLaZHmpddS3IG8QvcHP8yTKbEE6USaEBsM8PbKg5Zy8fE301Bmv+Sr7rWFmBJMRjMiiowAQiN08DfUziDLY66uOucXY4W7sGxBi5383KYqzC3/R+yOmsaeCEWHcymcqvsGuuMq4eIPgYIK0G4TG9ubB0oJ+cJYiePdrAMK1PzJ9MqK4GsJBz4W1Lh1c0ofkr8sC0kLZbWJSyB4DArcVwYPgrsMelgwySO5EGbi9OUm5ONHS+7QaNVqczfbwrrR6tmQZruoG2u6HRpYxcqWnYl/TusodnZxBGT+POYaUcKwNBt6lSSq1sJTFb5ysGRBme/1+KUDLjqslX3yx6isC+n65GlEUFxguNeuokoLc9vnL7+npukHk=
