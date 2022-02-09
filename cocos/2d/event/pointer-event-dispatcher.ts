@@ -187,8 +187,10 @@ class PointerEventDispatcher implements IEventDispatcher {
         for (let i = 0; i < length; ++i) {
             const pointerEventProcessor = pointerEventProcessorList[i];
             const node = pointerEventProcessor.node;
-            const trans = node._uiProps.uiTransformComp;
-            pointerEventProcessor.cachedCameraPriority = trans!.cameraPriority;
+            if (node._uiProps) {
+                const trans = node._uiProps.uiTransformComp;
+                pointerEventProcessor.cachedCameraPriority = trans!.cameraPriority;
+            }
         }
         pointerEventProcessorList.sort(this._sortByPriority);
         this._isListDirty = false;
