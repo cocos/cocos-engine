@@ -40,8 +40,8 @@ bool register_all_scene(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::BaseNode);
 JSB_REGISTER_OBJECT_TYPE(cc::Node);
-JSB_REGISTER_OBJECT_TYPE(cc::SceneGlobals);
 JSB_REGISTER_OBJECT_TYPE(cc::Scene);
+JSB_REGISTER_OBJECT_TYPE(cc::SceneGlobals);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Light);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Fog);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::FogInfo);
@@ -55,7 +55,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::Camera);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SubModel);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::InstancedAttributeBlock);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Model);
-JSB_REGISTER_OBJECT_TYPE(cc::scene::DrawBatch2D);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::IRenderSceneInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderScene);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::IRenderWindowInfo);
@@ -68,6 +67,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::Ambient);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::AmbientInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::DirectionalLight);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SpotLight);
+JSB_REGISTER_OBJECT_TYPE(cc::scene::DrawBatch2D);
 JSB_REGISTER_OBJECT_TYPE(cc::IMaterialInstanceInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::MaterialInstance);
 JSB_REGISTER_OBJECT_TYPE(cc::PassInstance);
@@ -146,6 +146,19 @@ SE_DECLARE_FUNC(js_scene_Node_resetChangedFlags);
 SE_DECLARE_FUNC(js_scene_Node_setScene);
 SE_DECLARE_FUNC(js_scene_Node_Node);
 
+extern se::Object *__jsb_cc_Scene_proto; // NOLINT
+extern se::Class * __jsb_cc_Scene_class; // NOLINT
+
+bool js_register_cc_Scene(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_scene_Scene_activate);
+SE_DECLARE_FUNC(js_scene_Scene_getRenderScene);
+SE_DECLARE_FUNC(js_scene_Scene_getSceneGlobals);
+SE_DECLARE_FUNC(js_scene_Scene_load);
+SE_DECLARE_FUNC(js_scene_Scene_onBatchCreated);
+SE_DECLARE_FUNC(js_scene_Scene_setSceneGlobals);
+SE_DECLARE_FUNC(js_scene_Scene_Scene);
+
 extern se::Object *__jsb_cc_SceneGlobals_proto; // NOLINT
 extern se::Class * __jsb_cc_SceneGlobals_class; // NOLINT
 
@@ -163,19 +176,6 @@ SE_DECLARE_FUNC(js_scene_SceneGlobals_setOctreeInfo);
 SE_DECLARE_FUNC(js_scene_SceneGlobals_setShadowsInfo);
 SE_DECLARE_FUNC(js_scene_SceneGlobals_setSkyboxInfo);
 SE_DECLARE_FUNC(js_scene_SceneGlobals_SceneGlobals);
-
-extern se::Object *__jsb_cc_Scene_proto; // NOLINT
-extern se::Class * __jsb_cc_Scene_class; // NOLINT
-
-bool js_register_cc_Scene(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_scene_Scene_activate);
-SE_DECLARE_FUNC(js_scene_Scene_getRenderScene);
-SE_DECLARE_FUNC(js_scene_Scene_getSceneGlobals);
-SE_DECLARE_FUNC(js_scene_Scene_load);
-SE_DECLARE_FUNC(js_scene_Scene_onBatchCreated);
-SE_DECLARE_FUNC(js_scene_Scene_setSceneGlobals);
-SE_DECLARE_FUNC(js_scene_Scene_Scene);
 
 extern se::Object *__jsb_cc_scene_Light_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_Light_class; // NOLINT
@@ -393,14 +393,6 @@ SE_DECLARE_FUNC(js_scene_Model_updateWorldBoundsForJSBakedSkinningModel);
 SE_DECLARE_FUNC(js_scene_Model_updateWorldBoundsForJSSkinningModel);
 SE_DECLARE_FUNC(js_scene_Model_Model);
 
-extern se::Object *__jsb_cc_scene_DrawBatch2D_proto; // NOLINT
-extern se::Class * __jsb_cc_scene_DrawBatch2D_class; // NOLINT
-
-bool js_register_cc_scene_DrawBatch2D(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::scene::DrawBatch2D *, se::Object *ctx); //NOLINT
-
 extern se::Object *__jsb_cc_scene_IRenderSceneInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_IRenderSceneInfo_class; // NOLINT
 
@@ -594,6 +586,14 @@ SE_DECLARE_FUNC(js_scene_SpotLight_setShadowEnabled);
 SE_DECLARE_FUNC(js_scene_SpotLight_setShadowNormalBias);
 SE_DECLARE_FUNC(js_scene_SpotLight_setShadowPcf);
 SE_DECLARE_FUNC(js_scene_SpotLight_SpotLight);
+
+extern se::Object *__jsb_cc_scene_DrawBatch2D_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_DrawBatch2D_class; // NOLINT
+
+bool js_register_cc_scene_DrawBatch2D(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::scene::DrawBatch2D *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_IMaterialInstanceInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_IMaterialInstanceInfo_class; // NOLINT
