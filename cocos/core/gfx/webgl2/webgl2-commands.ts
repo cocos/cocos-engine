@@ -50,6 +50,7 @@ import {
     IWebGL2GPURenderPass,
     IWebGL2GPUTextureView,
 } from './webgl2-gpu-objects';
+import { max } from '../../math/bits';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT
@@ -1275,15 +1276,15 @@ export function WebGL2CmdFuncCreateSampler (device: WebGL2Device, gpuSampler: IW
         gpuSampler.glWrapT = WebGLWraps[gpuSampler.addressV];
         gpuSampler.glWrapR = WebGLWraps[gpuSampler.addressW];
 
-        gpuSampler.glSamplers[samplerHash] = glSampler;
+        gpuSampler.glSamplers.set(samplerHash, glSampler);
 
         gl.samplerParameteri(glSampler, gl.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
         gl.samplerParameteri(glSampler, gl.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_S, gpuSampler.glWrapS);
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_T, gpuSampler.glWrapT);
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_R, gpuSampler.glWrapR);
-        gl.samplerParameterf(glSampler, gl.TEXTURE_MIN_LOD, 0);
-        gl.samplerParameterf(glSampler, gl.TEXTURE_MAX_LOD, 1000);
+        gl.samplerParameterf(glSampler, gl.TEXTURE_MIN_LOD, 4);
+        gl.samplerParameterf(glSampler, gl.TEXTURE_MAX_LOD, 5);
     }
 }
 
@@ -1307,15 +1308,13 @@ export function WebGL2CmdFuncDestroySampler (device: WebGL2Device, gpuSampler: I
     gpuSampler.glSamplers.clear();
 }
 
-function getGLSampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler, minLod: number, maxLod: number) : IWebGL2GPUSampler {
+function getGLSampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler, minLod: number, maxLod: number) : WebGLSampler {
     // better if WebGL2CmdFuncCreateSampler can return value
     const samplerHash = minLod << 16 | maxLod;
-    let sampler: IWebGL2GPUSampler = null!;
-    if (gpuSampler.glSamplers.has(samplerHash)) {
+    if (!gpuSampler.glSamplers.has(samplerHash)) {
         WebGL2CmdFuncCreateSampler(device, gpuSampler, minLod, maxLod);
-    } else {
-        sampler = gpuSampler.glSamplers[samplerHash];
     }
+    const sampler = gpuSampler.glSamplers.get(samplerHash)!;
     return sampler;
 }
 

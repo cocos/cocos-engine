@@ -23,25 +23,26 @@
  THE SOFTWARE.
  */
 
-import { FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
-    FormatInfos, TextureUsageBit, TextureFlagBit } from '../base/define';
+import {
+    FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
+    FormatInfos, TextureUsageBit, TextureFlagBit,
+} from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUTexture, IWebGL2GPUTextureView } from './webgl2-gpu-objects';
 
 export class WebGL2Texture extends Texture {
+    private _gpuTexture: IWebGL2GPUTexture | null = null;
+    private _gpuTextureView: IWebGL2GPUTextureView | null = null;
+
     get gpuTexture (): IWebGL2GPUTexture {
-        return  this._gpuTexture!;
+        return this._gpuTexture!;
     }
 
     get gpuTextureView (): IWebGL2GPUTextureView {
-        return  this._gpuTextureView!;
+        return this._gpuTextureView!;
     }
-
-    private _gpuTexture: IWebGL2GPUTexture | null = null;
-
-    private _gpuTextureView: IWebGL2GPUTextureView | null = null;
 
     public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean) {
         let texInfo = info as TextureInfo;

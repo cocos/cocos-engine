@@ -25,7 +25,8 @@
 
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { macro, warnID, warn, debug } from '../../platform';
+import { macro } from '../../platform/macro';
+import { warnID, warn, debug } from '../../platform/debug';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';

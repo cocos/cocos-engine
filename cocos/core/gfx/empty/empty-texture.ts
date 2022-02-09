@@ -28,37 +28,50 @@ import { Texture } from '../base/texture';
 
 export class EmptyTexture extends Texture {
     public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean) {
+        let texInfo = info as TextureInfo;
+        const viewInfo = info as TextureViewInfo;
+
         if ('texture' in info) {
-            this._type = info.type;
-            this._format = info.format;
-            this._layerCount = info.layerCount;
-            this._levelCount = info.levelCount;
-            this._usage = info.texture.usage;
-            this._width = info.texture.width;
-            this._height = info.texture.height;
-            this._depth = info.texture.depth;
-            this._samples = info.texture.samples;
-            this._flags = info.texture.flags;
+            texInfo = viewInfo.texture.info;
+            this._isTextureView = true;
+        }
+
+        this._info.type = texInfo.type;
+        this._info.usage = texInfo.usage;
+        this._info.format = texInfo.format;
+        this._info.width = texInfo.width;
+        this._info.height = texInfo.height;
+        this._info.depth = texInfo.depth;
+        this._info.layerCount = texInfo.layerCount;
+        this._info.levelCount = texInfo.levelCount;
+        this._info.samples = texInfo.samples;
+        this._info.flags = texInfo.flags;
+        this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
+        this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
+            this.depth, this._info.levelCount) * this._info.layerCount;
+
+        if (!this._isTextureView) {
+            this._viewInfo.texture = this;
+            this._viewInfo.type = info.type;
+            this._viewInfo.format = info.format;
+            this._viewInfo.baseLevel = 0;
+            this._viewInfo.levelCount = 1;
+            this._viewInfo.baseLayer = 0;
+            this._viewInfo.layerCount = 1;
         } else {
-            this._type = info.type;
-            this._usage = info.usage;
-            this._format = info.format;
-            this._width = info.width;
-            this._height = info.height;
-            this._depth = info.depth;
-            this._layerCount = info.layerCount;
-            this._levelCount = info.levelCount;
-            this._samples = info.samples;
-            this._flags = info.flags;
-            this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
-            this._size = FormatSurfaceSize(this._format, this.width, this.height,
-                this.depth, this._levelCount) * this._layerCount;
+            this._viewInfo.texture = viewInfo.texture;
+            this._viewInfo.type = viewInfo.type;
+            this._viewInfo.format = viewInfo.format;
+            this._viewInfo.baseLevel = viewInfo.baseLevel;
+            this._viewInfo.levelCount = viewInfo.levelCount;
+            this._viewInfo.baseLayer = viewInfo.baseLayer;
+            this._viewInfo.layerCount = viewInfo.layerCount;
         }
     }
     public destroy () {}
     public resize (width: number, height: number) {
-        this._width = width;
-        this._height = height;
+        this._info.width = width;
+        this._info.height = height;
     }
     protected initAsSwapchainTexture (info: ISwapchainTextureInfo) {}
 }

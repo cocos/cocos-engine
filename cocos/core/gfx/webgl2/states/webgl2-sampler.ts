@@ -40,7 +40,7 @@ export class WebGL2Sampler extends Sampler {
         super(info, hash);
 
         this._gpuSampler = {
-            glSamplers: new Map<number, IWebGL2GPUSampler>(),
+            glSamplers: new Map<number, WebGL2Sampler>(),
             minFilter: this._info.minFilter,
             magFilter: this._info.magFilter,
             mipFilter: this._info.mipFilter,

@@ -174,7 +174,7 @@ export interface IWebGL2GPUFramebuffer {
 }
 
 export interface IWebGL2GPUSampler {
-    glSamplers: Map<number, IWebGL2GPUSampler>;
+    glSamplers: Map<number, WebGLSampler>;
 
     minFilter: Filter;
     magFilter: Filter;
