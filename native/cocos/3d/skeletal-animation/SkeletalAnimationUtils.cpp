@@ -31,7 +31,7 @@ namespace {
 const float INF = std::numeric_limits<float>::infinity();
 
 cc::gfx::Format selectJointsMediumFormat(cc::gfx::Device *device) {
-    if (device->hasFeature(cc::gfx::Feature::TEXTURE_FLOAT)) {
+    if (static_cast<uint32_t>(device->getFormatFeatures(cc::gfx::Format::RGBA32F) & cc::gfx::FormatFeature::SAMPLED_TEXTURE)) {
         return cc::gfx::Format::RGBA32F;
     }
     return cc::gfx::Format::RGBA8;
@@ -100,7 +100,7 @@ void uploadJointDataDQS(cc::Float32Array out, uint32_t base, cc::Mat4 &mat, bool
 }
 
 // change here and cc-skinning.chunk to use other skinning algorithms
-constexpr auto UPLOAD_JOINT_DATA          = uploadJointDataLBS;
+constexpr auto UPLOAD_JOINT_DATA = uploadJointDataLBS;
 #ifdef CC_EDITOR
 const uint32_t MINIMUM_JOINT_TEXTURE_SIZE = 2040;
 #else

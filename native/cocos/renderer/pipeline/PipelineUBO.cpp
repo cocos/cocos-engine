@@ -137,7 +137,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
         output[UBOCamera::AMBIENT_SKY_OFFSET + 2] = skyColor.z;
         output[UBOCamera::AMBIENT_SKY_OFFSET + 3] = skyColor.w;
 
-        auto &groundAlbedo                           = const_cast<scene::Ambient *>(ambient)->getGroundAlbedo();
+        const auto &groundAlbedo                     = ambient->getGroundAlbedo();
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 0] = groundAlbedo.x;
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 1] = groundAlbedo.y;
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 2] = groundAlbedo.z;

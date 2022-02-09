@@ -188,7 +188,7 @@ void Ambient::setSkyIllum(float illum) {
  * @en Ground color
  * @zh 地面颜色
  */
-const Vec4 &Ambient::getGroundAlbedo() { 
+const Vec4 &Ambient::getGroundAlbedo() const {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     return isHDR ? _groundAlbedoHDR : _groundAlbedoLDR;
 }
