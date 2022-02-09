@@ -41,9 +41,8 @@
 #include "SwapchainValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
-#include "base/Log.h"
-#include "gfx-base/GFXSwapchain.h"
 
+#include <algorithm>
 #include <cstring>
 
 namespace cc {
@@ -65,6 +64,15 @@ DeviceValidator::~DeviceValidator() {
 }
 
 bool DeviceValidator::doInit(const DeviceInfo &info) {
+    uint32_t flexibleSet{info.bindingMappingInfo.setIndices.back()};
+    CCASSERT(!info.bindingMappingInfo.maxBlockCounts[flexibleSet], "flexible set limits should be zero");
+    CCASSERT(!info.bindingMappingInfo.maxSamplerTextureCounts[flexibleSet], "flexible set limits should be zero");
+    CCASSERT(!info.bindingMappingInfo.maxSamplerCounts[flexibleSet], "flexible set limits should be zero");
+    CCASSERT(!info.bindingMappingInfo.maxTextureCounts[flexibleSet], "flexible set limits should be zero");
+    CCASSERT(!info.bindingMappingInfo.maxBufferCounts[flexibleSet], "flexible set limits should be zero");
+    CCASSERT(!info.bindingMappingInfo.maxImageCounts[flexibleSet], "flexible set limits should be zero");
+    CCASSERT(!info.bindingMappingInfo.maxSubpassInputCounts[flexibleSet], "flexible set limits should be zero");
+
     if (!_actor->initialize(info)) {
         return false;
     }
@@ -78,6 +86,7 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
     _vendor     = _actor->getVendor();
     _caps       = _actor->_caps;
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
+    memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
     static_cast<QueueValidator *>(_queue)->_inited          = true;
     static_cast<QueryPoolValidator *>(_queryPool)->_inited  = true;
@@ -258,10 +267,36 @@ Sampler *DeviceValidator::getSampler(const SamplerInfo &info) {
 }
 
 GlobalBarrier *DeviceValidator::getGlobalBarrier(const GlobalBarrierInfo &info) {
+    if (std::any_of(info.prevAccesses.begin(), info.prevAccesses.end(), [&](const auto access) {
+            return access > AccessType::PRESENT; // write access
+        })) {
+        CCASSERT(info.prevAccesses.size() == 1, "Write access should appear on its own");
+    }
+    if (std::any_of(info.nextAccesses.begin(), info.nextAccesses.end(), [&](const auto access) {
+            return access > AccessType::PRESENT; // write access
+        })) {
+        CCASSERT(info.nextAccesses.size() == 1, "Write access should appear on its own");
+    }
+
+    /////////// execute ///////////
+
     return _actor->getGlobalBarrier(info);
 }
 
 TextureBarrier *DeviceValidator::getTextureBarrier(const TextureBarrierInfo &info) {
+    if (std::any_of(info.prevAccesses.begin(), info.prevAccesses.end(), [&](const auto access) {
+            return access > AccessType::PRESENT; // write access
+        })) {
+        CCASSERT(info.prevAccesses.size() == 1, "Write access should appear on its own");
+    }
+    if (std::any_of(info.nextAccesses.begin(), info.nextAccesses.end(), [&](const auto access) {
+            return access > AccessType::PRESENT; // write access
+        })) {
+        CCASSERT(info.nextAccesses.size() == 1, "Write access should appear on its own");
+    }
+
+    /////////// execute ///////////
+
     return _actor->getTextureBarrier(info);
 }
 

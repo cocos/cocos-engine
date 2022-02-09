@@ -30,14 +30,6 @@
 namespace cc {
 namespace gfx {
 
-#ifndef GL_COMPRESSED_RGB8_ETC2
-    #define GL_COMPRESSED_RGB8_ETC2 0x9274
-#endif
-
-#ifndef GL_COMPRESSED_RGBA8_ETC2_EAC
-    #define GL_COMPRESSED_RGBA8_ETC2_EAC 0x9278
-#endif
-
 class GLES2Device;
 
 class GLES2CmdBeginRenderPass final : public GLESCmd {

@@ -232,7 +232,7 @@ void enableVertexId(Mesh *mesh, uint32_t subMeshIndex, gfx::Device *gfxDevice) {
  * @param vec4Capacity Capacity of vec4.
  */
 Vec4TextureFactory createVec4TextureFactory(gfx::Device *gfxDevice, uint32_t vec4Capacity) {
-    bool hasFeatureFloatTexture = gfxDevice->hasFeature(gfx::Feature::TEXTURE_FLOAT);
+    bool hasFeatureFloatTexture = static_cast<uint32_t>(gfxDevice->getFormatFeatures(gfx::Format::RGBA32F) & gfx::FormatFeature::SAMPLED_TEXTURE) != 0;
 
     uint32_t    pixelRequired   = 0;
     PixelFormat pixelFormat     = PixelFormat::RGBA8888;

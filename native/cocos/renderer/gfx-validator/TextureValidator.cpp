@@ -29,6 +29,7 @@
 #include "SwapchainValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace gfx {
@@ -41,10 +42,7 @@ struct EnumHasher final {
     }
 };
 
-unordered_map<Format, Feature, EnumHasher> featureCheckMap{
-    {Format::RGB8, Feature::FORMAT_RGB8},
-    {Format::R11G11B10F, Feature::FORMAT_R11G11B10F},
-};
+unordered_map<Format, Feature, EnumHasher> featureCheckMap{};
 } // namespace
 
 TextureValidator::TextureValidator(Texture *actor)
@@ -62,7 +60,18 @@ void TextureValidator::doInit(const TextureInfo &info) {
     _inited = true;
 
     CCASSERT(info.width && info.height && info.depth, "zero-sized texture?");
-    CCASSERT(!featureCheckMap.count(_info.format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_info.format]), "unsupported format");
+
+    FormatFeature ff = FormatFeature::NONE;
+    if (hasAnyFlags(info.usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT)) ff |= FormatFeature::RENDER_TARGET;
+    if (hasAnyFlags(info.usage, TextureUsageBit::SAMPLED)) ff |= FormatFeature::SAMPLED_TEXTURE;
+    if (hasAnyFlags(info.usage, TextureUsageBit::STORAGE)) ff |= FormatFeature::STORAGE_TEXTURE;
+    if (ff != FormatFeature::NONE) {
+        CCASSERT(hasAllFlags(DeviceValidator::getInstance()->getFormatFeatures(info.format), ff), "Format not supported for the specified features");
+    }
+
+    if (hasFlag(info.flags, TextureFlagBit::GEN_MIPMAP)) {
+        CCASSERT(info.levelCount > 1, "Generating mipmaps with level count 1?");
+    }
 
     /////////// execute ///////////
 

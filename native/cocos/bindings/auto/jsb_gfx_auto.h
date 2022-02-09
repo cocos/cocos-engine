@@ -802,6 +802,7 @@ SE_DECLARE_FUNC(js_gfx_Device_createShader);
 SE_DECLARE_FUNC(js_gfx_Device_createSwapchain);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
 SE_DECLARE_FUNC(js_gfx_Device_flushCommands);
+SE_DECLARE_FUNC(js_gfx_Device_getFormatFeatures);
 SE_DECLARE_FUNC(js_gfx_Device_getGlobalBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPool);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPoolResults);
@@ -819,4 +820,4 @@ bool js_register_cc_gfx_DeviceManager(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_gfx_DeviceManager_addSurfaceEventListener);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
-    // clang-format on
+// clang-format on

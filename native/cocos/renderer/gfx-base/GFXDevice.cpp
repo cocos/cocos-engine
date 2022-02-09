@@ -45,6 +45,7 @@ Device::Device() {
     // Then will destory the Device instance in native.
     addRef();
     _features.fill(false);
+    _formatFeatures.fill(FormatFeature::NONE);
 }
 
 Device::~Device() {

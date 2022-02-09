@@ -74,8 +74,8 @@ public:
      * @en Ground color
      * @zh 地面颜色
      */
-    const Vec4 &getGroundAlbedo(); 
-    void  setGroundAlbedo(const Vec4 &color);
+    const Vec4 &getGroundAlbedo() const;
+    void        setGroundAlbedo(const Vec4 &color);
 
 protected:
     Vec4  _groundAlbedoHDR{0.2F, 0.2F, 0.2F, 1.F};

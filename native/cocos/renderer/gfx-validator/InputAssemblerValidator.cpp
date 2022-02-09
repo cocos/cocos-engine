@@ -48,6 +48,11 @@ void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
 
+    // vertex attributes validations
+    for (auto const &attribute : info.attributes) {
+        CCASSERT(hasFlag(DeviceValidator::getInstance()->getFormatFeatures(attribute.format), FormatFeature::VERTEX_ATTRIBUTE), "Format not supported for the specified features");
+    }
+
     for (auto *vertexBuffer : info.vertexBuffers) {
         CCASSERT(vertexBuffer && static_cast<BufferValidator *>(vertexBuffer)->isInited(), "already destroyed?");
         CCASSERT(hasFlag(vertexBuffer->getUsage(), BufferUsageBit::VERTEX), "Input is not a vertex buffer");

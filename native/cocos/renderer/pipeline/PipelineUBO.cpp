@@ -137,7 +137,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
         output[UBOCamera::AMBIENT_SKY_OFFSET + 2] = skyColor.z;
         output[UBOCamera::AMBIENT_SKY_OFFSET + 3] = skyColor.w;
 
-        auto &groundAlbedo                           = const_cast<scene::Ambient *>(ambient)->getGroundAlbedo();
+        const auto &groundAlbedo                     = ambient->getGroundAlbedo();
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 0] = groundAlbedo.x;
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 1] = groundAlbedo.y;
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 2] = groundAlbedo.z;
@@ -191,7 +191,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
     const PipelineSceneData *            sceneData  = pipeline->getPipelineSceneData();
     scene::Shadows *const                shadowInfo = sceneData->getShadows();
     std::array<float, UBOShadow::COUNT> &shadowUBO  = *bufferView;
-    const bool                           hFTexture  = supportsFloatTexture(device);
+    const bool                           hFTexture  = supportsR32FloatTexture(device);
 
     if (shadowInfo->isEnabled()) {
         if (mainLight && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
@@ -244,7 +244,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
     const auto *shadowInfo = sceneData->getShadows();
     auto *      device     = gfx::Device::getInstance();
     auto &      shadowUBO  = *bufferView;
-    const bool  hFTexture  = supportsFloatTexture(device);
+    const bool  hFTexture  = supportsR32FloatTexture(device);
     const float linear     = 0.0F;
     const float packing    = hFTexture ? 0.0F : 1.0F;
     switch (light->getType()) {

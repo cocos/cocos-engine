@@ -79,6 +79,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     _vendor     = _actor->getVendor();
     _caps       = _actor->_caps;
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
+    memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
     // NOTE: C++17 is required when enable alignment
     // TODO(PatriceJiang): replace with: _mainMessageQueue = CC_NEW(MessageQueue);
