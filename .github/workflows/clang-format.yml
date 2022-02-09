@@ -1,0 +1,51 @@
+name: Apply clang format
+
+#on: [push, pull_request]
+on:
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  Clang-Format:
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        token: ${{ github.token }}
+        ref: ${{ github.head_sha }}
+    
+    - id: get_change_files
+      uses: fish9167/file-changes-action@v1.2.3
+      with:
+        output: ' '
+        fileOutput: ' '
+
+    - name: Echo change files
+      run: |
+        cat $HOME/files.txt
+        mv $HOME/files.txt ${{github.workspace}}/files.txt
+    
+    - uses: fish9167/clang-format-lint-action@master
+      with:
+        exclude: .clang-format-ignore
+        extensions: 'c,h,hpp,cpp,cxx'
+        style: file
+        inplace: True
+
+    - name: Create Pull Request 
+      uses: fish9167/create-pull-request@v3
+      with:
+          title: '[ci skip][AUTO]: Automated PR to fix formatting'
+          body: |
+            Automated PR to fix formatting
+          committer: cocos-robot <cocos-robot@cocos.com>
+          author: cocos-robot <cocos-robot@cocos.com>
+          commit-message: "[ci skip][AUTO]: Automated clang-format update: ${{ github.event.pull_request.head.sha }}  (#${{ github.event.number }})"
+          token: ${{ secrets.PR_TOKEN }}
+          push-to-fork: cocos-robot/cocos2d-x-lite
+          branch: t/bot/fix-format
+          branch-suffix: short-commit-hash
+          delete-branch: true
+          milestone: 1
