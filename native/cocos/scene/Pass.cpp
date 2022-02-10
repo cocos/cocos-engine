@@ -31,6 +31,7 @@
 #include "core/Root.h"
 #include "core/assets/TextureBase.h"
 #include "core/builtin/BuiltinResMgr.h"
+#include "core/platform/Debug.h"
 #include "renderer/core/PassUtils.h"
 #include "renderer/core/ProgramLib.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -228,7 +229,7 @@ void Pass::overridePipelineStates(const IPassInfo & /*original*/, const PassOver
 
 void Pass::update() {
     if (_descriptorSet == nullptr) {
-        // cjh        errorID(12006);
+        debug::errorID(12006);
         return;
     }
 
@@ -414,8 +415,8 @@ gfx::Shader *Pass::getShaderVariant(const std::vector<IMacroPatch> &patches) {
     }
 
 #ifdef CC_EDITOR
-    for (auto i = 0; i < patches.size(); i++) {
-        std::size_t pos = patches[i].name.find_first_of("CC_");
+    for (const auto &patch : patches) {
+        std::size_t pos = patch.name.find_first_of("CC_");
         if (pos != 0) { // not startsWith CC_
             CC_LOG_WARNING("cannot patch non-builtin macros");
             return nullptr;

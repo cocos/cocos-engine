@@ -27,6 +27,7 @@
 #include "base/StringUtil.h"
 #include "core/event/EventTypesToJS.h"
 #include "core/utils/IDGenerator.h"
+#include "cocos/core/platform/Debug.h"
 
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
@@ -119,7 +120,7 @@ gfx::Sampler *TextureBase::getGFXSampler() const {
         if (_gfxDevice != nullptr) {
             const_cast<TextureBase *>(this)->_gfxSampler = _gfxDevice->getSampler(_samplerInfo);
         } else {
-            //cjh            errorID(9302);
+           debug::errorID(9302);
         }
     }
     return _gfxSampler;

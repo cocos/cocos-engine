@@ -27,6 +27,7 @@
 #include <vector>
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
+#include "core/platform/Debug.h"
 #include "math/MathUtil.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
@@ -355,7 +356,7 @@ void Camera::updateAspect(bool oriented) {
 }
 
 void Camera::setViewport(const Vec4 &val) {
-    // warnID(8302);  // TODO(xwx): not implemented yet
+    debug::warnID(8302);
     setViewportInOrientedSpace(val);
 }
 

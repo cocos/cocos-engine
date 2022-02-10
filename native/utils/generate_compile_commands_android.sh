@@ -21,7 +21,7 @@ else
 fi
 
 mkdir -p build
-cp utils/CMakeLists.header.txt  build/CMakeLists.txt
+cp native/utils/CMakeLists.header.txt  build/CMakeLists.txt
 set -x
 cmake -Sbuild -Bbuild -DCC_USE_GLES2=ON -DCC_USE_VULKAN=ON -DCC_USE_GLES3=ON \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \

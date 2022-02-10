@@ -31,10 +31,12 @@
 #include "core/data/Object.h"
 //#include "core/scene-graph/Find.h"
 //#include "core/scene-graph/NodeActivator.h"
+#include "core/platform/Debug.h"
 #include "core/scene-graph/NodeEnum.h"
 //#include "core/scene-graph/NodeUIProperties.h"
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
+
 
 namespace cc {
 
@@ -135,10 +137,10 @@ void Node::onHierarchyChangedBase(Node *oldParent) {// NOLINT(misc-unused-parame
     auto *scene     = dynamic_cast<Scene *>(newParent);
     if (isPersistNode() && scene == nullptr) {
         emit(EventTypesToJS::NODE_REMOVE_PERSIST_ROOT_NODE);
+#ifdef CC_EDITOR
+        debug::warnID(1623);
+#endif
 
-        //        if (EDITOR) {
-        //            warnID(1623);
-        //        }
     }
 #ifdef CC_EDITOR
     auto *     curScene             = getScene();
@@ -242,9 +244,11 @@ void Node::setParent(Node *parent, bool isKeepWorld /* = false */) {
 
     Node *oldParent = _parent;
     Node *newParent = parent;
-    // if (CC_DEBUG && oldParent && !!(oldParent->_objFlags & Flags::DEACTIVATING)) {
-    //     // TODO: errorID not implemented
-    // }
+#if CC_DEBUG > 0
+    if (oldParent && (oldParent->_objFlags & Flags::DEACTIVATING) == Flags::DEACTIVATING) {
+        debug::errorID(3821);
+    }
+#endif
     _parent       = newParent;
     _siblingIndex = 0;
     onSetParent(oldParent, isKeepWorld);
@@ -266,9 +270,11 @@ void Node::setParent(Node *parent, bool isKeepWorld /* = false */) {
         }
     }
     if (newParent) {
-        // if (CC_DEBUG && !!(newParent->_objFlags & Flags::DEACTIVATING)) {
-        //     // TODO:errorID(3821);
-        // }
+#if CC_DEBUG > 0
+        if ((newParent->_objFlags & Flags::DEACTIVATING) == Flags::DEACTIVATING) {
+            debug::errorID(3821);
+        }
+#endif
         newParent->_children.emplace_back(this);
         _siblingIndex = static_cast<int32_t>(newParent->_children.size() - 1);
         newParent->emit(NodeEventType::CHILD_ADDED, this);
@@ -493,7 +499,7 @@ void Node::setSiblingIndex(index_t index) {
         return;
     }
     if (!!(_parent->_objFlags & Flags::DEACTIVATING)) {
-        // TODO(): errorID(3821);
+        debug::errorID(3821);
         return;
     }
     std::vector<IntrusivePtr<Node>> &siblings = _parent->_children;

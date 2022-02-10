@@ -29,6 +29,7 @@
 #include "3d/misc/BufferBlob.h"
 #include "core/DataView.h"
 #include "core/assets/RenderingSubMesh.h"
+#include "core/platform/Debug.h"
 #include "math/Quaternion.h"
 
 #include "boost/container_hash/hash.hpp"
@@ -247,7 +248,7 @@ void Mesh::initialize() {
             if (dstStride == 4 && !gfxDevice->hasFeature(gfx::Feature::ELEMENT_INDEX_UINT)) {
                 uint32_t vertexCount = _struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
                 if (vertexCount >= 65536) {
-                    //cjh                    warnID(10001, vertexCount, 65536);
+                    debug::warnID(10001, vertexCount, 65536);
                     continue; // Ignore this primitive
                 }
 

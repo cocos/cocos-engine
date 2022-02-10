@@ -2546,6 +2546,7 @@ compile_ts(${CWD}/cocos/core/builtin/shader-sources/glsl4)
 
 set(CC_GENERATED_FILES
     ${CWD}/cocos/core/builtin/Effects.cpp
+    ${CWD}/cocos/core/builtin/DebugInfos.cpp
     ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp
     ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp
     ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp
@@ -2573,7 +2574,11 @@ add_custom_target(builtin-res
             effects
             ${CWD}/cocos/core/builtin/Effects.cpp.in
             ${CWD}/cocos/core/builtin/Effects.cpp
-    DEPENDS 
+    COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/gen_debugInfos.js
+            ${CWD}/../EngineErrorMap.md
+            ${CWD}/cocos/core/builtin/DebugInfos.cpp.in
+            ${CWD}/cocos/core/builtin/DebugInfos.cpp
+    DEPENDS
             ${CWD}/cocos/core/builtin/shader-sources/glsl1.js
             ${CWD}/cocos/core/builtin/shader-sources/glsl3.js
             ${CWD}/cocos/core/builtin/shader-sources/glsl4.js
@@ -2582,6 +2587,7 @@ add_custom_target(builtin-res
             ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp.in
             ${CWD}/cocos/core/builtin/effects.js
             ${CWD}/cocos/core/builtin/Effects.cpp.in
+            ${CWD}/cocos/core/builtin/DebugInfos.cpp.in
             ${CWD}/cmake/scripts/glsl_gzip.js
             ${CWD}/cmake/scripts/effects_gzip.js
     VERBATIM USES_TERMINAL
