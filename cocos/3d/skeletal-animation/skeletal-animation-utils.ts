@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { EDITOR, JSB } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { AnimationClip } from '../../core/animation/animation-clip';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
@@ -41,6 +41,7 @@ import { Mat4, Quat, Vec3 } from '../../core/math';
 import { UBOSkinningAnimation } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
 import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
+import { JSB } from '../../core/default-constants';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
@@ -457,6 +458,7 @@ export interface IAnimInfo {
     buffer: Buffer;
     data: Float32Array;
     dirty: boolean;
+    dirtyForJSB: Uint8Array;
     currentClip: AnimationClip | null;
 }
 
@@ -480,8 +482,8 @@ export class JointAnimationInfo {
         ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
-        const info: IAnimInfo = { buffer, data, dirty: false, currentClip: null };
-        this._setAnimInfoDirty(info, false);
+        const info = { buffer, data, dirty: false, dirtyForJSB: new Uint8Array([0]), currentClip: null };
+
         this._pool.set(nodeID, info);
         return info;
     }
@@ -493,25 +495,14 @@ export class JointAnimationInfo {
         this._pool.delete(nodeID);
     }
 
-    private _setAnimInfoDirty (info: IAnimInfo, value: boolean) {
-        info.dirty = value;
-        if (JSB) {
-            const key = 'nativeDirty';
-            const convertVal = value ? 1 : 0;
-            if (!info[key]) {
-                // In order to share dirty data with native
-                Object.defineProperty(info, key, { value: new Uint32Array(1).fill(convertVal), enumerable: true });
-                return;
-            }
-            info[key].fill(convertVal);
-        }
-    }
-
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
         info.currentClip = clip;
         info.data[0] = -1;
         info.buffer.update(info.data);
-        this._setAnimInfoDirty(info, false);
+        info.dirty = false;
+        if (JSB) {
+            info.dirtyForJSB[0] = 0;
+        }
         return info;
     }
 

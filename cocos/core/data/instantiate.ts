@@ -38,6 +38,8 @@ import { getError, warn } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { Prefab } from '../assets/prefab';
 import { Node } from '../scene-graph/node';
+import { JSB } from '../default-constants';
+import { updateChildrenForDeserialize } from '../utils/jsb-utils';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
@@ -105,13 +107,23 @@ export function instantiate (original: any, internalForce?: boolean) {
     }
 
     let clone;
-    if (original instanceof CCObject) {
-        // @ts-expect-error
+    let isCCObject = original instanceof CCObject;
+    if (JSB) {
+        if (!isCCObject) {
+            // @ts-expect-error: jsb related codes.
+            isCCObject = original instanceof jsb.CCObject;
+        }
+    }
+
+    if (isCCObject) {
         if (original._instantiate) {
             legacyCC.game._isCloning = true;
-            // @ts-expect-error
             clone = original._instantiate(null, true);
             legacyCC.game._isCloning = false;
+            if (JSB) {
+                updateChildrenForDeserialize(clone);
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return clone;
         } else if (original instanceof legacyCC.Asset) {
             throw new TypeError(getError(6903));
@@ -121,6 +133,10 @@ export function instantiate (original: any, internalForce?: boolean) {
     legacyCC.game._isCloning = true;
     clone = doInstantiate(original);
     legacyCC.game._isCloning = false;
+    if (JSB) {
+        updateChildrenForDeserialize(clone);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return clone;
 }
 
@@ -152,8 +168,8 @@ function doInstantiate (obj, parent?) {
         // enumerateObject will always push obj to objsToClearTmpVar
         clone = obj._iN$t;
     } else if (obj.constructor) {
-        const klass = obj.constructor;
-        clone = new klass();
+        const Klass = obj.constructor;
+        clone = new Klass();
     } else {
         clone = Object.create(null);
     }
@@ -165,6 +181,7 @@ function doInstantiate (obj, parent?) {
     }
     objsToClearTmpVar.length = 0;
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return clone;
 }
 
@@ -201,6 +218,7 @@ function enumerateObject (obj, clone, parent) {
     } else {
         // primitive javascript object
         for (const key in obj) {
+            // eslint-disable-next-line no-prototype-builtins
             if (!obj.hasOwnProperty(key)
                 || (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95   // starts with "__"
                  && key !== '__type__'
@@ -234,24 +252,26 @@ function instantiateObj (obj, parent) {
     }
     if (obj instanceof legacyCC.Asset) {
         // 所有资源直接引用，不需要拷贝
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return obj;
     }
     let clone;
     if (ArrayBuffer.isView(obj)) {
         const len = (obj as any).length;
         clone = new ((obj as any).constructor)(len);
-        // @ts-expect-error
+        // @ts-expect-error: unknown
         obj._iN$t = clone;
         objsToClearTmpVar.push(obj);
         for (let i = 0; i < len; ++i) {
             clone[i] = obj[i];
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return clone;
     }
     if (Array.isArray(obj)) {
         const len = obj.length;
         clone = new Array(len);
-        // @ts-expect-error
+        // @ts-expect-error: unknown
         obj._iN$t = clone;
         objsToClearTmpVar.push(obj);
         for (let i = 0; i < len; ++i) {
@@ -262,6 +282,7 @@ function instantiateObj (obj, parent) {
                 clone[i] = value;
             }
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return clone;
     } else if (obj._objFlags & Destroyed) {
         // the same as cc.isValid(obj)
@@ -273,22 +294,26 @@ function instantiateObj (obj, parent) {
         if (parent) {
             if (parent instanceof legacyCC.Component) {
                 if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return obj;
                 }
             } else if (parent instanceof legacyCC._BaseNode) {
                 if (obj instanceof legacyCC._BaseNode) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                         return obj;
                     }
                 } else if (obj instanceof legacyCC.Component) {
                     if (obj.node && !obj.node.isChildOf(parent)) {
                         // should not clone other component if not descendant
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                         return obj;
                     }
                 }
             }
         }
+        // eslint-disable-next-line new-cap
         clone = new ctor();
     } else if (ctor === Object) {
         clone = {};
@@ -296,9 +321,11 @@ function instantiateObj (obj, parent) {
         clone = Object.create(null);
     } else {
         // unknown type
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return obj;
     }
     enumerateObject(obj, clone, parent);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return clone;
 }
 

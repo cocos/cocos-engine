@@ -28,7 +28,6 @@
  * @module animation
  */
 
-import { JSB } from 'internal:constants';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';
 import { Node } from '../../core/scene-graph/node';
@@ -37,6 +36,7 @@ import { AnimationState } from '../../core/animation/animation-state';
 import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { legacyCC } from '../../core/global-exports';
+import { JSB } from '../../core/default-constants';
 
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
@@ -154,14 +154,6 @@ export class SkeletalAnimationState extends AnimationState {
         }
     }
 
-    private _setAnimInfoDirty (info: IAnimInfo, value: boolean) {
-        info.dirty = value;
-        if (JSB) {
-            const key = 'nativeDirty';
-            info[key].fill(value ? 1 : 0);
-        }
-    }
-
     private _sampleCurvesBaked (time: number) {
         const ratio = time / this.duration;
         const info = this._animInfo!;
@@ -181,7 +173,10 @@ export class SkeletalAnimationState extends AnimationState {
         const curFrame = (ratio * this._frames + 0.5) | 0;
         if (curFrame === info.data[0]) { return; }
         info.data[0] = curFrame;
-        this._setAnimInfoDirty(info, true);
+        info.dirty = true;
+        if (JSB) {
+            info.dirtyForJSB[0] = 1;
+        }
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, frames } = this._sockets[i];
             const { pos, rot, scale } = frames[curFrame]; // ratio guaranteed to be in [0, 1]

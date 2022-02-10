@@ -28,7 +28,6 @@ import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
-import { NativeDirectionalLight } from './native-scene';
 import { PCFType, Shadows } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);
@@ -58,9 +57,6 @@ export class DirectionalLight extends Light {
 
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setDirection(dir);
-        }
     }
 
     get direction (): Vec3 {
@@ -90,9 +86,6 @@ export class DirectionalLight extends Light {
     }
     set illuminanceHDR (value: number) {
         this._illuminanceHDR = value;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setIlluminanceHDR(value);
-        }
     }
 
     get illuminanceLDR () {
@@ -100,9 +93,6 @@ export class DirectionalLight extends Light {
     }
     set illuminanceLDR (value: number) {
         this._illuminanceLDR = value;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setIlluminanceLDR(value);
-        }
     }
 
     /**
@@ -114,9 +104,6 @@ export class DirectionalLight extends Light {
     }
     set shadowEnabled (val) {
         this._shadowEnabled = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowEnabled(val);
-        }
     }
 
     /**
@@ -128,9 +115,6 @@ export class DirectionalLight extends Light {
     }
     set shadowPcf (val) {
         this._shadowPcf = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowPcf(val);
-        }
     }
 
     /**
@@ -142,9 +126,6 @@ export class DirectionalLight extends Light {
     }
     set shadowBias (val) {
         this._shadowBias = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowBias(val);
-        }
     }
 
     /**
@@ -156,9 +137,6 @@ export class DirectionalLight extends Light {
     }
     set shadowNormalBias (val: number) {
         this._shadowNormalBias = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowNormalBias(val);
-        }
     }
 
     /**
@@ -170,9 +148,6 @@ export class DirectionalLight extends Light {
     }
     set shadowSaturation (val: number) {
         this._shadowSaturation = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowSaturation(this._shadowSaturation);
-        }
     }
 
     /**
@@ -184,9 +159,6 @@ export class DirectionalLight extends Light {
     }
     set shadowDistance (val) {
         this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowDistance(val);
-        }
     }
 
     /**
@@ -198,9 +170,6 @@ export class DirectionalLight extends Light {
     }
     set shadowInvisibleOcclusionRange (val) {
         this._shadowInvisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowInvisibleOcclusionRange(val);
-        }
     }
 
     /**
@@ -212,9 +181,6 @@ export class DirectionalLight extends Light {
     }
     set fixedArea (val) {
         this._shadowFixedArea = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowFixedArea(val);
-        }
     }
 
     /**
@@ -226,9 +192,6 @@ export class DirectionalLight extends Light {
     }
     set fixedNear (val) {
         this._shadowNear = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowNear(val);
-        }
     }
 
     /**
@@ -240,9 +203,6 @@ export class DirectionalLight extends Light {
     }
     set fixedFar (val) {
         this._shadowFar = Math.min(val, Shadows.MAX_FAR);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowFar(val);
-        }
     }
 
     /**
@@ -254,9 +214,6 @@ export class DirectionalLight extends Light {
     }
     set fixedOrthoSize (val) {
         this._shadowOrthoSize = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowOrthoSize(val);
-        }
     }
 
     constructor () {

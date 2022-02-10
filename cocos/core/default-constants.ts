@@ -33,6 +33,7 @@ function tryDefineGlobal (name: string, value: boolean): boolean {
     if (typeof _global[name] === 'undefined') {
         return (_global[name] = value);
     } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return _global[name];
     }
 }
@@ -41,14 +42,15 @@ function tryDefineGlobal (name: string, value: boolean): boolean {
 export const EXPORT_TO_GLOBAL = false;
 export const BUILD = tryDefineGlobal('CC_BUILD', false);
 export const TEST = tryDefineGlobal('CC_TEST', defined('tap') || defined('QUnit'));
+// @ts-expect-error: 'process' function exists in editor mode.
 export const EDITOR = tryDefineGlobal('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
 export const PREVIEW = tryDefineGlobal('CC_PREVIEW', !EDITOR);
 export const DEV = tryDefineGlobal('CC_DEV', true); // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
 export const DEBUG = tryDefineGlobal('CC_DEBUG', true); // CC_DEV || Debug Build
 export const JSB = tryDefineGlobal('CC_JSB', defined('jsb'));
 export const NATIVE = JSB;
-export const HTML5 = true;
-// @ts-expect-error
+export const HTML5 = !(EDITOR && NATIVE);
+// @ts-expect-error: 'wx' is wechat namespace.
 export const WECHAT = tryDefineGlobal('CC_WECHAT', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
 export const MINIGAME = tryDefineGlobal('CC_MINIGAME', false);
 export const RUNTIME_BASED = tryDefineGlobal('CC_RUNTIME_BASED', false);
@@ -60,7 +62,7 @@ export const COCOSPLAY = tryDefineGlobal('CC_COCOSPLAY', false);
 export const HUAWEI = tryDefineGlobal('CC_HUAWEI', false);
 export const OPPO = tryDefineGlobal('CC_OPPO', false);
 export const VIVO = tryDefineGlobal('CC_VIVO', false);
-// @ts-expect-error
-export const SUPPORT_JIT = tryDefineGlobal('CC_SUPPORT_JIT', ('function' === typeof loadRuntime));
+// @ts-expect-error: 'loadRuntime' exits only in runtime environment.
+export const SUPPORT_JIT = tryDefineGlobal('CC_SUPPORT_JIT', (typeof loadRuntime === 'function'));
 export const SERVER_MODE = false;
 export const UI_GPU_DRIVEN = false;

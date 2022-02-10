@@ -407,8 +407,7 @@ const cacheManager = require('./jsb-cache-manager');
 
         if (force || node.hasChangedFlags || node._dirtyFlags) {
             // sync node world matrix to native
-            node.updateWorldTransform();
-            const worldMat = node._mat;
+            const worldMat = node.getWorldMatrix();
             paramsBuffer[1]  = worldMat.m00;
             paramsBuffer[2]  = worldMat.m01;
             paramsBuffer[3]  = worldMat.m02;
