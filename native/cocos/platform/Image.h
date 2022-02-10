@@ -29,14 +29,15 @@
 
 #include <map>
 #include <string>
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "gfx-base/GFXDef.h"
 
 namespace cc {
 
-class Image : public Ref {
+class Image : public RefCounted {
 public:
     Image();
+    ~Image() override;
 
     /** Supported formats for Image */
     enum class Format {
@@ -66,7 +67,7 @@ public:
     // @warning kFmtRawData only support RGBA8888
     bool initWithRawData(const unsigned char *data, ssize_t dataLen, int width, int height, int bitsPerComponent, bool preMulti = false);
 
-    // data will be free ouside.
+    // data will be free outside.
     inline void takeData(unsigned char **outData) {
         *outData = _data;
         _data    = nullptr;
@@ -103,8 +104,6 @@ protected:
     std::string    _filePath;
     bool           _isCompressed = false;
 
-    ~Image() override;
-
     static Format detectFormat(const unsigned char *data, ssize_t dataLen);
     static bool   isPng(const unsigned char *data, ssize_t dataLen);
     static bool   isJpg(const unsigned char *data, ssize_t dataLen);
@@ -115,6 +114,8 @@ protected:
     static bool   isASTC(const unsigned char *data, ssize_t detaLen);
 
     static gfx::Format getASTCFormat(const unsigned char *pHeader);
+
+    friend class ImageUtils;
 };
 
 } //namespace cc

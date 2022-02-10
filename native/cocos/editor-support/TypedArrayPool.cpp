@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -105,7 +105,7 @@ void TypedArrayPool::dump() {
 }
 
 se::Object *TypedArrayPool::pop(arrayType type, std::size_t size) {
-    auto     fitSize    = static_cast<std::size_t>(std::ceil(size / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE);
+    auto     fitSize    = static_cast<std::size_t>(std::ceil(static_cast<float>(size) / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE);
     objPool *objPoolPtr = getObjPool(type, fitSize);
 
     if (!objPoolPtr->empty()) {

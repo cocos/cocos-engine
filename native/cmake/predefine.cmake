@@ -99,9 +99,8 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-
 if("$ENV{COCOS_ENGINE_DEV}" EQUAL "1")
-    set(WERROR_FLAGS "-Werror")
+    set(WERROR_FLAGS "-Werror") # -Wshorten-64-to-32 -Werror=return-type
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         set(WERROR_FLAGS "/WX")
     endif()
@@ -135,7 +134,7 @@ macro(cocos_source_files)
     set(list_var "${ARGN}")
     set(TWAE ON)
     set(ACCEPT_MN OFF)
-    set(MODULE_NAME "COCOS2D")
+    set(MODULE_NAME "COCOS")
     foreach(src IN LISTS list_var)
         if(ACCEPT_MN)
             set(MODULE_NAME "${src}")
@@ -187,3 +186,7 @@ function(cc_win32_definations target)
         SE_ENABLE_INSPECTOR
     )
 endfunction()
+
+
+find_program(NODE_EXECUTABLE NAMES node)
+find_program(TSC_EXECUTABLE NAMES tsc)

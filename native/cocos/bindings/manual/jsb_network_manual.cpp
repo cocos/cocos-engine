@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -40,8 +40,8 @@ static bool js_cocos2dx_network_Downloader_createDownloadFileTask(se::State &s) 
     if (argc == 2) {
         std::string arg0;
         std::string arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_std_string(args[1], &arg1);
+        ok &= sevalue_to_native(args[0], &arg0);
+        ok &= sevalue_to_native(args[1], &arg1);
         SE_PRECONDITION2(ok, false,
                          "js_network_Downloader_createDownloadFileTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadFileTask(
@@ -58,9 +58,9 @@ static bool js_cocos2dx_network_Downloader_createDownloadFileTask(se::State &s) 
         std::string arg0;
         std::string arg1;
         std::string arg2;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_std_string(args[1], &arg1);
-        ok &= seval_to_std_string(args[2], &arg2);
+        ok &= sevalue_to_native(args[0], &arg0);
+        ok &= sevalue_to_native(args[1], &arg1);
+        ok &= sevalue_to_native(args[2], &arg2);
         SE_PRECONDITION2(ok, false,
                          "js_network_Downloader_createDownloadFileTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadFileTask(
@@ -92,7 +92,8 @@ static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](const cc::network::DownloadTask &larg0) -> void {
+                auto *thisObj = s.thisObject();
+                auto  lambda  = [=](const cc::network::DownloadTask &larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
 
@@ -102,7 +103,6 @@ static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT
                     ok &= DownloadTask_to_seval(larg0, &args[0]);
                     se::Value   rval;
                     se::Object *funcObj = jsFunc.toObject();
-                    se::Object *thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
@@ -138,7 +138,8 @@ static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(reada
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](const cc::network::DownloadTask &larg0, int larg1, int larg2, const std::string &larg3) -> void {
+                auto *thisObj = s.thisObject();
+                auto  lambda  = [=](const cc::network::DownloadTask &larg0, int larg1, int larg2, const std::string &larg3) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
 
@@ -146,11 +147,10 @@ static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(reada
                     se::ValueArray args;
                     args.resize(4);
                     ok &= DownloadTask_to_seval(larg0, &args[0]);
-                    ok &= int32_to_seval(larg1, &args[1]);
-                    ok &= int32_to_seval(larg2, &args[2]);
-                    ok &= std_string_to_seval(larg3, &args[3]);
+                    ok &= nativevalue_to_se(larg1, args[1]);
+                    ok &= nativevalue_to_se(larg2, args[2]);
+                    ok &= nativevalue_to_se(larg3, args[3]);
                     se::Value   rval;
-                    se::Object *thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object *funcObj = jsFunc.toObject();
                     bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {

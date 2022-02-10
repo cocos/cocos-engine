@@ -28,7 +28,7 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "platform/StdC.h"
 
 #include <algorithm>
@@ -57,7 +57,7 @@ namespace network {
  * WebSocket is wrapper of the libwebsockets-protocol, let the develop could call the websocket easily.
  * Please note that all public methods of WebSocket have to be invoked on Cocos Thread.
  */
-class CC_DLL WebSocket : public Ref {
+class CC_DLL WebSocket : public RefCounted {
 public:
     /**
      * Close all connections and wait for all websocket threads to exit

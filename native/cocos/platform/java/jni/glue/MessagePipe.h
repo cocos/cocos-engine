@@ -35,10 +35,10 @@ public:
     ~MessagePipe();
 
     void writeCommand(int8_t cmd) const;
-    int  readCommand(int8_t& cmd) const;
-    void writeCommand(void* msg, int32_t size) const;
-    int  readCommand(void* msg, int32_t size) const;
-    int  readCommandWithTimeout(void* msg, int32_t size, int delayMS);
+    int  readCommand(int8_t &cmd) const;
+    void writeCommand(void *msg, int32_t size) const;
+    int  readCommand(void *msg, int32_t size) const;
+    int  readCommandWithTimeout(void *msg, int32_t size, int delayMS);
 
 private:
     int _pipeRead  = 0;

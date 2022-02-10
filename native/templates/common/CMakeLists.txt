@@ -3,7 +3,7 @@ enable_language(C ASM)
 
 set(DEVELOPMENT_TEAM    ""  CACHE STRING "APPLE Developtment Team")
 set(RES_DIR             ""  CACHE STRING "Resource path")
-set(COCOS_X_PATH        ""  CACHE STRING "Path to cocos2d-x-lite/")
+set(COCOS_X_PATH        ""  CACHE STRING "Path to cocos engine")
 
 set(TARGET_OSX_VERSION "10.14" CACHE STRING "Target MacOSX version" FORCE)
 set(TARGET_IOS_VERSION "10.0"  CACHE STRING "Target iOS version" FORCE)

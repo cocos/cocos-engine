@@ -50,18 +50,18 @@ public:
     int32_t loop() override;
 
     // override from SystemWindow::Delegate
-    bool               createWindow(const char* title,
+    bool               createWindow(const char *title,
                                     int x, int y, int w,
                                     int h, int flags) override;
     uintptr_t          getWindowHandler() const override;
-    struct SDL_Window* getWindow() {
+    struct SDL_Window *getWindow() {
         return nullptr; //_handle;
     }
 
 private:
-    SDL_Window*      _handle;
+    SDL_Window *     _handle;
     void             pollEvent() override;
-    void             handleWindowEvent(SDL_WindowEvent& wevent);
+    void             handleWindowEvent(SDL_WindowEvent &wevent);
     bool             _inited{false};
     bool             _quit{false};
     screen_context_t _screenCtx;

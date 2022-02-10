@@ -42,9 +42,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "../PrivateObject.h"
 
 #include "HelperMacros.h"
 
 namespace se {
-using V8FinalizeFunc = void (*)(void *nativeObj);
-}
+using V8FinalizeFunc = void (*)(PrivateObjectBase *nativeObj);
+} // namespace se

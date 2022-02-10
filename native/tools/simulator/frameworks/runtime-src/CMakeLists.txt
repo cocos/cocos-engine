@@ -149,7 +149,7 @@ else()
     add_executable(${LIB_NAME} ${PROJ_SOURCES} ${PROJ_EXTRA_SOURCE})
 endif()
 
-target_link_libraries(${LIB_NAME} cocos2d simulator)
+target_link_libraries(${LIB_NAME} ${ENGINE_NAME} simulator)
 target_include_directories(${LIB_NAME} PRIVATE
     Classes
 )
@@ -163,7 +163,7 @@ if(APPLE)
     set(PRODUCT_NAME ${APP_NAME})
     if(MACOSX)
         set(CMAKE_OSX_DEPLOYMENT_TARGET ${TARGET_OSX_VERSION})
-        set(MACOSX_BUNDLE_GUI_IDENTIFIER org.cocos2dx.hellojavascript.mac)
+        set(MACOSX_BUNDLE_GUI_IDENTIFIER org.cocos.hellojavascript.mac)
         set_target_properties(${LIB_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/proj.ios_mac/mac/Info.plist")
         set_target_properties(${LIB_NAME} PROPERTIES
             MACOSX_DEPLOYMENT_TARGET ${TARGET_OSX_VERSION}

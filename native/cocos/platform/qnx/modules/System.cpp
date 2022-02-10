@@ -40,7 +40,7 @@ std::string System::getDeviceModel() const {
 }
 
 System::LanguageType System::getCurrentLanguage() const {
-    char* pLanguageName = getenv("LANG");
+    char *pLanguageName = getenv("LANG");
     if (!pLanguageName) {
         return LanguageType::ENGLISH;
     }
@@ -54,7 +54,7 @@ System::LanguageType System::getCurrentLanguage() const {
 
 std::string System::getCurrentLanguageCode() const {
     static char code[3]       = {0};
-    char*       pLanguageName = getenv("LANG");
+    char *      pLanguageName = getenv("LANG");
     if (!pLanguageName) {
         return "en";
     }
@@ -73,13 +73,13 @@ std::string System::getSystemVersion() const {
     return u.version;
 }
 
-bool System::openURL(const std::string& url) {
+bool System::openURL(const std::string &url) {
     //std::string op = std::string("xdg-open '").append(url).append("'");
     //return system(op.c_str()) == 0;
     return false;
 }
 
-System::LanguageType System::getLanguageTypeByISO2(const char* code) const {
+System::LanguageType System::getLanguageTypeByISO2(const char *code) const {
     // this function is used by all platforms to get system language
     // except windows: cocos/platform/win32/CCApplication-win32.cpp
     LanguageType ret = LanguageType::ENGLISH;

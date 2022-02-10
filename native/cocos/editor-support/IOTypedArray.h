@@ -43,13 +43,13 @@ public:
      * @param[in] usePool If true,will get TypeArray from pool,or create TypeArray,default false.
      */
     IOTypedArray(se::Object::TypedArrayType arrayType, std::size_t defaultSize, bool usePool = false);
-    virtual ~IOTypedArray();
+    ~IOTypedArray() override;
 
     inline se::Object *getTypeArray() const {
         return _typeArray;
     }
 
-    virtual void resize(std::size_t newLen, bool needCopy = false) override;
+    void resize(std::size_t newLen, bool needCopy) override;
 
 private:
     se::Object::TypedArrayType _arrayType = se::Object::TypedArrayType::NONE;

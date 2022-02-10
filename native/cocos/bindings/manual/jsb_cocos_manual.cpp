@@ -90,14 +90,14 @@ static bool js_PlistParser_parse(se::State &s) { // NOLINT(readability-identifie
     bool ok = true;
     if (argc == 1) {
         std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         std::string parsedStr = delegator->parseText(arg0);
         std::replace(parsedStr.begin(), parsedStr.end(), '\n', ' ');
 
         se::Value strVal;
-        std_string_to_seval(parsedStr, &strVal);
+        nativevalue_to_se(parsedStr, strVal);
 
         se::HandleObject robj(se::Object::createJSONObject(strVal.toString()));
         s.rval().setObject(robj);
@@ -206,7 +206,7 @@ static bool JSB_localStorageGetItem(se::State &s) { // NOLINT(readability-identi
     if (argc == 1) {
         bool        ok = true;
         std::string key;
-        ok = seval_to_std_string(args[0], &key);
+        ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         std::string value;
         ok = localStorageGetItem(key, &value);
@@ -230,7 +230,7 @@ static bool JSB_localStorageRemoveItem(const se::State &s) { // NOLINT(readabili
     if (argc == 1) {
         bool        ok = true;
         std::string key;
-        ok = seval_to_std_string(args[0], &key);
+        ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         localStorageRemoveItem(key);
         return true;
@@ -247,11 +247,11 @@ static bool JSB_localStorageSetItem(const se::State &s) { // NOLINT(readability-
     if (argc == 2) {
         bool        ok = true;
         std::string key;
-        ok = seval_to_std_string(args[0], &key);
+        ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         std::string value;
-        ok = seval_to_std_string(args[1], &value);
+        ok = sevalue_to_native(args[1], &value);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         localStorageSetItem(key, value);
         return true;
@@ -281,7 +281,7 @@ static bool JSB_localStorageKey(se::State &s) { // NOLINT(readability-identifier
     if (argc == 1) {
         bool ok     = true;
         int  nIndex = 0;
-        ok          = seval_to_int32(args[0], &nIndex);
+        ok          = sevalue_to_native(args[0], &nIndex);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         std::string value;
         localStorageGetKey(nIndex, &value);
@@ -366,7 +366,8 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](const cc::Data &larg0) -> void {
+                se::Object *thisObj = s.thisObject();
+                auto        lambda  = [=](const cc::Data &larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
 
@@ -375,7 +376,6 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                     args.resize(1);
                     ok &= Data_to_seval(larg0, &args[0]);
                     se::Value   rval;
-                    se::Object *thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object *funcObj = jsFunc.toObject();
                     bool        succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -383,8 +383,8 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                     }
                 };
                 // Add an unroot to avoid the root of the copy constructor caused by the internal reference of Lambda.
-                if (jsThis.isObject()) {
-                    jsThis.toObject()->unroot();
+                if (thisObj) {
+                    thisObj->unroot();
                 }
                 jsFunc.toObject()->unroot();
                 arg0 = lambda;
@@ -441,12 +441,12 @@ static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) { // NO
     CC_UNUSED bool ok   = true;
     if (argc == 2) {
         std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_measureText : Error processing arguments");
         SE_PRECONDITION2(args[1].isObject(), false, "js_engine_CanvasRenderingContext2D_fillText : no attributes set.");
         setCanvasRenderingContext2DProps(cobj, args[1]);
         cc::Size result = cobj->measureText(arg0);
-        ok &= Size_to_seval(result, &s.rval());
+        ok &= nativevalue_to_se(result, s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_measureText : Error processing arguments");
         return true;
     }
@@ -466,10 +466,10 @@ static bool js_engine_CanvasRenderingContext2D_fillRect(const se::State &s) { //
         float arg1 = 0;
         float arg2 = 0;
         float arg3 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
-        ok &= seval_to_float(args[3], &arg3);
+        ok &= sevalue_to_native(args[0], &arg0);
+        ok &= sevalue_to_native(args[1], &arg1);
+        ok &= sevalue_to_native(args[2], &arg2);
+        ok &= sevalue_to_native(args[3], &arg3);
         SE_PRECONDITION2(args[4].isObject(), false, "js_engine_CanvasRenderingContext2D_fillText : no attributes set.");
         setCanvasRenderingContext2DProps(cobj, args[4]);
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_fillRect : Error processing arguments");
@@ -492,16 +492,16 @@ static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { //
         float       arg1 = 0;
         float       arg2 = 0;
         float       arg3 = 0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
+        ok &= sevalue_to_native(args[0], &arg0);
+        ok &= sevalue_to_native(args[1], &arg1);
+        ok &= sevalue_to_native(args[2], &arg2);
         SE_PRECONDITION2(args[4].isObject(), false, "js_engine_CanvasRenderingContext2D_fillText : no attributes set.");
         setCanvasRenderingContext2DProps(cobj, args[4]);
         if (args[3].isUndefined()) {
             SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_fillText : Error processing arguments");
             cobj->fillText(arg0, arg1, arg2, -1.0F);
         } else {
-            ok &= seval_to_float(args[3], &arg3);
+            ok &= sevalue_to_native(args[3], &arg3);
             SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_fillText : Error processing arguments");
             cobj->fillText(arg0, arg1, arg2, arg3);
         }
@@ -523,13 +523,13 @@ static bool js_engine_CanvasRenderingContext2D_strokeText(const se::State &s) { 
         float       arg1 = 0;
         float       arg2 = 0;
         float       arg3 = 0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
+        ok &= sevalue_to_native(args[0], &arg0);
+        ok &= sevalue_to_native(args[1], &arg1);
+        ok &= sevalue_to_native(args[2], &arg2);
         SE_PRECONDITION2(args[4].isObject(), false, "js_engine_CanvasRenderingContext2D_strokeText : no attributes set.");
         setCanvasRenderingContext2DProps(cobj, args[4]);
         if (!args[3].isUndefined()) {
-            ok &= seval_to_float(args[3], &arg3);
+            ok &= sevalue_to_native(args[3], &arg3);
             SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_strokeText : Error processing arguments");
             cobj->strokeText(arg0, arg1, arg2, arg3);
         } else {
@@ -607,7 +607,7 @@ static bool js_engine_FileUtils_listFilesRecursively(const se::State &s) { // NO
     if (argc == 2) {
         std::string              arg0;
         std::vector<std::string> arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_listFilesRecursively : Error processing arguments");
         cobj->listFilesRecursively(arg0, &arg1);
         se::Object *list = args[1].toObject();
@@ -671,12 +671,57 @@ static bool register_se_setExceptionCallback(se::Object *obj) { // NOLINT(readab
     return true;
 }
 
+static bool js_engine_Color_get_val(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_get_val : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value      jsret;
+    uint32_t       r   = static_cast<uint32_t>(cobj->r);
+    uint32_t       g   = static_cast<uint32_t>(cobj->g);
+    uint32_t       b   = static_cast<uint32_t>(cobj->b);
+    uint32_t       a   = static_cast<uint32_t>(cobj->a);
+    uint32_t       val = (a << 24) + (b << 16) + (g << 8) + r;
+    ok &= nativevalue_to_se(val, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_Color_get_val)
+
+static bool js_engine_Color_set_val(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = s.args();
+    auto *      cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_set_val : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    uint32_t       val{0};
+    ok &= sevalue_to_native(args[0], &val, s.thisObject());
+    cobj->r = val & 0x000000FF;
+    cobj->g = (val & 0x0000FF00) >> 8;
+    cobj->b = (val & 0x00FF0000) >> 16;
+    cobj->a = (val & 0xFF000000) >> 24;
+    SE_PRECONDITION2(ok, false, "js_engine_Color_set_val : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_Color_set_val)
+
+static bool register_engine_Color_manual(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
+    __jsb_cc_Color_proto->defineProperty("_val", _SE(js_engine_Color_get_val), _SE(js_engine_Color_set_val));
+
+    se::ScriptEngine::getInstance()->clearException();
+
+    return true;
+}
+
 bool register_all_cocos_manual(se::Object *obj) {
     register_plist_parser(obj);
     register_sys_localStorage(obj);
     register_device(obj);
     register_canvas_context2d(obj);
     register_filetuils_ext(obj);
+    register_engine_Color_manual(obj);
     register_se_setExceptionCallback(obj);
     return true;
 }

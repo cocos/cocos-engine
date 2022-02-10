@@ -41,7 +41,7 @@ GLES3Texture::~GLES3Texture() {
     destroy();
 }
 
-void GLES3Texture::doInit(const TextureInfo& /*info*/) {
+void GLES3Texture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture             = CC_NEW(GLES3GPUTexture);
     _gpuTexture->type       = _info.type;
     _gpuTexture->format     = _info.format;
@@ -64,7 +64,7 @@ void GLES3Texture::doInit(const TextureInfo& /*info*/) {
     }
 }
 
-void GLES3Texture::doInit(const TextureViewInfo& /*info*/) {
+void GLES3Texture::doInit(const TextureViewInfo & /*info*/) {
     CC_LOG_ERROR("GLES3 doesn't support texture view.");
 }
 
@@ -100,7 +100,7 @@ void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
-void GLES3Texture::doInit(const SwapchainTextureInfo& /*info*/) {
+void GLES3Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     _gpuTexture             = CC_NEW(GLES3GPUTexture);
     _gpuTexture->type       = _info.type;
     _gpuTexture->format     = _info.format;
@@ -114,7 +114,7 @@ void GLES3Texture::doInit(const SwapchainTextureInfo& /*info*/) {
     _gpuTexture->flags      = _info.flags;
     _gpuTexture->size       = _size;
     _gpuTexture->memoryless = true;
-    _gpuTexture->swapchain  = static_cast<GLES3Swapchain*>(_swapchain)->gpuSwapchain();
+    _gpuTexture->swapchain  = static_cast<GLES3Swapchain *>(_swapchain)->gpuSwapchain();
 }
 
 } // namespace gfx

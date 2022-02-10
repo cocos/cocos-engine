@@ -25,9 +25,9 @@
 
 #pragma once
 
+#include "core/scene-graph/Node.h"
 #include "math/Vec3.h"
 #include "physics/spec/ILifecycle.h"
-#include "scene/Node.h"
 
 namespace cc {
 namespace physics {
@@ -43,7 +43,7 @@ public:
     ~IRigidBody() override                                                                       = default;
     virtual uintptr_t getImpl()                                                                  = 0;
     virtual uintptr_t getNodeHandle()                                                            = 0;
-    virtual void      initialize(scene::Node *node, ERigidBodyType t, uint32_t g)                = 0;
+    virtual void      initialize(Node *node, ERigidBodyType t, uint32_t g)                       = 0;
     virtual bool      isAwake()                                                                  = 0;
     virtual bool      isSleepy()                                                                 = 0;
     virtual bool      isSleeping()                                                               = 0;

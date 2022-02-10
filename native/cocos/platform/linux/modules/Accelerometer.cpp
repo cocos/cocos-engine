@@ -32,7 +32,7 @@ void Accelerometer::setAccelerometerEnabled(bool isEnabled) {
 void Accelerometer::setAccelerometerInterval(float interval) {
 }
 
-const Accelerometer::MotionValue& Accelerometer::getDeviceMotionValue() {
+const Accelerometer::MotionValue &Accelerometer::getDeviceMotionValue() {
     static MotionValue motionValue;
     return motionValue;
 }

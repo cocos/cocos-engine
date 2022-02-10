@@ -76,7 +76,7 @@ std::string StackFrame::toString() {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
 
 struct ThreadStack {
-    void* stack[MAX_STACK_FRAMES];
+    void *stack[MAX_STACK_FRAMES];
     int   current;
     int   overflow;
 };
@@ -91,14 +91,14 @@ init_once(void) {
     pthread_key_create(&s_threadStackKey, NULL);
 }
 
-static ThreadStack* __attribute__((no_instrument_function))
+static ThreadStack *__attribute__((no_instrument_function))
 getThreadStack() {
-    ThreadStack* ptr = (ThreadStack*)pthread_getspecific(s_threadStackKey);
+    ThreadStack *ptr = (ThreadStack *)pthread_getspecific(s_threadStackKey);
     if (ptr) {
         return ptr;
     }
 
-    ptr           = (ThreadStack*)calloc(1, sizeof(ThreadStack));
+    ptr           = (ThreadStack *)calloc(1, sizeof(ThreadStack));
     ptr->current  = 0;
     ptr->overflow = 0;
     pthread_setspecific(s_threadStackKey, ptr);
@@ -106,9 +106,9 @@ getThreadStack() {
 }
 
 void __attribute__((no_instrument_function))
-__cyg_profile_func_enter(void* this_fn, void* call_site) {
+__cyg_profile_func_enter(void *this_fn, void *call_site) {
     pthread_once(&s_once, init_once);
-    ThreadStack* ptr = getThreadStack();
+    ThreadStack *ptr = getThreadStack();
     if (ptr->current < MAX_STACK_FRAMES) {
         ptr->stack[ptr->current++] = this_fn;
         ptr->overflow              = 0;
@@ -118,9 +118,9 @@ __cyg_profile_func_enter(void* this_fn, void* call_site) {
 }
 
 void __attribute__((no_instrument_function))
-__cyg_profile_func_exit(void* this_fn, void* call_site) {
+__cyg_profile_func_exit(void *this_fn, void *call_site) {
     pthread_once(&s_once, init_once);
-    ThreadStack* ptr = getThreadStack();
+    ThreadStack *ptr = getThreadStack();
 
     if (ptr->overflow == 0 && ptr->current > 0) {
         ptr->current--;
@@ -134,7 +134,7 @@ __cyg_profile_func_exit(void* this_fn, void* call_site) {
 
     #endif
 
-std::string CallStack::basename(const std::string& path) {
+std::string CallStack::basename(const std::string &path) {
     size_t found = path.find_last_of("/\\");
 
     if (std::string::npos != found) {
@@ -144,13 +144,13 @@ std::string CallStack::basename(const std::string& path) {
     }
 }
 
-std::vector<void*> CallStack::backtrace() {
+std::vector<void *> CallStack::backtrace() {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    std::vector<void*> callstack;
+    std::vector<void *> callstack;
     callstack.reserve(MAX_STACK_FRAMES);
 
     pthread_once(&s_once, init_once);
-    ThreadStack* ptr = getThreadStack();
+    ThreadStack *ptr = getThreadStack();
     for (int i = ptr->current - 1; i >= 0; i--) {
         callstack.push_back(ptr->stack[i]);
     }
@@ -158,10 +158,10 @@ std::vector<void*> CallStack::backtrace() {
     return callstack;
 
     #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    std::vector<void*> callstack;
+    std::vector<void *> callstack;
     callstack.reserve(MAX_STACK_FRAMES);
 
-    void* array[MAX_STACK_FRAMES];
+    void *array[MAX_STACK_FRAMES];
     int   count = ::backtrace(array, MAX_STACK_FRAMES);
     for (auto i = 0; i < count; i++) {
         callstack.push_back(array[i]);
@@ -169,10 +169,10 @@ std::vector<void*> CallStack::backtrace() {
     return callstack;
 
     #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
-    std::vector<void*> callstack;
+    std::vector<void *> callstack;
     callstack.reserve(MAX_STACK_FRAMES);
 
-    void* array[MAX_STACK_FRAMES];
+    void *array[MAX_STACK_FRAMES];
     int   count = CaptureStackBackTrace(0, MAX_STACK_FRAMES, array, NULL);
     for (auto i = 0; i < count; i++) {
         callstack.push_back(array[i]);
@@ -184,7 +184,7 @@ std::vector<void*> CallStack::backtrace() {
     #endif
 }
 
-std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void*>& callstack) {
+std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void *> &callstack) {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
     std::vector<StackFrame> frames;
     size_t                  size = callstack.size();
@@ -197,7 +197,7 @@ std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void*>& ca
             }
 
             if (info.dli_sname && strlen(info.dli_sname) > 0) {
-                char* real_name = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, nullptr);
+                char *real_name = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, nullptr);
                 if (real_name) {
                     frame.function = real_name;
                     free(real_name);
@@ -218,7 +218,7 @@ std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void*>& ca
     }
 
     std::vector<StackFrame> frames;
-    char**                  strs = ::backtrace_symbols(&callstack[0], size);
+    char **                 strs = ::backtrace_symbols(&callstack[0], size);
     for (size_t i = 0; i < size; i++) {
         StackFrame frame;
         frame.file = strs[i];

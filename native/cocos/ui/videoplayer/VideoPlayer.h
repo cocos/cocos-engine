@@ -30,7 +30,7 @@
 #include <map>
 #include <string>
 #include "base/Macros.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
@@ -50,7 +50,7 @@ namespace cc {
  * It's mean VideoPlayer displays a video file above all graphical elements of cocos2d-x.
  * @js NA
  */
-class VideoPlayer : public Ref {
+class VideoPlayer : public RefCounted {
 public:
     /**
      * Videoplayer play event type.
@@ -153,7 +153,6 @@ public:
 protected:
     ~VideoPlayer() override;
 
-protected:
     enum class Source {
         FILENAME = 0,
         URL

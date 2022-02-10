@@ -27,12 +27,12 @@
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    #include "cocos/application/ApplicationManager.h"
-    #include "cocos/platform/interfaces/modules/ISystemWindow.h"
-#endif
+#include "cocos/application/ApplicationManager.h"
+#include "cocos/platform/interfaces/modules/ISystemWindow.h"
+
 namespace {
 se::Value                 tickVal;
+se::ValueArray            tickArgsValArr(1);
 std::vector<se::Object *> jsTouchObjPool;
 se::Object *              jsTouchObjArray       = nullptr;
 se::Object *              jsMouseEventObj       = nullptr;
@@ -243,11 +243,12 @@ void EventDispatcher::dispatchTickEvent(float /*dt*/) {
     static std::chrono::steady_clock::time_point prevTime;
     prevTime = std::chrono::steady_clock::now();
 
-    se::ValueArray args;
-    int64_t        milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
-    args.emplace_back(se::Value(static_cast<double>(milliSeconds)));
+    int64_t milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
+    tickArgsValArr[0].setDouble(static_cast<double>(milliSeconds));
 
-    tickVal.toObject()->call(args, nullptr);
+    if (!tickVal.isUndefined()) {
+        tickVal.toObject()->call(tickArgsValArr, nullptr);
+    }
 }
 
 void EventDispatcher::dispatchResizeEvent(int width, int height) {
@@ -324,10 +325,9 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
     if (eventName) {
         CustomEvent event;
         event.name = eventName;
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
         CCASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr, "System window interface does not exist");
         event.args->ptrVal = reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler());
-#endif
+
         EventDispatcher::dispatchCustomEvent(event);
     }
 

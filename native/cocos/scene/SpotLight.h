@@ -25,86 +25,97 @@
 
 #pragma once
 
-#include "scene/AABB.h"
-#include "scene/Frustum.h"
+#include "core/geometry/AABB.h"
+#include "core/geometry/Frustum.h"
 #include "scene/Light.h"
 
 namespace cc {
 namespace scene {
 
-class SpotLight : public Light {
+class SpotLight final : public Light {
 public:
-    SpotLight()                  = default;
-    SpotLight(const SpotLight &) = delete;
-    SpotLight(SpotLight &&)      = delete;
-    ~SpotLight() override        = default;
-    SpotLight &operator=(const SpotLight &) = delete;
-    SpotLight &operator=(SpotLight &&) = delete;
+    SpotLight();
+    ~SpotLight() override;
 
+    void initialize() override;
     void update() override;
 
-    inline void setAABB(AABB *aabb) { _aabb = aabb; }
-    inline void setAngle(float angle) {
-        _spotAngle  = angle;
-        _angle      = acos(_spotAngle) * 2;
-        _needUpdate = true;
-    }
-    inline void setAspect(float aspect) {
-        _aspect     = aspect;
-        _needUpdate = true;
-    }
-    inline void setDirection(const Vec3 &dir) { _dir = dir; }
-    inline void setFrustum(Frustum frustum) { _frustum = std::move(frustum); }
-    inline void setLuminanceHDR(float illu) { _luminanceHDR = illu; }
-    inline void setLuminanceLDR(float illu) { _luminanceLDR = illu; }
-    inline void setNeedUpdate(bool value) { _needUpdate = value; }
-    inline void setRange(float range) {
+    inline const Vec3 &getPosition() const { return _pos; }
+
+    inline float getSize() const { return _size; }
+    inline void  setSize(float size) { _size = size; }
+
+    inline float getRange() const { return _range; }
+    inline void  setRange(float range) {
         _range      = range;
         _needUpdate = true;
     }
-    inline void setPosition(const Vec3 &pos) { _pos = pos; }
-    inline void setSize(float size) { _size = size; }
-    inline void setShadowEnabled(bool enabled) { _shadowEnabled = enabled; }
-    inline void setShadowPcf(float pcf) { _shadowPcf = pcf; }
-    inline void setShadowBias(float bias) { _shadowBias = bias; }
-    inline void setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
 
-    inline AABB *         getAABB() const { return _aabb; }
-    inline float          getAngle() const { return _angle; }
-    inline float          getSpotAngle() const { return _spotAngle; }
-    inline float          getAspect() const { return _aspect; }
-    inline const Vec3 &   getDirection() const { return _dir; }
-    inline const Frustum &getFrustum() const { return _frustum; }
-    inline float          getLuminanceHDR() const { return _luminanceHDR; }
-    inline float          getLuminanceLDR() const { return _luminanceLDR; }
-    inline bool           getNeedUpdate() const { return _needUpdate; }
-    inline float          getRange() const { return _range; }
-    inline const Vec3 &   getPosition() const { return _pos; }
-    inline float          getSize() const { return _size; }
-    inline bool           getShadowEnabled() const { return _shadowEnabled; }
-    inline float          getShadowPcf() const { return _shadowPcf; }
-    inline float          getShadowBias() const { return _shadowBias; }
-    inline float          getShadowNormalBias() const { return _shadowNormalBias; }
+    inline void setLuminanceHDR(float value) { _luminanceHDR = value; }
+    inline void setLuminanceLDR(float value) { _luminanceLDR = value; }
+
+    float getLuminance() const;
+    void  setLuminance(float value);
+
+    inline const Vec3 &getDirection() const { return _dir; }
+
+    inline float getSpotAngle() const { return _spotAngle; }
+    inline void  setSpotAngle(float val) {
+        _angle      = val;
+        _spotAngle  = cos(val * 0.5F);
+        _needUpdate = true;
+    }
+
+    inline float getAngle() const { return _angle; }
+
+    inline float getAspect() const { return _aspect; }
+    inline void  setAspect(float aspect) {
+        _aspect     = aspect;
+        _needUpdate = true;
+    }
+
+    inline const geometry::AABB &getAABB() const { return *_aabb; }
+
+    inline const geometry::Frustum &getFrustum() const { return *_frustum; }
+    inline float                    getLuminanceHDR() const { return _luminanceHDR; }
+    inline float                    getLuminanceLDR() const { return _luminanceLDR; }
+
+    inline void setFrustum(const geometry::Frustum &frustum) { *_frustum = frustum; }
+
+    inline void setShadowEnabled(bool enabled) { _shadowEnabled = enabled; }
+    inline bool getShadowEnabled() const { return _shadowEnabled; }
+
+    inline float getShadowPcf() const { return _shadowPcf; }
+    inline void  setShadowPcf(float pcf) { _shadowPcf = pcf; }
+
+    inline void  setShadowBias(float bias) { _shadowBias = bias; }
+    inline float getShadowBias() const { return _shadowBias; }
+
+    inline void  setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
+    inline float getShadowNormalBias() const { return _shadowNormalBias; }
 
 private:
-    bool    _needUpdate{false};
-    float   _luminanceHDR{0.F};
-    float   _luminanceLDR{0.F};
-    float   _range{0.F};
-    float   _size{0.F};
-    float   _angle{0.F};
-    float   _spotAngle{0.F};
-    float   _aspect{0.F};
-    Vec3    _dir;
-    Vec3    _pos;
-    AABB *  _aabb{nullptr};
-    Frustum _frustum;
+    bool               _needUpdate{false};
+    float              _luminanceHDR{0.F};
+    float              _luminanceLDR{0.F};
+    float              _range{0.F};
+    float              _size{0.F};
+    float              _angle{0.F};
+    float              _spotAngle{0.F};
+    float              _aspect{0.F};
+    Vec3               _dir;
+    Vec3               _pos;
+    geometry::AABB *   _aabb{nullptr};
+    geometry::Frustum *_frustum{nullptr};
 
     // shadow info
-    bool  _shadowEnabled{false};
-    float _shadowPcf{0.0F};
-    float _shadowBias{0.0F};
+    bool _shadowEnabled{false};
+    // TODO(minggo): use PCTFType instead.
+    float _shadowPcf{0.F};
+    float _shadowBias{0.00001F};
     float _shadowNormalBias{0.0F};
+
+    CC_DISALLOW_COPY_MOVE_ASSIGN(SpotLight);
 };
 
 } // namespace scene

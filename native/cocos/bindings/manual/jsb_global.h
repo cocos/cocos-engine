@@ -26,6 +26,7 @@
 #pragma once
 
 #include "base/CoreStd.h"
+#include "bindings/jswrapper/PrivateObject.h"
 #include "jsb_global_init.h"
 
 template <typename T, class... Args>
@@ -56,9 +57,22 @@ jsb_override_delete(T *arg) { //NOLINT(readability-identifier-naming)
     delete (arg);
 }
 
-#define JSB_ALLOC(kls, ...) jsb_override_new<kls>(__VA_ARGS__)
-#define JSB_FREE(kls)       jsb_override_delete(kls)
+template <typename T, typename... ARGS>
+typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, se::PrivateObjectBase *>::type
+jsb_make_private_object(ARGS &&...args) { //NOLINT(readability-identifier-naming)
+    //return se::raw_private_data(new T(std::forward<ARGS>(args)...));
+    return se::ccshared_private_object(new T(std::forward<ARGS>(args)...));
+}
 
+template <typename T, typename... ARGS>
+typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, se::PrivateObjectBase *>::type
+jsb_make_private_object(ARGS &&...args) { //NOLINT(readability-identifier-naming)
+    return se::shared_private_object(std::make_shared<T>(std::forward<ARGS>(args)...));
+}
+
+#define JSB_MAKE_PRIVATE_OBJECT(kls, ...) jsb_make_private_object<kls>(__VA_ARGS__)
+#define JSB_ALLOC(kls, ...)               jsb_override_new<kls>(__VA_ARGS__)
+#define JSB_FREE(kls)                     jsb_override_delete(kls)
 namespace se {
 class Class;
 class Value;

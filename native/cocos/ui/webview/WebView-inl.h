@@ -52,7 +52,6 @@ WebView::~WebView() {
 WebView *WebView::create() {
     auto webView = new (std::nothrow) WebView();
     if (webView) {
-        webView->autorelease();
         return webView;
     }
     CC_SAFE_DELETE(webView);

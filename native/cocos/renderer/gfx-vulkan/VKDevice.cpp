@@ -90,7 +90,7 @@ CCVKDevice::~CCVKDevice() {
 bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _gpuContext = CC_NEW(CCVKGPUContext);
     if (!_gpuContext->initialize()) {
-        CC_SAFE_DESTROY(_gpuContext)
+        CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
         return false;
     }
 
@@ -454,13 +454,13 @@ void CCVKDevice::doDestroy() {
     SPIRVUtils::getInstance()->destroy();
 
     for (CCVKTexture *texture : _depthStencilTextures) {
-        CC_SAFE_DESTROY(texture)
+        CC_SAFE_DESTROY_AND_DELETE(texture)
     }
     _depthStencilTextures.clear();
 
-    CC_SAFE_DESTROY(_queryPool)
-    CC_SAFE_DESTROY(_queue)
-    CC_SAFE_DESTROY(_cmdBuff)
+    CC_SAFE_DESTROY_AND_DELETE(_queryPool)
+    CC_SAFE_DESTROY_AND_DELETE(_queue)
+    CC_SAFE_DESTROY_AND_DELETE(_cmdBuff)
 
     CC_SAFE_DELETE(_gpuBufferHub)
     CC_SAFE_DELETE(_gpuTransportHub)
@@ -530,7 +530,7 @@ void CCVKDevice::doDestroy() {
         _gpuDevice = nullptr;
     }
 
-    CC_SAFE_DESTROY(_gpuContext)
+    CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
 }
 
 namespace {

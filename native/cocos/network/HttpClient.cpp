@@ -102,6 +102,7 @@ void HttpClient::networkThread() {
 
         // Create a HttpResponse object, the default setting is http access failed
         HttpResponse *response = new (std::nothrow) HttpResponse(request);
+        response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
 
         processResponse(response, _responseMessage);
 
@@ -395,7 +396,7 @@ void HttpClient::send(HttpRequest *request) {
         return;
     }
 
-    request->retain();
+    request->addRef();
 
     _requestQueueMutex.lock();
     _requestQueue.pushBack(request);
@@ -410,9 +411,10 @@ void HttpClient::sendImmediate(HttpRequest *request) {
         return;
     }
 
-    request->retain();
+    request->addRef();
     // Create a HttpResponse object, the default setting is http access failed
     HttpResponse *response = new (std::nothrow) HttpResponse(request);
+    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
 
     auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
     t.detach();

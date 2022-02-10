@@ -306,8 +306,8 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     CCASSERT(imageCount == _gpuSwapchain->createInfo.minImageCount, "swapchain image count assumption is broken");
 
     // should skip size check, since the old swapchain has already been destroyed
-    static_cast<CCVKTexture *>(_colorTexture)->_info.width        = 1;
-    static_cast<CCVKTexture *>(_depthStencilTexture)->_info.width = 1;
+    static_cast<CCVKTexture *>(_colorTexture.get())->_info.width        = 1;
+    static_cast<CCVKTexture *>(_depthStencilTexture.get())->_info.width = 1;
     _colorTexture->resize(newWidth, newHeight);
     _depthStencilTexture->resize(newWidth, newHeight);
 
@@ -322,8 +322,8 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     tempBarrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
     VkPipelineStageFlags tempSrcStageMask       = 0;
     VkPipelineStageFlags tempDstStageMask       = 0;
-    auto *               colorGPUTexture        = static_cast<CCVKTexture *>(_colorTexture)->gpuTexture();
-    auto *               depthStencilGPUTexture = static_cast<CCVKTexture *>(_depthStencilTexture)->gpuTexture();
+    auto *               colorGPUTexture        = static_cast<CCVKTexture *>(_colorTexture.get())->gpuTexture();
+    auto *               depthStencilGPUTexture = static_cast<CCVKTexture *>(_depthStencilTexture.get())->gpuTexture();
     for (uint32_t i = 0U; i < imageCount; i++) {
         tempBarrier.nextAccessCount             = 1;
         tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::PRESENT)];

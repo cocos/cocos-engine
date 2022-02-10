@@ -41,7 +41,7 @@ void SharedBufferManager::afterCleanupHandle() {
         delete _buffer;
         _buffer = nullptr;
     }
-    se::ScriptEngine::getInstance()->addAfterInitHook(std::bind(&SharedBufferManager::init, this));
+    se::ScriptEngine::getInstance()->addAfterInitHook([this] { init(); });
 }
 
 void SharedBufferManager::init() {
@@ -53,7 +53,7 @@ void SharedBufferManager::init() {
             }
         });
     }
-    se::ScriptEngine::getInstance()->addAfterCleanupHook(std::bind(&SharedBufferManager::afterCleanupHandle, this));
+    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
 }
 
 MIDDLEWARE_END

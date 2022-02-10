@@ -40,7 +40,7 @@ namespace physics {
 PhysXRigidBody::PhysXRigidBody() : _mEnabled(false),
                                    _mGroup(1) {}
 
-void PhysXRigidBody::initialize(scene::Node *node, ERigidBodyType t, uint32_t g) {
+void PhysXRigidBody::initialize(Node *node, ERigidBodyType t, uint32_t g) {
     _mGroup         = g;
     PhysXWorld &ins = PhysXWorld::getInstance();
     _mSharedBody    = ins.getSharedBody(node, this);

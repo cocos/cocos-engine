@@ -97,7 +97,7 @@ void CCMTLBuffer::doInit(const BufferViewInfo &info) {
 
 bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     if(!size) {
-        return;
+        return false;
     }
     
     _mtlResourceOptions = mu::toMTLResourceOption(usage);
@@ -190,17 +190,18 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
         return;
     }
 
-    uint drawInfoCount = size / _stride;
-    const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
-    if (drawInfoCount > 0) {
-        if (drawInfo->indexCount) {
-            _isDrawIndirectByIndex = true;
-        } else {
-            _isDrawIndirectByIndex = false;
-        }
-    }
+    _isDrawIndirectByIndex = false;
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
+
+        uint drawInfoCount = size / _stride;
+        const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
+        if (drawInfoCount > 0) {
+            if (drawInfo->indexCount) {
+                _isDrawIndirectByIndex = true;
+            }
+        }
+
         if (_isIndirectDrawSupported) {
             if (drawInfoCount > 0) {
                 if (_isDrawIndirectByIndex) {
@@ -217,7 +218,7 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
                     }
                     updateMTLBuffer(_indexedPrimitivesIndirectArguments.data(), 0, drawInfoCount * stride);
                 } else {
-                    uint stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
+                    uint stride = sizeof(MTLDrawPrimitivesIndirectArguments);
 
                     for (uint i = 0; i < drawInfoCount; ++i) {
                         auto &arguments = _primitiveIndirectArguments[i];

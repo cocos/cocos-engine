@@ -30,7 +30,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "base/Utils.h"
 
 #define MAX_AUDIOINSTANCES 13
@@ -46,7 +46,7 @@ class AudioPlayerProvider;
 
 class AudioEngineImpl;
 
-class AudioEngineImpl : public cc::Ref {
+class AudioEngineImpl : public RefCounted {
 public:
     AudioEngineImpl();
     ~AudioEngineImpl() override;

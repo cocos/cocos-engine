@@ -1,28 +1,4 @@
-/****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
-
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-****************************************************************************/
-
+// clang-format off
 #pragma once
 #include "base/Config.h"
 #include <type_traits>
@@ -30,26 +6,83 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
 
-extern se::Object* __jsb_spine_Animation_proto;
-extern se::Class* __jsb_spine_Animation_class;
-
-bool js_register_spine_Animation(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool register_all_spine(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(spine::Animation);
+JSB_REGISTER_OBJECT_TYPE(spine::TrackEntry);
+JSB_REGISTER_OBJECT_TYPE(spine::AnimationState);
+JSB_REGISTER_OBJECT_TYPE(spine::AnimationStateData);
+JSB_REGISTER_OBJECT_TYPE(spine::Attachment);
+JSB_REGISTER_OBJECT_TYPE(spine::Timeline);
+JSB_REGISTER_OBJECT_TYPE(spine::AttachmentTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::Bone);
+JSB_REGISTER_OBJECT_TYPE(spine::BoneData);
+JSB_REGISTER_OBJECT_TYPE(spine::VertexAttachment);
+JSB_REGISTER_OBJECT_TYPE(spine::BoundingBoxAttachment);
+JSB_REGISTER_OBJECT_TYPE(spine::ClippingAttachment);
+JSB_REGISTER_OBJECT_TYPE(spine::Color);
+JSB_REGISTER_OBJECT_TYPE(spine::CurveTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::ColorTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::ConstraintData);
+JSB_REGISTER_OBJECT_TYPE(spine::DeformTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::DrawOrderTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::Event);
+JSB_REGISTER_OBJECT_TYPE(spine::EventData);
+JSB_REGISTER_OBJECT_TYPE(spine::EventTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::IkConstraint);
+JSB_REGISTER_OBJECT_TYPE(spine::IkConstraintData);
+JSB_REGISTER_OBJECT_TYPE(spine::IkConstraintTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::MeshAttachment);
+JSB_REGISTER_OBJECT_TYPE(spine::PathAttachment);
+JSB_REGISTER_OBJECT_TYPE(spine::PathConstraint);
+JSB_REGISTER_OBJECT_TYPE(spine::PathConstraintData);
+JSB_REGISTER_OBJECT_TYPE(spine::PathConstraintMixTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::PathConstraintPositionTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::PathConstraintSpacingTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::PointAttachment);
+JSB_REGISTER_OBJECT_TYPE(spine::RegionAttachment);
+JSB_REGISTER_OBJECT_TYPE(spine::RotateTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::TranslateTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::ScaleTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::ShearTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::Skeleton);
+JSB_REGISTER_OBJECT_TYPE(spine::SkeletonBounds);
+JSB_REGISTER_OBJECT_TYPE(spine::Polygon);
+JSB_REGISTER_OBJECT_TYPE(spine::SkeletonData);
+JSB_REGISTER_OBJECT_TYPE(spine::Skin);
+JSB_REGISTER_OBJECT_TYPE(spine::Slot);
+JSB_REGISTER_OBJECT_TYPE(spine::SlotData);
+JSB_REGISTER_OBJECT_TYPE(spine::TransformConstraint);
+JSB_REGISTER_OBJECT_TYPE(spine::TransformConstraintData);
+JSB_REGISTER_OBJECT_TYPE(spine::TransformConstraintTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::TwoColorTimeline);
+JSB_REGISTER_OBJECT_TYPE(spine::VertexEffect);
+JSB_REGISTER_OBJECT_TYPE(spine::JitterVertexEffect);
+JSB_REGISTER_OBJECT_TYPE(spine::SwirlVertexEffect);
+JSB_REGISTER_OBJECT_TYPE(spine::VertexEffectDelegate);
+JSB_REGISTER_OBJECT_TYPE(spine::SkeletonRenderer);
+JSB_REGISTER_OBJECT_TYPE(spine::SkeletonAnimation);
+JSB_REGISTER_OBJECT_TYPE(spine::SkeletonCacheAnimation);
+JSB_REGISTER_OBJECT_TYPE(spine::SkeletonCacheMgr);
+JSB_REGISTER_OBJECT_TYPE(spine::SkeletonDataMgr);
+
+
+extern se::Object *__jsb_spine_Animation_proto; // NOLINT
+extern se::Class * __jsb_spine_Animation_class; // NOLINT
+
+bool js_register_spine_Animation(se::Object *obj); // NOLINT
+
 SE_DECLARE_FUNC(js_spine_Animation_getDuration);
 SE_DECLARE_FUNC(js_spine_Animation_getName);
 SE_DECLARE_FUNC(js_spine_Animation_getTimelines);
 SE_DECLARE_FUNC(js_spine_Animation_hasTimeline);
 SE_DECLARE_FUNC(js_spine_Animation_setDuration);
 
-extern se::Object* __jsb_spine_TrackEntry_proto;
-extern se::Class* __jsb_spine_TrackEntry_class;
+extern se::Object *__jsb_spine_TrackEntry_proto; // NOLINT
+extern se::Class * __jsb_spine_TrackEntry_class; // NOLINT
 
-bool js_register_spine_TrackEntry(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_TrackEntry(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::TrackEntry);
 SE_DECLARE_FUNC(js_spine_TrackEntry_getAlpha);
 SE_DECLARE_FUNC(js_spine_TrackEntry_getAnimation);
 SE_DECLARE_FUNC(js_spine_TrackEntry_getAnimationEnd);
@@ -91,13 +124,11 @@ SE_DECLARE_FUNC(js_spine_TrackEntry_setTimeScale);
 SE_DECLARE_FUNC(js_spine_TrackEntry_setTrackEnd);
 SE_DECLARE_FUNC(js_spine_TrackEntry_setTrackTime);
 
-extern se::Object* __jsb_spine_AnimationState_proto;
-extern se::Class* __jsb_spine_AnimationState_class;
+extern se::Object *__jsb_spine_AnimationState_proto; // NOLINT
+extern se::Class * __jsb_spine_AnimationState_class; // NOLINT
 
-bool js_register_spine_AnimationState(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_AnimationState(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::AnimationState);
 SE_DECLARE_FUNC(js_spine_AnimationState_addAnimation);
 SE_DECLARE_FUNC(js_spine_AnimationState_addEmptyAnimation);
 SE_DECLARE_FUNC(js_spine_AnimationState_clearTrack);
@@ -114,48 +145,40 @@ SE_DECLARE_FUNC(js_spine_AnimationState_setEmptyAnimations);
 SE_DECLARE_FUNC(js_spine_AnimationState_setTimeScale);
 SE_DECLARE_FUNC(js_spine_AnimationState_update);
 
-extern se::Object* __jsb_spine_AnimationStateData_proto;
-extern se::Class* __jsb_spine_AnimationStateData_class;
+extern se::Object *__jsb_spine_AnimationStateData_proto; // NOLINT
+extern se::Class * __jsb_spine_AnimationStateData_class; // NOLINT
 
-bool js_register_spine_AnimationStateData(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_AnimationStateData(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::AnimationStateData);
 SE_DECLARE_FUNC(js_spine_AnimationStateData_getDefaultMix);
 SE_DECLARE_FUNC(js_spine_AnimationStateData_getMix);
 SE_DECLARE_FUNC(js_spine_AnimationStateData_getSkeletonData);
 SE_DECLARE_FUNC(js_spine_AnimationStateData_setDefaultMix);
 SE_DECLARE_FUNC(js_spine_AnimationStateData_setMix);
 
-extern se::Object* __jsb_spine_Attachment_proto;
-extern se::Class* __jsb_spine_Attachment_class;
+extern se::Object *__jsb_spine_Attachment_proto; // NOLINT
+extern se::Class * __jsb_spine_Attachment_class; // NOLINT
 
-bool js_register_spine_Attachment(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_Attachment(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::Attachment);
 SE_DECLARE_FUNC(js_spine_Attachment_copy);
 SE_DECLARE_FUNC(js_spine_Attachment_dereference);
 SE_DECLARE_FUNC(js_spine_Attachment_getName);
 SE_DECLARE_FUNC(js_spine_Attachment_getRefCount);
 SE_DECLARE_FUNC(js_spine_Attachment_reference);
 
-extern se::Object* __jsb_spine_Timeline_proto;
-extern se::Class* __jsb_spine_Timeline_class;
+extern se::Object *__jsb_spine_Timeline_proto; // NOLINT
+extern se::Class * __jsb_spine_Timeline_class; // NOLINT
 
-bool js_register_spine_Timeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_Timeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::Timeline);
 SE_DECLARE_FUNC(js_spine_Timeline_getPropertyId);
 
-extern se::Object* __jsb_spine_AttachmentTimeline_proto;
-extern se::Class* __jsb_spine_AttachmentTimeline_class;
+extern se::Object *__jsb_spine_AttachmentTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_AttachmentTimeline_class; // NOLINT
 
-bool js_register_spine_AttachmentTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_AttachmentTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::AttachmentTimeline);
 SE_DECLARE_FUNC(js_spine_AttachmentTimeline_getAttachmentNames);
 SE_DECLARE_FUNC(js_spine_AttachmentTimeline_getFrameCount);
 SE_DECLARE_FUNC(js_spine_AttachmentTimeline_getFrames);
@@ -164,13 +187,11 @@ SE_DECLARE_FUNC(js_spine_AttachmentTimeline_getSlotIndex);
 SE_DECLARE_FUNC(js_spine_AttachmentTimeline_setFrame);
 SE_DECLARE_FUNC(js_spine_AttachmentTimeline_setSlotIndex);
 
-extern se::Object* __jsb_spine_Bone_proto;
-extern se::Class* __jsb_spine_Bone_class;
+extern se::Object *__jsb_spine_Bone_proto; // NOLINT
+extern se::Class * __jsb_spine_Bone_class; // NOLINT
 
-bool js_register_spine_Bone(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_Bone(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::Bone);
 SE_DECLARE_FUNC(js_spine_Bone_getA);
 SE_DECLARE_FUNC(js_spine_Bone_getAScaleX);
 SE_DECLARE_FUNC(js_spine_Bone_getAScaleY);
@@ -229,16 +250,14 @@ SE_DECLARE_FUNC(js_spine_Bone_setX);
 SE_DECLARE_FUNC(js_spine_Bone_setY);
 SE_DECLARE_FUNC(js_spine_Bone_update);
 SE_DECLARE_FUNC(js_spine_Bone_updateWorldTransform);
-SE_DECLARE_FUNC(js_spine_Bone_setYDown);
 SE_DECLARE_FUNC(js_spine_Bone_isYDown);
+SE_DECLARE_FUNC(js_spine_Bone_setYDown);
 
-extern se::Object* __jsb_spine_BoneData_proto;
-extern se::Class* __jsb_spine_BoneData_class;
+extern se::Object *__jsb_spine_BoneData_proto; // NOLINT
+extern se::Class * __jsb_spine_BoneData_class; // NOLINT
 
-bool js_register_spine_BoneData(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_BoneData(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::BoneData);
 SE_DECLARE_FUNC(js_spine_BoneData_getIndex);
 SE_DECLARE_FUNC(js_spine_BoneData_getLength);
 SE_DECLARE_FUNC(js_spine_BoneData_getName);
@@ -263,13 +282,11 @@ SE_DECLARE_FUNC(js_spine_BoneData_setTransformMode);
 SE_DECLARE_FUNC(js_spine_BoneData_setX);
 SE_DECLARE_FUNC(js_spine_BoneData_setY);
 
-extern se::Object* __jsb_spine_VertexAttachment_proto;
-extern se::Class* __jsb_spine_VertexAttachment_class;
+extern se::Object *__jsb_spine_VertexAttachment_proto; // NOLINT
+extern se::Class * __jsb_spine_VertexAttachment_class; // NOLINT
 
-bool js_register_spine_VertexAttachment(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_VertexAttachment(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::VertexAttachment);
 SE_DECLARE_FUNC(js_spine_VertexAttachment_copyTo);
 SE_DECLARE_FUNC(js_spine_VertexAttachment_getDeformAttachment);
 SE_DECLARE_FUNC(js_spine_VertexAttachment_getId);
@@ -278,42 +295,34 @@ SE_DECLARE_FUNC(js_spine_VertexAttachment_getWorldVerticesLength);
 SE_DECLARE_FUNC(js_spine_VertexAttachment_setDeformAttachment);
 SE_DECLARE_FUNC(js_spine_VertexAttachment_setWorldVerticesLength);
 
-extern se::Object* __jsb_spine_BoundingBoxAttachment_proto;
-extern se::Class* __jsb_spine_BoundingBoxAttachment_class;
+extern se::Object *__jsb_spine_BoundingBoxAttachment_proto; // NOLINT
+extern se::Class * __jsb_spine_BoundingBoxAttachment_class; // NOLINT
 
-bool js_register_spine_BoundingBoxAttachment(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_BoundingBoxAttachment(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::BoundingBoxAttachment);
 SE_DECLARE_FUNC(js_spine_BoundingBoxAttachment_copy);
 
-extern se::Object* __jsb_spine_ClippingAttachment_proto;
-extern se::Class* __jsb_spine_ClippingAttachment_class;
+extern se::Object *__jsb_spine_ClippingAttachment_proto; // NOLINT
+extern se::Class * __jsb_spine_ClippingAttachment_class; // NOLINT
 
-bool js_register_spine_ClippingAttachment(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_ClippingAttachment(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::ClippingAttachment);
 SE_DECLARE_FUNC(js_spine_ClippingAttachment_copy);
 SE_DECLARE_FUNC(js_spine_ClippingAttachment_getEndSlot);
 SE_DECLARE_FUNC(js_spine_ClippingAttachment_setEndSlot);
 
-extern se::Object* __jsb_spine_Color_proto;
-extern se::Class* __jsb_spine_Color_class;
+extern se::Object *__jsb_spine_Color_proto; // NOLINT
+extern se::Class * __jsb_spine_Color_class; // NOLINT
 
-bool js_register_spine_Color(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_Color(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::Color);
 SE_DECLARE_FUNC(js_spine_Color_clamp);
 
-extern se::Object* __jsb_spine_CurveTimeline_proto;
-extern se::Class* __jsb_spine_CurveTimeline_class;
+extern se::Object *__jsb_spine_CurveTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_CurveTimeline_class; // NOLINT
 
-bool js_register_spine_CurveTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_CurveTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::CurveTimeline);
 SE_DECLARE_FUNC(js_spine_CurveTimeline_getCurvePercent);
 SE_DECLARE_FUNC(js_spine_CurveTimeline_getCurveType);
 SE_DECLARE_FUNC(js_spine_CurveTimeline_getFrameCount);
@@ -322,39 +331,33 @@ SE_DECLARE_FUNC(js_spine_CurveTimeline_setCurve);
 SE_DECLARE_FUNC(js_spine_CurveTimeline_setLinear);
 SE_DECLARE_FUNC(js_spine_CurveTimeline_setStepped);
 
-extern se::Object* __jsb_spine_ColorTimeline_proto;
-extern se::Class* __jsb_spine_ColorTimeline_class;
+extern se::Object *__jsb_spine_ColorTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_ColorTimeline_class; // NOLINT
 
-bool js_register_spine_ColorTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_ColorTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::ColorTimeline);
 SE_DECLARE_FUNC(js_spine_ColorTimeline_getFrames);
 SE_DECLARE_FUNC(js_spine_ColorTimeline_getPropertyId);
 SE_DECLARE_FUNC(js_spine_ColorTimeline_getSlotIndex);
 SE_DECLARE_FUNC(js_spine_ColorTimeline_setFrame);
 SE_DECLARE_FUNC(js_spine_ColorTimeline_setSlotIndex);
 
-extern se::Object* __jsb_spine_ConstraintData_proto;
-extern se::Class* __jsb_spine_ConstraintData_class;
+extern se::Object *__jsb_spine_ConstraintData_proto; // NOLINT
+extern se::Class * __jsb_spine_ConstraintData_class; // NOLINT
 
-bool js_register_spine_ConstraintData(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_ConstraintData(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::ConstraintData);
 SE_DECLARE_FUNC(js_spine_ConstraintData_getName);
 SE_DECLARE_FUNC(js_spine_ConstraintData_getOrder);
 SE_DECLARE_FUNC(js_spine_ConstraintData_isSkinRequired);
 SE_DECLARE_FUNC(js_spine_ConstraintData_setOrder);
 SE_DECLARE_FUNC(js_spine_ConstraintData_setSkinRequired);
 
-extern se::Object* __jsb_spine_DeformTimeline_proto;
-extern se::Class* __jsb_spine_DeformTimeline_class;
+extern se::Object *__jsb_spine_DeformTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_DeformTimeline_class; // NOLINT
 
-bool js_register_spine_DeformTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_DeformTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::DeformTimeline);
 SE_DECLARE_FUNC(js_spine_DeformTimeline_getAttachment);
 SE_DECLARE_FUNC(js_spine_DeformTimeline_getFrames);
 SE_DECLARE_FUNC(js_spine_DeformTimeline_getPropertyId);
@@ -362,24 +365,20 @@ SE_DECLARE_FUNC(js_spine_DeformTimeline_getSlotIndex);
 SE_DECLARE_FUNC(js_spine_DeformTimeline_setAttachment);
 SE_DECLARE_FUNC(js_spine_DeformTimeline_setSlotIndex);
 
-extern se::Object* __jsb_spine_DrawOrderTimeline_proto;
-extern se::Class* __jsb_spine_DrawOrderTimeline_class;
+extern se::Object *__jsb_spine_DrawOrderTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_DrawOrderTimeline_class; // NOLINT
 
-bool js_register_spine_DrawOrderTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_DrawOrderTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::DrawOrderTimeline);
 SE_DECLARE_FUNC(js_spine_DrawOrderTimeline_getFrameCount);
 SE_DECLARE_FUNC(js_spine_DrawOrderTimeline_getFrames);
 SE_DECLARE_FUNC(js_spine_DrawOrderTimeline_getPropertyId);
 
-extern se::Object* __jsb_spine_Event_proto;
-extern se::Class* __jsb_spine_Event_class;
+extern se::Object *__jsb_spine_Event_proto; // NOLINT
+extern se::Class * __jsb_spine_Event_class; // NOLINT
 
-bool js_register_spine_Event(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_Event(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::Event);
 SE_DECLARE_FUNC(js_spine_Event_getBalance);
 SE_DECLARE_FUNC(js_spine_Event_getData);
 SE_DECLARE_FUNC(js_spine_Event_getFloatValue);
@@ -393,13 +392,11 @@ SE_DECLARE_FUNC(js_spine_Event_setIntValue);
 SE_DECLARE_FUNC(js_spine_Event_setStringValue);
 SE_DECLARE_FUNC(js_spine_Event_setVolume);
 
-extern se::Object* __jsb_spine_EventData_proto;
-extern se::Class* __jsb_spine_EventData_class;
+extern se::Object *__jsb_spine_EventData_proto; // NOLINT
+extern se::Class * __jsb_spine_EventData_class; // NOLINT
 
-bool js_register_spine_EventData(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_EventData(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::EventData);
 SE_DECLARE_FUNC(js_spine_EventData_getAudioPath);
 SE_DECLARE_FUNC(js_spine_EventData_getBalance);
 SE_DECLARE_FUNC(js_spine_EventData_getFloatValue);
@@ -414,26 +411,22 @@ SE_DECLARE_FUNC(js_spine_EventData_setIntValue);
 SE_DECLARE_FUNC(js_spine_EventData_setStringValue);
 SE_DECLARE_FUNC(js_spine_EventData_setVolume);
 
-extern se::Object* __jsb_spine_EventTimeline_proto;
-extern se::Class* __jsb_spine_EventTimeline_class;
+extern se::Object *__jsb_spine_EventTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_EventTimeline_class; // NOLINT
 
-bool js_register_spine_EventTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_EventTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::EventTimeline);
 SE_DECLARE_FUNC(js_spine_EventTimeline_getEvents);
 SE_DECLARE_FUNC(js_spine_EventTimeline_getFrameCount);
 SE_DECLARE_FUNC(js_spine_EventTimeline_getFrames);
 SE_DECLARE_FUNC(js_spine_EventTimeline_getPropertyId);
 SE_DECLARE_FUNC(js_spine_EventTimeline_setFrame);
 
-extern se::Object* __jsb_spine_IkConstraint_proto;
-extern se::Class* __jsb_spine_IkConstraint_class;
+extern se::Object *__jsb_spine_IkConstraint_proto; // NOLINT
+extern se::Class * __jsb_spine_IkConstraint_class; // NOLINT
 
-bool js_register_spine_IkConstraint(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_IkConstraint(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::IkConstraint);
 SE_DECLARE_FUNC(js_spine_IkConstraint_getBendDirection);
 SE_DECLARE_FUNC(js_spine_IkConstraint_getBones);
 SE_DECLARE_FUNC(js_spine_IkConstraint_getCompress);
@@ -453,13 +446,11 @@ SE_DECLARE_FUNC(js_spine_IkConstraint_setStretch);
 SE_DECLARE_FUNC(js_spine_IkConstraint_setTarget);
 SE_DECLARE_FUNC(js_spine_IkConstraint_update);
 
-extern se::Object* __jsb_spine_IkConstraintData_proto;
-extern se::Class* __jsb_spine_IkConstraintData_class;
+extern se::Object *__jsb_spine_IkConstraintData_proto; // NOLINT
+extern se::Class * __jsb_spine_IkConstraintData_class; // NOLINT
 
-bool js_register_spine_IkConstraintData(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_IkConstraintData(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::IkConstraintData);
 SE_DECLARE_FUNC(js_spine_IkConstraintData_getBendDirection);
 SE_DECLARE_FUNC(js_spine_IkConstraintData_getBones);
 SE_DECLARE_FUNC(js_spine_IkConstraintData_getCompress);
@@ -476,23 +467,19 @@ SE_DECLARE_FUNC(js_spine_IkConstraintData_setStretch);
 SE_DECLARE_FUNC(js_spine_IkConstraintData_setTarget);
 SE_DECLARE_FUNC(js_spine_IkConstraintData_setUniform);
 
-extern se::Object* __jsb_spine_IkConstraintTimeline_proto;
-extern se::Class* __jsb_spine_IkConstraintTimeline_class;
+extern se::Object *__jsb_spine_IkConstraintTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_IkConstraintTimeline_class; // NOLINT
 
-bool js_register_spine_IkConstraintTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_IkConstraintTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::IkConstraintTimeline);
 SE_DECLARE_FUNC(js_spine_IkConstraintTimeline_getPropertyId);
 SE_DECLARE_FUNC(js_spine_IkConstraintTimeline_setFrame);
 
-extern se::Object* __jsb_spine_MeshAttachment_proto;
-extern se::Class* __jsb_spine_MeshAttachment_class;
+extern se::Object *__jsb_spine_MeshAttachment_proto; // NOLINT
+extern se::Class * __jsb_spine_MeshAttachment_class; // NOLINT
 
-bool js_register_spine_MeshAttachment(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_MeshAttachment(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::MeshAttachment);
 SE_DECLARE_FUNC(js_spine_MeshAttachment_copy);
 SE_DECLARE_FUNC(js_spine_MeshAttachment_getColor);
 SE_DECLARE_FUNC(js_spine_MeshAttachment_getEdges);
@@ -536,13 +523,11 @@ SE_DECLARE_FUNC(js_spine_MeshAttachment_setRegionWidth);
 SE_DECLARE_FUNC(js_spine_MeshAttachment_setWidth);
 SE_DECLARE_FUNC(js_spine_MeshAttachment_updateUVs);
 
-extern se::Object* __jsb_spine_PathAttachment_proto;
-extern se::Class* __jsb_spine_PathAttachment_class;
+extern se::Object *__jsb_spine_PathAttachment_proto; // NOLINT
+extern se::Class * __jsb_spine_PathAttachment_class; // NOLINT
 
-bool js_register_spine_PathAttachment(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_PathAttachment(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::PathAttachment);
 SE_DECLARE_FUNC(js_spine_PathAttachment_copy);
 SE_DECLARE_FUNC(js_spine_PathAttachment_getLengths);
 SE_DECLARE_FUNC(js_spine_PathAttachment_isClosed);
@@ -550,13 +535,11 @@ SE_DECLARE_FUNC(js_spine_PathAttachment_isConstantSpeed);
 SE_DECLARE_FUNC(js_spine_PathAttachment_setClosed);
 SE_DECLARE_FUNC(js_spine_PathAttachment_setConstantSpeed);
 
-extern se::Object* __jsb_spine_PathConstraint_proto;
-extern se::Class* __jsb_spine_PathConstraint_class;
+extern se::Object *__jsb_spine_PathConstraint_proto; // NOLINT
+extern se::Class * __jsb_spine_PathConstraint_class; // NOLINT
 
-bool js_register_spine_PathConstraint(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_PathConstraint(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::PathConstraint);
 SE_DECLARE_FUNC(js_spine_PathConstraint_apply);
 SE_DECLARE_FUNC(js_spine_PathConstraint_getBones);
 SE_DECLARE_FUNC(js_spine_PathConstraint_getData);
@@ -575,13 +558,11 @@ SE_DECLARE_FUNC(js_spine_PathConstraint_setTarget);
 SE_DECLARE_FUNC(js_spine_PathConstraint_setTranslateMix);
 SE_DECLARE_FUNC(js_spine_PathConstraint_update);
 
-extern se::Object* __jsb_spine_PathConstraintData_proto;
-extern se::Class* __jsb_spine_PathConstraintData_class;
+extern se::Object *__jsb_spine_PathConstraintData_proto; // NOLINT
+extern se::Class * __jsb_spine_PathConstraintData_class; // NOLINT
 
-bool js_register_spine_PathConstraintData(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_PathConstraintData(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::PathConstraintData);
 SE_DECLARE_FUNC(js_spine_PathConstraintData_getBones);
 SE_DECLARE_FUNC(js_spine_PathConstraintData_getOffsetRotation);
 SE_DECLARE_FUNC(js_spine_PathConstraintData_getPosition);
@@ -602,41 +583,33 @@ SE_DECLARE_FUNC(js_spine_PathConstraintData_setSpacingMode);
 SE_DECLARE_FUNC(js_spine_PathConstraintData_setTarget);
 SE_DECLARE_FUNC(js_spine_PathConstraintData_setTranslateMix);
 
-extern se::Object* __jsb_spine_PathConstraintMixTimeline_proto;
-extern se::Class* __jsb_spine_PathConstraintMixTimeline_class;
+extern se::Object *__jsb_spine_PathConstraintMixTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_PathConstraintMixTimeline_class; // NOLINT
 
-bool js_register_spine_PathConstraintMixTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_PathConstraintMixTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::PathConstraintMixTimeline);
 SE_DECLARE_FUNC(js_spine_PathConstraintMixTimeline_getPropertyId);
 
-extern se::Object* __jsb_spine_PathConstraintPositionTimeline_proto;
-extern se::Class* __jsb_spine_PathConstraintPositionTimeline_class;
+extern se::Object *__jsb_spine_PathConstraintPositionTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_PathConstraintPositionTimeline_class; // NOLINT
 
-bool js_register_spine_PathConstraintPositionTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_PathConstraintPositionTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::PathConstraintPositionTimeline);
 SE_DECLARE_FUNC(js_spine_PathConstraintPositionTimeline_getPropertyId);
 SE_DECLARE_FUNC(js_spine_PathConstraintPositionTimeline_setFrame);
 
-extern se::Object* __jsb_spine_PathConstraintSpacingTimeline_proto;
-extern se::Class* __jsb_spine_PathConstraintSpacingTimeline_class;
+extern se::Object *__jsb_spine_PathConstraintSpacingTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_PathConstraintSpacingTimeline_class; // NOLINT
 
-bool js_register_spine_PathConstraintSpacingTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_PathConstraintSpacingTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::PathConstraintSpacingTimeline);
 SE_DECLARE_FUNC(js_spine_PathConstraintSpacingTimeline_getPropertyId);
 
-extern se::Object* __jsb_spine_PointAttachment_proto;
-extern se::Class* __jsb_spine_PointAttachment_class;
+extern se::Object *__jsb_spine_PointAttachment_proto; // NOLINT
+extern se::Class * __jsb_spine_PointAttachment_class; // NOLINT
 
-bool js_register_spine_PointAttachment(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_PointAttachment(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::PointAttachment);
 SE_DECLARE_FUNC(js_spine_PointAttachment_copy);
 SE_DECLARE_FUNC(js_spine_PointAttachment_getRotation);
 SE_DECLARE_FUNC(js_spine_PointAttachment_getX);
@@ -645,13 +618,11 @@ SE_DECLARE_FUNC(js_spine_PointAttachment_setRotation);
 SE_DECLARE_FUNC(js_spine_PointAttachment_setX);
 SE_DECLARE_FUNC(js_spine_PointAttachment_setY);
 
-extern se::Object* __jsb_spine_RegionAttachment_proto;
-extern se::Class* __jsb_spine_RegionAttachment_class;
+extern se::Object *__jsb_spine_RegionAttachment_proto; // NOLINT
+extern se::Class * __jsb_spine_RegionAttachment_class; // NOLINT
 
-bool js_register_spine_RegionAttachment(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_RegionAttachment(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::RegionAttachment);
 SE_DECLARE_FUNC(js_spine_RegionAttachment_copy);
 SE_DECLARE_FUNC(js_spine_RegionAttachment_getColor);
 SE_DECLARE_FUNC(js_spine_RegionAttachment_getHeight);
@@ -687,54 +658,44 @@ SE_DECLARE_FUNC(js_spine_RegionAttachment_setX);
 SE_DECLARE_FUNC(js_spine_RegionAttachment_setY);
 SE_DECLARE_FUNC(js_spine_RegionAttachment_updateOffset);
 
-extern se::Object* __jsb_spine_RotateTimeline_proto;
-extern se::Class* __jsb_spine_RotateTimeline_class;
+extern se::Object *__jsb_spine_RotateTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_RotateTimeline_class; // NOLINT
 
-bool js_register_spine_RotateTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_RotateTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::RotateTimeline);
 SE_DECLARE_FUNC(js_spine_RotateTimeline_getBoneIndex);
 SE_DECLARE_FUNC(js_spine_RotateTimeline_getFrames);
 SE_DECLARE_FUNC(js_spine_RotateTimeline_getPropertyId);
 SE_DECLARE_FUNC(js_spine_RotateTimeline_setBoneIndex);
 SE_DECLARE_FUNC(js_spine_RotateTimeline_setFrame);
 
-extern se::Object* __jsb_spine_TranslateTimeline_proto;
-extern se::Class* __jsb_spine_TranslateTimeline_class;
+extern se::Object *__jsb_spine_TranslateTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_TranslateTimeline_class; // NOLINT
 
-bool js_register_spine_TranslateTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_TranslateTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::TranslateTimeline);
 SE_DECLARE_FUNC(js_spine_TranslateTimeline_getPropertyId);
 SE_DECLARE_FUNC(js_spine_TranslateTimeline_setFrame);
 
-extern se::Object* __jsb_spine_ScaleTimeline_proto;
-extern se::Class* __jsb_spine_ScaleTimeline_class;
+extern se::Object *__jsb_spine_ScaleTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_ScaleTimeline_class; // NOLINT
 
-bool js_register_spine_ScaleTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_ScaleTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::ScaleTimeline);
 SE_DECLARE_FUNC(js_spine_ScaleTimeline_getPropertyId);
 
-extern se::Object* __jsb_spine_ShearTimeline_proto;
-extern se::Class* __jsb_spine_ShearTimeline_class;
+extern se::Object *__jsb_spine_ShearTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_ShearTimeline_class; // NOLINT
 
-bool js_register_spine_ShearTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_ShearTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::ShearTimeline);
 SE_DECLARE_FUNC(js_spine_ShearTimeline_getPropertyId);
 
-extern se::Object* __jsb_spine_Skeleton_proto;
-extern se::Class* __jsb_spine_Skeleton_class;
+extern se::Object *__jsb_spine_Skeleton_proto; // NOLINT
+extern se::Class * __jsb_spine_Skeleton_class; // NOLINT
 
-bool js_register_spine_Skeleton(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_Skeleton(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::Skeleton);
 SE_DECLARE_FUNC(js_spine_Skeleton_findBone);
 SE_DECLARE_FUNC(js_spine_Skeleton_findBoneIndex);
 SE_DECLARE_FUNC(js_spine_Skeleton_findIkConstraint);
@@ -775,13 +736,11 @@ SE_DECLARE_FUNC(js_spine_Skeleton_update);
 SE_DECLARE_FUNC(js_spine_Skeleton_updateCache);
 SE_DECLARE_FUNC(js_spine_Skeleton_updateWorldTransform);
 
-extern se::Object* __jsb_spine_SkeletonBounds_proto;
-extern se::Class* __jsb_spine_SkeletonBounds_class;
+extern se::Object *__jsb_spine_SkeletonBounds_proto; // NOLINT
+extern se::Class * __jsb_spine_SkeletonBounds_class; // NOLINT
 
-bool js_register_spine_SkeletonBounds(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_SkeletonBounds(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::SkeletonBounds);
 SE_DECLARE_FUNC(js_spine_SkeletonBounds_aabbcontainsPoint);
 SE_DECLARE_FUNC(js_spine_SkeletonBounds_aabbintersectsSegment);
 SE_DECLARE_FUNC(js_spine_SkeletonBounds_containsPoint);
@@ -790,21 +749,17 @@ SE_DECLARE_FUNC(js_spine_SkeletonBounds_getPolygon);
 SE_DECLARE_FUNC(js_spine_SkeletonBounds_getWidth);
 SE_DECLARE_FUNC(js_spine_SkeletonBounds_intersectsSegment);
 
-extern se::Object* __jsb_spine_Polygon_proto;
-extern se::Class* __jsb_spine_Polygon_class;
+extern se::Object *__jsb_spine_Polygon_proto; // NOLINT
+extern se::Class * __jsb_spine_Polygon_class; // NOLINT
 
-bool js_register_spine_Polygon(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_Polygon(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::Polygon);
 
-extern se::Object* __jsb_spine_SkeletonData_proto;
-extern se::Class* __jsb_spine_SkeletonData_class;
+extern se::Object *__jsb_spine_SkeletonData_proto; // NOLINT
+extern se::Class * __jsb_spine_SkeletonData_class; // NOLINT
 
-bool js_register_spine_SkeletonData(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_SkeletonData(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::SkeletonData);
 SE_DECLARE_FUNC(js_spine_SkeletonData_findAnimation);
 SE_DECLARE_FUNC(js_spine_SkeletonData_findBone);
 SE_DECLARE_FUNC(js_spine_SkeletonData_findBoneIndex);
@@ -847,13 +802,11 @@ SE_DECLARE_FUNC(js_spine_SkeletonData_setWidth);
 SE_DECLARE_FUNC(js_spine_SkeletonData_setX);
 SE_DECLARE_FUNC(js_spine_SkeletonData_setY);
 
-extern se::Object* __jsb_spine_Skin_proto;
-extern se::Class* __jsb_spine_Skin_class;
+extern se::Object *__jsb_spine_Skin_proto; // NOLINT
+extern se::Class * __jsb_spine_Skin_class; // NOLINT
 
-bool js_register_spine_Skin(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_Skin(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::Skin);
 SE_DECLARE_FUNC(js_spine_Skin_addSkin);
 SE_DECLARE_FUNC(js_spine_Skin_copySkin);
 SE_DECLARE_FUNC(js_spine_Skin_getAttachment);
@@ -863,13 +816,11 @@ SE_DECLARE_FUNC(js_spine_Skin_getName);
 SE_DECLARE_FUNC(js_spine_Skin_removeAttachment);
 SE_DECLARE_FUNC(js_spine_Skin_setAttachment);
 
-extern se::Object* __jsb_spine_Slot_proto;
-extern se::Class* __jsb_spine_Slot_class;
+extern se::Object *__jsb_spine_Slot_proto; // NOLINT
+extern se::Class * __jsb_spine_Slot_class; // NOLINT
 
-bool js_register_spine_Slot(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_Slot(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::Slot);
 SE_DECLARE_FUNC(js_spine_Slot_getAttachment);
 SE_DECLARE_FUNC(js_spine_Slot_getAttachmentTime);
 SE_DECLARE_FUNC(js_spine_Slot_getBone);
@@ -883,13 +834,11 @@ SE_DECLARE_FUNC(js_spine_Slot_setAttachment);
 SE_DECLARE_FUNC(js_spine_Slot_setAttachmentTime);
 SE_DECLARE_FUNC(js_spine_Slot_setToSetupPose);
 
-extern se::Object* __jsb_spine_SlotData_proto;
-extern se::Class* __jsb_spine_SlotData_class;
+extern se::Object *__jsb_spine_SlotData_proto; // NOLINT
+extern se::Class * __jsb_spine_SlotData_class; // NOLINT
 
-bool js_register_spine_SlotData(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_SlotData(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::SlotData);
 SE_DECLARE_FUNC(js_spine_SlotData_getAttachmentName);
 SE_DECLARE_FUNC(js_spine_SlotData_getBlendMode);
 SE_DECLARE_FUNC(js_spine_SlotData_getBoneData);
@@ -902,13 +851,11 @@ SE_DECLARE_FUNC(js_spine_SlotData_setAttachmentName);
 SE_DECLARE_FUNC(js_spine_SlotData_setBlendMode);
 SE_DECLARE_FUNC(js_spine_SlotData_setHasDarkColor);
 
-extern se::Object* __jsb_spine_TransformConstraint_proto;
-extern se::Class* __jsb_spine_TransformConstraint_class;
+extern se::Object *__jsb_spine_TransformConstraint_proto; // NOLINT
+extern se::Class * __jsb_spine_TransformConstraint_class; // NOLINT
 
-bool js_register_spine_TransformConstraint(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_TransformConstraint(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::TransformConstraint);
 SE_DECLARE_FUNC(js_spine_TransformConstraint_apply);
 SE_DECLARE_FUNC(js_spine_TransformConstraint_getBones);
 SE_DECLARE_FUNC(js_spine_TransformConstraint_getData);
@@ -927,13 +874,11 @@ SE_DECLARE_FUNC(js_spine_TransformConstraint_setTarget);
 SE_DECLARE_FUNC(js_spine_TransformConstraint_setTranslateMix);
 SE_DECLARE_FUNC(js_spine_TransformConstraint_update);
 
-extern se::Object* __jsb_spine_TransformConstraintData_proto;
-extern se::Class* __jsb_spine_TransformConstraintData_class;
+extern se::Object *__jsb_spine_TransformConstraintData_proto; // NOLINT
+extern se::Class * __jsb_spine_TransformConstraintData_class; // NOLINT
 
-bool js_register_spine_TransformConstraintData(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_TransformConstraintData(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::TransformConstraintData);
 SE_DECLARE_FUNC(js_spine_TransformConstraintData_getBones);
 SE_DECLARE_FUNC(js_spine_TransformConstraintData_getOffsetRotation);
 SE_DECLARE_FUNC(js_spine_TransformConstraintData_getOffsetScaleX);
@@ -949,55 +894,45 @@ SE_DECLARE_FUNC(js_spine_TransformConstraintData_getTranslateMix);
 SE_DECLARE_FUNC(js_spine_TransformConstraintData_isLocal);
 SE_DECLARE_FUNC(js_spine_TransformConstraintData_isRelative);
 
-extern se::Object* __jsb_spine_TransformConstraintTimeline_proto;
-extern se::Class* __jsb_spine_TransformConstraintTimeline_class;
+extern se::Object *__jsb_spine_TransformConstraintTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_TransformConstraintTimeline_class; // NOLINT
 
-bool js_register_spine_TransformConstraintTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_TransformConstraintTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::TransformConstraintTimeline);
 SE_DECLARE_FUNC(js_spine_TransformConstraintTimeline_getPropertyId);
 SE_DECLARE_FUNC(js_spine_TransformConstraintTimeline_setFrame);
 
-extern se::Object* __jsb_spine_TwoColorTimeline_proto;
-extern se::Class* __jsb_spine_TwoColorTimeline_class;
+extern se::Object *__jsb_spine_TwoColorTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_TwoColorTimeline_class; // NOLINT
 
-bool js_register_spine_TwoColorTimeline(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_TwoColorTimeline(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::TwoColorTimeline);
 SE_DECLARE_FUNC(js_spine_TwoColorTimeline_getPropertyId);
 SE_DECLARE_FUNC(js_spine_TwoColorTimeline_getSlotIndex);
 SE_DECLARE_FUNC(js_spine_TwoColorTimeline_setFrame);
 SE_DECLARE_FUNC(js_spine_TwoColorTimeline_setSlotIndex);
 
-extern se::Object* __jsb_spine_VertexEffect_proto;
-extern se::Class* __jsb_spine_VertexEffect_class;
+extern se::Object *__jsb_spine_VertexEffect_proto; // NOLINT
+extern se::Class * __jsb_spine_VertexEffect_class; // NOLINT
 
-bool js_register_spine_VertexEffect(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_VertexEffect(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::VertexEffect);
 
-extern se::Object* __jsb_spine_JitterVertexEffect_proto;
-extern se::Class* __jsb_spine_JitterVertexEffect_class;
+extern se::Object *__jsb_spine_JitterVertexEffect_proto; // NOLINT
+extern se::Class * __jsb_spine_JitterVertexEffect_class; // NOLINT
 
-bool js_register_spine_JitterVertexEffect(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_JitterVertexEffect(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::JitterVertexEffect);
 SE_DECLARE_FUNC(js_spine_JitterVertexEffect_getJitterX);
 SE_DECLARE_FUNC(js_spine_JitterVertexEffect_getJitterY);
 SE_DECLARE_FUNC(js_spine_JitterVertexEffect_setJitterX);
 SE_DECLARE_FUNC(js_spine_JitterVertexEffect_setJitterY);
 
-extern se::Object* __jsb_spine_SwirlVertexEffect_proto;
-extern se::Class* __jsb_spine_SwirlVertexEffect_class;
+extern se::Object *__jsb_spine_SwirlVertexEffect_proto; // NOLINT
+extern se::Class * __jsb_spine_SwirlVertexEffect_class; // NOLINT
 
-bool js_register_spine_SwirlVertexEffect(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_SwirlVertexEffect(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::SwirlVertexEffect);
 SE_DECLARE_FUNC(js_spine_SwirlVertexEffect_getAngle);
 SE_DECLARE_FUNC(js_spine_SwirlVertexEffect_getCenterX);
 SE_DECLARE_FUNC(js_spine_SwirlVertexEffect_getCenterY);
@@ -1011,13 +946,11 @@ SE_DECLARE_FUNC(js_spine_SwirlVertexEffect_setRadius);
 SE_DECLARE_FUNC(js_spine_SwirlVertexEffect_setWorldX);
 SE_DECLARE_FUNC(js_spine_SwirlVertexEffect_setWorldY);
 
-extern se::Object* __jsb_spine_VertexEffectDelegate_proto;
-extern se::Class* __jsb_spine_VertexEffectDelegate_class;
+extern se::Object *__jsb_spine_VertexEffectDelegate_proto; // NOLINT
+extern se::Class * __jsb_spine_VertexEffectDelegate_class; // NOLINT
 
-bool js_register_spine_VertexEffectDelegate(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_VertexEffectDelegate(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::VertexEffectDelegate);
 SE_DECLARE_FUNC(js_spine_VertexEffectDelegate_clear);
 SE_DECLARE_FUNC(js_spine_VertexEffectDelegate_getEffectType);
 SE_DECLARE_FUNC(js_spine_VertexEffectDelegate_getJitterVertexEffect);
@@ -1028,13 +961,11 @@ SE_DECLARE_FUNC(js_spine_VertexEffectDelegate_initSwirlWithPow);
 SE_DECLARE_FUNC(js_spine_VertexEffectDelegate_initSwirlWithPowOut);
 SE_DECLARE_FUNC(js_spine_VertexEffectDelegate_VertexEffectDelegate);
 
-extern se::Object* __jsb_spine_SkeletonRenderer_proto;
-extern se::Class* __jsb_spine_SkeletonRenderer_class;
+extern se::Object *__jsb_spine_SkeletonRenderer_proto; // NOLINT
+extern se::Class * __jsb_spine_SkeletonRenderer_class; // NOLINT
 
-bool js_register_spine_SkeletonRenderer(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_SkeletonRenderer(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::SkeletonRenderer);
 SE_DECLARE_FUNC(js_spine_SkeletonRenderer_beginSchedule);
 SE_DECLARE_FUNC(js_spine_SkeletonRenderer_findBone);
 SE_DECLARE_FUNC(js_spine_SkeletonRenderer_findSlot);
@@ -1074,13 +1005,11 @@ SE_DECLARE_FUNC(js_spine_SkeletonRenderer_update);
 SE_DECLARE_FUNC(js_spine_SkeletonRenderer_updateWorldTransform);
 SE_DECLARE_FUNC(js_spine_SkeletonRenderer_SkeletonRenderer);
 
-extern se::Object* __jsb_spine_SkeletonAnimation_proto;
-extern se::Class* __jsb_spine_SkeletonAnimation_class;
+extern se::Object *__jsb_spine_SkeletonAnimation_proto; // NOLINT
+extern se::Class * __jsb_spine_SkeletonAnimation_class; // NOLINT
 
-bool js_register_spine_SkeletonAnimation(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_SkeletonAnimation(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::SkeletonAnimation);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_addAnimation);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_addEmptyAnimation);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_clearTrack);
@@ -1106,18 +1035,16 @@ SE_DECLARE_FUNC(js_spine_SkeletonAnimation_setTrackEventListener);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_setTrackInterruptListener);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_setTrackStartListener);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_create);
-SE_DECLARE_FUNC(js_spine_SkeletonAnimation_createWithJsonFile);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_createWithBinaryFile);
+SE_DECLARE_FUNC(js_spine_SkeletonAnimation_createWithJsonFile);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_setGlobalTimeScale);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_SkeletonAnimation);
 
-extern se::Object* __jsb_spine_SkeletonCacheAnimation_proto;
-extern se::Class* __jsb_spine_SkeletonCacheAnimation_class;
+extern se::Object *__jsb_spine_SkeletonCacheAnimation_proto; // NOLINT
+extern se::Class * __jsb_spine_SkeletonCacheAnimation_class; // NOLINT
 
-bool js_register_spine_SkeletonCacheAnimation(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_SkeletonCacheAnimation(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::SkeletonCacheAnimation);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheAnimation_addAnimation);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheAnimation_beginSchedule);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheAnimation_findAnimation);
@@ -1153,26 +1080,22 @@ SE_DECLARE_FUNC(js_spine_SkeletonCacheAnimation_updateAllAnimationCache);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheAnimation_updateAnimationCache);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheAnimation_SkeletonCacheAnimation);
 
-extern se::Object* __jsb_spine_SkeletonCacheMgr_proto;
-extern se::Class* __jsb_spine_SkeletonCacheMgr_class;
+extern se::Object *__jsb_spine_SkeletonCacheMgr_proto; // NOLINT
+extern se::Class * __jsb_spine_SkeletonCacheMgr_class; // NOLINT
 
-bool js_register_spine_SkeletonCacheMgr(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_SkeletonCacheMgr(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::SkeletonCacheMgr);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_buildSkeletonCache);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_removeSkeletonCache);
-SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_getInstance);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_destroyInstance);
+SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_getInstance);
 
-extern se::Object* __jsb_spine_SkeletonDataMgr_proto;
-extern se::Class* __jsb_spine_SkeletonDataMgr_class;
+extern se::Object *__jsb_spine_SkeletonDataMgr_proto; // NOLINT
+extern se::Class * __jsb_spine_SkeletonDataMgr_class; // NOLINT
 
-bool js_register_spine_SkeletonDataMgr(se::Object* obj);
-bool register_all_spine(se::Object* obj);
+bool js_register_spine_SkeletonDataMgr(se::Object *obj); // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(spine::SkeletonDataMgr);
 SE_DECLARE_FUNC(js_spine_SkeletonDataMgr_setDestroyCallback);
 SE_DECLARE_FUNC(js_spine_SkeletonDataMgr_getInstance);
 SE_DECLARE_FUNC(js_spine_SkeletonDataMgr_SkeletonDataMgr);
-
+    // clang-format on

@@ -26,7 +26,7 @@
 #ifndef __CC_HTTP_REQUEST_H_
 #define __CC_HTTP_REQUEST_H_
 
-#include "cocos/base/Ref.h"
+#include "cocos/base/RefCounted.h"
 #include "cocos2dx_extra.h"
 #include "network/CCHTTPRequestDelegate.h"
 
@@ -40,11 +40,11 @@
     #include <pthread.h>
 #endif
 
-#include "curl/curl.h"
-#include <map>
 #include <stdio.h>
+#include <map>
 #include <string>
 #include <vector>
+#include "curl/curl.h"
 
 using namespace std;
 
@@ -68,19 +68,19 @@ NS_CC_EXTRA_BEGIN
 #define kCCHTTPRequestCURLStateBusy   1
 #define kCCHTTPRequestCURLStateClosed 2
 
-typedef vector<string> HTTPRequestHeaders;
+typedef vector<string>               HTTPRequestHeaders;
 typedef HTTPRequestHeaders::iterator HTTPRequestHeadersIterator;
 
-class HTTPRequest : public cc::Ref {
+class HTTPRequest : public cc::RefCounted {
 public:
     static HTTPRequest *createWithUrl(HTTPRequestDelegate *delegate,
-                                      const char *url,
-                                      int method = kCCHTTPRequestMethodGET);
+                                      const char *         url,
+                                      int                  method = kCCHTTPRequestMethodGET);
 
 #if CC_LUA_ENGINE_ENABLED > 0
     static HTTPRequest *createWithUrlLua(LUA_FUNCTION listener,
-                                         const char *url,
-                                         int method = kCCHTTPRequestMethodGET);
+                                         const char * url,
+                                         int          method = kCCHTTPRequestMethodGET);
 #endif
 
     ~HTTPRequest(void);
@@ -104,7 +104,7 @@ public:
     void addFormContents(const char *name, const char *value);
 
     /** @brief Set/Get cookie string. */
-    void setCookieString(const char *cookie);
+    void         setCookieString(const char *cookie);
     const string getCookieString(void);
 
     /** @brief Set accept encoding. */
@@ -127,7 +127,7 @@ public:
 
     /** @brief Return HTTP response headers. */
     const HTTPRequestHeaders &getResponseHeaders(void);
-    const string getResponseHeadersString(void);
+    const string              getResponseHeadersString(void);
 
     /** @brief Returns the contents of the result. */
     const string getResponseString(void);
@@ -155,7 +155,7 @@ public:
     HTTPRequestDelegate *getDelegate(void);
 
     /** @brief timer function. */
-    void checkCURLState(float dt);
+    void         checkCURLState(float dt);
     virtual void update(float dt);
 
 private:
@@ -183,36 +183,36 @@ private:
     bool initWithUrl(const char *url, int method);
 
     enum {
-        DEFAULT_TIMEOUT = 10,      // 10 seconds
+        DEFAULT_TIMEOUT   = 10,    // 10 seconds
         BUFFER_CHUNK_SIZE = 32768, // 32 KB
     };
 
-    static unsigned int s_id;
-    string _url;
+    static unsigned int  s_id;
+    string               _url;
     HTTPRequestDelegate *_delegate;
-    int _listener;
-    int _curlState;
+    int                  _listener;
+    int                  _curlState;
 
-    CURL *_curl;
+    CURL *         _curl;
     curl_httppost *_formPost;
     curl_httppost *_lastPost;
 
-    int _state;
-    int _errorCode;
+    int    _state;
+    int    _errorCode;
     string _errorMessage;
 
     // request
     typedef map<string, string> Fields;
-    Fields _postFields;
-    HTTPRequestHeaders _headers;
+    Fields                      _postFields;
+    HTTPRequestHeaders          _headers;
 
     // response
-    int _responseCode;
+    int                _responseCode;
     HTTPRequestHeaders _responseHeaders;
-    void *_responseBuffer;
-    size_t _responseBufferLength;
-    size_t _responseDataLength;
-    string _responseCookies;
+    void *             _responseBuffer;
+    size_t             _responseBufferLength;
+    size_t             _responseDataLength;
+    string             _responseCookies;
 
     double _dltotal;
     double _dlnow;
@@ -224,21 +224,21 @@ private:
     void cleanupRawResponseBuff(void);
 
     // instance callback
-    void onRequest(void);
+    void   onRequest(void);
     size_t onWriteData(void *buffer, size_t bytes);
     size_t onWriteHeader(void *buffer, size_t bytes);
-    int onProgress(double dltotal, double dlnow, double ultotal, double ulnow);
+    int    onProgress(double dltotal, double dlnow, double ultotal, double ulnow);
 
     // curl callback
 #ifdef _WINDOWS_
     static DWORD WINAPI requestCURL(LPVOID userdata);
 #else
-    pthread_t _thread;
+    pthread_t    _thread;
     static void *requestCURL(void *userdata);
 #endif
     static size_t writeDataCURL(void *buffer, size_t size, size_t nmemb, void *userdata);
     static size_t writeHeaderCURL(void *buffer, size_t size, size_t nmemb, void *userdata);
-    static int progressCURL(void *userdata, double dltotal, double dlnow, double ultotal, double ulnow);
+    static int    progressCURL(void *userdata, double dltotal, double dlnow, double ultotal, double ulnow);
 };
 
 NS_CC_EXTRA_END

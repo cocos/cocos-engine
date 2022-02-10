@@ -32,13 +32,13 @@ using namespace cc;
 DRAGONBONES_NAMESPACE_BEGIN
 
 DragonBones *CCFactory::_dragonBonesInstance = nullptr;
-CCFactory *CCFactory::_factory = nullptr;
+CCFactory *  CCFactory::_factory             = nullptr;
 
 TextureAtlasData *CCFactory::_buildTextureAtlasData(TextureAtlasData *textureAtlasData, void *textureAtlas) const {
     if (textureAtlasData != nullptr) {
         const auto pos = _prevPath.find_last_of("/");
         if (pos != std::string::npos) {
-            const auto basePath = _prevPath.substr(0, pos + 1);
+            const auto basePath         = _prevPath.substr(0, pos + 1);
             textureAtlasData->imagePath = basePath + textureAtlasData->imagePath;
         }
 
@@ -53,11 +53,11 @@ TextureAtlasData *CCFactory::_buildTextureAtlasData(TextureAtlasData *textureAtl
 }
 
 Armature *CCFactory::_buildArmature(const BuildArmaturePackage &dataPackage) const {
-    const auto armature = BaseObject::borrowObject<Armature>();
+    const auto armature        = BaseObject::borrowObject<Armature>();
     const auto armatureDisplay = CCArmatureDisplay::create();
 
     // will release when armature destructor
-    armatureDisplay->retain();
+    armatureDisplay->addRef();
 
     armature->init(
         dataPackage.armature,
@@ -146,7 +146,7 @@ void CCFactory::removeDragonBonesDataByUUID(const std::string &uuid, bool dispos
 }
 
 TextureAtlasData *CCFactory::loadTextureAtlasData(const std::string &filePath, const std::string &name, float scale) {
-    _prevPath = cc::FileUtils::getInstance()->fullPathForFilename(filePath);
+    _prevPath       = cc::FileUtils::getInstance()->fullPathForFilename(filePath);
     const auto data = cc::FileUtils::getInstance()->getStringFromFile(_prevPath);
     if (data.empty()) {
         return nullptr;

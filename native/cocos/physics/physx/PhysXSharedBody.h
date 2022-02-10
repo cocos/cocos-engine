@@ -28,21 +28,11 @@
 #include <map>
 #include <vector>
 #include "base/Macros.h"
+#include "core/scene-graph/Node.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/spec/IBody.h"
-#include "scene/Node.h"
 
 namespace cc {
-
-enum class TransformBit {
-    NONE     = 0,
-    POSITION = (1 << 0),
-    ROTATION = (1 << 1),
-    SCALE    = (1 << 2),
-    RS       = TransformBit::ROTATION | TransformBit::SCALE,
-    TRS      = TransformBit::POSITION | TransformBit::ROTATION | TransformBit::SCALE,
-    TRS_MASK = ~TransformBit::TRS,
-};
 
 namespace physics {
 
@@ -53,19 +43,19 @@ class PhysXRigidBody;
 
 class PhysXSharedBody final {
 public:
-    static PhysXSharedBody *getSharedBody(const scene::Node *node, PhysXWorld *world, PhysXRigidBody *body);
+    static PhysXSharedBody *getSharedBody(const Node *node, PhysXWorld *world, PhysXRigidBody *body);
     PhysXSharedBody()                             = delete;
     PhysXSharedBody(const PhysXSharedBody &other) = delete;
     PhysXSharedBody(PhysXSharedBody &&other)      = delete;
-    void                reference(bool v);
-    void                enabled(bool v);
-    inline bool         isInWorld() { return _mIndex >= 0; }
-    inline bool         isStatic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::STATIC); }
-    inline bool         isKinematic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::KINEMATIC); }
-    inline bool         isStaticOrKinematic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::STATIC) || static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::KINEMATIC); }
-    inline bool         isDynamic() { return !isStaticOrKinematic(); }
-    inline scene::Node *getNode() const { return _mNode; }
-    inline PhysXWorld & getWorld() const { return *_mWrappedWorld; }
+    void               reference(bool v);
+    void               enabled(bool v);
+    inline bool        isInWorld() { return _mIndex >= 0; }
+    inline bool        isStatic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::STATIC); }
+    inline bool        isKinematic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::KINEMATIC); }
+    inline bool        isStaticOrKinematic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::STATIC) || static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::KINEMATIC); }
+    inline bool        isDynamic() { return !isStaticOrKinematic(); }
+    inline Node *      getNode() const { return _mNode; }
+    inline PhysXWorld &getWorld() const { return *_mWrappedWorld; }
     union UActor {
         uintptr_t              ptr;
         physx::PxRigidActor *  rigidActor;
@@ -93,24 +83,24 @@ public:
     inline uint32_t getMask() const { return _mFilterData.word1; }
 
 private:
-    static std::map<scene::Node *, PhysXSharedBody *> sharedBodesMap;
-    const uint32_t                                    _mID;
-    uint8_t                                           _mRef;
-    bool                                              _mIsStatic;
-    ERigidBodyType                                    _mType;
-    float                                             _mMass;
-    int                                               _mIndex;
-    physx::PxFilterData                               _mFilterData;
-    scene::Node *                                     _mNode;
-    UActor                                            _mImpl;
-    physx::PxRigidStatic *                            _mStaticActor;
-    physx::PxRigidDynamic *                           _mDynamicActor;
-    PhysXWorld *                                      _mWrappedWorld;
-    PhysXRigidBody *                                  _mWrappedBody;
-    std::vector<PhysXShape *>                         _mWrappedShapes;
-    std::vector<PhysXJoint *>                         _mWrappedJoints0;
-    std::vector<PhysXJoint *>                         _mWrappedJoints1;
-    PhysXSharedBody(scene::Node *node, PhysXWorld *world, PhysXRigidBody *body);
+    static std::map<Node *, PhysXSharedBody *> sharedBodesMap;
+    const uint32_t                             _mID;
+    uint8_t                                    _mRef;
+    bool                                       _mIsStatic;
+    ERigidBodyType                             _mType;
+    float                                      _mMass;
+    int                                        _mIndex;
+    physx::PxFilterData                        _mFilterData;
+    Node *                                     _mNode;
+    UActor                                     _mImpl;
+    physx::PxRigidStatic *                     _mStaticActor;
+    physx::PxRigidDynamic *                    _mDynamicActor;
+    PhysXWorld *                               _mWrappedWorld;
+    PhysXRigidBody *                           _mWrappedBody;
+    std::vector<PhysXShape *>                  _mWrappedShapes;
+    std::vector<PhysXJoint *>                  _mWrappedJoints0;
+    std::vector<PhysXJoint *>                  _mWrappedJoints1;
+    PhysXSharedBody(Node *node, PhysXWorld *world, PhysXRigidBody *body);
     ~PhysXSharedBody();
     void initActor();
     void switchActor(bool isStaticBefore);

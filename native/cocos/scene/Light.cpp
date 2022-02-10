@@ -24,9 +24,26 @@
 ****************************************************************************/
 
 #include "scene/Light.h"
+#include "core/scene-graph/Node.h"
+#include "math/Math.h"
 
 namespace cc {
 namespace scene {
+
+Light::Light() = default;
+
+Light::~Light() = default;
+
+void Light::destroy() {
+    _name.clear();
+    _node = nullptr;
+}
+
+void Light::setNode(Node *node) { _node = node; }
+
+float Light::nt2lm(float size) {
+    return 4 * math::PI * math::PI * size * size;
+}
 
 } // namespace scene
 } // namespace cc

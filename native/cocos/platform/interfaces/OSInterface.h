@@ -43,7 +43,7 @@ public:
     /**
      @brief Constructor of OSAbstractInterface.
      */
-    explicit OSInterface(IEventDispatch*);
+    explicit OSInterface(IEventDispatch *);
     /**
      @brief Destructor of OSAbstractInterface.
      */
@@ -54,19 +54,19 @@ public:
      @param type : event type
      @param type : event information
      */
-    void dispatchEvent(const OSEvent& ev);
+    void dispatchEvent(const OSEvent &ev);
     /**
      @brief Dispatch touch event.
      @param type : event type
      */
-    void dispatchTouchEvent(const OSEvent& ev);
+    void dispatchTouchEvent(const OSEvent &ev);
 
     //enum class InterfaceType {
     //};
 
 protected:
     // InterfaceType _type;
-    IEventDispatch* _evDispatchInterface{nullptr};
+    IEventDispatch *_evDispatchInterface{nullptr};
 
 private:
     CC_DISABLE_COPY_AND_MOVE_SEMANTICS(OSInterface);

@@ -167,7 +167,7 @@ using EventRegistry = std::unordered_map<std::string, SIOEvent>;
  * @lua NA
  */
 class CC_DLL SIOClient
-: public cc::Ref {
+: public cc::RefCounted {
 private:
     friend class SocketIO; // Only SocketIO class could contruct a SIOClient instance.
 

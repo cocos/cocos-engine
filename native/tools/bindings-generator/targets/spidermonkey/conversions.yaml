@@ -2,7 +2,7 @@ definitions:
   # the names of the functions - we use this to generate the code and to register the functions in
   # the javascript class
   ifunction: "js_${generator.prefix}_${class_name}_${func_name}"
-  sfunction: "js_${generator.prefix}_${class_name}_${func_name}"
+  sfunction: "js_${generator.prefix}_${class_name}_${func_name}_static"
   constructor: "js_${generator.prefix}_${class_name}_constructor"
   ctor: "js_${generator.prefix}_${class_name}_ctor"
   public_field: "js_${generator.prefix}_${class_name}"
@@ -18,12 +18,21 @@ conversions:
     "long long": "int64_t"
   ns_map:
     "cc::extension::": "cc."
+    "cc::network::": "cc."
+    "cc::middleware::": "cc."
     "cc::ui::": "ccui."
-    "cc::": "cc."
+    "cc::": "jsb."
     "spine::": "sp."
+    "dragonBones::": "dragonbones."
     "cc::gfx::": "gfx."
     "cc::pipeline::": "nr."
-    "cc::scene::": "ns."
+    "cc::scene::": "jsb."
+    "cc::geometry::": "jsb."
+    "cc::event::": "jsb."
+    "cc::physics::": "jsb."
+    "boost::variant2::": "boost."
+    "boost::": "boost."
+    "se::": "jsb."
   to_native:
     # jsval to int
     int32_t: "ok &= seval_to_int32(${in_value}, (int32_t*)&${out_value})"
@@ -152,6 +161,6 @@ conversions:
     "@shared_ptr<.*DownloadTask.*": "ok &= DownloadTask_to_seval(*${in_value}, &${out_value})"
     "Data": "ok &= Data_to_seval(${in_value}, &${out_value})"
     "se_object_ptr": "${out_value}.setObject(${in_value})"
-    "String":  "${out_value}.setString(${in_value})"
+    "String": "${out_value}.setString(${in_value})"
     object: "ok &= native_ptr_to_seval(${in_value}, &${out_value})"
     rooted_object: "ok &= native_ptr_to_rooted_seval<${ntype.replace('*', '').replace('const ', '')}>((${ntype.replace('const ', '')})${in_value}, &${out_value})"

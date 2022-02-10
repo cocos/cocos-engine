@@ -30,7 +30,7 @@
 
 namespace cc {
 namespace scene {
-struct Camera;
+class Camera;
 }
 namespace pipeline {
 
@@ -63,7 +63,7 @@ private:
     PlanarShadowQueue *    _planarShadowQueue = nullptr;
     RenderBatchedQueue *   _batchedQueue      = nullptr;
     RenderInstancedQueue * _instancedQueue    = nullptr;
-    uint                   _phaseID = 0;
+    uint                   _phaseID           = 0;
 };
 
 } // namespace pipeline

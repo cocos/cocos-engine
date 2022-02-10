@@ -71,7 +71,7 @@ public:
      *@param h: Window height
      *@param flags: Window flag
      */
-    virtual bool      createWindow(const char* title,
+    virtual bool      createWindow(const char *title,
                                    int x, int y, int w,
                                    int h, int flags) = 0;
     virtual uintptr_t getWindowHandler() const       = 0;
@@ -81,7 +81,7 @@ public:
      */
     virtual void setCursorEnabled(bool value) = 0;
 
-    virtual void copyTextToClipboard(const std::string& text) = 0;
+    virtual void copyTextToClipboard(const std::string &text) = 0;
     /**
      @brief Create default sytem window interface.
      @return sytem window interface.

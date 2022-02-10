@@ -21,15 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "gtest/gtest.h"
-#include "cocos/math/Vec3.h"
-#include "cocos/math/Vec4.h"
+#include <math.h>
 #include "cocos/math/Mat3.h"
 #include "cocos/math/Mat4.h"
 #include "cocos/math/Math.h"
 #include "cocos/math/Quaternion.h"
+#include "cocos/math/Vec3.h"
+#include "cocos/math/Vec4.h"
+#include "gtest/gtest.h"
 #include "utils.h"
-#include <math.h>
 
 TEST(mathMat4Test, test5) {
     cc::Mat4 mat4;
@@ -55,7 +55,7 @@ TEST(mathMat4Test, test5) {
     logLabel = "test the mat4 createOrthographicOffCenter function";
     cc::Mat4::createOrthographicOffCenter(20, 40, 100, 200, 10, 100, &outMat);
     ExpectEq(outMat.m[12] == -3 && outMat.m[13] == -3, true);
-    cc::Mat4::createOrthographicOffCenter(20, 40, 100, 200, 10, 100, 0, 1, &outMat);
+    cc::Mat4::createOrthographicOffCenter(20, 40, 100, 200, 10, 100, 0, 1, 0, &outMat);
     ExpectEq(outMat.m[12] == -3 && outMat.m[13] == -3, true);
     // createBillboard
     logLabel = "test the mat4 createBillboard function";

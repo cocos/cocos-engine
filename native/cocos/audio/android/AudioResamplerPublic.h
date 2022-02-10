@@ -19,7 +19,6 @@
 #include <math.h>
 #include <stdint.h>
 
-
 namespace cc {
 
 // AUDIO_RESAMPLER_DOWN_RATIO_MAX is the maximum ratio between the original
@@ -145,7 +144,7 @@ static inline size_t destinationFramesPossible(size_t srcFrames, uint32_t srcSam
         return srcFrames;
     }
     uint64_t dstFrames = (uint64_t)srcFrames * dstSampleRate / srcSampleRate;
-    return dstFrames > 2 ? dstFrames - 2 : 0;
+    return dstFrames > 2 ? static_cast<size_t>(dstFrames - 2) : 0;
 }
 
 static inline size_t sourceFramesNeededWithTimestretch(

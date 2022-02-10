@@ -37,7 +37,7 @@ std::string CommonSystem::getDeviceModel() const {
 
 CommonSystem::LanguageType CommonSystem::getCurrentLanguage() const {
     std::string  languageName  = getCurrentLanguageJNI();
-    const char*  pLanguageName = languageName.c_str();
+    const char * pLanguageName = languageName.c_str();
     LanguageType ret           = LanguageType::ENGLISH;
 
     if (0 == strcmp("zh", pLanguageName)) {
@@ -90,7 +90,7 @@ std::string CommonSystem::getSystemVersion() const {
     return getSystemVersionJNI();
 }
 
-bool CommonSystem::openURL(const std::string& url) {
+bool CommonSystem::openURL(const std::string &url) {
     return openURLJNI(url);
 }
 

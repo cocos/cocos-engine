@@ -28,21 +28,22 @@
  *****************************************************************************/
 
 #include "spine-creator-support/SkeletonRenderer.h"
+#include <algorithm>
 #include "MiddlewareMacro.h"
 #include "SharedBufferManager.h"
 #include "SkeletonDataMgr.h"
+#include "base/DeferredReleasePool.h"
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
+#include "gfx-base/GFXDef.h"
 #include "math/Math.h"
 #include "math/Vec3.h"
-#include "gfx-base/GFXDef.h"
 #include "spine-creator-support/AttachmentVertices.h"
 #include "spine-creator-support/spine-cocos2dx.h"
-#include <algorithm>
 
-USING_NS_MW; // NOLINT(google-build-using-namespace)
-using namespace spine; // NOLINT(google-build-using-namespace)
-using namespace cc; // NOLINT(google-build-using-namespace)
+USING_NS_MW;             // NOLINT(google-build-using-namespace)
+using namespace spine;   // NOLINT(google-build-using-namespace)
+using namespace cc;      // NOLINT(google-build-using-namespace)
 using namespace cc::gfx; // NOLINT(google-build-using-namespace)
 
 using std::max;
@@ -60,27 +61,19 @@ enum DebugType {
     BONES
 };
 SkeletonRenderer *SkeletonRenderer::create() {
-    auto *skeleton = new SkeletonRenderer();
-    skeleton->autorelease();
-    return skeleton;
+    return new SkeletonRenderer();
 }
 
 SkeletonRenderer *SkeletonRenderer::createWithSkeleton(Skeleton *skeleton, bool ownsSkeleton, bool ownsSkeletonData) {
-    auto *node = new SkeletonRenderer(skeleton, ownsSkeleton, ownsSkeletonData);
-    node->autorelease();
-    return node;
+    return new SkeletonRenderer(skeleton, ownsSkeleton, ownsSkeletonData);
 }
 
 SkeletonRenderer *SkeletonRenderer::createWithData(SkeletonData *skeletonData, bool ownsSkeletonData) {
-    auto *node = new SkeletonRenderer(skeletonData, ownsSkeletonData);
-    node->autorelease();
-    return node;
+    return new SkeletonRenderer(skeletonData, ownsSkeletonData);
 }
 
 SkeletonRenderer *SkeletonRenderer::createWithFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
-    auto *node = new SkeletonRenderer(skeletonDataFile, atlasFile, scale);
-    node->autorelease();
-    return node;
+    return new SkeletonRenderer(skeletonDataFile, atlasFile, scale);
 }
 
 void SkeletonRenderer::initialize() {
@@ -829,7 +822,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 uint8_t * vbBuffer = vb.getCurBuffer();
                 cc::Vec3 *point    = nullptr;
                 for (unsigned int ii = 0, nn = vbSize; ii < nn; ii += vbs) {
-                    point = reinterpret_cast<cc::Vec3 *>(vbBuffer + ii);
+                    point    = reinterpret_cast<cc::Vec3 *>(vbBuffer + ii);
                     point->z = 0; //reset for z value
                     point->transformMat4(*point, nodeWorldMat);
                 }
@@ -1032,7 +1025,7 @@ void SkeletonRenderer::setVertexEffectDelegate(VertexEffectDelegate *effectDeleg
     }
     CC_SAFE_RELEASE(_effectDelegate);
     _effectDelegate = effectDelegate;
-    CC_SAFE_RETAIN(_effectDelegate);
+    CC_SAFE_ADD_REF(_effectDelegate);
 }
 
 void SkeletonRenderer::setSlotsRange(int startSlotIndex, int endSlotIndex) {
@@ -1116,4 +1109,3 @@ uint32_t SkeletonRenderer::getRenderOrder() const {
     }
     return 0;
 }
-

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -44,13 +44,13 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#ifndef SRC_NODE_OBJECT_WRAP_H_
-#define SRC_NODE_OBJECT_WRAP_H_
+#pragma once
 
 #include "../config.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
+    #include "../PrivateObject.h"
     #include "Base.h"
 
 namespace se {
@@ -67,9 +67,8 @@ public:
     v8::Local<v8::Object>       handle(v8::Isolate *isolate);
     v8::Persistent<v8::Object> &persistent();
 
-    void         wrap(void *nativeObj);
-    static void *unwrap(v8::Local<v8::Object> handle);
-
+    void         wrap(void *nativeObj, uint32_t fieldIndex);
+    static void *unwrap(v8::Local<v8::Object> handle, uint32_t fieldIndex);
     /* Ref() marks the object as being attached to an event loop.
          * Refed objects will not be garbage collected, even if
          * all references are lost.
@@ -91,14 +90,12 @@ private:
     static void weakCallback(const v8::WeakCallbackInfo<ObjectWrap> &data);
     void        makeWeak();
 
-    int                        refs_; // ro
-    v8::Persistent<v8::Object> handle_;
-    void *                     _nativeObj;
+    int                        _refs; // ro
+    v8::Persistent<v8::Object> _handle;
+    PrivateObjectBase *        _privateObject;
     V8FinalizeFunc             _finalizeCb;
 };
 
 } // namespace se
 
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-
-#endif // SRC_NODE_OBJECT_WRAP_H_

@@ -2,9 +2,9 @@
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2011 ForzeField Studios S.L
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 #ifndef __CCVERTEX_H__
 #define __CCVERTEX_H__
 
+#include <vector>
 #include "base/Macros.h"
 #include "math/Vec2.h"
 
@@ -40,13 +41,13 @@ namespace cc {
 /** @file CCVertex.h */
 
 /** converts a line to a polygon */
-void CC_DLL ccVertexLineToPolygon(Vec2 *points, float stroke, Vec2 *vertices, unsigned int offset, unsigned int nuPoints);
+void CC_DLL ccVertexLineToPolygon(const std::vector<Vec2> &points, float stroke, unsigned int offset, unsigned int nuPoints, std::vector<Vec2> *vertices);
 
 /** returns whether or not the line intersects */
-bool CC_DLL ccVertexLineIntersect(float Ax, float Ay,
-                                  float Bx, float By,
-                                  float Cx, float Cy,
-                                  float Dx, float Dy, float *T);
+bool CC_DLL ccVertexLineIntersect(float ax, float ay,
+                                  float bx, float by,
+                                  float cx, float cy,
+                                  float dx, float dy, float *t);
 
 } // namespace cc
 

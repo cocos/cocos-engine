@@ -31,7 +31,7 @@
 #include "base/Config.h"
 #include "base/Data.h"
 #include "base/Macros.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
 /**
  * @addtogroup ui
@@ -49,7 +49,7 @@ class WebViewImpl;
  * It's mean WebView displays web pages above all graphical elements of cocos2d-x.
  * @js NA
  */
-class WebView : public Ref {
+class WebView : public RefCounted {
 public:
     /**
          * Allocates and initializes a WebView.

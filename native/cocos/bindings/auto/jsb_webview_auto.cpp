@@ -1,28 +1,5 @@
-/****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-****************************************************************************/
-
+// clang-format off
 #include "cocos/bindings/auto/jsb_webview_auto.h"
 #if USE_WEBVIEW > 0
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -36,8 +13,8 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cc_WebView_proto = nullptr;
-se::Class* __jsb_cc_WebView_class = nullptr;
+se::Object* __jsb_cc_WebView_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_WebView_class = nullptr;  // NOLINT
 
 static bool js_webview_WebView_canGoBack(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -405,6 +382,7 @@ static bool js_webview_WebView_setOnDidFailLoading(se::State& s) // NOLINT(reada
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -415,7 +393,6 @@ static bool js_webview_WebView_setOnDidFailLoading(se::State& s) // NOLINT(reada
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -454,6 +431,7 @@ static bool js_webview_WebView_setOnDidFinishLoading(se::State& s) // NOLINT(rea
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -464,7 +442,6 @@ static bool js_webview_WebView_setOnDidFinishLoading(se::State& s) // NOLINT(rea
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -503,6 +480,7 @@ static bool js_webview_WebView_setOnJSCallback(se::State& s) // NOLINT(readabili
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -513,7 +491,6 @@ static bool js_webview_WebView_setOnJSCallback(se::State& s) // NOLINT(readabili
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -552,6 +529,7 @@ static bool js_webview_WebView_setOnShouldStartLoading(se::State& s) // NOLINT(r
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> bool {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -562,7 +540,6 @@ static bool js_webview_WebView_setOnShouldStartLoading(se::State& s) // NOLINT(r
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -643,40 +620,34 @@ static bool js_webview_WebView_stopLoading(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC(js_webview_WebView_stopLoading)
 
-static bool js_webview_WebView_create(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_webview_WebView_create_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        auto result = cc::WebView::create();
-        result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cc_WebView_class);
-        obj->setPrivateData(result);
-        s.rval().setObject(obj);
+        cc::WebView* result = cc::WebView::create();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_webview_WebView_create_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_webview_WebView_create)
-
-
+SE_BIND_FUNC(js_webview_WebView_create_static)
 static bool js_cc_WebView_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    // destructor is skipped
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_WebView_finalize)
-
 static bool js_cc_WebView_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
-    cobj->release();
     auto objIter = se::NativePtrToObjectMap::find(SE_THIS_OBJECT<cc::WebView>(s));
     if(objIter != se::NativePtrToObjectMap::end())
     {
         objIter->second->clearPrivateData(true);
+        objIter->second->decRef();
     }
     return true;
 }
@@ -712,7 +683,7 @@ bool js_register_webview_WebView(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("setVisible", _SE(js_webview_WebView_setVisible));
     cls->defineFunction("stopLoading", _SE(js_webview_WebView_stopLoading));
     cls->defineFunction("destroy", _SE(js_cc_WebView_destroy));
-    cls->defineStaticFunction("create", _SE(js_webview_WebView_create));
+    cls->defineStaticFunction("create", _SE(js_webview_WebView_create_static));
     cls->defineFinalizeFunction(_SE(js_cc_WebView_finalize));
     cls->install();
     JSBClassType::registerClass<cc::WebView>(cls);
@@ -720,14 +691,15 @@ bool js_register_webview_WebView(se::Object* obj) // NOLINT(readability-identifi
     __jsb_cc_WebView_proto = cls->getProto();
     __jsb_cc_WebView_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_webview(se::Object* obj)
+bool register_all_webview(se::Object* obj)    // NOLINT
 {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("jsb", &nsVal))
+    if (!obj->getProperty("jsb", &nsVal, true))
     {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
@@ -740,3 +712,4 @@ bool register_all_webview(se::Object* obj)
 }
 
 #endif //#if USE_WEBVIEW > 0
+// clang-format on

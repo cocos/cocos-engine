@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -287,7 +287,7 @@ static bool js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames(se::State 
     dragonBones::DragonBonesData *cobj = (dragonBones::DragonBonesData *)s.nativeThisObject();
 
     const auto &ret = cobj->getArmatureNames();
-    bool        ok  = std_vector_string_to_seval(ret, &s.rval());
+    bool        ok  = nativevalue_to_se(ret, s.rval());
     SE_PRECONDITION2(ok, false, "Convert ArmatureNames to se::Value failed!");
     return true;
 }
@@ -309,7 +309,7 @@ static bool js_cocos2dx_dragonbones_Slot_set_displayIndex(se::State &s) {
 
     CC_UNUSED bool ok = true;
     int32_t        arg0;
-    ok &= seval_to_int32(args[0], &arg0);
+    ok &= sevalue_to_native(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Slot_set_displayIndex : Error processing new value");
     cobj->setDisplayIndex(arg0);
     return true;
@@ -321,7 +321,7 @@ static bool js_cocos2dx_dragonbones_Slot_get_displayIndex(se::State &s) {
     SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Slot_get_displayIndex : Invalid Native Object");
 
     const int32_t ret = cobj->getDisplayIndex();
-    bool          ok  = int32_to_seval(ret, &s.rval());
+    bool          ok  = nativevalue_to_se(ret, s.rval());
     SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Slot_get_displayIndex to se::Value failed!");
     return true;
 }
@@ -337,7 +337,7 @@ static bool js_cocos2dx_dragonbones_Slot_setDisplay(se::State &s) {
         bool                            ok       = seval_to_native_ptr(args[0], &dbSprite);
         SE_PRECONDITION2(ok, false, "Convert se::Value to dragonBones::DBCCSprite failed!");
         dragonBones::DisplayType type;
-        ok = seval_to_int32(args[1], (int32_t *)&type);
+        ok = sevalue_to_native(args[1], (int32_t *)&type);
         SE_PRECONDITION2(ok, false, "Convert se::Value to dragonBones::DisplayType failed!");
         cobj->setDisplay(dbSprite, type);
         return true;
@@ -358,7 +358,7 @@ static bool js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData(se::State 
         const char *arg0 = nullptr;
         void *      arg1 = nullptr;
         std::string arg0_tmp;
-        ok &= seval_to_std_string(args[0], &arg0_tmp);
+        ok &= sevalue_to_native(args[0], &arg0_tmp);
         arg0 = arg0_tmp.c_str();
         ok &= seval_to_native_ptr(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
@@ -372,11 +372,11 @@ static bool js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData(se::State 
         void *      arg1 = nullptr;
         std::string arg2;
         std::string arg0_tmp;
-        ok &= seval_to_std_string(args[0], &arg0_tmp);
+        ok &= sevalue_to_native(args[0], &arg0_tmp);
         arg0 = arg0_tmp.c_str();
         ok &= seval_to_native_ptr(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
-        ok &= seval_to_std_string(args[2], &arg2);
+        ok &= sevalue_to_native(args[2], &arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
         dragonBones::TextureAtlasData *result = cobj->parseTextureAtlasData(arg0, arg1, arg2);
         ok &= native_ptr_to_seval<dragonBones::TextureAtlasData>((dragonBones::TextureAtlasData *)result, &s.rval());
@@ -389,12 +389,12 @@ static bool js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData(se::State 
         std::string arg2;
         float       arg3 = 0;
         std::string arg0_tmp;
-        ok &= seval_to_std_string(args[0], &arg0_tmp);
+        ok &= sevalue_to_native(args[0], &arg0_tmp);
         arg0 = arg0_tmp.c_str();
         ok &= seval_to_native_ptr(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
-        ok &= seval_to_std_string(args[2], &arg2);
-        ok &= seval_to_float(args[3], &arg3);
+        ok &= sevalue_to_native(args[2], &arg2);
+        ok &= sevalue_to_native(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
         dragonBones::TextureAtlasData *result = cobj->parseTextureAtlasData(arg0, arg1, arg2, arg3);
         ok &= native_ptr_to_seval<dragonBones::TextureAtlasData>((dragonBones::TextureAtlasData *)result, &s.rval());

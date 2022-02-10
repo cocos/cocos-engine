@@ -29,6 +29,7 @@
 
 #include "spine-creator-support/SkeletonAnimation.h"
 #include <algorithm>
+#include "base/DeferredReleasePool.h"
 #include "base/Log.h"
 #include "spine-creator-support/spine-cocos2dx.h"
 #include "spine/Extension.h"
@@ -73,28 +74,24 @@ void  SkeletonAnimation::setGlobalTimeScale(float timeScale) {
 
 SkeletonAnimation *SkeletonAnimation::create() {
     auto *skeleton = new SkeletonAnimation();
-    skeleton->autorelease();
     return skeleton;
 }
 
 SkeletonAnimation *SkeletonAnimation::createWithData(SkeletonData *skeletonData, bool ownsSkeletonData) {
     auto *node = new SkeletonAnimation();
     node->initWithData(skeletonData, ownsSkeletonData);
-    node->autorelease();
     return node;
 }
 
 SkeletonAnimation *SkeletonAnimation::createWithJsonFile(const std::string &skeletonJsonFile, const std::string &atlasFile, float scale) {
     auto *node = new SkeletonAnimation();
     node->initWithJsonFile(skeletonJsonFile, atlasFile, scale);
-    node->autorelease();
     return node;
 }
 
 SkeletonAnimation *SkeletonAnimation::createWithBinaryFile(const std::string &skeletonBinaryFile, const std::string &atlasFile, float scale) {
     auto *node = new SkeletonAnimation();
     node->initWithBinaryFile(skeletonBinaryFile, atlasFile, scale);
-    node->autorelease();
     return node;
 }
 

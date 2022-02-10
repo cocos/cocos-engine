@@ -30,7 +30,7 @@
 
 #include "audio/oalsoft/AudioCache.h"
 #include "audio/oalsoft/AudioPlayer.h"
-#include "base/Ref.h"
+#include "cocos/base/RefCounted.h"
 
 namespace cc {
 
@@ -38,7 +38,7 @@ class Scheduler;
 
 #define MAX_AUDIOINSTANCES 32
 
-class CC_DLL AudioEngineImpl : public cc::Ref {
+class CC_DLL AudioEngineImpl : public RefCounted {
 public:
     AudioEngineImpl();
     ~AudioEngineImpl() override;

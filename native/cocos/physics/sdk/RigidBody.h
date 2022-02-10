@@ -37,7 +37,7 @@ public:
     ~RigidBody() override;
     inline uintptr_t getImpl() override { return _impl->getImpl(); };
     inline uintptr_t getNodeHandle() override { return _impl->getNodeHandle(); };
-    void             initialize(scene::Node* node, ERigidBodyType t, uint32_t g) override;
+    void             initialize(Node *node, ERigidBodyType t, uint32_t g) override;
     void             onEnable() override;
     void             onDisable() override;
     void             onDestroy() override;

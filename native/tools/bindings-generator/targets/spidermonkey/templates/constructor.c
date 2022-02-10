@@ -6,7 +6,7 @@ SE_DECLARE_FINALIZE_FUNC(js_${underlined_class_name}_finalize)
 static bool ${signature_name}(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 ${namespaced_class_name}: is_skip_construtor ${is_skip_constructor}
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"${namespaced_class_name} constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("${namespaced_class_name} constructor is skipped");
     return false;
 #else
 static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -58,11 +58,8 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
     #else
     #set $arg_list = ", " + ", ".join($arg_array)
     #end if
-    ${namespaced_class_name}* cobj = JSB_ALLOC(${namespaced_class_name}$arg_list);
-    s.thisObject()->setPrivateData(cobj);
-    #if not $is_ref_class
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    #end if
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(${namespaced_class_name}$arg_list);
+    s.thisObject()->setPrivateObject(ptr);
 #end if
     return true;
 #end if

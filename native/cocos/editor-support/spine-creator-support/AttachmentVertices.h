@@ -38,7 +38,7 @@ namespace spine {
      */
 class AttachmentVertices {
 public:
-    AttachmentVertices(cc::middleware::Texture2D *texture, int verticesCount, unsigned short *triangles, int trianglesCount);
+    AttachmentVertices(cc::middleware::Texture2D *texture, int verticesCount, uint16_t *triangles, int trianglesCount);
     virtual ~AttachmentVertices();
 
     cc::middleware::Texture2D *_texture = nullptr;

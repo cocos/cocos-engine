@@ -37,22 +37,22 @@
 namespace cc {
 JniNativeGlue::~JniNativeGlue() = default;
 
-JniNativeGlue* JniNativeGlue::getInstance() {
+JniNativeGlue *JniNativeGlue::getInstance() {
     static JniNativeGlue jniNativeGlue;
     return &jniNativeGlue;
 }
 
-void JniNativeGlue::start(int argc, const char** argv) {
+void JniNativeGlue::start(int argc, const char **argv) {
     _messagePipe = std::make_unique<MessagePipe>();
 
-    BasePlatform* platform = cc::BasePlatform::getPlatform();
+    BasePlatform *platform = cc::BasePlatform::getPlatform();
     if (platform->init()) {
         LOGV("Platform initialization failed");
     }
     platform->run(argc, argv);
 }
 
-void JniNativeGlue::setWindowHandler(NativeWindowType* window) {
+void JniNativeGlue::setWindowHandler(NativeWindowType *window) {
     if (_pendingWindow) {
         writeCommandSync(JniCommand::JNI_CMD_TERM_WINDOW);
     }
@@ -62,15 +62,15 @@ void JniNativeGlue::setWindowHandler(NativeWindowType* window) {
     }
 }
 
-void JniNativeGlue::setResourceManager(ResourceManagerType* resourceManager) {
+void JniNativeGlue::setResourceManager(ResourceManagerType *resourceManager) {
     _resourceManager = resourceManager;
 }
 
-ResourceManagerType* JniNativeGlue::getResourceManager() {
+ResourceManagerType *JniNativeGlue::getResourceManager() {
     return _resourceManager;
 }
 
-NativeWindowType* JniNativeGlue::getWindowHandler() {
+NativeWindowType *JniNativeGlue::getWindowHandler() {
     return _window;
 }
 
@@ -82,7 +82,7 @@ int JniNativeGlue::getSdkVersion() const {
     return _sdkVersion;
 }
 
-void JniNativeGlue::setObbPath(const std::string& path) {
+void JniNativeGlue::setObbPath(const std::string &path) {
     _obbPath = path;
 }
 
@@ -126,25 +126,25 @@ void JniNativeGlue::writeCommandSync(JniCommand cmd) {
     fu.get_future().get();
 }
 
-int JniNativeGlue::readCommand(CommandMsg* msg) {
+int JniNativeGlue::readCommand(CommandMsg *msg) {
     return _messagePipe->readCommand(msg, sizeof(CommandMsg));
 }
 
-int JniNativeGlue::readCommandWithTimeout(CommandMsg* cmd, int delayMS) {
+int JniNativeGlue::readCommandWithTimeout(CommandMsg *cmd, int delayMS) {
     return _messagePipe->readCommandWithTimeout(cmd, sizeof(CommandMsg), delayMS);
 }
 
-void JniNativeGlue::setEventDispatch(IEventDispatch* eventDispatcher) {
+void JniNativeGlue::setEventDispatch(IEventDispatch *eventDispatcher) {
     _eventDispatcher = eventDispatcher;
 }
 
-void JniNativeGlue::dispatchEvent(const OSEvent& ev) {
+void JniNativeGlue::dispatchEvent(const OSEvent &ev) {
     if (_eventDispatcher) {
         _eventDispatcher->dispatchEvent(ev);
     }
 }
 
-void JniNativeGlue::dispatchTouchEvent(const OSEvent& ev) {
+void JniNativeGlue::dispatchTouchEvent(const OSEvent &ev) {
     if (_eventDispatcher) {
         _eventDispatcher->dispatchTouchEvent(ev);
     }
@@ -222,13 +222,13 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
             }
             cc::CustomEvent event;
             event.name         = EVENT_RECREATE_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
+            event.args->ptrVal = reinterpret_cast<void *>(getWindowHandler());
             dispatchEvent(event);
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
             event.name         = EVENT_DESTROY_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
+            event.args->ptrVal = reinterpret_cast<void *>(getWindowHandler());
             dispatchEvent(event);
         } break;
         case JniCommand::JNI_CMD_RESUME: {

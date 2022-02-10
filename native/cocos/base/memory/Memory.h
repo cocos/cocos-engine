@@ -117,18 +117,24 @@
 #define CC_DESTROY(ptr)   \
     {                     \
         (ptr)->destroy(); \
-        CC_DELETE(ptr);   \
     }
+
 #define CC_SAFE_DESTROY(ptr) \
     if (ptr) {               \
         (ptr)->destroy();    \
-        CC_DELETE(ptr);      \
-        ptr = nullptr;       \
     }
-#define CC_UNSAFE_DESTROY(ptr) \
-    if (ptr) {                 \
-        (ptr)->destroy();      \
-        CC_DELETE(ptr);        \
+
+#define CC_SAFE_DESTROY_AND_DELETE(ptr) \
+    if (ptr) {                          \
+        (ptr)->destroy();               \
+        CC_DELETE(ptr);                 \
+        ptr = nullptr;                  \
+    }
+
+#define CC_SAFE_DESTROY_NULL(ptr) \
+    if (ptr) {                    \
+        (ptr)->destroy();         \
+        (ptr) = nullptr;          \
     }
 
 #define CC_SAFE_RELEASE_REF(ptr) \

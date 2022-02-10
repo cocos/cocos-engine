@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,14 +27,14 @@
 
 #include <functional>
 #include "MiddlewareMacro.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "math/Geometry.h"
 #include "math/Vec3.h"
 
 MIDDLEWARE_BEGIN
 
 struct Color4B {
-    Color4B(uint32_t _r, uint32_t _g, uint32_t _b, uint32_t _a);
+    Color4B(uint32_t r, uint32_t g, uint32_t b, uint32_t a);
     Color4B();
     bool     operator==(const Color4B &right) const;
     bool     operator!=(const Color4B &right) const;
@@ -49,16 +49,16 @@ struct Color4B {
 };
 
 struct Color4F {
-    Color4F(float _r, float _g, float _b, float _a);
+    Color4F(float r, float g, float b, float a);
     Color4F();
-    bool     operator==(const Color4F &right) const;
-    bool     operator!=(const Color4F &right) const;
-    Color4F &operator=(const Color4B &right);
-
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
-    float a = 0.0f;
+    bool operator==(const Color4F &right) const;
+    bool operator!=(const Color4F &right) const;
+    Color4F& operator=(const Color4B &right);
+    
+    float r = 0.0F;
+    float g = 0.0F;
+    float b = 0.0F;
+    float a = 0.0F;
 
     static const Color4F WHITE;
 };
@@ -74,7 +74,7 @@ struct Tex2F {
 /**
  *  Vertex Format with x y z u v color.
  */
-struct V2F_T2F_C4F {
+struct V2F_T2F_C4F { //NOLINT
     // vertices (3F)
     cc::Vec3 vertex;
 
@@ -88,7 +88,7 @@ struct V2F_T2F_C4F {
 /**
  *  Vertex Format with x y u v color1 color2.
  */
-struct V2F_T2F_C4F_C4F {
+struct V2F_T2F_C4F_C4F { // NOLINT
     // vertices (3F)
     cc::Vec3 vertex;
 
@@ -106,7 +106,7 @@ struct Triangles {
     /**Vertex data pointer.*/
     V2F_T2F_C4F *verts = nullptr;
     /**Index data pointer.*/
-    unsigned short *indices = nullptr;
+    unsigned short *indices = nullptr; // NOLINT
     /**The number of vertices.*/
     int vertCount = 0;
     /**The number of indices.*/
@@ -117,7 +117,7 @@ struct TwoColorTriangles {
     /**Vertex data pointer.*/
     V2F_T2F_C4F_C4F *verts = nullptr;
     /**Index data pointer.*/
-    unsigned short *indices = nullptr;
+    unsigned short *indices = nullptr; //NOLINT
     /**The number of vertices.*/
     int vertCount = 0;
     /**The number of indices.*/
@@ -127,24 +127,24 @@ struct TwoColorTriangles {
 ///////////////////////////////////////////////////////////////////////
 // adapt to editor texture,this is a texture delegate,not real texture
 ///////////////////////////////////////////////////////////////////////
-class Texture2D : public cc::Ref {
+class Texture2D : public cc::RefCounted {
 public:
     Texture2D();
-    virtual ~Texture2D();
+    ~Texture2D() override;
     /**
      Extension to set the Min / Mag filter
      */
-    typedef struct _TexParams {
+    using TexParams = struct _TexParams { // NOLINT
         uint32_t minFilter;
         uint32_t magFilter;
         uint32_t wrapS;
         uint32_t wrapT;
-    } TexParams;
+    };
 
     /**
      * set texture param callback
      */
-    typedef std::function<void(int32_t, uint32_t, uint32_t, uint32_t, uint32_t)> texParamCallback;
+    using texParamCallback = std::function<void (int32_t, uint32_t, uint32_t, uint32_t, uint32_t)>;
 
     /** Sets the min filter, mag filter, wrap s and wrap t texture parameters.
      If the texture size is NPOT (non power of 2), then in can only use GL_CLAMP_TO_EDGE in GL_TEXTURE_WRAP_{S,T}.
@@ -197,13 +197,13 @@ private:
 ///////////////////////////////////////////////////////////////////////
 // adapt to editor sprite frame
 ///////////////////////////////////////////////////////////////////////
-class SpriteFrame : public cc::Ref {
+class SpriteFrame : public cc::RefCounted {
 public:
     static SpriteFrame *createWithTexture(Texture2D *pobTexture, const cc::Rect &rect);
     static SpriteFrame *createWithTexture(Texture2D *pobTexture, const cc::Rect &rect, bool rotated, const cc::Vec2 &offset, const cc::Size &originalSize);
 
     SpriteFrame();
-    virtual ~SpriteFrame();
+    ~SpriteFrame() override;
 
     /** Initializes a SpriteFrame with a texture, rect in points.
      It is assumed that the frame was not trimmed.

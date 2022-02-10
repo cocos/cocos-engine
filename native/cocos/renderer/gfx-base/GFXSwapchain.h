@@ -26,6 +26,7 @@
 #pragma once
 
 #include "GFXTexture.h"
+#include "base/Ptr.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -78,8 +79,8 @@ protected:
     SurfaceTransform _transform{SurfaceTransform::IDENTITY};
     bool             _preRotationEnabled{false};
 
-    Texture *_colorTexture{nullptr};
-    Texture *_depthStencilTexture{nullptr};
+    IntrusivePtr<Texture> _colorTexture;
+    IntrusivePtr<Texture> _depthStencilTexture;
 };
 
 ///////////////////////////////////////////////////////////

@@ -25,11 +25,16 @@
 
 #pragma once
 
+#include <string>
+#include "base/Ptr.h"
+#include "base/RefCounted.h"
 #include "math/Vec3.h"
-#include "scene/Node.h"
 
 namespace cc {
+class Node;
 namespace scene {
+
+class RenderScene;
 
 enum class LightType {
     DIRECTIONAL,
@@ -38,41 +43,65 @@ enum class LightType {
     UNKNOWN,
 };
 
-class Light {
+class Light : public RefCounted {
 public:
-    Light()              = default;
-    Light(const Light &) = delete;
-    Light(Light &&)      = delete;
-    virtual ~Light()     = default;
-    Light &operator=(const Light &) = delete;
-    Light &operator=(const Light &&) = delete;
+    Light();
+    ~Light() override;
 
-    virtual void update() = 0;
+    inline void attachToScene(RenderScene *scene) { _scene = scene; }
+    inline void detachFromScene() { _scene = nullptr; }
 
-    inline void setColor(const Vec3 &color) { _color = color; }
-    inline void setColorTemperatureRGB(const Vec3 &value) { _colorTemperatureRGB = value; }
-    inline void setNode(Node *node) {
-        _node = node;
+    void destroy();
+
+    virtual void initialize() {
+        _color     = Vec3(1, 1, 1);
+        _colorTemp = 6550.F;
     }
-    inline void setUseColorTemperature(bool value) { _useColorTemperature = value; }
-    inline void setBaked(bool value) { _baked = value; }
-    inline void setType(LightType type) { _type = type; }
+
+    virtual void update(){};
+
+    inline bool isBaked() const { return _baked; }
+    inline void setBaked(bool val) { _baked = val; }
 
     inline const Vec3 &getColor() const { return _color; }
+    inline void        setColor(const Vec3 &color) { _color = color; }
+
+    inline bool isUseColorTemperature() const { return _useColorTemperature; }
+    inline void setUseColorTemperature(bool value) { _useColorTemperature = value; }
+
+    inline float getColorTemperature() const { return _colorTemp; }
+    inline void  setColorTemperature(float val) { _colorTemp = val; }
+
+    inline Node *getNode() const { return _node.get(); }
+    void         setNode(Node *node);
+
+    inline LightType getType() const { return _type; }
+    inline void      setType(LightType type) { _type = type; }
+
+    inline const std::string &getName() const { return _name; }
+    inline void               setName(const std::string &name) { _name = name; }
+
+    inline RenderScene *getScene() const { return _scene; }
+
     inline const Vec3 &getColorTemperatureRGB() const { return _colorTemperatureRGB; }
-    inline Node *      getNode() const { return _node; }
-    inline LightType   getType() const { return _type; }
-    inline bool        getUseColorTemperature() const { return _useColorTemperature; }
-    inline bool        getBaked() const { return _baked; }
+    inline void        setColorTemperatureRGB(const Vec3 &value) { _colorTemperatureRGB = value; }
+
+    static float nt2lm(float size);
 
 protected:
-    bool      _useColorTemperature{false};
-    bool      _baked{false};
-    Node *    _node{nullptr};
-    LightType _type{LightType::UNKNOWN};
-    Vec3      _color;
-    Vec3      _colorTemperatureRGB;
-    Vec3      _forward{0, 0, -1};
+    bool               _useColorTemperature{false};
+    bool               _baked{false};
+    IntrusivePtr<Node> _node;
+    float              _colorTemp{6550.F};
+    LightType          _type{LightType::UNKNOWN};
+    std::string        _name;
+    RenderScene *      _scene{nullptr};
+    Vec3               _color{1, 1, 1};
+    Vec3               _colorTemperatureRGB;
+    Vec3               _forward{0, 0, -1};
+
+private:
+    CC_DISALLOW_COPY_MOVE_ASSIGN(Light);
 };
 
 } // namespace scene

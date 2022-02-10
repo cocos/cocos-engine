@@ -23,22 +23,24 @@
 
 #pragma once
 
+#include <utility>
+
 #include "ArmatureCache.h"
 #include "CCArmatureDisplay.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "dragonbones/DragonBonesHeaders.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-class CCArmatureCacheDisplay : public cc::middleware::IMiddleware, public cc::Ref {
+class CCArmatureCacheDisplay : public cc::RefCounted, public cc::middleware::IMiddleware {
 public:
     CCArmatureCacheDisplay(const std::string &armatureName, const std::string &armatureKey, const std::string &atlasUUID, bool isShare);
-    virtual ~CCArmatureCacheDisplay();
+    ~CCArmatureCacheDisplay() override;
     void dispose();
 
-    virtual void update(float dt) override;
-    virtual void render(float dt) override;
-    virtual uint32_t getRenderOrder() const override;
+    void     update(float dt) override;
+    void     render(float dt) override;
+    uint32_t getRenderOrder() const override;
 
     void setTimeScale(float scale) {
         _timeScale = scale;
@@ -53,7 +55,7 @@ public:
     void onEnable();
     void onDisable();
 
-    Armature *getArmature() const;
+    Armature * getArmature() const;
     Animation *getAnimation() const;
 
     void setColor(float r, float g, float b, float a);
@@ -67,9 +69,9 @@ public:
         _premultipliedAlpha = value;
     }
 
-    typedef std::function<void(EventObject *)> dbEventCallback;
-    void setDBEventCallback(dbEventCallback callback) {
-        _dbEventCallback = callback;
+    using dbEventCallback = std::function<void (EventObject *)>;
+    void                                       setDBEventCallback(dbEventCallback callback) {
+        _dbEventCallback = std::move(callback);
     }
     void addDBEventListener(const std::string &type);
     void removeDBEventListener(const std::string &type);
@@ -91,26 +93,26 @@ public:
     se_object_ptr getParamsBuffer() const;
 
 private:
-    float _timeScale = 1;
-    int _curFrameIndex = -1;
-    float _accTime = 0.0f;
-    int _playCount = 0;
-    int _playTimes = 0;
-    bool _isAniComplete = true;
-    std::string _animationName = "";
+    float       _timeScale     = 1;
+    int         _curFrameIndex = -1;
+    float       _accTime       = 0.0F;
+    int         _playCount     = 0;
+    int         _playTimes     = 0;
+    bool        _isAniComplete = true;
+    std::string _animationName;
 
-    Armature *_armature = nullptr;
+    Armature *                    _armature      = nullptr;
     ArmatureCache::AnimationData *_animationData = nullptr;
-    std::map<std::string, bool> _listenerIDMap;
+    std::map<std::string, bool>   _listenerIDMap;
 
-    bool _useAttach = false;
-    bool _batch = true;
+    bool                    _useAttach = false;
+    bool                    _batch     = true;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
 
-    bool _premultipliedAlpha = false;
-    dbEventCallback _dbEventCallback = nullptr;
-    ArmatureCache *_armatureCache = nullptr;
-    EventObject *_eventObject;
+    bool            _premultipliedAlpha = false;
+    dbEventCallback _dbEventCallback    = nullptr;
+    ArmatureCache * _armatureCache      = nullptr;
+    EventObject *   _eventObject;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
     // Js fill this buffer to send parameter to cpp, avoid to call jsb function.

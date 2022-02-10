@@ -30,9 +30,10 @@ jobs:
           cmake -B tests/unit-test/build -S tests/unit-test -G"Visual Studio 16 2019" -A win32
           cmake --build tests/unit-test/build --config Release
           ./tests/unit-test/build/src/Release/CocosTest.exe
-
-      - name: Run Module Tests
-        shell: bash
-        run: |
-          cd tests/module-tests 
-          bash run-test-windows.sh
+      
+      #### TODO(PatriceJiang): model split
+      # - name: Run Module Tests
+      #   shell: bash
+      #   run: |
+      #     cd tests/module-tests 
+      #     bash run-test-windows.sh

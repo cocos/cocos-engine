@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,7 +30,7 @@
 #include "MeshBuffer.h"
 #include "MiddlewareMacro.h"
 #include "SharedBufferManager.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
 MIDDLEWARE_BEGIN
 
@@ -39,10 +39,10 @@ MIDDLEWARE_BEGIN
  */
 class IMiddleware {
 public:
-    IMiddleware() {}
-    virtual ~IMiddleware() {}
-    virtual void     update(float dt)       = 0;
-    virtual void     render(float dt)       = 0;
+    IMiddleware() = default;
+    virtual ~IMiddleware() = default;
+    virtual void update(float dt) = 0;
+    virtual void render(float dt) = 0;
     virtual uint32_t getRenderOrder() const = 0;
 };
 
@@ -53,17 +53,17 @@ public:
 class MiddlewareManager {
 public:
     static MiddlewareManager *getInstance() {
-        if (_instance == nullptr) {
-            _instance = new MiddlewareManager;
+        if (instance == nullptr) {
+            instance = new MiddlewareManager;
         }
 
-        return _instance;
+        return instance;
     }
 
     static void destroyInstance() {
-        if (_instance) {
-            delete _instance;
-            _instance = nullptr;
+        if (instance) {
+            delete instance;
+            instance = nullptr;
         }
     }
 
@@ -115,16 +115,15 @@ public:
     bool isUpdating  = false;
 
 private:
-    void _clearRemoveList();
+    void clearRemoveList();
 
-private:
-    std::vector<IMiddleware *>  _updateList;
-    std::vector<IMiddleware *>  _removeList;
+    std::vector<IMiddleware *> _updateList;
+    std::vector<IMiddleware *> _removeList;
     std::map<int, MeshBuffer *> _mbMap;
 
     SharedBufferManager _renderInfo;
     SharedBufferManager _attachInfo;
 
-    static MiddlewareManager *_instance;
+    static MiddlewareManager *instance;
 };
 MIDDLEWARE_END

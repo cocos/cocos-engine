@@ -30,6 +30,7 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
+    #include <vector>
     #include "Base.h"
 
 namespace se {
@@ -50,7 +51,9 @@ public:
          *  @return A class instance used for creating relevant native binding objects.
          *  @note Don't need to delete the pointer return by this method, it's managed internally.
          */
-    static Class *create(const std::string &className, Object *obj, Object *parentProto, v8::FunctionCallback ctor);
+    static Class *create(const std::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor);
+
+    static Class *create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor);
 
     /**
          *  @brief Defines a member function with a callback. Each objects created by class will have this function property.
@@ -68,6 +71,8 @@ public:
          *  @return true if succeed, otherwise false.
          */
     bool defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter);
+
+    bool defineProperty(const std::initializer_list<const char *> &names, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter);
 
     /**
          *  @brief Defines a static function with a callback. Only JavaScript constructor object will have this function.
@@ -114,7 +119,7 @@ public:
     const char *getName() const { return _name.c_str(); }
 
     // Private API used in wrapper
-    V8FinalizeFunc _getFinalizeFunction() const;
+    V8FinalizeFunc _getFinalizeFunction() const; // NOLINT(readability-identifier-naming)
 
 private:
     Class();
@@ -127,7 +132,7 @@ private:
 
     static void cleanup();
     //        static v8::Local<v8::Object> _createJSObject(const std::string &clsName, Class** outCls);
-    static v8::Local<v8::Object> _createJSObjectWithClass(Class *cls);
+    static v8::Local<v8::Object> _createJSObjectWithClass(Class *cls); // NOLINT(readability-identifier-naming)
     static void                  setIsolate(v8::Isolate *isolate);
 
     std::string _name;

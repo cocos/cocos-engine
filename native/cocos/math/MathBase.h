@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,7 +27,7 @@
 #define __CCMATHBASE_H__
 
 #include <memory>
-#include <string.h>
+#include <string>
 #include "base/Macros.h"
 /**
  * @addtogroup base
@@ -72,11 +72,11 @@
 NS_CC_MATH_BEGIN
 
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
-struct Hasher final { size_t operator()(const T& info) const; };
+struct Hasher final { size_t operator()(const T &info) const; };
 
 // make this boost::hash compatible
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
-size_t hash_value(const T& info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
+size_t hash_value(const T &info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
 
 NS_CC_MATH_END
 

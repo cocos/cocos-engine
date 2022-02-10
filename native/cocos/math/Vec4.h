@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -330,6 +330,12 @@ public:
      * @param dst The destination vector.
      */
     static void subtract(const Vec4 &v1, const Vec4 &v2, Vec4 *dst);
+
+    /**
+     * @en Calculates the linear interpolation between two vectors with a given ratio
+     * @zh 逐元素向量线性插值： A + t * (B - A)
+     */
+    static void lerp(const Vec4 &a, const Vec4 &b, float t, Vec4 *dst);
 
     /**
      * Calculates the sum of this vector with the given vector.

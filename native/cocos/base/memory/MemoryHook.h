@@ -35,18 +35,18 @@
     #include <unordered_map>
     #include <vector>
 
-typedef void* (*MallocType)(size_t size);
-typedef void (*FreeType)(void* ptr);
+typedef void *(*MallocType)(size_t size);
+typedef void (*FreeType)(void *ptr);
 
-typedef void (*NewHookType)(const void* ptr, size_t size);
-typedef void (*DeleteHookType)(const void* ptr);
+typedef void (*NewHookType)(const void *ptr, size_t size);
+typedef void (*DeleteHookType)(const void *ptr);
 
 namespace cc {
 
 struct CC_DLL MemoryRecord {
-    uint64_t           address{0};
-    size_t             size{0};
-    std::vector<void*> callstack;
+    uint64_t            address{0};
+    size_t              size{0};
+    std::vector<void *> callstack;
 };
 
 class CC_DLL MemoryHook {
@@ -68,7 +68,7 @@ private:
      */
     void dumpMemoryLeak();
 
-    static void log(const std::string& msg);
+    static void log(const std::string &msg);
 
     /**
      * Register all malloc hooks
