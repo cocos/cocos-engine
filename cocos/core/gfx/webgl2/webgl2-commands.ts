@@ -1283,8 +1283,8 @@ export function WebGL2CmdFuncCreateSampler (device: WebGL2Device, gpuSampler: IW
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_S, gpuSampler.glWrapS);
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_T, gpuSampler.glWrapT);
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_R, gpuSampler.glWrapR);
-        gl.samplerParameterf(glSampler, gl.TEXTURE_MIN_LOD, 4);
-        gl.samplerParameterf(glSampler, gl.TEXTURE_MAX_LOD, 5);
+        gl.samplerParameterf(glSampler, gl.TEXTURE_MIN_LOD, minLod);
+        gl.samplerParameterf(glSampler, gl.TEXTURE_MAX_LOD, maxLod);
     }
 }
 
@@ -1347,8 +1347,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                         gl.COLOR_ATTACHMENT0 + i,
                         colorTexture.glTarget,
                         colorTexture.glTexture,
-                        0,
-                    ); // level should be 0.
+                        gpuFramebuffer.gpuDepthStencilView!.baseLevel,
+                    );
                 } else {
                     gl.framebufferRenderbuffer(
                         gl.FRAMEBUFFER,
@@ -1374,7 +1374,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                     dst.glTarget,
                     dst.glTexture,
                     gpuFramebuffer.gpuDepthStencilView!.baseLevel,
-                ); // level must be 0
+                );
             } else {
                 gl.framebufferRenderbuffer(
                     gl.FRAMEBUFFER,

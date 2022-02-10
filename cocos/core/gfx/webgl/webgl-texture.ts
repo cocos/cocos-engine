@@ -44,13 +44,8 @@ export class WebGLTexture extends Texture {
             this._isTextureView = true;
         }
 
-        this._viewInfo.texture = viewInfo.texture;
-        this._viewInfo.type = viewInfo.type;
-        this._viewInfo.format = viewInfo.format;
-        this._viewInfo.baseLevel = viewInfo.baseLevel;
-        this._viewInfo.levelCount = viewInfo.levelCount;
-        this._viewInfo.baseLayer = viewInfo.baseLayer;
-        this._viewInfo.layerCount = viewInfo.layerCount;
+        this._info = new TextureInfo();
+        this._viewInfo = new TextureViewInfo();
 
         this._info.type = texInfo.type;
         this._info.usage = texInfo.usage;
@@ -99,13 +94,34 @@ export class WebGLTexture extends Texture {
             WebGLCmdFuncCreateTexture(WebGLDeviceManager.instance, this._gpuTexture);
 
             WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+
+            this._viewInfo.texture = this;
+            this._viewInfo.type = info.type;
+            this._viewInfo.format = info.format;
+            this._viewInfo.baseLevel = 0;
+            this._viewInfo.levelCount = 1;
+            this._viewInfo.baseLayer = 0;
+            this._viewInfo.layerCount = 1;
         } else {
             this._gpuTexture = (viewInfo.texture as WebGLTexture)._gpuTexture;
+
+            if (this._gpuTexture?.format !== texInfo.format) {
+                console.log('GPU memory alias is not supported');
+                return;
+            }
+
+            this._viewInfo.texture = viewInfo.texture;
+            this._viewInfo.type = viewInfo.type;
+            this._viewInfo.format = viewInfo.format;
+            this._viewInfo.baseLevel = viewInfo.baseLevel;
+            this._viewInfo.levelCount = viewInfo.levelCount;
+            this._viewInfo.baseLayer = viewInfo.baseLayer;
+            this._viewInfo.layerCount = viewInfo.layerCount;
         }
     }
 
     public destroy () {
-        if (this._gpuTexture) {
+        if (!this._isTextureView && this._gpuTexture) {
             WebGLCmdFuncDestroyTexture(WebGLDeviceManager.instance, this._gpuTexture);
             WebGLDeviceManager.instance.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
