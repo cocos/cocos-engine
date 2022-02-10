@@ -32,8 +32,12 @@
     #include "ScriptEngine.h"
     #include "Utils.h"
 
+    #include <array>
     #include <memory>
+    #include <sstream>
     #include <unordered_map>
+
+    #define JSB_FUNC_DEFAULT_MAX_ARG_COUNT (10)
 
 namespace se {
 //NOLINTNEXTLINE
@@ -49,9 +53,12 @@ uint32_t nativeObjectId = 0;
 Object::Object()
 : _cls(nullptr),
   _rootCount(0),
-  _privateData(nullptr),
+  _privateObject(nullptr),
   _finalizeCb(nullptr),
   _internalData(nullptr) {
+    #if JSB_TRACK_OBJECT_CREATION
+    _objectCreationStackFrame = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+    #endif
 }
 
 Object::~Object() {
@@ -62,23 +69,24 @@ Object::~Object() {
     if (__objectMap) {
         __objectMap->erase(this);
     }
+    delete _privateObject;
+    _privateObject = nullptr;
 }
 
-/*static*/
-void Object::nativeObjectFinalizeHook(void *nativeObj) {
-    if (nativeObj == nullptr) {
+void Object::nativeObjectFinalizeHook(PrivateObjectBase *privateObj) {
+    if (privateObj == nullptr) {
         return;
     }
-
-    auto iter = NativePtrToObjectMap::find(nativeObj);
+    void *nativeObj = privateObj->getRaw();
+    auto  iter      = NativePtrToObjectMap::find(nativeObj);
     if (iter != NativePtrToObjectMap::end()) {
         Object *obj = iter->second;
         if (obj->_finalizeCb != nullptr) {
-            obj->_finalizeCb(nativeObj);
+            obj->_finalizeCb(privateObj);
         } else {
             assert(obj->_getClass() != nullptr);
             if (obj->_getClass()->_finalizeFunc != nullptr) {
-                obj->_getClass()->_finalizeFunc(nativeObj);
+                obj->_getClass()->_finalizeFunc(privateObj);
             }
         }
         obj->decRef();
@@ -97,7 +105,6 @@ void Object::setup() {
     __objectMap = std::make_unique<std::unordered_map<Object *, void *>>();
 }
 
-/* static */
 void Object::cleanup() {
     void *  nativeObj = nullptr;
     Object *obj       = nullptr;
@@ -105,15 +112,15 @@ void Object::cleanup() {
 
     const auto &nativePtrToObjectMap = NativePtrToObjectMap::instance();
     for (const auto &e : nativePtrToObjectMap) {
-        nativeObj = e.first;
-        obj       = e.second;
-
+        nativeObj                        = e.first;
+        obj                              = e.second;
+        PrivateObjectBase *privateObject = obj->getPrivateObject();
         if (obj->_finalizeCb != nullptr) {
-            obj->_finalizeCb(nativeObj);
+            obj->_finalizeCb(privateObject);
         } else {
             if (obj->_getClass() != nullptr) {
                 if (obj->_getClass()->_finalizeFunc != nullptr) {
-                    obj->_getClass()->_finalizeFunc(nativeObj);
+                    obj->_getClass()->_finalizeFunc(privateObject);
                 }
             }
         }
@@ -126,7 +133,6 @@ void Object::cleanup() {
     }
 
     NativePtrToObjectMap::clear();
-    NonRefNativePtrCreatedByCtorMap::clear();
 
     if (__objectMap) {
         std::vector<Object *> toReleaseObjects;
@@ -186,7 +192,7 @@ Object *Object::createArrayObject(size_t length) {
     return obj;
 }
 
-Object *Object::createArrayBufferObject(void *data, size_t byteLength) {
+Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
     if (data) {
         memcpy(jsobj->GetBackingStore()->Data(), data, byteLength);
@@ -251,6 +257,64 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
     return obj;
 }
 
+Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj) {
+    return Object::createTypedArrayWithBuffer(type, obj, 0);
+}
+
+Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offet) {
+    size_t   byteLength{0};
+    uint8_t *skip{nullptr};
+    obj->getTypedArrayData(&skip, &byteLength);
+    return Object::createTypedArrayWithBuffer(type, obj, 0, byteLength);
+}
+
+Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offet, size_t byteLength) {
+    if (type == TypedArrayType::NONE) {
+        SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
+        return nullptr;
+    }
+
+    if (type == TypedArrayType::UINT8_CLAMPED) {
+        SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
+        return nullptr;
+    }
+
+    v8::Local<v8::Object> typedArray;
+    assert(obj->isArrayBuffer());
+    v8::Local<v8::ArrayBuffer> jsobj = obj->_getJSObject().As<v8::ArrayBuffer>();
+    switch (type) {
+        case TypedArrayType::INT8:
+            typedArray = v8::Int8Array::New(jsobj, offet, byteLength);
+            break;
+        case TypedArrayType::INT16:
+            typedArray = v8::Int16Array::New(jsobj, offet, byteLength / 2);
+            break;
+        case TypedArrayType::INT32:
+            typedArray = v8::Int32Array::New(jsobj, offet, byteLength / 4);
+            break;
+        case TypedArrayType::UINT8:
+            typedArray = v8::Uint8Array::New(jsobj, offet, byteLength);
+            break;
+        case TypedArrayType::UINT16:
+            typedArray = v8::Uint16Array::New(jsobj, offet, byteLength / 2);
+            break;
+        case TypedArrayType::UINT32:
+            typedArray = v8::Uint32Array::New(jsobj, offet, byteLength / 4);
+            break;
+        case TypedArrayType::FLOAT32:
+            typedArray = v8::Float32Array::New(jsobj, offet, byteLength / 4);
+            break;
+        case TypedArrayType::FLOAT64:
+            typedArray = v8::Float64Array::New(jsobj, offet, byteLength / 8);
+            break;
+        default:
+            assert(false); // Should never go here.
+            break;
+    }
+
+    return Object::_createJSObject(nullptr, typedArray);
+}
+
 Object *Object::createUint8TypedArray(uint8_t *bytes, size_t byteLength) {
     return createTypedArray(TypedArrayType::UINT8, bytes, byteLength);
 }
@@ -282,15 +346,15 @@ bool Object::init(Class *cls, v8::Local<v8::Object> obj) {
     }
 
     #if CC_DEBUG && CC_DEBUG_JS_OBJECT_ID
-    this->_objectId = ++nativeObjectId;
-    this->setProperty("__object_id__", se::Value(this->_objectId));
-    this->setProperty("__native_class_name__", se::Value(cls ? cls->getName() : "[noname]"));
+    //    this->_objectId = ++nativeObjectId;
+    //    defineOwnProperty("__object_id__", se::Value(this->_objectId), false, false, false);
+    //    defineOwnProperty("__native_class_name__", se::Value(cls ? cls->getName() : "[noname]"), false, false, false);
     #endif
 
     return true;
 }
 
-bool Object::getProperty(const char *name, Value *data) {
+bool Object::getProperty(const char *name, Value *data, bool cachePropertyName) {
     assert(data != nullptr);
     data->setUndefined();
 
@@ -300,14 +364,22 @@ bool Object::getProperty(const char *name, Value *data) {
         return false;
     }
 
-    v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
+    v8::MaybeLocal<v8::String> nameValue;
+
+    if (cachePropertyName) {
+        nameValue = ScriptEngine::getInstance()->_getStringPool().get(__isolate, name);
+    } else {
+        nameValue = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
+    }
+
     if (nameValue.IsEmpty()) {
         return false;
     }
 
     v8::Local<v8::String>  nameValToLocal = nameValue.ToLocalChecked();
     v8::Local<v8::Context> context        = __isolate->GetCurrentContext();
-    v8::Maybe<bool>        maybeExist     = _obj.handle(__isolate)->Has(context, nameValToLocal);
+    v8::Local<v8::Object>  localObj       = _obj.handle(__isolate);
+    v8::Maybe<bool>        maybeExist     = localObj->Has(context, nameValToLocal);
     if (maybeExist.IsNothing()) {
         return false;
     }
@@ -316,7 +388,7 @@ bool Object::getProperty(const char *name, Value *data) {
         return false;
     }
 
-    v8::MaybeLocal<v8::Value> result = _obj.handle(__isolate)->Get(context, nameValToLocal);
+    v8::MaybeLocal<v8::Value> result = localObj->Get(context, nameValToLocal);
     if (result.IsEmpty()) {
         return false;
     }
@@ -353,7 +425,7 @@ bool Object::deleteProperty(const char *name) {
 }
 
 bool Object::setProperty(const char *name, const Value &data) {
-    v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
+    v8::MaybeLocal<v8::String> nameValue = ScriptEngine::getInstance()->_getStringPool().get(__isolate, name);
     if (nameValue.IsEmpty()) {
         return false;
     }
@@ -377,6 +449,32 @@ bool Object::defineProperty(const char *name, v8::AccessorNameGetterCallback get
     v8::Local<v8::String> nameValChecked = nameValue.ToLocalChecked();
     v8::Local<v8::Name>   jsName         = v8::Local<v8::Name>::Cast(nameValChecked);
     v8::Maybe<bool>       ret            = _obj.handle(__isolate)->SetAccessor(__isolate->GetCurrentContext(), jsName, getter, setter);
+    return ret.IsJust() && ret.FromJust();
+}
+
+bool Object::defineOwnProperty(const char *name, const se::Value &value, bool writable, bool enumerable, bool configurable) {
+    v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
+    if (nameValue.IsEmpty()) {
+        return false;
+    }
+
+    int flag{v8::PropertyAttribute::None};
+    if (!writable) {
+        flag |= v8::PropertyAttribute::ReadOnly;
+    }
+    if (!enumerable) {
+        flag |= v8::PropertyAttribute::DontEnum;
+    }
+    if (!configurable) {
+        flag |= v8::PropertyAttribute::DontDelete;
+    }
+
+    v8::Local<v8::Value> v8Value;
+    internal::seToJsValue(__isolate, value, &v8Value);
+
+    v8::Local<v8::String> nameValChecked = nameValue.ToLocalChecked();
+    v8::Local<v8::Name>   jsName         = v8::Local<v8::Name>::Cast(nameValChecked);
+    v8::Maybe<bool>       ret            = _obj.handle(__isolate)->DefineOwnProperty(__isolate->GetCurrentContext(), jsName, v8Value, static_cast<v8::PropertyAttribute>(flag));
     return ret.IsJust() && ret.FromJust();
 }
 
@@ -454,30 +552,42 @@ bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
     return true;
 }
 
-void Object::setPrivateData(void *data) {
-    assert(_privateData == nullptr);
-    assert(NativePtrToObjectMap::find(data) == NativePtrToObjectMap::end());
-    internal::setPrivate(__isolate, _obj, data, &_internalData);
-    NativePtrToObjectMap::emplace(data, this);
-    _privateData = data;
-    setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data))));
+void Object::setPrivateObject(PrivateObjectBase *data) {
+    assert(_privateObject == nullptr);
+    #if CC_DEBUG
+    //assert(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
+    auto it = NativePtrToObjectMap::find(data->getRaw());
+    if (it != NativePtrToObjectMap::end()) {
+        auto *pri = it->second->getPrivateObject();
+        SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
+        #if JSB_TRACK_OBJECT_CREATION
+        SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
+        #endif
+        assert(false);
+    }
+    #endif
+    internal::setPrivate(__isolate, _obj, data, this, &_internalData);
+    NativePtrToObjectMap::emplace(data->getRaw(), this);
+    _privateObject = data;
+    defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data->getRaw()))), false, false, false);
 }
 
-void *Object::getPrivateData() const {
-    if (_privateData == nullptr) {
-        const_cast<Object *>(this)->_privateData = internal::getPrivate(__isolate, const_cast<Object *>(this)->_obj.handle(__isolate));
+PrivateObjectBase *Object::getPrivateObject() const {
+    if (_privateObject == nullptr) {
+        const_cast<Object *>(this)->_privateObject = static_cast<PrivateObjectBase *>(internal::getPrivate(__isolate, const_cast<Object *>(this)->_obj.handle(__isolate)));
     }
-    return _privateData;
+    return _privateObject;
 }
 
 void Object::clearPrivateData(bool clearMapping) {
-    if (_privateData != nullptr) {
+    if (_privateObject != nullptr) {
         if (clearMapping) {
-            NativePtrToObjectMap::erase(_privateData);
+            NativePtrToObjectMap::erase(_privateObject->getRaw());
         }
         internal::clearPrivate(__isolate, _obj);
-        setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(nullptr))));
-        _privateData = nullptr;
+        defineOwnProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(nullptr))), false, false, false);
+        delete _privateObject;
+        _privateObject = nullptr;
     }
 }
 
@@ -494,11 +604,19 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
         SE_LOGD("Function object is released!\n");
         return false;
     }
-    size_t                            argc = 0;
-    std::vector<v8::Local<v8::Value>> argv;
-    argv.reserve(10);
-    argc = args.size();
-    internal::seToJsArgs(__isolate, args, &argv);
+    size_t argc = args.size();
+
+    std::array<v8::Local<v8::Value>, JSB_FUNC_DEFAULT_MAX_ARG_COUNT> argv;
+    std::unique_ptr<std::vector<v8::Local<v8::Value>>>               vecArgs;
+    v8::Local<v8::Value> *                                           pArgv = argv.data();
+
+    if (argc > JSB_FUNC_DEFAULT_MAX_ARG_COUNT) {
+        vecArgs = std::make_unique<std::vector<v8::Local<v8::Value>>>();
+        vecArgs->resize(argc);
+        pArgv = vecArgs->data();
+    }
+
+    internal::seToJsArgs(__isolate, args, pArgv);
 
     v8::Local<v8::Object> thiz = v8::Local<v8::Object>::Cast(v8::Undefined(__isolate));
     if (thisObject != nullptr) {
@@ -510,14 +628,24 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     }
 
     for (size_t i = 0; i < argc; ++i) {
-        if (argv[i].IsEmpty()) {
+        if (pArgv[i].IsEmpty()) {
             SE_LOGD("%s argv[%d] is released!\n", __FUNCTION__, (int)i);
             return false;
         }
     }
 
-    v8::Local<v8::Context>    context = se::ScriptEngine::getInstance()->_getContext();
-    v8::MaybeLocal<v8::Value> result  = _obj.handle(__isolate)->CallAsFunction(context, thiz, static_cast<int>(argc), argv.data());
+    v8::Local<v8::Context> context = se::ScriptEngine::getInstance()->_getContext();
+    #if CC_DEBUG
+    v8::TryCatch tryCatch(__isolate);
+    #endif
+    v8::MaybeLocal<v8::Value> result = _obj.handle(__isolate)->CallAsFunction(context, thiz, static_cast<int>(argc), pArgv);
+
+    #if CC_DEBUG
+    if (tryCatch.HasCaught()) {
+        v8::String::Utf8Value stack(__isolate, tryCatch.StackTrace(__isolate->GetCurrentContext()).ToLocalChecked());
+        SE_REPORT_ERROR("Invoking function failed, %s", *stack);
+    }
+    #endif
 
     if (!result.IsEmpty()) {
         if (rval != nullptr) {
@@ -561,7 +689,7 @@ bool Object::getArrayLength(uint32_t *length) const {
     assert(length != nullptr);
     auto *thiz = const_cast<Object *>(this);
 
-    v8::MaybeLocal<v8::String> lengthStr = v8::String::NewFromUtf8(__isolate, "length", v8::NewStringType::kNormal);
+    v8::MaybeLocal<v8::String> lengthStr = ScriptEngine::getInstance()->_getStringPool().get(__isolate, "length");
     if (lengthStr.IsEmpty()) {
         *length = 0;
         return false;
@@ -733,6 +861,23 @@ std::string Object::toString() const {
         ret = "[object Object]";
     }
     return ret;
+}
+
+std::string Object::toStringExt() const {
+    if (isFunction()) return "[function]";
+    if (isArray()) return "[array]";
+    if (isArrayBuffer()) return "[arraybuffer]";
+    if (isTypedArray()) return "[typedarray]";
+
+    std::vector<std::string> keys;
+    getAllKeys(&keys);
+    std::stringstream ss;
+    ss << "{";
+    for (auto &k : keys) {
+        ss << k << ", ";
+    }
+    ss << "}";
+    return ss.str();
 }
 
 } // namespace se

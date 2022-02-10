@@ -35,12 +35,11 @@
 
 namespace cc {
 namespace scene {
-struct Camera;
+class Camera;
 }
 namespace pipeline {
 struct RenderObject;
 class RenderPipeline;
-class DefineMap;
 class RenderInstancedQueue;
 class RenderBatchedQueue;
 class ForwardPipeline;

@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,7 +29,7 @@
 #define __HTTP_REQUEST_H__
 
 #include "base/Macros.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
 #include <functional>
 #include <string>
@@ -47,7 +47,7 @@ namespace network {
 class HttpClient;
 class HttpResponse;
 
-typedef std::function<void(HttpClient *, HttpResponse *)> ccHttpRequestCallback;
+using ccHttpRequestCallback = std::function<void(HttpClient *, HttpResponse *)>;
 
 /**
  * Defines the object which users must packed for HttpClient::send(HttpRequest*) method.
@@ -63,7 +63,7 @@ typedef std::function<void(HttpClient *, HttpResponse *)> ccHttpRequestCallback;
     #endif
 #endif
 
-class CC_DLL HttpRequest : public Ref {
+class CC_DLL HttpRequest : public RefCounted {
 public:
     /**
      * The HttpRequest type enum used in the HttpRequest::setRequestType.
@@ -85,15 +85,10 @@ public:
          Please refer to HttpRequestTest.cpp to find its usage.
      */
     HttpRequest()
-    : _requestType(Type::UNKNOWN),
-      _callback(nullptr),
-      _userData(nullptr),
-      _timeoutInSeconds(10.0f) {
-    }
+    : _callback(nullptr) {}
 
     /** Destructor. */
-    virtual ~HttpRequest() {
-    }
+    ~HttpRequest() override = default;
 
     /**
      * Override autorelease method to avoid developers to call it.
@@ -101,7 +96,7 @@ public:
      *
      * @return Ref* always return nullptr.
      */
-    Ref *autorelease() {
+    RefCounted *autorelease() { // NOLINT(readability-convert-member-functions-to-static)
         CCASSERT(false,
                  "HttpResponse is used between network thread and ui thread \
                  therefore, autorelease is forbidden here");
@@ -163,8 +158,9 @@ public:
      * @return char* the request data pointer.
      */
     inline char *getRequestData() {
-        if (!_requestData.empty())
+        if (!_requestData.empty()) {
             return _requestData.data();
+        }
 
         return nullptr;
     }
@@ -175,7 +171,7 @@ public:
      * @return ssize_t the size of request data
      */
     inline ssize_t getRequestDataSize() const {
-        return _requestData.size();
+        return static_cast<ssize_t>(_requestData.size());
     }
 
     /**
@@ -266,14 +262,14 @@ public:
 
 protected:
     // properties
-    Type                     _requestType; /// kHttpRequestGet, kHttpRequestPost or other enums
-    std::string              _url;         /// target url that this request is sent to
-    std::vector<char>        _requestData; /// used for POST
-    std::string              _tag;         /// user defined tag, to identify different requests in response callback
-    ccHttpRequestCallback    _callback;    /// C++11 style callbacks
-    void *                   _userData;    /// You can add your customed data here
-    std::vector<std::string> _headers;     /// custom http headers
-    float                    _timeoutInSeconds;
+    Type                     _requestType{Type::UNKNOWN}; /// kHttpRequestGet, kHttpRequestPost or other enums
+    std::string              _url;                        /// target url that this request is sent to
+    std::vector<char>        _requestData;                /// used for POST
+    std::string              _tag;                        /// user defined tag, to identify different requests in response callback
+    ccHttpRequestCallback    _callback;                   /// C++11 style callbacks
+    void *                   _userData{nullptr};          /// You can add your customed data here
+    std::vector<std::string> _headers;                    /// custom http headers
+    float                    _timeoutInSeconds{10.F};
 };
 
 } // namespace network

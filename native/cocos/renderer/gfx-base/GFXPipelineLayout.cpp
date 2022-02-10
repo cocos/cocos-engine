@@ -37,7 +37,7 @@ PipelineLayout::PipelineLayout()
 
 PipelineLayout::~PipelineLayout() = default;
 
-void PipelineLayout::initialize(const PipelineLayoutInfo& info) {
+void PipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _setLayouts = info.setLayouts;
 
     doInit(info);

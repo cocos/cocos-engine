@@ -56,8 +56,15 @@ void CCMTLSwapchain::doInit(const SwapchainInfo &info) {
     _gpuSwapchainObj = CC_NEW(CCMTLGPUSwapChainObject);
 
     //----------------------acquire layer-----------------------------------
-    auto* view = (CCView*)info.windowHandle;
-    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
+#if CC_EDITOR	
+    CAMetalLayer* layer = (CAMetalLayer*)info.windowHandle;
+    if(!layer.device) {
+        layer.device = MTLCreateSystemDefaultDevice();
+    }
+#else
+     auto* view = (CCView*)info.windowHandle;
+     CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
+#endif
 
     if (layer.pixelFormat == MTLPixelFormatInvalid) {
         layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -123,13 +130,8 @@ void CCMTLSwapchain::doDestroy(){
         CC_SAFE_DELETE(_gpuSwapchainObj);
     }
 
-    if(_colorTexture) {
-        CC_SAFE_DESTROY(_colorTexture);
-    }
-
-    if(_depthStencilTexture) {
-        CC_SAFE_DESTROY(_depthStencilTexture);
-    }
+    CC_SAFE_DESTROY_NULL(_colorTexture);
+    CC_SAFE_DESTROY_NULL(_depthStencilTexture);
 }
 
 void CCMTLSwapchain::doDestroySurface() {
@@ -145,11 +147,11 @@ void CCMTLSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform 
 }
 
 CCMTLTexture* CCMTLSwapchain::colorTexture() {
-    return static_cast<CCMTLTexture*>(_colorTexture);
+    return static_cast<CCMTLTexture*>(_colorTexture.get());
 }
 
 CCMTLTexture* CCMTLSwapchain::depthStencilTexture() {
-    return static_cast<CCMTLTexture*>(_depthStencilTexture);
+    return static_cast<CCMTLTexture*>(_depthStencilTexture.get());
 }
 
 id<CAMetalDrawable> CCMTLSwapchain::currentDrawable() {
@@ -158,14 +160,14 @@ id<CAMetalDrawable> CCMTLSwapchain::currentDrawable() {
 
 void CCMTLSwapchain::release() {
     _gpuSwapchainObj->currentDrawable = nil;
-    static_cast<CCMTLTexture*>(_colorTexture)->update();
+    static_cast<CCMTLTexture*>(_colorTexture.get())->update();
 }
 
 void CCMTLSwapchain::acquire() {
     // hang on here if next drawable not available
     while(!_gpuSwapchainObj->currentDrawable) {
         _gpuSwapchainObj->currentDrawable = [_gpuSwapchainObj->mtlLayer nextDrawable] ;
-        static_cast<CCMTLTexture*>(_colorTexture)->update();
+        static_cast<CCMTLTexture*>(_colorTexture.get())->update();
     }
 }
 

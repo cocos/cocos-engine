@@ -27,16 +27,15 @@ THE SOFTWARE.
 #include "audio/android/AudioDecoder.h"
 #include "audio/android/AudioResampler.h"
 #include "audio/android/PcmBufferProvider.h"
-#include "audio/android/AudioResampler.h"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 namespace cc {
 
 size_t AudioDecoder::fileRead(void *ptr, size_t size, size_t nmemb, void *datasource) {
-    AudioDecoder *thiz = (AudioDecoder *)datasource;
-    ssize_t toReadBytes = std::min((ssize_t)(thiz->_fileData.getSize() - thiz->_fileCurrPos), (ssize_t)(nmemb * size));
+    AudioDecoder *thiz        = (AudioDecoder *)datasource;
+    ssize_t       toReadBytes = std::min((ssize_t)(thiz->_fileData.getSize() - thiz->_fileCurrPos), (ssize_t)(nmemb * size));
     if (toReadBytes > 0) {
         memcpy(ptr, (unsigned char *)thiz->_fileData.getBytes() + thiz->_fileCurrPos, toReadBytes);
         thiz->_fileCurrPos += toReadBytes;
@@ -48,11 +47,11 @@ size_t AudioDecoder::fileRead(void *ptr, size_t size, size_t nmemb, void *dataso
 int AudioDecoder::fileSeek(void *datasource, int64_t offset, int whence) {
     AudioDecoder *thiz = (AudioDecoder *)datasource;
     if (whence == SEEK_SET)
-        thiz->_fileCurrPos = offset;
+        thiz->_fileCurrPos = static_cast<size_t>(offset);
     else if (whence == SEEK_CUR)
-        thiz->_fileCurrPos = thiz->_fileCurrPos + offset;
+        thiz->_fileCurrPos = static_cast<size_t>(thiz->_fileCurrPos + offset);
     else if (whence == SEEK_END)
-        thiz->_fileCurrPos = thiz->_fileData.getSize();
+        thiz->_fileCurrPos = static_cast<size_t>(thiz->_fileData.getSize());
     return 0;
 }
 
@@ -77,7 +76,7 @@ AudioDecoder::~AudioDecoder() {
 }
 
 bool AudioDecoder::init(const std::string &url, int sampleRate) {
-    _url = url;
+    _url        = url;
     _sampleRate = sampleRate;
     return true;
 }
@@ -131,16 +130,16 @@ bool AudioDecoder::resample() {
 
     ALOGV("Resample: %d --> %d", _result.sampleRate, _sampleRate);
 
-    auto r = _result;
+    auto              r = _result;
     PcmBufferProvider provider;
     provider.init(r.pcmBuffer->data(), r.numFrames, r.pcmBuffer->size() / r.numFrames);
 
-    const int outFrameRate = _sampleRate;
-    int outputChannels = 2;
-    size_t outputFrameSize = outputChannels * sizeof(int32_t);
-    size_t outputFrames = ((int64_t)r.numFrames * outFrameRate) / r.sampleRate;
-    size_t outputSize = outputFrames * outputFrameSize;
-    void *outputVAddr = malloc(outputSize);
+    const int outFrameRate    = _sampleRate;
+    int       outputChannels  = 2;
+    size_t    outputFrameSize = outputChannels * sizeof(int32_t);
+    auto      outputFrames    = static_cast<size_t>(((int64_t)r.numFrames * outFrameRate) / r.sampleRate);
+    size_t    outputSize      = outputFrames * outputFrameSize;
+    void *    outputVAddr     = malloc(outputSize);
 
     auto resampler = AudioResampler::create(AUDIO_FORMAT_PCM_16_BIT, r.numChannels, outFrameRate,
                                             AudioResampler::MED_QUALITY);
@@ -154,7 +153,7 @@ bool AudioDecoder::resample() {
     std::vector<int> Ovalues;
 
     if (Ovalues.empty()) {
-        Ovalues.push_back(outputFrames);
+        Ovalues.push_back(static_cast<int>(outputFrames));
     }
     for (size_t i = 0, j = 0; i < outputFrames;) {
         size_t thisFrames = Ovalues[j++];
@@ -164,8 +163,8 @@ bool AudioDecoder::resample() {
         if (thisFrames == 0 || thisFrames > outputFrames - i) {
             thisFrames = outputFrames - i;
         }
-        int outFrames = resampler->resample((int *)outputVAddr + outputChannels * i, thisFrames,
-                                            &provider);
+        int outFrames = static_cast<int>(resampler->resample(static_cast<int32_t *>(outputVAddr) + outputChannels * i, thisFrames,
+                                                             &provider));
         ALOGV("outFrames: %d", outFrames);
         i += thisFrames;
     }
@@ -182,9 +181,9 @@ bool AudioDecoder::resample() {
     // mono takes left channel only (out of stereo output pair)
     // stereo and multichannel preserve all channels.
 
-    int channels = r.numChannels;
-    int32_t *out = (int32_t *)outputVAddr;
-    int16_t *convert = (int16_t *)malloc(outputFrames * channels * sizeof(int16_t));
+    int      channels = r.numChannels;
+    int32_t *out      = (int32_t *)outputVAddr;
+    int16_t *convert  = (int16_t *)malloc(outputFrames * channels * sizeof(int16_t));
 
     const int volumeShift = 12; // shift requirement for Q4.27 to Q.15
     // round to half towards zero and saturate at int16 (non-dithered)
@@ -209,7 +208,7 @@ bool AudioDecoder::resample() {
     }
 
     // Reset result
-    _result.numFrames = outputFrames;
+    _result.numFrames  = static_cast<int>(outputFrames);
     _result.sampleRate = outFrameRate;
 
     auto buffer = std::make_shared<std::vector<char>>();
@@ -233,7 +232,7 @@ bool AudioDecoder::interleave() {
     } else if (_result.numChannels == 1) {
         // If it's a mono audio, try to compose a fake stereo buffer
         size_t newBufferSize = _result.pcmBuffer->size() * 2;
-        auto newBuffer = std::make_shared<std::vector<char>>();
+        auto   newBuffer     = std::make_shared<std::vector<char>>();
         newBuffer->reserve(newBufferSize);
         size_t totalFrameSizeInBytes = (size_t)(_result.numFrames * _result.bitsPerSample / 8);
 
@@ -250,7 +249,7 @@ bool AudioDecoder::interleave() {
         }
         _result.numChannels = 2;
         _result.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
-        _result.pcmBuffer = newBuffer;
+        _result.pcmBuffer   = newBuffer;
         return true;
     }
 

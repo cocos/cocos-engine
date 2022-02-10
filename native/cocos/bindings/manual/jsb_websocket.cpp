@@ -26,6 +26,7 @@
 #include "jsb_websocket.h"
 #include "base/Config.h"
 #if (USE_SOCKET > 0)
+    #include "cocos/base/DeferredReleasePool.h"
     #include "cocos/bindings/jswrapper/SeApi.h"
     #include "cocos/bindings/manual/jsb_conversions.h"
     #include "cocos/bindings/manual/jsb_global.h"
@@ -245,11 +246,6 @@ static bool webSocketFinalize(const se::State &s) {
     }
 
     static_cast<JsbWebSocketDelegate *>(cobj->getDelegate())->release();
-    if (cobj->getReferenceCount() == 1) {
-        cobj->autorelease();
-    } else {
-        cobj->release();
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(webSocketFinalize)
@@ -261,7 +257,7 @@ static bool webSocketConstructor(se::State &s) {
     if (argc == 1 || argc == 2 || argc == 3) {
         std::string url;
 
-        bool ok = seval_to_std_string(args[0], &url);
+        bool ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "Error processing url argument");
 
         se::Object *            obj  = s.thisObject();
@@ -272,7 +268,7 @@ static bool webSocketConstructor(se::State &s) {
 
             if (args[1].isString()) {
                 std::string protocol;
-                ok = seval_to_std_string(args[1], &protocol);
+                ok = sevalue_to_native(args[1], &protocol);
                 SE_PRECONDITION2(ok, false, "Error processing protocol string");
                 protocols.push_back(protocol);
             } else if (args[1].isObject() && args[1].toObject()->isArray()) {
@@ -288,23 +284,24 @@ static bool webSocketConstructor(se::State &s) {
                     }
 
                     std::string protocol;
-                    ok = seval_to_std_string(tmp, &protocol);
+                    ok = sevalue_to_native(tmp, &protocol);
                     SE_PRECONDITION2(ok, false, "Error processing protocol object");
                     protocols.push_back(protocol);
                 }
             }
 
             if (argc > 2) {
-                ok = seval_to_std_string(args[2], &caFilePath);
+                ok = sevalue_to_native(args[2], &caFilePath);
                 SE_PRECONDITION2(ok, false, "Error processing caFilePath");
             }
 
             cobj           = new (std::nothrow) cc::network::WebSocket();
             auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
+            delegate->addRef();
             if (cobj->init(*delegate, url, &protocols, caFilePath)) {
                 delegate->setJSDelegate(se::Value(obj, true));
-                cobj->retain();     // release in finalize function and onClose delegate method
-                delegate->retain(); // release in finalize function and onClose delegate method
+                cobj->addRef();     // release in finalize function and onClose delegate method
+                delegate->addRef(); // release in finalize function and onClose delegate method
             } else {
                 cobj->release();
                 delegate->release();
@@ -314,10 +311,11 @@ static bool webSocketConstructor(se::State &s) {
         } else {
             cobj           = new (std::nothrow) cc::network::WebSocket();
             auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
+            delegate->addRef();
             if (cobj->init(*delegate, url)) {
                 delegate->setJSDelegate(se::Value(obj, true));
-                cobj->retain();     // release in finalize function and onClose delegate method
-                delegate->retain(); // release in finalize function and onClose delegate method
+                cobj->addRef();     // release in finalize function and onClose delegate method
+                delegate->addRef(); // release in finalize function and onClose delegate method
             } else {
                 cobj->release();
                 delegate->release();
@@ -355,7 +353,7 @@ static bool webSocketSend(const se::State &s) {
         bool  ok   = false;
         if (args[0].isString()) {
             std::string data;
-            ok = seval_to_std_string(args[0], &data);
+            ok = sevalue_to_native(args[0], &data);
             SE_PRECONDITION2(ok, false, "Convert string failed");
             //IDEA: We didn't find a way to get the JS string length in JSB2.0.
             //            if (data.empty() && len > 0)
@@ -402,12 +400,12 @@ static bool webSocketClose(se::State &s) {
         cobj->closeAsync();
     } else if (argc == 1) {
         if (args[0].isNumber()) {
-            int reason;
-            seval_to_int32(args[0], &reason);
+            int reason{0};
+            sevalue_to_native(args[0], &reason);
             cobj->closeAsync(reason, "no_reason");
         } else if (args[0].isString()) {
             std::string reason;
-            seval_to_std_string(args[0], &reason);
+            sevalue_to_native(args[0], &reason);
             cobj->closeAsync(1005, reason);
         } else {
             assert(false);
@@ -415,10 +413,10 @@ static bool webSocketClose(se::State &s) {
     } else if (argc == 2) {
         assert(args[0].isNumber());
         assert(args[1].isString());
-        int         reasonCode;
+        int         reasonCode{0};
         std::string reasonString;
-        seval_to_int32(args[0], &reasonCode);
-        seval_to_std_string(args[1], &reasonString);
+        sevalue_to_native(args[0], &reasonCode);
+        sevalue_to_native(args[1], &reasonString);
         cobj->closeAsync(reasonCode, reasonString);
     } else {
         assert(false);

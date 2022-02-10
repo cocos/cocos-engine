@@ -58,10 +58,10 @@ struct CC_DLL StackFrame {
  */
 class CC_DLL CallStack {
 public:
-    static std::string basename(const std::string& path);
+    static std::string basename(const std::string &path);
 
-    static std::vector<void*>      backtrace();
-    static std::vector<StackFrame> backtraceSymbols(const std::vector<void*>& callstack);
+    static std::vector<void *>     backtrace();
+    static std::vector<StackFrame> backtraceSymbols(const std::vector<void *> &callstack);
 
     #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     static void initSym();

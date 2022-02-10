@@ -33,27 +33,25 @@
 #include "SkeletonCacheMgr.h"
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
-#include "math/Math.h"
 #include "gfx-base/GFXDef.h"
+#include "math/Math.h"
 
-USING_NS_MW;
+USING_NS_MW; // NOLINT(google-build-using-namespace)
 
-using namespace cc;
-using namespace cc::gfx;
-static const std::string techStage = "opaque";
-static const std::string textureKey = "texture";
+using namespace cc;      // NOLINT(google-build-using-namespace)
+using namespace cc::gfx; // NOLINT(google-build-using-namespace)
+static const std::string TECH_STAGE  = "opaque";
+static const std::string TEXTURE_KEY = "texture";
 
 namespace spine {
 
 SkeletonCacheAnimation::SkeletonCacheAnimation(const std::string &uuid, bool isShare) {
     if (isShare) {
         _skeletonCache = SkeletonCacheMgr::getInstance()->buildSkeletonCache(uuid);
-        _skeletonCache->retain();
+        _skeletonCache->addRef();
     } else {
         _skeletonCache = new SkeletonCache();
         _skeletonCache->initWithUUID(uuid);
-        _skeletonCache->retain();
-        _skeletonCache->autorelease();
     }
 
     // store global TypedArray begin and end offset
@@ -64,13 +62,12 @@ SkeletonCacheAnimation::SkeletonCacheAnimation(const std::string &uuid, bool isS
     // set render order to 0
     _paramsBuffer->writeFloat32(0);
     // set world transform to identity
-    _paramsBuffer->writeBytes((const char *)&cc::Mat4::IDENTITY, sizeof(float) * 16);
+    _paramsBuffer->writeBytes(reinterpret_cast<const char *>(&cc::Mat4::IDENTITY), sizeof(float) * 16);
 
     beginSchedule();
 }
 
 SkeletonCacheAnimation::~SkeletonCacheAnimation() {
-
     if (_sharedBufferOffset) {
         delete _sharedBufferOffset;
         _sharedBufferOffset = nullptr;
@@ -86,7 +83,7 @@ SkeletonCacheAnimation::~SkeletonCacheAnimation() {
         _skeletonCache = nullptr;
     }
     while (!_animationQueue.empty()) {
-        auto ani = _animationQueue.front();
+        auto *ani = _animationQueue.front();
         _animationQueue.pop();
         delete ani;
     }
@@ -116,7 +113,7 @@ void SkeletonCacheAnimation::update(float dt) {
         _accTime += dt;
         if (_accTime > _headAnimation->delay) {
             std::string name = _headAnimation->animationName;
-            bool loop = _headAnimation->loop;
+            bool        loop = _headAnimation->loop;
             delete _headAnimation;
             _headAnimation = nullptr;
             setAnimation(name, loop);
@@ -138,13 +135,13 @@ void SkeletonCacheAnimation::update(float dt) {
         _skeletonCache->updateToFrame(_animationName, frameIdx);
     }
 
-    int finalFrameIndex = (int)_animationData->getFrameCount() - 1;
+    int finalFrameIndex = static_cast<int>(_animationData->getFrameCount()) - 1;
     if (_animationData->isComplete() && frameIdx >= finalFrameIndex) {
         _playCount++;
-        _accTime = 0.0f;
+        _accTime = 0.0F;
         if (_playTimes > 0 && _playCount >= _playTimes) {
-            frameIdx = finalFrameIndex;
-            _playCount = 0;
+            frameIdx       = finalFrameIndex;
+            _playCount     = 0;
             _isAniComplete = true;
         } else {
             frameIdx = 0;
@@ -159,105 +156,108 @@ void SkeletonCacheAnimation::update(float dt) {
     _curFrameIndex = frameIdx;
 }
 
-void SkeletonCacheAnimation::render(float dt) {
+void SkeletonCacheAnimation::render(float /*dt*/) {
     if (!_animationData) return;
     SkeletonCache::FrameData *frameData = _animationData->getFrameData(_curFrameIndex);
     if (!frameData) return;
 
-    auto &segments = frameData->getSegments();
-    auto &colors = frameData->getColors();
-    if (segments.size() == 0 || colors.size() == 0) return;
+    const auto &segments = frameData->getSegments();
+    const auto &colors   = frameData->getColors();
+    if (segments.empty() || colors.empty()) return;
 
-    auto mgr = MiddlewareManager::getInstance();
+    auto *mgr = MiddlewareManager::getInstance();
     if (!mgr->isRendering) return;
 
     _sharedBufferOffset->reset();
     _sharedBufferOffset->clear();
 
-    auto renderMgr = mgr->getRenderInfoMgr();
-    auto renderInfo = renderMgr->getBuffer();
+    auto *renderMgr  = mgr->getRenderInfoMgr();
+    auto *renderInfo = renderMgr->getBuffer();
     if (!renderInfo) return;
 
-    auto attachMgr = mgr->getAttachInfoMgr();
-    auto attachInfo = attachMgr->getBuffer();
+    auto *attachMgr  = mgr->getAttachInfoMgr();
+    auto *attachInfo = attachMgr->getBuffer();
     if (!attachInfo) return;
 
     //  store render info offset
-    _sharedBufferOffset->writeUint32((uint32_t)renderInfo->getCurPos() / sizeof(uint32_t));
+    _sharedBufferOffset->writeUint32(static_cast<uint32_t>(renderInfo->getCurPos()) / sizeof(uint32_t));
     // store attach info offset
-    _sharedBufferOffset->writeUint32((uint32_t)attachInfo->getCurPos() / sizeof(uint32_t));
+    _sharedBufferOffset->writeUint32(static_cast<uint32_t>(attachInfo->getCurPos()) / sizeof(uint32_t));
 
     // check enough space
     renderInfo->checkSpace(sizeof(uint32_t) * 2, true);
     // write border
     renderInfo->writeUint32(0xffffffff);
 
-    // matieral len
+    // material len
     renderInfo->writeUint32(segments.size());
 
-    auto vertexFormat = _useTint ? VF_XYZUVCC : VF_XYZUVC;
-    middleware::MeshBuffer *mb = mgr->getMeshBuffer(vertexFormat);
-    middleware::IOBuffer &vb = mb->getVB();
-    middleware::IOBuffer &ib = mb->getIB();
-    const auto &srcVB = frameData->vb;
-    const auto &srcIB = frameData->ib;
+    auto                    vertexFormat = _useTint ? VF_XYZUVCC : VF_XYZUVC;
+    middleware::MeshBuffer *mb           = mgr->getMeshBuffer(vertexFormat);
+    middleware::IOBuffer &  vb           = mb->getVB();
+    middleware::IOBuffer &  ib           = mb->getIB();
+    const auto &            srcVB        = frameData->vb;
+    const auto &            srcIB        = frameData->ib;
 
     // vertex size int bytes with one color
     int vbs1 = sizeof(V2F_T2F_C4F);
     // vertex size in floats with one color
-    int vs1 = vbs1 / sizeof(float);
+    int vs1 = static_cast<int32_t>(vbs1 / sizeof(float));
     // vertex size int bytes with two color
     int vbs2 = sizeof(V2F_T2F_C4F_C4F);
     // vertex size in floats with two color
-    int vs2 = vbs2 / sizeof(float);
+    int vs2 = static_cast<int32_t>(vbs2 / sizeof(float));
 
-    int vs = _useTint ? vs2 : vs1;
+    int vs  = _useTint ? vs2 : vs1;
     int vbs = _useTint ? vbs2 : vbs1;
 
-    auto paramsBuffer = _paramsBuffer->getBuffer();
-    const cc::Mat4 &nodeWorldMat = *(cc::Mat4 *)&paramsBuffer[4];
+    auto *          paramsBuffer = _paramsBuffer->getBuffer();
+    const cc::Mat4 &nodeWorldMat = *reinterpret_cast<cc::Mat4 *>(&paramsBuffer[4]);
 
-    int colorOffset = 0;
-    SkeletonCache::ColorData *nowColor = colors[colorOffset++];
-    auto maxVFOffset = nowColor->vertexFloatOffset;
+    int                       colorOffset = 0;
+    SkeletonCache::ColorData *nowColor    = colors[colorOffset++];
+    auto                      maxVFOffset = nowColor->vertexFloatOffset;
 
-    Color4F finalColor;
-    Color4F darkColor;
-    float tempR = 0.0f, tempG = 0.0f, tempB = 0.0f, tempA = 0.0f;
-    float multiplier = 1.0f;
-    int srcVertexBytesOffset = 0;
-    int srcVertexBytes = 0;
-    int vertexBytes = 0;
-    int vertexFloats = 0;
-    int tintBytes = 0;
-    int srcIndexBytesOffset = 0;
-    int indexBytes = 0;
-    int curTextureIndex = 0;
-    double effectHash = 0;
-    int blendMode = 0;
-    int dstVertexOffset = 0;
-    int dstIndexOffset = 0;
-    float *dstVertexBuffer = nullptr;
-    unsigned int *dstColorBuffer = nullptr;
-    unsigned short *dstIndexBuffer = nullptr;
-    bool needColor = false;
-    int curBlendSrc = -1;
-    int curBlendDst = -1;
+    Color4F       finalColor;
+    Color4F       darkColor;
+    float         tempR                = 0.0F;
+    float         tempG                = 0.0F;
+    float         tempB                = 0.0F;
+    float         tempA                = 0.0F;
+    float         multiplier           = 1.0F;
+    int           srcVertexBytesOffset = 0;
+    int           srcVertexBytes       = 0;
+    int           vertexBytes          = 0;
+    int           vertexFloats         = 0;
+    int           tintBytes            = 0;
+    int           srcIndexBytesOffset  = 0;
+    int           indexBytes           = 0;
+    int           curTextureIndex      = 0;
+    double        effectHash           = 0;
+    int           blendMode            = 0;
+    int           dstVertexOffset      = 0;
+    int           dstIndexOffset       = 0;
+    float *       dstVertexBuffer      = nullptr;
+    unsigned int *dstColorBuffer       = nullptr;
+    uint16_t *    dstIndexBuffer       = nullptr;
+    bool          needColor            = false;
+    int           curBlendSrc          = -1;
+    int           curBlendDst          = -1;
 
-    if (abs(_nodeColor.r - 1.0f) > 0.0001f ||
-        abs(_nodeColor.g - 1.0f) > 0.0001f ||
-        abs(_nodeColor.b - 1.0f) > 0.0001f ||
-        abs(_nodeColor.a - 1.0f) > 0.0001f ||
+    if (abs(_nodeColor.r - 1.0F) > 0.0001F ||
+        abs(_nodeColor.g - 1.0F) > 0.0001F ||
+        abs(_nodeColor.b - 1.0F) > 0.0001F ||
+        abs(_nodeColor.a - 1.0F) > 0.0001F ||
         _premultipliedAlpha) {
         needColor = true;
     }
 
     auto handleColor = [&](SkeletonCache::ColorData *colorData) {
-        tempA = colorData->finalColor.a * _nodeColor.a;
+        tempA      = colorData->finalColor.a * _nodeColor.a;
         multiplier = _premultipliedAlpha ? tempA / 255 : 1;
-        tempR = _nodeColor.r * multiplier;
-        tempG = _nodeColor.g * multiplier;
-        tempB = _nodeColor.b * multiplier;
+        tempR      = _nodeColor.r * multiplier;
+        tempG      = _nodeColor.g * multiplier;
+        tempB      = _nodeColor.b * multiplier;
 
         finalColor.a = tempA / 255.0f;
         finalColor.r = (colorData->finalColor.r * tempR) / 255.0f;
@@ -272,15 +272,14 @@ void SkeletonCacheAnimation::render(float dt) {
 
     handleColor(nowColor);
 
-    for (std::size_t segIndex = 0, segLen = segments.size(); segIndex < segLen; segIndex++) {
-        auto segment = segments[segIndex];
-        srcVertexBytes = segment->vertexFloatCount * sizeof(float);
+    for (auto *segment : segments) {
+        srcVertexBytes = static_cast<int32_t>(segment->vertexFloatCount * sizeof(float));
         if (!_useTint) {
-            tintBytes = segment->vertexFloatCount / vs2 * sizeof(float);
-            vertexBytes = srcVertexBytes - tintBytes;
-            vertexFloats = vertexBytes / sizeof(float);
+            tintBytes    = static_cast<int32_t>(segment->vertexFloatCount / vs2 * sizeof(float));
+            vertexBytes  = srcVertexBytes - tintBytes;
+            vertexFloats = static_cast<int32_t>(vertexBytes / sizeof(float));
         } else {
-            vertexBytes = srcVertexBytes;
+            vertexBytes  = srcVertexBytes;
             vertexFloats = segment->vertexFloatCount;
         }
 
@@ -294,20 +293,20 @@ void SkeletonCacheAnimation::render(float dt) {
         blendMode = segment->blendMode;
         switch (blendMode) {
             case BlendMode_Additive:
-                curBlendSrc = (int)(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
-                curBlendDst = (int)BlendFactor::ONE;
+                curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
+                curBlendDst = static_cast<int>(BlendFactor::ONE);
                 break;
             case BlendMode_Multiply:
-                curBlendSrc = (int)BlendFactor::DST_COLOR;
-                curBlendDst = (int)BlendFactor::ONE_MINUS_SRC_ALPHA;
+                curBlendSrc = static_cast<int>(BlendFactor::DST_COLOR);
+                curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_ALPHA);
                 break;
             case BlendMode_Screen:
-                curBlendSrc = (int)BlendFactor::ONE;
-                curBlendDst = (int)BlendFactor::ONE_MINUS_SRC_COLOR;
+                curBlendSrc = static_cast<int>(BlendFactor::ONE);
+                curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_COLOR);
                 break;
             default:
-                curBlendSrc = (int)(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
-                curBlendDst = (int)BlendFactor::ONE_MINUS_SRC_ALPHA;
+                curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
+                curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_ALPHA);
         }
         // fill new blend src and dst
         renderInfo->writeUint32(curBlendSrc);
@@ -315,23 +314,23 @@ void SkeletonCacheAnimation::render(float dt) {
 
         // fill vertex buffer
         vb.checkSpace(vertexBytes, true);
-        dstVertexOffset = (int)vb.getCurPos() / vbs;
-        dstVertexBuffer = (float *)vb.getCurBuffer();
-        dstColorBuffer = (unsigned int *)vb.getCurBuffer();
+        dstVertexOffset = static_cast<int>(vb.getCurPos()) / vbs;
+        dstVertexBuffer = reinterpret_cast<float *>(vb.getCurBuffer());
+        dstColorBuffer  = reinterpret_cast<unsigned int *>(vb.getCurBuffer());
         if (!_useTint) {
-            char *srcBuffer = (char *)srcVB.getBuffer() + srcVertexBytesOffset;
+            char *srcBuffer = reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset;
             for (std::size_t srcBufferIdx = 0; srcBufferIdx < srcVertexBytes; srcBufferIdx += vbs2) {
                 vb.writeBytes(srcBuffer + srcBufferIdx, vbs);
             }
         } else {
-            vb.writeBytes((char *)srcVB.getBuffer() + srcVertexBytesOffset, vertexBytes);
+            vb.writeBytes(reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset, vertexBytes);
         }
 
         // batch handle
         if (_batch) {
             cc::Vec3 *point = nullptr;
             for (auto posIndex = 0; posIndex < vertexFloats; posIndex += vs) {
-                point = (cc::Vec3 *)(dstVertexBuffer + posIndex);
+                point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
                 // force z value to zero
                 point->z = 0;
                 point->transformMat4(*point, nodeWorldMat);
@@ -340,7 +339,7 @@ void SkeletonCacheAnimation::render(float dt) {
 
         // handle vertex color
         if (needColor) {
-            int srcVertexFloatOffset = srcVertexBytesOffset / sizeof(float);
+            int srcVertexFloatOffset = static_cast<int16_t>(srcVertexBytesOffset / sizeof(float));
             if (_useTint) {
                 for (auto colorIndex = 0; colorIndex < vertexFloats; colorIndex += vs, srcVertexFloatOffset += vs2) {
                     if (srcVertexFloatOffset >= maxVFOffset) {
@@ -367,11 +366,11 @@ void SkeletonCacheAnimation::render(float dt) {
         srcVertexBytesOffset += srcVertexBytes;
 
         // fill index buffer
-        indexBytes = segment->indexCount * sizeof(unsigned short);
+        indexBytes = static_cast<int32_t>(segment->indexCount * sizeof(uint16_t));
         ib.checkSpace(indexBytes, true);
-        dstIndexOffset = (int)ib.getCurPos() / sizeof(unsigned short);
-        dstIndexBuffer = (unsigned short *)ib.getCurBuffer();
-        ib.writeBytes((char *)srcIB.getBuffer() + srcIndexBytesOffset, indexBytes);
+        dstIndexOffset = static_cast<int32_t>(ib.getCurPos() / sizeof(uint16_t));
+        dstIndexBuffer = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
+        ib.writeBytes(reinterpret_cast<char *>(srcIB.getBuffer()) + srcIndexBytesOffset, indexBytes);
         for (auto indexPos = 0; indexPos < segment->indexCount; indexPos++) {
             dstIndexBuffer[indexPos] += dstVertexOffset;
         }
@@ -388,13 +387,13 @@ void SkeletonCacheAnimation::render(float dt) {
     }
 
     if (_useAttach) {
-        auto &bonesData = frameData->getBones();
-        auto boneCount = frameData->getBoneCount();
+        const auto &bonesData = frameData->getBones();
+        auto        boneCount = frameData->getBoneCount();
 
-        for (int i = 0, n = boneCount; i < n; i++) {
-            auto bone = bonesData[i];
+        for (std::size_t i = 0, n = boneCount; i < n; i++) {
+            auto *bone = bonesData[i];
             attachInfo->checkSpace(sizeof(cc::Mat4), true);
-            attachInfo->writeBytes((const char *)&bone->globalTransformMatrix, sizeof(cc::Mat4));
+            attachInfo->writeBytes(reinterpret_cast<const char *>(&bone->globalTransformMatrix), sizeof(cc::Mat4));
         }
     }
 }
@@ -450,10 +449,10 @@ bool SkeletonCacheAnimation::setAttachment(const std::string &slotName, const ch
 }
 
 void SkeletonCacheAnimation::setColor(float r, float g, float b, float a) {
-    _nodeColor.r = r / 255.0f;
-    _nodeColor.g = g / 255.0f;
-    _nodeColor.b = b / 255.0f;
-    _nodeColor.a = a / 255.0f;
+    _nodeColor.r = r / 255.0F;
+    _nodeColor.g = g / 255.0F;
+    _nodeColor.b = b / 255.0F;
+    _nodeColor.a = a / 255.0F;
 }
 
 void SkeletonCacheAnimation::setBatchEnabled(bool enabled) {
@@ -500,20 +499,20 @@ void SkeletonCacheAnimation::setAttachEnabled(bool enabled) {
 }
 
 void SkeletonCacheAnimation::setAnimation(const std::string &name, bool loop) {
-    _playTimes = loop ? 0 : 1;
+    _playTimes     = loop ? 0 : 1;
     _animationName = name;
     _animationData = _skeletonCache->buildAnimationData(_animationName);
     _isAniComplete = false;
-    _accTime = 0.0f;
-    _playCount = 0;
+    _accTime       = 0.0F;
+    _playCount     = 0;
     _curFrameIndex = 0;
 }
 
 void SkeletonCacheAnimation::addAnimation(const std::string &name, bool loop, float delay) {
-    auto aniInfo = new AniQueueData();
+    auto *aniInfo          = new AniQueueData();
     aniInfo->animationName = name;
-    aniInfo->loop = loop;
-    aniInfo->delay = delay;
+    aniInfo->loop          = loop;
+    aniInfo->delay         = delay;
     _animationQueue.push(aniInfo);
 }
 
@@ -557,8 +556,8 @@ se_object_ptr SkeletonCacheAnimation::getParamsBuffer() const {
 
 uint32_t SkeletonCacheAnimation::getRenderOrder() const {
     if (_paramsBuffer) {
-        auto buffer = _paramsBuffer->getBuffer();
-        return (uint32_t)buffer[0];
+        auto *buffer = _paramsBuffer->getBuffer();
+        return static_cast<uint32_t>(buffer[0]);
     }
     return 0;
 }

@@ -26,25 +26,20 @@
 #pragma once
 
 #include "math/Vec3.h"
+#include "scene/Ambient.h"
 #include "scene/Light.h"
 
 namespace cc {
 namespace scene {
 
-class DirectionalLight : public Light {
+class DirectionalLight final : public Light {
 public:
-    DirectionalLight()                         = default;
-    DirectionalLight(const DirectionalLight &) = delete;
-    DirectionalLight(DirectionalLight &&)      = delete;
-    ~DirectionalLight() override               = default;
-    DirectionalLight &operator=(const DirectionalLight &) = delete;
-    DirectionalLight &operator=(DirectionalLight &&) = delete;
+    DirectionalLight();
+    ~DirectionalLight() override;
 
+    void initialize() override;
     void update() override;
 
-    inline void setDirection(const Vec3 &dir) { _dir = dir; }
-    inline void setIlluminanceHDR(float illum) { _illuminanceHDR = illum; }
-    inline void setIlluminanceLDR(float illum) { _illuminanceLDR = illum; }
     inline void setShadowEnabled(bool enabled) { _shadowEnabled = enabled; }
     inline void setShadowPcf(float pcf) { _shadowPcf = pcf; }
     inline void setShadowBias(float bias) { _shadowBias = bias; }
@@ -57,28 +52,35 @@ public:
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
     inline void setShadowOrthoSize(float orthoSize) { _shadowOrthoSize = orthoSize; }
 
+    inline bool  getShadowEnabled() const { return _shadowEnabled; }
+    inline float getShadowPcf() const { return _shadowPcf; }
+    inline float getShadowBias() const { return _shadowBias; }
+    inline float getShadowNormalBias() const { return _shadowNormalBias; }
+    inline float getShadowSaturation() const { return _shadowSaturation; }
+    inline float getShadowDistance() const { return _shadowDistance; }
+    inline float getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
+    inline bool  getShadowFixedArea() const { return _shadowFixedArea; }
+    inline float getShadowNear() const { return _shadowNear; }
+    inline float getShadowFar() const { return _shadowFar; }
+    inline float getShadowOrthoSize() const { return _shadowOrthoSize; }
+
     inline const Vec3 &getDirection() const { return _dir; }
+    inline void        setDirection(const Vec3 &dir) { _dir = dir; }
+    inline void        setIlluminanceHDR(float value) { _illuminanceHDR = value; }
+    inline void        setIlluminanceLDR(float value) { _illuminanceLDR = value; }
     inline float       getIlluminanceHDR() const { return _illuminanceHDR; }
     inline float       getIlluminanceLDR() const { return _illuminanceLDR; }
-    inline bool        getShadowEnabled() const { return _shadowEnabled; }
-    inline float       getShadowPcf() const { return _shadowPcf; }
-    inline float       getShadowBias() const { return _shadowBias; }
-    inline float       getShadowNormalBias() const { return _shadowNormalBias; }
-    inline float       getShadowSaturation() const { return _shadowSaturation; }
-    inline float       getShadowDistance() const { return _shadowDistance; }
-    inline float       getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
-    inline bool        getShadowFixedArea() const { return _shadowFixedArea; }
-    inline float       getShadowNear() const { return _shadowNear; }
-    inline float       getShadowFar() const { return _shadowFar; }
-    inline float       getShadowOrthoSize() const { return _shadowOrthoSize; }
+    float              getIlluminance() const;
+    void               setIlluminance(float value);
 
 private:
-    float _illuminanceHDR{0.F};
-    float _illuminanceLDR{0.F};
-    Vec3  _dir;
+    float _illuminanceHDR{Ambient::SUN_ILLUM};
+    float _illuminanceLDR{1.F};
+    Vec3  _dir{1.0F, -1.0F, -1.0F};
 
     // shadow info
-    bool  _shadowEnabled{false};
+    bool _shadowEnabled{false};
+    //TODO(minggo): use PCFType.HARD instead
     float _shadowPcf{0.0F};
     float _shadowBias{0.0F};
     float _shadowNormalBias{0.0F};
@@ -89,6 +91,8 @@ private:
     float _shadowNear{0.1F};
     float _shadowFar{10.0F};
     float _shadowOrthoSize{1.0F};
+
+    CC_DISALLOW_COPY_MOVE_ASSIGN(DirectionalLight);
 };
 
 } // namespace scene

@@ -27,15 +27,15 @@
 #define __cocos2d_libs__CCEventAssetsManagerEx__
 
 #include <string>
-#include "base/Ref.h"
-#include "extensions/ExtensionMacros.h"
+#include "base/RefCounted.h"
 #include "extensions/ExtensionExport.h"
+#include "extensions/ExtensionMacros.h"
 
 NS_CC_EXT_BEGIN
 
 class AssetsManagerEx;
 
-class CC_EX_DLL EventAssetsManagerEx : public cc::Ref {
+class CC_EX_DLL EventAssetsManagerEx : public cc::RefCounted {
 public:
     //! Update events code
     enum class EventCode {
@@ -90,13 +90,11 @@ public:
 
     int getTotalFiles() const;
 
-public:
     /** Constructor */
-    EventAssetsManagerEx(const std::string &eventName, cc::extension::AssetsManagerEx *manager, const EventCode &code, const std::string &assetId = "", const std::string &message = "", int curle_code = 0, int curlm_code = 0);
+    EventAssetsManagerEx(const std::string &eventName, cc::extension::AssetsManagerEx *manager, const EventCode &code, std::string assetId = "", std::string message = "", int curleCode = 0, int curlmCode = 0);
 
 private:
-    virtual ~EventAssetsManagerEx() {
-    }
+    ~EventAssetsManagerEx() override = default;
 
     EventCode _code;
 

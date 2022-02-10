@@ -24,15 +24,46 @@
 ****************************************************************************/
 
 #include "scene/DirectionalLight.h"
+#include "core/Root.h"
+#include "core/scene-graph/Node.h"
+#include "renderer/pipeline/RenderPipeline.h"
 
 namespace cc {
 namespace scene {
 
+DirectionalLight::DirectionalLight() { _type = LightType::DIRECTIONAL; }
+
+DirectionalLight::~DirectionalLight() = default;
+
+void DirectionalLight::initialize() {
+    Light::initialize();
+
+    setIlluminance(Ambient::SUN_ILLUM);
+    _dir.set(1.0F, -1.0F, -1.0F);
+}
+
 void DirectionalLight::update() {
-    if (_node && _node->getFlagsChanged()) {
+    if (_node && _node->getChangedFlags()) {
         _dir = _forward;
         _node->updateWorldTransform();
         _dir.transformQuat(_node->getWorldRotation());
+    }
+}
+
+float DirectionalLight::getIlluminance() const {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    if (isHDR) {
+        return _illuminanceHDR;
+    }
+    return _illuminanceLDR;
+}
+
+void DirectionalLight::setIlluminance(float value) {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    if (isHDR) {
+        _illuminanceHDR = value;
+    } else {
+        _illuminanceLDR = value;
     }
 }
 

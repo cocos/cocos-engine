@@ -71,7 +71,7 @@ void SystemWindow::setCursorEnabled(bool value) {
 }
 
 void SystemWindow::copyTextToClipboard(const std::string &text) {
-    //TODO
+    SDL_SetClipboardText(text.c_str());
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {

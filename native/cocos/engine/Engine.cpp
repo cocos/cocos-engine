@@ -25,13 +25,17 @@
 
 #include "engine/Engine.h"
 #include <functional>
-#include "base/AutoreleasePool.h"
+#include <memory>
+#include <sstream>
+#include "base/DeferredReleasePool.h"
 #include "base/Macros.h"
-#include "platform/BasePlatform.h"
-
 #include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/core/builtin/BuiltinResMgr.h"
 #include "cocos/renderer/GFXDeviceManager.h"
+#include "cocos/renderer/core/ProgramLib.h"
 #include "pipeline/RenderPipeline.h"
+#include "platform/BasePlatform.h"
+#include "platform/FileUtils.h"
 
 #if USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
@@ -41,8 +45,6 @@
     #include "cocos/network/WebSocket.h"
 #endif
 
-#include <memory>
-#include <sstream>
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
@@ -51,10 +53,10 @@
 
 namespace {
 
-bool setCanvasCallback(se::Object* /*global*/) {
+bool setCanvasCallback(se::Object * /*global*/) {
     se::AutoHandleScope scope;
-    se::ScriptEngine*   se       = se::ScriptEngine::getInstance();
-    auto*               window   = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
+    se::ScriptEngine *  se       = se::ScriptEngine::getInstance();
+    auto *              window   = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
     auto                handler  = window->getWindowHandler();
     auto                viewSize = window->getViewSize();
 
@@ -95,10 +97,11 @@ Engine::~Engine() {
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
-
+    ProgramLib::destroyInstance();
+    BuiltinResMgr::destroyInstance();
     gfx::DeviceManager::destroy();
 
-    BasePlatform* platform = BasePlatform::getPlatform();
+    BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(nullptr);
 }
 
@@ -108,7 +111,7 @@ int32_t Engine::init() {
 
     se::ScriptEngine::getInstance()->cleanup();
 
-    BasePlatform* platform = BasePlatform::getPlatform();
+    BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
@@ -117,7 +120,7 @@ int32_t Engine::init() {
 }
 
 int32_t Engine::run() {
-    BasePlatform* platform = BasePlatform::getPlatform();
+    BasePlatform *platform = BasePlatform::getPlatform();
     platform->runInPlatformThread([&]() {
         tick();
     });
@@ -142,9 +145,9 @@ void Engine::close() { // NOLINT
         cc::EventDispatcher::dispatchCloseEvent();
     }
 
-    auto* scriptEngine = se::ScriptEngine::getInstance();
+    auto *scriptEngine = se::ScriptEngine::getInstance();
 
-    cc::PoolManager::getInstance()->getCurrentPool()->clear();
+    cc::DeferredReleasePool::clear();
 #if USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
@@ -171,12 +174,12 @@ void Engine::setPreferredFramesPerSecond(int fps) {
     if (fps == 0) {
         return;
     }
-    BasePlatform* platform = BasePlatform::getPlatform();
+    BasePlatform *platform = BasePlatform::getPlatform();
     platform->setFps(fps);
     _prefererredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); //NOLINT(google-runtime-int)
 }
 
-void Engine::addEventCallback(OSEventType evType, const EventCb& cb) {
+void Engine::addEventCallback(OSEventType evType, const EventCb &cb) {
     _eventCallbacks.insert(std::make_pair(evType, cb));
 }
 
@@ -218,10 +221,7 @@ void Engine::tick() {
     _scheduler->update(dt);
     cc::EventDispatcher::dispatchTickEvent(dt);
 
-    LegacyAutoreleasePool* currentPool = PoolManager::getInstance()->getCurrentPool();
-    if (currentPool) {
-        currentPool->clear();
-    }
+    cc::DeferredReleasePool::clear();
 
     now  = std::chrono::steady_clock::now();
     dtNS = dtNS * 0.1 + 0.9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - prevTime).count());
@@ -233,9 +233,9 @@ int32_t Engine::restartVM() {
 
     pipeline::RenderPipeline::getInstance()->destroy();
 
-    auto* scriptEngine = se::ScriptEngine::getInstance();
+    auto *scriptEngine = se::ScriptEngine::getInstance();
 
-    cc::PoolManager::getInstance()->getCurrentPool()->clear();
+    cc::DeferredReleasePool::clear();
 #if USE_AUDIO
     cc::AudioEngine::stopAll();
 #endif
@@ -258,7 +258,7 @@ int32_t Engine::restartVM() {
     return 0;
 }
 
-bool Engine::handleEvent(const OSEvent& ev) {
+bool Engine::handleEvent(const OSEvent &ev) {
     bool        isHandled = false;
     OSEventType type      = ev.eventType();
     if (type == OSEventType::TOUCH_OSEVENT) {
@@ -286,7 +286,7 @@ Engine::SchedulerPtr Engine::getScheduler() const {
     return _scheduler;
 }
 
-bool Engine::dispatchDeviceEvent(const DeviceEvent& ev) { // NOLINT(readability-convert-member-functions-to-static)
+bool Engine::dispatchDeviceEvent(const DeviceEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
     if (ev.type == DeviceEvent::Type::DEVICE_MEMORY) {
         cc::EventDispatcher::dispatchMemoryWarningEvent();
         return true;
@@ -294,7 +294,7 @@ bool Engine::dispatchDeviceEvent(const DeviceEvent& ev) { // NOLINT(readability-
     return false;
 }
 
-bool Engine::dispatchWindowEvent(const WindowEvent& ev) {
+bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
     bool isHandled = false;
     if (ev.type == WindowEvent::Type::SHOW ||
         ev.type == WindowEvent::Type::RESTORED) {
@@ -312,13 +312,14 @@ bool Engine::dispatchWindowEvent(const WindowEvent& ev) {
         onClose();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
-        onClose();
+        // There is no need to process the quit message, 
+        // the quit message is a custom message for the application
         isHandled = true;
     }
     return isHandled;
 }
 
-bool Engine::dispatchEventToApp(OSEventType type, const OSEvent& ev) {
+bool Engine::dispatchEventToApp(OSEventType type, const OSEvent &ev) {
     auto it = _eventCallbacks.find(type);
     if (it != _eventCallbacks.end()) {
         it->second(ev);

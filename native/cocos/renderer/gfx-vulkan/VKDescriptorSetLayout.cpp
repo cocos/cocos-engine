@@ -38,7 +38,7 @@ CCVKDescriptorSetLayout::~CCVKDescriptorSetLayout() {
     destroy();
 }
 
-void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo& /*info*/) {
+void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
     _gpuDescriptorSetLayout                    = CC_NEW(CCVKGPUDescriptorSetLayout);
     _gpuDescriptorSetLayout->id                = generateID();
     _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
@@ -46,7 +46,7 @@ void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo& /*info*/) {
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindings          = _bindings;
 
-    for (auto& binding : _bindings) {
+    for (auto &binding : _bindings) {
         if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
             for (uint32_t j = 0U; j < binding.count; j++) {
                 _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);

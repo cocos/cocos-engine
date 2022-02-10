@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "Value.h"
+#include <cctype>
 #include <cmath>
 #include <cstdint>
 #include <sstream>
@@ -442,7 +443,7 @@ float Value::toFloat() const {
 }
 
 double Value::toDouble() const {
-    assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt);
+    assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt || _type == Type::String);
     if (LIKELY(_type == Type::Number)) {
         return _u._number;
     }
@@ -450,6 +451,11 @@ double Value::toDouble() const {
         // CC_LOG_WARNING("convert int64 to double");
         return static_cast<double>(_u._bigint);
     }
+
+    if (_type == Type::String) {
+        return std::stod(*_u._string);
+    }
+
     return _u._boolean ? 1.0 : 0.0;
 }
 

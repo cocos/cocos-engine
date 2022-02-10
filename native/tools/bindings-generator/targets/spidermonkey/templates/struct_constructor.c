@@ -13,10 +13,13 @@ bool sevalue_to_native(const se::Value &from, ${namespaced_class_name} * to, se:
     }
     se::Value field;
     bool ok = true;
+#for p in $parents
+    ok &= sevalue_to_native<${p.namespaced_class_name}>(from, to, ctx);
+#end for
 #set arg_idx = 0
 #for field in $public_fields
     #set field_type = field.ntype.to_string($generator)
-    json->getProperty("${field.name}", &field);
+    json->getProperty("${field.export_name}", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->${field.name}), ctx);
     }
@@ -35,33 +38,33 @@ static bool ${struct_constructor_name}(se::State& s) // NOLINT(readability-ident
 
     if(argc == 0)
     {
-        ${namespaced_class_name}* cobj = JSB_ALLOC(${namespaced_class_name});
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(${namespaced_class_name});
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-    #if len($public_fields) > 1
+    #if len($public_fields) > 1 or len($parents) > 0
 
     if(argc == 1 && args[0].isObject())
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        ${namespaced_class_name}* cobj = JSB_ALLOC(${namespaced_class_name});
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(${namespaced_class_name});
+        auto cobj = ptr->get<${namespaced_class_name}>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+#for p in $parents
+        sevalue_to_native<${p.namespaced_class_name}>(args[0], cobj, s.thisObject()); // skip ok
+#end for
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
     #end if
-
-    ${namespaced_class_name}* cobj = JSB_ALLOC(${namespaced_class_name});
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(${namespaced_class_name});
+    auto cobj = ptr->get<${namespaced_class_name}>();
     #set arg_idx = 0
     #for field in $public_fields
     #set field_type = field.ntype.to_string($generator)
@@ -91,13 +94,11 @@ static bool ${struct_constructor_name}(se::State& s) // NOLINT(readability-ident
     #end for
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(${struct_constructor_name}, __jsb_${underlined_class_name}_class, js_${underlined_class_name}_finalize)

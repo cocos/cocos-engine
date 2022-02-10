@@ -39,8 +39,8 @@ CCVKQueryPool::~CCVKQueryPool() {
     destroy();
 }
 
-void CCVKQueryPool::doInit(const QueryPoolInfo& /*info*/) {
-    CCVKDevice* device             = CCVKDevice::getInstance();
+void CCVKQueryPool::doInit(const QueryPoolInfo & /*info*/) {
+    CCVKDevice *device             = CCVKDevice::getInstance();
     _gpuQueryPool                  = CC_NEW(CCVKGPUQueryPool);
     _gpuQueryPool->type            = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;

@@ -62,10 +62,7 @@ void GlobalDSManager::activate(gfx::Device *device, RenderPipeline *pipeline) {
     });
 
     setDescriptorSetLayout();
-    if (_descriptorSetLayout) {
-        _descriptorSetLayout->destroy();
-        CC_DELETE(_descriptorSetLayout);
-    }
+    CC_SAFE_DESTROY_NULL(_descriptorSetLayout);
     _descriptorSetLayout = device->createDescriptorSetLayout({globalDescriptorSetLayout.bindings});
 
     if (_globalDescriptorSet) {
@@ -157,7 +154,7 @@ void GlobalDSManager::destroy() {
     }
     _descriptorSetMap.clear();
 
-    CC_SAFE_DELETE(_descriptorSetLayout);
+    CC_SAFE_DESTROY_NULL(_descriptorSetLayout);
     CC_SAFE_DELETE(_globalDescriptorSet);
 }
 

@@ -77,9 +77,9 @@ bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
 }
 
 void EmptyDevice::doDestroy() {
-    CC_SAFE_DESTROY(_cmdBuff);
-    CC_SAFE_DESTROY(_queryPool);
-    CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
+    CC_SAFE_DESTROY_AND_DELETE(_queryPool);
+    CC_SAFE_DESTROY_AND_DELETE(_queue);
 }
 
 void EmptyDevice::acquire(Swapchain *const * /*swapchains*/, uint32_t /*count*/) {

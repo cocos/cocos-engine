@@ -29,16 +29,16 @@
 
 #pragma once
 
+#include <vector>
 #include "IOTypedArray.h"
 #include "MiddlewareManager.h"
 #include "Object.h"
 #include "base/Macros.h"
 #include "base/Map.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "middleware-adapter.h"
 #include "spine-creator-support/VertexEffectDelegate.h"
 #include "spine/spine.h"
-#include <vector>
 
 namespace spine {
 
@@ -46,21 +46,21 @@ class AttachmentVertices;
 
 /** Draws a skeleton.
      */
-class SkeletonRenderer : public cc::middleware::IMiddleware, public cc::Ref {
+class SkeletonRenderer : public cc::RefCounted, public cc::middleware::IMiddleware {
 public:
     static SkeletonRenderer *create();
     static SkeletonRenderer *createWithSkeleton(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
     static SkeletonRenderer *createWithData(SkeletonData *skeletonData, bool ownsSkeletonData = false);
     static SkeletonRenderer *createWithFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
-    void update(float deltaTime) override {}
-    void render(float deltaTime) override;
+    void             update(float deltaTime) override {}
+    void             render(float deltaTime) override;
     virtual cc::Rect getBoundingBox() const;
-    uint32_t getRenderOrder() const override;
+    uint32_t         getRenderOrder() const override;
 
     Skeleton *getSkeleton() const;
 
-    void setTimeScale(float scale);
+    void  setTimeScale(float scale);
     float getTimeScale() const;
 
     void updateWorldTransform();
@@ -126,8 +126,8 @@ public:
 
     virtual void beginSchedule();
     virtual void stopSchedule();
-    void onEnable();
-    void onDisable();
+    void         onEnable();
+    void         onDisable();
 
     SkeletonRenderer();
     explicit SkeletonRenderer(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
@@ -149,32 +149,32 @@ public:
 protected:
     void setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData);
 
-    bool _ownsSkeletonData = false;
-    bool _ownsSkeleton = false;
-    bool _ownsAtlas = false;
-    Atlas *_atlas = nullptr;
-    AttachmentLoader *_attachmentLoader = nullptr;
-    Skeleton *_skeleton = nullptr;
-    VertexEffectDelegate *_effectDelegate = nullptr;
-    float _timeScale = 1;
-    bool _paused = false;
+    bool                  _ownsSkeletonData = false;
+    bool                  _ownsSkeleton     = false;
+    bool                  _ownsAtlas        = false;
+    Atlas *               _atlas            = nullptr;
+    AttachmentLoader *    _attachmentLoader = nullptr;
+    Skeleton *            _skeleton         = nullptr;
+    VertexEffectDelegate *_effectDelegate   = nullptr;
+    float                 _timeScale        = 1;
+    bool                  _paused           = false;
 
-    bool _batch = true;
-    bool _useAttach = false;
-    bool _debugMesh = false;
-    bool _debugSlots = false;
-    bool _debugBones = false;
-    cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
-    bool _premultipliedAlpha = false;
-    SkeletonClipping *_clipper = nullptr;
-    bool _useTint = false;
-    std::string _uuid;
+    bool                    _batch              = true;
+    bool                    _useAttach          = false;
+    bool                    _debugMesh          = false;
+    bool                    _debugSlots         = false;
+    bool                    _debugBones         = false;
+    cc::middleware::Color4F _nodeColor          = cc::middleware::Color4F::WHITE;
+    bool                    _premultipliedAlpha = false;
+    SkeletonClipping *      _clipper            = nullptr;
+    bool                    _useTint            = false;
+    std::string             _uuid;
 
     int _startSlotIndex = -1;
-    int _endSlotIndex = -1;
+    int _endSlotIndex   = -1;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
-    cc::middleware::IOTypedArray *_debugBuffer = nullptr;
+    cc::middleware::IOTypedArray *_debugBuffer        = nullptr;
     // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
     cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
 };

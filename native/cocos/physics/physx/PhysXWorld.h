@@ -27,13 +27,13 @@
 
 #include <memory>
 #include "base/Macros.h"
+#include "core/scene-graph/Node.h"
 #include "physics/physx/PhysXEventManager.h"
 #include "physics/physx/PhysXFilterShader.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXRigidBody.h"
 #include "physics/physx/PhysXSharedBody.h"
 #include "physics/spec/IWorld.h"
-#include "scene/Node.h"
 
 namespace cc {
 namespace physics {
@@ -71,7 +71,7 @@ public:
     void destroy() override;
 
     inline PhysXSharedBody *getSharedBody(
-        const scene::Node *   node,
+        const Node *          node,
         PhysXRigidBody *const body = nullptr) {
         return PhysXSharedBody::getSharedBody(node, this, body);
     }

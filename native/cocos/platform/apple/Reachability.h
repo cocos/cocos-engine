@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <functional>
@@ -35,7 +35,7 @@ struct sockaddr;
 
 namespace cc {
 
-class Reachability final : public Ref {
+class Reachability final : public RefCounted {
 public:
     enum class NetworkStatus : uint8_t {
         NOT_REACHABLE,

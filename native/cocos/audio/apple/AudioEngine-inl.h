@@ -32,14 +32,14 @@
 
 #include "audio/apple/AudioCache.h"
 #include "audio/apple/AudioPlayer.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 class Scheduler;
 
 #define MAX_AUDIOINSTANCES 24
 
-class AudioEngineImpl : public cc::Ref {
+class AudioEngineImpl : public cc::RefCounted {
 public:
     AudioEngineImpl();
     ~AudioEngineImpl();

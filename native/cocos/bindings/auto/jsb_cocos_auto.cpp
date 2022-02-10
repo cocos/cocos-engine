@@ -1,28 +1,5 @@
-/****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-****************************************************************************/
-
+// clang-format off
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -31,6 +8,11 @@
 #include "platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
 #include "platform/interfaces/modules/Device.h"
 #include "platform/SAXParser.h"
+#include "math/Vec2.h"
+#include "math/Vec3.h"
+#include "math/Quaternion.h"
+#include "math/Color.h"
+#include "core/data/Object.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -39,8 +21,8 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cc_FileUtils_proto = nullptr;
-se::Class* __jsb_cc_FileUtils_class = nullptr;
+se::Object* __jsb_cc_FileUtils_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_FileUtils_class = nullptr;  // NOLINT
 
 static bool js_engine_FileUtils_addSearchPath(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -765,7 +747,27 @@ static bool js_engine_FileUtils_writeValueVectorToFile(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_engine_FileUtils_writeValueVectorToFile)
 
-static bool js_engine_FileUtils_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_engine_FileUtils_getFileDir_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir_static : Error processing arguments");
+        std::string result = cc::FileUtils::getFileDir(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_FileUtils_getFileDir_static)
+
+static bool js_engine_FileUtils_getInstance_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -773,33 +775,16 @@ static bool js_engine_FileUtils_getInstance(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         cc::FileUtils* result = cc::FileUtils::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getInstance : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getInstance_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_engine_FileUtils_getInstance)
+SE_BIND_FUNC(js_engine_FileUtils_getInstance_static)
 
-static bool js_engine_FileUtils_setDelegate(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::FileUtils*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_setDelegate : Error processing arguments");
-        cc::FileUtils::setDelegate(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_setDelegate)
-
-static bool js_engine_FileUtils_normalizePath(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_engine_FileUtils_normalizePath_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -807,48 +792,19 @@ static bool js_engine_FileUtils_normalizePath(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath_static : Error processing arguments");
         std::string result = cc::FileUtils::normalizePath(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_normalizePath_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_FileUtils_normalizePath)
-
-static bool js_engine_FileUtils_getFileDir(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::string, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir : Error processing arguments");
-        std::string result = cc::FileUtils::getFileDir(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getFileDir : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_getFileDir)
-
-
+SE_BIND_FUNC(js_engine_FileUtils_normalizePath_static)
 static bool js_cc_FileUtils_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::FileUtils>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_FileUtils_finalize)
@@ -889,10 +845,9 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     cls->defineFunction("writeToFile", _SE(js_engine_FileUtils_writeToFile));
     cls->defineFunction("writeValueMapToFile", _SE(js_engine_FileUtils_writeValueMapToFile));
     cls->defineFunction("writeValueVectorToFile", _SE(js_engine_FileUtils_writeValueVectorToFile));
-    cls->defineStaticFunction("getInstance", _SE(js_engine_FileUtils_getInstance));
-    cls->defineStaticFunction("setDelegate", _SE(js_engine_FileUtils_setDelegate));
-    cls->defineStaticFunction("normalizePath", _SE(js_engine_FileUtils_normalizePath));
-    cls->defineStaticFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir));
+    cls->defineStaticFunction("getFileDir", _SE(js_engine_FileUtils_getFileDir_static));
+    cls->defineStaticFunction("getInstance", _SE(js_engine_FileUtils_getInstance_static));
+    cls->defineStaticFunction("normalizePath", _SE(js_engine_FileUtils_normalizePath_static));
     cls->defineFinalizeFunction(_SE(js_cc_FileUtils_finalize));
     cls->install();
     JSBClassType::registerClass<cc::FileUtils>(cls);
@@ -900,13 +855,12 @@ bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identif
     __jsb_cc_FileUtils_proto = cls->getProto();
     __jsb_cc_FileUtils_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_OSInterface_proto = nullptr;
-se::Class* __jsb_cc_OSInterface_class = nullptr;
-
-
+se::Object* __jsb_cc_OSInterface_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_OSInterface_class = nullptr;  // NOLINT
 
 bool js_register_engine_OSInterface(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
@@ -918,11 +872,147 @@ bool js_register_engine_OSInterface(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_OSInterface_proto = cls->getProto();
     __jsb_cc_OSInterface_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_ICanvasGradient_proto = nullptr;
-se::Class* __jsb_cc_ICanvasGradient_class = nullptr;
+se::Object* __jsb_cc_Vec2_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_Vec2_class = nullptr;  // NOLINT
+
+static bool js_engine_Vec2_get_x(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Vec2>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Vec2_get_x : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->x, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->x, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_Vec2_get_x)
+
+static bool js_engine_Vec2_set_x(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Vec2>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Vec2_set_x : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->x, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_Vec2_set_x : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_Vec2_set_x)
+
+static bool js_engine_Vec2_get_y(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Vec2>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Vec2_get_y : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->y, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->y, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_Vec2_get_y)
+
+static bool js_engine_Vec2_set_y(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Vec2>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Vec2_set_y : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->y, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_Vec2_set_y : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_Vec2_set_y)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_Vec2_finalize)
+
+static bool js_engine_Vec2_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 2) {
+            HolderType<float, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<float, false> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Vec2, arg0.value(), arg1.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 0) {
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Vec2);
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 1) {
+            HolderType<const float*, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Vec2, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 2) {
+            HolderType<cc::Vec2, true> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::Vec2, true> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Vec2, arg0.value(), arg1.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(js_engine_Vec2_constructor, __jsb_cc_Vec2_class, js_cc_Vec2_finalize)
+
+static bool js_cc_Vec2_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_Vec2_finalize)
+
+bool js_register_engine_Vec2(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("Vec2", obj, nullptr, _SE(js_engine_Vec2_constructor));
+
+    cls->defineProperty("x", _SE(js_engine_Vec2_get_x), _SE(js_engine_Vec2_set_x));
+    cls->defineProperty("y", _SE(js_engine_Vec2_get_y), _SE(js_engine_Vec2_set_y));
+    cls->defineFinalizeFunction(_SE(js_cc_Vec2_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::Vec2>(cls);
+
+    __jsb_cc_Vec2_proto = cls->getProto();
+    __jsb_cc_Vec2_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_ICanvasGradient_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_ICanvasGradient_class = nullptr;  // NOLINT
 
 static bool js_engine_ICanvasGradient_addColorStop(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -945,8 +1035,6 @@ static bool js_engine_ICanvasGradient_addColorStop(se::State& s) // NOLINT(reada
 }
 SE_BIND_FUNC(js_engine_ICanvasGradient_addColorStop)
 
-
-
 bool js_register_engine_ICanvasGradient(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("ICanvasGradient", obj, nullptr, nullptr);
@@ -958,11 +1046,12 @@ bool js_register_engine_ICanvasGradient(se::Object* obj) // NOLINT(readability-i
     __jsb_cc_ICanvasGradient_proto = cls->getProto();
     __jsb_cc_ICanvasGradient_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_ICanvasRenderingContext2D_proto = nullptr;
-se::Class* __jsb_cc_ICanvasRenderingContext2D_class = nullptr;
+se::Object* __jsb_cc_ICanvasRenderingContext2D_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_ICanvasRenderingContext2D_class = nullptr;  // NOLINT
 
 static bool js_engine_ICanvasRenderingContext2D_beginPath(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1313,6 +1402,7 @@ static bool js_engine_ICanvasRenderingContext2D_setCanvasBufferUpdatedCallback(s
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
                 auto lambda = [=](const cc::Data & larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -1322,7 +1412,6 @@ static bool js_engine_ICanvasRenderingContext2D_setCanvasBufferUpdatedCallback(s
                     args.resize(1);
                     ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                     se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
@@ -1363,7 +1452,7 @@ static bool js_engine_ICanvasRenderingContext2D_setFillStyle(se::State& s) // NO
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setFillStyle)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setFillStyle)
 
 static bool js_engine_ICanvasRenderingContext2D_setFont(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1382,7 +1471,7 @@ static bool js_engine_ICanvasRenderingContext2D_setFont(se::State& s) // NOLINT(
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setFont)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setFont)
 
 static bool js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1401,7 +1490,7 @@ static bool js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation(se::
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation)
 
 static bool js_engine_ICanvasRenderingContext2D_setHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1420,7 +1509,7 @@ static bool js_engine_ICanvasRenderingContext2D_setHeight(se::State& s) // NOLIN
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setHeight)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setHeight)
 
 static bool js_engine_ICanvasRenderingContext2D_setLineCap(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1439,7 +1528,7 @@ static bool js_engine_ICanvasRenderingContext2D_setLineCap(se::State& s) // NOLI
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setLineCap)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setLineCap)
 
 static bool js_engine_ICanvasRenderingContext2D_setLineJoin(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1458,7 +1547,7 @@ static bool js_engine_ICanvasRenderingContext2D_setLineJoin(se::State& s) // NOL
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setLineJoin)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setLineJoin)
 
 static bool js_engine_ICanvasRenderingContext2D_setLineWidth(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1477,7 +1566,7 @@ static bool js_engine_ICanvasRenderingContext2D_setLineWidth(se::State& s) // NO
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setLineWidth)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setLineWidth)
 
 static bool js_engine_ICanvasRenderingContext2D_setStrokeStyle(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1496,7 +1585,7 @@ static bool js_engine_ICanvasRenderingContext2D_setStrokeStyle(se::State& s) // 
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setStrokeStyle)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setStrokeStyle)
 
 static bool js_engine_ICanvasRenderingContext2D_setTextAlign(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1515,7 +1604,7 @@ static bool js_engine_ICanvasRenderingContext2D_setTextAlign(se::State& s) // NO
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setTextAlign)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setTextAlign)
 
 static bool js_engine_ICanvasRenderingContext2D_setTextBaseline(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1534,7 +1623,7 @@ static bool js_engine_ICanvasRenderingContext2D_setTextBaseline(se::State& s) //
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setTextBaseline)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setTextBaseline)
 
 static bool js_engine_ICanvasRenderingContext2D_setTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1582,7 +1671,7 @@ static bool js_engine_ICanvasRenderingContext2D_setWidth(se::State& s) // NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_engine_ICanvasRenderingContext2D_setWidth)
+SE_BIND_FUNC_AS_PROP_SET(js_engine_ICanvasRenderingContext2D_setWidth)
 
 static bool js_engine_ICanvasRenderingContext2D_stroke(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1674,23 +1763,21 @@ static bool js_engine_ICanvasRenderingContext2D_translate(se::State& s) // NOLIN
 }
 SE_BIND_FUNC(js_engine_ICanvasRenderingContext2D_translate)
 
-
-
 bool js_register_engine_ICanvasRenderingContext2D(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("ICanvasRenderingContext2D", obj, __jsb_cc_OSInterface_proto, nullptr);
 
-    cls->defineProperty("width", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setWidth));
-    cls->defineProperty("height", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setHeight));
-    cls->defineProperty("fillStyle", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setFillStyle));
-    cls->defineProperty("font", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setFont));
-    cls->defineProperty("globalCompositeOperation", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation));
-    cls->defineProperty("lineCap", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineCap));
-    cls->defineProperty("lineJoin", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineJoin));
-    cls->defineProperty("lineWidth", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineWidth));
-    cls->defineProperty("strokeStyle", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setStrokeStyle));
-    cls->defineProperty("textAlign", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setTextAlign));
-    cls->defineProperty("textBaseline", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setTextBaseline));
+    cls->defineProperty("width", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setWidth_asSetter));
+    cls->defineProperty("height", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setHeight_asSetter));
+    cls->defineProperty("fillStyle", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setFillStyle_asSetter));
+    cls->defineProperty("font", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setFont_asSetter));
+    cls->defineProperty("globalCompositeOperation", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setGlobalCompositeOperation_asSetter));
+    cls->defineProperty("lineCap", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineCap_asSetter));
+    cls->defineProperty("lineJoin", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineJoin_asSetter));
+    cls->defineProperty("lineWidth", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setLineWidth_asSetter));
+    cls->defineProperty("strokeStyle", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setStrokeStyle_asSetter));
+    cls->defineProperty("textAlign", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setTextAlign_asSetter));
+    cls->defineProperty("textBaseline", nullptr, _SE(js_engine_ICanvasRenderingContext2D_setTextBaseline_asSetter));
     cls->defineFunction("beginPath", _SE(js_engine_ICanvasRenderingContext2D_beginPath));
     cls->defineFunction("clearRect", _SE(js_engine_ICanvasRenderingContext2D_clearRect));
     cls->defineFunction("closePath", _SE(js_engine_ICanvasRenderingContext2D_closePath));
@@ -1719,34 +1806,25 @@ bool js_register_engine_ICanvasRenderingContext2D(se::Object* obj) // NOLINT(rea
     __jsb_cc_ICanvasRenderingContext2D_proto = cls->getProto();
     __jsb_cc_ICanvasRenderingContext2D_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_CanvasGradient_proto = nullptr;
-se::Class* __jsb_cc_CanvasGradient_class = nullptr;
+se::Object* __jsb_cc_CanvasGradient_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_CanvasGradient_class = nullptr;  // NOLINT
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_CanvasGradient_finalize)
 
 static bool js_engine_CanvasGradient_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::CanvasGradient* cobj = JSB_ALLOC(cc::CanvasGradient);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::CanvasGradient);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_engine_CanvasGradient_constructor, __jsb_cc_CanvasGradient_class, js_cc_CanvasGradient_finalize)
 
-
-
 static bool js_cc_CanvasGradient_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::CanvasGradient>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::CanvasGradient>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_CanvasGradient_finalize)
@@ -1762,11 +1840,12 @@ bool js_register_engine_CanvasGradient(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_CanvasGradient_proto = cls->getProto();
     __jsb_cc_CanvasGradient_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_CanvasRenderingContext2D_proto = nullptr;
-se::Class* __jsb_cc_CanvasRenderingContext2D_class = nullptr;
+se::Object* __jsb_cc_CanvasRenderingContext2D_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_CanvasRenderingContext2D_class = nullptr;  // NOLINT
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_CanvasRenderingContext2D_finalize)
 
@@ -1779,24 +1858,14 @@ static bool js_engine_CanvasRenderingContext2D_constructor(se::State& s) // NOLI
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
     ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
     SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_constructor : Error processing arguments");
-    cc::CanvasRenderingContext2D* cobj = JSB_ALLOC(cc::CanvasRenderingContext2D, arg0, arg1);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::CanvasRenderingContext2D, arg0, arg1);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_engine_CanvasRenderingContext2D_constructor, __jsb_cc_CanvasRenderingContext2D_class, js_cc_CanvasRenderingContext2D_finalize)
 
-
-
 static bool js_cc_CanvasRenderingContext2D_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_CanvasRenderingContext2D_finalize)
@@ -1812,149 +1881,14 @@ bool js_register_engine_CanvasRenderingContext2D(se::Object* obj) // NOLINT(read
     __jsb_cc_CanvasRenderingContext2D_proto = cls->getProto();
     __jsb_cc_CanvasRenderingContext2D_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_Device_proto = nullptr;
-se::Class* __jsb_cc_Device_class = nullptr;
+se::Object* __jsb_cc_Device_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_Device_class = nullptr;  // NOLINT
 
-static bool js_engine_Device_getDPI(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cc::Device::getDPI();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_getDPI : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_engine_Device_getDPI)
-
-static bool js_engine_Device_getDevicePixelRatio(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cc::Device::getDevicePixelRatio();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_getDevicePixelRatio : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_engine_Device_getDevicePixelRatio)
-
-static bool js_engine_Device_setAccelerometerEnabled(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<bool, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_setAccelerometerEnabled : Error processing arguments");
-        cc::Device::setAccelerometerEnabled(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_Device_setAccelerometerEnabled)
-
-static bool js_engine_Device_setAccelerometerInterval(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<float, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_setAccelerometerInterval : Error processing arguments");
-        cc::Device::setAccelerometerInterval(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_Device_setAccelerometerInterval)
-
-static bool js_engine_Device_getDeviceOrientation(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        auto result = static_cast<int>(cc::Device::getDeviceOrientation());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceOrientation : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_engine_Device_getDeviceOrientation)
-
-static bool js_engine_Device_getDeviceModel(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        std::string result = cc::Device::getDeviceModel();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceModel : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_engine_Device_getDeviceModel)
-
-static bool js_engine_Device_setKeepScreenOn(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<bool, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_setKeepScreenOn : Error processing arguments");
-        cc::Device::setKeepScreenOn(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_Device_setKeepScreenOn)
-
-static bool js_engine_Device_vibrate(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<float, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_vibrate : Error processing arguments");
-        cc::Device::vibrate(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_engine_Device_vibrate)
-
-static bool js_engine_Device_getBatteryLevel(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_engine_Device_getBatteryLevel_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1962,16 +1896,84 @@ static bool js_engine_Device_getBatteryLevel(se::State& s) // NOLINT(readability
     if (argc == 0) {
         float result = cc::Device::getBatteryLevel();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_getBatteryLevel : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getBatteryLevel_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_engine_Device_getBatteryLevel)
+SE_BIND_FUNC(js_engine_Device_getBatteryLevel_static)
 
-static bool js_engine_Device_getNetworkType(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_engine_Device_getDPI_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cc::Device::getDPI();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getDPI_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getDPI_static)
+
+static bool js_engine_Device_getDeviceModel_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::string result = cc::Device::getDeviceModel();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceModel_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getDeviceModel_static)
+
+static bool js_engine_Device_getDeviceOrientation_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        auto result = static_cast<int>(cc::Device::getDeviceOrientation());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceOrientation_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getDeviceOrientation_static)
+
+static bool js_engine_Device_getDevicePixelRatio_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cc::Device::getDevicePixelRatio();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getDevicePixelRatio_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getDevicePixelRatio_static)
+
+static bool js_engine_Device_getNetworkType_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1979,16 +1981,16 @@ static bool js_engine_Device_getNetworkType(se::State& s) // NOLINT(readability-
     if (argc == 0) {
         auto result = static_cast<int>(cc::Device::getNetworkType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_getNetworkType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getNetworkType_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_engine_Device_getNetworkType)
+SE_BIND_FUNC(js_engine_Device_getNetworkType_static)
 
-static bool js_engine_Device_getSafeAreaEdge(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_engine_Device_getSafeAreaEdge_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1996,43 +1998,110 @@ static bool js_engine_Device_getSafeAreaEdge(se::State& s) // NOLINT(readability
     if (argc == 0) {
         cc::Vec4 result = cc::Device::getSafeAreaEdge();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_getSafeAreaEdge : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getSafeAreaEdge_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_engine_Device_getSafeAreaEdge)
+SE_BIND_FUNC(js_engine_Device_getSafeAreaEdge_static)
 
+static bool js_engine_Device_setAccelerometerEnabled_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_setAccelerometerEnabled_static : Error processing arguments");
+        cc::Device::setAccelerometerEnabled(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_setAccelerometerEnabled_static)
 
+static bool js_engine_Device_setAccelerometerInterval_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_setAccelerometerInterval_static : Error processing arguments");
+        cc::Device::setAccelerometerInterval(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_setAccelerometerInterval_static)
+
+static bool js_engine_Device_setKeepScreenOn_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_setKeepScreenOn_static : Error processing arguments");
+        cc::Device::setKeepScreenOn(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_setKeepScreenOn_static)
+
+static bool js_engine_Device_vibrate_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_engine_Device_vibrate_static : Error processing arguments");
+        cc::Device::vibrate(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_vibrate_static)
 
 bool js_register_engine_Device(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr);
 
-    cls->defineStaticFunction("getDPI", _SE(js_engine_Device_getDPI));
-    cls->defineStaticFunction("getDevicePixelRatio", _SE(js_engine_Device_getDevicePixelRatio));
-    cls->defineStaticFunction("setAccelerometerEnabled", _SE(js_engine_Device_setAccelerometerEnabled));
-    cls->defineStaticFunction("setAccelerometerInterval", _SE(js_engine_Device_setAccelerometerInterval));
-    cls->defineStaticFunction("getDeviceOrientation", _SE(js_engine_Device_getDeviceOrientation));
-    cls->defineStaticFunction("getDeviceModel", _SE(js_engine_Device_getDeviceModel));
-    cls->defineStaticFunction("setKeepScreenOn", _SE(js_engine_Device_setKeepScreenOn));
-    cls->defineStaticFunction("vibrate", _SE(js_engine_Device_vibrate));
-    cls->defineStaticFunction("getBatteryLevel", _SE(js_engine_Device_getBatteryLevel));
-    cls->defineStaticFunction("getNetworkType", _SE(js_engine_Device_getNetworkType));
-    cls->defineStaticFunction("getSafeAreaEdge", _SE(js_engine_Device_getSafeAreaEdge));
+    cls->defineStaticFunction("getBatteryLevel", _SE(js_engine_Device_getBatteryLevel_static));
+    cls->defineStaticFunction("getDPI", _SE(js_engine_Device_getDPI_static));
+    cls->defineStaticFunction("getDeviceModel", _SE(js_engine_Device_getDeviceModel_static));
+    cls->defineStaticFunction("getDeviceOrientation", _SE(js_engine_Device_getDeviceOrientation_static));
+    cls->defineStaticFunction("getDevicePixelRatio", _SE(js_engine_Device_getDevicePixelRatio_static));
+    cls->defineStaticFunction("getNetworkType", _SE(js_engine_Device_getNetworkType_static));
+    cls->defineStaticFunction("getSafeAreaEdge", _SE(js_engine_Device_getSafeAreaEdge_static));
+    cls->defineStaticFunction("setAccelerometerEnabled", _SE(js_engine_Device_setAccelerometerEnabled_static));
+    cls->defineStaticFunction("setAccelerometerInterval", _SE(js_engine_Device_setAccelerometerInterval_static));
+    cls->defineStaticFunction("setKeepScreenOn", _SE(js_engine_Device_setKeepScreenOn_static));
+    cls->defineStaticFunction("vibrate", _SE(js_engine_Device_vibrate_static));
     cls->install();
     JSBClassType::registerClass<cc::Device>(cls);
 
     __jsb_cc_Device_proto = cls->getProto();
     __jsb_cc_Device_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_SAXParser_proto = nullptr;
-se::Class* __jsb_cc_SAXParser_class = nullptr;
+se::Object* __jsb_cc_SAXParser_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_SAXParser_class = nullptr;  // NOLINT
 
 static bool js_engine_SAXParser_init(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2056,8 +2125,6 @@ static bool js_engine_SAXParser_init(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_engine_SAXParser_init)
 
-
-
 bool js_register_engine_SAXParser(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("PlistParser", obj, nullptr, nullptr);
@@ -2069,14 +2136,508 @@ bool js_register_engine_SAXParser(se::Object* obj) // NOLINT(readability-identif
     __jsb_cc_SAXParser_proto = cls->getProto();
     __jsb_cc_SAXParser_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_engine(se::Object* obj)
+se::Object* __jsb_cc_Color_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_Color_class = nullptr;  // NOLINT
+
+static bool js_engine_Color_get_r(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_get_r : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->r, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->r, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_Color_get_r)
+
+static bool js_engine_Color_set_r(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_set_r : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->r, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_Color_set_r : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_Color_set_r)
+
+static bool js_engine_Color_get_g(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_get_g : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->g, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->g, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_Color_get_g)
+
+static bool js_engine_Color_set_g(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_set_g : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->g, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_Color_set_g : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_Color_set_g)
+
+static bool js_engine_Color_get_b(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_get_b : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->b, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->b, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_Color_get_b)
+
+static bool js_engine_Color_set_b(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_set_b : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->b, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_Color_set_b : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_Color_set_b)
+
+static bool js_engine_Color_get_a(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_get_a : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->a, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->a, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_Color_get_a)
+
+static bool js_engine_Color_set_a(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Color>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_Color_set_a : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->a, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_Color_set_a : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_Color_set_a)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_Color_finalize)
+
+static bool js_engine_Color_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 4) {
+            HolderType<uint8_t, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<uint8_t, false> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<uint8_t, false> arg2 = {};
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<uint8_t, false> arg3 = {};
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Color, arg0.value(), arg1.value(), arg2.value(), arg3.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 0) {
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Color);
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 1) {
+            HolderType<const unsigned char*, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Color, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 1) {
+            HolderType<unsigned int, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Color, arg0.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    do {
+        if (argc == 2) {
+            HolderType<cc::Color, true> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            HolderType<cc::Color, true> arg1 = {};
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Color, arg0.value(), arg1.value());
+            s.thisObject()->setPrivateObject(ptr);
+            return true;
+        }
+    } while(false);
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(js_engine_Color_constructor, __jsb_cc_Color_class, js_cc_Color_finalize)
+
+static bool js_cc_Color_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_Color_finalize)
+
+bool js_register_engine_Color(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("Color", obj, nullptr, _SE(js_engine_Color_constructor));
+
+    cls->defineProperty("r", _SE(js_engine_Color_get_r), _SE(js_engine_Color_set_r));
+    cls->defineProperty("g", _SE(js_engine_Color_get_g), _SE(js_engine_Color_set_g));
+    cls->defineProperty("b", _SE(js_engine_Color_get_b), _SE(js_engine_Color_set_b));
+    cls->defineProperty("a", _SE(js_engine_Color_get_a), _SE(js_engine_Color_set_a));
+    cls->defineFinalizeFunction(_SE(js_cc_Color_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::Color>(cls);
+
+    __jsb_cc_Color_proto = cls->getProto();
+    __jsb_cc_Color_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_CCObject_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_CCObject_class = nullptr;  // NOLINT
+
+static bool js_engine_CCObject_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->destroy();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_CCObject_destroy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_CCObject_destroy)
+
+static bool js_engine_CCObject_destroyImmediate(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_destroyImmediate : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroyImmediate();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_CCObject_destroyImmediate)
+
+static bool js_engine_CCObject_getHideFlags(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_getHideFlags : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        auto result = static_cast<int>(cobj->getHideFlags());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_CCObject_getHideFlags : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_engine_CCObject_getHideFlags)
+
+static bool js_engine_CCObject_getName(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_getName : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::string& result = cobj->getName();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_CCObject_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_engine_CCObject_getName)
+
+static bool js_engine_CCObject_isReplicated(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_isReplicated : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isReplicated();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_CCObject_isReplicated : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_engine_CCObject_isReplicated)
+
+static bool js_engine_CCObject_isValid(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_isValid : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isValid();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_CCObject_isValid : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_engine_CCObject_isValid)
+
+static bool js_engine_CCObject_setHideFlags(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_setHideFlags : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::CCObject::Flags, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_engine_CCObject_setHideFlags : Error processing arguments");
+        cobj->setHideFlags(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_engine_CCObject_setHideFlags)
+
+static bool js_engine_CCObject_setName(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_setName : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_engine_CCObject_setName : Error processing arguments");
+        cobj->setName(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_engine_CCObject_setName)
+
+static bool js_engine_CCObject_setReplicated(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_setReplicated : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_engine_CCObject_setReplicated : Error processing arguments");
+        cobj->setReplicated(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_engine_CCObject_setReplicated)
+
+static bool js_engine_CCObject_toString(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_toString : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::string result = cobj->toString();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_engine_CCObject_toString : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_CCObject_toString)
+
+static bool js_engine_CCObject_deferredDestroy_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::CCObject::deferredDestroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_CCObject_deferredDestroy_static)
+
+static bool js_engine_CCObject_get__objFlags(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_get__objFlags : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_objFlags, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_objFlags, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_CCObject_get__objFlags)
+
+static bool js_engine_CCObject_set__objFlags(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_set__objFlags : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_objFlags, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_CCObject_set__objFlags : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_CCObject_set__objFlags)
+
+static bool js_engine_CCObject_get__name(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_get__name : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_name, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_name, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_engine_CCObject_get__name)
+
+static bool js_engine_CCObject_set__name(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::CCObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_CCObject_set__name : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_name, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_engine_CCObject_set__name : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_engine_CCObject_set__name)
+static bool js_cc_CCObject_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_CCObject_finalize)
+
+bool js_register_engine_CCObject(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("CCObject", obj, nullptr, nullptr);
+
+    cls->defineProperty("_objFlags", _SE(js_engine_CCObject_get__objFlags), _SE(js_engine_CCObject_set__objFlags));
+    cls->defineProperty("_name", _SE(js_engine_CCObject_get__name), _SE(js_engine_CCObject_set__name));
+    cls->defineProperty("name", _SE(js_engine_CCObject_getName_asGetter), _SE(js_engine_CCObject_setName_asSetter));
+    cls->defineProperty("hideFlags", _SE(js_engine_CCObject_getHideFlags_asGetter), _SE(js_engine_CCObject_setHideFlags_asSetter));
+    cls->defineProperty("replicated", _SE(js_engine_CCObject_isReplicated_asGetter), _SE(js_engine_CCObject_setReplicated_asSetter));
+    cls->defineProperty("isValid", _SE(js_engine_CCObject_isValid_asGetter), nullptr);
+    cls->defineFunction("destroy", _SE(js_engine_CCObject_destroy));
+    cls->defineFunction("_destroyImmediate", _SE(js_engine_CCObject_destroyImmediate));
+    cls->defineFunction("toString", _SE(js_engine_CCObject_toString));
+    cls->defineStaticFunction("deferredDestroy", _SE(js_engine_CCObject_deferredDestroy_static));
+    cls->defineFinalizeFunction(_SE(js_cc_CCObject_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::CCObject>(cls);
+
+    __jsb_cc_CCObject_proto = cls->getProto();
+    __jsb_cc_CCObject_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+bool register_all_engine(se::Object* obj)    // NOLINT
 {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("jsb", &nsVal))
+    if (!obj->getProperty("jsb", &nsVal, true))
     {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
@@ -2084,14 +2645,18 @@ bool register_all_engine(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_engine_FileUtils(ns);
-    js_register_engine_OSInterface(ns);
+    js_register_engine_CCObject(ns);
     js_register_engine_ICanvasGradient(ns);
-    js_register_engine_ICanvasRenderingContext2D(ns);
     js_register_engine_CanvasGradient(ns);
+    js_register_engine_OSInterface(ns);
+    js_register_engine_ICanvasRenderingContext2D(ns);
     js_register_engine_CanvasRenderingContext2D(ns);
+    js_register_engine_Color(ns);
     js_register_engine_Device(ns);
+    js_register_engine_FileUtils(ns);
     js_register_engine_SAXParser(ns);
+    js_register_engine_Vec2(ns);
     return true;
 }
 
+// clang-format on

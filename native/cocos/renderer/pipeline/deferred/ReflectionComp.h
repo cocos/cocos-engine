@@ -42,9 +42,9 @@ public:
     inline const gfx::TextureBarrierList& getBarrierBeforeDenoise() { return _barrierBeforeDenoise; }
     inline const gfx::TextureBarrierList& getBarrierAfterDenoise() { return _barrierAfterDenoise; }
     inline const gfx::DispatchInfo&       getDispatchInfo() { return _dispatchInfo; }
-    inline const gfx::DispatchInfo&       getDenioseDispatchInfo() { return _denoiseDispatchInfo; }
-    inline int                            getGroupSizeX() const { return _groupSizeX; }
-    inline int                            getGroupSizeY() const { return _groupSizeY; }
+    inline const gfx::DispatchInfo&       getDenoiseDispatchInfo() { return _denoiseDispatchInfo; }
+    inline uint                            getGroupSizeX() const { return _groupSizeX; }
+    inline uint                            getGroupSizeY() const { return _groupSizeY; }
 
     inline gfx::Buffer*  getConstantsBuffer() { return _compConstantsBuffer; }
     inline gfx::Sampler* getSampler() { return _sampler; }

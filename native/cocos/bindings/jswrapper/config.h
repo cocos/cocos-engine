@@ -131,3 +131,11 @@ typedef SSIZE_T ssize_t;
 #else
     #define SE_DEPRECATED_ATTRIBUTE
 #endif // SE_DEPRECATED_ATTRIBUTE
+
+#if defined(__GNUC__) && __GNUC__ >= 4
+    #define SE_LIKELY(x)   (__builtin_expect((x), 1))
+    #define SE_UNLIKELY(x) (__builtin_expect((x), 0))
+#else
+    #define SE_LIKELY(x)   (x)
+    #define SE_UNLIKELY(x) (x)
+#endif

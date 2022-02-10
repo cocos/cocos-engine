@@ -28,7 +28,7 @@
 namespace cc {
 namespace gfx {
 
-void EmptyQueryPool::doInit(const QueryPoolInfo& info) {
+void EmptyQueryPool::doInit(const QueryPoolInfo &info) {
 }
 
 void EmptyQueryPool::doDestroy() {

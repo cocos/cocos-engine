@@ -37,7 +37,7 @@ Queue::Queue()
 
 Queue::~Queue() = default;
 
-void Queue::initialize(const QueueInfo& info) {
+void Queue::initialize(const QueueInfo &info) {
     _type = info.type;
 
     doInit(info);

@@ -236,10 +236,10 @@ void GLES3Device::doDestroy() {
     CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
     CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
 
-    CC_SAFE_DESTROY(_cmdBuff)
-    CC_SAFE_DESTROY(_queryPool)
-    CC_SAFE_DESTROY(_queue)
-    CC_SAFE_DESTROY(_gpuContext)
+    CC_SAFE_DESTROY_AND_DELETE(_cmdBuff)
+    CC_SAFE_DESTROY_AND_DELETE(_queryPool)
+    CC_SAFE_DESTROY_AND_DELETE(_queue)
+    CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
 }
 
 void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {

@@ -65,16 +65,16 @@ BatchedBuffer::~BatchedBuffer() = default;
 void BatchedBuffer::destroy() {
     for (auto &batch : _batches) {
         for (auto *vb : batch.vbs) {
-            CC_SAFE_DESTROY(vb);
+            CC_SAFE_DESTROY_AND_DELETE(vb);
         }
 
         for (auto *data : batch.vbDatas) {
             CC_FREE(data);
         }
 
-        CC_SAFE_DESTROY(batch.indexBuffer);
-        CC_SAFE_DESTROY(batch.ia);
-        CC_SAFE_DESTROY(batch.ubo);
+        CC_SAFE_DESTROY_AND_DELETE(batch.indexBuffer);
+        CC_SAFE_DESTROY_AND_DELETE(batch.ia);
+        CC_SAFE_DESTROY_AND_DELETE(batch.ubo);
 
         CC_FREE(batch.indexData);
     }
@@ -83,7 +83,7 @@ void BatchedBuffer::destroy() {
 
 void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const scene::Model *model) {
     const auto *subMesh          = subModel->getSubMesh();
-    const auto &flatBuffers      = subMesh->flatBuffers;
+    const auto &flatBuffers      = subMesh->getFlatBuffers();
     auto        flatBuffersCount = static_cast<uint32_t>(flatBuffers.size());
     if (0 == flatBuffersCount) {
         return;
@@ -126,7 +126,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
                     }
 
                     auto offset = batch.vbCount * flatBuffer.stride;
-                    memcpy(vbData + offset, flatBuffer.data, flatBuffer.size);
+                    memcpy(vbData + offset, flatBuffer.buffer.buffer()->getData(), flatBuffer.buffer.buffer()->byteLength());
                 }
 
                 auto *indexData = batch.indexData;
@@ -143,9 +143,9 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
                 const auto start      = batch.vbCount;
                 const auto end        = start + vbCount;
                 const auto mergeCount = batch.mergeCount;
-                if (indexData[start] != mergeCount || indexData[end - 1] != mergeCount) {
+                if (indexData[start] != static_cast<float>(mergeCount) || indexData[end - 1] != static_cast<float>(mergeCount)) {
                     for (auto j = start; j < end; j++) {
-                        indexData[j] = mergeCount + 0.1F; // guard against underflow
+                        indexData[j] = static_cast<float>(mergeCount) + 0.1F; // guard against underflow
                     }
                 }
 
@@ -185,7 +185,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
             flatBuffer.stride,
         });
         auto        size       = 0U;
-        newVB->update(flatBuffer.data, flatBuffer.size);
+        newVB->update(flatBuffer.buffer.buffer()->getData(), flatBuffer.buffer.buffer()->byteLength());
 
         vbs[i]     = newVB;
         vbDatas[i] = static_cast<uint8_t *>(CC_MALLOC(newVB->getSize()));

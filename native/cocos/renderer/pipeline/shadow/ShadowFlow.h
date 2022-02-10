@@ -53,7 +53,7 @@ private:
 
     void clearShadowMap(scene::Camera *camera);
 
-    void resizeShadowMap(scene::Shadow **shadowInfo);
+    void resizeShadowMap();
 
     void initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Light *light);
 

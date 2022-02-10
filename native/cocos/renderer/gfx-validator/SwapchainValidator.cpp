@@ -41,9 +41,6 @@ SwapchainValidator::SwapchainValidator(Swapchain *actor)
 }
 
 SwapchainValidator::~SwapchainValidator() {
-    CC_SAFE_DELETE(_depthStencilTexture);
-    CC_SAFE_DELETE(_colorTexture);
-
     DeviceResourceTracker<Swapchain>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
@@ -59,12 +56,12 @@ void SwapchainValidator::doInit(const SwapchainInfo &info) {
     auto *colorTexture = CC_NEW(TextureValidator(_actor->getColorTexture()));
     colorTexture->renounceOwnership();
     _colorTexture = colorTexture;
-    DeviceResourceTracker<Texture>::push(_colorTexture);
+    DeviceResourceTracker<Texture>::push(_colorTexture.get());
 
     auto *depthStencilTexture = CC_NEW(TextureValidator(_actor->getDepthStencilTexture()));
     depthStencilTexture->renounceOwnership();
     _depthStencilTexture = depthStencilTexture;
-    DeviceResourceTracker<Texture>::push(_depthStencilTexture);
+    DeviceResourceTracker<Texture>::push(_depthStencilTexture.get());
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
@@ -84,9 +81,8 @@ void SwapchainValidator::doDestroy() {
     _inited = false;
 
     /////////// execute ///////////
-
-    CC_SAFE_DELETE(_depthStencilTexture);
-    CC_SAFE_DELETE(_colorTexture);
+    _depthStencilTexture = nullptr;
+    _colorTexture        = nullptr;
 
     _actor->destroy();
 }
@@ -96,8 +92,8 @@ void SwapchainValidator::doResize(uint32_t width, uint32_t height, SurfaceTransf
 
     _actor->resize(width, height, transform);
 
-    auto *colorTexture        = static_cast<TextureValidator *>(_colorTexture);
-    auto *depthStencilTexture = static_cast<TextureValidator *>(_depthStencilTexture);
+    auto *colorTexture        = static_cast<TextureValidator *>(_colorTexture.get());
+    auto *depthStencilTexture = static_cast<TextureValidator *>(_depthStencilTexture.get());
     colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
     colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();
     _transform                                                     = _actor->getSurfaceTransform();

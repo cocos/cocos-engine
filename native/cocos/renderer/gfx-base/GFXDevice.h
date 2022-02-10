@@ -178,7 +178,7 @@ protected:
     unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
 
 private:
-    vector<Swapchain *> _swapchains;
+    vector<Swapchain *> _swapchains; // weak reference
 };
 
 //////////////////////////////////////////////////////////////////////////

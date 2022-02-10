@@ -55,9 +55,9 @@ static bool jsb_BufferPool_constructor(se::State &s) { // NOLINT
         uint bytesPerEntry = 0;
 
         bool ok = true;
-        ok &= seval_to_uint32(args[0], &poolType);
-        ok &= seval_to_uint32(args[1], &entryBits);
-        ok &= seval_to_uint32(args[2], &bytesPerEntry);
+        ok &= sevalue_to_native(args[0], &poolType);
+        ok &= sevalue_to_native(args[1], &entryBits);
+        ok &= sevalue_to_native(args[2], &bytesPerEntry);
         if (!ok) {
             SE_REPORT_ERROR("jsb_BufferPool_constructor: argument convertion error");
             return false;
@@ -65,7 +65,6 @@ static bool jsb_BufferPool_constructor(se::State &s) { // NOLINT
 
         se::BufferPool *pool = JSB_ALLOC(se::BufferPool, (se::PoolType)poolType, entryBits, bytesPerEntry);
         s.thisObject()->setPrivateData(pool);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(pool);
         return true;
     }
 
@@ -75,12 +74,6 @@ static bool jsb_BufferPool_constructor(se::State &s) { // NOLINT
 SE_BIND_CTOR(jsb_BufferPool_constructor, jsb_BufferPool_class, jsb_BufferPool_finalize) // NOLINT
 
 static bool jsb_BufferPool_finalize(se::State &s) { // NOLINT
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto *cobj = static_cast<se::BufferPool *>(s.nativeThisObject());
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(jsb_BufferPool_finalize)
@@ -113,7 +106,6 @@ static bool jsb_BufferAllocator_constructor(se::State &s) { // NOLINT
 
         se::BufferAllocator *bufferAllocator = JSB_ALLOC(se::BufferAllocator, static_cast<se::PoolType>(type));
         s.thisObject()->setPrivateData(bufferAllocator);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(bufferAllocator);
         return true;
     }
 
@@ -123,12 +115,6 @@ static bool jsb_BufferAllocator_constructor(se::State &s) { // NOLINT
 SE_BIND_CTOR(jsb_BufferAllocator_constructor, jsb_BufferAllocator_class, jsb_BufferAllocator_finalize)
 
 static bool jsb_BufferAllocator_finalize(se::State &s) { // NOLINT
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto *cobj = static_cast<se::BufferAllocator *>(s.nativeThisObject());
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(jsb_BufferAllocator_finalize)
@@ -141,9 +127,9 @@ static bool jsb_BufferAllocator_alloc(se::State &s) { // NOLINT
     size_t      argc = args.size();
     if (argc == 2) {
         uint index = 0;
-        seval_to_uint32(args[0], &index);
+        sevalue_to_native(args[0], &index);
         uint bytes = 0;
-        seval_to_uint32(args[1], &bytes);
+        sevalue_to_native(args[1], &bytes);
         s.rval().setObject(bufferAllocator->alloc(index, bytes));
         return true;
     }
@@ -161,7 +147,7 @@ static bool jsb_BufferAllocator_free(se::State &s) { // NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         uint index = 0;
-        seval_to_uint32(args[0], &index);
+        sevalue_to_native(args[0], &index);
         bufferAllocator->free(index);
         return true;
     }

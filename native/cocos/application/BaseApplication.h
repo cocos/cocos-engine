@@ -41,7 +41,7 @@ public:
      * @brief Application main business logic.
      */
     virtual int32_t run(int          argc,
-                        const char** argv) = 0;
+                        const char **argv) = 0;
     /**
      * @brief Pause the application.
      */

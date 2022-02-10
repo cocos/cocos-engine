@@ -69,6 +69,7 @@ void HttpClient::networkThread() {
 
             // Create a HttpResponse object, the default setting is http access failed
             HttpResponse *response = new (std::nothrow) HttpResponse(request);
+            response->addRef();
 
             processResponse(response, _responseMessage);
 
@@ -334,9 +335,10 @@ HttpClient::HttpClient()
   _timeoutForConnect(30),
   _timeoutForRead(60),
   _threadCount(0),
-  _cookie(nullptr),
-  _requestSentinel(new HttpRequest()) {
+  _cookie(nullptr) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
+    _requestSentinel = new HttpRequest();
+    _requestSentinel->addRef();
     memset(_responseMessage, 0, sizeof(char) * RESPONSE_BUFFER_SIZE);
       _scheduler = CC_CURRENT_ENGINE()->getScheduler();
     increaseThreadCount();
@@ -374,7 +376,7 @@ void HttpClient::send(HttpRequest *request) {
         return;
     }
 
-    request->retain();
+    request->addRef();
 
     _requestQueueMutex.lock();
     _requestQueue.pushBack(request);
@@ -389,9 +391,10 @@ void HttpClient::sendImmediate(HttpRequest *request) {
         return;
     }
 
-    request->retain();
+    request->addRef();
     // Create a HttpResponse object, the default setting is http access failed
     HttpResponse *response = new (std::nothrow) HttpResponse(request);
+    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after new.
 
     auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
     t.detach();

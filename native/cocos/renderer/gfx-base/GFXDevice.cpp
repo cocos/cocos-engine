@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -40,12 +40,18 @@ Device *Device::getInstance() {
 
 Device::Device() {
     Device::instance = this;
+    // Device instance is created and hold by TS. Native should hold it too
+    // to make sure it exists after JavaScript virtural machine is destroyed.
+    // Then will destory the Device instance in native.
+    addRef();
     _features.fill(false);
     _formatFeatures.fill(FormatFeature::NONE);
 }
 
 Device::~Device() {
     Device::instance = nullptr;
+    CC_SAFE_RELEASE(_cmdBuff);
+    CC_SAFE_RELEASE(_queue);
 }
 
 bool Device::initialize(const DeviceInfo &info) {
@@ -57,21 +63,28 @@ bool Device::initialize(const DeviceInfo &info) {
     static_assert(sizeof(void *) == 8, "pointer size assumption broken");
 #endif
 
-    return doInit(info);
+    bool result = doInit(info);
+    _cmdBuff->addRef();
+    _queue->addRef();
+
+    return result;
 }
 
 void Device::destroy() {
     for (auto pair : _samplers) {
         CC_SAFE_DELETE(pair.second);
     }
+    _samplers.clear();
 
     for (auto pair : _globalBarriers) {
         CC_SAFE_DELETE(pair.second);
     }
+    _globalBarriers.clear();
 
     for (auto pair : _textureBarriers) {
         CC_SAFE_DELETE(pair.second);
     }
+    _textureBarriers.clear();
 
     doDestroy();
 
@@ -79,7 +92,7 @@ void Device::destroy() {
 }
 
 void Device::destroySurface(void *windowHandle) {
-    for (auto *swapchain : _swapchains) {
+    for (const auto &swapchain : _swapchains) {
         if (swapchain->getWindowHandle() == windowHandle) {
             swapchain->destroySurface();
             break;
@@ -88,7 +101,7 @@ void Device::destroySurface(void *windowHandle) {
 }
 
 void Device::createSurface(void *windowHandle) {
-    for (auto *swapchain : _swapchains) {
+    for (const auto &swapchain : _swapchains) {
         if (!swapchain->getWindowHandle()) {
             swapchain->createSurface(windowHandle);
             break;

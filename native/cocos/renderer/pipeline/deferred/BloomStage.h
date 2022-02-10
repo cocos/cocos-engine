@@ -52,7 +52,7 @@ public:
     void                          render(scene::Camera *camera) override;
 
     gfx::Buffer * getPrefilterUBO() { return _prefilterUBO; }
-    auto &        getDownsampelUBO() { return _downsampleUBO; }
+    auto &        getDownsampleUBO() { return _downsampleUBO; }
     auto &        getUpsampleUBO() { return _upsampleUBO; }
     gfx::Buffer * getCombineUBO() { return _combineUBO; }
     gfx::Sampler *getSampler() const { return _sampler; }

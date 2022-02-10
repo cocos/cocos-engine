@@ -24,29 +24,71 @@
 ****************************************************************************/
 
 #include "scene/SpotLight.h"
+#include <cmath>
+#include "core/Root.h"
+#include "core/scene-graph/Node.h"
+#include "math/Math.h"
+#include "renderer/pipeline/RenderPipeline.h"
 
 namespace cc {
 namespace scene {
+SpotLight::SpotLight() {
+    _type = LightType::SPOT;
+    _aabb = new geometry::AABB();
+    _aabb->addRef();
+    _frustum = new geometry::Frustum();
+    _frustum->addRef();
+}
+
+SpotLight::~SpotLight() {
+    _aabb->release();
+    _frustum->release();
+}
+
+void SpotLight::initialize() {
+    Light::initialize();
+
+    _size   = 0.15F;
+    _aspect = 1.0F;
+    setLuminance(1700 / Light::nt2lm(_size));
+    setLuminanceLDR(1.F);
+    _range = cos(math::PI / 6);
+    _dir.set(1.0, -1.0, -1.0);
+}
+
+float SpotLight::getLuminance() const {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    return isHDR ? _luminanceHDR : _luminanceLDR;
+}
+
+void SpotLight::setLuminance(float value) {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    if (isHDR) {
+        setLuminanceHDR(value);
+    } else {
+        setLuminanceLDR(value);
+    }
+}
+
 void SpotLight::update() {
-    if (_node && (_node->getFlagsChanged() || _needUpdate)) {
+    if (_node && (_node->getChangedFlags() || _needUpdate)) {
         Mat4 matView;
         Mat4 matProj;
         Mat4 matViewProj;
         Mat4 matViewProjInv;
-        _node->updateWorldRTMatrix();
         _pos = _node->getWorldPosition();
         _dir = _forward;
         _dir.transformQuat(_node->getWorldRotation());
         _dir.normalize();
         _aabb->set(_pos, {_range, _range, _range});
-        matView = _node->getWorldRTMatrix();
+        matView = _node->getWorldRT();
         matView.inverse();
 
         Mat4::createPerspective(_angle, 1.0F, 0.001F, _range, &matProj);
 
         Mat4::multiply(matProj, matView, &matViewProj);
 
-        _frustum.update(matViewProj, matViewProjInv);
+        _frustum->update(matViewProj, matViewProjInv);
 
         _needUpdate = false;
     }

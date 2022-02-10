@@ -24,19 +24,20 @@
  ****************************************************************************/
 
 #include "EventAssetsManagerEx.h"
-#include "base/Macros.h"
 #include <functional>
+#include <utility>
 #include "AssetsManagerEx.h"
+#include "base/Macros.h"
 
 NS_CC_EXT_BEGIN
 
-EventAssetsManagerEx::EventAssetsManagerEx(const std::string &eventName, cc::extension::AssetsManagerEx *manager, const EventCode &code, const std::string &assetId /* = "" */, const std::string &message /* = "" */, int curle_code /* = CURLE_OK*/, int curlm_code /* = CURLM_OK*/)
+EventAssetsManagerEx::EventAssetsManagerEx(const std::string & /*eventName*/, cc::extension::AssetsManagerEx *manager, const EventCode &code, std::string assetId /* = "" */, std::string message /* = "" */, int curleCode /* = CURLE_OK*/, int curlmCode /* = CURLM_OK*/)
 : _code(code),
   _manager(manager),
-  _message(message),
-  _assetId(assetId),
-  _curle_code(curle_code),
-  _curlm_code(curlm_code) {
+  _message(std::move(message)),
+  _assetId(std::move(assetId)),
+  _curle_code(curleCode),
+  _curlm_code(curlmCode) {
 }
 
 bool EventAssetsManagerEx::isResuming() const {
@@ -44,11 +45,11 @@ bool EventAssetsManagerEx::isResuming() const {
 }
 
 float EventAssetsManagerEx::getPercent() const {
-    return _manager->getDownloadedBytes() / _manager->getTotalBytes();
+    return static_cast<float>(_manager->getDownloadedBytes() / _manager->getTotalBytes());
 }
 
 float EventAssetsManagerEx::getPercentByFile() const {
-    return (float)(_manager->getDownloadedFiles()) / _manager->getTotalFiles();
+    return static_cast<float>(_manager->getDownloadedFiles()) / static_cast<float>(_manager->getTotalFiles());
 }
 
 double EventAssetsManagerEx::getDownloadedBytes() const {

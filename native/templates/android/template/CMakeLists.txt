@@ -17,8 +17,8 @@ set(PROJ_SOURCES
 add_library(${LIB_NAME} SHARED ${PROJ_SOURCES})
 
 target_link_libraries(${LIB_NAME}
-    "-Wl,--whole-archive" cocos2d_jni "-Wl,--no-whole-archive"
-    cocos2d
+    "-Wl,--whole-archive" cocos_jni "-Wl,--no-whole-archive"
+    ${ENGINE_NAME}
 )
 
 target_include_directories(${LIB_NAME} PRIVATE

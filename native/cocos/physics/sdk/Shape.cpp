@@ -40,7 +40,7 @@
         return _impl->getImpl();                                     \
     }                                                                \
                                                                      \
-    void CLASS::initialize(scene::Node* node) {                      \
+    void CLASS::initialize(Node *node) {                             \
         _impl->initialize(node);                                     \
     }                                                                \
                                                                      \
@@ -89,11 +89,11 @@
         _impl->updateEventListener(v);                               \
     }                                                                \
                                                                      \
-    scene::AABB& CLASS::getAABB() {                                  \
+    geometry::AABB &CLASS::getAABB() {                               \
         return _impl->getAABB();                                     \
     }                                                                \
                                                                      \
-    scene::Sphere& CLASS::getBoundingSphere() {                      \
+    geometry::Sphere &CLASS::getBoundingSphere() {                   \
         return _impl->getBoundingSphere();                           \
     }
 

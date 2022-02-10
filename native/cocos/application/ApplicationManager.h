@@ -33,7 +33,7 @@
 namespace cc {
 class ApplicationManager {
 public:
-    static ApplicationManager* getInstance();
+    static ApplicationManager *getInstance();
 
     using ApplicationPtr = std::shared_ptr<BaseApplication>;
 
@@ -88,6 +88,6 @@ private:
     } while (0)
 
 #define CC_APPLICATION_MAIN(className)            \
-    int cocos_main(int argc, const char** argv) { \
+    int cocos_main(int argc, const char **argv) { \
         CC_START_APPLICATION(className);          \
     }

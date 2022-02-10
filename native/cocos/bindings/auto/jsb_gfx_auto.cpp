@@ -1,28 +1,5 @@
-/****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-****************************************************************************/
-
+// clang-format off
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -35,8 +12,8 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cc_gfx_Size_proto = nullptr;
-se::Class* __jsb_cc_gfx_Size_class = nullptr;
+se::Object* __jsb_cc_gfx_Size_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Size_class = nullptr;  // NOLINT
 
 static bool js_gfx_Size_get_x(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -132,15 +109,15 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Size * to, se::Object *ct
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("x", &field);
+    json->getProperty("x", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->x), ctx);
     }
-    json->getProperty("y", &field);
+    json->getProperty("y", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->y), ctx);
     }
-    json->getProperty("z", &field);
+    json->getProperty("z", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->z), ctx);
     }
@@ -157,9 +134,8 @@ static bool js_gfx_Size_constructor(se::State& s) // NOLINT(readability-identifi
 
     if(argc == 0)
     {
-        cc::gfx::Size* cobj = JSB_ALLOC(cc::gfx::Size);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Size);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -167,21 +143,19 @@ static bool js_gfx_Size_constructor(se::State& s) // NOLINT(readability-identifi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::Size* cobj = JSB_ALLOC(cc::gfx::Size);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Size);
+        auto cobj = ptr->get<cc::gfx::Size>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::Size* cobj = JSB_ALLOC(cc::gfx::Size);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Size);
+    auto cobj = ptr->get<cc::gfx::Size>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->x), nullptr);
     }
@@ -193,28 +167,17 @@ static bool js_gfx_Size_constructor(se::State& s) // NOLINT(readability-identifi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_Size_constructor, __jsb_cc_gfx_Size_class, js_cc_gfx_Size_finalize)
 
-
-
 static bool js_cc_gfx_Size_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Size>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Size>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Size_finalize)
@@ -233,11 +196,12 @@ bool js_register_gfx_Size(se::Object* obj) // NOLINT(readability-identifier-nami
     __jsb_cc_gfx_Size_proto = cls->getProto();
     __jsb_cc_gfx_Size_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DeviceCaps_proto = nullptr;
-se::Class* __jsb_cc_gfx_DeviceCaps_class = nullptr;
+se::Object* __jsb_cc_gfx_DeviceCaps_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DeviceCaps_class = nullptr;  // NOLINT
 
 static bool js_gfx_DeviceCaps_get_maxVertexAttributes(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -846,91 +810,91 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceCaps * to, se::Obje
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("maxVertexAttributes", &field);
+    json->getProperty("maxVertexAttributes", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxVertexAttributes), ctx);
     }
-    json->getProperty("maxVertexUniformVectors", &field);
+    json->getProperty("maxVertexUniformVectors", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxVertexUniformVectors), ctx);
     }
-    json->getProperty("maxFragmentUniformVectors", &field);
+    json->getProperty("maxFragmentUniformVectors", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxFragmentUniformVectors), ctx);
     }
-    json->getProperty("maxTextureUnits", &field);
+    json->getProperty("maxTextureUnits", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxTextureUnits), ctx);
     }
-    json->getProperty("maxImageUnits", &field);
+    json->getProperty("maxImageUnits", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxImageUnits), ctx);
     }
-    json->getProperty("maxVertexTextureUnits", &field);
+    json->getProperty("maxVertexTextureUnits", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxVertexTextureUnits), ctx);
     }
-    json->getProperty("maxColorRenderTargets", &field);
+    json->getProperty("maxColorRenderTargets", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxColorRenderTargets), ctx);
     }
-    json->getProperty("maxShaderStorageBufferBindings", &field);
+    json->getProperty("maxShaderStorageBufferBindings", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxShaderStorageBufferBindings), ctx);
     }
-    json->getProperty("maxShaderStorageBlockSize", &field);
+    json->getProperty("maxShaderStorageBlockSize", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxShaderStorageBlockSize), ctx);
     }
-    json->getProperty("maxUniformBufferBindings", &field);
+    json->getProperty("maxUniformBufferBindings", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxUniformBufferBindings), ctx);
     }
-    json->getProperty("maxUniformBlockSize", &field);
+    json->getProperty("maxUniformBlockSize", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxUniformBlockSize), ctx);
     }
-    json->getProperty("maxTextureSize", &field);
+    json->getProperty("maxTextureSize", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxTextureSize), ctx);
     }
-    json->getProperty("maxCubeMapTextureSize", &field);
+    json->getProperty("maxCubeMapTextureSize", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxCubeMapTextureSize), ctx);
     }
-    json->getProperty("uboOffsetAlignment", &field);
+    json->getProperty("uboOffsetAlignment", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->uboOffsetAlignment), ctx);
     }
-    json->getProperty("maxComputeSharedMemorySize", &field);
+    json->getProperty("maxComputeSharedMemorySize", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxComputeSharedMemorySize), ctx);
     }
-    json->getProperty("maxComputeWorkGroupInvocations", &field);
+    json->getProperty("maxComputeWorkGroupInvocations", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxComputeWorkGroupInvocations), ctx);
     }
-    json->getProperty("maxComputeWorkGroupSize", &field);
+    json->getProperty("maxComputeWorkGroupSize", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxComputeWorkGroupSize), ctx);
     }
-    json->getProperty("maxComputeWorkGroupCount", &field);
+    json->getProperty("maxComputeWorkGroupCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxComputeWorkGroupCount), ctx);
     }
-    json->getProperty("supportQuery", &field);
+    json->getProperty("supportQuery", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->supportQuery), ctx);
     }
-    json->getProperty("clipSpaceMinZ", &field);
+    json->getProperty("clipSpaceMinZ", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->clipSpaceMinZ), ctx);
     }
-    json->getProperty("screenSpaceSignY", &field);
+    json->getProperty("screenSpaceSignY", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->screenSpaceSignY), ctx);
     }
-    json->getProperty("clipSpaceSignY", &field);
+    json->getProperty("clipSpaceSignY", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->clipSpaceSignY), ctx);
     }
@@ -947,9 +911,8 @@ static bool js_gfx_DeviceCaps_constructor(se::State& s) // NOLINT(readability-id
 
     if(argc == 0)
     {
-        cc::gfx::DeviceCaps* cobj = JSB_ALLOC(cc::gfx::DeviceCaps);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DeviceCaps);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -957,21 +920,19 @@ static bool js_gfx_DeviceCaps_constructor(se::State& s) // NOLINT(readability-id
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::DeviceCaps* cobj = JSB_ALLOC(cc::gfx::DeviceCaps);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DeviceCaps);
+        auto cobj = ptr->get<cc::gfx::DeviceCaps>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::DeviceCaps* cobj = JSB_ALLOC(cc::gfx::DeviceCaps);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DeviceCaps);
+    auto cobj = ptr->get<cc::gfx::DeviceCaps>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->maxVertexAttributes), nullptr);
     }
@@ -1040,28 +1001,17 @@ static bool js_gfx_DeviceCaps_constructor(se::State& s) // NOLINT(readability-id
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_DeviceCaps_constructor, __jsb_cc_gfx_DeviceCaps_class, js_cc_gfx_DeviceCaps_finalize)
 
-
-
 static bool js_cc_gfx_DeviceCaps_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DeviceCaps_finalize)
@@ -1099,11 +1049,12 @@ bool js_register_gfx_DeviceCaps(se::Object* obj) // NOLINT(readability-identifie
     __jsb_cc_gfx_DeviceCaps_proto = cls->getProto();
     __jsb_cc_gfx_DeviceCaps_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Offset_proto = nullptr;
-se::Class* __jsb_cc_gfx_Offset_class = nullptr;
+se::Object* __jsb_cc_gfx_Offset_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Offset_class = nullptr;  // NOLINT
 
 static bool js_gfx_Offset_get_x(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1199,15 +1150,15 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Offset * to, se::Object *
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("x", &field);
+    json->getProperty("x", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->x), ctx);
     }
-    json->getProperty("y", &field);
+    json->getProperty("y", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->y), ctx);
     }
-    json->getProperty("z", &field);
+    json->getProperty("z", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->z), ctx);
     }
@@ -1224,9 +1175,8 @@ static bool js_gfx_Offset_constructor(se::State& s) // NOLINT(readability-identi
 
     if(argc == 0)
     {
-        cc::gfx::Offset* cobj = JSB_ALLOC(cc::gfx::Offset);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Offset);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -1234,21 +1184,19 @@ static bool js_gfx_Offset_constructor(se::State& s) // NOLINT(readability-identi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::Offset* cobj = JSB_ALLOC(cc::gfx::Offset);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Offset);
+        auto cobj = ptr->get<cc::gfx::Offset>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::Offset* cobj = JSB_ALLOC(cc::gfx::Offset);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Offset);
+    auto cobj = ptr->get<cc::gfx::Offset>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->x), nullptr);
     }
@@ -1260,28 +1208,17 @@ static bool js_gfx_Offset_constructor(se::State& s) // NOLINT(readability-identi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_Offset_constructor, __jsb_cc_gfx_Offset_class, js_cc_gfx_Offset_finalize)
 
-
-
 static bool js_cc_gfx_Offset_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Offset>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Offset>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Offset_finalize)
@@ -1300,11 +1237,12 @@ bool js_register_gfx_Offset(se::Object* obj) // NOLINT(readability-identifier-na
     __jsb_cc_gfx_Offset_proto = cls->getProto();
     __jsb_cc_gfx_Offset_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Rect_proto = nullptr;
-se::Class* __jsb_cc_gfx_Rect_class = nullptr;
+se::Object* __jsb_cc_gfx_Rect_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Rect_class = nullptr;  // NOLINT
 
 static bool js_gfx_Rect_get_x(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1427,19 +1365,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Rect * to, se::Object *ct
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("x", &field);
+    json->getProperty("x", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->x), ctx);
     }
-    json->getProperty("y", &field);
+    json->getProperty("y", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->y), ctx);
     }
-    json->getProperty("width", &field);
+    json->getProperty("width", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->width), ctx);
     }
-    json->getProperty("height", &field);
+    json->getProperty("height", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->height), ctx);
     }
@@ -1456,9 +1394,8 @@ static bool js_gfx_Rect_constructor(se::State& s) // NOLINT(readability-identifi
 
     if(argc == 0)
     {
-        cc::gfx::Rect* cobj = JSB_ALLOC(cc::gfx::Rect);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Rect);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -1466,21 +1403,19 @@ static bool js_gfx_Rect_constructor(se::State& s) // NOLINT(readability-identifi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::Rect* cobj = JSB_ALLOC(cc::gfx::Rect);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Rect);
+        auto cobj = ptr->get<cc::gfx::Rect>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::Rect* cobj = JSB_ALLOC(cc::gfx::Rect);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Rect);
+    auto cobj = ptr->get<cc::gfx::Rect>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->x), nullptr);
     }
@@ -1495,28 +1430,17 @@ static bool js_gfx_Rect_constructor(se::State& s) // NOLINT(readability-identifi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_Rect_constructor, __jsb_cc_gfx_Rect_class, js_cc_gfx_Rect_finalize)
 
-
-
 static bool js_cc_gfx_Rect_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Rect>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Rect>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Rect_finalize)
@@ -1536,11 +1460,12 @@ bool js_register_gfx_Rect(se::Object* obj) // NOLINT(readability-identifier-nami
     __jsb_cc_gfx_Rect_proto = cls->getProto();
     __jsb_cc_gfx_Rect_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Extent_proto = nullptr;
-se::Class* __jsb_cc_gfx_Extent_class = nullptr;
+se::Object* __jsb_cc_gfx_Extent_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Extent_class = nullptr;  // NOLINT
 
 static bool js_gfx_Extent_get_width(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1636,15 +1561,15 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Extent * to, se::Object *
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("width", &field);
+    json->getProperty("width", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->width), ctx);
     }
-    json->getProperty("height", &field);
+    json->getProperty("height", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->height), ctx);
     }
-    json->getProperty("depth", &field);
+    json->getProperty("depth", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depth), ctx);
     }
@@ -1661,9 +1586,8 @@ static bool js_gfx_Extent_constructor(se::State& s) // NOLINT(readability-identi
 
     if(argc == 0)
     {
-        cc::gfx::Extent* cobj = JSB_ALLOC(cc::gfx::Extent);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Extent);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -1671,21 +1595,19 @@ static bool js_gfx_Extent_constructor(se::State& s) // NOLINT(readability-identi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::Extent* cobj = JSB_ALLOC(cc::gfx::Extent);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Extent);
+        auto cobj = ptr->get<cc::gfx::Extent>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::Extent* cobj = JSB_ALLOC(cc::gfx::Extent);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Extent);
+    auto cobj = ptr->get<cc::gfx::Extent>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->width), nullptr);
     }
@@ -1697,28 +1619,17 @@ static bool js_gfx_Extent_constructor(se::State& s) // NOLINT(readability-identi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_Extent_constructor, __jsb_cc_gfx_Extent_class, js_cc_gfx_Extent_finalize)
 
-
-
 static bool js_cc_gfx_Extent_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Extent>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Extent>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Extent_finalize)
@@ -1737,11 +1648,12 @@ bool js_register_gfx_Extent(se::Object* obj) // NOLINT(readability-identifier-na
     __jsb_cc_gfx_Extent_proto = cls->getProto();
     __jsb_cc_gfx_Extent_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_TextureSubresLayers_proto = nullptr;
-se::Class* __jsb_cc_gfx_TextureSubresLayers_class = nullptr;
+se::Object* __jsb_cc_gfx_TextureSubresLayers_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_TextureSubresLayers_class = nullptr;  // NOLINT
 
 static bool js_gfx_TextureSubresLayers_get_mipLevel(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -1837,15 +1749,15 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureSubresLayers * to,
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("mipLevel", &field);
+    json->getProperty("mipLevel", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->mipLevel), ctx);
     }
-    json->getProperty("baseArrayLayer", &field);
+    json->getProperty("baseArrayLayer", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->baseArrayLayer), ctx);
     }
-    json->getProperty("layerCount", &field);
+    json->getProperty("layerCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->layerCount), ctx);
     }
@@ -1862,9 +1774,8 @@ static bool js_gfx_TextureSubresLayers_constructor(se::State& s) // NOLINT(reada
 
     if(argc == 0)
     {
-        cc::gfx::TextureSubresLayers* cobj = JSB_ALLOC(cc::gfx::TextureSubresLayers);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureSubresLayers);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -1872,21 +1783,19 @@ static bool js_gfx_TextureSubresLayers_constructor(se::State& s) // NOLINT(reada
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::TextureSubresLayers* cobj = JSB_ALLOC(cc::gfx::TextureSubresLayers);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureSubresLayers);
+        auto cobj = ptr->get<cc::gfx::TextureSubresLayers>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::TextureSubresLayers* cobj = JSB_ALLOC(cc::gfx::TextureSubresLayers);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureSubresLayers);
+    auto cobj = ptr->get<cc::gfx::TextureSubresLayers>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->mipLevel), nullptr);
     }
@@ -1898,28 +1807,17 @@ static bool js_gfx_TextureSubresLayers_constructor(se::State& s) // NOLINT(reada
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_TextureSubresLayers_constructor, __jsb_cc_gfx_TextureSubresLayers_class, js_cc_gfx_TextureSubresLayers_finalize)
 
-
-
 static bool js_cc_gfx_TextureSubresLayers_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::TextureSubresLayers>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureSubresLayers>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_TextureSubresLayers_finalize)
@@ -1938,11 +1836,12 @@ bool js_register_gfx_TextureSubresLayers(se::Object* obj) // NOLINT(readability-
     __jsb_cc_gfx_TextureSubresLayers_proto = cls->getProto();
     __jsb_cc_gfx_TextureSubresLayers_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_TextureSubresRange_proto = nullptr;
-se::Class* __jsb_cc_gfx_TextureSubresRange_class = nullptr;
+se::Object* __jsb_cc_gfx_TextureSubresRange_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_TextureSubresRange_class = nullptr;  // NOLINT
 
 static bool js_gfx_TextureSubresRange_get_baseMipLevel(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2065,19 +1964,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureSubresRange * to, 
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("baseMipLevel", &field);
+    json->getProperty("baseMipLevel", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->baseMipLevel), ctx);
     }
-    json->getProperty("levelCount", &field);
+    json->getProperty("levelCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->levelCount), ctx);
     }
-    json->getProperty("baseArrayLayer", &field);
+    json->getProperty("baseArrayLayer", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->baseArrayLayer), ctx);
     }
-    json->getProperty("layerCount", &field);
+    json->getProperty("layerCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->layerCount), ctx);
     }
@@ -2094,9 +1993,8 @@ static bool js_gfx_TextureSubresRange_constructor(se::State& s) // NOLINT(readab
 
     if(argc == 0)
     {
-        cc::gfx::TextureSubresRange* cobj = JSB_ALLOC(cc::gfx::TextureSubresRange);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureSubresRange);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -2104,21 +2002,19 @@ static bool js_gfx_TextureSubresRange_constructor(se::State& s) // NOLINT(readab
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::TextureSubresRange* cobj = JSB_ALLOC(cc::gfx::TextureSubresRange);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureSubresRange);
+        auto cobj = ptr->get<cc::gfx::TextureSubresRange>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::TextureSubresRange* cobj = JSB_ALLOC(cc::gfx::TextureSubresRange);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureSubresRange);
+    auto cobj = ptr->get<cc::gfx::TextureSubresRange>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->baseMipLevel), nullptr);
     }
@@ -2133,28 +2029,17 @@ static bool js_gfx_TextureSubresRange_constructor(se::State& s) // NOLINT(readab
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_TextureSubresRange_constructor, __jsb_cc_gfx_TextureSubresRange_class, js_cc_gfx_TextureSubresRange_finalize)
 
-
-
 static bool js_cc_gfx_TextureSubresRange_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::TextureSubresRange>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureSubresRange>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_TextureSubresRange_finalize)
@@ -2174,11 +2059,12 @@ bool js_register_gfx_TextureSubresRange(se::Object* obj) // NOLINT(readability-i
     __jsb_cc_gfx_TextureSubresRange_proto = cls->getProto();
     __jsb_cc_gfx_TextureSubresRange_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_TextureCopy_proto = nullptr;
-se::Class* __jsb_cc_gfx_TextureCopy_class = nullptr;
+se::Object* __jsb_cc_gfx_TextureCopy_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_TextureCopy_class = nullptr;  // NOLINT
 
 static bool js_gfx_TextureCopy_get_srcSubres(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2328,23 +2214,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureCopy * to, se::Obj
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("srcSubres", &field);
+    json->getProperty("srcSubres", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->srcSubres), ctx);
     }
-    json->getProperty("srcOffset", &field);
+    json->getProperty("srcOffset", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->srcOffset), ctx);
     }
-    json->getProperty("dstSubres", &field);
+    json->getProperty("dstSubres", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstSubres), ctx);
     }
-    json->getProperty("dstOffset", &field);
+    json->getProperty("dstOffset", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstOffset), ctx);
     }
-    json->getProperty("extent", &field);
+    json->getProperty("extent", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->extent), ctx);
     }
@@ -2361,9 +2247,8 @@ static bool js_gfx_TextureCopy_constructor(se::State& s) // NOLINT(readability-i
 
     if(argc == 0)
     {
-        cc::gfx::TextureCopy* cobj = JSB_ALLOC(cc::gfx::TextureCopy);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureCopy);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -2371,21 +2256,19 @@ static bool js_gfx_TextureCopy_constructor(se::State& s) // NOLINT(readability-i
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::TextureCopy* cobj = JSB_ALLOC(cc::gfx::TextureCopy);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureCopy);
+        auto cobj = ptr->get<cc::gfx::TextureCopy>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::TextureCopy* cobj = JSB_ALLOC(cc::gfx::TextureCopy);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureCopy);
+    auto cobj = ptr->get<cc::gfx::TextureCopy>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->srcSubres), nullptr);
     }
@@ -2403,28 +2286,17 @@ static bool js_gfx_TextureCopy_constructor(se::State& s) // NOLINT(readability-i
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_TextureCopy_constructor, __jsb_cc_gfx_TextureCopy_class, js_cc_gfx_TextureCopy_finalize)
 
-
-
 static bool js_cc_gfx_TextureCopy_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::TextureCopy>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureCopy>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_TextureCopy_finalize)
@@ -2445,11 +2317,12 @@ bool js_register_gfx_TextureCopy(se::Object* obj) // NOLINT(readability-identifi
     __jsb_cc_gfx_TextureCopy_proto = cls->getProto();
     __jsb_cc_gfx_TextureCopy_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_TextureBlit_proto = nullptr;
-se::Class* __jsb_cc_gfx_TextureBlit_class = nullptr;
+se::Object* __jsb_cc_gfx_TextureBlit_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_TextureBlit_class = nullptr;  // NOLINT
 
 static bool js_gfx_TextureBlit_get_srcSubres(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2626,27 +2499,27 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureBlit * to, se::Obj
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("srcSubres", &field);
+    json->getProperty("srcSubres", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->srcSubres), ctx);
     }
-    json->getProperty("srcOffset", &field);
+    json->getProperty("srcOffset", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->srcOffset), ctx);
     }
-    json->getProperty("srcExtent", &field);
+    json->getProperty("srcExtent", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->srcExtent), ctx);
     }
-    json->getProperty("dstSubres", &field);
+    json->getProperty("dstSubres", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstSubres), ctx);
     }
-    json->getProperty("dstOffset", &field);
+    json->getProperty("dstOffset", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstOffset), ctx);
     }
-    json->getProperty("dstExtent", &field);
+    json->getProperty("dstExtent", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstExtent), ctx);
     }
@@ -2663,9 +2536,8 @@ static bool js_gfx_TextureBlit_constructor(se::State& s) // NOLINT(readability-i
 
     if(argc == 0)
     {
-        cc::gfx::TextureBlit* cobj = JSB_ALLOC(cc::gfx::TextureBlit);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureBlit);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -2673,21 +2545,19 @@ static bool js_gfx_TextureBlit_constructor(se::State& s) // NOLINT(readability-i
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::TextureBlit* cobj = JSB_ALLOC(cc::gfx::TextureBlit);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureBlit);
+        auto cobj = ptr->get<cc::gfx::TextureBlit>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::TextureBlit* cobj = JSB_ALLOC(cc::gfx::TextureBlit);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureBlit);
+    auto cobj = ptr->get<cc::gfx::TextureBlit>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->srcSubres), nullptr);
     }
@@ -2708,28 +2578,17 @@ static bool js_gfx_TextureBlit_constructor(se::State& s) // NOLINT(readability-i
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_TextureBlit_constructor, __jsb_cc_gfx_TextureBlit_class, js_cc_gfx_TextureBlit_finalize)
 
-
-
 static bool js_cc_gfx_TextureBlit_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::TextureBlit>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureBlit>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_TextureBlit_finalize)
@@ -2751,11 +2610,12 @@ bool js_register_gfx_TextureBlit(se::Object* obj) // NOLINT(readability-identifi
     __jsb_cc_gfx_TextureBlit_proto = cls->getProto();
     __jsb_cc_gfx_TextureBlit_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_BufferTextureCopy_proto = nullptr;
-se::Class* __jsb_cc_gfx_BufferTextureCopy_class = nullptr;
+se::Object* __jsb_cc_gfx_BufferTextureCopy_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_BufferTextureCopy_class = nullptr;  // NOLINT
 
 static bool js_gfx_BufferTextureCopy_get_buffStride(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2905,23 +2765,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BufferTextureCopy * to, s
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("buffStride", &field);
+    json->getProperty("buffStride", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->buffStride), ctx);
     }
-    json->getProperty("buffTexHeight", &field);
+    json->getProperty("buffTexHeight", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->buffTexHeight), ctx);
     }
-    json->getProperty("texOffset", &field);
+    json->getProperty("texOffset", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->texOffset), ctx);
     }
-    json->getProperty("texExtent", &field);
+    json->getProperty("texExtent", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->texExtent), ctx);
     }
-    json->getProperty("texSubres", &field);
+    json->getProperty("texSubres", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->texSubres), ctx);
     }
@@ -2938,9 +2798,8 @@ static bool js_gfx_BufferTextureCopy_constructor(se::State& s) // NOLINT(readabi
 
     if(argc == 0)
     {
-        cc::gfx::BufferTextureCopy* cobj = JSB_ALLOC(cc::gfx::BufferTextureCopy);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferTextureCopy);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -2948,21 +2807,19 @@ static bool js_gfx_BufferTextureCopy_constructor(se::State& s) // NOLINT(readabi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::BufferTextureCopy* cobj = JSB_ALLOC(cc::gfx::BufferTextureCopy);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferTextureCopy);
+        auto cobj = ptr->get<cc::gfx::BufferTextureCopy>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::BufferTextureCopy* cobj = JSB_ALLOC(cc::gfx::BufferTextureCopy);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferTextureCopy);
+    auto cobj = ptr->get<cc::gfx::BufferTextureCopy>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->buffStride), nullptr);
     }
@@ -2980,28 +2837,17 @@ static bool js_gfx_BufferTextureCopy_constructor(se::State& s) // NOLINT(readabi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_BufferTextureCopy_constructor, __jsb_cc_gfx_BufferTextureCopy_class, js_cc_gfx_BufferTextureCopy_finalize)
 
-
-
 static bool js_cc_gfx_BufferTextureCopy_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::BufferTextureCopy>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferTextureCopy>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_BufferTextureCopy_finalize)
@@ -3022,11 +2868,12 @@ bool js_register_gfx_BufferTextureCopy(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_gfx_BufferTextureCopy_proto = cls->getProto();
     __jsb_cc_gfx_BufferTextureCopy_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Viewport_proto = nullptr;
-se::Class* __jsb_cc_gfx_Viewport_class = nullptr;
+se::Object* __jsb_cc_gfx_Viewport_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Viewport_class = nullptr;  // NOLINT
 
 static bool js_gfx_Viewport_get_left(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -3203,27 +3050,27 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Viewport * to, se::Object
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("left", &field);
+    json->getProperty("left", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->left), ctx);
     }
-    json->getProperty("top", &field);
+    json->getProperty("top", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->top), ctx);
     }
-    json->getProperty("width", &field);
+    json->getProperty("width", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->width), ctx);
     }
-    json->getProperty("height", &field);
+    json->getProperty("height", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->height), ctx);
     }
-    json->getProperty("minDepth", &field);
+    json->getProperty("minDepth", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->minDepth), ctx);
     }
-    json->getProperty("maxDepth", &field);
+    json->getProperty("maxDepth", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxDepth), ctx);
     }
@@ -3240,9 +3087,8 @@ static bool js_gfx_Viewport_constructor(se::State& s) // NOLINT(readability-iden
 
     if(argc == 0)
     {
-        cc::gfx::Viewport* cobj = JSB_ALLOC(cc::gfx::Viewport);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Viewport);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -3250,21 +3096,19 @@ static bool js_gfx_Viewport_constructor(se::State& s) // NOLINT(readability-iden
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::Viewport* cobj = JSB_ALLOC(cc::gfx::Viewport);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Viewport);
+        auto cobj = ptr->get<cc::gfx::Viewport>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::Viewport* cobj = JSB_ALLOC(cc::gfx::Viewport);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Viewport);
+    auto cobj = ptr->get<cc::gfx::Viewport>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->left), nullptr);
     }
@@ -3285,28 +3129,17 @@ static bool js_gfx_Viewport_constructor(se::State& s) // NOLINT(readability-iden
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_Viewport_constructor, __jsb_cc_gfx_Viewport_class, js_cc_gfx_Viewport_finalize)
 
-
-
 static bool js_cc_gfx_Viewport_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Viewport>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Viewport>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Viewport_finalize)
@@ -3328,11 +3161,12 @@ bool js_register_gfx_Viewport(se::Object* obj) // NOLINT(readability-identifier-
     __jsb_cc_gfx_Viewport_proto = cls->getProto();
     __jsb_cc_gfx_Viewport_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Color_proto = nullptr;
-se::Class* __jsb_cc_gfx_Color_class = nullptr;
+se::Object* __jsb_cc_gfx_Color_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Color_class = nullptr;  // NOLINT
 
 static bool js_gfx_Color_get_x(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -3455,19 +3289,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Color * to, se::Object *c
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("x", &field);
+    json->getProperty("x", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->x), ctx);
     }
-    json->getProperty("y", &field);
+    json->getProperty("y", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->y), ctx);
     }
-    json->getProperty("z", &field);
+    json->getProperty("z", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->z), ctx);
     }
-    json->getProperty("w", &field);
+    json->getProperty("w", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->w), ctx);
     }
@@ -3484,9 +3318,8 @@ static bool js_gfx_Color_constructor(se::State& s) // NOLINT(readability-identif
 
     if(argc == 0)
     {
-        cc::gfx::Color* cobj = JSB_ALLOC(cc::gfx::Color);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Color);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -3494,21 +3327,19 @@ static bool js_gfx_Color_constructor(se::State& s) // NOLINT(readability-identif
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::Color* cobj = JSB_ALLOC(cc::gfx::Color);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Color);
+        auto cobj = ptr->get<cc::gfx::Color>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::Color* cobj = JSB_ALLOC(cc::gfx::Color);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Color);
+    auto cobj = ptr->get<cc::gfx::Color>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->x), nullptr);
     }
@@ -3523,28 +3354,17 @@ static bool js_gfx_Color_constructor(se::State& s) // NOLINT(readability-identif
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_Color_constructor, __jsb_cc_gfx_Color_class, js_cc_gfx_Color_finalize)
 
-
-
 static bool js_cc_gfx_Color_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Color>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Color>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Color_finalize)
@@ -3564,11 +3384,12 @@ bool js_register_gfx_Color(se::Object* obj) // NOLINT(readability-identifier-nam
     __jsb_cc_gfx_Color_proto = cls->getProto();
     __jsb_cc_gfx_Color_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_BindingMappingInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_BindingMappingInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_BindingMappingInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_BindingMappingInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_BindingMappingInfo_get_maxBlockCounts(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -3799,35 +3620,35 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BindingMappingInfo * to, 
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("maxBlockCounts", &field);
+    json->getProperty("maxBlockCounts", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxBlockCounts), ctx);
     }
-    json->getProperty("maxSamplerTextureCounts", &field);
+    json->getProperty("maxSamplerTextureCounts", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxSamplerTextureCounts), ctx);
     }
-    json->getProperty("maxSamplerCounts", &field);
+    json->getProperty("maxSamplerCounts", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxSamplerCounts), ctx);
     }
-    json->getProperty("maxTextureCounts", &field);
+    json->getProperty("maxTextureCounts", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxTextureCounts), ctx);
     }
-    json->getProperty("maxBufferCounts", &field);
+    json->getProperty("maxBufferCounts", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxBufferCounts), ctx);
     }
-    json->getProperty("maxImageCounts", &field);
+    json->getProperty("maxImageCounts", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxImageCounts), ctx);
     }
-    json->getProperty("maxSubpassInputCounts", &field);
+    json->getProperty("maxSubpassInputCounts", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxSubpassInputCounts), ctx);
     }
-    json->getProperty("setIndices", &field);
+    json->getProperty("setIndices", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->setIndices), ctx);
     }
@@ -3844,9 +3665,8 @@ static bool js_gfx_BindingMappingInfo_constructor(se::State& s) // NOLINT(readab
 
     if(argc == 0)
     {
-        cc::gfx::BindingMappingInfo* cobj = JSB_ALLOC(cc::gfx::BindingMappingInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BindingMappingInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -3854,21 +3674,19 @@ static bool js_gfx_BindingMappingInfo_constructor(se::State& s) // NOLINT(readab
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::BindingMappingInfo* cobj = JSB_ALLOC(cc::gfx::BindingMappingInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BindingMappingInfo);
+        auto cobj = ptr->get<cc::gfx::BindingMappingInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::BindingMappingInfo* cobj = JSB_ALLOC(cc::gfx::BindingMappingInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BindingMappingInfo);
+    auto cobj = ptr->get<cc::gfx::BindingMappingInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->maxBlockCounts), nullptr);
     }
@@ -3895,28 +3713,17 @@ static bool js_gfx_BindingMappingInfo_constructor(se::State& s) // NOLINT(readab
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_BindingMappingInfo_constructor, __jsb_cc_gfx_BindingMappingInfo_class, js_cc_gfx_BindingMappingInfo_finalize)
 
-
-
 static bool js_cc_gfx_BindingMappingInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::BindingMappingInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::BindingMappingInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_BindingMappingInfo_finalize)
@@ -3940,11 +3747,12 @@ bool js_register_gfx_BindingMappingInfo(se::Object* obj) // NOLINT(readability-i
     __jsb_cc_gfx_BindingMappingInfo_proto = cls->getProto();
     __jsb_cc_gfx_BindingMappingInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_SwapchainInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_SwapchainInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_SwapchainInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_SwapchainInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_SwapchainInfo_get_windowHandle(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4067,19 +3875,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SwapchainInfo * to, se::O
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("windowHandle", &field);
+    json->getProperty("windowHandle", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->windowHandle), ctx);
     }
-    json->getProperty("vsyncMode", &field);
+    json->getProperty("vsyncMode", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->vsyncMode), ctx);
     }
-    json->getProperty("width", &field);
+    json->getProperty("width", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->width), ctx);
     }
-    json->getProperty("height", &field);
+    json->getProperty("height", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->height), ctx);
     }
@@ -4096,9 +3904,8 @@ static bool js_gfx_SwapchainInfo_constructor(se::State& s) // NOLINT(readability
 
     if(argc == 0)
     {
-        cc::gfx::SwapchainInfo* cobj = JSB_ALLOC(cc::gfx::SwapchainInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SwapchainInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -4106,21 +3913,19 @@ static bool js_gfx_SwapchainInfo_constructor(se::State& s) // NOLINT(readability
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::SwapchainInfo* cobj = JSB_ALLOC(cc::gfx::SwapchainInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SwapchainInfo);
+        auto cobj = ptr->get<cc::gfx::SwapchainInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::SwapchainInfo* cobj = JSB_ALLOC(cc::gfx::SwapchainInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SwapchainInfo);
+    auto cobj = ptr->get<cc::gfx::SwapchainInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->windowHandle), nullptr);
     }
@@ -4135,28 +3940,17 @@ static bool js_gfx_SwapchainInfo_constructor(se::State& s) // NOLINT(readability
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_SwapchainInfo_constructor, __jsb_cc_gfx_SwapchainInfo_class, js_cc_gfx_SwapchainInfo_finalize)
 
-
-
 static bool js_cc_gfx_SwapchainInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::SwapchainInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::SwapchainInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_SwapchainInfo_finalize)
@@ -4176,11 +3970,12 @@ bool js_register_gfx_SwapchainInfo(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_gfx_SwapchainInfo_proto = cls->getProto();
     __jsb_cc_gfx_SwapchainInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DeviceInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_DeviceInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_DeviceInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DeviceInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_DeviceInfo_get_bindingMappingInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4222,7 +4017,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceInfo * to, se::Obje
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("bindingMappingInfo", &field);
+    json->getProperty("bindingMappingInfo", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->bindingMappingInfo), ctx);
     }
@@ -4239,40 +4034,28 @@ static bool js_gfx_DeviceInfo_constructor(se::State& s) // NOLINT(readability-id
 
     if(argc == 0)
     {
-        cc::gfx::DeviceInfo* cobj = JSB_ALLOC(cc::gfx::DeviceInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DeviceInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::DeviceInfo* cobj = JSB_ALLOC(cc::gfx::DeviceInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DeviceInfo);
+    auto cobj = ptr->get<cc::gfx::DeviceInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->bindingMappingInfo), nullptr);
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_DeviceInfo_constructor, __jsb_cc_gfx_DeviceInfo_class, js_cc_gfx_DeviceInfo_finalize)
 
-
-
 static bool js_cc_gfx_DeviceInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DeviceInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DeviceInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DeviceInfo_finalize)
@@ -4289,11 +4072,12 @@ bool js_register_gfx_DeviceInfo(se::Object* obj) // NOLINT(readability-identifie
     __jsb_cc_gfx_DeviceInfo_proto = cls->getProto();
     __jsb_cc_gfx_DeviceInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_BufferInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_BufferInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_BufferInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_BufferInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_BufferInfo_get_usage(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4443,23 +4227,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BufferInfo * to, se::Obje
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("usage", &field);
+    json->getProperty("usage", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->usage), ctx);
     }
-    json->getProperty("memUsage", &field);
+    json->getProperty("memUsage", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->memUsage), ctx);
     }
-    json->getProperty("size", &field);
+    json->getProperty("size", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->size), ctx);
     }
-    json->getProperty("stride", &field);
+    json->getProperty("stride", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stride), ctx);
     }
-    json->getProperty("flags", &field);
+    json->getProperty("flags", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->flags), ctx);
     }
@@ -4476,9 +4260,8 @@ static bool js_gfx_BufferInfo_constructor(se::State& s) // NOLINT(readability-id
 
     if(argc == 0)
     {
-        cc::gfx::BufferInfo* cobj = JSB_ALLOC(cc::gfx::BufferInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -4486,21 +4269,19 @@ static bool js_gfx_BufferInfo_constructor(se::State& s) // NOLINT(readability-id
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::BufferInfo* cobj = JSB_ALLOC(cc::gfx::BufferInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferInfo);
+        auto cobj = ptr->get<cc::gfx::BufferInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::BufferInfo* cobj = JSB_ALLOC(cc::gfx::BufferInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferInfo);
+    auto cobj = ptr->get<cc::gfx::BufferInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->usage), nullptr);
     }
@@ -4518,28 +4299,17 @@ static bool js_gfx_BufferInfo_constructor(se::State& s) // NOLINT(readability-id
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_BufferInfo_constructor, __jsb_cc_gfx_BufferInfo_class, js_cc_gfx_BufferInfo_finalize)
 
-
-
 static bool js_cc_gfx_BufferInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::BufferInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_BufferInfo_finalize)
@@ -4560,11 +4330,12 @@ bool js_register_gfx_BufferInfo(se::Object* obj) // NOLINT(readability-identifie
     __jsb_cc_gfx_BufferInfo_proto = cls->getProto();
     __jsb_cc_gfx_BufferInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_BufferViewInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_BufferViewInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_BufferViewInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_BufferViewInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_BufferViewInfo_get_buffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4660,15 +4431,15 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BufferViewInfo * to, se::
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("buffer", &field);
+    json->getProperty("buffer", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->buffer), ctx);
     }
-    json->getProperty("offset", &field);
+    json->getProperty("offset", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->offset), ctx);
     }
-    json->getProperty("range", &field);
+    json->getProperty("range", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->range), ctx);
     }
@@ -4685,9 +4456,8 @@ static bool js_gfx_BufferViewInfo_constructor(se::State& s) // NOLINT(readabilit
 
     if(argc == 0)
     {
-        cc::gfx::BufferViewInfo* cobj = JSB_ALLOC(cc::gfx::BufferViewInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferViewInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -4695,21 +4465,19 @@ static bool js_gfx_BufferViewInfo_constructor(se::State& s) // NOLINT(readabilit
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::BufferViewInfo* cobj = JSB_ALLOC(cc::gfx::BufferViewInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferViewInfo);
+        auto cobj = ptr->get<cc::gfx::BufferViewInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::BufferViewInfo* cobj = JSB_ALLOC(cc::gfx::BufferViewInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BufferViewInfo);
+    auto cobj = ptr->get<cc::gfx::BufferViewInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->buffer), nullptr);
     }
@@ -4721,28 +4489,17 @@ static bool js_gfx_BufferViewInfo_constructor(se::State& s) // NOLINT(readabilit
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_BufferViewInfo_constructor, __jsb_cc_gfx_BufferViewInfo_class, js_cc_gfx_BufferViewInfo_finalize)
 
-
-
 static bool js_cc_gfx_BufferViewInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::BufferViewInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferViewInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_BufferViewInfo_finalize)
@@ -4761,11 +4518,12 @@ bool js_register_gfx_BufferViewInfo(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_gfx_BufferViewInfo_proto = cls->getProto();
     __jsb_cc_gfx_BufferViewInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DrawInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_DrawInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_DrawInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DrawInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_DrawInfo_get_vertexCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4969,31 +4727,31 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DrawInfo * to, se::Object
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("vertexCount", &field);
+    json->getProperty("vertexCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->vertexCount), ctx);
     }
-    json->getProperty("firstVertex", &field);
+    json->getProperty("firstVertex", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->firstVertex), ctx);
     }
-    json->getProperty("indexCount", &field);
+    json->getProperty("indexCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->indexCount), ctx);
     }
-    json->getProperty("firstIndex", &field);
+    json->getProperty("firstIndex", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->firstIndex), ctx);
     }
-    json->getProperty("vertexOffset", &field);
+    json->getProperty("vertexOffset", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->vertexOffset), ctx);
     }
-    json->getProperty("instanceCount", &field);
+    json->getProperty("instanceCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->instanceCount), ctx);
     }
-    json->getProperty("firstInstance", &field);
+    json->getProperty("firstInstance", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->firstInstance), ctx);
     }
@@ -5010,9 +4768,8 @@ static bool js_gfx_DrawInfo_constructor(se::State& s) // NOLINT(readability-iden
 
     if(argc == 0)
     {
-        cc::gfx::DrawInfo* cobj = JSB_ALLOC(cc::gfx::DrawInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DrawInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -5020,21 +4777,19 @@ static bool js_gfx_DrawInfo_constructor(se::State& s) // NOLINT(readability-iden
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::DrawInfo* cobj = JSB_ALLOC(cc::gfx::DrawInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DrawInfo);
+        auto cobj = ptr->get<cc::gfx::DrawInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::DrawInfo* cobj = JSB_ALLOC(cc::gfx::DrawInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DrawInfo);
+    auto cobj = ptr->get<cc::gfx::DrawInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->vertexCount), nullptr);
     }
@@ -5058,28 +4813,17 @@ static bool js_gfx_DrawInfo_constructor(se::State& s) // NOLINT(readability-iden
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_DrawInfo_constructor, __jsb_cc_gfx_DrawInfo_class, js_cc_gfx_DrawInfo_finalize)
 
-
-
 static bool js_cc_gfx_DrawInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DrawInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DrawInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DrawInfo_finalize)
@@ -5102,11 +4846,12 @@ bool js_register_gfx_DrawInfo(se::Object* obj) // NOLINT(readability-identifier-
     __jsb_cc_gfx_DrawInfo_proto = cls->getProto();
     __jsb_cc_gfx_DrawInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DispatchInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_DispatchInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_DispatchInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DispatchInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_DispatchInfo_get_groupCountX(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -5256,23 +5001,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DispatchInfo * to, se::Ob
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("groupCountX", &field);
+    json->getProperty("groupCountX", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->groupCountX), ctx);
     }
-    json->getProperty("groupCountY", &field);
+    json->getProperty("groupCountY", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->groupCountY), ctx);
     }
-    json->getProperty("groupCountZ", &field);
+    json->getProperty("groupCountZ", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->groupCountZ), ctx);
     }
-    json->getProperty("indirectBuffer", &field);
+    json->getProperty("indirectBuffer", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->indirectBuffer), ctx);
     }
-    json->getProperty("indirectOffset", &field);
+    json->getProperty("indirectOffset", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->indirectOffset), ctx);
     }
@@ -5289,9 +5034,8 @@ static bool js_gfx_DispatchInfo_constructor(se::State& s) // NOLINT(readability-
 
     if(argc == 0)
     {
-        cc::gfx::DispatchInfo* cobj = JSB_ALLOC(cc::gfx::DispatchInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DispatchInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -5299,21 +5043,19 @@ static bool js_gfx_DispatchInfo_constructor(se::State& s) // NOLINT(readability-
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::DispatchInfo* cobj = JSB_ALLOC(cc::gfx::DispatchInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DispatchInfo);
+        auto cobj = ptr->get<cc::gfx::DispatchInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::DispatchInfo* cobj = JSB_ALLOC(cc::gfx::DispatchInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DispatchInfo);
+    auto cobj = ptr->get<cc::gfx::DispatchInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->groupCountX), nullptr);
     }
@@ -5331,28 +5073,17 @@ static bool js_gfx_DispatchInfo_constructor(se::State& s) // NOLINT(readability-
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_DispatchInfo_constructor, __jsb_cc_gfx_DispatchInfo_class, js_cc_gfx_DispatchInfo_finalize)
 
-
-
 static bool js_cc_gfx_DispatchInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DispatchInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DispatchInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DispatchInfo_finalize)
@@ -5373,11 +5104,12 @@ bool js_register_gfx_DispatchInfo(se::Object* obj) // NOLINT(readability-identif
     __jsb_cc_gfx_DispatchInfo_proto = cls->getProto();
     __jsb_cc_gfx_DispatchInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_IndirectBuffer_proto = nullptr;
-se::Class* __jsb_cc_gfx_IndirectBuffer_class = nullptr;
+se::Object* __jsb_cc_gfx_IndirectBuffer_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_IndirectBuffer_class = nullptr;  // NOLINT
 
 static bool js_gfx_IndirectBuffer_get_drawInfos(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -5419,7 +5151,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::IndirectBuffer * to, se::
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("drawInfos", &field);
+    json->getProperty("drawInfos", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->drawInfos), ctx);
     }
@@ -5436,40 +5168,28 @@ static bool js_gfx_IndirectBuffer_constructor(se::State& s) // NOLINT(readabilit
 
     if(argc == 0)
     {
-        cc::gfx::IndirectBuffer* cobj = JSB_ALLOC(cc::gfx::IndirectBuffer);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::IndirectBuffer);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::IndirectBuffer* cobj = JSB_ALLOC(cc::gfx::IndirectBuffer);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::IndirectBuffer);
+    auto cobj = ptr->get<cc::gfx::IndirectBuffer>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->drawInfos), nullptr);
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_IndirectBuffer_constructor, __jsb_cc_gfx_IndirectBuffer_class, js_cc_gfx_IndirectBuffer_finalize)
 
-
-
 static bool js_cc_gfx_IndirectBuffer_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::IndirectBuffer>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::IndirectBuffer>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_IndirectBuffer_finalize)
@@ -5486,11 +5206,12 @@ bool js_register_gfx_IndirectBuffer(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_gfx_IndirectBuffer_proto = cls->getProto();
     __jsb_cc_gfx_IndirectBuffer_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_TextureInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_TextureInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_TextureInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_TextureInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_TextureInfo_get_type(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -5802,47 +5523,47 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureInfo * to, se::Obj
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("type", &field);
+    json->getProperty("type", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
     }
-    json->getProperty("usage", &field);
+    json->getProperty("usage", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->usage), ctx);
     }
-    json->getProperty("format", &field);
+    json->getProperty("format", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->format), ctx);
     }
-    json->getProperty("width", &field);
+    json->getProperty("width", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->width), ctx);
     }
-    json->getProperty("height", &field);
+    json->getProperty("height", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->height), ctx);
     }
-    json->getProperty("flags", &field);
+    json->getProperty("flags", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->flags), ctx);
     }
-    json->getProperty("layerCount", &field);
+    json->getProperty("layerCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->layerCount), ctx);
     }
-    json->getProperty("levelCount", &field);
+    json->getProperty("levelCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->levelCount), ctx);
     }
-    json->getProperty("samples", &field);
+    json->getProperty("samples", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->samples), ctx);
     }
-    json->getProperty("depth", &field);
+    json->getProperty("depth", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depth), ctx);
     }
-    json->getProperty("externalRes", &field);
+    json->getProperty("externalRes", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->externalRes), ctx);
     }
@@ -5859,9 +5580,8 @@ static bool js_gfx_TextureInfo_constructor(se::State& s) // NOLINT(readability-i
 
     if(argc == 0)
     {
-        cc::gfx::TextureInfo* cobj = JSB_ALLOC(cc::gfx::TextureInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -5869,21 +5589,19 @@ static bool js_gfx_TextureInfo_constructor(se::State& s) // NOLINT(readability-i
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::TextureInfo* cobj = JSB_ALLOC(cc::gfx::TextureInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureInfo);
+        auto cobj = ptr->get<cc::gfx::TextureInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::TextureInfo* cobj = JSB_ALLOC(cc::gfx::TextureInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureInfo);
+    auto cobj = ptr->get<cc::gfx::TextureInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->type), nullptr);
     }
@@ -5919,28 +5637,17 @@ static bool js_gfx_TextureInfo_constructor(se::State& s) // NOLINT(readability-i
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_TextureInfo_constructor, __jsb_cc_gfx_TextureInfo_class, js_cc_gfx_TextureInfo_finalize)
 
-
-
 static bool js_cc_gfx_TextureInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::TextureInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_TextureInfo_finalize)
@@ -5967,11 +5674,12 @@ bool js_register_gfx_TextureInfo(se::Object* obj) // NOLINT(readability-identifi
     __jsb_cc_gfx_TextureInfo_proto = cls->getProto();
     __jsb_cc_gfx_TextureInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_TextureViewInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_TextureViewInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_TextureViewInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_TextureViewInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_TextureViewInfo_get_texture(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -6175,31 +5883,31 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureViewInfo * to, se:
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("texture", &field);
+    json->getProperty("texture", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->texture), ctx);
     }
-    json->getProperty("type", &field);
+    json->getProperty("type", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
     }
-    json->getProperty("format", &field);
+    json->getProperty("format", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->format), ctx);
     }
-    json->getProperty("baseLevel", &field);
+    json->getProperty("baseLevel", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->baseLevel), ctx);
     }
-    json->getProperty("levelCount", &field);
+    json->getProperty("levelCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->levelCount), ctx);
     }
-    json->getProperty("baseLayer", &field);
+    json->getProperty("baseLayer", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->baseLayer), ctx);
     }
-    json->getProperty("layerCount", &field);
+    json->getProperty("layerCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->layerCount), ctx);
     }
@@ -6216,9 +5924,8 @@ static bool js_gfx_TextureViewInfo_constructor(se::State& s) // NOLINT(readabili
 
     if(argc == 0)
     {
-        cc::gfx::TextureViewInfo* cobj = JSB_ALLOC(cc::gfx::TextureViewInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureViewInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -6226,21 +5933,19 @@ static bool js_gfx_TextureViewInfo_constructor(se::State& s) // NOLINT(readabili
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::TextureViewInfo* cobj = JSB_ALLOC(cc::gfx::TextureViewInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureViewInfo);
+        auto cobj = ptr->get<cc::gfx::TextureViewInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::TextureViewInfo* cobj = JSB_ALLOC(cc::gfx::TextureViewInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureViewInfo);
+    auto cobj = ptr->get<cc::gfx::TextureViewInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->texture), nullptr);
     }
@@ -6264,28 +5969,17 @@ static bool js_gfx_TextureViewInfo_constructor(se::State& s) // NOLINT(readabili
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_TextureViewInfo_constructor, __jsb_cc_gfx_TextureViewInfo_class, js_cc_gfx_TextureViewInfo_finalize)
 
-
-
 static bool js_cc_gfx_TextureViewInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_TextureViewInfo_finalize)
@@ -6308,11 +6002,12 @@ bool js_register_gfx_TextureViewInfo(se::Object* obj) // NOLINT(readability-iden
     __jsb_cc_gfx_TextureViewInfo_proto = cls->getProto();
     __jsb_cc_gfx_TextureViewInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_SamplerInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_SamplerInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_SamplerInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_SamplerInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_SamplerInfo_get_minFilter(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -6543,35 +6238,35 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SamplerInfo * to, se::Obj
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("minFilter", &field);
+    json->getProperty("minFilter", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->minFilter), ctx);
     }
-    json->getProperty("magFilter", &field);
+    json->getProperty("magFilter", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->magFilter), ctx);
     }
-    json->getProperty("mipFilter", &field);
+    json->getProperty("mipFilter", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->mipFilter), ctx);
     }
-    json->getProperty("addressU", &field);
+    json->getProperty("addressU", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->addressU), ctx);
     }
-    json->getProperty("addressV", &field);
+    json->getProperty("addressV", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->addressV), ctx);
     }
-    json->getProperty("addressW", &field);
+    json->getProperty("addressW", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->addressW), ctx);
     }
-    json->getProperty("maxAnisotropy", &field);
+    json->getProperty("maxAnisotropy", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxAnisotropy), ctx);
     }
-    json->getProperty("cmpFunc", &field);
+    json->getProperty("cmpFunc", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->cmpFunc), ctx);
     }
@@ -6588,9 +6283,8 @@ static bool js_gfx_SamplerInfo_constructor(se::State& s) // NOLINT(readability-i
 
     if(argc == 0)
     {
-        cc::gfx::SamplerInfo* cobj = JSB_ALLOC(cc::gfx::SamplerInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SamplerInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -6598,21 +6292,19 @@ static bool js_gfx_SamplerInfo_constructor(se::State& s) // NOLINT(readability-i
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::SamplerInfo* cobj = JSB_ALLOC(cc::gfx::SamplerInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SamplerInfo);
+        auto cobj = ptr->get<cc::gfx::SamplerInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::SamplerInfo* cobj = JSB_ALLOC(cc::gfx::SamplerInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SamplerInfo);
+    auto cobj = ptr->get<cc::gfx::SamplerInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->minFilter), nullptr);
     }
@@ -6639,28 +6331,17 @@ static bool js_gfx_SamplerInfo_constructor(se::State& s) // NOLINT(readability-i
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_SamplerInfo_constructor, __jsb_cc_gfx_SamplerInfo_class, js_cc_gfx_SamplerInfo_finalize)
 
-
-
 static bool js_cc_gfx_SamplerInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::SamplerInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::SamplerInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_SamplerInfo_finalize)
@@ -6684,11 +6365,12 @@ bool js_register_gfx_SamplerInfo(se::Object* obj) // NOLINT(readability-identifi
     __jsb_cc_gfx_SamplerInfo_proto = cls->getProto();
     __jsb_cc_gfx_SamplerInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Uniform_proto = nullptr;
-se::Class* __jsb_cc_gfx_Uniform_class = nullptr;
+se::Object* __jsb_cc_gfx_Uniform_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Uniform_class = nullptr;  // NOLINT
 
 static bool js_gfx_Uniform_get_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -6784,15 +6466,15 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Uniform * to, se::Object 
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("type", &field);
+    json->getProperty("type", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
     }
-    json->getProperty("count", &field);
+    json->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
     }
@@ -6809,9 +6491,8 @@ static bool js_gfx_Uniform_constructor(se::State& s) // NOLINT(readability-ident
 
     if(argc == 0)
     {
-        cc::gfx::Uniform* cobj = JSB_ALLOC(cc::gfx::Uniform);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Uniform);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -6819,21 +6500,19 @@ static bool js_gfx_Uniform_constructor(se::State& s) // NOLINT(readability-ident
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::Uniform* cobj = JSB_ALLOC(cc::gfx::Uniform);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Uniform);
+        auto cobj = ptr->get<cc::gfx::Uniform>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::Uniform* cobj = JSB_ALLOC(cc::gfx::Uniform);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Uniform);
+    auto cobj = ptr->get<cc::gfx::Uniform>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->name), nullptr);
     }
@@ -6845,28 +6524,17 @@ static bool js_gfx_Uniform_constructor(se::State& s) // NOLINT(readability-ident
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_Uniform_constructor, __jsb_cc_gfx_Uniform_class, js_cc_gfx_Uniform_finalize)
 
-
-
 static bool js_cc_gfx_Uniform_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Uniform>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Uniform>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Uniform_finalize)
@@ -6885,11 +6553,12 @@ bool js_register_gfx_Uniform(se::Object* obj) // NOLINT(readability-identifier-n
     __jsb_cc_gfx_Uniform_proto = cls->getProto();
     __jsb_cc_gfx_Uniform_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_UniformBlock_proto = nullptr;
-se::Class* __jsb_cc_gfx_UniformBlock_class = nullptr;
+se::Object* __jsb_cc_gfx_UniformBlock_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_UniformBlock_class = nullptr;  // NOLINT
 
 static bool js_gfx_UniformBlock_get_set(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7039,23 +6708,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformBlock * to, se::Ob
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("set", &field);
+    json->getProperty("set", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->set), ctx);
     }
-    json->getProperty("binding", &field);
+    json->getProperty("binding", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->binding), ctx);
     }
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("members", &field);
+    json->getProperty("members", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->members), ctx);
     }
-    json->getProperty("count", &field);
+    json->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
     }
@@ -7072,9 +6741,8 @@ static bool js_gfx_UniformBlock_constructor(se::State& s) // NOLINT(readability-
 
     if(argc == 0)
     {
-        cc::gfx::UniformBlock* cobj = JSB_ALLOC(cc::gfx::UniformBlock);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformBlock);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -7082,21 +6750,19 @@ static bool js_gfx_UniformBlock_constructor(se::State& s) // NOLINT(readability-
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::UniformBlock* cobj = JSB_ALLOC(cc::gfx::UniformBlock);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformBlock);
+        auto cobj = ptr->get<cc::gfx::UniformBlock>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::UniformBlock* cobj = JSB_ALLOC(cc::gfx::UniformBlock);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformBlock);
+    auto cobj = ptr->get<cc::gfx::UniformBlock>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->set), nullptr);
     }
@@ -7114,28 +6780,17 @@ static bool js_gfx_UniformBlock_constructor(se::State& s) // NOLINT(readability-
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_UniformBlock_constructor, __jsb_cc_gfx_UniformBlock_class, js_cc_gfx_UniformBlock_finalize)
 
-
-
 static bool js_cc_gfx_UniformBlock_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::UniformBlock>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::UniformBlock>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_UniformBlock_finalize)
@@ -7156,11 +6811,12 @@ bool js_register_gfx_UniformBlock(se::Object* obj) // NOLINT(readability-identif
     __jsb_cc_gfx_UniformBlock_proto = cls->getProto();
     __jsb_cc_gfx_UniformBlock_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_UniformSamplerTexture_proto = nullptr;
-se::Class* __jsb_cc_gfx_UniformSamplerTexture_class = nullptr;
+se::Object* __jsb_cc_gfx_UniformSamplerTexture_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_UniformSamplerTexture_class = nullptr;  // NOLINT
 
 static bool js_gfx_UniformSamplerTexture_get_set(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7310,23 +6966,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformSamplerTexture * t
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("set", &field);
+    json->getProperty("set", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->set), ctx);
     }
-    json->getProperty("binding", &field);
+    json->getProperty("binding", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->binding), ctx);
     }
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("type", &field);
+    json->getProperty("type", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
     }
-    json->getProperty("count", &field);
+    json->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
     }
@@ -7343,9 +6999,8 @@ static bool js_gfx_UniformSamplerTexture_constructor(se::State& s) // NOLINT(rea
 
     if(argc == 0)
     {
-        cc::gfx::UniformSamplerTexture* cobj = JSB_ALLOC(cc::gfx::UniformSamplerTexture);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformSamplerTexture);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -7353,21 +7008,19 @@ static bool js_gfx_UniformSamplerTexture_constructor(se::State& s) // NOLINT(rea
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::UniformSamplerTexture* cobj = JSB_ALLOC(cc::gfx::UniformSamplerTexture);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformSamplerTexture);
+        auto cobj = ptr->get<cc::gfx::UniformSamplerTexture>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::UniformSamplerTexture* cobj = JSB_ALLOC(cc::gfx::UniformSamplerTexture);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformSamplerTexture);
+    auto cobj = ptr->get<cc::gfx::UniformSamplerTexture>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->set), nullptr);
     }
@@ -7385,28 +7038,17 @@ static bool js_gfx_UniformSamplerTexture_constructor(se::State& s) // NOLINT(rea
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_UniformSamplerTexture_constructor, __jsb_cc_gfx_UniformSamplerTexture_class, js_cc_gfx_UniformSamplerTexture_finalize)
 
-
-
 static bool js_cc_gfx_UniformSamplerTexture_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::UniformSamplerTexture>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::UniformSamplerTexture>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_UniformSamplerTexture_finalize)
@@ -7427,11 +7069,12 @@ bool js_register_gfx_UniformSamplerTexture(se::Object* obj) // NOLINT(readabilit
     __jsb_cc_gfx_UniformSamplerTexture_proto = cls->getProto();
     __jsb_cc_gfx_UniformSamplerTexture_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_UniformSampler_proto = nullptr;
-se::Class* __jsb_cc_gfx_UniformSampler_class = nullptr;
+se::Object* __jsb_cc_gfx_UniformSampler_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_UniformSampler_class = nullptr;  // NOLINT
 
 static bool js_gfx_UniformSampler_get_set(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7554,19 +7197,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformSampler * to, se::
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("set", &field);
+    json->getProperty("set", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->set), ctx);
     }
-    json->getProperty("binding", &field);
+    json->getProperty("binding", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->binding), ctx);
     }
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("count", &field);
+    json->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
     }
@@ -7583,9 +7226,8 @@ static bool js_gfx_UniformSampler_constructor(se::State& s) // NOLINT(readabilit
 
     if(argc == 0)
     {
-        cc::gfx::UniformSampler* cobj = JSB_ALLOC(cc::gfx::UniformSampler);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformSampler);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -7593,21 +7235,19 @@ static bool js_gfx_UniformSampler_constructor(se::State& s) // NOLINT(readabilit
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::UniformSampler* cobj = JSB_ALLOC(cc::gfx::UniformSampler);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformSampler);
+        auto cobj = ptr->get<cc::gfx::UniformSampler>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::UniformSampler* cobj = JSB_ALLOC(cc::gfx::UniformSampler);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformSampler);
+    auto cobj = ptr->get<cc::gfx::UniformSampler>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->set), nullptr);
     }
@@ -7622,28 +7262,17 @@ static bool js_gfx_UniformSampler_constructor(se::State& s) // NOLINT(readabilit
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_UniformSampler_constructor, __jsb_cc_gfx_UniformSampler_class, js_cc_gfx_UniformSampler_finalize)
 
-
-
 static bool js_cc_gfx_UniformSampler_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::UniformSampler>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::UniformSampler>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_UniformSampler_finalize)
@@ -7663,11 +7292,12 @@ bool js_register_gfx_UniformSampler(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_gfx_UniformSampler_proto = cls->getProto();
     __jsb_cc_gfx_UniformSampler_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_UniformTexture_proto = nullptr;
-se::Class* __jsb_cc_gfx_UniformTexture_class = nullptr;
+se::Object* __jsb_cc_gfx_UniformTexture_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_UniformTexture_class = nullptr;  // NOLINT
 
 static bool js_gfx_UniformTexture_get_set(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7817,23 +7447,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformTexture * to, se::
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("set", &field);
+    json->getProperty("set", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->set), ctx);
     }
-    json->getProperty("binding", &field);
+    json->getProperty("binding", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->binding), ctx);
     }
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("type", &field);
+    json->getProperty("type", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
     }
-    json->getProperty("count", &field);
+    json->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
     }
@@ -7850,9 +7480,8 @@ static bool js_gfx_UniformTexture_constructor(se::State& s) // NOLINT(readabilit
 
     if(argc == 0)
     {
-        cc::gfx::UniformTexture* cobj = JSB_ALLOC(cc::gfx::UniformTexture);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformTexture);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -7860,21 +7489,19 @@ static bool js_gfx_UniformTexture_constructor(se::State& s) // NOLINT(readabilit
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::UniformTexture* cobj = JSB_ALLOC(cc::gfx::UniformTexture);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformTexture);
+        auto cobj = ptr->get<cc::gfx::UniformTexture>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::UniformTexture* cobj = JSB_ALLOC(cc::gfx::UniformTexture);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformTexture);
+    auto cobj = ptr->get<cc::gfx::UniformTexture>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->set), nullptr);
     }
@@ -7892,28 +7519,17 @@ static bool js_gfx_UniformTexture_constructor(se::State& s) // NOLINT(readabilit
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_UniformTexture_constructor, __jsb_cc_gfx_UniformTexture_class, js_cc_gfx_UniformTexture_finalize)
 
-
-
 static bool js_cc_gfx_UniformTexture_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::UniformTexture>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::UniformTexture>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_UniformTexture_finalize)
@@ -7934,11 +7550,12 @@ bool js_register_gfx_UniformTexture(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_gfx_UniformTexture_proto = cls->getProto();
     __jsb_cc_gfx_UniformTexture_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_UniformStorageImage_proto = nullptr;
-se::Class* __jsb_cc_gfx_UniformStorageImage_class = nullptr;
+se::Object* __jsb_cc_gfx_UniformStorageImage_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_UniformStorageImage_class = nullptr;  // NOLINT
 
 static bool js_gfx_UniformStorageImage_get_set(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -8115,27 +7732,27 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformStorageImage * to,
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("set", &field);
+    json->getProperty("set", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->set), ctx);
     }
-    json->getProperty("binding", &field);
+    json->getProperty("binding", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->binding), ctx);
     }
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("type", &field);
+    json->getProperty("type", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
     }
-    json->getProperty("count", &field);
+    json->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
     }
-    json->getProperty("memoryAccess", &field);
+    json->getProperty("memoryAccess", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->memoryAccess), ctx);
     }
@@ -8152,9 +7769,8 @@ static bool js_gfx_UniformStorageImage_constructor(se::State& s) // NOLINT(reada
 
     if(argc == 0)
     {
-        cc::gfx::UniformStorageImage* cobj = JSB_ALLOC(cc::gfx::UniformStorageImage);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformStorageImage);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -8162,21 +7778,19 @@ static bool js_gfx_UniformStorageImage_constructor(se::State& s) // NOLINT(reada
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::UniformStorageImage* cobj = JSB_ALLOC(cc::gfx::UniformStorageImage);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformStorageImage);
+        auto cobj = ptr->get<cc::gfx::UniformStorageImage>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::UniformStorageImage* cobj = JSB_ALLOC(cc::gfx::UniformStorageImage);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformStorageImage);
+    auto cobj = ptr->get<cc::gfx::UniformStorageImage>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->set), nullptr);
     }
@@ -8197,28 +7811,17 @@ static bool js_gfx_UniformStorageImage_constructor(se::State& s) // NOLINT(reada
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_UniformStorageImage_constructor, __jsb_cc_gfx_UniformStorageImage_class, js_cc_gfx_UniformStorageImage_finalize)
 
-
-
 static bool js_cc_gfx_UniformStorageImage_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::UniformStorageImage>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::UniformStorageImage>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_UniformStorageImage_finalize)
@@ -8240,11 +7843,12 @@ bool js_register_gfx_UniformStorageImage(se::Object* obj) // NOLINT(readability-
     __jsb_cc_gfx_UniformStorageImage_proto = cls->getProto();
     __jsb_cc_gfx_UniformStorageImage_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_UniformStorageBuffer_proto = nullptr;
-se::Class* __jsb_cc_gfx_UniformStorageBuffer_class = nullptr;
+se::Object* __jsb_cc_gfx_UniformStorageBuffer_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_UniformStorageBuffer_class = nullptr;  // NOLINT
 
 static bool js_gfx_UniformStorageBuffer_get_set(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -8394,23 +7998,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformStorageBuffer * to
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("set", &field);
+    json->getProperty("set", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->set), ctx);
     }
-    json->getProperty("binding", &field);
+    json->getProperty("binding", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->binding), ctx);
     }
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("count", &field);
+    json->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
     }
-    json->getProperty("memoryAccess", &field);
+    json->getProperty("memoryAccess", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->memoryAccess), ctx);
     }
@@ -8427,9 +8031,8 @@ static bool js_gfx_UniformStorageBuffer_constructor(se::State& s) // NOLINT(read
 
     if(argc == 0)
     {
-        cc::gfx::UniformStorageBuffer* cobj = JSB_ALLOC(cc::gfx::UniformStorageBuffer);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformStorageBuffer);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -8437,21 +8040,19 @@ static bool js_gfx_UniformStorageBuffer_constructor(se::State& s) // NOLINT(read
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::UniformStorageBuffer* cobj = JSB_ALLOC(cc::gfx::UniformStorageBuffer);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformStorageBuffer);
+        auto cobj = ptr->get<cc::gfx::UniformStorageBuffer>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::UniformStorageBuffer* cobj = JSB_ALLOC(cc::gfx::UniformStorageBuffer);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformStorageBuffer);
+    auto cobj = ptr->get<cc::gfx::UniformStorageBuffer>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->set), nullptr);
     }
@@ -8469,28 +8070,17 @@ static bool js_gfx_UniformStorageBuffer_constructor(se::State& s) // NOLINT(read
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_UniformStorageBuffer_constructor, __jsb_cc_gfx_UniformStorageBuffer_class, js_cc_gfx_UniformStorageBuffer_finalize)
 
-
-
 static bool js_cc_gfx_UniformStorageBuffer_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::UniformStorageBuffer>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::UniformStorageBuffer>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_UniformStorageBuffer_finalize)
@@ -8511,11 +8101,12 @@ bool js_register_gfx_UniformStorageBuffer(se::Object* obj) // NOLINT(readability
     __jsb_cc_gfx_UniformStorageBuffer_proto = cls->getProto();
     __jsb_cc_gfx_UniformStorageBuffer_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_UniformInputAttachment_proto = nullptr;
-se::Class* __jsb_cc_gfx_UniformInputAttachment_class = nullptr;
+se::Object* __jsb_cc_gfx_UniformInputAttachment_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_UniformInputAttachment_class = nullptr;  // NOLINT
 
 static bool js_gfx_UniformInputAttachment_get_set(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -8638,19 +8229,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformInputAttachment * 
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("set", &field);
+    json->getProperty("set", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->set), ctx);
     }
-    json->getProperty("binding", &field);
+    json->getProperty("binding", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->binding), ctx);
     }
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("count", &field);
+    json->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
     }
@@ -8667,9 +8258,8 @@ static bool js_gfx_UniformInputAttachment_constructor(se::State& s) // NOLINT(re
 
     if(argc == 0)
     {
-        cc::gfx::UniformInputAttachment* cobj = JSB_ALLOC(cc::gfx::UniformInputAttachment);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformInputAttachment);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -8677,21 +8267,19 @@ static bool js_gfx_UniformInputAttachment_constructor(se::State& s) // NOLINT(re
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::UniformInputAttachment* cobj = JSB_ALLOC(cc::gfx::UniformInputAttachment);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformInputAttachment);
+        auto cobj = ptr->get<cc::gfx::UniformInputAttachment>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::UniformInputAttachment* cobj = JSB_ALLOC(cc::gfx::UniformInputAttachment);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::UniformInputAttachment);
+    auto cobj = ptr->get<cc::gfx::UniformInputAttachment>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->set), nullptr);
     }
@@ -8706,28 +8294,17 @@ static bool js_gfx_UniformInputAttachment_constructor(se::State& s) // NOLINT(re
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_UniformInputAttachment_constructor, __jsb_cc_gfx_UniformInputAttachment_class, js_cc_gfx_UniformInputAttachment_finalize)
 
-
-
 static bool js_cc_gfx_UniformInputAttachment_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::UniformInputAttachment>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::UniformInputAttachment>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_UniformInputAttachment_finalize)
@@ -8747,11 +8324,12 @@ bool js_register_gfx_UniformInputAttachment(se::Object* obj) // NOLINT(readabili
     __jsb_cc_gfx_UniformInputAttachment_proto = cls->getProto();
     __jsb_cc_gfx_UniformInputAttachment_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_ShaderStage_proto = nullptr;
-se::Class* __jsb_cc_gfx_ShaderStage_class = nullptr;
+se::Object* __jsb_cc_gfx_ShaderStage_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_ShaderStage_class = nullptr;  // NOLINT
 
 static bool js_gfx_ShaderStage_get_stage(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -8820,11 +8398,11 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ShaderStage * to, se::Obj
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("stage", &field);
+    json->getProperty("stage", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stage), ctx);
     }
-    json->getProperty("source", &field);
+    json->getProperty("source", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->source), ctx);
     }
@@ -8841,9 +8419,8 @@ static bool js_gfx_ShaderStage_constructor(se::State& s) // NOLINT(readability-i
 
     if(argc == 0)
     {
-        cc::gfx::ShaderStage* cobj = JSB_ALLOC(cc::gfx::ShaderStage);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::ShaderStage);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -8851,21 +8428,19 @@ static bool js_gfx_ShaderStage_constructor(se::State& s) // NOLINT(readability-i
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::ShaderStage* cobj = JSB_ALLOC(cc::gfx::ShaderStage);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::ShaderStage);
+        auto cobj = ptr->get<cc::gfx::ShaderStage>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::ShaderStage* cobj = JSB_ALLOC(cc::gfx::ShaderStage);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::ShaderStage);
+    auto cobj = ptr->get<cc::gfx::ShaderStage>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->stage), nullptr);
     }
@@ -8874,28 +8449,17 @@ static bool js_gfx_ShaderStage_constructor(se::State& s) // NOLINT(readability-i
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_ShaderStage_constructor, __jsb_cc_gfx_ShaderStage_class, js_cc_gfx_ShaderStage_finalize)
 
-
-
 static bool js_cc_gfx_ShaderStage_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::ShaderStage>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::ShaderStage>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_ShaderStage_finalize)
@@ -8913,11 +8477,12 @@ bool js_register_gfx_ShaderStage(se::Object* obj) // NOLINT(readability-identifi
     __jsb_cc_gfx_ShaderStage_proto = cls->getProto();
     __jsb_cc_gfx_ShaderStage_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Attribute_proto = nullptr;
-se::Class* __jsb_cc_gfx_Attribute_class = nullptr;
+se::Object* __jsb_cc_gfx_Attribute_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Attribute_class = nullptr;  // NOLINT
 
 static bool js_gfx_Attribute_get_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -9094,27 +8659,27 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Attribute * to, se::Objec
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("format", &field);
+    json->getProperty("format", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->format), ctx);
     }
-    json->getProperty("isNormalized", &field);
+    json->getProperty("isNormalized", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isNormalized), ctx);
     }
-    json->getProperty("stream", &field);
+    json->getProperty("stream", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stream), ctx);
     }
-    json->getProperty("isInstanced", &field);
+    json->getProperty("isInstanced", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isInstanced), ctx);
     }
-    json->getProperty("location", &field);
+    json->getProperty("location", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->location), ctx);
     }
@@ -9131,9 +8696,8 @@ static bool js_gfx_Attribute_constructor(se::State& s) // NOLINT(readability-ide
 
     if(argc == 0)
     {
-        cc::gfx::Attribute* cobj = JSB_ALLOC(cc::gfx::Attribute);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Attribute);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -9141,21 +8705,19 @@ static bool js_gfx_Attribute_constructor(se::State& s) // NOLINT(readability-ide
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::Attribute* cobj = JSB_ALLOC(cc::gfx::Attribute);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Attribute);
+        auto cobj = ptr->get<cc::gfx::Attribute>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::Attribute* cobj = JSB_ALLOC(cc::gfx::Attribute);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::Attribute);
+    auto cobj = ptr->get<cc::gfx::Attribute>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->name), nullptr);
     }
@@ -9176,28 +8738,17 @@ static bool js_gfx_Attribute_constructor(se::State& s) // NOLINT(readability-ide
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_Attribute_constructor, __jsb_cc_gfx_Attribute_class, js_cc_gfx_Attribute_finalize)
 
-
-
 static bool js_cc_gfx_Attribute_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Attribute>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Attribute>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Attribute_finalize)
@@ -9219,11 +8770,12 @@ bool js_register_gfx_Attribute(se::Object* obj) // NOLINT(readability-identifier
     __jsb_cc_gfx_Attribute_proto = cls->getProto();
     __jsb_cc_gfx_Attribute_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_ShaderInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_ShaderInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_ShaderInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_ShaderInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_ShaderInfo_get_name(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -9508,43 +9060,43 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ShaderInfo * to, se::Obje
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("name", &field);
+    json->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->name), ctx);
     }
-    json->getProperty("stages", &field);
+    json->getProperty("stages", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stages), ctx);
     }
-    json->getProperty("attributes", &field);
+    json->getProperty("attributes", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->attributes), ctx);
     }
-    json->getProperty("blocks", &field);
+    json->getProperty("blocks", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blocks), ctx);
     }
-    json->getProperty("buffers", &field);
+    json->getProperty("buffers", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->buffers), ctx);
     }
-    json->getProperty("samplerTextures", &field);
+    json->getProperty("samplerTextures", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->samplerTextures), ctx);
     }
-    json->getProperty("samplers", &field);
+    json->getProperty("samplers", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->samplers), ctx);
     }
-    json->getProperty("textures", &field);
+    json->getProperty("textures", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->textures), ctx);
     }
-    json->getProperty("images", &field);
+    json->getProperty("images", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->images), ctx);
     }
-    json->getProperty("subpassInputs", &field);
+    json->getProperty("subpassInputs", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->subpassInputs), ctx);
     }
@@ -9561,9 +9113,8 @@ static bool js_gfx_ShaderInfo_constructor(se::State& s) // NOLINT(readability-id
 
     if(argc == 0)
     {
-        cc::gfx::ShaderInfo* cobj = JSB_ALLOC(cc::gfx::ShaderInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::ShaderInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -9571,21 +9122,19 @@ static bool js_gfx_ShaderInfo_constructor(se::State& s) // NOLINT(readability-id
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::ShaderInfo* cobj = JSB_ALLOC(cc::gfx::ShaderInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::ShaderInfo);
+        auto cobj = ptr->get<cc::gfx::ShaderInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::ShaderInfo* cobj = JSB_ALLOC(cc::gfx::ShaderInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::ShaderInfo);
+    auto cobj = ptr->get<cc::gfx::ShaderInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->name), nullptr);
     }
@@ -9618,28 +9167,17 @@ static bool js_gfx_ShaderInfo_constructor(se::State& s) // NOLINT(readability-id
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_ShaderInfo_constructor, __jsb_cc_gfx_ShaderInfo_class, js_cc_gfx_ShaderInfo_finalize)
 
-
-
 static bool js_cc_gfx_ShaderInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::ShaderInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::ShaderInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_ShaderInfo_finalize)
@@ -9665,11 +9203,12 @@ bool js_register_gfx_ShaderInfo(se::Object* obj) // NOLINT(readability-identifie
     __jsb_cc_gfx_ShaderInfo_proto = cls->getProto();
     __jsb_cc_gfx_ShaderInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_InputAssemblerInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_InputAssemblerInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_InputAssemblerInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_InputAssemblerInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_InputAssemblerInfo_get_attributes(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -9792,19 +9331,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::InputAssemblerInfo * to, 
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("attributes", &field);
+    json->getProperty("attributes", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->attributes), ctx);
     }
-    json->getProperty("vertexBuffers", &field);
+    json->getProperty("vertexBuffers", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->vertexBuffers), ctx);
     }
-    json->getProperty("indexBuffer", &field);
+    json->getProperty("indexBuffer", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->indexBuffer), ctx);
     }
-    json->getProperty("indirectBuffer", &field);
+    json->getProperty("indirectBuffer", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->indirectBuffer), ctx);
     }
@@ -9821,9 +9360,8 @@ static bool js_gfx_InputAssemblerInfo_constructor(se::State& s) // NOLINT(readab
 
     if(argc == 0)
     {
-        cc::gfx::InputAssemblerInfo* cobj = JSB_ALLOC(cc::gfx::InputAssemblerInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::InputAssemblerInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -9831,21 +9369,19 @@ static bool js_gfx_InputAssemblerInfo_constructor(se::State& s) // NOLINT(readab
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::InputAssemblerInfo* cobj = JSB_ALLOC(cc::gfx::InputAssemblerInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::InputAssemblerInfo);
+        auto cobj = ptr->get<cc::gfx::InputAssemblerInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::InputAssemblerInfo* cobj = JSB_ALLOC(cc::gfx::InputAssemblerInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::InputAssemblerInfo);
+    auto cobj = ptr->get<cc::gfx::InputAssemblerInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->attributes), nullptr);
     }
@@ -9860,28 +9396,17 @@ static bool js_gfx_InputAssemblerInfo_constructor(se::State& s) // NOLINT(readab
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_InputAssemblerInfo_constructor, __jsb_cc_gfx_InputAssemblerInfo_class, js_cc_gfx_InputAssemblerInfo_finalize)
 
-
-
 static bool js_cc_gfx_InputAssemblerInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::InputAssemblerInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::InputAssemblerInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_InputAssemblerInfo_finalize)
@@ -9901,11 +9426,12 @@ bool js_register_gfx_InputAssemblerInfo(se::Object* obj) // NOLINT(readability-i
     __jsb_cc_gfx_InputAssemblerInfo_proto = cls->getProto();
     __jsb_cc_gfx_InputAssemblerInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_ColorAttachment_proto = nullptr;
-se::Class* __jsb_cc_gfx_ColorAttachment_class = nullptr;
+se::Object* __jsb_cc_gfx_ColorAttachment_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_ColorAttachment_class = nullptr;  // NOLINT
 
 static bool js_gfx_ColorAttachment_get_format(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10109,31 +9635,31 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ColorAttachment * to, se:
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("format", &field);
+    json->getProperty("format", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->format), ctx);
     }
-    json->getProperty("sampleCount", &field);
+    json->getProperty("sampleCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->sampleCount), ctx);
     }
-    json->getProperty("loadOp", &field);
+    json->getProperty("loadOp", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->loadOp), ctx);
     }
-    json->getProperty("storeOp", &field);
+    json->getProperty("storeOp", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->storeOp), ctx);
     }
-    json->getProperty("beginAccesses", &field);
+    json->getProperty("beginAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->beginAccesses), ctx);
     }
-    json->getProperty("endAccesses", &field);
+    json->getProperty("endAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->endAccesses), ctx);
     }
-    json->getProperty("isGeneralLayout", &field);
+    json->getProperty("isGeneralLayout", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isGeneralLayout), ctx);
     }
@@ -10150,9 +9676,8 @@ static bool js_gfx_ColorAttachment_constructor(se::State& s) // NOLINT(readabili
 
     if(argc == 0)
     {
-        cc::gfx::ColorAttachment* cobj = JSB_ALLOC(cc::gfx::ColorAttachment);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::ColorAttachment);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -10160,21 +9685,19 @@ static bool js_gfx_ColorAttachment_constructor(se::State& s) // NOLINT(readabili
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::ColorAttachment* cobj = JSB_ALLOC(cc::gfx::ColorAttachment);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::ColorAttachment);
+        auto cobj = ptr->get<cc::gfx::ColorAttachment>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::ColorAttachment* cobj = JSB_ALLOC(cc::gfx::ColorAttachment);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::ColorAttachment);
+    auto cobj = ptr->get<cc::gfx::ColorAttachment>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->format), nullptr);
     }
@@ -10198,28 +9721,17 @@ static bool js_gfx_ColorAttachment_constructor(se::State& s) // NOLINT(readabili
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_ColorAttachment_constructor, __jsb_cc_gfx_ColorAttachment_class, js_cc_gfx_ColorAttachment_finalize)
 
-
-
 static bool js_cc_gfx_ColorAttachment_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::ColorAttachment>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::ColorAttachment>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_ColorAttachment_finalize)
@@ -10242,11 +9754,12 @@ bool js_register_gfx_ColorAttachment(se::Object* obj) // NOLINT(readability-iden
     __jsb_cc_gfx_ColorAttachment_proto = cls->getProto();
     __jsb_cc_gfx_ColorAttachment_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DepthStencilAttachment_proto = nullptr;
-se::Class* __jsb_cc_gfx_DepthStencilAttachment_class = nullptr;
+se::Object* __jsb_cc_gfx_DepthStencilAttachment_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DepthStencilAttachment_class = nullptr;  // NOLINT
 
 static bool js_gfx_DepthStencilAttachment_get_format(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10504,39 +10017,39 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DepthStencilAttachment * 
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("format", &field);
+    json->getProperty("format", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->format), ctx);
     }
-    json->getProperty("sampleCount", &field);
+    json->getProperty("sampleCount", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->sampleCount), ctx);
     }
-    json->getProperty("depthLoadOp", &field);
+    json->getProperty("depthLoadOp", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthLoadOp), ctx);
     }
-    json->getProperty("depthStoreOp", &field);
+    json->getProperty("depthStoreOp", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthStoreOp), ctx);
     }
-    json->getProperty("stencilLoadOp", &field);
+    json->getProperty("stencilLoadOp", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilLoadOp), ctx);
     }
-    json->getProperty("stencilStoreOp", &field);
+    json->getProperty("stencilStoreOp", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilStoreOp), ctx);
     }
-    json->getProperty("beginAccesses", &field);
+    json->getProperty("beginAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->beginAccesses), ctx);
     }
-    json->getProperty("endAccesses", &field);
+    json->getProperty("endAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->endAccesses), ctx);
     }
-    json->getProperty("isGeneralLayout", &field);
+    json->getProperty("isGeneralLayout", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isGeneralLayout), ctx);
     }
@@ -10553,9 +10066,8 @@ static bool js_gfx_DepthStencilAttachment_constructor(se::State& s) // NOLINT(re
 
     if(argc == 0)
     {
-        cc::gfx::DepthStencilAttachment* cobj = JSB_ALLOC(cc::gfx::DepthStencilAttachment);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DepthStencilAttachment);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -10563,21 +10075,19 @@ static bool js_gfx_DepthStencilAttachment_constructor(se::State& s) // NOLINT(re
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::DepthStencilAttachment* cobj = JSB_ALLOC(cc::gfx::DepthStencilAttachment);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DepthStencilAttachment);
+        auto cobj = ptr->get<cc::gfx::DepthStencilAttachment>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::DepthStencilAttachment* cobj = JSB_ALLOC(cc::gfx::DepthStencilAttachment);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DepthStencilAttachment);
+    auto cobj = ptr->get<cc::gfx::DepthStencilAttachment>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->format), nullptr);
     }
@@ -10607,28 +10117,17 @@ static bool js_gfx_DepthStencilAttachment_constructor(se::State& s) // NOLINT(re
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_DepthStencilAttachment_constructor, __jsb_cc_gfx_DepthStencilAttachment_class, js_cc_gfx_DepthStencilAttachment_finalize)
 
-
-
 static bool js_cc_gfx_DepthStencilAttachment_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DepthStencilAttachment>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DepthStencilAttachment>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DepthStencilAttachment_finalize)
@@ -10653,11 +10152,12 @@ bool js_register_gfx_DepthStencilAttachment(se::Object* obj) // NOLINT(readabili
     __jsb_cc_gfx_DepthStencilAttachment_proto = cls->getProto();
     __jsb_cc_gfx_DepthStencilAttachment_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_SubpassInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_SubpassInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_SubpassInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_SubpassInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_SubpassInfo_get_inputs(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10888,35 +10388,35 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassInfo * to, se::Obj
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("inputs", &field);
+    json->getProperty("inputs", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->inputs), ctx);
     }
-    json->getProperty("colors", &field);
+    json->getProperty("colors", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->colors), ctx);
     }
-    json->getProperty("resolves", &field);
+    json->getProperty("resolves", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->resolves), ctx);
     }
-    json->getProperty("preserves", &field);
+    json->getProperty("preserves", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->preserves), ctx);
     }
-    json->getProperty("depthStencil", &field);
+    json->getProperty("depthStencil", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthStencil), ctx);
     }
-    json->getProperty("depthStencilResolve", &field);
+    json->getProperty("depthStencilResolve", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthStencilResolve), ctx);
     }
-    json->getProperty("depthResolveMode", &field);
+    json->getProperty("depthResolveMode", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthResolveMode), ctx);
     }
-    json->getProperty("stencilResolveMode", &field);
+    json->getProperty("stencilResolveMode", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilResolveMode), ctx);
     }
@@ -10933,9 +10433,8 @@ static bool js_gfx_SubpassInfo_constructor(se::State& s) // NOLINT(readability-i
 
     if(argc == 0)
     {
-        cc::gfx::SubpassInfo* cobj = JSB_ALLOC(cc::gfx::SubpassInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SubpassInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -10943,21 +10442,19 @@ static bool js_gfx_SubpassInfo_constructor(se::State& s) // NOLINT(readability-i
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::SubpassInfo* cobj = JSB_ALLOC(cc::gfx::SubpassInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SubpassInfo);
+        auto cobj = ptr->get<cc::gfx::SubpassInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::SubpassInfo* cobj = JSB_ALLOC(cc::gfx::SubpassInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SubpassInfo);
+    auto cobj = ptr->get<cc::gfx::SubpassInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->inputs), nullptr);
     }
@@ -10984,28 +10481,17 @@ static bool js_gfx_SubpassInfo_constructor(se::State& s) // NOLINT(readability-i
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_SubpassInfo_constructor, __jsb_cc_gfx_SubpassInfo_class, js_cc_gfx_SubpassInfo_finalize)
 
-
-
 static bool js_cc_gfx_SubpassInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_SubpassInfo_finalize)
@@ -11029,11 +10515,12 @@ bool js_register_gfx_SubpassInfo(se::Object* obj) // NOLINT(readability-identifi
     __jsb_cc_gfx_SubpassInfo_proto = cls->getProto();
     __jsb_cc_gfx_SubpassInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_SubpassDependency_proto = nullptr;
-se::Class* __jsb_cc_gfx_SubpassDependency_class = nullptr;
+se::Object* __jsb_cc_gfx_SubpassDependency_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_SubpassDependency_class = nullptr;  // NOLINT
 
 static bool js_gfx_SubpassDependency_get_srcSubpass(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -11156,19 +10643,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassDependency * to, s
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("srcSubpass", &field);
+    json->getProperty("srcSubpass", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->srcSubpass), ctx);
     }
-    json->getProperty("dstSubpass", &field);
+    json->getProperty("dstSubpass", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstSubpass), ctx);
     }
-    json->getProperty("srcAccesses", &field);
+    json->getProperty("srcAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->srcAccesses), ctx);
     }
-    json->getProperty("dstAccesses", &field);
+    json->getProperty("dstAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstAccesses), ctx);
     }
@@ -11185,9 +10672,8 @@ static bool js_gfx_SubpassDependency_constructor(se::State& s) // NOLINT(readabi
 
     if(argc == 0)
     {
-        cc::gfx::SubpassDependency* cobj = JSB_ALLOC(cc::gfx::SubpassDependency);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SubpassDependency);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -11195,21 +10681,19 @@ static bool js_gfx_SubpassDependency_constructor(se::State& s) // NOLINT(readabi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::SubpassDependency* cobj = JSB_ALLOC(cc::gfx::SubpassDependency);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SubpassDependency);
+        auto cobj = ptr->get<cc::gfx::SubpassDependency>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::SubpassDependency* cobj = JSB_ALLOC(cc::gfx::SubpassDependency);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::SubpassDependency);
+    auto cobj = ptr->get<cc::gfx::SubpassDependency>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->srcSubpass), nullptr);
     }
@@ -11224,28 +10708,17 @@ static bool js_gfx_SubpassDependency_constructor(se::State& s) // NOLINT(readabi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_SubpassDependency_constructor, __jsb_cc_gfx_SubpassDependency_class, js_cc_gfx_SubpassDependency_finalize)
 
-
-
 static bool js_cc_gfx_SubpassDependency_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_SubpassDependency_finalize)
@@ -11265,11 +10738,12 @@ bool js_register_gfx_SubpassDependency(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_gfx_SubpassDependency_proto = cls->getProto();
     __jsb_cc_gfx_SubpassDependency_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_RenderPassInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_RenderPassInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_RenderPassInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_RenderPassInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_RenderPassInfo_get_colorAttachments(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -11392,19 +10866,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::RenderPassInfo * to, se::
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("colorAttachments", &field);
+    json->getProperty("colorAttachments", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->colorAttachments), ctx);
     }
-    json->getProperty("depthStencilAttachment", &field);
+    json->getProperty("depthStencilAttachment", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthStencilAttachment), ctx);
     }
-    json->getProperty("subpasses", &field);
+    json->getProperty("subpasses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->subpasses), ctx);
     }
-    json->getProperty("dependencies", &field);
+    json->getProperty("dependencies", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dependencies), ctx);
     }
@@ -11421,9 +10895,8 @@ static bool js_gfx_RenderPassInfo_constructor(se::State& s) // NOLINT(readabilit
 
     if(argc == 0)
     {
-        cc::gfx::RenderPassInfo* cobj = JSB_ALLOC(cc::gfx::RenderPassInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::RenderPassInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -11431,21 +10904,19 @@ static bool js_gfx_RenderPassInfo_constructor(se::State& s) // NOLINT(readabilit
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::RenderPassInfo* cobj = JSB_ALLOC(cc::gfx::RenderPassInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::RenderPassInfo);
+        auto cobj = ptr->get<cc::gfx::RenderPassInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::RenderPassInfo* cobj = JSB_ALLOC(cc::gfx::RenderPassInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::RenderPassInfo);
+    auto cobj = ptr->get<cc::gfx::RenderPassInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->colorAttachments), nullptr);
     }
@@ -11460,28 +10931,17 @@ static bool js_gfx_RenderPassInfo_constructor(se::State& s) // NOLINT(readabilit
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_RenderPassInfo_constructor, __jsb_cc_gfx_RenderPassInfo_class, js_cc_gfx_RenderPassInfo_finalize)
 
-
-
 static bool js_cc_gfx_RenderPassInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::RenderPassInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::RenderPassInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_RenderPassInfo_finalize)
@@ -11501,11 +10961,12 @@ bool js_register_gfx_RenderPassInfo(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_gfx_RenderPassInfo_proto = cls->getProto();
     __jsb_cc_gfx_RenderPassInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_GlobalBarrierInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_GlobalBarrierInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_GlobalBarrierInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_GlobalBarrierInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_GlobalBarrierInfo_get_prevAccesses(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -11574,11 +11035,11 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::GlobalBarrierInfo * to, s
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("prevAccesses", &field);
+    json->getProperty("prevAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->prevAccesses), ctx);
     }
-    json->getProperty("nextAccesses", &field);
+    json->getProperty("nextAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->nextAccesses), ctx);
     }
@@ -11595,9 +11056,8 @@ static bool js_gfx_GlobalBarrierInfo_constructor(se::State& s) // NOLINT(readabi
 
     if(argc == 0)
     {
-        cc::gfx::GlobalBarrierInfo* cobj = JSB_ALLOC(cc::gfx::GlobalBarrierInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GlobalBarrierInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -11605,21 +11065,19 @@ static bool js_gfx_GlobalBarrierInfo_constructor(se::State& s) // NOLINT(readabi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::GlobalBarrierInfo* cobj = JSB_ALLOC(cc::gfx::GlobalBarrierInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GlobalBarrierInfo);
+        auto cobj = ptr->get<cc::gfx::GlobalBarrierInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::GlobalBarrierInfo* cobj = JSB_ALLOC(cc::gfx::GlobalBarrierInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GlobalBarrierInfo);
+    auto cobj = ptr->get<cc::gfx::GlobalBarrierInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->prevAccesses), nullptr);
     }
@@ -11628,28 +11086,17 @@ static bool js_gfx_GlobalBarrierInfo_constructor(se::State& s) // NOLINT(readabi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_GlobalBarrierInfo_constructor, __jsb_cc_gfx_GlobalBarrierInfo_class, js_cc_gfx_GlobalBarrierInfo_finalize)
 
-
-
 static bool js_cc_gfx_GlobalBarrierInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::GlobalBarrierInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrierInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_GlobalBarrierInfo_finalize)
@@ -11667,11 +11114,12 @@ bool js_register_gfx_GlobalBarrierInfo(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_gfx_GlobalBarrierInfo_proto = cls->getProto();
     __jsb_cc_gfx_GlobalBarrierInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_TextureBarrierInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_TextureBarrierInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_TextureBarrierInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_TextureBarrierInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_TextureBarrierInfo_get_prevAccesses(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -11821,23 +11269,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureBarrierInfo * to, 
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("prevAccesses", &field);
+    json->getProperty("prevAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->prevAccesses), ctx);
     }
-    json->getProperty("nextAccesses", &field);
+    json->getProperty("nextAccesses", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->nextAccesses), ctx);
     }
-    json->getProperty("discardContents", &field);
+    json->getProperty("discardContents", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->discardContents), ctx);
     }
-    json->getProperty("srcQueue", &field);
+    json->getProperty("srcQueue", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->srcQueue), ctx);
     }
-    json->getProperty("dstQueue", &field);
+    json->getProperty("dstQueue", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstQueue), ctx);
     }
@@ -11854,9 +11302,8 @@ static bool js_gfx_TextureBarrierInfo_constructor(se::State& s) // NOLINT(readab
 
     if(argc == 0)
     {
-        cc::gfx::TextureBarrierInfo* cobj = JSB_ALLOC(cc::gfx::TextureBarrierInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureBarrierInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -11864,21 +11311,19 @@ static bool js_gfx_TextureBarrierInfo_constructor(se::State& s) // NOLINT(readab
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::TextureBarrierInfo* cobj = JSB_ALLOC(cc::gfx::TextureBarrierInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureBarrierInfo);
+        auto cobj = ptr->get<cc::gfx::TextureBarrierInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::TextureBarrierInfo* cobj = JSB_ALLOC(cc::gfx::TextureBarrierInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::TextureBarrierInfo);
+    auto cobj = ptr->get<cc::gfx::TextureBarrierInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->prevAccesses), nullptr);
     }
@@ -11896,28 +11341,17 @@ static bool js_gfx_TextureBarrierInfo_constructor(se::State& s) // NOLINT(readab
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_TextureBarrierInfo_constructor, __jsb_cc_gfx_TextureBarrierInfo_class, js_cc_gfx_TextureBarrierInfo_finalize)
 
-
-
 static bool js_cc_gfx_TextureBarrierInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::TextureBarrierInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureBarrierInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_TextureBarrierInfo_finalize)
@@ -11938,11 +11372,12 @@ bool js_register_gfx_TextureBarrierInfo(se::Object* obj) // NOLINT(readability-i
     __jsb_cc_gfx_TextureBarrierInfo_proto = cls->getProto();
     __jsb_cc_gfx_TextureBarrierInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_FramebufferInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_FramebufferInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_FramebufferInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_FramebufferInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_FramebufferInfo_get_renderPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12038,15 +11473,15 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::FramebufferInfo * to, se:
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("renderPass", &field);
+    json->getProperty("renderPass", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->renderPass), ctx);
     }
-    json->getProperty("colorTextures", &field);
+    json->getProperty("colorTextures", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->colorTextures), ctx);
     }
-    json->getProperty("depthStencilTexture", &field);
+    json->getProperty("depthStencilTexture", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthStencilTexture), ctx);
     }
@@ -12063,9 +11498,8 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s) // NOLINT(readabili
 
     if(argc == 0)
     {
-        cc::gfx::FramebufferInfo* cobj = JSB_ALLOC(cc::gfx::FramebufferInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::FramebufferInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -12073,21 +11507,19 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s) // NOLINT(readabili
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::FramebufferInfo* cobj = JSB_ALLOC(cc::gfx::FramebufferInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::FramebufferInfo);
+        auto cobj = ptr->get<cc::gfx::FramebufferInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::FramebufferInfo* cobj = JSB_ALLOC(cc::gfx::FramebufferInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::FramebufferInfo);
+    auto cobj = ptr->get<cc::gfx::FramebufferInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->renderPass), nullptr);
     }
@@ -12099,28 +11531,17 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s) // NOLINT(readabili
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_FramebufferInfo_constructor, __jsb_cc_gfx_FramebufferInfo_class, js_cc_gfx_FramebufferInfo_finalize)
 
-
-
 static bool js_cc_gfx_FramebufferInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::FramebufferInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::FramebufferInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_FramebufferInfo_finalize)
@@ -12139,11 +11560,12 @@ bool js_register_gfx_FramebufferInfo(se::Object* obj) // NOLINT(readability-iden
     __jsb_cc_gfx_FramebufferInfo_proto = cls->getProto();
     __jsb_cc_gfx_FramebufferInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DescriptorSetLayoutBinding_proto = nullptr;
-se::Class* __jsb_cc_gfx_DescriptorSetLayoutBinding_class = nullptr;
+se::Object* __jsb_cc_gfx_DescriptorSetLayoutBinding_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DescriptorSetLayoutBinding_class = nullptr;  // NOLINT
 
 static bool js_gfx_DescriptorSetLayoutBinding_get_binding(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12293,23 +11715,23 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DescriptorSetLayoutBindin
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("binding", &field);
+    json->getProperty("binding", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->binding), ctx);
     }
-    json->getProperty("descriptorType", &field);
+    json->getProperty("descriptorType", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->descriptorType), ctx);
     }
-    json->getProperty("count", &field);
+    json->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
     }
-    json->getProperty("stageFlags", &field);
+    json->getProperty("stageFlags", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stageFlags), ctx);
     }
-    json->getProperty("immutableSamplers", &field);
+    json->getProperty("immutableSamplers", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->immutableSamplers), ctx);
     }
@@ -12326,9 +11748,8 @@ static bool js_gfx_DescriptorSetLayoutBinding_constructor(se::State& s) // NOLIN
 
     if(argc == 0)
     {
-        cc::gfx::DescriptorSetLayoutBinding* cobj = JSB_ALLOC(cc::gfx::DescriptorSetLayoutBinding);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DescriptorSetLayoutBinding);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -12336,21 +11757,19 @@ static bool js_gfx_DescriptorSetLayoutBinding_constructor(se::State& s) // NOLIN
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::DescriptorSetLayoutBinding* cobj = JSB_ALLOC(cc::gfx::DescriptorSetLayoutBinding);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DescriptorSetLayoutBinding);
+        auto cobj = ptr->get<cc::gfx::DescriptorSetLayoutBinding>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::DescriptorSetLayoutBinding* cobj = JSB_ALLOC(cc::gfx::DescriptorSetLayoutBinding);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DescriptorSetLayoutBinding);
+    auto cobj = ptr->get<cc::gfx::DescriptorSetLayoutBinding>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->binding), nullptr);
     }
@@ -12368,28 +11787,17 @@ static bool js_gfx_DescriptorSetLayoutBinding_constructor(se::State& s) // NOLIN
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_DescriptorSetLayoutBinding_constructor, __jsb_cc_gfx_DescriptorSetLayoutBinding_class, js_cc_gfx_DescriptorSetLayoutBinding_finalize)
 
-
-
 static bool js_cc_gfx_DescriptorSetLayoutBinding_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DescriptorSetLayoutBinding>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayoutBinding>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DescriptorSetLayoutBinding_finalize)
@@ -12410,11 +11818,12 @@ bool js_register_gfx_DescriptorSetLayoutBinding(se::Object* obj) // NOLINT(reada
     __jsb_cc_gfx_DescriptorSetLayoutBinding_proto = cls->getProto();
     __jsb_cc_gfx_DescriptorSetLayoutBinding_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DescriptorSetLayoutInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_DescriptorSetLayoutInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_DescriptorSetLayoutInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DescriptorSetLayoutInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_DescriptorSetLayoutInfo_get_bindings(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12456,7 +11865,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DescriptorSetLayoutInfo *
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("bindings", &field);
+    json->getProperty("bindings", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->bindings), ctx);
     }
@@ -12473,40 +11882,28 @@ static bool js_gfx_DescriptorSetLayoutInfo_constructor(se::State& s) // NOLINT(r
 
     if(argc == 0)
     {
-        cc::gfx::DescriptorSetLayoutInfo* cobj = JSB_ALLOC(cc::gfx::DescriptorSetLayoutInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DescriptorSetLayoutInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::DescriptorSetLayoutInfo* cobj = JSB_ALLOC(cc::gfx::DescriptorSetLayoutInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DescriptorSetLayoutInfo);
+    auto cobj = ptr->get<cc::gfx::DescriptorSetLayoutInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->bindings), nullptr);
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_DescriptorSetLayoutInfo_constructor, __jsb_cc_gfx_DescriptorSetLayoutInfo_class, js_cc_gfx_DescriptorSetLayoutInfo_finalize)
 
-
-
 static bool js_cc_gfx_DescriptorSetLayoutInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DescriptorSetLayoutInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayoutInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DescriptorSetLayoutInfo_finalize)
@@ -12523,11 +11920,12 @@ bool js_register_gfx_DescriptorSetLayoutInfo(se::Object* obj) // NOLINT(readabil
     __jsb_cc_gfx_DescriptorSetLayoutInfo_proto = cls->getProto();
     __jsb_cc_gfx_DescriptorSetLayoutInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DescriptorSetInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_DescriptorSetInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_DescriptorSetInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DescriptorSetInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_DescriptorSetInfo_get_layout(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12569,7 +11967,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DescriptorSetInfo * to, s
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("layout", &field);
+    json->getProperty("layout", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->layout), ctx);
     }
@@ -12586,40 +11984,28 @@ static bool js_gfx_DescriptorSetInfo_constructor(se::State& s) // NOLINT(readabi
 
     if(argc == 0)
     {
-        cc::gfx::DescriptorSetInfo* cobj = JSB_ALLOC(cc::gfx::DescriptorSetInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DescriptorSetInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::DescriptorSetInfo* cobj = JSB_ALLOC(cc::gfx::DescriptorSetInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DescriptorSetInfo);
+    auto cobj = ptr->get<cc::gfx::DescriptorSetInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->layout), nullptr);
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_DescriptorSetInfo_constructor, __jsb_cc_gfx_DescriptorSetInfo_class, js_cc_gfx_DescriptorSetInfo_finalize)
 
-
-
 static bool js_cc_gfx_DescriptorSetInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DescriptorSetInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DescriptorSetInfo_finalize)
@@ -12636,11 +12022,12 @@ bool js_register_gfx_DescriptorSetInfo(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_gfx_DescriptorSetInfo_proto = cls->getProto();
     __jsb_cc_gfx_DescriptorSetInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_PipelineLayoutInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_PipelineLayoutInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_PipelineLayoutInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_PipelineLayoutInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_PipelineLayoutInfo_get_setLayouts(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12682,7 +12069,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::PipelineLayoutInfo * to, 
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("setLayouts", &field);
+    json->getProperty("setLayouts", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->setLayouts), ctx);
     }
@@ -12699,40 +12086,28 @@ static bool js_gfx_PipelineLayoutInfo_constructor(se::State& s) // NOLINT(readab
 
     if(argc == 0)
     {
-        cc::gfx::PipelineLayoutInfo* cobj = JSB_ALLOC(cc::gfx::PipelineLayoutInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::PipelineLayoutInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::PipelineLayoutInfo* cobj = JSB_ALLOC(cc::gfx::PipelineLayoutInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::PipelineLayoutInfo);
+    auto cobj = ptr->get<cc::gfx::PipelineLayoutInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->setLayouts), nullptr);
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_PipelineLayoutInfo_constructor, __jsb_cc_gfx_PipelineLayoutInfo_class, js_cc_gfx_PipelineLayoutInfo_finalize)
 
-
-
 static bool js_cc_gfx_PipelineLayoutInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::PipelineLayoutInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineLayoutInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_PipelineLayoutInfo_finalize)
@@ -12749,11 +12124,12 @@ bool js_register_gfx_PipelineLayoutInfo(se::Object* obj) // NOLINT(readability-i
     __jsb_cc_gfx_PipelineLayoutInfo_proto = cls->getProto();
     __jsb_cc_gfx_PipelineLayoutInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_InputState_proto = nullptr;
-se::Class* __jsb_cc_gfx_InputState_class = nullptr;
+se::Object* __jsb_cc_gfx_InputState_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_InputState_class = nullptr;  // NOLINT
 
 static bool js_gfx_InputState_get_attributes(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12795,7 +12171,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::InputState * to, se::Obje
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("attributes", &field);
+    json->getProperty("attributes", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->attributes), ctx);
     }
@@ -12812,40 +12188,28 @@ static bool js_gfx_InputState_constructor(se::State& s) // NOLINT(readability-id
 
     if(argc == 0)
     {
-        cc::gfx::InputState* cobj = JSB_ALLOC(cc::gfx::InputState);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::InputState);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::InputState* cobj = JSB_ALLOC(cc::gfx::InputState);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::InputState);
+    auto cobj = ptr->get<cc::gfx::InputState>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->attributes), nullptr);
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_InputState_constructor, __jsb_cc_gfx_InputState_class, js_cc_gfx_InputState_finalize)
 
-
-
 static bool js_cc_gfx_InputState_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::InputState>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::InputState>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_InputState_finalize)
@@ -12862,11 +12226,27 @@ bool js_register_gfx_InputState(se::Object* obj) // NOLINT(readability-identifie
     __jsb_cc_gfx_InputState_proto = cls->getProto();
     __jsb_cc_gfx_InputState_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_RasterizerState_proto = nullptr;
-se::Class* __jsb_cc_gfx_RasterizerState_class = nullptr;
+se::Object* __jsb_cc_gfx_RasterizerState_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_RasterizerState_class = nullptr;  // NOLINT
+
+static bool js_gfx_RasterizerState_reset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::RasterizerState>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_RasterizerState_reset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->reset();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_RasterizerState_reset)
 
 static bool js_gfx_RasterizerState_get_isDiscard(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -13205,51 +12585,51 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::RasterizerState * to, se:
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("isDiscard", &field);
+    json->getProperty("isDiscard", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isDiscard), ctx);
     }
-    json->getProperty("polygonMode", &field);
+    json->getProperty("polygonMode", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->polygonMode), ctx);
     }
-    json->getProperty("shadeModel", &field);
+    json->getProperty("shadeModel", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->shadeModel), ctx);
     }
-    json->getProperty("cullMode", &field);
+    json->getProperty("cullMode", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->cullMode), ctx);
     }
-    json->getProperty("isFrontFaceCCW", &field);
+    json->getProperty("isFrontFaceCCW", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isFrontFaceCCW), ctx);
     }
-    json->getProperty("depthBiasEnabled", &field);
+    json->getProperty("depthBiasEnabled", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthBiasEnabled), ctx);
     }
-    json->getProperty("depthBias", &field);
+    json->getProperty("depthBias", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthBias), ctx);
     }
-    json->getProperty("depthBiasClamp", &field);
+    json->getProperty("depthBiasClamp", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthBiasClamp), ctx);
     }
-    json->getProperty("depthBiasSlop", &field);
+    json->getProperty("depthBiasSlop", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthBiasSlop), ctx);
     }
-    json->getProperty("isDepthClip", &field);
+    json->getProperty("isDepthClip", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isDepthClip), ctx);
     }
-    json->getProperty("isMultisample", &field);
+    json->getProperty("isMultisample", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isMultisample), ctx);
     }
-    json->getProperty("lineWidth", &field);
+    json->getProperty("lineWidth", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->lineWidth), ctx);
     }
@@ -13266,9 +12646,8 @@ static bool js_gfx_RasterizerState_constructor(se::State& s) // NOLINT(readabili
 
     if(argc == 0)
     {
-        cc::gfx::RasterizerState* cobj = JSB_ALLOC(cc::gfx::RasterizerState);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::RasterizerState);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -13276,21 +12655,19 @@ static bool js_gfx_RasterizerState_constructor(se::State& s) // NOLINT(readabili
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::RasterizerState* cobj = JSB_ALLOC(cc::gfx::RasterizerState);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::RasterizerState);
+        auto cobj = ptr->get<cc::gfx::RasterizerState>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::RasterizerState* cobj = JSB_ALLOC(cc::gfx::RasterizerState);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::RasterizerState);
+    auto cobj = ptr->get<cc::gfx::RasterizerState>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->isDiscard), nullptr);
     }
@@ -13329,28 +12706,17 @@ static bool js_gfx_RasterizerState_constructor(se::State& s) // NOLINT(readabili
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_RasterizerState_constructor, __jsb_cc_gfx_RasterizerState_class, js_cc_gfx_RasterizerState_finalize)
 
-
-
 static bool js_cc_gfx_RasterizerState_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::RasterizerState>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::RasterizerState>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_RasterizerState_finalize)
@@ -13371,6 +12737,7 @@ bool js_register_gfx_RasterizerState(se::Object* obj) // NOLINT(readability-iden
     cls->defineProperty("isDepthClip", _SE(js_gfx_RasterizerState_get_isDepthClip), _SE(js_gfx_RasterizerState_set_isDepthClip));
     cls->defineProperty("isMultisample", _SE(js_gfx_RasterizerState_get_isMultisample), _SE(js_gfx_RasterizerState_set_isMultisample));
     cls->defineProperty("lineWidth", _SE(js_gfx_RasterizerState_get_lineWidth), _SE(js_gfx_RasterizerState_set_lineWidth));
+    cls->defineFunction("reset", _SE(js_gfx_RasterizerState_reset));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_RasterizerState_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::RasterizerState>(cls);
@@ -13378,11 +12745,27 @@ bool js_register_gfx_RasterizerState(se::Object* obj) // NOLINT(readability-iden
     __jsb_cc_gfx_RasterizerState_proto = cls->getProto();
     __jsb_cc_gfx_RasterizerState_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DepthStencilState_proto = nullptr;
-se::Class* __jsb_cc_gfx_DepthStencilState_class = nullptr;
+se::Object* __jsb_cc_gfx_DepthStencilState_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DepthStencilState_class = nullptr;  // NOLINT
+
+static bool js_gfx_DepthStencilState_reset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::DepthStencilState>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_reset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->reset();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DepthStencilState_reset)
 
 static bool js_gfx_DepthStencilState_get_depthTest(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -13910,79 +13293,79 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DepthStencilState * to, s
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("depthTest", &field);
+    json->getProperty("depthTest", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthTest), ctx);
     }
-    json->getProperty("depthWrite", &field);
+    json->getProperty("depthWrite", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthWrite), ctx);
     }
-    json->getProperty("depthFunc", &field);
+    json->getProperty("depthFunc", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthFunc), ctx);
     }
-    json->getProperty("stencilTestFront", &field);
+    json->getProperty("stencilTestFront", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilTestFront), ctx);
     }
-    json->getProperty("stencilFuncFront", &field);
+    json->getProperty("stencilFuncFront", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilFuncFront), ctx);
     }
-    json->getProperty("stencilReadMaskFront", &field);
+    json->getProperty("stencilReadMaskFront", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilReadMaskFront), ctx);
     }
-    json->getProperty("stencilWriteMaskFront", &field);
+    json->getProperty("stencilWriteMaskFront", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilWriteMaskFront), ctx);
     }
-    json->getProperty("stencilFailOpFront", &field);
+    json->getProperty("stencilFailOpFront", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilFailOpFront), ctx);
     }
-    json->getProperty("stencilZFailOpFront", &field);
+    json->getProperty("stencilZFailOpFront", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilZFailOpFront), ctx);
     }
-    json->getProperty("stencilPassOpFront", &field);
+    json->getProperty("stencilPassOpFront", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilPassOpFront), ctx);
     }
-    json->getProperty("stencilRefFront", &field);
+    json->getProperty("stencilRefFront", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilRefFront), ctx);
     }
-    json->getProperty("stencilTestBack", &field);
+    json->getProperty("stencilTestBack", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilTestBack), ctx);
     }
-    json->getProperty("stencilFuncBack", &field);
+    json->getProperty("stencilFuncBack", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilFuncBack), ctx);
     }
-    json->getProperty("stencilReadMaskBack", &field);
+    json->getProperty("stencilReadMaskBack", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilReadMaskBack), ctx);
     }
-    json->getProperty("stencilWriteMaskBack", &field);
+    json->getProperty("stencilWriteMaskBack", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilWriteMaskBack), ctx);
     }
-    json->getProperty("stencilFailOpBack", &field);
+    json->getProperty("stencilFailOpBack", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilFailOpBack), ctx);
     }
-    json->getProperty("stencilZFailOpBack", &field);
+    json->getProperty("stencilZFailOpBack", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilZFailOpBack), ctx);
     }
-    json->getProperty("stencilPassOpBack", &field);
+    json->getProperty("stencilPassOpBack", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilPassOpBack), ctx);
     }
-    json->getProperty("stencilRefBack", &field);
+    json->getProperty("stencilRefBack", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilRefBack), ctx);
     }
@@ -13999,9 +13382,8 @@ static bool js_gfx_DepthStencilState_constructor(se::State& s) // NOLINT(readabi
 
     if(argc == 0)
     {
-        cc::gfx::DepthStencilState* cobj = JSB_ALLOC(cc::gfx::DepthStencilState);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DepthStencilState);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -14009,21 +13391,19 @@ static bool js_gfx_DepthStencilState_constructor(se::State& s) // NOLINT(readabi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::DepthStencilState* cobj = JSB_ALLOC(cc::gfx::DepthStencilState);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DepthStencilState);
+        auto cobj = ptr->get<cc::gfx::DepthStencilState>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::DepthStencilState* cobj = JSB_ALLOC(cc::gfx::DepthStencilState);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::DepthStencilState);
+    auto cobj = ptr->get<cc::gfx::DepthStencilState>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->depthTest), nullptr);
     }
@@ -14083,28 +13463,17 @@ static bool js_gfx_DepthStencilState_constructor(se::State& s) // NOLINT(readabi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_DepthStencilState_constructor, __jsb_cc_gfx_DepthStencilState_class, js_cc_gfx_DepthStencilState_finalize)
 
-
-
 static bool js_cc_gfx_DepthStencilState_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DepthStencilState>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DepthStencilState>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DepthStencilState_finalize)
@@ -14132,6 +13501,7 @@ bool js_register_gfx_DepthStencilState(se::Object* obj) // NOLINT(readability-id
     cls->defineProperty("stencilZFailOpBack", _SE(js_gfx_DepthStencilState_get_stencilZFailOpBack), _SE(js_gfx_DepthStencilState_set_stencilZFailOpBack));
     cls->defineProperty("stencilPassOpBack", _SE(js_gfx_DepthStencilState_get_stencilPassOpBack), _SE(js_gfx_DepthStencilState_set_stencilPassOpBack));
     cls->defineProperty("stencilRefBack", _SE(js_gfx_DepthStencilState_get_stencilRefBack), _SE(js_gfx_DepthStencilState_set_stencilRefBack));
+    cls->defineFunction("reset", _SE(js_gfx_DepthStencilState_reset));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DepthStencilState_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DepthStencilState>(cls);
@@ -14139,11 +13509,12 @@ bool js_register_gfx_DepthStencilState(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_gfx_DepthStencilState_proto = cls->getProto();
     __jsb_cc_gfx_DepthStencilState_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_BlendTarget_proto = nullptr;
-se::Class* __jsb_cc_gfx_BlendTarget_class = nullptr;
+se::Object* __jsb_cc_gfx_BlendTarget_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_BlendTarget_class = nullptr;  // NOLINT
 
 static bool js_gfx_BlendTarget_get_blend(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14374,35 +13745,35 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BlendTarget * to, se::Obj
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("blend", &field);
+    json->getProperty("blend", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blend), ctx);
     }
-    json->getProperty("blendSrc", &field);
+    json->getProperty("blendSrc", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blendSrc), ctx);
     }
-    json->getProperty("blendDst", &field);
+    json->getProperty("blendDst", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blendDst), ctx);
     }
-    json->getProperty("blendEq", &field);
+    json->getProperty("blendEq", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blendEq), ctx);
     }
-    json->getProperty("blendSrcAlpha", &field);
+    json->getProperty("blendSrcAlpha", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blendSrcAlpha), ctx);
     }
-    json->getProperty("blendDstAlpha", &field);
+    json->getProperty("blendDstAlpha", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blendDstAlpha), ctx);
     }
-    json->getProperty("blendAlphaEq", &field);
+    json->getProperty("blendAlphaEq", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blendAlphaEq), ctx);
     }
-    json->getProperty("blendColorMask", &field);
+    json->getProperty("blendColorMask", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blendColorMask), ctx);
     }
@@ -14419,9 +13790,8 @@ static bool js_gfx_BlendTarget_constructor(se::State& s) // NOLINT(readability-i
 
     if(argc == 0)
     {
-        cc::gfx::BlendTarget* cobj = JSB_ALLOC(cc::gfx::BlendTarget);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BlendTarget);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -14429,21 +13799,19 @@ static bool js_gfx_BlendTarget_constructor(se::State& s) // NOLINT(readability-i
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::BlendTarget* cobj = JSB_ALLOC(cc::gfx::BlendTarget);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BlendTarget);
+        auto cobj = ptr->get<cc::gfx::BlendTarget>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::BlendTarget* cobj = JSB_ALLOC(cc::gfx::BlendTarget);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BlendTarget);
+    auto cobj = ptr->get<cc::gfx::BlendTarget>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->blend), nullptr);
     }
@@ -14470,28 +13838,17 @@ static bool js_gfx_BlendTarget_constructor(se::State& s) // NOLINT(readability-i
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_BlendTarget_constructor, __jsb_cc_gfx_BlendTarget_class, js_cc_gfx_BlendTarget_finalize)
 
-
-
 static bool js_cc_gfx_BlendTarget_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::BlendTarget>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::BlendTarget>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_BlendTarget_finalize)
@@ -14515,11 +13872,63 @@ bool js_register_gfx_BlendTarget(se::Object* obj) // NOLINT(readability-identifi
     __jsb_cc_gfx_BlendTarget_proto = cls->getProto();
     __jsb_cc_gfx_BlendTarget_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_BlendState_proto = nullptr;
-se::Class* __jsb_cc_gfx_BlendState_class = nullptr;
+se::Object* __jsb_cc_gfx_BlendState_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_BlendState_class = nullptr;  // NOLINT
+
+static bool js_gfx_BlendState_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::BlendState>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_BlendState_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_BlendState_destroy)
+
+static bool js_gfx_BlendState_reset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::BlendState>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_BlendState_reset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->reset();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_BlendState_reset)
+
+static bool js_gfx_BlendState_setTarget(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::BlendState>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_BlendState_setTarget : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<int, false> arg0 = {};
+        HolderType<cc::gfx::BlendTarget, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_BlendState_setTarget : Error processing arguments");
+        cobj->setTarget(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_BlendState_setTarget)
 
 static bool js_gfx_BlendState_get_isA2C(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14642,19 +14051,19 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BlendState * to, se::Obje
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("isA2C", &field);
+    json->getProperty("isA2C", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isA2C), ctx);
     }
-    json->getProperty("isIndepend", &field);
+    json->getProperty("isIndepend", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->isIndepend), ctx);
     }
-    json->getProperty("blendColor", &field);
+    json->getProperty("blendColor", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blendColor), ctx);
     }
-    json->getProperty("targets", &field);
+    json->getProperty("targets", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->targets), ctx);
     }
@@ -14671,9 +14080,8 @@ static bool js_gfx_BlendState_constructor(se::State& s) // NOLINT(readability-id
 
     if(argc == 0)
     {
-        cc::gfx::BlendState* cobj = JSB_ALLOC(cc::gfx::BlendState);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BlendState);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -14681,21 +14089,19 @@ static bool js_gfx_BlendState_constructor(se::State& s) // NOLINT(readability-id
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::BlendState* cobj = JSB_ALLOC(cc::gfx::BlendState);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BlendState);
+        auto cobj = ptr->get<cc::gfx::BlendState>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::BlendState* cobj = JSB_ALLOC(cc::gfx::BlendState);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::BlendState);
+    auto cobj = ptr->get<cc::gfx::BlendState>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->isA2C), nullptr);
     }
@@ -14710,28 +14116,17 @@ static bool js_gfx_BlendState_constructor(se::State& s) // NOLINT(readability-id
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_BlendState_constructor, __jsb_cc_gfx_BlendState_class, js_cc_gfx_BlendState_finalize)
 
-
-
 static bool js_cc_gfx_BlendState_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::BlendState>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::BlendState>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_BlendState_finalize)
@@ -14744,6 +14139,9 @@ bool js_register_gfx_BlendState(se::Object* obj) // NOLINT(readability-identifie
     cls->defineProperty("isIndepend", _SE(js_gfx_BlendState_get_isIndepend), _SE(js_gfx_BlendState_set_isIndepend));
     cls->defineProperty("blendColor", _SE(js_gfx_BlendState_get_blendColor), _SE(js_gfx_BlendState_set_blendColor));
     cls->defineProperty("targets", _SE(js_gfx_BlendState_get_targets), _SE(js_gfx_BlendState_set_targets));
+    cls->defineFunction("destroy", _SE(js_gfx_BlendState_destroy));
+    cls->defineFunction("reset", _SE(js_gfx_BlendState_reset));
+    cls->defineFunction("setTarget", _SE(js_gfx_BlendState_setTarget));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_BlendState_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::BlendState>(cls);
@@ -14751,11 +14149,12 @@ bool js_register_gfx_BlendState(se::Object* obj) // NOLINT(readability-identifie
     __jsb_cc_gfx_BlendState_proto = cls->getProto();
     __jsb_cc_gfx_BlendState_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_PipelineStateInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_PipelineStateInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_PipelineStateInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_PipelineStateInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_PipelineStateInfo_get_shader(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15067,47 +14466,47 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::PipelineStateInfo * to, s
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("shader", &field);
+    json->getProperty("shader", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->shader), ctx);
     }
-    json->getProperty("pipelineLayout", &field);
+    json->getProperty("pipelineLayout", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->pipelineLayout), ctx);
     }
-    json->getProperty("renderPass", &field);
+    json->getProperty("renderPass", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->renderPass), ctx);
     }
-    json->getProperty("inputState", &field);
+    json->getProperty("inputState", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->inputState), ctx);
     }
-    json->getProperty("rasterizerState", &field);
+    json->getProperty("rasterizerState", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->rasterizerState), ctx);
     }
-    json->getProperty("depthStencilState", &field);
+    json->getProperty("depthStencilState", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthStencilState), ctx);
     }
-    json->getProperty("blendState", &field);
+    json->getProperty("blendState", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->blendState), ctx);
     }
-    json->getProperty("primitive", &field);
+    json->getProperty("primitive", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->primitive), ctx);
     }
-    json->getProperty("dynamicStates", &field);
+    json->getProperty("dynamicStates", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dynamicStates), ctx);
     }
-    json->getProperty("bindPoint", &field);
+    json->getProperty("bindPoint", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->bindPoint), ctx);
     }
-    json->getProperty("subpass", &field);
+    json->getProperty("subpass", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->subpass), ctx);
     }
@@ -15124,9 +14523,8 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s) // NOLINT(readabi
 
     if(argc == 0)
     {
-        cc::gfx::PipelineStateInfo* cobj = JSB_ALLOC(cc::gfx::PipelineStateInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::PipelineStateInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -15134,21 +14532,19 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s) // NOLINT(readabi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::PipelineStateInfo* cobj = JSB_ALLOC(cc::gfx::PipelineStateInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::PipelineStateInfo);
+        auto cobj = ptr->get<cc::gfx::PipelineStateInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::PipelineStateInfo* cobj = JSB_ALLOC(cc::gfx::PipelineStateInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::PipelineStateInfo);
+    auto cobj = ptr->get<cc::gfx::PipelineStateInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->shader), nullptr);
     }
@@ -15184,28 +14580,17 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s) // NOLINT(readabi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_PipelineStateInfo_constructor, __jsb_cc_gfx_PipelineStateInfo_class, js_cc_gfx_PipelineStateInfo_finalize)
 
-
-
 static bool js_cc_gfx_PipelineStateInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_PipelineStateInfo_finalize)
@@ -15232,11 +14617,12 @@ bool js_register_gfx_PipelineStateInfo(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_gfx_PipelineStateInfo_proto = cls->getProto();
     __jsb_cc_gfx_PipelineStateInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_CommandBufferInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_CommandBufferInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_CommandBufferInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_CommandBufferInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_CommandBufferInfo_get_queue(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15305,11 +14691,11 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::CommandBufferInfo * to, s
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("queue", &field);
+    json->getProperty("queue", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->queue), ctx);
     }
-    json->getProperty("type", &field);
+    json->getProperty("type", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
     }
@@ -15326,9 +14712,8 @@ static bool js_gfx_CommandBufferInfo_constructor(se::State& s) // NOLINT(readabi
 
     if(argc == 0)
     {
-        cc::gfx::CommandBufferInfo* cobj = JSB_ALLOC(cc::gfx::CommandBufferInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::CommandBufferInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -15336,21 +14721,19 @@ static bool js_gfx_CommandBufferInfo_constructor(se::State& s) // NOLINT(readabi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::CommandBufferInfo* cobj = JSB_ALLOC(cc::gfx::CommandBufferInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::CommandBufferInfo);
+        auto cobj = ptr->get<cc::gfx::CommandBufferInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::CommandBufferInfo* cobj = JSB_ALLOC(cc::gfx::CommandBufferInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::CommandBufferInfo);
+    auto cobj = ptr->get<cc::gfx::CommandBufferInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->queue), nullptr);
     }
@@ -15359,28 +14742,17 @@ static bool js_gfx_CommandBufferInfo_constructor(se::State& s) // NOLINT(readabi
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_CommandBufferInfo_constructor, __jsb_cc_gfx_CommandBufferInfo_class, js_cc_gfx_CommandBufferInfo_finalize)
 
-
-
 static bool js_cc_gfx_CommandBufferInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::CommandBufferInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::CommandBufferInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_CommandBufferInfo_finalize)
@@ -15398,11 +14770,12 @@ bool js_register_gfx_CommandBufferInfo(se::Object* obj) // NOLINT(readability-id
     __jsb_cc_gfx_CommandBufferInfo_proto = cls->getProto();
     __jsb_cc_gfx_CommandBufferInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_QueueInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_QueueInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_QueueInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_QueueInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_QueueInfo_get_type(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15444,7 +14817,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::QueueInfo * to, se::Objec
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("type", &field);
+    json->getProperty("type", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
     }
@@ -15461,40 +14834,28 @@ static bool js_gfx_QueueInfo_constructor(se::State& s) // NOLINT(readability-ide
 
     if(argc == 0)
     {
-        cc::gfx::QueueInfo* cobj = JSB_ALLOC(cc::gfx::QueueInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::QueueInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::QueueInfo* cobj = JSB_ALLOC(cc::gfx::QueueInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::QueueInfo);
+    auto cobj = ptr->get<cc::gfx::QueueInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->type), nullptr);
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_QueueInfo_constructor, __jsb_cc_gfx_QueueInfo_class, js_cc_gfx_QueueInfo_finalize)
 
-
-
 static bool js_cc_gfx_QueueInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::QueueInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::QueueInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_QueueInfo_finalize)
@@ -15511,11 +14872,12 @@ bool js_register_gfx_QueueInfo(se::Object* obj) // NOLINT(readability-identifier
     __jsb_cc_gfx_QueueInfo_proto = cls->getProto();
     __jsb_cc_gfx_QueueInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_QueryPoolInfo_proto = nullptr;
-se::Class* __jsb_cc_gfx_QueryPoolInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_QueryPoolInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_QueryPoolInfo_class = nullptr;  // NOLINT
 
 static bool js_gfx_QueryPoolInfo_get_type(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15611,15 +14973,15 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::QueryPoolInfo * to, se::O
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("type", &field);
+    json->getProperty("type", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
     }
-    json->getProperty("maxQueryObjects", &field);
+    json->getProperty("maxQueryObjects", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxQueryObjects), ctx);
     }
-    json->getProperty("forceWait", &field);
+    json->getProperty("forceWait", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->forceWait), ctx);
     }
@@ -15636,9 +14998,8 @@ static bool js_gfx_QueryPoolInfo_constructor(se::State& s) // NOLINT(readability
 
     if(argc == 0)
     {
-        cc::gfx::QueryPoolInfo* cobj = JSB_ALLOC(cc::gfx::QueryPoolInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::QueryPoolInfo);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -15646,21 +15007,19 @@ static bool js_gfx_QueryPoolInfo_constructor(se::State& s) // NOLINT(readability
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::QueryPoolInfo* cobj = JSB_ALLOC(cc::gfx::QueryPoolInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::QueryPoolInfo);
+        auto cobj = ptr->get<cc::gfx::QueryPoolInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::QueryPoolInfo* cobj = JSB_ALLOC(cc::gfx::QueryPoolInfo);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::QueryPoolInfo);
+    auto cobj = ptr->get<cc::gfx::QueryPoolInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->type), nullptr);
     }
@@ -15672,28 +15031,17 @@ static bool js_gfx_QueryPoolInfo_constructor(se::State& s) // NOLINT(readability
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_QueryPoolInfo_constructor, __jsb_cc_gfx_QueryPoolInfo_class, js_cc_gfx_QueryPoolInfo_finalize)
 
-
-
 static bool js_cc_gfx_QueryPoolInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::QueryPoolInfo>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::QueryPoolInfo>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_QueryPoolInfo_finalize)
@@ -15712,11 +15060,12 @@ bool js_register_gfx_QueryPoolInfo(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_gfx_QueryPoolInfo_proto = cls->getProto();
     __jsb_cc_gfx_QueryPoolInfo_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_MemoryStatus_proto = nullptr;
-se::Class* __jsb_cc_gfx_MemoryStatus_class = nullptr;
+se::Object* __jsb_cc_gfx_MemoryStatus_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_MemoryStatus_class = nullptr;  // NOLINT
 
 static bool js_gfx_MemoryStatus_get_bufferSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15785,11 +15134,11 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::MemoryStatus * to, se::Ob
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("bufferSize", &field);
+    json->getProperty("bufferSize", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->bufferSize), ctx);
     }
-    json->getProperty("textureSize", &field);
+    json->getProperty("textureSize", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->textureSize), ctx);
     }
@@ -15806,9 +15155,8 @@ static bool js_gfx_MemoryStatus_constructor(se::State& s) // NOLINT(readability-
 
     if(argc == 0)
     {
-        cc::gfx::MemoryStatus* cobj = JSB_ALLOC(cc::gfx::MemoryStatus);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::MemoryStatus);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
 
@@ -15816,21 +15164,19 @@ static bool js_gfx_MemoryStatus_constructor(se::State& s) // NOLINT(readability-
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-
-        cc::gfx::MemoryStatus* cobj = JSB_ALLOC(cc::gfx::MemoryStatus);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::MemoryStatus);
+        auto cobj = ptr->get<cc::gfx::MemoryStatus>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
-            JSB_FREE(cobj);
+            delete ptr;
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-
-    cc::gfx::MemoryStatus* cobj = JSB_ALLOC(cc::gfx::MemoryStatus);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::MemoryStatus);
+    auto cobj = ptr->get<cc::gfx::MemoryStatus>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->bufferSize), nullptr);
     }
@@ -15839,28 +15185,17 @@ static bool js_gfx_MemoryStatus_constructor(se::State& s) // NOLINT(readability-
     }
 
     if(!ok) {
-        JSB_FREE(cobj);
+        delete ptr;
         SE_REPORT_ERROR("Argument convertion error");
         return false;
     }
-
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_MemoryStatus_constructor, __jsb_cc_gfx_MemoryStatus_class, js_cc_gfx_MemoryStatus_finalize)
 
-
-
 static bool js_cc_gfx_MemoryStatus_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::MemoryStatus>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::MemoryStatus>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_MemoryStatus_finalize)
@@ -15878,11 +15213,12 @@ bool js_register_gfx_MemoryStatus(se::Object* obj) // NOLINT(readability-identif
     __jsb_cc_gfx_MemoryStatus_proto = cls->getProto();
     __jsb_cc_gfx_MemoryStatus_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_GFXObject_proto = nullptr;
-se::Class* __jsb_cc_gfx_GFXObject_class = nullptr;
+se::Object* __jsb_cc_gfx_GFXObject_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_GFXObject_class = nullptr;  // NOLINT
 
 static bool js_gfx_GFXObject_getObjectID(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15901,7 +15237,7 @@ static bool js_gfx_GFXObject_getObjectID(se::State& s) // NOLINT(readability-ide
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_GFXObject_getObjectID)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_GFXObject_getObjectID)
 
 static bool js_gfx_GFXObject_getObjectType(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15920,7 +15256,7 @@ static bool js_gfx_GFXObject_getObjectType(se::State& s) // NOLINT(readability-i
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_GFXObject_getObjectType)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_GFXObject_getObjectType)
 
 static bool js_gfx_GFXObject_getTypedID(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15939,7 +15275,7 @@ static bool js_gfx_GFXObject_getTypedID(se::State& s) // NOLINT(readability-iden
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_GFXObject_getTypedID)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_GFXObject_getTypedID)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GFXObject_finalize)
 
@@ -15950,24 +15286,14 @@ static bool js_gfx_GFXObject_constructor(se::State& s) // NOLINT(readability-ide
     cc::gfx::ObjectType arg0;
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
     SE_PRECONDITION2(ok, false, "js_gfx_GFXObject_constructor : Error processing arguments");
-    cc::gfx::GFXObject* cobj = JSB_ALLOC(cc::gfx::GFXObject, arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GFXObject, arg0);
+    s.thisObject()->setPrivateObject(ptr);
     return true;
 }
 SE_BIND_CTOR(js_gfx_GFXObject_constructor, __jsb_cc_gfx_GFXObject_class, js_cc_gfx_GFXObject_finalize)
 
-
-
 static bool js_cc_gfx_GFXObject_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::GFXObject>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::GFXObject>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_GFXObject_finalize)
@@ -15976,9 +15302,9 @@ bool js_register_gfx_GFXObject(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("GFXObject", obj, nullptr, _SE(js_gfx_GFXObject_constructor));
 
-    cls->defineProperty("objectType", _SE(js_gfx_GFXObject_getObjectType), nullptr);
-    cls->defineProperty("objectID", _SE(js_gfx_GFXObject_getObjectID), nullptr);
-    cls->defineProperty("typedID", _SE(js_gfx_GFXObject_getTypedID), nullptr);
+    cls->defineProperty("objectType", _SE(js_gfx_GFXObject_getObjectType_asGetter), nullptr);
+    cls->defineProperty("objectID", _SE(js_gfx_GFXObject_getObjectID_asGetter), nullptr);
+    cls->defineProperty("typedID", _SE(js_gfx_GFXObject_getTypedID_asGetter), nullptr);
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GFXObject_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GFXObject>(cls);
@@ -15986,11 +15312,12 @@ bool js_register_gfx_GFXObject(se::Object* obj) // NOLINT(readability-identifier
     __jsb_cc_gfx_GFXObject_proto = cls->getProto();
     __jsb_cc_gfx_GFXObject_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Buffer_proto = nullptr;
-se::Class* __jsb_cc_gfx_Buffer_class = nullptr;
+se::Object* __jsb_cc_gfx_Buffer_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Buffer_class = nullptr;  // NOLINT
 
 static bool js_gfx_Buffer_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16024,7 +15351,7 @@ static bool js_gfx_Buffer_getCount(se::State& s) // NOLINT(readability-identifie
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getCount)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Buffer_getCount)
 
 static bool js_gfx_Buffer_getFlags(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16043,7 +15370,7 @@ static bool js_gfx_Buffer_getFlags(se::State& s) // NOLINT(readability-identifie
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getFlags)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Buffer_getFlags)
 
 static bool js_gfx_Buffer_getMemUsage(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16062,7 +15389,7 @@ static bool js_gfx_Buffer_getMemUsage(se::State& s) // NOLINT(readability-identi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getMemUsage)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Buffer_getMemUsage)
 
 static bool js_gfx_Buffer_getSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16081,7 +15408,7 @@ static bool js_gfx_Buffer_getSize(se::State& s) // NOLINT(readability-identifier
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getSize)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Buffer_getSize)
 
 static bool js_gfx_Buffer_getStride(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16100,7 +15427,7 @@ static bool js_gfx_Buffer_getStride(se::State& s) // NOLINT(readability-identifi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getStride)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Buffer_getStride)
 
 static bool js_gfx_Buffer_getUsage(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16119,7 +15446,7 @@ static bool js_gfx_Buffer_getUsage(se::State& s) // NOLINT(readability-identifie
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getUsage)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Buffer_getUsage)
 
 static bool js_gfx_Buffer_isBufferView(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16159,7 +15486,7 @@ static bool js_gfx_Buffer_resize(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_FUNC(js_gfx_Buffer_resize)
 
-static bool js_gfx_Buffer_computeHash(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_Buffer_computeHash_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -16167,39 +15494,30 @@ static bool js_gfx_Buffer_computeHash(se::State& s) // NOLINT(readability-identi
     if (argc == 1) {
         HolderType<cc::gfx::BufferInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash_static : Error processing arguments");
         size_t result = cc::gfx::Buffer::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Buffer_computeHash)
+SE_BIND_FUNC(js_gfx_Buffer_computeHash_static)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Buffer_finalize)
 
 static bool js_gfx_Buffer_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::Buffer: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Buffer constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::Buffer constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_Buffer_constructor, __jsb_cc_gfx_Buffer_class, js_cc_gfx_Buffer_finalize)
 
-
-
 static bool js_cc_gfx_Buffer_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Buffer>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Buffer_finalize)
@@ -16208,16 +15526,16 @@ bool js_register_gfx_Buffer(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Buffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Buffer_constructor));
 
-    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
-    cls->defineProperty("memUsage", _SE(js_gfx_Buffer_getMemUsage), nullptr);
-    cls->defineProperty("stride", _SE(js_gfx_Buffer_getStride), nullptr);
-    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount), nullptr);
-    cls->defineProperty("size", _SE(js_gfx_Buffer_getSize), nullptr);
-    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage_asGetter), nullptr);
+    cls->defineProperty("memUsage", _SE(js_gfx_Buffer_getMemUsage_asGetter), nullptr);
+    cls->defineProperty("stride", _SE(js_gfx_Buffer_getStride_asGetter), nullptr);
+    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount_asGetter), nullptr);
+    cls->defineProperty("size", _SE(js_gfx_Buffer_getSize_asGetter), nullptr);
+    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Buffer_destroy));
     cls->defineFunction("isBufferView", _SE(js_gfx_Buffer_isBufferView));
     cls->defineFunction("resize", _SE(js_gfx_Buffer_resize));
-    cls->defineStaticFunction("computeHash", _SE(js_gfx_Buffer_computeHash));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_Buffer_computeHash_static));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Buffer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Buffer>(cls);
@@ -16225,11 +15543,12 @@ bool js_register_gfx_Buffer(se::Object* obj) // NOLINT(readability-identifier-na
     __jsb_cc_gfx_Buffer_proto = cls->getProto();
     __jsb_cc_gfx_Buffer_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_InputAssembler_proto = nullptr;
-se::Class* __jsb_cc_gfx_InputAssembler_class = nullptr;
+se::Object* __jsb_cc_gfx_InputAssembler_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_InputAssembler_class = nullptr;  // NOLINT
 
 static bool js_gfx_InputAssembler_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16263,7 +15582,7 @@ static bool js_gfx_InputAssembler_getAttributes(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getAttributes)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getAttributes)
 
 static bool js_gfx_InputAssembler_getAttributesHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16282,7 +15601,7 @@ static bool js_gfx_InputAssembler_getAttributesHash(se::State& s) // NOLINT(read
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getAttributesHash)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getAttributesHash)
 
 static bool js_gfx_InputAssembler_getDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16301,7 +15620,7 @@ static bool js_gfx_InputAssembler_getDrawInfo(se::State& s) // NOLINT(readabilit
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getDrawInfo)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getDrawInfo)
 
 static bool js_gfx_InputAssembler_getFirstIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16320,7 +15639,7 @@ static bool js_gfx_InputAssembler_getFirstIndex(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getFirstIndex)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getFirstIndex)
 
 static bool js_gfx_InputAssembler_getFirstInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16339,7 +15658,7 @@ static bool js_gfx_InputAssembler_getFirstInstance(se::State& s) // NOLINT(reada
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getFirstInstance)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getFirstInstance)
 
 static bool js_gfx_InputAssembler_getFirstVertex(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16358,7 +15677,7 @@ static bool js_gfx_InputAssembler_getFirstVertex(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getFirstVertex)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getFirstVertex)
 
 static bool js_gfx_InputAssembler_getIndexBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16377,7 +15696,7 @@ static bool js_gfx_InputAssembler_getIndexBuffer(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getIndexBuffer)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getIndexBuffer)
 
 static bool js_gfx_InputAssembler_getIndexCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16396,7 +15715,7 @@ static bool js_gfx_InputAssembler_getIndexCount(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getIndexCount)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getIndexCount)
 
 static bool js_gfx_InputAssembler_getIndirectBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16415,7 +15734,7 @@ static bool js_gfx_InputAssembler_getIndirectBuffer(se::State& s) // NOLINT(read
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getIndirectBuffer)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getIndirectBuffer)
 
 static bool js_gfx_InputAssembler_getInstanceCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16434,7 +15753,7 @@ static bool js_gfx_InputAssembler_getInstanceCount(se::State& s) // NOLINT(reada
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getInstanceCount)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getInstanceCount)
 
 static bool js_gfx_InputAssembler_getVertexBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16453,7 +15772,7 @@ static bool js_gfx_InputAssembler_getVertexBuffers(se::State& s) // NOLINT(reada
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getVertexBuffers)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getVertexBuffers)
 
 static bool js_gfx_InputAssembler_getVertexCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16472,7 +15791,7 @@ static bool js_gfx_InputAssembler_getVertexCount(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getVertexCount)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getVertexCount)
 
 static bool js_gfx_InputAssembler_getVertexOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16491,7 +15810,7 @@ static bool js_gfx_InputAssembler_getVertexOffset(se::State& s) // NOLINT(readab
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getVertexOffset)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_InputAssembler_getVertexOffset)
 
 static bool js_gfx_InputAssembler_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16529,7 +15848,7 @@ static bool js_gfx_InputAssembler_setFirstIndex(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_gfx_InputAssembler_setFirstIndex)
+SE_BIND_FUNC_AS_PROP_SET(js_gfx_InputAssembler_setFirstIndex)
 
 static bool js_gfx_InputAssembler_setFirstInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16548,7 +15867,7 @@ static bool js_gfx_InputAssembler_setFirstInstance(se::State& s) // NOLINT(reada
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_gfx_InputAssembler_setFirstInstance)
+SE_BIND_FUNC_AS_PROP_SET(js_gfx_InputAssembler_setFirstInstance)
 
 static bool js_gfx_InputAssembler_setFirstVertex(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16567,7 +15886,7 @@ static bool js_gfx_InputAssembler_setFirstVertex(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_gfx_InputAssembler_setFirstVertex)
+SE_BIND_FUNC_AS_PROP_SET(js_gfx_InputAssembler_setFirstVertex)
 
 static bool js_gfx_InputAssembler_setIndexCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16586,7 +15905,7 @@ static bool js_gfx_InputAssembler_setIndexCount(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_gfx_InputAssembler_setIndexCount)
+SE_BIND_FUNC_AS_PROP_SET(js_gfx_InputAssembler_setIndexCount)
 
 static bool js_gfx_InputAssembler_setInstanceCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16605,7 +15924,7 @@ static bool js_gfx_InputAssembler_setInstanceCount(se::State& s) // NOLINT(reada
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_gfx_InputAssembler_setInstanceCount)
+SE_BIND_FUNC_AS_PROP_SET(js_gfx_InputAssembler_setInstanceCount)
 
 static bool js_gfx_InputAssembler_setVertexCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16624,7 +15943,7 @@ static bool js_gfx_InputAssembler_setVertexCount(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_gfx_InputAssembler_setVertexCount)
+SE_BIND_FUNC_AS_PROP_SET(js_gfx_InputAssembler_setVertexCount)
 
 static bool js_gfx_InputAssembler_setVertexOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16643,29 +15962,20 @@ static bool js_gfx_InputAssembler_setVertexOffset(se::State& s) // NOLINT(readab
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_gfx_InputAssembler_setVertexOffset)
+SE_BIND_FUNC_AS_PROP_SET(js_gfx_InputAssembler_setVertexOffset)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_InputAssembler_finalize)
 
 static bool js_gfx_InputAssembler_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::InputAssembler: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::InputAssembler constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::InputAssembler constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_InputAssembler_constructor, __jsb_cc_gfx_InputAssembler_class, js_cc_gfx_InputAssembler_finalize)
 
-
-
 static bool js_cc_gfx_InputAssembler_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::InputAssembler>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::InputAssembler>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_InputAssembler_finalize)
@@ -16674,19 +15984,19 @@ bool js_register_gfx_InputAssembler(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("InputAssembler", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_InputAssembler_constructor));
 
-    cls->defineProperty("vertexBuffers", _SE(js_gfx_InputAssembler_getVertexBuffers), nullptr);
-    cls->defineProperty("attributes", _SE(js_gfx_InputAssembler_getAttributes), nullptr);
-    cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer), nullptr);
-    cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer), nullptr);
-    cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash), nullptr);
-    cls->defineProperty("drawInfo", _SE(js_gfx_InputAssembler_getDrawInfo), nullptr);
-    cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount), _SE(js_gfx_InputAssembler_setVertexCount));
-    cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex), _SE(js_gfx_InputAssembler_setFirstVertex));
-    cls->defineProperty("indexCount", _SE(js_gfx_InputAssembler_getIndexCount), _SE(js_gfx_InputAssembler_setIndexCount));
-    cls->defineProperty("firstIndex", _SE(js_gfx_InputAssembler_getFirstIndex), _SE(js_gfx_InputAssembler_setFirstIndex));
-    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset), _SE(js_gfx_InputAssembler_setVertexOffset));
-    cls->defineProperty("instanceCount", _SE(js_gfx_InputAssembler_getInstanceCount), _SE(js_gfx_InputAssembler_setInstanceCount));
-    cls->defineProperty("firstInstance", _SE(js_gfx_InputAssembler_getFirstInstance), _SE(js_gfx_InputAssembler_setFirstInstance));
+    cls->defineProperty("vertexBuffers", _SE(js_gfx_InputAssembler_getVertexBuffers_asGetter), nullptr);
+    cls->defineProperty("attributes", _SE(js_gfx_InputAssembler_getAttributes_asGetter), nullptr);
+    cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer_asGetter), nullptr);
+    cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer_asGetter), nullptr);
+    cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash_asGetter), nullptr);
+    cls->defineProperty("drawInfo", _SE(js_gfx_InputAssembler_getDrawInfo_asGetter), nullptr);
+    cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount_asGetter), _SE(js_gfx_InputAssembler_setVertexCount_asSetter));
+    cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex_asGetter), _SE(js_gfx_InputAssembler_setFirstVertex_asSetter));
+    cls->defineProperty("indexCount", _SE(js_gfx_InputAssembler_getIndexCount_asGetter), _SE(js_gfx_InputAssembler_setIndexCount_asSetter));
+    cls->defineProperty("firstIndex", _SE(js_gfx_InputAssembler_getFirstIndex_asGetter), _SE(js_gfx_InputAssembler_setFirstIndex_asSetter));
+    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset_asGetter), _SE(js_gfx_InputAssembler_setVertexOffset_asSetter));
+    cls->defineProperty("instanceCount", _SE(js_gfx_InputAssembler_getInstanceCount_asGetter), _SE(js_gfx_InputAssembler_setInstanceCount_asSetter));
+    cls->defineProperty("firstInstance", _SE(js_gfx_InputAssembler_getFirstInstance_asGetter), _SE(js_gfx_InputAssembler_setFirstInstance_asSetter));
     cls->defineFunction("destroy", _SE(js_gfx_InputAssembler_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_InputAssembler_initialize));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_InputAssembler_finalize));
@@ -16696,11 +16006,12 @@ bool js_register_gfx_InputAssembler(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_gfx_InputAssembler_proto = cls->getProto();
     __jsb_cc_gfx_InputAssembler_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_CommandBuffer_proto = nullptr;
-se::Class* __jsb_cc_gfx_CommandBuffer_class = nullptr;
+se::Object* __jsb_cc_gfx_CommandBuffer_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_CommandBuffer_class = nullptr;  // NOLINT
 
 static bool js_gfx_CommandBuffer_begin(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -17581,22 +16892,13 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_CommandBuffer_finalize)
 static bool js_gfx_CommandBuffer_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::CommandBuffer: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::CommandBuffer constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::CommandBuffer constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_CommandBuffer_constructor, __jsb_cc_gfx_CommandBuffer_class, js_cc_gfx_CommandBuffer_finalize)
 
-
-
 static bool js_cc_gfx_CommandBuffer_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_CommandBuffer_finalize)
@@ -17643,11 +16945,12 @@ bool js_register_gfx_CommandBuffer(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_gfx_CommandBuffer_proto = cls->getProto();
     __jsb_cc_gfx_CommandBuffer_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DescriptorSet_proto = nullptr;
-se::Class* __jsb_cc_gfx_DescriptorSet_class = nullptr;
+se::Object* __jsb_cc_gfx_DescriptorSet_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DescriptorSet_class = nullptr;  // NOLINT
 
 static bool js_gfx_DescriptorSet_bindBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -17931,7 +17234,7 @@ static bool js_gfx_DescriptorSet_getLayout(se::State& s) // NOLINT(readability-i
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_DescriptorSet_getLayout)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_DescriptorSet_getLayout)
 
 static bool js_gfx_DescriptorSet_getSampler(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18058,22 +17361,13 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_DescriptorSet_finalize)
 static bool js_gfx_DescriptorSet_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::DescriptorSet: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::DescriptorSet constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::DescriptorSet constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_DescriptorSet_constructor, __jsb_cc_gfx_DescriptorSet_class, js_cc_gfx_DescriptorSet_finalize)
 
-
-
 static bool js_cc_gfx_DescriptorSet_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DescriptorSet_finalize)
@@ -18082,7 +17376,7 @@ bool js_register_gfx_DescriptorSet(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("DescriptorSet", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_DescriptorSet_constructor));
 
-    cls->defineProperty("layout", _SE(js_gfx_DescriptorSet_getLayout), nullptr);
+    cls->defineProperty("layout", _SE(js_gfx_DescriptorSet_getLayout_asGetter), nullptr);
     cls->defineFunction("bindBuffer", _SE(js_gfx_DescriptorSet_bindBuffer));
     cls->defineFunction("bindBufferJSB", _SE(js_gfx_DescriptorSet_bindBufferJSB));
     cls->defineFunction("bindSampler", _SE(js_gfx_DescriptorSet_bindSampler));
@@ -18102,11 +17396,12 @@ bool js_register_gfx_DescriptorSet(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_gfx_DescriptorSet_proto = cls->getProto();
     __jsb_cc_gfx_DescriptorSet_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DescriptorSetLayout_proto = nullptr;
-se::Class* __jsb_cc_gfx_DescriptorSetLayout_class = nullptr;
+se::Object* __jsb_cc_gfx_DescriptorSetLayout_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DescriptorSetLayout_class = nullptr;  // NOLINT
 
 static bool js_gfx_DescriptorSetLayout_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18204,22 +17499,13 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_DescriptorSetLayout_finalize)
 static bool js_gfx_DescriptorSetLayout_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::DescriptorSetLayout: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::DescriptorSetLayout constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::DescriptorSetLayout constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_DescriptorSetLayout_constructor, __jsb_cc_gfx_DescriptorSetLayout_class, js_cc_gfx_DescriptorSetLayout_finalize)
 
-
-
 static bool js_cc_gfx_DescriptorSetLayout_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DescriptorSetLayout_finalize)
@@ -18240,11 +17526,12 @@ bool js_register_gfx_DescriptorSetLayout(se::Object* obj) // NOLINT(readability-
     __jsb_cc_gfx_DescriptorSetLayout_proto = cls->getProto();
     __jsb_cc_gfx_DescriptorSetLayout_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Framebuffer_proto = nullptr;
-se::Class* __jsb_cc_gfx_Framebuffer_class = nullptr;
+se::Object* __jsb_cc_gfx_Framebuffer_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Framebuffer_class = nullptr;  // NOLINT
 
 static bool js_gfx_Framebuffer_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18278,7 +17565,7 @@ static bool js_gfx_Framebuffer_getColorTextures(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Framebuffer_getColorTextures)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Framebuffer_getColorTextures)
 
 static bool js_gfx_Framebuffer_getDepthStencilTexture(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18297,7 +17584,7 @@ static bool js_gfx_Framebuffer_getDepthStencilTexture(se::State& s) // NOLINT(re
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Framebuffer_getDepthStencilTexture)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Framebuffer_getDepthStencilTexture)
 
 static bool js_gfx_Framebuffer_getRenderPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18316,7 +17603,7 @@ static bool js_gfx_Framebuffer_getRenderPass(se::State& s) // NOLINT(readability
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Framebuffer_getRenderPass)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Framebuffer_getRenderPass)
 
 static bool js_gfx_Framebuffer_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18337,7 +17624,7 @@ static bool js_gfx_Framebuffer_initialize(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_gfx_Framebuffer_initialize)
 
-static bool js_gfx_Framebuffer_computeHash(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_Framebuffer_computeHash_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -18345,39 +17632,30 @@ static bool js_gfx_Framebuffer_computeHash(se::State& s) // NOLINT(readability-i
     if (argc == 1) {
         HolderType<cc::gfx::FramebufferInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash_static : Error processing arguments");
         size_t result = cc::gfx::Framebuffer::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Framebuffer_computeHash)
+SE_BIND_FUNC(js_gfx_Framebuffer_computeHash_static)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Framebuffer_finalize)
 
 static bool js_gfx_Framebuffer_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::Framebuffer: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Framebuffer constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::Framebuffer constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_Framebuffer_constructor, __jsb_cc_gfx_Framebuffer_class, js_cc_gfx_Framebuffer_finalize)
 
-
-
 static bool js_cc_gfx_Framebuffer_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Framebuffer>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Framebuffer>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Framebuffer_finalize)
@@ -18386,12 +17664,12 @@ bool js_register_gfx_Framebuffer(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Framebuffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Framebuffer_constructor));
 
-    cls->defineProperty("renderPass", _SE(js_gfx_Framebuffer_getRenderPass), nullptr);
-    cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures), nullptr);
-    cls->defineProperty("depthStencilTexture", _SE(js_gfx_Framebuffer_getDepthStencilTexture), nullptr);
+    cls->defineProperty("renderPass", _SE(js_gfx_Framebuffer_getRenderPass_asGetter), nullptr);
+    cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures_asGetter), nullptr);
+    cls->defineProperty("depthStencilTexture", _SE(js_gfx_Framebuffer_getDepthStencilTexture_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Framebuffer_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_Framebuffer_initialize));
-    cls->defineStaticFunction("computeHash", _SE(js_gfx_Framebuffer_computeHash));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_Framebuffer_computeHash_static));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Framebuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Framebuffer>(cls);
@@ -18399,11 +17677,12 @@ bool js_register_gfx_Framebuffer(se::Object* obj) // NOLINT(readability-identifi
     __jsb_cc_gfx_Framebuffer_proto = cls->getProto();
     __jsb_cc_gfx_Framebuffer_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_PipelineLayout_proto = nullptr;
-se::Class* __jsb_cc_gfx_PipelineLayout_class = nullptr;
+se::Object* __jsb_cc_gfx_PipelineLayout_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_PipelineLayout_class = nullptr;  // NOLINT
 
 static bool js_gfx_PipelineLayout_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18463,22 +17742,13 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_PipelineLayout_finalize)
 static bool js_gfx_PipelineLayout_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::PipelineLayout: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::PipelineLayout constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::PipelineLayout constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_PipelineLayout_constructor, __jsb_cc_gfx_PipelineLayout_class, js_cc_gfx_PipelineLayout_finalize)
 
-
-
 static bool js_cc_gfx_PipelineLayout_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::PipelineLayout>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineLayout>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_PipelineLayout_finalize)
@@ -18497,11 +17767,12 @@ bool js_register_gfx_PipelineLayout(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_gfx_PipelineLayout_proto = cls->getProto();
     __jsb_cc_gfx_PipelineLayout_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_PipelineState_proto = nullptr;
-se::Class* __jsb_cc_gfx_PipelineState_class = nullptr;
+se::Object* __jsb_cc_gfx_PipelineState_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_PipelineState_class = nullptr;  // NOLINT
 
 static bool js_gfx_PipelineState_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18535,7 +17806,7 @@ static bool js_gfx_PipelineState_getBindPoint(se::State& s) // NOLINT(readabilit
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_PipelineState_getBindPoint)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_PipelineState_getBindPoint)
 
 static bool js_gfx_PipelineState_getBlendState(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18554,7 +17825,7 @@ static bool js_gfx_PipelineState_getBlendState(se::State& s) // NOLINT(readabili
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_PipelineState_getBlendState)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_PipelineState_getBlendState)
 
 static bool js_gfx_PipelineState_getDepthStencilState(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18573,7 +17844,7 @@ static bool js_gfx_PipelineState_getDepthStencilState(se::State& s) // NOLINT(re
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_PipelineState_getDepthStencilState)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_PipelineState_getDepthStencilState)
 
 static bool js_gfx_PipelineState_getDynamicStates(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18611,7 +17882,7 @@ static bool js_gfx_PipelineState_getInputState(se::State& s) // NOLINT(readabili
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_PipelineState_getInputState)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_PipelineState_getInputState)
 
 static bool js_gfx_PipelineState_getPipelineLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18649,7 +17920,7 @@ static bool js_gfx_PipelineState_getPrimitive(se::State& s) // NOLINT(readabilit
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_PipelineState_getPrimitive)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_PipelineState_getPrimitive)
 
 static bool js_gfx_PipelineState_getRasterizerState(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18668,7 +17939,7 @@ static bool js_gfx_PipelineState_getRasterizerState(se::State& s) // NOLINT(read
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_PipelineState_getRasterizerState)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_PipelineState_getRasterizerState)
 
 static bool js_gfx_PipelineState_getRenderPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18687,7 +17958,7 @@ static bool js_gfx_PipelineState_getRenderPass(se::State& s) // NOLINT(readabili
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_PipelineState_getRenderPass)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_PipelineState_getRenderPass)
 
 static bool js_gfx_PipelineState_getShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18706,7 +17977,7 @@ static bool js_gfx_PipelineState_getShader(se::State& s) // NOLINT(readability-i
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_PipelineState_getShader)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_PipelineState_getShader)
 
 static bool js_gfx_PipelineState_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18732,22 +18003,13 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_PipelineState_finalize)
 static bool js_gfx_PipelineState_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::PipelineState: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::PipelineState constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::PipelineState constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_PipelineState_constructor, __jsb_cc_gfx_PipelineState_class, js_cc_gfx_PipelineState_finalize)
 
-
-
 static bool js_cc_gfx_PipelineState_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::PipelineState>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineState>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_PipelineState_finalize)
@@ -18756,14 +18018,14 @@ bool js_register_gfx_PipelineState(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("PipelineState", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_PipelineState_constructor));
 
-    cls->defineProperty("shader", _SE(js_gfx_PipelineState_getShader), nullptr);
-    cls->defineProperty("primitive", _SE(js_gfx_PipelineState_getPrimitive), nullptr);
-    cls->defineProperty("bindPoint", _SE(js_gfx_PipelineState_getBindPoint), nullptr);
-    cls->defineProperty("inputState", _SE(js_gfx_PipelineState_getInputState), nullptr);
-    cls->defineProperty("rasterizerState", _SE(js_gfx_PipelineState_getRasterizerState), nullptr);
-    cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineState_getDepthStencilState), nullptr);
-    cls->defineProperty("blendState", _SE(js_gfx_PipelineState_getBlendState), nullptr);
-    cls->defineProperty("renderPass", _SE(js_gfx_PipelineState_getRenderPass), nullptr);
+    cls->defineProperty("shader", _SE(js_gfx_PipelineState_getShader_asGetter), nullptr);
+    cls->defineProperty("primitive", _SE(js_gfx_PipelineState_getPrimitive_asGetter), nullptr);
+    cls->defineProperty("bindPoint", _SE(js_gfx_PipelineState_getBindPoint_asGetter), nullptr);
+    cls->defineProperty("inputState", _SE(js_gfx_PipelineState_getInputState_asGetter), nullptr);
+    cls->defineProperty("rasterizerState", _SE(js_gfx_PipelineState_getRasterizerState_asGetter), nullptr);
+    cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineState_getDepthStencilState_asGetter), nullptr);
+    cls->defineProperty("blendState", _SE(js_gfx_PipelineState_getBlendState_asGetter), nullptr);
+    cls->defineProperty("renderPass", _SE(js_gfx_PipelineState_getRenderPass_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_PipelineState_destroy));
     cls->defineFunction("getDynamicStates", _SE(js_gfx_PipelineState_getDynamicStates));
     cls->defineFunction("getPipelineLayout", _SE(js_gfx_PipelineState_getPipelineLayout));
@@ -18775,11 +18037,12 @@ bool js_register_gfx_PipelineState(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_gfx_PipelineState_proto = cls->getProto();
     __jsb_cc_gfx_PipelineState_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_QueryPool_proto = nullptr;
-se::Class* __jsb_cc_gfx_QueryPool_class = nullptr;
+se::Object* __jsb_cc_gfx_QueryPool_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_QueryPool_class = nullptr;  // NOLINT
 
 static bool js_gfx_QueryPool_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18921,22 +18184,13 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_QueryPool_finalize)
 static bool js_gfx_QueryPool_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::QueryPool: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::QueryPool constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::QueryPool constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_QueryPool_constructor, __jsb_cc_gfx_QueryPool_class, js_cc_gfx_QueryPool_finalize)
 
-
-
 static bool js_cc_gfx_QueryPool_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::QueryPool>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::QueryPool>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_QueryPool_finalize)
@@ -18959,11 +18213,12 @@ bool js_register_gfx_QueryPool(se::Object* obj) // NOLINT(readability-identifier
     __jsb_cc_gfx_QueryPool_proto = cls->getProto();
     __jsb_cc_gfx_QueryPool_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Queue_proto = nullptr;
-se::Class* __jsb_cc_gfx_Queue_class = nullptr;
+se::Object* __jsb_cc_gfx_Queue_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Queue_class = nullptr;  // NOLINT
 
 static bool js_gfx_Queue_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -18997,7 +18252,7 @@ static bool js_gfx_Queue_getType(se::State& s) // NOLINT(readability-identifier-
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Queue_getType)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Queue_getType)
 
 static bool js_gfx_Queue_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19060,22 +18315,13 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Queue_finalize)
 static bool js_gfx_Queue_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::Queue: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Queue constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::Queue constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_Queue_constructor, __jsb_cc_gfx_Queue_class, js_cc_gfx_Queue_finalize)
 
-
-
 static bool js_cc_gfx_Queue_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Queue>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Queue_finalize)
@@ -19084,7 +18330,7 @@ bool js_register_gfx_Queue(se::Object* obj) // NOLINT(readability-identifier-nam
 {
     auto* cls = se::Class::create("Queue", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Queue_constructor));
 
-    cls->defineProperty("type", _SE(js_gfx_Queue_getType), nullptr);
+    cls->defineProperty("type", _SE(js_gfx_Queue_getType_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Queue_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_Queue_initialize));
     cls->defineFunction("submit", _SE(js_gfx_Queue_submit));
@@ -19095,11 +18341,12 @@ bool js_register_gfx_Queue(se::Object* obj) // NOLINT(readability-identifier-nam
     __jsb_cc_gfx_Queue_proto = cls->getProto();
     __jsb_cc_gfx_Queue_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_RenderPass_proto = nullptr;
-se::Class* __jsb_cc_gfx_RenderPass_class = nullptr;
+se::Object* __jsb_cc_gfx_RenderPass_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_RenderPass_class = nullptr;  // NOLINT
 
 static bool js_gfx_RenderPass_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19171,7 +18418,7 @@ static bool js_gfx_RenderPass_getHash(se::State& s) // NOLINT(readability-identi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_RenderPass_getHash)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_RenderPass_getHash)
 
 static bool js_gfx_RenderPass_getSubpasses(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19211,7 +18458,7 @@ static bool js_gfx_RenderPass_initialize(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_gfx_RenderPass_initialize)
 
-static bool js_gfx_RenderPass_computeHash(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_RenderPass_computeHash_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -19219,39 +18466,30 @@ static bool js_gfx_RenderPass_computeHash(se::State& s) // NOLINT(readability-id
     if (argc == 1) {
         HolderType<cc::gfx::RenderPassInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash_static : Error processing arguments");
         size_t result = cc::gfx::RenderPass::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_RenderPass_computeHash)
+SE_BIND_FUNC(js_gfx_RenderPass_computeHash_static)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_RenderPass_finalize)
 
 static bool js_gfx_RenderPass_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::RenderPass: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::RenderPass constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::RenderPass constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_RenderPass_constructor, __jsb_cc_gfx_RenderPass_class, js_cc_gfx_RenderPass_finalize)
 
-
-
 static bool js_cc_gfx_RenderPass_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::RenderPass>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::RenderPass>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_RenderPass_finalize)
@@ -19260,13 +18498,13 @@ bool js_register_gfx_RenderPass(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("RenderPass", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_RenderPass_constructor));
 
-    cls->defineProperty("hash", _SE(js_gfx_RenderPass_getHash), nullptr);
+    cls->defineProperty("hash", _SE(js_gfx_RenderPass_getHash_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_RenderPass_destroy));
     cls->defineFunction("getDependencies", _SE(js_gfx_RenderPass_getDependencies));
     cls->defineFunction("getDepthStencilAttachment", _SE(js_gfx_RenderPass_getDepthStencilAttachment));
     cls->defineFunction("getSubpasses", _SE(js_gfx_RenderPass_getSubpasses));
     cls->defineFunction("initialize", _SE(js_gfx_RenderPass_initialize));
-    cls->defineStaticFunction("computeHash", _SE(js_gfx_RenderPass_computeHash));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_RenderPass_computeHash_static));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_RenderPass_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::RenderPass>(cls);
@@ -19274,11 +18512,12 @@ bool js_register_gfx_RenderPass(se::Object* obj) // NOLINT(readability-identifie
     __jsb_cc_gfx_RenderPass_proto = cls->getProto();
     __jsb_cc_gfx_RenderPass_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Shader_proto = nullptr;
-se::Class* __jsb_cc_gfx_Shader_class = nullptr;
+se::Object* __jsb_cc_gfx_Shader_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Shader_class = nullptr;  // NOLINT
 
 static bool js_gfx_Shader_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19312,7 +18551,7 @@ static bool js_gfx_Shader_getAttributes(se::State& s) // NOLINT(readability-iden
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Shader_getAttributes)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Shader_getAttributes)
 
 static bool js_gfx_Shader_getBlocks(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19331,7 +18570,7 @@ static bool js_gfx_Shader_getBlocks(se::State& s) // NOLINT(readability-identifi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Shader_getBlocks)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Shader_getBlocks)
 
 static bool js_gfx_Shader_getBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19388,7 +18627,7 @@ static bool js_gfx_Shader_getName(se::State& s) // NOLINT(readability-identifier
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Shader_getName)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Shader_getName)
 
 static bool js_gfx_Shader_getSamplerTextures(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19426,7 +18665,7 @@ static bool js_gfx_Shader_getSamplers(se::State& s) // NOLINT(readability-identi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Shader_getSamplers)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Shader_getSamplers)
 
 static bool js_gfx_Shader_getStages(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19445,7 +18684,7 @@ static bool js_gfx_Shader_getStages(se::State& s) // NOLINT(readability-identifi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Shader_getStages)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Shader_getStages)
 
 static bool js_gfx_Shader_getSubpassInputs(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19509,22 +18748,13 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Shader_finalize)
 static bool js_gfx_Shader_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::Shader: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Shader constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::Shader constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_Shader_constructor, __jsb_cc_gfx_Shader_class, js_cc_gfx_Shader_finalize)
 
-
-
 static bool js_cc_gfx_Shader_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Shader>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Shader_finalize)
@@ -19533,11 +18763,11 @@ bool js_register_gfx_Shader(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Shader", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Shader_constructor));
 
-    cls->defineProperty("name", _SE(js_gfx_Shader_getName), nullptr);
-    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages), nullptr);
-    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes), nullptr);
-    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks), nullptr);
-    cls->defineProperty("samplers", _SE(js_gfx_Shader_getSamplers), nullptr);
+    cls->defineProperty("name", _SE(js_gfx_Shader_getName_asGetter), nullptr);
+    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages_asGetter), nullptr);
+    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes_asGetter), nullptr);
+    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks_asGetter), nullptr);
+    cls->defineProperty("samplers", _SE(js_gfx_Shader_getSamplers_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Shader_destroy));
     cls->defineFunction("getBuffers", _SE(js_gfx_Shader_getBuffers));
     cls->defineFunction("getImages", _SE(js_gfx_Shader_getImages));
@@ -19552,11 +18782,12 @@ bool js_register_gfx_Shader(se::Object* obj) // NOLINT(readability-identifier-na
     __jsb_cc_gfx_Shader_proto = cls->getProto();
     __jsb_cc_gfx_Shader_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Texture_proto = nullptr;
-se::Class* __jsb_cc_gfx_Texture_class = nullptr;
+se::Object* __jsb_cc_gfx_Texture_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Texture_class = nullptr;  // NOLINT
 
 static bool js_gfx_Texture_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19590,7 +18821,7 @@ static bool js_gfx_Texture_getFormat(se::State& s) // NOLINT(readability-identif
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getFormat)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Texture_getFormat)
 
 static bool js_gfx_Texture_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19609,7 +18840,7 @@ static bool js_gfx_Texture_getHash(se::State& s) // NOLINT(readability-identifie
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getHash)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Texture_getHash)
 
 static bool js_gfx_Texture_getHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19628,7 +18859,7 @@ static bool js_gfx_Texture_getHeight(se::State& s) // NOLINT(readability-identif
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getHeight)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Texture_getHeight)
 
 static bool js_gfx_Texture_getInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19647,7 +18878,7 @@ static bool js_gfx_Texture_getInfo(se::State& s) // NOLINT(readability-identifie
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getInfo)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Texture_getInfo)
 
 static bool js_gfx_Texture_getSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19666,7 +18897,7 @@ static bool js_gfx_Texture_getSize(se::State& s) // NOLINT(readability-identifie
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getSize)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Texture_getSize)
 
 static bool js_gfx_Texture_getViewInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19685,7 +18916,7 @@ static bool js_gfx_Texture_getViewInfo(se::State& s) // NOLINT(readability-ident
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getViewInfo)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Texture_getViewInfo)
 
 static bool js_gfx_Texture_getWidth(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19704,7 +18935,7 @@ static bool js_gfx_Texture_getWidth(se::State& s) // NOLINT(readability-identifi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getWidth)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Texture_getWidth)
 
 static bool js_gfx_Texture_isTextureView(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19746,7 +18977,7 @@ static bool js_gfx_Texture_resize(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_gfx_Texture_resize)
 
-static bool js_gfx_Texture_computeHash(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_Texture_computeHash_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -19758,7 +18989,7 @@ static bool js_gfx_Texture_computeHash(se::State& s) // NOLINT(readability-ident
             if (!ok) { ok = true; break; }
             size_t result = cc::gfx::Texture::computeHash(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash_static : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -19770,7 +19001,7 @@ static bool js_gfx_Texture_computeHash(se::State& s) // NOLINT(readability-ident
             if (!ok) { ok = true; break; }
             size_t result = cc::gfx::Texture::computeHash(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash_static : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -19778,29 +19009,20 @@ static bool js_gfx_Texture_computeHash(se::State& s) // NOLINT(readability-ident
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Texture_computeHash)
+SE_BIND_FUNC(js_gfx_Texture_computeHash_static)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Texture_finalize)
 
 static bool js_gfx_Texture_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::Texture: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Texture constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::Texture constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_Texture_constructor, __jsb_cc_gfx_Texture_class, js_cc_gfx_Texture_finalize)
 
-
-
 static bool js_cc_gfx_Texture_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Texture>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Texture_finalize)
@@ -19809,17 +19031,17 @@ bool js_register_gfx_Texture(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Texture", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Texture_constructor));
 
-    cls->defineProperty("info", _SE(js_gfx_Texture_getInfo), nullptr);
-    cls->defineProperty("viewInfo", _SE(js_gfx_Texture_getViewInfo), nullptr);
-    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth), nullptr);
-    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight), nullptr);
-    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat), nullptr);
-    cls->defineProperty("size", _SE(js_gfx_Texture_getSize), nullptr);
-    cls->defineProperty("hash", _SE(js_gfx_Texture_getHash), nullptr);
+    cls->defineProperty("info", _SE(js_gfx_Texture_getInfo_asGetter), nullptr);
+    cls->defineProperty("viewInfo", _SE(js_gfx_Texture_getViewInfo_asGetter), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth_asGetter), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight_asGetter), nullptr);
+    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat_asGetter), nullptr);
+    cls->defineProperty("size", _SE(js_gfx_Texture_getSize_asGetter), nullptr);
+    cls->defineProperty("hash", _SE(js_gfx_Texture_getHash_asGetter), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Texture_destroy));
     cls->defineFunction("isTextureView", _SE(js_gfx_Texture_isTextureView));
     cls->defineFunction("resize", _SE(js_gfx_Texture_resize));
-    cls->defineStaticFunction("computeHash", _SE(js_gfx_Texture_computeHash));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_Texture_computeHash_static));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Texture_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Texture>(cls);
@@ -19827,11 +19049,12 @@ bool js_register_gfx_Texture(se::Object* obj) // NOLINT(readability-identifier-n
     __jsb_cc_gfx_Texture_proto = cls->getProto();
     __jsb_cc_gfx_Texture_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Swapchain_proto = nullptr;
-se::Class* __jsb_cc_gfx_Swapchain_class = nullptr;
+se::Object* __jsb_cc_gfx_Swapchain_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Swapchain_class = nullptr;  // NOLINT
 
 static bool js_gfx_Swapchain_createSurface(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19899,7 +19122,7 @@ static bool js_gfx_Swapchain_getColorTexture(se::State& s) // NOLINT(readability
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Swapchain_getColorTexture)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Swapchain_getColorTexture)
 
 static bool js_gfx_Swapchain_getDepthStencilTexture(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19918,7 +19141,7 @@ static bool js_gfx_Swapchain_getDepthStencilTexture(se::State& s) // NOLINT(read
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Swapchain_getDepthStencilTexture)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Swapchain_getDepthStencilTexture)
 
 static bool js_gfx_Swapchain_getHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19937,7 +19160,7 @@ static bool js_gfx_Swapchain_getHeight(se::State& s) // NOLINT(readability-ident
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Swapchain_getHeight)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Swapchain_getHeight)
 
 static bool js_gfx_Swapchain_getSurfaceTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19956,7 +19179,7 @@ static bool js_gfx_Swapchain_getSurfaceTransform(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Swapchain_getSurfaceTransform)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Swapchain_getSurfaceTransform)
 
 static bool js_gfx_Swapchain_getVSyncMode(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19994,7 +19217,7 @@ static bool js_gfx_Swapchain_getWidth(se::State& s) // NOLINT(readability-identi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Swapchain_getWidth)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Swapchain_getWidth)
 
 static bool js_gfx_Swapchain_getWindowHandle(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20062,22 +19285,13 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Swapchain_finalize)
 static bool js_gfx_Swapchain_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::Swapchain: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Swapchain constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::Swapchain constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_Swapchain_constructor, __jsb_cc_gfx_Swapchain_class, js_cc_gfx_Swapchain_finalize)
 
-
-
 static bool js_cc_gfx_Swapchain_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Swapchain>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Swapchain>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Swapchain_finalize)
@@ -20086,11 +19300,11 @@ bool js_register_gfx_Swapchain(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("Swapchain", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Swapchain_constructor));
 
-    cls->defineProperty("width", _SE(js_gfx_Swapchain_getWidth), nullptr);
-    cls->defineProperty("height", _SE(js_gfx_Swapchain_getHeight), nullptr);
-    cls->defineProperty("surfaceTransform", _SE(js_gfx_Swapchain_getSurfaceTransform), nullptr);
-    cls->defineProperty("colorTexture", _SE(js_gfx_Swapchain_getColorTexture), nullptr);
-    cls->defineProperty("depthStencilTexture", _SE(js_gfx_Swapchain_getDepthStencilTexture), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_Swapchain_getWidth_asGetter), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_Swapchain_getHeight_asGetter), nullptr);
+    cls->defineProperty("surfaceTransform", _SE(js_gfx_Swapchain_getSurfaceTransform_asGetter), nullptr);
+    cls->defineProperty("colorTexture", _SE(js_gfx_Swapchain_getColorTexture_asGetter), nullptr);
+    cls->defineProperty("depthStencilTexture", _SE(js_gfx_Swapchain_getDepthStencilTexture_asGetter), nullptr);
     cls->defineFunction("createSurface", _SE(js_gfx_Swapchain_createSurface));
     cls->defineFunction("destroy", _SE(js_gfx_Swapchain_destroy));
     cls->defineFunction("destroySurface", _SE(js_gfx_Swapchain_destroySurface));
@@ -20105,11 +19319,12 @@ bool js_register_gfx_Swapchain(se::Object* obj) // NOLINT(readability-identifier
     __jsb_cc_gfx_Swapchain_proto = cls->getProto();
     __jsb_cc_gfx_Swapchain_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_GlobalBarrier_proto = nullptr;
-se::Class* __jsb_cc_gfx_GlobalBarrier_class = nullptr;
+se::Object* __jsb_cc_gfx_GlobalBarrier_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_GlobalBarrier_class = nullptr;  // NOLINT
 
 static bool js_gfx_GlobalBarrier_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20149,7 +19364,7 @@ static bool js_gfx_GlobalBarrier_getInfo(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_gfx_GlobalBarrier_getInfo)
 
-static bool js_gfx_GlobalBarrier_computeHash(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_GlobalBarrier_computeHash_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -20157,39 +19372,30 @@ static bool js_gfx_GlobalBarrier_computeHash(se::State& s) // NOLINT(readability
     if (argc == 1) {
         HolderType<cc::gfx::GlobalBarrierInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_computeHash_static : Error processing arguments");
         size_t result = cc::gfx::GlobalBarrier::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GlobalBarrier_computeHash)
+SE_BIND_FUNC(js_gfx_GlobalBarrier_computeHash_static)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GlobalBarrier_finalize)
 
 static bool js_gfx_GlobalBarrier_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::GlobalBarrier: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::GlobalBarrier constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::GlobalBarrier constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_GlobalBarrier_constructor, __jsb_cc_gfx_GlobalBarrier_class, js_cc_gfx_GlobalBarrier_finalize)
 
-
-
 static bool js_cc_gfx_GlobalBarrier_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::GlobalBarrier>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrier>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_GlobalBarrier_finalize)
@@ -20200,7 +19406,7 @@ bool js_register_gfx_GlobalBarrier(se::Object* obj) // NOLINT(readability-identi
 
     cls->defineFunction("getHash", _SE(js_gfx_GlobalBarrier_getHash));
     cls->defineFunction("getInfo", _SE(js_gfx_GlobalBarrier_getInfo));
-    cls->defineStaticFunction("computeHash", _SE(js_gfx_GlobalBarrier_computeHash));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_GlobalBarrier_computeHash_static));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GlobalBarrier_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GlobalBarrier>(cls);
@@ -20208,11 +19414,12 @@ bool js_register_gfx_GlobalBarrier(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_gfx_GlobalBarrier_proto = cls->getProto();
     __jsb_cc_gfx_GlobalBarrier_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Sampler_proto = nullptr;
-se::Class* __jsb_cc_gfx_Sampler_class = nullptr;
+se::Object* __jsb_cc_gfx_Sampler_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Sampler_class = nullptr;  // NOLINT
 
 static bool js_gfx_Sampler_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20250,9 +19457,9 @@ static bool js_gfx_Sampler_getInfo(se::State& s) // NOLINT(readability-identifie
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Sampler_getInfo)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Sampler_getInfo)
 
-static bool js_gfx_Sampler_computeHash(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_Sampler_computeHash_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -20260,39 +19467,50 @@ static bool js_gfx_Sampler_computeHash(se::State& s) // NOLINT(readability-ident
     if (argc == 1) {
         HolderType<cc::gfx::SamplerInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_computeHash_static : Error processing arguments");
         size_t result = cc::gfx::Sampler::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Sampler_computeHash)
+SE_BIND_FUNC(js_gfx_Sampler_computeHash_static)
+
+static bool js_gfx_Sampler_unpackFromHash_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<size_t, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_unpackFromHash_static : Error processing arguments");
+        cc::gfx::SamplerInfo result = cc::gfx::Sampler::unpackFromHash(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_unpackFromHash_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Sampler_unpackFromHash_static)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Sampler_finalize)
 
 static bool js_gfx_Sampler_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::Sampler: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Sampler constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::Sampler constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_Sampler_constructor, __jsb_cc_gfx_Sampler_class, js_cc_gfx_Sampler_finalize)
 
-
-
 static bool js_cc_gfx_Sampler_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Sampler>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::Sampler>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_Sampler_finalize)
@@ -20301,9 +19519,10 @@ bool js_register_gfx_Sampler(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Sampler", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Sampler_constructor));
 
-    cls->defineProperty("info", _SE(js_gfx_Sampler_getInfo), nullptr);
+    cls->defineProperty("info", _SE(js_gfx_Sampler_getInfo_asGetter), nullptr);
     cls->defineFunction("getHash", _SE(js_gfx_Sampler_getHash));
-    cls->defineStaticFunction("computeHash", _SE(js_gfx_Sampler_computeHash));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_Sampler_computeHash_static));
+    cls->defineStaticFunction("unpackFromHash", _SE(js_gfx_Sampler_unpackFromHash_static));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Sampler_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Sampler>(cls);
@@ -20311,11 +19530,12 @@ bool js_register_gfx_Sampler(se::Object* obj) // NOLINT(readability-identifier-n
     __jsb_cc_gfx_Sampler_proto = cls->getProto();
     __jsb_cc_gfx_Sampler_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_TextureBarrier_proto = nullptr;
-se::Class* __jsb_cc_gfx_TextureBarrier_class = nullptr;
+se::Object* __jsb_cc_gfx_TextureBarrier_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_TextureBarrier_class = nullptr;  // NOLINT
 
 static bool js_gfx_TextureBarrier_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20355,7 +19575,7 @@ static bool js_gfx_TextureBarrier_getInfo(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_gfx_TextureBarrier_getInfo)
 
-static bool js_gfx_TextureBarrier_computeHash(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_TextureBarrier_computeHash_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -20363,39 +19583,30 @@ static bool js_gfx_TextureBarrier_computeHash(se::State& s) // NOLINT(readabilit
     if (argc == 1) {
         HolderType<cc::gfx::TextureBarrierInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_computeHash_static : Error processing arguments");
         size_t result = cc::gfx::TextureBarrier::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_computeHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_TextureBarrier_computeHash)
+SE_BIND_FUNC(js_gfx_TextureBarrier_computeHash_static)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_TextureBarrier_finalize)
 
 static bool js_gfx_TextureBarrier_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
     //#3 cc::gfx::TextureBarrier: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::TextureBarrier constructor is skipped\")");
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::TextureBarrier constructor is skipped");
     return false;
 }
 SE_BIND_CTOR(js_gfx_TextureBarrier_constructor, __jsb_cc_gfx_TextureBarrier_class, js_cc_gfx_TextureBarrier_finalize)
 
-
-
 static bool js_cc_gfx_TextureBarrier_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::TextureBarrier>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureBarrier>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_TextureBarrier_finalize)
@@ -20406,7 +19617,7 @@ bool js_register_gfx_TextureBarrier(se::Object* obj) // NOLINT(readability-ident
 
     cls->defineFunction("getHash", _SE(js_gfx_TextureBarrier_getHash));
     cls->defineFunction("getInfo", _SE(js_gfx_TextureBarrier_getInfo));
-    cls->defineStaticFunction("computeHash", _SE(js_gfx_TextureBarrier_computeHash));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_TextureBarrier_computeHash_static));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_TextureBarrier_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::TextureBarrier>(cls);
@@ -20414,11 +19625,12 @@ bool js_register_gfx_TextureBarrier(se::Object* obj) // NOLINT(readability-ident
     __jsb_cc_gfx_TextureBarrier_proto = cls->getProto();
     __jsb_cc_gfx_TextureBarrier_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_Device_proto = nullptr;
-se::Class* __jsb_cc_gfx_Device_class = nullptr;
+se::Object* __jsb_cc_gfx_Device_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_Device_class = nullptr;  // NOLINT
 
 static bool js_gfx_Device_acquire(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20490,7 +19702,7 @@ static bool js_gfx_Device_createCommandBuffer(se::State& s) // NOLINT(readabilit
         cc::gfx::CommandBuffer* result = cobj->createCommandBuffer(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createCommandBuffer : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20513,7 +19725,7 @@ static bool js_gfx_Device_createDescriptorSet(se::State& s) // NOLINT(readabilit
         cc::gfx::DescriptorSet* result = cobj->createDescriptorSet(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSet : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20536,7 +19748,7 @@ static bool js_gfx_Device_createDescriptorSetLayout(se::State& s) // NOLINT(read
         cc::gfx::DescriptorSetLayout* result = cobj->createDescriptorSetLayout(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSetLayout : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20559,7 +19771,7 @@ static bool js_gfx_Device_createFramebuffer(se::State& s) // NOLINT(readability-
         cc::gfx::Framebuffer* result = cobj->createFramebuffer(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createFramebuffer : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20582,7 +19794,7 @@ static bool js_gfx_Device_createInputAssembler(se::State& s) // NOLINT(readabili
         cc::gfx::InputAssembler* result = cobj->createInputAssembler(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createInputAssembler : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20605,7 +19817,7 @@ static bool js_gfx_Device_createPipelineLayout(se::State& s) // NOLINT(readabili
         cc::gfx::PipelineLayout* result = cobj->createPipelineLayout(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineLayout : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20628,7 +19840,7 @@ static bool js_gfx_Device_createPipelineState(se::State& s) // NOLINT(readabilit
         cc::gfx::PipelineState* result = cobj->createPipelineState(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineState : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20651,7 +19863,7 @@ static bool js_gfx_Device_createQueryPool(se::State& s) // NOLINT(readability-id
         cc::gfx::QueryPool* result = cobj->createQueryPool(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createQueryPool : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20674,7 +19886,7 @@ static bool js_gfx_Device_createQueue(se::State& s) // NOLINT(readability-identi
         cc::gfx::Queue* result = cobj->createQueue(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createQueue : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20697,7 +19909,7 @@ static bool js_gfx_Device_createRenderPass(se::State& s) // NOLINT(readability-i
         cc::gfx::RenderPass* result = cobj->createRenderPass(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createRenderPass : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20720,7 +19932,7 @@ static bool js_gfx_Device_createShader(se::State& s) // NOLINT(readability-ident
         cc::gfx::Shader* result = cobj->createShader(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createShader : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20743,7 +19955,7 @@ static bool js_gfx_Device_createSwapchain(se::State& s) // NOLINT(readability-id
         cc::gfx::Swapchain* result = cobj->createSwapchain(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createSwapchain : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -20821,7 +20033,7 @@ static bool js_gfx_Device_getCapabilities(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getCapabilities)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getCapabilities)
 
 static bool js_gfx_Device_getCommandBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20840,7 +20052,7 @@ static bool js_gfx_Device_getCommandBuffer(se::State& s) // NOLINT(readability-i
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getCommandBuffer)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getCommandBuffer)
 
 static bool js_gfx_Device_getDeviceName(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20859,7 +20071,7 @@ static bool js_gfx_Device_getDeviceName(se::State& s) // NOLINT(readability-iden
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getDeviceName)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getDeviceName)
 
 static bool js_gfx_Device_getFormatFeatures(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20900,7 +20112,7 @@ static bool js_gfx_Device_getGfxAPI(se::State& s) // NOLINT(readability-identifi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getGfxAPI)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getGfxAPI)
 
 static bool js_gfx_Device_getGlobalBarrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20941,7 +20153,7 @@ static bool js_gfx_Device_getMemoryStatus(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getMemoryStatus)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getMemoryStatus)
 
 static bool js_gfx_Device_getNumDrawCalls(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20960,7 +20172,7 @@ static bool js_gfx_Device_getNumDrawCalls(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getNumDrawCalls)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getNumDrawCalls)
 
 static bool js_gfx_Device_getNumInstances(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20979,7 +20191,7 @@ static bool js_gfx_Device_getNumInstances(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getNumInstances)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getNumInstances)
 
 static bool js_gfx_Device_getNumTris(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20998,7 +20210,7 @@ static bool js_gfx_Device_getNumTris(se::State& s) // NOLINT(readability-identif
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getNumTris)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getNumTris)
 
 static bool js_gfx_Device_getQueryPool(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -21055,7 +20267,7 @@ static bool js_gfx_Device_getQueue(se::State& s) // NOLINT(readability-identifie
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getQueue)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getQueue)
 
 static bool js_gfx_Device_getRenderer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -21074,7 +20286,7 @@ static bool js_gfx_Device_getRenderer(se::State& s) // NOLINT(readability-identi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getRenderer)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getRenderer)
 
 static bool js_gfx_Device_getSampler(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -21137,7 +20349,7 @@ static bool js_gfx_Device_getVendor(se::State& s) // NOLINT(readability-identifi
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getVendor)
+SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getVendor)
 
 static bool js_gfx_Device_hasFeature(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -21198,23 +20410,21 @@ static bool js_gfx_Device_present(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_gfx_Device_present)
 
-
-
 bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr);
 
-    cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI), nullptr);
-    cls->defineProperty("deviceName", _SE(js_gfx_Device_getDeviceName), nullptr);
-    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus), nullptr);
-    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue), nullptr);
-    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer), nullptr);
-    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer), nullptr);
-    cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor), nullptr);
-    cls->defineProperty("numDrawCalls", _SE(js_gfx_Device_getNumDrawCalls), nullptr);
-    cls->defineProperty("numInstances", _SE(js_gfx_Device_getNumInstances), nullptr);
-    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris), nullptr);
-    cls->defineProperty("capabilities", _SE(js_gfx_Device_getCapabilities), nullptr);
+    cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI_asGetter), nullptr);
+    cls->defineProperty("deviceName", _SE(js_gfx_Device_getDeviceName_asGetter), nullptr);
+    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus_asGetter), nullptr);
+    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue_asGetter), nullptr);
+    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer_asGetter), nullptr);
+    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer_asGetter), nullptr);
+    cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor_asGetter), nullptr);
+    cls->defineProperty("numDrawCalls", _SE(js_gfx_Device_getNumDrawCalls_asGetter), nullptr);
+    cls->defineProperty("numInstances", _SE(js_gfx_Device_getNumInstances_asGetter), nullptr);
+    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris_asGetter), nullptr);
+    cls->defineProperty("capabilities", _SE(js_gfx_Device_getCapabilities_asGetter), nullptr);
     cls->defineFunction("acquire", _SE(js_gfx_Device_acquire));
     cls->defineFunction("bindingMappingInfo", _SE(js_gfx_Device_bindingMappingInfo));
     cls->defineFunction("createCommandBuffer", _SE(js_gfx_Device_createCommandBuffer));
@@ -21246,46 +20456,14 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
     __jsb_cc_gfx_Device_proto = cls->getProto();
     __jsb_cc_gfx_Device_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_DeviceManager_proto = nullptr;
-se::Class* __jsb_cc_gfx_DeviceManager_class = nullptr;
+se::Object* __jsb_cc_gfx_DeviceManager_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_DeviceManager_class = nullptr;  // NOLINT
 
-static bool js_gfx_DeviceManager_create(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::DeviceInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_gfx_DeviceManager_create : Error processing arguments");
-        cc::gfx::Device* result = cc::gfx::DeviceManager::create(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_DeviceManager_create : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DeviceManager_create)
-
-static bool js_gfx_DeviceManager_destroy(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cc::gfx::DeviceManager::destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DeviceManager_destroy)
-
-static bool js_gfx_DeviceManager_addSurfaceEventListener(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_DeviceManager_addSurfaceEventListener_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -21296,18 +20474,42 @@ static bool js_gfx_DeviceManager_addSurfaceEventListener(se::State& s) // NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_DeviceManager_addSurfaceEventListener)
+SE_BIND_FUNC(js_gfx_DeviceManager_addSurfaceEventListener_static)
 
+static bool js_gfx_DeviceManager_create_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::DeviceInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_gfx_DeviceManager_create_static : Error processing arguments");
+        cc::gfx::Device* result = cc::gfx::DeviceManager::create(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_DeviceManager_create_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DeviceManager_create_static)
 
+static bool js_gfx_DeviceManager_destroy_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::gfx::DeviceManager::destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DeviceManager_destroy_static)
 static bool js_cc_gfx_DeviceManager_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DeviceManager>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::gfx::DeviceManager>(s);
-        JSB_FREE(cobj);
-    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_gfx_DeviceManager_finalize)
@@ -21316,9 +20518,9 @@ bool js_register_gfx_DeviceManager(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("DeviceManager", obj, nullptr, nullptr);
 
-    cls->defineStaticFunction("create", _SE(js_gfx_DeviceManager_create));
-    cls->defineStaticFunction("destroy", _SE(js_gfx_DeviceManager_destroy));
-    cls->defineStaticFunction("addSurfaceEventListener", _SE(js_gfx_DeviceManager_addSurfaceEventListener));
+    cls->defineStaticFunction("addSurfaceEventListener", _SE(js_gfx_DeviceManager_addSurfaceEventListener_static));
+    cls->defineStaticFunction("create", _SE(js_gfx_DeviceManager_create_static));
+    cls->defineStaticFunction("destroy", _SE(js_gfx_DeviceManager_destroy_static));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DeviceManager_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DeviceManager>(cls);
@@ -21326,14 +20528,15 @@ bool js_register_gfx_DeviceManager(se::Object* obj) // NOLINT(readability-identi
     __jsb_cc_gfx_DeviceManager_proto = cls->getProto();
     __jsb_cc_gfx_DeviceManager_class = cls;
 
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-bool register_all_gfx(se::Object* obj)
+bool register_all_gfx(se::Object* obj)    // NOLINT
 {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("gfx", &nsVal))
+    if (!obj->getProperty("gfx", &nsVal, true))
     {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
@@ -21341,83 +20544,84 @@ bool register_all_gfx(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_gfx_Size(ns);
-    js_register_gfx_DeviceCaps(ns);
-    js_register_gfx_Offset(ns);
-    js_register_gfx_Rect(ns);
-    js_register_gfx_Extent(ns);
-    js_register_gfx_TextureSubresLayers(ns);
-    js_register_gfx_TextureSubresRange(ns);
-    js_register_gfx_TextureCopy(ns);
-    js_register_gfx_TextureBlit(ns);
-    js_register_gfx_BufferTextureCopy(ns);
-    js_register_gfx_Viewport(ns);
-    js_register_gfx_Color(ns);
-    js_register_gfx_BindingMappingInfo(ns);
-    js_register_gfx_SwapchainInfo(ns);
-    js_register_gfx_DeviceInfo(ns);
-    js_register_gfx_BufferInfo(ns);
-    js_register_gfx_BufferViewInfo(ns);
-    js_register_gfx_DrawInfo(ns);
-    js_register_gfx_DispatchInfo(ns);
-    js_register_gfx_IndirectBuffer(ns);
-    js_register_gfx_TextureInfo(ns);
-    js_register_gfx_TextureViewInfo(ns);
-    js_register_gfx_SamplerInfo(ns);
-    js_register_gfx_Uniform(ns);
-    js_register_gfx_UniformBlock(ns);
-    js_register_gfx_UniformSamplerTexture(ns);
-    js_register_gfx_UniformSampler(ns);
-    js_register_gfx_UniformTexture(ns);
-    js_register_gfx_UniformStorageImage(ns);
-    js_register_gfx_UniformStorageBuffer(ns);
-    js_register_gfx_UniformInputAttachment(ns);
-    js_register_gfx_ShaderStage(ns);
     js_register_gfx_Attribute(ns);
-    js_register_gfx_ShaderInfo(ns);
-    js_register_gfx_InputAssemblerInfo(ns);
-    js_register_gfx_ColorAttachment(ns);
-    js_register_gfx_DepthStencilAttachment(ns);
-    js_register_gfx_SubpassInfo(ns);
-    js_register_gfx_SubpassDependency(ns);
-    js_register_gfx_RenderPassInfo(ns);
-    js_register_gfx_GlobalBarrierInfo(ns);
-    js_register_gfx_TextureBarrierInfo(ns);
-    js_register_gfx_FramebufferInfo(ns);
-    js_register_gfx_DescriptorSetLayoutBinding(ns);
-    js_register_gfx_DescriptorSetLayoutInfo(ns);
-    js_register_gfx_DescriptorSetInfo(ns);
-    js_register_gfx_PipelineLayoutInfo(ns);
-    js_register_gfx_InputState(ns);
-    js_register_gfx_RasterizerState(ns);
-    js_register_gfx_DepthStencilState(ns);
-    js_register_gfx_BlendTarget(ns);
+    js_register_gfx_BindingMappingInfo(ns);
     js_register_gfx_BlendState(ns);
-    js_register_gfx_PipelineStateInfo(ns);
-    js_register_gfx_CommandBufferInfo(ns);
-    js_register_gfx_QueueInfo(ns);
-    js_register_gfx_QueryPoolInfo(ns);
-    js_register_gfx_MemoryStatus(ns);
+    js_register_gfx_BlendTarget(ns);
     js_register_gfx_GFXObject(ns);
     js_register_gfx_Buffer(ns);
-    js_register_gfx_InputAssembler(ns);
+    js_register_gfx_BufferInfo(ns);
+    js_register_gfx_BufferTextureCopy(ns);
+    js_register_gfx_BufferViewInfo(ns);
+    js_register_gfx_Color(ns);
+    js_register_gfx_ColorAttachment(ns);
     js_register_gfx_CommandBuffer(ns);
+    js_register_gfx_CommandBufferInfo(ns);
+    js_register_gfx_DepthStencilAttachment(ns);
+    js_register_gfx_DepthStencilState(ns);
     js_register_gfx_DescriptorSet(ns);
+    js_register_gfx_DescriptorSetInfo(ns);
     js_register_gfx_DescriptorSetLayout(ns);
-    js_register_gfx_Framebuffer(ns);
-    js_register_gfx_PipelineLayout(ns);
-    js_register_gfx_PipelineState(ns);
-    js_register_gfx_QueryPool(ns);
-    js_register_gfx_Queue(ns);
-    js_register_gfx_RenderPass(ns);
-    js_register_gfx_Shader(ns);
-    js_register_gfx_Texture(ns);
-    js_register_gfx_Swapchain(ns);
-    js_register_gfx_GlobalBarrier(ns);
-    js_register_gfx_Sampler(ns);
-    js_register_gfx_TextureBarrier(ns);
+    js_register_gfx_DescriptorSetLayoutBinding(ns);
+    js_register_gfx_DescriptorSetLayoutInfo(ns);
     js_register_gfx_Device(ns);
+    js_register_gfx_DeviceCaps(ns);
+    js_register_gfx_DeviceInfo(ns);
     js_register_gfx_DeviceManager(ns);
+    js_register_gfx_DispatchInfo(ns);
+    js_register_gfx_DrawInfo(ns);
+    js_register_gfx_Extent(ns);
+    js_register_gfx_Framebuffer(ns);
+    js_register_gfx_FramebufferInfo(ns);
+    js_register_gfx_GlobalBarrier(ns);
+    js_register_gfx_GlobalBarrierInfo(ns);
+    js_register_gfx_IndirectBuffer(ns);
+    js_register_gfx_InputAssembler(ns);
+    js_register_gfx_InputAssemblerInfo(ns);
+    js_register_gfx_InputState(ns);
+    js_register_gfx_MemoryStatus(ns);
+    js_register_gfx_Offset(ns);
+    js_register_gfx_PipelineLayout(ns);
+    js_register_gfx_PipelineLayoutInfo(ns);
+    js_register_gfx_PipelineState(ns);
+    js_register_gfx_PipelineStateInfo(ns);
+    js_register_gfx_QueryPool(ns);
+    js_register_gfx_QueryPoolInfo(ns);
+    js_register_gfx_Queue(ns);
+    js_register_gfx_QueueInfo(ns);
+    js_register_gfx_RasterizerState(ns);
+    js_register_gfx_Rect(ns);
+    js_register_gfx_RenderPass(ns);
+    js_register_gfx_RenderPassInfo(ns);
+    js_register_gfx_Sampler(ns);
+    js_register_gfx_SamplerInfo(ns);
+    js_register_gfx_Shader(ns);
+    js_register_gfx_ShaderInfo(ns);
+    js_register_gfx_ShaderStage(ns);
+    js_register_gfx_Size(ns);
+    js_register_gfx_SubpassDependency(ns);
+    js_register_gfx_SubpassInfo(ns);
+    js_register_gfx_Swapchain(ns);
+    js_register_gfx_SwapchainInfo(ns);
+    js_register_gfx_Texture(ns);
+    js_register_gfx_TextureBarrier(ns);
+    js_register_gfx_TextureBarrierInfo(ns);
+    js_register_gfx_TextureBlit(ns);
+    js_register_gfx_TextureCopy(ns);
+    js_register_gfx_TextureInfo(ns);
+    js_register_gfx_TextureSubresLayers(ns);
+    js_register_gfx_TextureSubresRange(ns);
+    js_register_gfx_TextureViewInfo(ns);
+    js_register_gfx_Uniform(ns);
+    js_register_gfx_UniformBlock(ns);
+    js_register_gfx_UniformInputAttachment(ns);
+    js_register_gfx_UniformSampler(ns);
+    js_register_gfx_UniformSamplerTexture(ns);
+    js_register_gfx_UniformStorageBuffer(ns);
+    js_register_gfx_UniformStorageImage(ns);
+    js_register_gfx_UniformTexture(ns);
+    js_register_gfx_Viewport(ns);
     return true;
 }
 
+// clang-format on

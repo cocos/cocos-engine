@@ -36,7 +36,7 @@ public:
     SystemWindow();
     ~SystemWindow() override;
 
-    bool      createWindow(const char* title,
+    bool      createWindow(const char *title,
                            int x, int y, int w,
                            int h, int flags) override;
     uintptr_t getWindowHandler() const override;
@@ -46,7 +46,7 @@ public:
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void setCursorEnabled(bool value) override;
-    void copyTextToClipboard(const std::string& text) override;
+    void copyTextToClipboard(const std::string &text) override;
 
 private:
     int32_t _width{0};

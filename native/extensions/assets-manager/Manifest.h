@@ -30,9 +30,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "base/Ref.h"
-#include "extensions/ExtensionMacros.h"
+#include "base/RefCounted.h"
 #include "extensions/ExtensionExport.h"
+#include "extensions/ExtensionMacros.h"
 #include "network/Downloader.h"
 #include "platform/FileUtils.h"
 
@@ -44,20 +44,20 @@ struct DownloadUnit {
     std::string srcUrl;
     std::string storagePath;
     std::string customId;
-    float size;
+    float       size;
 };
 
 struct ManifestAsset {
     std::string md5;
     std::string path;
-    bool compressed;
-    float size;
-    int downloadState;
+    bool        compressed;
+    float       size;
+    int         downloadState;
 };
 
-using DownloadUnits =  std::unordered_map<std::string, DownloadUnit>;
+using DownloadUnits = std::unordered_map<std::string, DownloadUnit>;
 
-class CC_EX_DLL Manifest : public Ref {
+class CC_EX_DLL Manifest : public RefCounted {
 public:
     friend class AssetsManagerEx;
 
@@ -80,7 +80,7 @@ public:
 
     //! Object indicate the difference between two Assets
     struct AssetDiff {
-        Asset asset;
+        Asset    asset;
         DiffType type;
     };
 

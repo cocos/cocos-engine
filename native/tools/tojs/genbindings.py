@@ -26,7 +26,10 @@ defaultSections = [
     'dragonbones',
     'physics',
     'scene',
+    'geometry',
+    'assets'
 ]
+
 projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 defaultOutputDir = '%s/cocos/bindings/auto' % projectRoot
 
@@ -178,6 +181,7 @@ def main():
             if filename is None: filename = 'jsb_%s_auto' % section
             print ('!!----------Generating bindings for %s----------!!' % (section))
             command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, section, target, directory, filename)
+            print ("command : %s" % (command))
             # tasks.append(_run_cmd(command))
             _run_cmd(command).communicate()
 
@@ -185,9 +189,14 @@ def main():
             for path in sys.argv[2:]:
                 generate(path.replace('\\', '/'))
         else:
+            genCnt = 0
             for section in defaultSections:
                 if len(sys.argv) <= 1 or any(section in s for s in sys.argv[1:]):
                     generate('%s/%s.ini' % (tojs_root, section), defaultOutputDir)
+                    genCnt += 1
+            if genCnt == 0:
+                print ('----------------------------------------')
+                print ('Warn: no ini found, update var `defaultSections`?')
 
         # for t in tasks:
         #     t.communicate()

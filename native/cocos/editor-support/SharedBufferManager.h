@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,13 +26,14 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 #include "IOTypedArray.h"
 
 MIDDLEWARE_BEGIN
 
 class SharedBufferManager {
 public:
-    SharedBufferManager(se::Object::TypedArrayType arrayType);
+    explicit SharedBufferManager(se::Object::TypedArrayType arrayType);
     virtual ~SharedBufferManager();
 
     void reset() {
@@ -43,9 +44,9 @@ public:
         return _buffer;
     }
 
-    typedef std::function<void()> resizeCallback;
-    void                          setResizeCallback(resizeCallback callback) {
-        _resizeCallback = callback;
+    using resizeCallback = std::function<void()>;
+    void setResizeCallback(resizeCallback callback) {
+        _resizeCallback = std::move(callback);
     }
 
     se_object_ptr getSharedBuffer() const {
@@ -56,7 +57,6 @@ private:
     void init();
     void afterCleanupHandle();
 
-private:
     se::Object::TypedArrayType _arrayType;
     IOTypedArray *             _buffer         = nullptr;
     resizeCallback             _resizeCallback = nullptr;

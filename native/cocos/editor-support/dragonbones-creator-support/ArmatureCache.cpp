@@ -25,24 +25,23 @@
 #include "CCFactory.h"
 #include "base/TypeDef.h"
 
-USING_NS_MW;
+USING_NS_MW; // NOLINT(google-build-using-namespace)
 
-using namespace cc;
+using namespace cc; // NOLINT(google-build-using-namespace)
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-float ArmatureCache::FrameTime = 1.0f / 60.0f;
-float ArmatureCache::MaxCacheTime = 120.0f;
+float ArmatureCache::FrameTime    = 1.0F / 60.0F;
+float ArmatureCache::MaxCacheTime = 120.0F;
 
-ArmatureCache::SegmentData::SegmentData() {
-}
+ArmatureCache::SegmentData::SegmentData() = default;
 
 ArmatureCache::SegmentData::~SegmentData() {
     CC_SAFE_RELEASE_NULL(_texture);
 }
 
 void ArmatureCache::SegmentData::setTexture(cc::middleware::Texture2D *value) {
-    CC_SAFE_RETAIN(value);
+    CC_SAFE_ADD_REF(value);
     CC_SAFE_RELEASE(_texture);
     _texture = value;
 }
@@ -51,22 +50,21 @@ cc::middleware::Texture2D *ArmatureCache::SegmentData::getTexture() const {
     return _texture;
 }
 
-ArmatureCache::FrameData::FrameData() {
-}
+ArmatureCache::FrameData::FrameData() = default;
 
 ArmatureCache::FrameData::~FrameData() {
-    for (std::size_t i = 0, c = _bones.size(); i < c; i++) {
-        delete _bones[i];
+    for (auto &bone : _bones) {
+        delete bone;
     }
     _bones.clear();
 
-    for (std::size_t i = 0, c = _colors.size(); i < c; i++) {
-        delete _colors[i];
+    for (auto &color : _colors) {
+        delete color;
     }
     _colors.clear();
 
-    for (std::size_t i = 0, c = _segments.size(); i < c; i++) {
-        delete _segments[i];
+    for (auto &segment : _segments) {
+        delete segment;
     }
     _segments.clear();
 }
@@ -74,7 +72,7 @@ ArmatureCache::FrameData::~FrameData() {
 ArmatureCache::BoneData *ArmatureCache::FrameData::buildBoneData(std::size_t index) {
     if (index > _bones.size()) return nullptr;
     if (index == _bones.size()) {
-        BoneData *boneData = new BoneData;
+        auto *boneData = new BoneData;
         _bones.push_back(boneData);
     }
     return _bones[index];
@@ -87,7 +85,7 @@ std::size_t ArmatureCache::FrameData::getBoneCount() const {
 ArmatureCache::ColorData *ArmatureCache::FrameData::buildColorData(std::size_t index) {
     if (index > _colors.size()) return nullptr;
     if (index == _colors.size()) {
-        ColorData *colorData = new ColorData;
+        auto *colorData = new ColorData;
         _colors.push_back(colorData);
     }
     return _colors[index];
@@ -100,7 +98,7 @@ std::size_t ArmatureCache::FrameData::getColorCount() const {
 ArmatureCache::SegmentData *ArmatureCache::FrameData::buildSegmentData(std::size_t index) {
     if (index > _segments.size()) return nullptr;
     if (index == _segments.size()) {
-        SegmentData *segmentData = new SegmentData;
+        auto *segmentData = new SegmentData;
         _segments.push_back(segmentData);
     }
     return _segments[index];
@@ -110,20 +108,19 @@ std::size_t ArmatureCache::FrameData::getSegmentCount() const {
     return _segments.size();
 }
 
-ArmatureCache::AnimationData::AnimationData() {
-}
+ArmatureCache::AnimationData::AnimationData() = default;
 
 ArmatureCache::AnimationData::~AnimationData() {
     reset();
 }
 
 void ArmatureCache::AnimationData::reset() {
-    for (std::size_t i = 0, c = _frames.size(); i < c; i++) {
-        delete _frames[i];
+    for (auto &frame : _frames) {
+        delete frame;
     }
     _frames.clear();
     _isComplete = false;
-    _totalTime = 0.0f;
+    _totalTime  = 0.0F;
 }
 
 bool ArmatureCache::AnimationData::needUpdate(int toFrameIdx) const {
@@ -135,7 +132,7 @@ ArmatureCache::FrameData *ArmatureCache::AnimationData::buildFrameData(std::size
         return nullptr;
     }
     if (frameIdx == _frames.size()) {
-        auto frameData = new FrameData();
+        auto *frameData = new FrameData();
         _frames.push_back(frameData);
     }
     return _frames[frameIdx];
@@ -155,7 +152,7 @@ std::size_t ArmatureCache::AnimationData::getFrameCount() const {
 ArmatureCache::ArmatureCache(const std::string &armatureName, const std::string &armatureKey, const std::string &atlasUUID) {
     _armatureDisplay = dragonBones::CCFactory::getFactory()->buildArmatureDisplay(armatureName, armatureKey, "", atlasUUID);
     if (_armatureDisplay) {
-        _armatureDisplay->retain();
+        _armatureDisplay->addRef();
     }
 }
 
@@ -165,8 +162,8 @@ ArmatureCache::~ArmatureCache() {
         _armatureDisplay = nullptr;
     }
 
-    for (auto it = _animationCaches.begin(); it != _animationCaches.end(); it++) {
-        delete it->second;
+    for (auto &animationCache : _animationCaches) {
+        delete animationCache.second;
     }
     _animationCaches.clear();
 }
@@ -175,15 +172,15 @@ ArmatureCache::AnimationData *ArmatureCache::buildAnimationData(const std::strin
     if (!_armatureDisplay) return nullptr;
 
     AnimationData *aniData = nullptr;
-    auto it = _animationCaches.find(animationName);
+    auto           it      = _animationCaches.find(animationName);
     if (it == _animationCaches.end()) {
-        auto armature = _armatureDisplay->getArmature();
-        auto animation = armature->getAnimation();
-        auto hasAni = animation->hasAnimation(animationName);
+        auto *armature  = _armatureDisplay->getArmature();
+        auto *animation = armature->getAnimation();
+        auto  hasAni    = animation->hasAnimation(animationName);
         if (!hasAni) return nullptr;
 
-        aniData = new AnimationData();
-        aniData->_animationName = animationName;
+        aniData                         = new AnimationData();
+        aniData->_animationName         = animationName;
         _animationCaches[animationName] = aniData;
     } else {
         aniData = it->second;
@@ -195,9 +192,8 @@ ArmatureCache::AnimationData *ArmatureCache::getAnimationData(const std::string 
     auto it = _animationCaches.find(animationName);
     if (it == _animationCaches.end()) {
         return nullptr;
-    } else {
-        return it->second;
     }
+    return it->second;
 }
 
 void ArmatureCache::updateToFrame(const std::string &animationName, int toFrameIdx /*= -1*/) {
@@ -216,8 +212,8 @@ void ArmatureCache::updateToFrame(const std::string &animationName, int toFrameI
         _curAnimationName = animationName;
     }
 
-    auto armature = _armatureDisplay->getArmature();
-    auto animation = armature->getAnimation();
+    auto *armature  = _armatureDisplay->getArmature();
+    auto *animation = armature->getAnimation();
 
     // init animation
     if (animationData->getFrameCount() == 0) {
@@ -236,32 +232,32 @@ void ArmatureCache::updateToFrame(const std::string &animationName, int toFrameI
 
 void ArmatureCache::renderAnimationFrame(AnimationData *animationData) {
     std::size_t frameIndex = animationData->getFrameCount();
-    _frameData = animationData->buildFrameData(frameIndex);
+    _frameData             = animationData->buildFrameData(frameIndex);
 
-    _preColor = Color4F(-1.0f, -1.0f, -1.0f, -1.0f);
-    _color = Color4F(1.0f, 1.0f, 1.0f, 1.0f);
+    _preColor = Color4F(-1.0F, -1.0F, -1.0F, -1.0F);
+    _color    = Color4F(1.0F, 1.0F, 1.0F, 1.0F);
 
-    _preBlendMode = -1;
+    _preBlendMode    = -1;
     _preTextureIndex = -1;
     _curTextureIndex = -1;
     _preISegWritePos = -1;
-    _curISegLen = 0;
-    _curVSegLen = 0;
-    _materialLen = 0;
+    _curISegLen      = 0;
+    _curVSegLen      = 0;
+    _materialLen     = 0;
 
-    auto armature = _armatureDisplay->getArmature();
+    auto *armature = _armatureDisplay->getArmature();
     traverseArmature(armature);
 
     if (_preISegWritePos != -1) {
-        SegmentData *preSegmentData = _frameData->buildSegmentData(_materialLen - 1);
-        preSegmentData->indexCount = _curISegLen;
+        SegmentData *preSegmentData      = _frameData->buildSegmentData(_materialLen - 1);
+        preSegmentData->indexCount       = _curISegLen;
         preSegmentData->vertexFloatCount = _curVSegLen;
     }
 
     auto colorCount = _frameData->getColorCount();
     if (colorCount > 0) {
-        ColorData *preColorData = _frameData->buildColorData(colorCount - 1);
-        preColorData->vertexFloatOffset = (int)_frameData->vb.getCurPos() / sizeof(float);
+        ColorData *preColorData         = _frameData->buildColorData(colorCount - 1);
+        preColorData->vertexFloatOffset = static_cast<int>(_frameData->vb.getCurPos()) / sizeof(float);
     }
 
     _frameData = nullptr;
@@ -271,31 +267,31 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
     middleware::IOBuffer &vb = _frameData->vb;
     middleware::IOBuffer &ib = _frameData->ib;
 
-    auto &bones = armature->getBones();
-    Bone *bone = nullptr;
-    auto &slots = armature->getSlots();
-    CCSlot *slot = nullptr;
+    const auto &bones = armature->getBones();
+    Bone *      bone  = nullptr;
+    const auto &slots = armature->getSlots();
+    CCSlot *    slot  = nullptr;
     // range [0.0, 1.0]
-    Color4F preColor(-1.0f, -1.0f, -1.0f, -1.0f);
-    Color4F color;
+    Color4F                preColor(-1.0F, -1.0F, -1.0F, -1.0F);
+    Color4F                color;
     middleware::Texture2D *texture = nullptr;
 
     auto flush = [&]() {
         // fill pre segment count field
         if (_preISegWritePos != -1) {
-            SegmentData *preSegmentData = _frameData->buildSegmentData(_materialLen - 1);
-            preSegmentData->indexCount = _curISegLen;
+            SegmentData *preSegmentData      = _frameData->buildSegmentData(_materialLen - 1);
+            preSegmentData->indexCount       = _curISegLen;
             preSegmentData->vertexFloatCount = _curVSegLen;
         }
 
         SegmentData *segmentData = _frameData->buildSegmentData(_materialLen);
         segmentData->setTexture(texture);
-        segmentData->blendMode = (int)(slot->_blendMode);
+        segmentData->blendMode = static_cast<int>(slot->_blendMode);
 
         // save new segment count pos field
-        _preISegWritePos = (int)ib.getCurPos() / sizeof(unsigned short);
+        _preISegWritePos = static_cast<int>(ib.getCurPos() / sizeof(uint16_t));
         // reset pre blend mode to current
-        _preBlendMode = (int)slot->_blendMode;
+        _preBlendMode = static_cast<int>(slot->_blendMode);
         // reset pre texture index to current
         _preTextureIndex = _curTextureIndex;
         // reset index segmentation count
@@ -306,23 +302,25 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
         _materialLen++;
     };
 
-    for (std::size_t i = 0, len = bones.size(); i < len; i++) {
-        bone = bones[i];
-        auto boneCount = _frameData->getBoneCount();
-        BoneData *boneData = _frameData->buildBoneData(boneCount);
-        auto &boneOriginMat = bone->globalTransformMatrix;
-        auto &matm = boneData->globalTransformMatrix.m;
-        matm[0] = boneOriginMat.a;
-        matm[1] = boneOriginMat.b;
-        matm[4] = -boneOriginMat.c;
-        matm[5] = -boneOriginMat.d;
-        matm[12] = boneOriginMat.tx;
-        matm[13] = boneOriginMat.ty;
+    for (auto *i : bones) {
+        bone                    = i;
+        auto      boneCount     = _frameData->getBoneCount();
+        BoneData *boneData      = _frameData->buildBoneData(boneCount);
+        auto &    boneOriginMat = bone->globalTransformMatrix;
+        auto &    matm          = boneData->globalTransformMatrix.m;
+        matm[0]                 = boneOriginMat.a;
+        matm[1]                 = boneOriginMat.b;
+        matm[4]                 = -boneOriginMat.c;
+        matm[5]                 = -boneOriginMat.d;
+        matm[12]                = boneOriginMat.tx;
+        matm[13]                = boneOriginMat.ty;
     }
 
-    for (std::size_t i = 0, len = slots.size(); i < len; i++) {
-        slot = (CCSlot *)slots[i];
-
+    for (auto *i : slots) {
+        slot = dynamic_cast<CCSlot *>(i); // TODO(zhakasi): refine the logic
+        if (slot == nullptr) {
+            return;
+        }
         if (!slot->getVisible()) {
             continue;
         }
@@ -333,7 +331,7 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
         // If slots has child armature,will traverse child first.
         Armature *childArmature = slot->getChildArmature();
         if (childArmature != nullptr) {
-            traverseArmature(childArmature, parentOpacity * slot->color.a / 255.0f);
+            traverseArmature(childArmature, parentOpacity * static_cast<float>(slot->color.a) / 255.0F);
             continue;
         }
 
@@ -345,36 +343,36 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
         vb.checkSpace(vbSize, true);
 
         // If texture or blendMode change,will change material.
-        if (_preTextureIndex != _curTextureIndex || _preBlendMode != (int)slot->_blendMode) {
+        if (_preTextureIndex != _curTextureIndex || _preBlendMode != static_cast<int>(slot->_blendMode)) {
             flush();
         }
 
         // Calculation vertex color.
-        color.a = slot->color.a * parentOpacity / 255.0f;
-        color.r = slot->color.r / 255.0f;
-        color.g = slot->color.g / 255.0f;
-        color.b = slot->color.b / 255.0f;
+        color.a = static_cast<float>(slot->color.a) * parentOpacity / 255.0F;
+        color.r = static_cast<float>(slot->color.r) / 255.0F;
+        color.g = static_cast<float>(slot->color.g) / 255.0F;
+        color.b = static_cast<float>(slot->color.b) / 255.0F;
 
         if (preColor != color) {
-            preColor = color;
+            preColor        = color;
             auto colorCount = _frameData->getColorCount();
             if (colorCount > 0) {
-                ColorData *preColorData = _frameData->buildColorData(colorCount - 1);
+                ColorData *preColorData         = _frameData->buildColorData(colorCount - 1);
                 preColorData->vertexFloatOffset = vb.getCurPos() / sizeof(float);
             }
             ColorData *colorData = _frameData->buildColorData(colorCount);
-            colorData->color = color;
+            colorData->color     = color;
         }
 
         // Transform component matrix to global matrix
-        middleware::Triangles &triangles = slot->triangles;
+        middleware::Triangles &  triangles      = slot->triangles;
         middleware::V2F_T2F_C4F *worldTriangles = slot->worldVerts;
 
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2) {
-            middleware::V2F_T2F_C4F *vertex = triangles.verts + v;
+            middleware::V2F_T2F_C4F *vertex      = triangles.verts + v;
             middleware::V2F_T2F_C4F *worldVertex = worldTriangles + v;
-            worldVertex->vertex.x = vertex->vertex.x * worldMatrix->m[0] + vertex->vertex.y * worldMatrix->m[4] + worldMatrix->m[12];
-            worldVertex->vertex.y = vertex->vertex.x * worldMatrix->m[1] + vertex->vertex.y * worldMatrix->m[5] + worldMatrix->m[13];
+            worldVertex->vertex.x                = vertex->vertex.x * worldMatrix->m[0] + vertex->vertex.y * worldMatrix->m[4] + worldMatrix->m[12];
+            worldVertex->vertex.y                = vertex->vertex.x * worldMatrix->m[1] + vertex->vertex.y * worldMatrix->m[5] + worldMatrix->m[13];
 
             worldVertex->color.r = color.r;
             worldVertex->color.g = color.g;
@@ -382,9 +380,9 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
             worldVertex->color.a = color.a;
         }
 
-        vb.writeBytes((char *)worldTriangles, vbSize);
+        vb.writeBytes(reinterpret_cast<char *>(worldTriangles), vbSize);
 
-        auto ibSize = triangles.indexCount * sizeof(unsigned short);
+        auto ibSize = triangles.indexCount * sizeof(uint16_t);
         ib.checkSpace(ibSize, true);
 
         auto vertexOffset = _curVSegLen / VF_XYZUVC;
@@ -393,20 +391,20 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
         }
 
         _curISegLen += triangles.indexCount;
-        _curVSegLen += vbSize / sizeof(float);
+        _curVSegLen += static_cast<int32_t>(vbSize / sizeof(float));
     } // End slot traverse
 }
 
 void ArmatureCache::resetAllAnimationData() {
-    for (auto it = _animationCaches.begin(); it != _animationCaches.end(); it++) {
-        it->second->reset();
+    for (auto &animationCache : _animationCaches) {
+        animationCache.second->reset();
     }
 }
 
 void ArmatureCache::resetAnimationData(const std::string &animationName) {
-    for (auto it = _animationCaches.begin(); it != _animationCaches.end(); it++) {
-        if (it->second->_animationName == animationName) {
-            it->second->reset();
+    for (auto &animationCache : _animationCaches) {
+        if (animationCache.second->_animationName == animationName) {
+            animationCache.second->reset();
             break;
         }
     }

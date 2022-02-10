@@ -39,20 +39,20 @@
 
 #if (CC_CODE_IDE_DEBUG_SUPPORT > 0)
 
-    #include "runtime/ConfigParser.h"   // config
-    #include "runtime/Runtime.h"
-    #include "runtime/FileServer.h"
+    #include "runtime/ConfigParser.h" // config
     #include "runtime/ConfigParser.h"
+    #include "runtime/FileServer.h"
+    #include "runtime/Runtime.h"
 
     // js
-    #include "cocos/bindings/jswrapper/SeApi.h"
     #include "cocos/bindings/auto/jsb_cocos_auto.h"
+    #include "cocos/bindings/jswrapper/SeApi.h"
     #include "cocos/bindings/manual/jsb_classtype.h"
     #include "cocos/bindings/manual/jsb_conversions.h"
-    #include "cocos/bindings/manual/jsb_module_register.h"
     #include "cocos/bindings/manual/jsb_global.h"
+    #include "cocos/bindings/manual/jsb_module_register.h"
 
-static bool reloadScript(const string& file) {
+static bool reloadScript(const string &file) {
     CC_LOG_DEBUG("------------------------------------------------");
     CC_LOG_DEBUG("RELOAD Js FILE: %s", file.c_str());
     CC_LOG_DEBUG("------------------------------------------------");
@@ -66,16 +66,16 @@ static bool reloadScript(const string& file) {
     return jsb_run_script(modulefile.c_str());
 }
 
-static bool runtime_FileUtils_addSearchPath(se::State& s) {
-    const auto&    args = s.args();
+static bool runtime_FileUtils_addSearchPath(se::State &s) {
+    const auto &   args = s.args();
     int            argc = (int)args.size();
     bool           ok   = true;
-    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
+    cc::FileUtils *cobj = (cc::FileUtils *)s.nativeThisObject();
     if (argc == 1 || argc == 2) {
         std::string arg0;
         bool        arg1 = false;
 
-        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         if (argc == 2) {
@@ -103,14 +103,14 @@ static bool runtime_FileUtils_addSearchPath(se::State& s) {
 }
 SE_BIND_FUNC(runtime_FileUtils_addSearchPath)
 
-static bool runtime_FileUtils_setSearchPaths(se::State& s) {
-    const auto&    args = s.args();
+static bool runtime_FileUtils_setSearchPaths(se::State &s) {
+    const auto &   args = s.args();
     int            argc = (int)args.size();
     bool           ok   = true;
-    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
+    cc::FileUtils *cobj = (cc::FileUtils *)s.nativeThisObject();
     if (argc == 1) {
         std::vector<std::string> vecPaths, writePaths;
-        ok &= seval_to_std_vector_string(args[0], &vecPaths);
+        ok &= sevalue_to_native(args[0], &vecPaths);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         std::vector<std::string> originPath; // for IOS platform.
@@ -141,14 +141,14 @@ static bool runtime_FileUtils_setSearchPaths(se::State& s) {
 }
 SE_BIND_FUNC(runtime_FileUtils_setSearchPaths)
 
-static bool register_FileUtils(se::Object* obj) {
+static bool register_FileUtils(se::Object *obj) {
     __jsb_cc_FileUtils_proto->defineFunction("addSearchPath", _SE(runtime_FileUtils_addSearchPath));
     __jsb_cc_FileUtils_proto->defineFunction("setSearchPaths", _SE(runtime_FileUtils_setSearchPaths));
     return true;
 }
 
-RuntimeJsImpl* RuntimeJsImpl::create() {
-    RuntimeJsImpl* instance = new RuntimeJsImpl();
+RuntimeJsImpl *RuntimeJsImpl::create() {
+    RuntimeJsImpl *instance = new RuntimeJsImpl();
     return instance;
 }
 
@@ -167,7 +167,7 @@ bool RuntimeJsImpl::initJsEnv() {
     jsb_enable_debugger("0.0.0.0", parser->getDebugPort(), parser->isWaitForConnect());
     #endif
 
-    se->setExceptionCallback([](const char* location, const char* message, const char* stack) {
+    se->setExceptionCallback([](const char *location, const char *message, const char *stack) {
         // Send exception information to server like Tencent Bugly.
     });
 
@@ -184,11 +184,11 @@ bool RuntimeJsImpl::startWithDebugger() {
     return true;
 }
 
-void RuntimeJsImpl::startScript(const std::string& path) {
+void RuntimeJsImpl::startScript(const std::string &path) {
     loadScriptFile(path);
 }
 
-void RuntimeJsImpl::onStartDebuger(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse) {
+void RuntimeJsImpl::onStartDebuger(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse) {
     if (loadScriptFile(ConfigParser::getInstance()->getEntryFile())) {
         dReplyParse.AddMember("code", 0, dReplyParse.GetAllocator());
     } else {
@@ -196,17 +196,17 @@ void RuntimeJsImpl::onStartDebuger(const rapidjson::Document& dArgParse, rapidjs
     }
 }
 
-void RuntimeJsImpl::onClearCompile(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse) {
+void RuntimeJsImpl::onClearCompile(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse) {
 }
 
-void RuntimeJsImpl::onPrecompile(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse) {
+void RuntimeJsImpl::onPrecompile(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse) {
 }
 
-void RuntimeJsImpl::onReload(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse) {
+void RuntimeJsImpl::onReload(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse) {
     if (dArgParse.HasMember("modulefiles")) {
-        auto&                   allocator = dReplyParse.GetAllocator();
+        auto &                  allocator = dReplyParse.GetAllocator();
         rapidjson::Value        bodyvalue(rapidjson::kObjectType);
-        const rapidjson::Value& objectfiles = dArgParse["modulefiles"];
+        const rapidjson::Value &objectfiles = dArgParse["modulefiles"];
         for (rapidjson::SizeType i = 0; i < objectfiles.Size(); i++) {
             if (!reloadScript(objectfiles[i].GetString())) {
                 bodyvalue.AddMember(rapidjson::Value(objectfiles[i].GetString(), allocator), rapidjson::Value(1), allocator);
@@ -223,7 +223,7 @@ void RuntimeJsImpl::onReload(const rapidjson::Document& dArgParse, rapidjson::Do
     dReplyParse.AddMember("code", 0, dReplyParse.GetAllocator());
 }
 
-void RuntimeJsImpl::onRemove(const std::string& filename) {
+void RuntimeJsImpl::onRemove(const std::string &filename) {
 }
 
 void RuntimeJsImpl::end() {
@@ -235,7 +235,7 @@ void RuntimeJsImpl::end() {
 RuntimeJsImpl::RuntimeJsImpl() {
 }
 
-bool RuntimeJsImpl::loadScriptFile(const std::string& path) {
+bool RuntimeJsImpl::loadScriptFile(const std::string &path) {
     std::string filepath = path;
     if (filepath.empty()) {
         filepath = ConfigParser::getInstance()->getEntryFile();
