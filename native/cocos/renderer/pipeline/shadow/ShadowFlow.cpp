@@ -221,7 +221,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
     auto *      device        = gfx::Device::getInstance();
     const auto *sceneData     = _pipeline->getPipelineSceneData();
     const auto *shadowInfo    = sceneData->getShadows();
-    const auto  shadowMapSize = shadowInfo->getSize();
+    const auto &shadowMapSize = shadowInfo->getSize();
     const auto  width         = static_cast<uint>(shadowMapSize.x);
     const auto  height        = static_cast<uint>(shadowMapSize.y);
     const auto  format        = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
