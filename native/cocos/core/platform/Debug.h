@@ -26,7 +26,8 @@ THE SOFTWARE.
 #pragma once
 
 #include <string>
-#include "cocos/base/Any.h"
+#include "base/Any.h"
+#include "base/Log.h"
 #include "core/builtin/DebugInfos.h"
 
 namespace cc {
