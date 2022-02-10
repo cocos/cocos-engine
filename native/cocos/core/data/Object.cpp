@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include "core/platform/Debug.h"
+
 namespace cc {
 
 namespace {
@@ -59,7 +61,7 @@ CCObject::CCObject(std::string name /* = ""*/)
 
 bool CCObject::destroy() {
     if (static_cast<bool>(_objFlags & Flags::DESTROYED)) {
-        //cjh TODO:        warnID(5000);
+        debug::warnID(5000);
         return false;
     }
     if (static_cast<bool>(_objFlags & Flags::TO_DESTROY)) {
@@ -75,7 +77,7 @@ bool CCObject::destroy() {
 
 void CCObject::destroyImmediate() {
     if (static_cast<bool>(_objFlags & Flags::DESTROYED)) {
-        //cjh TODO:        errorID(5000);
+        debug::errorID(5000);
         return;
     }
 

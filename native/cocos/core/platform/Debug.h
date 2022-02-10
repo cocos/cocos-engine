@@ -27,11 +27,12 @@ THE SOFTWARE.
 
 #include <string>
 #include "cocos/base/Any.h"
+#include "core/builtin/DebugInfos.h"
 
 namespace cc {
 namespace debug {
 
-const std::string ERROR_MAP_URL{"https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md"};
+const std::string  ERROR_MAP_URL{"https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md"};
 
 enum class DebugMode {
 
@@ -63,7 +64,7 @@ enum class DebugMode {
      * @en Information mode, which display only messages with "error" level.
      * @zh 错误模式，仅显示“错误”级别的日志消息。
      */
-    ERROR = 4,
+    ERROR_MODE = 4, // ERROR has been defined by MACRO
 
     /**
      * @en The debug mode info for web page.
@@ -170,17 +171,50 @@ bool isDisplayStats();
 
 void setDisplayStats(bool displayStats);
 
-template <typename... Args>
-void logID(uint32_t id, Args... optionalParams);
+std::string getTypedFormatter(DebugMode mode, uint32_t id);
+
+const std::string &getPrefixTag(DebugMode mode);
+
+LogLevel getLogLevel(DebugMode mode);
+
+template <typename T>
+T unpackParams(T value) {
+    return value;
+}
+
+void printLog(DebugMode mode, const std::string &fmt, cc::any *arr, int paramsLength);
 
 template <typename... Args>
-void warnID(uint32_t id, Args... optionalParams);
+void logID(uint32_t id, Args... optionalParams) {
+    std::string       msg    = getTypedFormatter(DebugMode::VERBOSE, id);
+    int         size  = sizeof...(optionalParams);
+    cc::any     arr[] = {0, unpackParams(optionalParams)...};
+    printLog(DebugMode::VERBOSE, msg, arr, size);
+}
 
 template <typename... Args>
-void errorID(uint32_t id, Args... optionalParams);
+void warnID(uint32_t id, Args... optionalParams) {
+    std::string       msg    = getTypedFormatter(DebugMode::WARN, id);
+    int         size  = sizeof...(optionalParams);
+    cc::any     arr[] = {0, unpackParams(optionalParams)...};
+    printLog(DebugMode::WARN, msg, arr, size);
+}
 
 template <typename... Args>
-void assertID(uint32_t id, Args... optionalParams);
+void errorID(uint32_t id, Args... optionalParams) {
+    std::string msg   = getTypedFormatter(DebugMode::ERROR_MODE, id);
+    int         size  = sizeof...(optionalParams);
+    cc::any     arr[] = {0, unpackParams(optionalParams)...};
+    printLog(DebugMode::ERROR_MODE, msg, arr, size);
+}
+
+template <typename... Args>
+void assertID(uint32_t id, Args... optionalParams) {
+    std::string msg   = getTypedFormatter(DebugMode::INFO, id);
+    int         size  = sizeof...(optionalParams);
+    cc::any     arr[] = {0, unpackParams(optionalParams)...};
+    printLog(DebugMode::INFO, msg, arr, size);
+}
 
 void _throw(); // NOLINT // throw is a reserved word
 } // namespace debug

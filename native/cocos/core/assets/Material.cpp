@@ -31,6 +31,7 @@
 #include "core/assets/EffectAsset.h"
 #include "core/builtin/BuiltinResMgr.h"
 #include "core/event/EventTypesToJS.h"
+#include "core/platform/Debug.h"
 #include "math/Color.h"
 #include "renderer/pipeline/helper/Utils.h"
 #include "scene/Pass.h"
@@ -63,7 +64,7 @@ void Material::initialize(const IMaterialInfo &info) {
     //
     auto &passes = *_passes;
     if (!passes.empty()) {
-        // cjh TODO:        warnID(12005);
+        debug::warnID(12005);
         return;
     }
 

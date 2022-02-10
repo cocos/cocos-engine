@@ -60,6 +60,7 @@ jobs:
               - exclude: 'cocos/bindings/manual/jsb_conversions.*'
               - exclude: 'cocos/bindings/jswrapper/v8/debugger/**'
               - exclude: 'cocos/audio/android/audio_utils/**'
+              - exclude: 'cocos/core/builtin/DebugInfos.cpp'
             allChanges:
               - added|modified|deleted: '**'
             skipedDebug:
