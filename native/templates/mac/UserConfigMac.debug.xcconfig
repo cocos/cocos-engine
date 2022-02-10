@@ -1,0 +1,4 @@
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "/Users/minggo/sourcecode/creator/3d/editor-3d/resources/3d/cocos2d-x-lite/cocos/platform/mac/CCModuleConfigMac.debug.xcconfig"
