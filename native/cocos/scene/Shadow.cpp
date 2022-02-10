@@ -76,45 +76,10 @@ void ShadowsInfo::setDistance(float val) {
     }
 }
 
-void ShadowsInfo::setSaturation(float val) {
-    if (val > 1.0) {
-        _saturation = val / val;
-        if (_resource != nullptr) {
-            _resource->setSaturation(val / val);
-        }
-    } else {
-        _saturation = val;
-        if (_resource != nullptr) {
-            _resource->setSaturation(val);
-        }
-    }
-}
-
-void ShadowsInfo::setPcf(PCFType val) {
-    _pcf = val;
-    if (_resource != nullptr) {
-        _resource->setPcf(val);
-    }
-}
-
 void ShadowsInfo::setMaxReceived(uint32_t val) {
     _maxReceived = val;
     if (_resource != nullptr) {
         _resource->setMaxReceived(val);
-    }
-}
-
-void ShadowsInfo::setBias(float val) {
-    _bias = val;
-    if (_resource != nullptr) {
-        _resource->setBias(val);
-    }
-}
-
-void ShadowsInfo::setNormalBias(float val) {
-    _normalBias = val;
-    if (_resource != nullptr) {
-        _resource->setNormalBias(val);
     }
 }
 
@@ -123,48 +88,6 @@ void ShadowsInfo::setShadowMapSize(float value) {
     if (_resource != nullptr) {
         _resource->setShadowMapSize(value);
         _resource->setShadowMapDirty(true);
-    }
-}
-
-void ShadowsInfo::setFixedArea(bool val) {
-    _fixedArea = val;
-    if (_resource != nullptr) {
-        _resource->setFixedArea(val);
-    }
-}
-
-void ShadowsInfo::setNear(float val) {
-    _near = val;
-    if (_resource != nullptr) {
-        _resource->setNear(val);
-    }
-}
-
-void ShadowsInfo::setFar(float val) {
-    _far = CC_MIN(val, Shadows::MAX_FAR);
-    if (_resource != nullptr) {
-        _resource->setFar(val);
-    }
-}
-
-void ShadowsInfo::setInvisibleOcclusionRange(float val) {
-    _invisibleOcclusionRange = CC_MIN(val, Shadows::MAX_FAR);
-    if (_resource) {
-        _resource->setInvisibleOcclusionRange(_invisibleOcclusionRange);
-    }
-}
-
-void ShadowsInfo::setShadowDistance(float val) {
-    _shadowDistance = CC_MIN(val, Shadows::MAX_FAR);
-    if (_resource) {
-        _resource->setShadowDistance(_shadowDistance);
-    }
-}
-
-void ShadowsInfo::setOrthoSize(float val) {
-    _orthoSize = val;
-    if (_resource != nullptr) {
-        _resource->setOrthoSize(val);
     }
 }
 
@@ -185,23 +108,13 @@ void ShadowsInfo::activate(Shadows *resource) {
 const float Shadows::COEFFICIENT_OF_EXPANSION{2.0F * std::sqrt(3.0F)};
 
 void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
-    _near = shadowsInfo.getNear();
-    _far  = shadowsInfo.getFar();
-    setInvisibleOcclusionRange(shadowsInfo.getInvisibleOcclusionRange());
-    setShadowDistance(shadowsInfo.getShadowDistance());
-    _orthoSize = shadowsInfo.getOrthoSize();
-    _size      = shadowsInfo.getSize();
-    _pcf       = shadowsInfo.getPcf();
-    _normal    = shadowsInfo.getNormal();
-    _distance  = shadowsInfo.getDistance();
-    setShadowColor(shadowsInfo.getShadowColor());
-    _bias        = shadowsInfo.getBias();
-    _normalBias  = shadowsInfo.getNormalBias();
-    _maxReceived = shadowsInfo.getMaxReceived();
-    _fixedArea   = shadowsInfo.isFixedArea();
     setEnabled(shadowsInfo.isEnabled());
-    _type       = shadowsInfo.getType();
-    _saturation = shadowsInfo.getSaturation();
+    setType(shadowsInfo.getType());
+    setNormal(shadowsInfo.getNormal());
+    setDistance(shadowsInfo.getDistance());
+    setMaxReceived(shadowsInfo.getMaxReceived());
+    setSize(shadowsInfo.getSize());
+    setShadowColor(shadowsInfo.getShadowColor());
 }
 
 void Shadows::destroy() {
@@ -236,16 +149,9 @@ gfx::Shader *Shadows::getPlanarInstanceShader(const std::vector<IMacroPatch> &pa
 
 void Shadows::activate() {
     if (_enabled) {
-        if (_type == ShadowType::SHADOW_MAP) {
-            updatePipeline();
-        } else {
+        if (_type == ShadowType::PLANAR) {
             updatePlanarInfo();
         }
-    } else {
-        auto *root     = Root::getInstance();
-        auto *pipeline = root->getPipeline();
-        pipeline->setValue("CC_ENABLE_DIR_SHADOW", 0);
-        root->onGlobalPipelineStateChanged();
     }
 }
 
@@ -256,18 +162,6 @@ void Shadows::updatePlanarInfo() {
     if (!_instancingMaterial) {
         createInstanceMaterial();
     }
-
-    auto *root     = Root::getInstance();
-    auto *pipeline = root->getPipeline();
-    pipeline->setValue("CC_ENABLE_DIR_SHADOW", 0);
-    root->onGlobalPipelineStateChanged();
-}
-
-void Shadows::updatePipeline() {
-    auto *root     = Root::getInstance();
-    auto *pipeline = root->getPipeline();
-    pipeline->setValue("CC_ENABLE_DIR_SHADOW", 1);
-    root->onGlobalPipelineStateChanged();
 }
 
 void Shadows::createInstanceMaterial() {

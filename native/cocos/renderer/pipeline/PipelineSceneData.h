@@ -67,14 +67,6 @@ public:
     inline void                                                                setCastShadowObjects(RenderObjectList &&ro) { _castShadowObjects = std::forward<RenderObjectList>(ro); }
     inline const vector<const scene::Light *> &                                getValidPunctualLights() const { return _validPunctualLights; }
     inline void                                                                setValidPunctualLights(vector<const scene::Light *> &&validPunctualLights) { _validPunctualLights = std::forward<vector<const scene::Light *>>(validPunctualLights); }
-    inline float                                                               getShadowCameraFar() const { return _shadowCameraFar; }
-    inline void                                                                setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
-    inline Mat4                                                                getMatShadowView() const { return _matShadowView; }
-    inline void                                                                setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
-    inline Mat4                                                                getMatShadowProj() const { return _matShadowProj; }
-    inline void                                                                setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
-    inline Mat4                                                                getMatShadowViewProj() const { return _matShadowViewProj; }
-    inline void                                                                setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
     inline bool                                                                isHDR() const { return _isHDR; }
     inline void                                                                setHDR(bool val) { _isHDR = val; }
     inline scene::Shadows *                                                    getShadows() const { return _shadow; }
@@ -122,10 +114,6 @@ protected:
 
     RenderPipeline *_pipeline{nullptr};
     gfx::Device *   _device{nullptr};
-    float           _shadowCameraFar{0.0F};
-    Mat4            _matShadowView;
-    Mat4            _matShadowProj;
-    Mat4            _matShadowViewProj;
 
     scene::Fog *    _fog{nullptr};
     scene::Ambient *_ambient{nullptr};
