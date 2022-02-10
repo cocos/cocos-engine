@@ -685,7 +685,7 @@ void CCVKDevice::initFormatFeature() {
     VkFormatProperties   properties    = {};
     VkFormat             format        = {};
     VkFormatFeatureFlags formatFeature = {};
-    for (int i = toNumber(Format::R8); i < formatLen; ++i) {
+    for (uint32_t i = toNumber(Format::R8); i < formatLen; ++i) {
         if (static_cast<Format>(i) == Format::ETC_RGB8) continue;
         format = mapVkFormat(static_cast<Format>(i), _gpuDevice);
         vkGetPhysicalDeviceFormatProperties(_gpuContext->physicalDevice, format, &properties);
