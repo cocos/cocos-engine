@@ -42,7 +42,7 @@ class Asset : public CCObject, public EventTarget {
 public:
     using Super = CCObject;
 
-    Asset() = default;
+    Asset();
     ~Asset() override;
 
     /**

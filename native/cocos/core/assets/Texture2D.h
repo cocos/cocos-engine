@@ -29,7 +29,6 @@
 #include "cocos/base/Optional.h"
 #include "core/assets/Asset.h"
 #include "core/assets/AssetEnum.h"
-#include "core/assets/ImageAsset.h"
 #include "core/assets/SimpleTexture.h"
 
 namespace cc {
@@ -79,8 +78,8 @@ class Texture2D final : public SimpleTexture {
 public:
     using Super = SimpleTexture;
 
-    explicit Texture2D()  = default;
-    ~Texture2D() override = default;
+    Texture2D();
+    ~Texture2D() override;
 
     /**
      * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.

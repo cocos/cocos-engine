@@ -51,6 +51,10 @@ bool canGenerateMipmap(uint32_t w, uint32_t h) {
 
 } // namespace
 
+SimpleTexture::SimpleTexture()= default;
+SimpleTexture::~SimpleTexture()= default;
+
+
 bool SimpleTexture::destroy() {
     tryDestroyTexture();
     return Super::destroy();

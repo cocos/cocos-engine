@@ -39,7 +39,6 @@
 #include "math/Vec3.h"
 #include "math/Vec4.h"
 
-#include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/gfx-base/GFXDef.h"
 
 namespace cc {
