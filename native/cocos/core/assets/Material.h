@@ -101,7 +101,7 @@ public:
     }
 
     Material();
-    ~Material() override = default;
+    ~Material() override;
 
     /**
      * @en Initialize this material with the given information.

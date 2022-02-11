@@ -25,7 +25,6 @@
 
 #pragma once
 #include "../RenderStage.h"
-#include "scene/Light.h"
 
 namespace cc {
 namespace pipeline {
@@ -34,8 +33,8 @@ class ShadowMapBatchedQueue;
 
 class CC_DLL ShadowStage : public RenderStage {
 public:
-    ShadowStage()           = default;
-    ~ShadowStage() override = default;
+    ShadowStage();
+    ~ShadowStage() override;
 
     static const RenderStageInfo &getInitializeInfo();
 

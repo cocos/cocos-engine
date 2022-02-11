@@ -29,6 +29,8 @@
 namespace cc {
 namespace pipeline {
 
+RenderFlow::RenderFlow() = default;
+
 RenderFlow::~RenderFlow() = default;
 
 bool RenderFlow::initialize(const RenderFlowInfo &info) {

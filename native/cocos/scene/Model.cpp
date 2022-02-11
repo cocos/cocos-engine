@@ -114,6 +114,8 @@ Model::Model() {
     _device = Root::getInstance()->getDevice();
 }
 
+Model::~Model() = default;
+
 void Model::initialize() {
     if (_inited) return;
     _receiveShadow = true;

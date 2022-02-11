@@ -29,7 +29,6 @@
 #include "base/Macros.h"
 #include "base/RefCounted.h"
 #include "gfx-base/GFXDef-common.h"
-#include "gfx-base/GFXDevice.h"
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"

@@ -1,10 +1,7 @@
 #pragma once
 
 #include "base/Ptr.h"
-#include "core/assets/Material.h"
-#include "renderer/gfx-base/GFXShader.h"
 #include "renderer/pipeline/PipelineSceneData.h"
-#include "scene/Pass.h"
 
 #define BLOOM_PREFILTERPASS_INDEX  0
 #define BLOOM_DOWNSAMPLEPASS_INDEX 1
@@ -21,8 +18,8 @@ enum class AntiAliasing {
 
 class DeferredPipelineSceneData : public PipelineSceneData {
 public:
-    DeferredPipelineSceneData()           = default;
-    ~DeferredPipelineSceneData() override = default;
+    DeferredPipelineSceneData();
+    ~DeferredPipelineSceneData() override;
 
     void activate(gfx::Device *device, RenderPipeline *pipeline) override;
     void onGlobalPipelineStateChanged() override;

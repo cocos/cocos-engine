@@ -27,11 +27,13 @@
 
 #include <array>
 #include "Define.h"
-#include "scene/Model.h"
-#include "scene/Pass.h"
-#include "scene/SubModel.h"
 
 namespace cc {
+namespace scene {
+class Pass;
+class Model;
+class SubModel;
+} // namespace scene
 namespace pipeline {
 
 struct CC_DLL BatchedItem {

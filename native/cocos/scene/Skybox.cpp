@@ -36,6 +36,7 @@
 #include "renderer/core/MaterialInstance.h"
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDevice.h"
+#include "renderer/pipeline/PipelineSceneData.h"
 #include "scene/Ambient.h"
 #include "scene/Model.h"
 
@@ -47,7 +48,7 @@ namespace cc {
 namespace scene {
 
 SkyboxInfo::SkyboxInfo(/* args */) = default;
-SkyboxInfo::~SkyboxInfo() = default;
+SkyboxInfo::~SkyboxInfo()          = default;
 
 void SkyboxInfo::setEnabled(bool val) {
     _enabled = val;

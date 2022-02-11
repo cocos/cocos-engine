@@ -28,15 +28,17 @@
 #include "core/geometry/Frustum.h"
 #include "core/geometry/Sphere.h"
 #include "pipeline/Define.h"
-#include "scene/Camera.h"
 #include "scene/Define.h"
-#include "scene/Light.h"
-#include "scene/Shadow.h"
 
 namespace cc {
 class Mat4;
 class Vec4;
 class Vec3;
+namespace scene {
+class Camera;
+class Shadows;
+class Light;
+} // namespace scene
 namespace pipeline {
 
 struct RenderObject;
