@@ -10,11 +10,11 @@ import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
 import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
-import { Skeleton, SkeletonDrawData, SpineMaterialType } from '../skeleton';
+import { Skeleton, SpineMaterialType } from '../skeleton';
 import { Color, director, Mat4, Node, Texture2D } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
-import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor.js';
+import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
 
 const FLAG_BATCH = 0x10;
@@ -56,6 +56,8 @@ let _vertexFloatOffset = 0;
 let _indexCount = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
+let _actualVCount = 0;
+let _actualICount = 0;
 let _tempr: number;
 let _tempg: number;
 let _tempb: number;
@@ -81,9 +83,10 @@ let _dg: number;
 let _db: number;
 let _da: number;
 let _comp: Skeleton | undefined;
-let _drawData: SkeletonDrawData | undefined;
 let _node: Node | undefined;
 let _renderData: RenderData | null;
+let _ibuf: Uint16Array;
+let _vbuf: Float32Array;
 let _needColor: boolean;
 let _vertexEffect: spine.VertexEffect | null = null;
 let _currentMaterial: MaterialInstance | null = null;
@@ -162,13 +165,14 @@ let _accessor: StaticVBAccessor = null!;
  */
 export const simple: IAssembler = {
     accessor: _accessor,
-    vCount: 16384,
+    vCount: 65535,
     ensureAccessor () {
         if (!_accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
             const attributes = vfmtPosUvTwoColor;
             this.accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount);
+            // Register to batcher so that batcher can upload buffers after batching process
             batcher.registerBufferAccessor(Number.parseInt('SPINE', 36), _accessor);
         }
         return this.accessor as StaticVBAccessor;
@@ -179,7 +183,6 @@ export const simple: IAssembler = {
         const skins = comp._skeleton!.data.skins;
         let vCount = 0;
         let iCount = 0;
-        const hasClipper = false;
         for (let i = 0; i < skins.length; ++i) {
             const attachments = skins[i].attachments;
             for (let j = 0; j < attachments.length; j++) {
@@ -278,6 +281,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     } else {
         if (_vertexEffect) _vertexEffect.begin(comp._skeleton);
         realTimeTraverse(batcher, worldMat);
+        // Ensure mesh buffer update
         _accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
         if (_vertexEffect) _vertexEffect.end();
     }
@@ -287,9 +291,40 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
 
     // Clear temp var.
     _node = undefined;
-    _drawData = undefined;
     _comp = undefined;
     _vertexEffect = null;
+}
+
+function updateChunkForClip (clippedVertices: number[], clippedTriangles: number[]) {
+    const oldVertexCount = _vertexCount;
+    const oldIndexCount = _indexCount;
+    const rd = _renderData!;
+    _indexCount = clippedTriangles.length;
+    _vertexCount = clippedVertices.length / _perClipVertexSize;
+    _vertexFloatCount = _vertexCount * _perVertexSize;
+
+    // Augment render data size, clipper could create more triangles than expected
+    _actualVCount += _vertexCount - oldVertexCount;
+    _actualICount += _indexCount - oldIndexCount;
+    const oldIndices = _ibuf;
+    const oldChunkOffset = rd.chunk.vertexOffset;
+    let updateIBuf = false;
+    if (_actualVCount > rd.vertexCount) {
+        rd.resizeAndCopy(_actualVCount, _actualICount > rd.indexCount ? _actualICount : rd.indexCount);
+        _vbuf = rd.chunk.vb;
+        updateIBuf = true;
+    }
+    if (_actualICount > _ibuf.length) {
+        _ibuf = rd.indices = new Uint16Array(_actualICount);
+        updateIBuf = true;
+    }
+    // Vertex buffer chunk have been moved, so need to correct all indices
+    if (updateIBuf) {
+        const correction = rd.chunk.vertexOffset - oldChunkOffset;
+        for (let i = 0; i < _indexOffset; ++i) {
+            _ibuf[i] = oldIndices[i] + correction;
+        }
+    }
 }
 
 function fillVertices (skeletonColor: spine.Color,
@@ -298,8 +333,6 @@ function fillVertices (skeletonColor: spine.Color,
     clipper: spine.SkeletonClipping,
     slot: spine.Slot) {
     const rd = _renderData!;
-    const vbuf = rd.chunk.vb;
-    const ibuf = rd.indices!;
 
     _finalColor.a = slotColor.a * attachmentColor.a * skeletonColor.a * _nodeA * 255;
     _multiplier =  _premultipliedAlpha ? _finalColor.a : 255;
@@ -323,20 +356,20 @@ function fillVertices (skeletonColor: spine.Color,
     if (!clipper.isClipping()) {
         if (_vertexEffect) {
             for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
-                _tempPos.x = vbuf[v];
-                _tempPos.y = vbuf[v + 1];
-                _tempUv.x = vbuf[v + 3];
-                _tempUv.y = vbuf[v + 4];
+                _tempPos.x = _vbuf[v];
+                _tempPos.y = _vbuf[v + 1];
+                _tempUv.x = _vbuf[v + 3];
+                _tempUv.y = _vbuf[v + 4];
                 _vertexEffect.transform(_tempPos, _tempUv, _finalColor, _darkColor);
 
-                vbuf[v] = _tempPos.x;        // x
-                vbuf[v + 1] = _tempPos.y;        // y
-                vbuf[v + 3] = _tempUv.x;         // u
-                vbuf[v + 4] = _tempUv.y;         // v
+                _vbuf[v] = _tempPos.x;        // x
+                _vbuf[v + 1] = _tempPos.y;        // y
+                _vbuf[v + 3] = _tempUv.x;         // u
+                _vbuf[v + 4] = _tempUv.y;         // v
 
-                vbuf.set(_spineColorToFloat32Array4(_finalColor), v + 5);
+                _vbuf.set(_spineColorToFloat32Array4(_finalColor), v + 5);
                 if (_useTint) {
-                    vbuf.set(_spineColorToFloat32Array4(_darkColor), v + 9); // dark color
+                    _vbuf.set(_spineColorToFloat32Array4(_darkColor), v + 9); // dark color
                 }
             }
         } else {
@@ -344,41 +377,29 @@ function fillVertices (skeletonColor: spine.Color,
             _darkColor32.set(_spineColorToFloat32Array4(_darkColor));
 
             for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
-                vbuf.set(_finalColor32, v + 5);          // light color
+                _vbuf.set(_finalColor32, v + 5);          // light color
                 if (_useTint) {
-                    vbuf.set(_darkColor32, v + 9);      // dark color
+                    _vbuf.set(_darkColor32, v + 9);      // dark color
                 }
             }
         }
     } else {
         _perClipVertexSize = _useTint ? 12 : 8; // const
-        const vertices = vbuf.subarray(_vertexFloatOffset);
-        const uvs = vbuf.subarray(_vertexFloatOffset + 3);
+        const vertices = _vbuf.subarray(_vertexFloatOffset);
+        const uvs = _vbuf.subarray(_vertexFloatOffset + 3);
 
         clipper.clipTriangles(vertices, _vertexFloatCount,
-            ibuf.subarray(_indexOffset), _indexCount, uvs, _finalColor, _darkColor, _useTint,
+            _ibuf.subarray(_indexOffset), _indexCount, uvs, _finalColor, _darkColor, _useTint,
             _perVertexSize);
         const clippedVertices = clipper.clippedVertices;
         const clippedTriangles = clipper.clippedTriangles;
 
-        // Modify vertex and index count
-        const oldVertexCount = _vertexCount;
-        const oldIndexCount = _indexCount;
-        _indexCount = clippedTriangles.length;
-        _vertexCount = clippedVertices.length / _perClipVertexSize;
-        _vertexFloatCount = _vertexCount * _perVertexSize;
-
-        // Augment render data size, clipper could create more triangles than expected
-        // if (_vertexCount > oldVertexCount) {
-        //     const vIncrement = _vertexCount - oldVertexCount;
-        //     const iIncrement = _indexCount > oldIndexCount ? _indexCount - oldIndexCount : 0;
-        //     rd.resizeAndCopy(rd.vertexCount + vIncrement, rd.indexCount + iIncrement);
-        //     vbuf = rd.chunk.vb;
-        // }
+        // Update vertex and index count, reallocate vertex buffer chunk if needed
+        updateChunkForClip(clippedVertices, clippedTriangles);
 
         // fill indices
         if (clippedTriangles.length > 0) {
-            ibuf.set(clippedTriangles, _indexOffset);
+            _ibuf.set(clippedTriangles, _indexOffset);
         }
 
         // fill vertices contain x y u v light color dark color
@@ -396,33 +417,33 @@ function fillVertices (skeletonColor: spine.Color,
                 }
                 _vertexEffect.transform(_tempPos, _tempUv, _finalColor, _darkColor);
 
-                vbuf[offset] = _tempPos.x;             // x
-                vbuf[offset + 1] = _tempPos.y;         // y
-                vbuf[offset + 3] = _tempUv.x;          // u
-                vbuf[offset + 4] = _tempUv.y;          // v
-                vbuf.set(_spineColorToFloat32Array4(_finalColor), offset + 5);
+                _vbuf[offset] = _tempPos.x;             // x
+                _vbuf[offset + 1] = _tempPos.y;         // y
+                _vbuf[offset + 3] = _tempUv.x;          // u
+                _vbuf[offset + 4] = _tempUv.y;          // v
+                _vbuf.set(_spineColorToFloat32Array4(_finalColor), offset + 5);
                 if (_useTint) {
-                    vbuf.set(_spineColorToFloat32Array4(_darkColor), offset + 9);
+                    _vbuf.set(_spineColorToFloat32Array4(_darkColor), offset + 9);
                 }
             }
         } else {
             // x y r g b a u v (rr gg bb aa)
             for (let v = 0, n = clippedVertices.length, offset = _vertexFloatOffset; v < n; v += _perClipVertexSize, offset += _perVertexSize) {
-                vbuf[offset] = clippedVertices[v];         // x
-                vbuf[offset + 1] = clippedVertices[v + 1];     // y
-                vbuf[offset + 3] = clippedVertices[v + 6];     // u
-                vbuf[offset + 4] = clippedVertices[v + 7];     // v
+                _vbuf[offset] = clippedVertices[v];         // x
+                _vbuf[offset + 1] = clippedVertices[v + 1];     // y
+                _vbuf[offset + 3] = clippedVertices[v + 6];     // u
+                _vbuf[offset + 4] = clippedVertices[v + 7];     // v
 
-                vbuf[offset + 5] = clippedVertices[v + 2] / 255.0;
-                vbuf[offset + 6] = clippedVertices[v + 3] / 255.0;
-                vbuf[offset + 7] = clippedVertices[v + 4] / 255.0;
-                vbuf[offset + 8] = clippedVertices[v + 5] / 255.0;
+                _vbuf[offset + 5] = clippedVertices[v + 2] / 255.0;
+                _vbuf[offset + 6] = clippedVertices[v + 3] / 255.0;
+                _vbuf[offset + 7] = clippedVertices[v + 4] / 255.0;
+                _vbuf[offset + 8] = clippedVertices[v + 5] / 255.0;
 
                 if (_useTint) {
-                    vbuf[offset + 9] = clippedVertices[v + 8] / 255.0;
-                    vbuf[offset + 10] = clippedVertices[v + 9] / 255.0;
-                    vbuf[offset + 11] = clippedVertices[v + 10] / 255.0;
-                    vbuf[offset + 12] = clippedVertices[v + 11] / 255.0;
+                    _vbuf[offset + 9] = clippedVertices[v + 8] / 255.0;
+                    _vbuf[offset + 10] = clippedVertices[v + 9] / 255.0;
+                    _vbuf[offset + 11] = clippedVertices[v + 10] / 255.0;
+                    _vbuf[offset + 12] = clippedVertices[v + 11] / 255.0;
                 }
             }
         }
@@ -431,9 +452,10 @@ function fillVertices (skeletonColor: spine.Color,
 
 function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
     const rd = _renderData!;
-    const chunk = rd.chunk;
-    const vbuf = chunk.vb;
-    const ibuf = rd.indices!;
+    _vbuf = rd.chunk.vb;
+    _ibuf = rd.indices!;
+    _actualVCount = _comp!.maxVertexCount;
+    _actualICount = _comp!.maxIndexCount;
 
     const locSkeleton = _comp!._skeleton!;
     const skeletonColor = locSkeleton.color;
@@ -530,7 +552,7 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
             const cumulatedCount = _indexOffset - prevDrawIndexOffset;
             // Submit draw data
             if (cumulatedCount > 0) {
-                _drawData = _comp!._requestDrawData(_currentMaterial, _currentTexture!, prevDrawIndexOffset, cumulatedCount);
+                _comp!._requestDrawData(_currentMaterial, _currentTexture!, prevDrawIndexOffset, cumulatedCount);
                 prevDrawIndexOffset = _indexOffset;
             }
             _currentTexture = texture;
@@ -545,14 +567,14 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
             _indexCount = 6;
 
             // compute vertex and fill x y
-            (attachment as spine.RegionAttachment).computeWorldVertices(slot.bone, vbuf, _vertexFloatOffset, _perVertexSize);
+            (attachment as spine.RegionAttachment).computeWorldVertices(slot.bone, _vbuf, _vertexFloatOffset, _perVertexSize);
 
             // draw debug slots if enabled graphics
             if (graphics && _debugSlots) {
                 graphics.strokeColor = _slotColor;
-                graphics.moveTo(vbuf[_vertexFloatOffset], vbuf[_vertexFloatOffset + 1]);
+                graphics.moveTo(_vbuf[_vertexFloatOffset], _vbuf[_vertexFloatOffset + 1]);
                 for (let ii = _vertexFloatOffset + _perVertexSize, nn = _vertexFloatOffset + _vertexFloatCount; ii < nn; ii += _perVertexSize) {
-                    graphics.lineTo(vbuf[ii], vbuf[ii + 1]);
+                    graphics.lineTo(_vbuf[ii], _vbuf[ii + 1]);
                 }
                 graphics.close();
                 graphics.stroke();
@@ -567,7 +589,7 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
             _indexCount = triangles.length;
 
             // compute vertex and fill x y
-            mattachment.computeWorldVertices(slot, 0, mattachment.worldVerticesLength, vbuf, _vertexFloatOffset, _perVertexSize);
+            mattachment.computeWorldVertices(slot, 0, mattachment.worldVerticesLength, _vbuf, _vertexFloatOffset, _perVertexSize);
 
             // draw debug mesh if enabled graphics
             if (graphics && _debugMesh) {
@@ -578,9 +600,9 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
                     const v2 = triangles[ii + 1] * _perVertexSize + _vertexFloatOffset;
                     const v3 = triangles[ii + 2] * _perVertexSize + _vertexFloatOffset;
 
-                    graphics.moveTo(vbuf[v1], vbuf[v1 + 1]);
-                    graphics.lineTo(vbuf[v2], vbuf[v2 + 1]);
-                    graphics.lineTo(vbuf[v3], vbuf[v3 + 1]);
+                    graphics.moveTo(_vbuf[v1], _vbuf[v1 + 1]);
+                    graphics.lineTo(_vbuf[v2], _vbuf[v2 + 1]);
+                    graphics.lineTo(_vbuf[v3], _vbuf[v3 + 1]);
                     graphics.close();
                     graphics.stroke();
                 }
@@ -595,19 +617,22 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
         const meshAttachment = attachment as spine.MeshAttachment;
 
         // fill indices
-        ibuf.set(triangles!, _indexOffset);
+        _ibuf = rd.indices!;
+        _ibuf.set(triangles!, _indexOffset);
         // fill u v
         uvs = meshAttachment.uvs;
         for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount, u = 0; v < n; v += _perVertexSize, u += 2) {
-            vbuf[v + 3] = uvs[u];           // u
-            vbuf[v + 4] = uvs[u + 1];       // v
+            _vbuf[v + 3] = uvs[u];           // u
+            _vbuf[v + 4] = uvs[u + 1];       // v
         }
 
+        // ATTENTION: This process could change _ibuf and _vbuf reference due to clipping
         fillVertices(skeletonColor, meshAttachment.color, slot.color, clipper, slot);
 
         if (_indexCount > 0) {
+            const chunkOffset = rd.chunk.vertexOffset;
             for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
-                ibuf[ii] += _vertexOffset;
+                _ibuf[ii] += _vertexOffset + chunkOffset;
             }
 
             if (worldMat) {
@@ -618,10 +643,10 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
                 _m05 = worldMat.m05;
                 _m13 = worldMat.m13;
                 for (let ii = _vertexFloatOffset, nn = _vertexFloatOffset + _vertexFloatCount; ii < nn; ii += _perVertexSize) {
-                    _x = vbuf[ii];
-                    _y = vbuf[ii + 1];
-                    vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
-                    vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
+                    _x = _vbuf[ii];
+                    _y = _vbuf[ii + 1];
+                    _vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
+                    _vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
                 }
             }
         }
@@ -636,7 +661,7 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
 
     cumulatedCount = _indexOffset - prevDrawIndexOffset;
     if (_currentTexture && cumulatedCount > 0) {
-        _drawData = _comp!._requestDrawData(_currentMaterial!, _currentTexture, prevDrawIndexOffset, cumulatedCount);
+        _comp!._requestDrawData(_currentMaterial!, _currentTexture, prevDrawIndexOffset, cumulatedCount);
     }
 
     clipper.clipEnd();

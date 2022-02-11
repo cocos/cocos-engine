@@ -157,7 +157,6 @@ export class Skeleton extends Renderable2D {
      * @type {Boolean}
      * @default false
      */
-    private _paused = false;
     get paused () {
         return this._paused;
     }
@@ -217,6 +216,9 @@ export class Skeleton extends Renderable2D {
         }
     }
 
+    /**
+     * @internal
+     */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
     @tooltip('i18n:COMPONENT.skeleton.default_skin')
@@ -264,7 +266,9 @@ export class Skeleton extends Renderable2D {
     }
 
     // value of 0 represents no animation
-
+    /**
+     * @internal
+     */
     @displayName('Animation')
     @type(DefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')
@@ -325,22 +329,12 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * @en TODO
+     * @en Whether play animations in loop mode
      * @zh 是否循环播放当前骨骼动画。
      */
     @serializable
     @tooltip('i18n:COMPONENT.skeleton.loop')
     public loop = true;
-
-    /**
-     * @en Indicates whether to enable premultiplied alpha.
-     * You should disable this option when image's transparent area appears to have opaque pixels,
-     * or enable this option when image's half transparent area appears to be darken.
-     * @zh 是否启用贴图预乘。
-     * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
-     */
-    @serializable
-    private _premultipliedAlpha = true;
 
     @editable
     @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
@@ -356,8 +350,6 @@ export class Skeleton extends Renderable2D {
      * @en The time scale of this skeleton.
      * @zh 当前骨骼中所有动画的时间缩放率。
      */
-    @serializable
-    private _timeScale = 1;
     @tooltip('i18n:COMPONENT.skeleton.time_scale')
     @editable
     get timeScale () { return this._timeScale; }
@@ -450,7 +442,7 @@ export class Skeleton extends Renderable2D {
 
     get socketNodes () { return this._socketNodes; }
 
-    /**
+    /*
      * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
      * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
      */
@@ -468,24 +460,72 @@ export class Skeleton extends Renderable2D {
 
     public enableBatch = false;
     // Frame cache
+    /**
+     * @internal
+     */
     public _frameCache: AnimationCache | null = null;
     // Cur frame
+    /**
+     * @internal
+     */
     public _curFrame: AnimationFrame | null = null;
 
-    // protected _materialCache = {};
+    /**
+     * @internal
+     */
     public _effectDelegate: VertexEffectDelegate | null | undefined = null;
+    /**
+     * @internal
+     */
     public _skeleton: spine.Skeleton | null;
+    /**
+     * @internal
+     */
     public _clipper?: spine.SkeletonClipping;
+    /**
+     * @internal
+     */
     public _debugRenderer: Graphics | null;
+    /**
+     * @internal
+     */
     public _startSlotIndex;
+    /**
+     * @internal
+     */
     public _endSlotIndex;
+    /**
+     * @internal
+     */
     public _startEntry;
+    /**
+     * @internal
+     */
     public _endEntry;
+    /**
+     * @internal
+     */
     public attachUtil: AttachUtil;
+    /**
+     * @internal
+     */
+    public maxVertexCount = 0;
+    /**
+     * @internal
+     */
+    public maxIndexCount = 0;
 
     protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
     protected _enumSkins: any = Enum({});
     protected _enumAnimations: any = Enum({});
+
+    // Play times
+    protected _playTimes = 0;
+    // Time scale
+    @serializable
+    protected _timeScale = 1;
+    // Paused or playing state
+    protected _paused = false;
 
     // Below properties will effect when cache mode is SHARED_CACHE or PRIVATE_CACHE.
     // accumulate time
@@ -494,15 +534,12 @@ export class Skeleton extends Renderable2D {
     protected _playCount = 0;
     // Skeleton cache
     protected _skeletonCache: SkeletonCache | null = null;
-    // Aimation name
-
+    // Animation name
     protected _animationName = '';
     // Animation queue
     protected _animationQueue: AnimationItem[] = [];
     // Head animation info of
     protected _headAniInfo: AnimationItem | null = null;
-    // Play times
-    protected _playTimes = 0;
     // Is animation complete.
     protected _isAniComplete = true;
 
@@ -522,6 +559,16 @@ export class Skeleton extends Renderable2D {
 
     @serializable
     protected _skeletonData: SkeletonData | null = null;
+
+    /**
+     * @en Indicates whether to enable premultiplied alpha.
+     * You should disable this option when image's transparent area appears to have opaque pixels,
+     * or enable this option when image's half transparent area appears to be darken.
+     * @zh 是否启用贴图预乘。
+     * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
+     */
+    @serializable
+    protected _premultipliedAlpha = true;
 
     // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
     /**
@@ -1615,8 +1662,10 @@ export class Skeleton extends Renderable2D {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (this._skeleton && this._assembler && this._assembler.createData) {
+        if (this._skeleton && this._assembler) {
             this._renderData = this._assembler.createData(this);
+            this.maxVertexCount = this._renderData!.vertexCount;
+            this.maxIndexCount = this._renderData!.indexCount;
             this.markForUpdateRenderData();
             this._updateColor();
         }
