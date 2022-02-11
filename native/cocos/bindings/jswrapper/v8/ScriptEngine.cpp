@@ -402,7 +402,7 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
 void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateData) {
     auto *p = static_cast<internal::PrivateData *>(privateData->getRaw());
 
-    Object::nativeObjectFinalizeHook(p->data);
+    Object::nativeObjectFinalizeHook(p->seObj);
 
     assert(p->seObj->getRefCount() == 1);
 

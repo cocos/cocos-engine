@@ -44,27 +44,13 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ObjectWrap.h"
+#include "Object.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
 namespace se {
 
-ObjectWrap::ObjectWrap() {
-    _refs          = 0;
-    _privateObject = nullptr;
-    _finalizeCb    = nullptr;
-}
-
-bool ObjectWrap::init(v8::Local<v8::Object> handle) {
-    assert(persistent().IsEmpty());
-    persistent().Reset(v8::Isolate::GetCurrent(), handle);
-    makeWeak();
-    return true;
-}
-
-void ObjectWrap::setFinalizeCallback(V8FinalizeFunc finalizeCb) {
-    _finalizeCb = finalizeCb;
-}
+ObjectWrap::ObjectWrap() = default;
 
 ObjectWrap::~ObjectWrap() {
     if (persistent().IsEmpty()) {
@@ -73,6 +59,21 @@ ObjectWrap::~ObjectWrap() {
     //cjh            assert(persistent().IsNearDeath());
     persistent().ClearWeak();
     persistent().Reset();
+}
+
+bool ObjectWrap::init(v8::Local<v8::Object> handle, Object *parent, bool registerWeak) {
+    assert(persistent().IsEmpty());
+    _parent = parent;
+    _registerWeak = registerWeak;
+    persistent().Reset(v8::Isolate::GetCurrent(), handle);
+    if (_registerWeak) {
+        makeWeak();
+    }
+    return true;
+}
+
+void ObjectWrap::setFinalizeCallback(FinalizeFunc finalizeCb) {
+    _finalizeCb = finalizeCb;
 }
 
 /*static*/
@@ -85,11 +86,6 @@ void *ObjectWrap::unwrap(v8::Local<v8::Object> handle, uint32_t fieldIndex) {
 void ObjectWrap::wrap(void *nativeObj, uint32_t fieldIndex) {
     assert(handle()->InternalFieldCount() > 1);
     assert(fieldIndex >= 0 && fieldIndex < 2);
-
-    if (fieldIndex == 0) {
-        delete _privateObject;
-        _privateObject = reinterpret_cast<PrivateObjectBase *>(nativeObj);
-    }
     handle()->SetAlignedPointerInInternalField(static_cast<int>(fieldIndex), nativeObj);
 }
 
@@ -118,7 +114,7 @@ void ObjectWrap::makeWeak() {
     // the reason is that kFinalizer will trigger weak callback when some assets are
     // still being used, jsbinding code will get a dead se::Object pointer that was
     // freed by weak callback. According V8 documentation, kParameter is a better option.
-    persistent().SetWeak(this, weakCallback, v8::WeakCallbackType::kParameter);
+    persistent().SetWeak(_parent, weakCallback, v8::WeakCallbackType::kParameter);
     //        persistent().MarkIndependent();
 }
 
@@ -132,19 +128,20 @@ void ObjectWrap::unref() {
     assert(!persistent().IsEmpty());
     assert(!persistent().IsWeak());
     assert(_refs > 0);
-    if (--_refs == 0) {
+    if (--_refs == 0 && _registerWeak) {
         makeWeak();
     }
 }
 
 /*static*/
-void ObjectWrap::weakCallback(const v8::WeakCallbackInfo<ObjectWrap> &data) {
-    ObjectWrap *wrap = data.GetParameter();
-    //        SE_LOGD("weakCallback: %p, nativeObj = %p, finalize: %p\n", wrap, wrap->_nativeObj, wrap->_finalizeCb);
+void ObjectWrap::weakCallback(const v8::WeakCallbackInfo<Object> &data) {
+    Object *seObj = data.GetParameter();
+    ObjectWrap *wrap  = &seObj->_getWrap();
+
     assert(wrap->_refs == 0);
     wrap->_handle.Reset();
     if (wrap->_finalizeCb != nullptr) {
-        wrap->_finalizeCb(wrap->_privateObject);
+        wrap->_finalizeCb(seObj);
     } else {
         assert(false);
     }

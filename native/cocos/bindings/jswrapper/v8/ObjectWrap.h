@@ -60,8 +60,9 @@ public:
     ObjectWrap();
     ~ObjectWrap();
 
-    bool init(v8::Local<v8::Object> handle);
-    void setFinalizeCallback(V8FinalizeFunc finalizeCb);
+    bool init(v8::Local<v8::Object> handle, Object *parent, bool registerWeak);
+    using FinalizeFunc = void (*)(Object *seObj);
+    void setFinalizeCallback(FinalizeFunc finalizeCb);
 
     v8::Local<v8::Object>       handle();
     v8::Local<v8::Object>       handle(v8::Isolate *isolate);
@@ -87,13 +88,16 @@ public:
     void unref();
 
 private:
-    static void weakCallback(const v8::WeakCallbackInfo<ObjectWrap> &data);
-    void        makeWeak();
+    static void weakCallback(const v8::WeakCallbackInfo<Object> &data);
 
-    int                        _refs; // ro
+    void makeWeak();
+
+    int                        _refs{0}; // ro
     v8::Persistent<v8::Object> _handle;
-    PrivateObjectBase *        _privateObject;
-    V8FinalizeFunc             _finalizeCb;
+    FinalizeFunc               _finalizeCb{nullptr};
+    Object *                   _parent{nullptr};
+
+    bool _registerWeak{false};
 };
 
 } // namespace se

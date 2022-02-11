@@ -50,12 +50,7 @@ uint32_t nativeObjectId = 0;
     #endif
 } // namespace
 
-Object::Object()
-: _cls(nullptr),
-  _rootCount(0),
-  _privateObject(nullptr),
-  _finalizeCb(nullptr),
-  _internalData(nullptr) {
+Object::Object() {
     #if JSB_TRACK_OBJECT_CREATION
     _objectCreationStackFrame = se::ScriptEngine::getInstance()->getCurrentStackTrace();
     #endif
@@ -73,27 +68,28 @@ Object::~Object() {
     _privateObject = nullptr;
 }
 
-void Object::nativeObjectFinalizeHook(PrivateObjectBase *privateObj) {
-    if (privateObj == nullptr) {
+/* static */
+void Object::nativeObjectFinalizeHook(Object *seObj) {
+    if (seObj == nullptr) {
         return;
     }
-    void *nativeObj = privateObj->getRaw();
-    auto  iter      = NativePtrToObjectMap::find(nativeObj);
-    if (iter != NativePtrToObjectMap::end()) {
-        Object *obj = iter->second;
-        if (obj->_finalizeCb != nullptr) {
-            obj->_finalizeCb(privateObj);
-        } else {
-            assert(obj->_getClass() != nullptr);
-            if (obj->_getClass()->_finalizeFunc != nullptr) {
-                obj->_getClass()->_finalizeFunc(privateObj);
-            }
+
+    if (seObj->_clearMappingInFinalizer && seObj->_privateObject != nullptr) {
+        void *nativeObj = seObj->_privateObject->getRaw();
+        auto  iter      = NativePtrToObjectMap::find(nativeObj);
+        if (iter != NativePtrToObjectMap::end()) {
+            NativePtrToObjectMap::erase(iter);
         }
-        obj->decRef();
-        NativePtrToObjectMap::erase(iter);
-    } else {
-        //            assert(false);
     }
+
+    if (seObj->_finalizeCb != nullptr) {
+        seObj->_finalizeCb(seObj->_privateObject);
+    } else {
+        if (seObj->_getClass() != nullptr && seObj->_getClass()->_finalizeFunc != nullptr) {
+            seObj->_getClass()->_finalizeFunc(seObj->_privateObject);
+        }
+    }
+    seObj->decRef();
 }
 
 /* static */
@@ -337,7 +333,7 @@ Object *Object::createJSONObject(const std::string &jsonStr) {
 bool Object::init(Class *cls, v8::Local<v8::Object> obj) {
     _cls = cls;
 
-    _obj.init(obj);
+    _obj.init(obj, this, _cls != nullptr);
     _obj.setFinalizeCallback(nativeObjectFinalizeHook);
 
     if (__objectMap) {

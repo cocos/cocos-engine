@@ -208,7 +208,9 @@ void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, PrivateObjectBase *data,
         privateData->data    = data;
         privateData->seObj   = jsPrivateobj;
 
-        jsPrivateobj->_getWrap().setFinalizeCallback(__jsb_CCPrivateData_class->_getFinalizeFunction());
+        jsPrivateobj->_getWrap().setFinalizeCallback([](Object *seObj) {
+            __jsb_CCPrivateData_class->_getFinalizeFunction()(seObj->getPrivateObject());
+        });
         jsPrivateobj->_getWrap().wrap(se::make_shared_private_object(privateData), 0);
         jsPrivateobj->_getWrap().wrap(thizObj, 1);
 
