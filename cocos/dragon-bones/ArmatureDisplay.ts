@@ -462,6 +462,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     protected _displayProxy: CCArmatureDisplay | null = null;
 
+    protected _meshRenderDataArrayIdx = 0;
     protected _meshRenderDataArray: ArmatureDisplayMeshData[] = [];
     protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
 
@@ -557,7 +558,6 @@ export class ArmatureDisplay extends Renderable2D {
         return inst;
     }
 
-    public _meshRenderDataArrayIdx = 0;
     protected _render (ui: IBatcher) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {

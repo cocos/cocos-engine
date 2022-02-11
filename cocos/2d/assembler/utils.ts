@@ -32,8 +32,8 @@ import { Color, Mat4, Vec3 } from '../../core/math';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../core/scene-graph/node';
-import { assertIsTrue } from '../../core/data/utils/asserts';
-import { vfmtPosColor, vfmtPosUvColor } from '../renderer/vertex-format';
+import { FormatInfos } from '../../core/gfx';
+import { clamp } from '../../core';
 
 const vec3_temp = new Vec3();
 const _worldMatrix = new Mat4();
@@ -79,10 +79,28 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
 
 export function updateOpacity (renderData: RenderData, opacity: number) {
     const vfmt = renderData.vertexFormat;
-    assertIsTrue(vfmt && (vfmt === vfmtPosColor || vfmt === vfmtPosUvColor));
     const vb = renderData.chunk.vb;
-    const floatStride = renderData.floatStride;
-    for (let offset = floatStride - 1; offset < vb.length; offset += floatStride) {
-        vb[offset] = opacity;
+    let attr; let format; let stride;
+    // Color component offset
+    let offset = 0;
+    for (let i = 0; i < vfmt.length; ++i) {
+        attr = vfmt[i];
+        format = FormatInfos[attr.format];
+        if (format.hasAlpha) {
+            stride = renderData.floatStride;
+            if (format.size / format.count === 1) {
+                const alpha = ~~clamp(Math.round(opacity * 255), 0, 255);
+                // Uint color RGBA8
+                for (let color = offset; color < vb.length; color += stride) {
+                    vb[color] = ((vb[color] & 0xffffff00) | alpha) >>> 0;
+                }
+            } else if (format.size / format.count === 4) {
+                // Float32 color
+                for (let alpha = offset; alpha < vb.length; alpha += stride) {
+                    vb[alpha] = opacity;
+                }
+            }
+        }
+        offset += format.size >> 2;
     }
 }

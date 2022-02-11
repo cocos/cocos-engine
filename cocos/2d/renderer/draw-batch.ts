@@ -124,6 +124,8 @@ export class DrawBatch2D {
         this.camera = null;
         this.texture = null;
         this.sampler = null;
+        this.textureHash = 0;
+        this.samplerHash = 0;
         this.model = null;
         this.isStatic = false;
         this.useLocalData = null;
