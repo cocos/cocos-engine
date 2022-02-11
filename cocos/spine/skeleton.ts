@@ -10,18 +10,17 @@ import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache'
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, CCClass, CCObject, Color, Enum, Material, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
+import { Node, CCClass, CCObject, Color, Enum, Material, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, RecyclePool } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
-import { MeshRenderData } from '../2d/renderer/render-data';
-import { IBatcher } from '../2d/renderer/i-batcher';
 import { Graphics } from '../2d/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
-import { Attribute, BlendFactor, BlendOp } from '../core/gfx';
+import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 
 export const timeScale = 1.0;
 
@@ -77,9 +76,12 @@ export enum SpineMaterialType {
     TWO_COLORED = 1,
 }
 
-export interface SkeletonMeshData {
-    renderData: MeshRenderData;
-    texture?: Texture2D;
+export interface SkeletonDrawData {
+    // renderData: MeshRenderData;
+    material: Material | null;
+    texture: Texture2D | null;
+    indexOffset: number;
+    indexCount: number;
 }
 
 @ccclass('sp.Skeleton.SpineSocket')
@@ -134,7 +136,7 @@ export class Skeleton extends Renderable2D {
     public static SpineSocket = SpineSocket;
 
     public static AnimationCacheMode = AnimationCacheMode;
-    get meshRenderDataArray () { return this._meshRenderDataArray; }
+    get drawList () { return this._drawList; }
 
     @override
     @type(Material)
@@ -208,7 +210,6 @@ export class Skeleton extends Renderable2D {
     set animation (value: string) {
         if (value) {
             this.setAnimation(0, value, this.loop);
-            this.destroyRenderData();
             this.markForUpdateRenderData();
         } else if (!this.isAnimationCached()) {
             this.clearTrack(0);
@@ -544,7 +545,13 @@ export class Skeleton extends Renderable2D {
     @serializable
     protected _sockets: SpineSocket[] = [];
 
-    protected _meshRenderDataArray: SkeletonMeshData[] = [];
+    protected _drawIdx = 0;
+    protected _drawList = new RecyclePool<SkeletonDrawData>(() => ({
+        material: null,
+        texture: null,
+        indexOffset: 0,
+        indexCount: 0,
+    }), 1);
     @serializable
     protected _debugMesh = false;
     protected _rootBone: spine.Bone | null;
@@ -576,7 +583,7 @@ export class Skeleton extends Renderable2D {
     public disableRender () {
         // this._super();
         // this.node._renderFlag &= ~FLAG_POST_RENDER;
-        this.destroyRenderData();
+        // this.destroyRenderData();
     }
 
     /**
@@ -618,8 +625,8 @@ export class Skeleton extends Renderable2D {
             this._clipper = new spine.SkeletonClipping();
             this._rootBone = this._skeleton.getRootBone();
         }
-
-        this.markForUpdateRenderData();
+        // Recreate render data and mark dirty
+        this._flushAssembler();
     }
 
     /**
@@ -1262,23 +1269,9 @@ export class Skeleton extends Renderable2D {
         super.onDestroy();
     }
 
-    public requestMeshRenderData (vertexFormat: Attribute[]) {
-        if (this._meshRenderDataArray.length > 0 && this._meshRenderDataArray[this._meshRenderDataArray.length - 1].renderData.vertexCount === 0) {
-            return this._meshRenderDataArray[this._meshRenderDataArray.length - 1];
-        }
-
-        const renderData = MeshRenderData.add(vertexFormat);
-        const comb: SkeletonMeshData = { renderData };
-        renderData.material = null;
-        this._meshRenderDataArray.push(comb);
-        return comb;
-    }
-
     public destroyRenderData () {
-        if (this._meshRenderDataArray.length > 0) {
-            this._meshRenderDataArray.forEach((rd) => { MeshRenderData.remove(rd.renderData); });
-            this._meshRenderDataArray.length = 0;
-        }
+        this._drawList.destroy();
+        if (this._renderData) this._renderData.clear();
     }
 
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
@@ -1360,21 +1353,38 @@ export class Skeleton extends Renderable2D {
         return [];
     }
 
-    public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: IBatcher) {
-        if (this._meshRenderDataArray) {
-            for (let i = 0; i < this._meshRenderDataArray.length; i++) {
-                // HACK
-                const mat = this.material;
-                this._meshRenderDataArrayIdx = i;
-                const m = this._meshRenderDataArray[i];
-                if (m.renderData.material) {
-                    this.material = m.renderData.material;
+    /**
+     * @internal
+     */
+    public _requestDrawData (material: Material, texture: Texture2D, indexOffset: number, indexCount: number) {
+        const draw = this._drawList.add();
+        draw.material = material;
+        draw.texture = texture;
+        draw.indexOffset = indexOffset;
+        draw.indexCount = indexCount;
+        return draw;
+    }
+
+    protected _render (batcher: Batcher2D) {
+        if (this._renderData && this._drawList) {
+            const rd = this._renderData;
+            const chunk = rd.chunk;
+            const accessor = chunk.vertexAccessor;
+            const meshBuffer = rd.getMeshBuffer()!;
+            const origin = meshBuffer.indexOffset;
+            // Fill index buffer
+            accessor.appendIndices(chunk.bufferId, rd.indices!);
+            for (let i = 0; i < this._drawList.length; i++) {
+                this._drawIdx = i;
+                const dc = this._drawList.data[i];
+                if (dc.texture) {
+                    // Construct IA
+                    const ia = meshBuffer.requireFreeIA(batcher.device);
+                    ia.firstIndex = origin + dc.indexOffset;
+                    ia.indexCount = dc.indexCount;
+                    // Commit IA
+                    batcher.commitIA(this, ia, dc.texture, dc.material!, this.node);
                 }
-                if (m.texture) {
-                    ui.commitComp(this, m.renderData, m.texture, this._assembler, this.node);
-                }
-                this.material = mat;
             }
             // this.node._static = true;
         }
@@ -1483,7 +1493,6 @@ export class Skeleton extends Renderable2D {
     // if change use tint mode, just clear material cache
     protected _updateUseTint () {
         this._cleanMaterialCache();
-        this.destroyRenderData();
     }
     // if change use batch mode, just clear material cache
     protected _updateBatch () {
@@ -1606,12 +1615,10 @@ export class Skeleton extends Renderable2D {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (this._meshRenderDataArray.length === 0) {
-            if (this._assembler && this._assembler.createData) {
-                this._assembler.createData(this);
-                this.markForUpdateRenderData();
-                this._updateColor();
-            }
+        if (this._skeleton && this._assembler && this._assembler.createData) {
+            this._renderData = this._assembler.createData(this);
+            this.markForUpdateRenderData();
+            this._updateColor();
         }
     }
 

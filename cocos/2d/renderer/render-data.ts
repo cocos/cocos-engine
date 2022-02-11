@@ -193,6 +193,21 @@ export class RenderData extends BaseRenderData {
         this.updateHash();
     }
 
+    public resizeAndCopy (vertexCount: number, indexCount: number) {
+        if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
+        this._vc = vertexCount;
+        this._ic = indexCount;
+        const oldChunk = this.chunk;
+        // renderData always have chunk
+        this.chunk = this._accessor.allocateChunk(vertexCount, indexCount)!;
+        // Copy old chunk data
+        if (oldChunk) {
+            this.chunk.vb.set(oldChunk.vb);
+            this._accessor.recycleChunk(oldChunk);
+        }
+        this.updateHash();
+    }
+
     public getMeshBuffer () {
         if (this.chunk && this._accessor) {
             return this._accessor.getMeshBuffer(this.chunk.bufferId);
