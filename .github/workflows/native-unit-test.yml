@@ -1,4 +1,4 @@
-name: 🧪 Run Tests
+name: <Native> Run Tests
 
 on: [pull_request]
 
