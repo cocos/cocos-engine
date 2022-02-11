@@ -38,6 +38,7 @@ import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
 import { warn } from '../core/platform/debug';
 import { legacyCC } from '../core/global-exports';
+import { js } from '../core/utils/js';
 
 /**
  * @en
@@ -342,3 +343,7 @@ export class ProgressBar extends Component {
         }
     }
 }
+
+export { ProgressBar as ProgressBarComponent };
+legacyCC.ProgressBar = ProgressBar;
+js.setClassAlias(ProgressBar, 'cc.ProgressBarComponent');

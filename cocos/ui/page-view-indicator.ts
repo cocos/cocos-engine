@@ -40,6 +40,7 @@ import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
 import { Renderable2D } from '../2d/framework/renderable-2d';
 import { legacyCC } from '../core/global-exports';
+import { js } from '../core/utils/js';
 
 const _color = new Color();
 
@@ -262,3 +263,7 @@ export class PageViewIndicator extends Component {
         this._changedState();
     }
 }
+
+export { PageViewIndicator as PageViewIndicatorComponent };
+legacyCC.PageViewIndicator = PageViewIndicator;
+js.setClassAlias(PageViewIndicator, 'cc.PageViewIndicatorComponent');

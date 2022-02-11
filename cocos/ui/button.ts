@@ -43,6 +43,7 @@ import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { js } from '../core/utils/js';
 
 const _tempColor = new Color();
 
@@ -971,3 +972,6 @@ export class Button extends Component {
         }
     }
 }
+export { Button as ButtonComponent };
+legacyCC.Button = Button;
+js.setClassAlias(Button, 'cc.ButtonComponent');

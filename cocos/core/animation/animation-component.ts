@@ -38,6 +38,7 @@ import { createMap } from '../utils/js-typed';
 import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
+import { js } from '../utils/js';
 import { legacyCC } from '../global-exports';
 
 /**
@@ -496,3 +497,7 @@ function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     }
     return !!clip1 && !!clip2 && (clip1._uuid === clip2._uuid) && clip1._uuid;
 }
+
+export { Animation as AnimationComponent };
+legacyCC.Animation = Animation;
+js.setClassAlias(Animation, 'cc.AnimationComponent');

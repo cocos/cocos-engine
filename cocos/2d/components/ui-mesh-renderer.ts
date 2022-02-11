@@ -36,6 +36,8 @@ import { IBatcher } from '../renderer/i-batcher';
 import { scene } from '../../core/renderer';
 import { Stage } from '../renderer/stencil-manager';
 import { Component } from '../../core/components';
+import { js } from '../../core/utils/js';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -163,3 +165,7 @@ export class UIMeshRenderer extends Component {
     public setTextureDirty () {
     }
 }
+
+export { UIMeshRenderer as UIModelComponent };
+legacyCC.UIModel = UIMeshRenderer;
+js.setClassAlias(UIMeshRenderer, 'cc.UIModelComponent');

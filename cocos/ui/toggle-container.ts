@@ -34,6 +34,7 @@ import { Component, EventHandler as ComponentEventHandler } from '../core/compon
 import { Toggle } from './toggle';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { js } from '../core/utils/js';
 
 /**
  * @en
@@ -113,11 +114,11 @@ export class ToggleContainer extends Component {
     }
 
     public activeToggles () {
-        return this.toggleItems.filter((x) => x!.isChecked);
+        return this.toggleItems.filter((x) => x.isChecked);
     }
 
     public anyTogglesChecked () {
-        return !!this.toggleItems.find((x) => x!.isChecked);
+        return !!this.toggleItems.find((x) => x.isChecked);
     }
 
     /**
@@ -166,8 +167,12 @@ export class ToggleContainer extends Component {
                 if (toggle === firstToggle) {
                     continue;
                 }
-                toggle!.isChecked = false;
+                toggle.isChecked = false;
             }
         }
     }
 }
+
+export { ToggleContainer as ToggleContainerComponent };
+legacyCC.ToggleContainer = ToggleContainer;
+js.setClassAlias(ToggleContainer, 'cc.ToggleContainerComponent');

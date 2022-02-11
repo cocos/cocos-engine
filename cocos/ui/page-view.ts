@@ -43,6 +43,7 @@ import { extendsEnum } from '../core/data/utils/extends-enum';
 import { Node } from '../core/scene-graph';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { js } from '../core/utils/js';
 
 const _tempVec2 = new Vec2();
 
@@ -779,3 +780,7 @@ export class PageView extends ScrollView {
  * @param {Event.EventCustom} event
  * @param {PageView} pageView - The PageView component.
  */
+
+export { PageView as PageViewComponent };
+legacyCC.PageView = PageView;
+js.setClassAlias(PageView, 'cc.PageViewComponent');

@@ -39,6 +39,7 @@ import { ScrollView } from './scroll-view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../core';
 import { legacyCC } from '../core/global-exports';
+import { js } from '../core/utils/js';
 
 const GETTING_SHORTER_FACTOR = 20;
 const _tempPos_1 = new Vec3();
@@ -495,3 +496,7 @@ export class ScrollBar extends Component {
         }
     }
 }
+
+export { ScrollBar as ScrollBarComponent };
+legacyCC.ScrollBar = ScrollBar;
+js.setClassAlias(ScrollBar, 'cc.ScrollBarComponent');

@@ -47,6 +47,7 @@ import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import { CCObject } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { js } from '../../core/utils/js';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -1120,3 +1121,7 @@ export class RichText extends Component {
         label.isUnderline = false;
     }
 }
+
+export { RichText as RichTextComponent };
+legacyCC.RichText = RichText;
+js.setClassAlias(RichText, 'cc.RichTextComponent');

@@ -42,6 +42,8 @@ import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Material, RenderTexture } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { js } from '../../core/utils/js';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -695,3 +697,7 @@ export class Sprite extends Renderable2D {
         }
     }
 }
+
+export { Sprite as SpriteComponent };
+legacyCC.Sprite = Sprite;
+js.setClassAlias(Sprite, 'cc.SpriteComponent');

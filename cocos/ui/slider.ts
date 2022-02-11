@@ -40,6 +40,7 @@ import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { js } from '../core/utils/js';
 
 const _tempPos = new Vec3();
 /**
@@ -328,3 +329,7 @@ export class Slider extends Component {
  * @param {Event.EventCustom} event
  * @param {Slider} slider - The slider component.
  */
+
+export { Slider as SliderComponent };
+legacyCC.Slider = Slider;
+js.setClassAlias(Slider, 'cc.SliderComponent');

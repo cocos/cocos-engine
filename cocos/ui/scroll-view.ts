@@ -44,6 +44,7 @@ import { director, Director } from '../core/director';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { js } from '../core/utils/js';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
@@ -1918,3 +1919,7 @@ export class ScrollView extends ViewGroup {
  * @param {Event.EventCustom} event
  * @param {ScrollView} scrollView - The ScrollView component.
  */
+
+export { ScrollView as ScrollViewComponent };
+legacyCC.ScrollView = ScrollView;
+js.setClassAlias(ScrollView, 'cc.ScrollViewComponent');
