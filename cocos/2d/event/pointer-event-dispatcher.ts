@@ -74,8 +74,10 @@ class PointerEventDispatcher implements IEventDispatcher {
 
     public addPointerEventProcessor (pointerEventProcessor: NodeEventProcessor) {
         if (this._inDispatchCount === 0) {
-            this._pointerEventProcessorList.push(pointerEventProcessor);
-            this._isListDirty = true;
+            if (!this._pointerEventProcessorList.includes(pointerEventProcessor)) {
+                this._pointerEventProcessorList.push(pointerEventProcessor);
+                this._isListDirty = true;
+            }
         } else if (!this._processorListToAdd.includes(pointerEventProcessor)) {
             this._processorListToAdd.push(pointerEventProcessor);
         }
