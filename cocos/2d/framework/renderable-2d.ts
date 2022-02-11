@@ -399,7 +399,7 @@ export class Renderable2D extends RenderableComponent {
      */
     public updateAssembler (render: IBatcher) {
         if (this._renderDataFlag) {
-            this._assembler!.updateRenderData(this);
+            this._assembler!.updateRenderData(this, render);
             this._renderDataFlag = false;
         }
         if (this._renderFlag) {

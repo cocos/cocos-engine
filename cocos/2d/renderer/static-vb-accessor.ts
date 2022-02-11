@@ -132,17 +132,14 @@ export class StaticVBAccessor extends BufferAccessor {
         }
     }
 
-    public appendIndices (vbChunk: StaticVBChunk) {
-        // const buf = this._buffers[vbChunk.bufferId];
-        // // Vertex format check
-        // // assertIsTrue(vbChunk.vb.byteLength / vbChunk.vertexCount === this.vertexFormatBytes);
-        // assertIsTrue(vbChunk.bufferId === this._currBID || this._currBID === -1);
-        // const vCount = vbChunk.ib.length;
-        // if (vCount) {
-        //     // Append index buffer
-        //     buf.iData.set(vbChunk.ib, buf.indexOffset);
-        //     buf.indexOffset += vbChunk.ib.length;
-        // }
+    public appendIndices (bufferId: number, indices: Uint16Array) {
+        const buf = this._buffers[bufferId];
+        const iCount = indices.length;
+        if (iCount) {
+            // Append index buffer
+            buf.iData.set(indices, buf.indexOffset);
+            buf.indexOffset += indices.length;
+        }
     }
 
     public allocateChunk (vertexCount: number, indexCount: number) {
