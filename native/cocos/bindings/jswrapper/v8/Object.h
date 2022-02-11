@@ -119,8 +119,8 @@ public:
          *  @note The return value (non-null) has to be released manually.
          */
     static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj);
-    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offet);
-    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offet, size_t byteLength);
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset);
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength);
 
     /**
          *  @brief Creates a JavaScript Array Buffer object from an existing pointer.

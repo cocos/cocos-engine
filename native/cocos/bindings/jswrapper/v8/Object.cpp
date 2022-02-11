@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "Object.h"
+#include "v8/HelperMacros.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
     #include "../MappingUtils.h"
@@ -50,7 +51,7 @@ uint32_t nativeObjectId = 0;
     #endif
 } // namespace
 
-Object::Object() {
+Object::Object() { //NOLINT
     #if JSB_TRACK_OBJECT_CREATION
     _objectCreationStackFrame = se::ScriptEngine::getInstance()->getCurrentStackTrace();
     #endif
@@ -257,14 +258,14 @@ Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
     return Object::createTypedArrayWithBuffer(type, obj, 0);
 }
 
-Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offet) {
+Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset) {
     size_t   byteLength{0};
     uint8_t *skip{nullptr};
     obj->getTypedArrayData(&skip, &byteLength);
-    return Object::createTypedArrayWithBuffer(type, obj, 0, byteLength);
+    return Object::createTypedArrayWithBuffer(type, obj, offset, byteLength - offset);
 }
 
-Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offet, size_t byteLength) {
+Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength) {
     if (type == TypedArrayType::NONE) {
         SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
         return nullptr;
@@ -280,28 +281,28 @@ Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
     v8::Local<v8::ArrayBuffer> jsobj = obj->_getJSObject().As<v8::ArrayBuffer>();
     switch (type) {
         case TypedArrayType::INT8:
-            typedArray = v8::Int8Array::New(jsobj, offet, byteLength);
+            typedArray = v8::Int8Array::New(jsobj, offset, byteLength);
             break;
         case TypedArrayType::INT16:
-            typedArray = v8::Int16Array::New(jsobj, offet, byteLength / 2);
+            typedArray = v8::Int16Array::New(jsobj, offset, byteLength / 2);
             break;
         case TypedArrayType::INT32:
-            typedArray = v8::Int32Array::New(jsobj, offet, byteLength / 4);
+            typedArray = v8::Int32Array::New(jsobj, offset, byteLength / 4);
             break;
         case TypedArrayType::UINT8:
-            typedArray = v8::Uint8Array::New(jsobj, offet, byteLength);
+            typedArray = v8::Uint8Array::New(jsobj, offset, byteLength);
             break;
         case TypedArrayType::UINT16:
-            typedArray = v8::Uint16Array::New(jsobj, offet, byteLength / 2);
+            typedArray = v8::Uint16Array::New(jsobj, offset, byteLength / 2);
             break;
         case TypedArrayType::UINT32:
-            typedArray = v8::Uint32Array::New(jsobj, offet, byteLength / 4);
+            typedArray = v8::Uint32Array::New(jsobj, offset, byteLength / 4);
             break;
         case TypedArrayType::FLOAT32:
-            typedArray = v8::Float32Array::New(jsobj, offet, byteLength / 4);
+            typedArray = v8::Float32Array::New(jsobj, offset, byteLength / 4);
             break;
         case TypedArrayType::FLOAT64:
-            typedArray = v8::Float64Array::New(jsobj, offet, byteLength / 8);
+            typedArray = v8::Float64Array::New(jsobj, offset, byteLength / 8);
             break;
         default:
             assert(false); // Should never go here.

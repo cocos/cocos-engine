@@ -399,8 +399,8 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
     getInstance()->callExceptionCallback("", eventName, ss.str().c_str());
 }
 
-void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateData) {
-    auto *p = static_cast<internal::PrivateData *>(privateData->getRaw());
+void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateObj) {
+    auto *p = static_cast<internal::PrivateData *>(privateObj->getRaw());
 
     Object::nativeObjectFinalizeHook(p->seObj);
 
@@ -1046,7 +1046,7 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
         return false;
     }
 
-    SE_ASSERT(argc < 11, "Only support argument count that less than 11");
+    SE_ASSERT(argc < 11, "Only support argument count that less than 11"); //NOLINT
     std::array<v8::Local<v8::Value>, 10> argv;
 
     for (size_t i = 0; i < argc; ++i) {
@@ -1088,11 +1088,9 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
 }
 
 // VMStringPool
-ScriptEngine::VMStringPool::VMStringPool() {
-}
+ScriptEngine::VMStringPool::VMStringPool() = default;
 
-ScriptEngine::VMStringPool::~VMStringPool() {
-}
+ScriptEngine::VMStringPool::~VMStringPool() = default;
 
 v8::MaybeLocal<v8::String> ScriptEngine::VMStringPool::get(v8::Isolate *isolate, const char *name) {
     v8::Local<v8::String> ret;
@@ -1100,7 +1098,7 @@ v8::MaybeLocal<v8::String> ScriptEngine::VMStringPool::get(v8::Isolate *isolate,
     if (iter == _vmStringPoolMap.end()) {
         v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kNormal);
         if (!nameValue.IsEmpty()) {
-            v8::Persistent<v8::String> *persistentName = new v8::Persistent<v8::String>();
+            auto *persistentName = new v8::Persistent<v8::String>();
             persistentName->Reset(isolate, nameValue.ToLocalChecked());
             _vmStringPoolMap.emplace(name, persistentName);
             ret = v8::Local<v8::String>::New(isolate, *persistentName);
