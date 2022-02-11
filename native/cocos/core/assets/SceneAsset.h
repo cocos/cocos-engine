@@ -27,7 +27,6 @@
 
 #include "base/Ptr.h"
 #include "core/assets/Asset.h"
-#include "core/scene-graph/Scene.h"
 
 namespace cc {
 
@@ -35,18 +34,16 @@ class Scene;
 
 class SceneAsset final : public Asset {
 public:
-    using Super            = Asset;
-    SceneAsset()           = default;
-    ~SceneAsset() override = default;
+    using Super = Asset;
+    SceneAsset();
+    ~SceneAsset() override;
 
     void initDefault(const cc::optional<std::string> &uuid) override;
 
-    bool validate() const override {
-        return _scene.get() != nullptr;
-    }
+    bool validate() const override;
 
     inline Scene *getScene() const { return _scene.get(); }
-    inline void   setScene(Scene *scene) { _scene = scene; };
+    void          setScene(Scene *scene);
 
 private:
     /**

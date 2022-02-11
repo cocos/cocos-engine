@@ -27,7 +27,6 @@
 
 #include "core/assets/TextureBase.h"
 #include "renderer/gfx-base/GFXDef.h"
-#include "scene/RenderWindow.h"
 
 namespace cc {
 
@@ -55,8 +54,8 @@ class RenderTexture final : public TextureBase {
 public:
     using Super = TextureBase;
 
-    explicit RenderTexture()  = default;
-    ~RenderTexture() override = default;
+    RenderTexture();
+    ~RenderTexture() override;
 
     /**
      * @en The render window for the render pipeline, it's created internally and cannot be modified.

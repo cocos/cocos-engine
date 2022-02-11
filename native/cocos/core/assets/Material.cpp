@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "core/assets/Material.h"
-#include "cocos/base/Variant.h"
 
 #include "base/Utils.h"
 #include "core/Root.h"
@@ -35,7 +34,6 @@
 #include "math/Color.h"
 #include "renderer/pipeline/helper/Utils.h"
 #include "scene/Pass.h"
-
 namespace cc {
 
 /* static */

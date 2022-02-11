@@ -9,8 +9,6 @@
 #include "core/geometry/Frustum.h"
 #include "core/geometry/Spec.h"
 
-#include "renderer/gfx-base/GFXDef.h"
-
 #include <cmath>
 
 namespace cc {

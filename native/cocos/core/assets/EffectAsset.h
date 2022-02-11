@@ -33,8 +33,6 @@
 #include "base/Value.h"
 #include "core/Types.h"
 #include "core/assets/Asset.h"
-#include "gfx-base/GFXDef-common.h"
-#include "gfx-base/GFXShader.h"
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"

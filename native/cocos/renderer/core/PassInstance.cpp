@@ -25,6 +25,7 @@
 
 #include "renderer/core/PassInstance.h"
 #include <cstdint>
+#include "renderer/core/MaterialInstance.h"
 #include "renderer/core/ProgramLib.h"
 #include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/InstancedBuffer.h"
@@ -52,6 +53,8 @@ PassInstance::PassInstance(scene::Pass *parent, MaterialInstance *owner) : Super
     }
     Super::tryCompile();
 }
+
+PassInstance::~PassInstance() = default;
 
 scene::Pass *PassInstance::getParent() const {
     return _parent.get();

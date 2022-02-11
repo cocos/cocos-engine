@@ -27,11 +27,12 @@
 
 #include "core/assets/Asset.h"
 #include "core/assets/SimpleTexture.h"
-#include "core/assets/Texture2D.h"
 
 namespace cc {
 
 class ImageAsset;
+class Texture2D;
+struct ITexture2DCreateInfo;
 
 using ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
@@ -73,7 +74,7 @@ class TextureCube final : public SimpleTexture {
 public:
     using Super = SimpleTexture;
 
-    explicit TextureCube() = default;
+    TextureCube();
     ~TextureCube() override;
 
     /**
@@ -122,9 +123,7 @@ public:
 
     void setMipmaps(const std::vector<ITextureCubeMipmap> &value);
 
-    void setMipmapsForJS(const std::vector<ITextureCubeMipmap> &value) {
-        _mipmaps = value;
-    }
+    void setMipmapsForJS(const std::vector<ITextureCubeMipmap> &value);
 
     /**
      * @en Level 0 mipmap image.
@@ -138,10 +137,7 @@ public:
         return _mipmaps.empty() ? nullptr : &_mipmaps[0];
     }
 
-    void setImage(const ITextureCubeMipmap &value) {
-        _mipmaps.clear();
-        _mipmaps.emplace_back(value);
-    }
+    void setImage(const ITextureCubeMipmap &value);
 
     /**
      * @en Reset the current texture with given size, pixel format and mipmap images.

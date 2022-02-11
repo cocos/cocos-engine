@@ -32,6 +32,9 @@
 
 namespace cc {
 
+Texture2D::Texture2D()  = default;
+Texture2D::~Texture2D() = default;
+
 void Texture2D::syncMipmapsForJS(const std::vector<IntrusivePtr<ImageAsset>> &value) {
     _mipmaps = value;
 }

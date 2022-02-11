@@ -27,6 +27,7 @@
 #include <cmath>
 #include "core/ArrayBuffer.h"
 #include "core/TypedArray.h"
+#include "renderer/gfx-base/GFXDevice.h"
 
 namespace {
 
@@ -37,9 +38,13 @@ uint32_t roundUp(uint32_t n, uint32_t alignment) {
 
 namespace cc {
 
+TextureBufferPool::TextureBufferPool() = default;
+
 TextureBufferPool::TextureBufferPool(gfx::Device *device) {
     _device = device;
 }
+
+TextureBufferPool::~TextureBufferPool() = default;
 
 void TextureBufferPool::initialize(const ITextureBufferPoolInfo &info) {
     const auto &formatInfo = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(info.format)];
