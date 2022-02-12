@@ -1,4 +1,4 @@
-name: 🔃 Glue
+name: <Native> Glue
 
 on:
   pull_request_target:
