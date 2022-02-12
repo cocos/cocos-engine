@@ -1,4 +1,4 @@
-name: 📝 Linter
+name: <Native> Linter
 
 on: pull_request
 
@@ -72,7 +72,8 @@ jobs:
       - name: Generate Compile database
         shell: bash
         run: |
-          native/utils/generate_compile_commands_android.sh
+          cd native
+          ./utils/generate_compile_commands_android.sh
 
       - name: Generate clang-fix.yaml
         shell: bash
