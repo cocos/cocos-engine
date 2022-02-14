@@ -283,7 +283,6 @@ export class WebGPUDevice extends Device {
             bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
             bufferTextureCopyList.push_back(bufferTextureCopy);
         }
-        console.log(bufferTextureCopyList.length);
         (this._nativeDevice as any).copyBuffersToTexture(bufferDataList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
     }
 
