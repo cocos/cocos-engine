@@ -348,7 +348,7 @@ void ScriptEngine::pushPromiseExeception(v8::Local<v8::Promise> &promise, v8::Pr
     exceptions.push_back(PromiseExceptionMsg{event, stackTrace});
 }
 void ScriptEngine::handlePromiseExceptions() {
-    shouldHandleExceptions = false;
+    _shouldHandleExceptions = false;
     if (_promiseArray.empty()) {
         return;
     }
@@ -449,8 +449,8 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
     ss << stackStr << std::endl;
 
     getInstance()->pushPromiseExeception(msg.GetPromise(), event, ss.str().c_str());
-    if(!shouldHandleExceptions){
-        shouldHandleExceptions = true;
+    if(!_shouldHandleExceptions){
+        _shouldHandleExceptions = true;
         CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=](){
             se::ScriptEngine::getInstance()->handlePromiseExceptions();
         });

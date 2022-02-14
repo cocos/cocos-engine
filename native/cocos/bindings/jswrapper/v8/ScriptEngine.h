@@ -360,14 +360,18 @@ private:
     void callExceptionCallback(const char *, const char *, const char *);
     bool callRegisteredCallback();
     bool postInit();
-    
+    //Struct to save exception info
+    struct PromiseExceptionMsg {
+        v8::PromiseRejectEvent event;
+        std::string stackTrace;
+    };
     //Push promise and exception msg to _promiseArray
     void pushPromiseExeception(v8::Local<v8::Promise> &promise, v8::PromiseRejectEvent event, const char *stackTrace);
     //Handle all exceptions
     void handlePromiseExceptions();
     
     //should add to scheduler perform list
-    bool shouldHandleExceptions{false};
+    bool _shouldHandleExceptions{false};
     std::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, std::vector<PromiseExceptionMsg>>> _promiseArray;
 
     std::chrono::steady_clock::time_point _startTime;
