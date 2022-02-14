@@ -241,7 +241,7 @@ public:
         int16_t shortVal;
         char    charVal;
         bool    boolVal;
-    } args[10] = {0};
+    } args[10] = {};
 
     virtual ~CustomEvent() = default; // NOLINT(modernize-use-nullptr)
 };
@@ -261,7 +261,7 @@ public:
         int16_t shortVal;
         char    charVal;
         bool    boolVal;
-    } args[3] = {0};
+    } args[3] = {};
     Type type{Type::DEVICE_MEMORY}; // NOLINT(modernize-use-nullptr)
 };
 
