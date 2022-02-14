@@ -452,7 +452,7 @@ export function genMipmap (device: Device, srcTex: Texture): Texture {
     return lodTex;
 }
 
-export function removeCombinedSamplerTexture0 (shaderSource: string) {
+export function removeCombinedSamplerTexture (shaderSource: string) {
     // sampler and texture
     const samplerTexturArr = shaderSource.match(/(.*?)\(set = \d+, binding = \d+\) uniform(.*?)sampler\w* \w+;/g);
     const count = samplerTexturArr?.length ? samplerTexturArr?.length : 0;

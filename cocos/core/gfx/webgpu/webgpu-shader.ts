@@ -2,7 +2,7 @@
 import { Shader } from '../base/shader';
 import { Format, MemoryAccessBit, ShaderInfo, ShaderStageFlagBit, Type } from '../base/define';
 import { glslalgWasmModule, nativeLib } from './instantiated';
-import { removeCombinedSamplerTexture, removeCombinedSamplerTexture0 } from './webgpu-commands';
+import { removeCombinedSamplerTexture } from './webgpu-commands';
 
 export class WebGPUShader extends Shader {
     private _nativeShader;
@@ -27,7 +27,7 @@ export class WebGPUShader extends Shader {
             const shaderStage = new nativeLib.SPVShaderStageInstance();
             const stageName = ShaderStageFlagBit[info.stages[i].stage];
             shaderStage.setStage(nativeLib.ShaderStageFlags[stageName]);
-            const source = removeCombinedSamplerTexture0(info.stages[i].source);
+            const source = removeCombinedSamplerTexture(info.stages[i].source);
 
             const stageStr = info.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
                 : info.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
