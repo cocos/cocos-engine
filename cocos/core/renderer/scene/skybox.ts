@@ -37,6 +37,8 @@ import { Root } from '../../root';
 import { NaitveSkybox } from './native-scene';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
 import { Device } from '../../gfx';
+import { createMesh } from '../../../3d/misc/create-mesh';
+import { box } from '../../../primitive';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -263,7 +265,7 @@ export class Skybox {
 
         if (this.enabled) {
             if (!skybox_mesh) {
-                skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh;
+                skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 }));
             }
             this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
         }
