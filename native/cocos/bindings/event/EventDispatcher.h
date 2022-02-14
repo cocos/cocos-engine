@@ -148,6 +148,11 @@ public:
 };
 
 enum class KeyCode {
+    /**
+     * @en The back key on mobile phone
+     * @zh 移动端返回键
+     */
+    MOBILE_BACK     = 6,
     BACKSPACE       = 8,
     TAB             = 9,
     NUM_LOCK        = 12,

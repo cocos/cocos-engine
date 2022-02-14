@@ -179,48 +179,12 @@ public:
     }
 
     /**
-     * @en Shadow color saturation
-     * @zh 阴影颜色饱和度
-     */
-    void         setSaturation(float val);
-    inline float getSaturation() const {
-        return _saturation;
-    }
-
-    /**
-     * @en The normal of the plane which receives shadow
-     * @zh 阴影接收平面的法线
-     */
-    void           setPcf(PCFType val);
-    inline PCFType getPcf() const {
-        return _pcf;
-    }
-
-    /**
      * @en get or set shadow max received
      * @zh 获取或者设置阴影接收的最大光源数量
      */
     void            setMaxReceived(uint32_t val);
     inline uint32_t getMaxReceived() const {
         return _maxReceived;
-    }
-
-    /**
-     * @en get or set shadow map sampler offset
-     * @zh 获取或者设置阴影纹理偏移值
-     */
-    void         setBias(float val);
-    inline float getBias() const {
-        return _bias;
-    }
-
-    /**
-     * @en on or off Self-shadowing.
-     * @zh 打开或者关闭自阴影。
-     */
-    void         setNormalBias(float val);
-    inline float getNormalBias() const {
-        return _normalBias;
     }
 
     /**
@@ -237,61 +201,6 @@ public:
     }
 
     /**
-     * @en get or set fixed area shadow
-     * @zh 是否是固定区域阴影
-     */
-    void        setFixedArea(bool val);
-    inline bool isFixedArea() const {
-        return _fixedArea;
-    }
-
-    /**
-     * @en get or set shadow camera near
-     * @zh 获取或者设置阴影相机近裁剪面
-     */
-    void         setNear(float val);
-    inline float getNear() const {
-        return _near;
-    }
-
-    /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置阴影相机远裁剪面
-     */
-    void         setFar(float val);
-    inline float getFar() const {
-        return _far;
-    }
-
-    /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置潜在阴影产生的范围
-     */
-    void         setInvisibleOcclusionRange(float val);
-    inline float getInvisibleOcclusionRange() const {
-        return _invisibleOcclusionRange;
-    }
-
-    /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置潜在阴影产生的范围
-     */
-    void setShadowDistance(float val);
-
-    inline float getShadowDistance() const {
-        return _shadowDistance;
-    }
-
-    /**
-     * @en get or set shadow camera orthoSize
-     * @zh 获取或者设置阴影相机正交大小
-     */
-    void         setOrthoSize(float val);
-    inline float getOrthoSize() const {
-        return _orthoSize;
-    }
-
-    /**
      * @en Set plane which receives shadow with the given node's world transformation
      * @zh 根据指定节点的世界变换设置阴影接收平面的信息
      * @param node The node for setting up the plane
@@ -301,23 +210,13 @@ public:
     void activate(Shadows *resource);
 
     float      _distance{0.F};
-    float      _bias{0.00001F};
-    float      _normalBias{0.F};
-    float      _near{0.1F};
-    float      _far{10.F};
-    float      _shadowDistance{100.F};
-    float      _invisibleOcclusionRange{200.F};
-    float      _orthoSize{5.F};
-    float      _saturation{0.75};
     uint32_t   _maxReceived{4};
-    PCFType    _pcf{PCFType::HARD};
     ShadowType _type{ShadowType::PLANAR};
     Shadows *  _resource{nullptr};
     Color      _shadowColor{0, 0, 0, 76};
     Vec3       _normal{0.F, 1.F, 0.F};
     Vec2       _size{512.F, 512.F};
-    bool       _firstSetCSM{false};
-    bool       _fixedArea{false};
+
     bool       _enabled{false};
 };
 
@@ -383,30 +282,6 @@ public:
     inline const std::array<float, 4> &getShadowColor4f() const { return _shadowColor4f; }
 
     /**
-     * @en get or set shadow invisible Occlusion Range.
-     * @zh 控制潜在遮挡体产生的范围。
-     */
-    inline float getInvisibleOcclusionRange() const {
-        return _invisibleOcclusionRange;
-    }
-
-    inline void setInvisibleOcclusionRange(float val) {
-        _invisibleOcclusionRange = val;
-    }
-
-    /**
-     * @en get or set shadow distance.
-     * @zh 控制阴影的可视范围。
-     */
-    inline float getShadowDistance() const {
-        return _shadowDistance;
-    }
-
-    inline void setShadowDistance(float val) {
-        _shadowDistance = val;
-    }
-
-    /**
      * @en Shadow type.
      * @zh 阴影类型。
      */
@@ -415,27 +290,6 @@ public:
         _type = _enabled ? val : ShadowType::NONE;
         activate();
     }
-
-    /**
-     * @en get or set shadow camera near.
-     * @zh 获取或者设置阴影相机近裁剪面。
-     */
-    inline float getNear() const { return _near; }
-    inline void  setNear(float val) { _near = val; }
-
-    /**
-     * @en get or set shadow camera far.
-     * @zh 获取或者设置阴影相机远裁剪面。
-     */
-    inline float getFar() const { return _far; }
-    inline void  setFar(float val) { _far = val; }
-
-    /**
-     * @en get or set shadow camera orthoSize.
-     * @zh 获取或者设置阴影相机正交大小。
-     */
-    inline float getOrthoSize() const { return _orthoSize; }
-    inline void  setOrthoSize(float val) { _orthoSize = val; }
 
     /**
      * @en get or set shadow camera orthoSize.
@@ -451,46 +305,11 @@ public:
     }
 
     /**
-     * @en get or set shadow pcf.
-     * @zh 获取或者设置阴影pcf等级。
-     */
-    inline PCFType getPcf() const { return _pcf; }
-    inline void    setPcf(PCFType val) { _pcf = val; }
-
-    /**
      * @en shadow Map size has been modified.
      * @zh 阴影贴图大小是否被修改。
      */
     inline bool isShadowMapDirty() const { return _shadowMapDirty; }
     inline void setShadowMapDirty(bool val) { _shadowMapDirty = val; }
-
-    /**
-     * @en get or set shadow bias.
-     * @zh 获取或者设置阴影偏移量。
-     */
-    inline float getBias() const { return _bias; }
-    inline void  setBias(float val) { _bias = val; }
-
-    /**
-     * @en get or set normal bias.
-     * @zh 设置或者获取法线偏移。
-     */
-    inline float getNormalBias() const { return _normalBias; }
-    inline void  setNormalBias(float val) { _normalBias = val; }
-
-    /**
-     * @en get or set shadow saturation.
-     * @zh 设置或者获取阴影饱和度。
-     */
-    inline float getSaturation() const { return _saturation; }
-    inline void  setSaturation(float val) { _saturation = val; }
-
-    /**
-     * @en get or set fixed area shadow
-     * @zh 是否是固定区域阴影
-     */
-    inline bool isFixedArea() const { return _fixedArea; }
-    inline void setFixedArea(bool val) { _fixedArea = val; }
 
     inline const Mat4 &getMatLight() const { return _matLight; }
     inline Mat4 &      getMatLight() { return _matLight; }
@@ -512,7 +331,6 @@ public:
 
 private:
     void updatePlanarInfo();
-    void updatePipeline();
     void createInstanceMaterial();
     void createMaterial();
 
@@ -545,17 +363,7 @@ private:
     bool                   _enabled{false};
     float                  _distance{0.F};
     ShadowType             _type{ShadowType::NONE};
-    float                  _near{0.1F};
-    float                  _far{10.F};
-    float                  _invisibleOcclusionRange{200.F};
-    float                  _shadowDistance{100.F};
-    float                  _orthoSize{1.F};
-    PCFType                _pcf{PCFType::HARD};
     bool                   _shadowMapDirty{false};
-    float                  _bias{0.F};
-    float                  _normalBias{0.F};
-    bool                   _fixedArea{false};
-    float                  _saturation{0.75F};
 };
 
 } // namespace scene

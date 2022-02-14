@@ -96,12 +96,19 @@ renderTextureProto._deserialize = function (serializedData: any, handle: any) {
 };
 
 const oldReadPixels = renderTextureProto.readPixels;
-renderTextureProto.readPixels = function readPixels (x: number, y: number, width: number, height: number) {
+renderTextureProto.readPixels = function readPixels (x: number, y: number, width: number, height: number, buffer?: Uint8Array) {
     x = x || 0;
     y = y || 0;
     width = width || this.width;
     height = width || this.height;
-    return oldReadPixels.call(this, x, y, width, height);
+
+
+    let tmpBuffer = oldReadPixels.call(this, x, y, width, height);
+    if (tmpBuffer.length == 0) {
+        return null;
+    }
+    buffer = tmpBuffer;
+    return buffer;
 };
 
 clsDecorator(RenderTexture);

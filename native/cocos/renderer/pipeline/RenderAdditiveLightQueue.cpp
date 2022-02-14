@@ -349,7 +349,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                 const auto &shadowSize         = shadows->getSize();
-                float       shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, static_cast<float>(shadows->getPcf()), shadows->getBias()};
+                float       shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, spotLight->getShadowPcf(), spotLight->getShadowBias()};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
 
                 float shadowLPNNInfos[4] = {1.0F, packing, spotLight->getShadowNormalBias(), 0.0F};

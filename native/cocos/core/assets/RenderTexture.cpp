@@ -26,6 +26,7 @@
 #include "core/assets/RenderTexture.h"
 #include "core/Root.h"
 #include "core/utils/IDGenerator.h"
+#include "core/platform/Debug.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "scene/RenderWindow.h"
 
@@ -137,6 +138,7 @@ bool RenderTexture::validate() const {
 std::vector<uint8_t> RenderTexture::readPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const {
     auto *gfxTexture = getGFXTexture();
     if (!gfxTexture) {
+        debug::errorID(7606);
         return {};
     }
 

@@ -145,14 +145,10 @@ void Ambient::initialize(AmbientInfo *info) {
 
     // Init HDR/LDR from serialized data on load
     _skyColorHDR       = info->getSkyColorHDR();
-    _groundAlbedoHDR.x = info->getGroundAlbedoHDR().x;
-    _groundAlbedoHDR.y = info->getGroundAlbedoHDR().y;
-    _groundAlbedoHDR.z = info->getGroundAlbedoHDR().z;
+    _groundAlbedoHDR.set(info->getGroundAlbedoHDR());
     _skyIllumHDR       = info->getSkyIllumHDR();
     _skyColorLDR       = info->getSkyColorLDR();
-    _groundAlbedoLDR.x = info->getGroundAlbedoLDR().x;
-    _groundAlbedoLDR.y = info->getGroundAlbedoLDR().y;
-    _groundAlbedoLDR.z = info->getGroundAlbedoLDR().z;
+    _groundAlbedoLDR.set(info->getGroundAlbedoLDR());
     _skyIllumLDR       = info->getSkyIllumLDR();
 }
 
@@ -164,13 +160,9 @@ Vec4 &Ambient::getSkyColor() {
 void Ambient::setSkyColor(const Vec4 &color) {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
-        _skyColorHDR.x = color.x;
-        _skyColorHDR.y = color.y;
-        _skyColorHDR.z = color.z;
+        _skyColorHDR.set(color);
     } else {
-        _skyColorLDR.x = color.x;
-        _skyColorLDR.y = color.y;
-        _skyColorLDR.z = color.z;
+        _skyColorLDR.set(color);
     }
 }
 
@@ -203,13 +195,9 @@ const Vec4 &Ambient::getGroundAlbedo() const {
 void Ambient::setGroundAlbedo(const Vec4 &color) {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
-        _groundAlbedoHDR.x = color.x;
-        _groundAlbedoHDR.y = color.y;
-        _groundAlbedoHDR.z = color.z;
+        _groundAlbedoHDR.set(color);
     } else {
-        _groundAlbedoLDR.x = color.x;
-        _groundAlbedoLDR.y = color.y;
-        _groundAlbedoLDR.z = color.z;
+        _groundAlbedoLDR.set(color);
     }
 }
 

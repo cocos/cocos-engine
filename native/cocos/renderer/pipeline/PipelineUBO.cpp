@@ -145,7 +145,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 0] = groundAlbedo.x;
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 1] = groundAlbedo.y;
         output[UBOCamera::AMBIENT_GROUND_OFFSET + 2] = groundAlbedo.z;
-        output[UBOCamera::AMBIENT_GROUND_OFFSET + 3] = groundAlbedo.w;
+        output[UBOCamera::AMBIENT_GROUND_OFFSET + 3] = ambient->getMipmapCount();
     }
 
     // cjh TS doesn't have this logic ?    auto *const envmap = descriptorSet->getTexture(static_cast<uint>(PipelineGlobalBindings::SAMPLER_ENVIRONMENT));
