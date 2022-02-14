@@ -43,7 +43,7 @@
 #include "GLES3Shader.h"
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
-#include "states/GLES3GlobalBarrier.h"
+#include "states/GLES3GeneralBarrier.h"
 #include "states/GLES3Sampler.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
@@ -103,7 +103,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     initFormatFeature();
 
-    _multithreadedSubmission = false;
+    _multithreadedCommandRecording = false;
 
     _features[toNumber(Feature::INSTANCED_ARRAYS)]        = true;
     _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)] = true;
@@ -198,7 +198,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, reinterpret_cast<GLint *>(&_caps.maxComputeWorkGroupCount.z));
     }
 
-    if (checkExtension("GL_EXT_occlusion_query_boolean")) {
+    if (checkExtension("occlusion_query_boolean")) {
         _caps.supportQuery = true;
     }
 
@@ -536,8 +536,8 @@ Sampler *GLES3Device::createSampler(const SamplerInfo &info) {
     return CC_NEW(GLES3Sampler(info));
 }
 
-GlobalBarrier *GLES3Device::createGlobalBarrier(const GlobalBarrierInfo &info) {
-    return CC_NEW(GLES3GlobalBarrier(info));
+GeneralBarrier *GLES3Device::createGeneralBarrier(const GeneralBarrierInfo &info) {
+    return CC_NEW(GLES3GeneralBarrier(info));
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

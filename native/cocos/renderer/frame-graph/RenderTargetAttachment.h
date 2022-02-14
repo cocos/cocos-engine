@@ -51,8 +51,8 @@ struct RenderTargetAttachment final {
         float   clearDepth{1.F};
         uint8_t clearStencil{0U};
 
-        std::vector<gfx::AccessType> beginAccesses;
-        std::vector<gfx::AccessType> endAccesses;
+        gfx::AccessFlags beginAccesses{gfx::AccessFlagBit::NONE};
+        gfx::AccessFlags endAccesses{gfx::AccessFlagBit::NONE};
     };
 
     struct Sorter {

@@ -451,7 +451,7 @@ void CommandBufferValidator::dispatch(const DispatchInfo &info) {
     _actor->dispatch(info);
 }
 
-void CommandBufferValidator::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
+void CommandBufferValidator::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
     CCASSERT(isInited(), "alread destroyed?");
 
     for (uint32_t i = 0U; i < textureBarrierCount; ++i) {

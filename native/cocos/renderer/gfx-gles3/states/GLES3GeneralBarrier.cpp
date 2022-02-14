@@ -23,24 +23,25 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <boost/functional/hash.hpp>
-
-#include "base/CoreStd.h"
-
-#include "GFXGlobalBarrier.h"
-#include "base/Utils.h"
+#include "GLES3GeneralBarrier.h"
+#include "../GLES3Commands.h"
+#include "gfx-gles3/GLES3Device.h"
 
 namespace cc {
 namespace gfx {
 
-GlobalBarrier::GlobalBarrier(const GlobalBarrierInfo &info)
-: GFXObject(ObjectType::GLOBAL_BARRIER) {
-    _info = info;
-    _hash = computeHash(info);
+GLES3GeneralBarrier::GLES3GeneralBarrier(const GeneralBarrierInfo &info) : GeneralBarrier(info) {
+    _typedID = generateObjectID<decltype(this)>();
+
+    _gpuBarrier               = CC_NEW(GLES3GPUGeneralBarrier);
+    _gpuBarrier->prevAccesses = info.prevAccesses;
+    _gpuBarrier->nextAccesses = info.nextAccesses;
+
+    cmdFuncGLES3CreateGeneralBarrier(GLES3Device::getInstance(), _gpuBarrier);
 }
 
-size_t GlobalBarrier::computeHash(const GlobalBarrierInfo &info) {
-    return Hasher<GlobalBarrierInfo>()(info);
+GLES3GeneralBarrier::~GLES3GeneralBarrier() {
+    CC_SAFE_DELETE(_gpuBarrier);
 }
 
 } // namespace gfx

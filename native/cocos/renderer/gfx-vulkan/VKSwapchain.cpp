@@ -326,7 +326,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     auto *               depthStencilGPUTexture = static_cast<CCVKTexture *>(_depthStencilTexture)->gpuTexture();
     for (uint32_t i = 0U; i < imageCount; i++) {
         tempBarrier.nextAccessCount             = 1;
-        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::PRESENT)];
+        tempBarrier.pNextAccesses               = getAccessType(AccessFlagBit::PRESENT);
         tempBarrier.image                       = _gpuSwapchain->swapchainImages[i];
         tempBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[i]);
@@ -334,7 +334,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         dstStageMask |= tempDstStageMask;
 
         tempBarrier.nextAccessCount             = 1;
-        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE)];
+        tempBarrier.pNextAccesses               = getAccessType(AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE);
         tempBarrier.image                       = depthStencilGPUTexture->swapchainVkImages[i];
         tempBarrier.subresourceRange.aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
         thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[imageCount + i]);
@@ -343,7 +343,8 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     }
     CCVKDevice::getInstance()->gpuTransportHub()->checkIn(
         [&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
-            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, imageCount, barriers.data());
+            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr,
+                                 utils::toUint(barriers.size()), barriers.data());
         },
         true); // submit immediately
 

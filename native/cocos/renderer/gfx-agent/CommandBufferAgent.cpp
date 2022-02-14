@@ -416,7 +416,7 @@ void CommandBufferAgent::dispatch(const DispatchInfo &info) {
         });
 }
 
-void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
+void CommandBufferAgent::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
     TextureBarrier **actorTextureBarriers = nullptr;
     Texture **       actorTextures        = nullptr;
 

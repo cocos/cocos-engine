@@ -65,10 +65,12 @@ CC_DLL uint nextPOT(uint x);
  */
 CC_DLL double atof(const char *str);
 
+#pragma warning(disable : 4146)
 template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value>>
 inline T getLowestBit(T mask) {
     return mask & (-mask);
 }
+#pragma warning(default : 4146)
 
 template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value>>
 inline T clearLowestBit(T mask) {

@@ -23,10 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <cstddef>
-#include <cstring>
 #include "base/CoreStd.h"
 #include "base/threading/MessageQueue.h"
+#include "base/threading/ThreadSafeLinearAllocator.h"
 
 #include "BufferAgent.h"
 #include "CommandBufferAgent.h"
@@ -43,9 +42,6 @@
 #include "ShaderAgent.h"
 #include "SwapchainAgent.h"
 #include "TextureAgent.h"
-#include "base/threading/ThreadSafeLinearAllocator.h"
-#include "gfx-base/GFXDef-common.h"
-#include "gfx-base/GFXSwapchain.h"
 
 namespace cc {
 namespace gfx {
@@ -269,8 +265,8 @@ Sampler *DeviceAgent::getSampler(const SamplerInfo &info) {
     return _actor->getSampler(info);
 }
 
-GlobalBarrier *DeviceAgent::getGlobalBarrier(const GlobalBarrierInfo &info) {
-    return _actor->getGlobalBarrier(info);
+GeneralBarrier *DeviceAgent::getGeneralBarrier(const GeneralBarrierInfo &info) {
+    return _actor->getGeneralBarrier(info);
 }
 
 TextureBarrier *DeviceAgent::getTextureBarrier(const TextureBarrierInfo &info) {
@@ -363,7 +359,7 @@ void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) 
         _mainMessageQueue, DeviceFlushCommands,
         count, count,
         cmdBuffs, agentCmdBuffs,
-        multiThreaded, _actor->_multithreadedSubmission,
+        multiThreaded, _actor->_multithreadedCommandRecording,
         {
             CommandBufferAgent::flushCommands(count, cmdBuffs, multiThreaded);
         });

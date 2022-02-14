@@ -38,7 +38,7 @@ public:
     inline gfx::DescriptorSet*            getDenoiseDescriptorSet() { return _compDenoiseDescriptorSet; }
     inline const gfx::PipelineState*      getDenoisePipelineState(bool useEnvmap) { return _compDenoisePipelineState[useEnvmap]; }
     inline const gfx::PipelineState*      getDenoisePipelineStateEnvmap() { return _compDenoisePipelineStateEnvmap; }
-    inline const gfx::GlobalBarrier*      getBarrierPre() { return _barrierPre; }
+    inline const gfx::GeneralBarrier*      getBarrierPre() { return _barrierPre; }
     inline const gfx::TextureBarrierList& getBarrierBeforeDenoise() { return _barrierBeforeDenoise; }
     inline const gfx::TextureBarrierList& getBarrierAfterDenoise() { return _barrierAfterDenoise; }
     inline const gfx::DispatchInfo&       getDispatchInfo() { return _dispatchInfo; }
@@ -73,7 +73,7 @@ private:
     gfx::Buffer*  _compConstantsBuffer{nullptr};
     gfx::Sampler* _sampler{nullptr};
 
-    gfx::GlobalBarrier* _barrierPre{nullptr};
+    gfx::GeneralBarrier* _barrierPre{nullptr};
 
     gfx::TextureBarrierList _barrierBeforeDenoise;
     gfx::TextureBarrierList _barrierAfterDenoise;

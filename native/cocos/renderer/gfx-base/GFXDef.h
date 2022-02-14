@@ -57,7 +57,7 @@ DEFINE_CMP_OP(TextureInfo)
 DEFINE_CMP_OP(TextureViewInfo)
 DEFINE_CMP_OP(BufferInfo)
 DEFINE_CMP_OP(SamplerInfo)
-DEFINE_CMP_OP(GlobalBarrierInfo)
+DEFINE_CMP_OP(GeneralBarrierInfo)
 DEFINE_CMP_OP(TextureBarrierInfo)
 
 #undef DEFINE_CMP_OP

@@ -56,11 +56,11 @@ void RenderPassValidator::doInit(const RenderPassInfo &info) {
     }
 
     for (auto &attachment : _colorAttachments) {
-        if (attachment.loadOp == LoadOp::LOAD && attachment.beginAccesses.empty()) {
+        if (attachment.loadOp == LoadOp::LOAD && attachment.barrier->getInfo().prevAccesses == AccessFlagBit::NONE) {
             CCASSERT(false, "Attachment missing beginAccesses for LoadOp::LOAD");
         }
     }
-    if ((_depthStencilAttachment.depthLoadOp == LoadOp::LOAD || _depthStencilAttachment.stencilLoadOp == LoadOp::LOAD) && _depthStencilAttachment.beginAccesses.empty()) {
+    if ((_depthStencilAttachment.depthLoadOp == LoadOp::LOAD || _depthStencilAttachment.stencilLoadOp == LoadOp::LOAD) && _depthStencilAttachment.barrier->getInfo().prevAccesses == AccessFlagBit::NONE) {
         CCASSERT(false, "Attachment missing beginAccesses for LoadOp::LOAD");
     }
 
