@@ -373,1019 +373,6 @@ bool js_register_pipeline_RenderQueueDesc(se::Object* obj) // NOLINT(readability
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_pipeline_GlobalDSManager_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_pipeline_GlobalDSManager_class = nullptr;  // NOLINT
-
-static bool js_pipeline_GlobalDSManager_bindBuffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_bindBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<unsigned int, false> arg0 = {};
-        HolderType<cc::gfx::Buffer*, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_bindBuffer : Error processing arguments");
-        cobj->bindBuffer(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_bindBuffer)
-
-static bool js_pipeline_GlobalDSManager_bindSampler(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_bindSampler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<unsigned int, false> arg0 = {};
-        HolderType<cc::gfx::Sampler*, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_bindSampler : Error processing arguments");
-        cobj->bindSampler(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_bindSampler)
-
-static bool js_pipeline_GlobalDSManager_bindTexture(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_bindTexture : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<unsigned int, false> arg0 = {};
-        HolderType<cc::gfx::Texture*, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_bindTexture : Error processing arguments");
-        cobj->bindTexture(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_bindTexture)
-
-static bool js_pipeline_GlobalDSManager_getDescriptorSetLayout(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getDescriptorSetLayout : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::DescriptorSetLayout* result = cobj->getDescriptorSetLayout();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getDescriptorSetLayout : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetLayout)
-
-static bool js_pipeline_GlobalDSManager_getDescriptorSetMap(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getDescriptorSetMap : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        std::unordered_map<unsigned int, cc::gfx::DescriptorSet *> result = cobj->getDescriptorSetMap();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getDescriptorSetMap : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetMap)
-
-static bool js_pipeline_GlobalDSManager_getGlobalDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getGlobalDescriptorSet : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::DescriptorSet* result = cobj->getGlobalDescriptorSet();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getGlobalDescriptorSet : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_getGlobalDescriptorSet)
-
-static bool js_pipeline_GlobalDSManager_getLinearSampler(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getLinearSampler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::Sampler* result = cobj->getLinearSampler();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getLinearSampler : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_getLinearSampler)
-
-static bool js_pipeline_GlobalDSManager_getOrCreateDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getOrCreateDescriptorSet : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getOrCreateDescriptorSet : Error processing arguments");
-        cc::gfx::DescriptorSet* result = cobj->getOrCreateDescriptorSet(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getOrCreateDescriptorSet : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet)
-
-static bool js_pipeline_GlobalDSManager_getPointSampler(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getPointSampler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::Sampler* result = cobj->getPointSampler();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getPointSampler : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_getPointSampler)
-
-static bool js_pipeline_GlobalDSManager_update(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->update();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_update)
-
-static bool js_pipeline_GlobalDSManager_setDescriptorSetLayout_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_GlobalDSManager_setDescriptorSetLayout_static)
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_GlobalDSManager_finalize)
-
-static bool js_pipeline_GlobalDSManager_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
-{
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::pipeline::GlobalDSManager);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_pipeline_GlobalDSManager_constructor, __jsb_cc_pipeline_GlobalDSManager_class, js_cc_pipeline_GlobalDSManager_finalize)
-
-static bool js_cc_pipeline_GlobalDSManager_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_pipeline_GlobalDSManager_finalize)
-
-bool js_register_pipeline_GlobalDSManager(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("GlobalDSManager", obj, nullptr, _SE(js_pipeline_GlobalDSManager_constructor));
-
-    cls->defineFunction("bindBuffer", _SE(js_pipeline_GlobalDSManager_bindBuffer));
-    cls->defineFunction("bindSampler", _SE(js_pipeline_GlobalDSManager_bindSampler));
-    cls->defineFunction("bindTexture", _SE(js_pipeline_GlobalDSManager_bindTexture));
-    cls->defineFunction("getDescriptorSetLayout", _SE(js_pipeline_GlobalDSManager_getDescriptorSetLayout));
-    cls->defineFunction("getDescriptorSetMap", _SE(js_pipeline_GlobalDSManager_getDescriptorSetMap));
-    cls->defineFunction("getGlobalDescriptorSet", _SE(js_pipeline_GlobalDSManager_getGlobalDescriptorSet));
-    cls->defineFunction("getLinearSampler", _SE(js_pipeline_GlobalDSManager_getLinearSampler));
-    cls->defineFunction("getOrCreateDescriptorSet", _SE(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet));
-    cls->defineFunction("getPointSampler", _SE(js_pipeline_GlobalDSManager_getPointSampler));
-    cls->defineFunction("update", _SE(js_pipeline_GlobalDSManager_update));
-    cls->defineStaticFunction("setDescriptorSetLayout", _SE(js_pipeline_GlobalDSManager_setDescriptorSetLayout_static));
-    cls->defineFinalizeFunction(_SE(js_cc_pipeline_GlobalDSManager_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::pipeline::GlobalDSManager>(cls);
-
-    __jsb_cc_pipeline_GlobalDSManager_proto = cls->getProto();
-    __jsb_cc_pipeline_GlobalDSManager_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-se::Object* __jsb_cc_pipeline_PipelineSceneData_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_pipeline_PipelineSceneData_class = nullptr;  // NOLINT
-
-static bool js_pipeline_PipelineSceneData_activate(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_activate : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<cc::gfx::Device*, false> arg0 = {};
-        HolderType<cc::pipeline::RenderPipeline*, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_activate : Error processing arguments");
-        cobj->activate(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_activate)
-
-static bool js_pipeline_PipelineSceneData_addRenderObject(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_addRenderObject : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::pipeline::RenderObject, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_addRenderObject : Error processing arguments");
-        cobj->addRenderObject(std::move(arg0.value()));
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_addRenderObject)
-
-static bool js_pipeline_PipelineSceneData_addValidPunctualLight(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_addValidPunctualLight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::scene::Light*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_addValidPunctualLight : Error processing arguments");
-        cobj->addValidPunctualLight(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_addValidPunctualLight)
-
-static bool js_pipeline_PipelineSceneData_clearRenderObjects(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_clearRenderObjects : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->clearRenderObjects();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_clearRenderObjects)
-
-static bool js_pipeline_PipelineSceneData_clearValidPunctualLights(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_clearValidPunctualLights : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->clearValidPunctualLights();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_clearValidPunctualLights)
-
-static bool js_pipeline_PipelineSceneData_destroy(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_destroy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_destroy)
-
-static bool js_pipeline_PipelineSceneData_getAmbient(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getAmbient : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::scene::Ambient* result = cobj->getAmbient();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getAmbient : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getAmbient)
-
-static bool js_pipeline_PipelineSceneData_getDirShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getDirShadowObjects : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::pipeline::RenderObject>& result = cobj->getDirShadowObjects();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getDirShadowObjects : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getDirShadowObjects)
-
-static bool js_pipeline_PipelineSceneData_getFog(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getFog : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::scene::Fog* result = cobj->getFog();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getFog : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getFog)
-
-static bool js_pipeline_PipelineSceneData_getGeometryRendererMaterials(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getGeometryRendererMaterials : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::IntrusivePtr<cc::Material>>& result = cobj->getGeometryRendererMaterials();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getGeometryRendererMaterials : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererMaterials)
-
-static bool js_pipeline_PipelineSceneData_getGeometryRendererPasses(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getGeometryRendererPasses : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::scene::Pass *>& result = cobj->getGeometryRendererPasses();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getGeometryRendererPasses : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererPasses)
-
-static bool js_pipeline_PipelineSceneData_getGeometryRendererShaders(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getGeometryRendererShaders : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::gfx::Shader *>& result = cobj->getGeometryRendererShaders();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getGeometryRendererShaders : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererShaders)
-
-static bool js_pipeline_PipelineSceneData_getMatShadowProj(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getMatShadowProj : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::Mat4 result = cobj->getMatShadowProj();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getMatShadowProj : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getMatShadowProj)
-
-static bool js_pipeline_PipelineSceneData_getMatShadowView(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getMatShadowView : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::Mat4 result = cobj->getMatShadowView();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getMatShadowView : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getMatShadowView)
-
-static bool js_pipeline_PipelineSceneData_getMatShadowViewProj(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getMatShadowViewProj : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::Mat4 result = cobj->getMatShadowViewProj();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getMatShadowViewProj : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getMatShadowViewProj)
-
-static bool js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::InputAssembler* result = cobj->getOcclusionQueryInputAssembler();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler)
-
-static bool js_pipeline_PipelineSceneData_getOcclusionQueryPass(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getOcclusionQueryPass : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::scene::Pass* result = cobj->getOcclusionQueryPass();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getOcclusionQueryPass : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryPass)
-
-static bool js_pipeline_PipelineSceneData_getOcclusionQueryShader(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getOcclusionQueryShader : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::Shader* result = cobj->getOcclusionQueryShader();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getOcclusionQueryShader : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryShader)
-
-static bool js_pipeline_PipelineSceneData_getOctree(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getOctree : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::scene::Octree* result = cobj->getOctree();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getOctree : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getOctree)
-
-static bool js_pipeline_PipelineSceneData_getShadingScale(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getShadingScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getShadingScale();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getShadingScale : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getShadingScale)
-
-static bool js_pipeline_PipelineSceneData_getShadowCameraFar(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getShadowCameraFar : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getShadowCameraFar();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getShadowCameraFar : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getShadowCameraFar)
-
-static bool js_pipeline_PipelineSceneData_getShadows(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getShadows : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::scene::Shadows* result = cobj->getShadows();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getShadows : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getShadows)
-
-static bool js_pipeline_PipelineSceneData_getSkybox(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getSkybox : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::scene::Skybox* result = cobj->getSkybox();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getSkybox : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getSkybox)
-
-static bool js_pipeline_PipelineSceneData_getValidPunctualLights(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getValidPunctualLights : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<const cc::scene::Light *>& result = cobj->getValidPunctualLights();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getValidPunctualLights : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_getValidPunctualLights)
-
-static bool js_pipeline_PipelineSceneData_isCastShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_isCastShadowObjects : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::pipeline::RenderObject>& result = cobj->isCastShadowObjects();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_isCastShadowObjects : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_isCastShadowObjects)
-
-static bool js_pipeline_PipelineSceneData_isHDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_isHDR : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isHDR();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_isHDR : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_isHDR)
-
-static bool js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->onGlobalPipelineStateChanged();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged)
-
-static bool js_pipeline_PipelineSceneData_setCastShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setCastShadowObjects : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::vector<cc::pipeline::RenderObject>, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setCastShadowObjects : Error processing arguments");
-        cobj->setCastShadowObjects(std::move(arg0.value()));
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setCastShadowObjects)
-
-static bool js_pipeline_PipelineSceneData_setDirShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setDirShadowObjects : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::vector<cc::pipeline::RenderObject>, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setDirShadowObjects : Error processing arguments");
-        cobj->setDirShadowObjects(std::move(arg0.value()));
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setDirShadowObjects)
-
-static bool js_pipeline_PipelineSceneData_setHDR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setHDR : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<bool, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setHDR : Error processing arguments");
-        cobj->setHDR(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_SET(js_pipeline_PipelineSceneData_setHDR)
-
-static bool js_pipeline_PipelineSceneData_setMatShadowProj(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setMatShadowProj : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::Mat4, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setMatShadowProj : Error processing arguments");
-        cobj->setMatShadowProj(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setMatShadowProj)
-
-static bool js_pipeline_PipelineSceneData_setMatShadowView(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setMatShadowView : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::Mat4, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setMatShadowView : Error processing arguments");
-        cobj->setMatShadowView(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setMatShadowView)
-
-static bool js_pipeline_PipelineSceneData_setMatShadowViewProj(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setMatShadowViewProj : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::Mat4, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setMatShadowViewProj : Error processing arguments");
-        cobj->setMatShadowViewProj(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setMatShadowViewProj)
-
-static bool js_pipeline_PipelineSceneData_setShadingScale(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setShadingScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<float, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setShadingScale : Error processing arguments");
-        cobj->setShadingScale(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_SET(js_pipeline_PipelineSceneData_setShadingScale)
-
-static bool js_pipeline_PipelineSceneData_setShadowCameraFar(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setShadowCameraFar : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<float, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setShadowCameraFar : Error processing arguments");
-        cobj->setShadowCameraFar(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setShadowCameraFar)
-
-static bool js_pipeline_PipelineSceneData_setShadowFramebuffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setShadowFramebuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<const cc::scene::Light*, false> arg0 = {};
-        HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setShadowFramebuffer : Error processing arguments");
-        cobj->setShadowFramebuffer(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer)
-
-static bool js_pipeline_PipelineSceneData_setValidPunctualLights(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setValidPunctualLights : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::vector<const cc::scene::Light *>, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setValidPunctualLights : Error processing arguments");
-        cobj->setValidPunctualLights(std::move(arg0.value()));
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights)
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_PipelineSceneData_finalize)
-
-static bool js_pipeline_PipelineSceneData_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
-{
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::pipeline::PipelineSceneData);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_pipeline_PipelineSceneData_constructor, __jsb_cc_pipeline_PipelineSceneData_class, js_cc_pipeline_PipelineSceneData_finalize)
-
-static bool js_cc_pipeline_PipelineSceneData_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_pipeline_PipelineSceneData_finalize)
-
-bool js_register_pipeline_PipelineSceneData(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("PipelineSceneData", obj, nullptr, _SE(js_pipeline_PipelineSceneData_constructor));
-
-    cls->defineProperty("isHDR", _SE(js_pipeline_PipelineSceneData_isHDR_asGetter), _SE(js_pipeline_PipelineSceneData_setHDR_asSetter));
-    cls->defineProperty("shadingScale", _SE(js_pipeline_PipelineSceneData_getShadingScale_asGetter), _SE(js_pipeline_PipelineSceneData_setShadingScale_asSetter));
-    cls->defineProperty("fog", _SE(js_pipeline_PipelineSceneData_getFog_asGetter), nullptr);
-    cls->defineProperty("ambient", _SE(js_pipeline_PipelineSceneData_getAmbient_asGetter), nullptr);
-    cls->defineProperty("skybox", _SE(js_pipeline_PipelineSceneData_getSkybox_asGetter), nullptr);
-    cls->defineProperty("shadows", _SE(js_pipeline_PipelineSceneData_getShadows_asGetter), nullptr);
-    cls->defineFunction("activate", _SE(js_pipeline_PipelineSceneData_activate));
-    cls->defineFunction("addRenderObject", _SE(js_pipeline_PipelineSceneData_addRenderObject));
-    cls->defineFunction("addValidPunctualLight", _SE(js_pipeline_PipelineSceneData_addValidPunctualLight));
-    cls->defineFunction("clearRenderObjects", _SE(js_pipeline_PipelineSceneData_clearRenderObjects));
-    cls->defineFunction("clearValidPunctualLights", _SE(js_pipeline_PipelineSceneData_clearValidPunctualLights));
-    cls->defineFunction("destroy", _SE(js_pipeline_PipelineSceneData_destroy));
-    cls->defineFunction("getDirShadowObjects", _SE(js_pipeline_PipelineSceneData_getDirShadowObjects));
-    cls->defineFunction("getGeometryRendererMaterials", _SE(js_pipeline_PipelineSceneData_getGeometryRendererMaterials));
-    cls->defineFunction("getGeometryRendererPasses", _SE(js_pipeline_PipelineSceneData_getGeometryRendererPasses));
-    cls->defineFunction("getGeometryRendererShaders", _SE(js_pipeline_PipelineSceneData_getGeometryRendererShaders));
-    cls->defineFunction("getMatShadowProj", _SE(js_pipeline_PipelineSceneData_getMatShadowProj));
-    cls->defineFunction("getMatShadowView", _SE(js_pipeline_PipelineSceneData_getMatShadowView));
-    cls->defineFunction("getMatShadowViewProj", _SE(js_pipeline_PipelineSceneData_getMatShadowViewProj));
-    cls->defineFunction("getOcclusionQueryInputAssembler", _SE(js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler));
-    cls->defineFunction("getOcclusionQueryPass", _SE(js_pipeline_PipelineSceneData_getOcclusionQueryPass));
-    cls->defineFunction("getOcclusionQueryShader", _SE(js_pipeline_PipelineSceneData_getOcclusionQueryShader));
-    cls->defineFunction("getOctree", _SE(js_pipeline_PipelineSceneData_getOctree));
-    cls->defineFunction("getShadowCameraFar", _SE(js_pipeline_PipelineSceneData_getShadowCameraFar));
-    cls->defineFunction("getValidPunctualLights", _SE(js_pipeline_PipelineSceneData_getValidPunctualLights));
-    cls->defineFunction("isCastShadowObjects", _SE(js_pipeline_PipelineSceneData_isCastShadowObjects));
-    cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged));
-    cls->defineFunction("setCastShadowObjects", _SE(js_pipeline_PipelineSceneData_setCastShadowObjects));
-    cls->defineFunction("setDirShadowObjects", _SE(js_pipeline_PipelineSceneData_setDirShadowObjects));
-    cls->defineFunction("setMatShadowProj", _SE(js_pipeline_PipelineSceneData_setMatShadowProj));
-    cls->defineFunction("setMatShadowView", _SE(js_pipeline_PipelineSceneData_setMatShadowView));
-    cls->defineFunction("setMatShadowViewProj", _SE(js_pipeline_PipelineSceneData_setMatShadowViewProj));
-    cls->defineFunction("setShadowCameraFar", _SE(js_pipeline_PipelineSceneData_setShadowCameraFar));
-    cls->defineFunction("setShadowFramebuffer", _SE(js_pipeline_PipelineSceneData_setShadowFramebuffer));
-    cls->defineFunction("setValidPunctualLights", _SE(js_pipeline_PipelineSceneData_setValidPunctualLights));
-    cls->defineFinalizeFunction(_SE(js_cc_pipeline_PipelineSceneData_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::pipeline::PipelineSceneData>(cls);
-
-    __jsb_cc_pipeline_PipelineSceneData_proto = cls->getProto();
-    __jsb_cc_pipeline_PipelineSceneData_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
 se::Object* __jsb_cc_pipeline_RenderPipelineInfo_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_pipeline_RenderPipelineInfo_class = nullptr;  // NOLINT
 
@@ -3282,6 +2269,259 @@ bool js_register_pipeline_ShadowStage(se::Object* obj) // NOLINT(readability-ide
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_pipeline_GlobalDSManager_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_pipeline_GlobalDSManager_class = nullptr;  // NOLINT
+
+static bool js_pipeline_GlobalDSManager_bindBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_bindBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::gfx::Buffer*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_bindBuffer : Error processing arguments");
+        cobj->bindBuffer(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_bindBuffer)
+
+static bool js_pipeline_GlobalDSManager_bindSampler(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_bindSampler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::gfx::Sampler*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_bindSampler : Error processing arguments");
+        cobj->bindSampler(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_bindSampler)
+
+static bool js_pipeline_GlobalDSManager_bindTexture(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_bindTexture : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::gfx::Texture*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_bindTexture : Error processing arguments");
+        cobj->bindTexture(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_bindTexture)
+
+static bool js_pipeline_GlobalDSManager_getDescriptorSetLayout(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getDescriptorSetLayout : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::DescriptorSetLayout* result = cobj->getDescriptorSetLayout();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getDescriptorSetLayout : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetLayout)
+
+static bool js_pipeline_GlobalDSManager_getDescriptorSetMap(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getDescriptorSetMap : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::unordered_map<unsigned int, cc::gfx::DescriptorSet *> result = cobj->getDescriptorSetMap();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getDescriptorSetMap : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetMap)
+
+static bool js_pipeline_GlobalDSManager_getGlobalDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getGlobalDescriptorSet : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::DescriptorSet* result = cobj->getGlobalDescriptorSet();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getGlobalDescriptorSet : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_getGlobalDescriptorSet)
+
+static bool js_pipeline_GlobalDSManager_getLinearSampler(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getLinearSampler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Sampler* result = cobj->getLinearSampler();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getLinearSampler : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_getLinearSampler)
+
+static bool js_pipeline_GlobalDSManager_getOrCreateDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getOrCreateDescriptorSet : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getOrCreateDescriptorSet : Error processing arguments");
+        cc::gfx::DescriptorSet* result = cobj->getOrCreateDescriptorSet(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getOrCreateDescriptorSet : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet)
+
+static bool js_pipeline_GlobalDSManager_getPointSampler(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_getPointSampler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Sampler* result = cobj->getPointSampler();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_GlobalDSManager_getPointSampler : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_getPointSampler)
+
+static bool js_pipeline_GlobalDSManager_update(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::GlobalDSManager>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GlobalDSManager_update : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->update();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_update)
+
+static bool js_pipeline_GlobalDSManager_setDescriptorSetLayout_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GlobalDSManager_setDescriptorSetLayout_static)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_GlobalDSManager_finalize)
+
+static bool js_pipeline_GlobalDSManager_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::pipeline::GlobalDSManager);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_pipeline_GlobalDSManager_constructor, __jsb_cc_pipeline_GlobalDSManager_class, js_cc_pipeline_GlobalDSManager_finalize)
+
+static bool js_cc_pipeline_GlobalDSManager_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_pipeline_GlobalDSManager_finalize)
+
+bool js_register_pipeline_GlobalDSManager(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("GlobalDSManager", obj, nullptr, _SE(js_pipeline_GlobalDSManager_constructor));
+
+    cls->defineFunction("bindBuffer", _SE(js_pipeline_GlobalDSManager_bindBuffer));
+    cls->defineFunction("bindSampler", _SE(js_pipeline_GlobalDSManager_bindSampler));
+    cls->defineFunction("bindTexture", _SE(js_pipeline_GlobalDSManager_bindTexture));
+    cls->defineFunction("getDescriptorSetLayout", _SE(js_pipeline_GlobalDSManager_getDescriptorSetLayout));
+    cls->defineFunction("getDescriptorSetMap", _SE(js_pipeline_GlobalDSManager_getDescriptorSetMap));
+    cls->defineFunction("getGlobalDescriptorSet", _SE(js_pipeline_GlobalDSManager_getGlobalDescriptorSet));
+    cls->defineFunction("getLinearSampler", _SE(js_pipeline_GlobalDSManager_getLinearSampler));
+    cls->defineFunction("getOrCreateDescriptorSet", _SE(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet));
+    cls->defineFunction("getPointSampler", _SE(js_pipeline_GlobalDSManager_getPointSampler));
+    cls->defineFunction("update", _SE(js_pipeline_GlobalDSManager_update));
+    cls->defineStaticFunction("setDescriptorSetLayout", _SE(js_pipeline_GlobalDSManager_setDescriptorSetLayout_static));
+    cls->defineFinalizeFunction(_SE(js_cc_pipeline_GlobalDSManager_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::pipeline::GlobalDSManager>(cls);
+
+    __jsb_cc_pipeline_GlobalDSManager_proto = cls->getProto();
+    __jsb_cc_pipeline_GlobalDSManager_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_pipeline_InstancedBuffer_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_pipeline_InstancedBuffer_class = nullptr;  // NOLINT
 
@@ -3917,6 +3157,766 @@ bool js_register_pipeline_PostProcessStage(se::Object* obj) // NOLINT(readabilit
 
     __jsb_cc_pipeline_PostProcessStage_proto = cls->getProto();
     __jsb_cc_pipeline_PostProcessStage_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_pipeline_PipelineSceneData_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_pipeline_PipelineSceneData_class = nullptr;  // NOLINT
+
+static bool js_pipeline_PipelineSceneData_activate(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_activate : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::gfx::Device*, false> arg0 = {};
+        HolderType<cc::pipeline::RenderPipeline*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_activate : Error processing arguments");
+        cobj->activate(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_activate)
+
+static bool js_pipeline_PipelineSceneData_addRenderObject(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_addRenderObject : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::pipeline::RenderObject, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_addRenderObject : Error processing arguments");
+        cobj->addRenderObject(std::move(arg0.value()));
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_addRenderObject)
+
+static bool js_pipeline_PipelineSceneData_addValidPunctualLight(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_addValidPunctualLight : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::scene::Light*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_addValidPunctualLight : Error processing arguments");
+        cobj->addValidPunctualLight(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_addValidPunctualLight)
+
+static bool js_pipeline_PipelineSceneData_clearRenderObjects(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_clearRenderObjects : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clearRenderObjects();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_clearRenderObjects)
+
+static bool js_pipeline_PipelineSceneData_clearValidPunctualLights(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_clearValidPunctualLights : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clearValidPunctualLights();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_clearValidPunctualLights)
+
+static bool js_pipeline_PipelineSceneData_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_destroy)
+
+static bool js_pipeline_PipelineSceneData_getAmbient(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getAmbient : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::Ambient* result = cobj->getAmbient();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getAmbient : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getAmbient)
+
+static bool js_pipeline_PipelineSceneData_getDirShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getDirShadowObjects : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::pipeline::RenderObject>& result = cobj->getDirShadowObjects();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getDirShadowObjects : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getDirShadowObjects)
+
+static bool js_pipeline_PipelineSceneData_getFog(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getFog : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::Fog* result = cobj->getFog();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getFog : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getFog)
+
+static bool js_pipeline_PipelineSceneData_getGeometryRendererMaterials(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getGeometryRendererMaterials : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::IntrusivePtr<cc::Material>>& result = cobj->getGeometryRendererMaterials();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getGeometryRendererMaterials : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererMaterials)
+
+static bool js_pipeline_PipelineSceneData_getGeometryRendererPasses(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getGeometryRendererPasses : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::scene::Pass *>& result = cobj->getGeometryRendererPasses();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getGeometryRendererPasses : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererPasses)
+
+static bool js_pipeline_PipelineSceneData_getGeometryRendererShaders(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getGeometryRendererShaders : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::gfx::Shader *>& result = cobj->getGeometryRendererShaders();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getGeometryRendererShaders : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererShaders)
+
+static bool js_pipeline_PipelineSceneData_getMatShadowProj(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getMatShadowProj : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::Mat4 result = cobj->getMatShadowProj();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getMatShadowProj : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getMatShadowProj)
+
+static bool js_pipeline_PipelineSceneData_getMatShadowView(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getMatShadowView : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::Mat4 result = cobj->getMatShadowView();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getMatShadowView : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getMatShadowView)
+
+static bool js_pipeline_PipelineSceneData_getMatShadowViewProj(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getMatShadowViewProj : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::Mat4 result = cobj->getMatShadowViewProj();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getMatShadowViewProj : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getMatShadowViewProj)
+
+static bool js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::InputAssembler* result = cobj->getOcclusionQueryInputAssembler();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler)
+
+static bool js_pipeline_PipelineSceneData_getOcclusionQueryPass(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getOcclusionQueryPass : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::Pass* result = cobj->getOcclusionQueryPass();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getOcclusionQueryPass : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryPass)
+
+static bool js_pipeline_PipelineSceneData_getOcclusionQueryShader(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getOcclusionQueryShader : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Shader* result = cobj->getOcclusionQueryShader();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getOcclusionQueryShader : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryShader)
+
+static bool js_pipeline_PipelineSceneData_getOctree(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getOctree : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::Octree* result = cobj->getOctree();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getOctree : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getOctree)
+
+static bool js_pipeline_PipelineSceneData_getShadingScale(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getShadingScale : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getShadingScale();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getShadingScale : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getShadingScale)
+
+static bool js_pipeline_PipelineSceneData_getShadowCameraFar(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getShadowCameraFar : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getShadowCameraFar();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getShadowCameraFar : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getShadowCameraFar)
+
+static bool js_pipeline_PipelineSceneData_getShadows(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getShadows : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::Shadows* result = cobj->getShadows();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getShadows : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getShadows)
+
+static bool js_pipeline_PipelineSceneData_getSkybox(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getSkybox : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::Skybox* result = cobj->getSkybox();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getSkybox : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getSkybox)
+
+static bool js_pipeline_PipelineSceneData_getValidPunctualLights(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getValidPunctualLights : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<const cc::scene::Light *>& result = cobj->getValidPunctualLights();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getValidPunctualLights : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getValidPunctualLights)
+
+static bool js_pipeline_PipelineSceneData_isCastShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_isCastShadowObjects : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::pipeline::RenderObject>& result = cobj->isCastShadowObjects();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_isCastShadowObjects : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_isCastShadowObjects)
+
+static bool js_pipeline_PipelineSceneData_isHDR(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_isHDR : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isHDR();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_isHDR : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_isHDR)
+
+static bool js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->onGlobalPipelineStateChanged();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged)
+
+static bool js_pipeline_PipelineSceneData_setCastShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setCastShadowObjects : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::vector<cc::pipeline::RenderObject>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setCastShadowObjects : Error processing arguments");
+        cobj->setCastShadowObjects(std::move(arg0.value()));
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_setCastShadowObjects)
+
+static bool js_pipeline_PipelineSceneData_setDirShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setDirShadowObjects : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::vector<cc::pipeline::RenderObject>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setDirShadowObjects : Error processing arguments");
+        cobj->setDirShadowObjects(std::move(arg0.value()));
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_setDirShadowObjects)
+
+static bool js_pipeline_PipelineSceneData_setHDR(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setHDR : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setHDR : Error processing arguments");
+        cobj->setHDR(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_pipeline_PipelineSceneData_setHDR)
+
+static bool js_pipeline_PipelineSceneData_setMatShadowProj(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setMatShadowProj : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Mat4, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setMatShadowProj : Error processing arguments");
+        cobj->setMatShadowProj(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_setMatShadowProj)
+
+static bool js_pipeline_PipelineSceneData_setMatShadowView(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setMatShadowView : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Mat4, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setMatShadowView : Error processing arguments");
+        cobj->setMatShadowView(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_setMatShadowView)
+
+static bool js_pipeline_PipelineSceneData_setMatShadowViewProj(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setMatShadowViewProj : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Mat4, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setMatShadowViewProj : Error processing arguments");
+        cobj->setMatShadowViewProj(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_setMatShadowViewProj)
+
+static bool js_pipeline_PipelineSceneData_setShadingScale(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setShadingScale : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setShadingScale : Error processing arguments");
+        cobj->setShadingScale(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_pipeline_PipelineSceneData_setShadingScale)
+
+static bool js_pipeline_PipelineSceneData_setShadowCameraFar(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setShadowCameraFar : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setShadowCameraFar : Error processing arguments");
+        cobj->setShadowCameraFar(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_setShadowCameraFar)
+
+static bool js_pipeline_PipelineSceneData_setShadowFramebuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setShadowFramebuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<const cc::scene::Light*, false> arg0 = {};
+        HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setShadowFramebuffer : Error processing arguments");
+        cobj->setShadowFramebuffer(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer)
+
+static bool js_pipeline_PipelineSceneData_setValidPunctualLights(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_setValidPunctualLights : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::vector<const cc::scene::Light *>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_setValidPunctualLights : Error processing arguments");
+        cobj->setValidPunctualLights(std::move(arg0.value()));
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_PipelineSceneData_finalize)
+
+static bool js_pipeline_PipelineSceneData_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::pipeline::PipelineSceneData);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_pipeline_PipelineSceneData_constructor, __jsb_cc_pipeline_PipelineSceneData_class, js_cc_pipeline_PipelineSceneData_finalize)
+
+static bool js_cc_pipeline_PipelineSceneData_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_pipeline_PipelineSceneData_finalize)
+
+bool js_register_pipeline_PipelineSceneData(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("PipelineSceneData", obj, nullptr, _SE(js_pipeline_PipelineSceneData_constructor));
+
+    cls->defineProperty("isHDR", _SE(js_pipeline_PipelineSceneData_isHDR_asGetter), _SE(js_pipeline_PipelineSceneData_setHDR_asSetter));
+    cls->defineProperty("shadingScale", _SE(js_pipeline_PipelineSceneData_getShadingScale_asGetter), _SE(js_pipeline_PipelineSceneData_setShadingScale_asSetter));
+    cls->defineProperty("fog", _SE(js_pipeline_PipelineSceneData_getFog_asGetter), nullptr);
+    cls->defineProperty("ambient", _SE(js_pipeline_PipelineSceneData_getAmbient_asGetter), nullptr);
+    cls->defineProperty("skybox", _SE(js_pipeline_PipelineSceneData_getSkybox_asGetter), nullptr);
+    cls->defineProperty("shadows", _SE(js_pipeline_PipelineSceneData_getShadows_asGetter), nullptr);
+    cls->defineFunction("activate", _SE(js_pipeline_PipelineSceneData_activate));
+    cls->defineFunction("addRenderObject", _SE(js_pipeline_PipelineSceneData_addRenderObject));
+    cls->defineFunction("addValidPunctualLight", _SE(js_pipeline_PipelineSceneData_addValidPunctualLight));
+    cls->defineFunction("clearRenderObjects", _SE(js_pipeline_PipelineSceneData_clearRenderObjects));
+    cls->defineFunction("clearValidPunctualLights", _SE(js_pipeline_PipelineSceneData_clearValidPunctualLights));
+    cls->defineFunction("destroy", _SE(js_pipeline_PipelineSceneData_destroy));
+    cls->defineFunction("getDirShadowObjects", _SE(js_pipeline_PipelineSceneData_getDirShadowObjects));
+    cls->defineFunction("getGeometryRendererMaterials", _SE(js_pipeline_PipelineSceneData_getGeometryRendererMaterials));
+    cls->defineFunction("getGeometryRendererPasses", _SE(js_pipeline_PipelineSceneData_getGeometryRendererPasses));
+    cls->defineFunction("getGeometryRendererShaders", _SE(js_pipeline_PipelineSceneData_getGeometryRendererShaders));
+    cls->defineFunction("getMatShadowProj", _SE(js_pipeline_PipelineSceneData_getMatShadowProj));
+    cls->defineFunction("getMatShadowView", _SE(js_pipeline_PipelineSceneData_getMatShadowView));
+    cls->defineFunction("getMatShadowViewProj", _SE(js_pipeline_PipelineSceneData_getMatShadowViewProj));
+    cls->defineFunction("getOcclusionQueryInputAssembler", _SE(js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler));
+    cls->defineFunction("getOcclusionQueryPass", _SE(js_pipeline_PipelineSceneData_getOcclusionQueryPass));
+    cls->defineFunction("getOcclusionQueryShader", _SE(js_pipeline_PipelineSceneData_getOcclusionQueryShader));
+    cls->defineFunction("getOctree", _SE(js_pipeline_PipelineSceneData_getOctree));
+    cls->defineFunction("getShadowCameraFar", _SE(js_pipeline_PipelineSceneData_getShadowCameraFar));
+    cls->defineFunction("getValidPunctualLights", _SE(js_pipeline_PipelineSceneData_getValidPunctualLights));
+    cls->defineFunction("isCastShadowObjects", _SE(js_pipeline_PipelineSceneData_isCastShadowObjects));
+    cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged));
+    cls->defineFunction("setCastShadowObjects", _SE(js_pipeline_PipelineSceneData_setCastShadowObjects));
+    cls->defineFunction("setDirShadowObjects", _SE(js_pipeline_PipelineSceneData_setDirShadowObjects));
+    cls->defineFunction("setMatShadowProj", _SE(js_pipeline_PipelineSceneData_setMatShadowProj));
+    cls->defineFunction("setMatShadowView", _SE(js_pipeline_PipelineSceneData_setMatShadowView));
+    cls->defineFunction("setMatShadowViewProj", _SE(js_pipeline_PipelineSceneData_setMatShadowViewProj));
+    cls->defineFunction("setShadowCameraFar", _SE(js_pipeline_PipelineSceneData_setShadowCameraFar));
+    cls->defineFunction("setShadowFramebuffer", _SE(js_pipeline_PipelineSceneData_setShadowFramebuffer));
+    cls->defineFunction("setValidPunctualLights", _SE(js_pipeline_PipelineSceneData_setValidPunctualLights));
+    cls->defineFinalizeFunction(_SE(js_cc_pipeline_PipelineSceneData_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::pipeline::PipelineSceneData>(cls);
+
+    __jsb_cc_pipeline_PipelineSceneData_proto = cls->getProto();
+    __jsb_cc_pipeline_PipelineSceneData_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
