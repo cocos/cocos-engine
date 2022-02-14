@@ -20,7 +20,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::BoundingBox);
 JSB_REGISTER_OBJECT_TYPE(cc::VertexIdChannel);
 JSB_REGISTER_OBJECT_TYPE(cc::Asset);
 JSB_REGISTER_OBJECT_TYPE(cc::BufferAsset);
-JSB_REGISTER_OBJECT_TYPE(cc::TextureBase);
 JSB_REGISTER_OBJECT_TYPE(cc::IPropertyInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::RasterizerStateInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::DepthStencilStateInfo);
@@ -48,6 +47,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::IMemoryImageSource);
 JSB_REGISTER_OBJECT_TYPE(cc::ImageAsset);
 JSB_REGISTER_OBJECT_TYPE(cc::IMaterialInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::Material);
+JSB_REGISTER_OBJECT_TYPE(cc::TextureBase);
 JSB_REGISTER_OBJECT_TYPE(cc::IRenderTextureCreateInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::RenderTexture);
 JSB_REGISTER_OBJECT_TYPE(cc::IMeshBufferView);
@@ -127,24 +127,6 @@ extern se::Class * __jsb_cc_BufferAsset_class; // NOLINT
 bool js_register_cc_BufferAsset(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_BufferAsset_BufferAsset);
-
-extern se::Object *__jsb_cc_TextureBase_proto; // NOLINT
-extern se::Class * __jsb_cc_TextureBase_class; // NOLINT
-
-bool js_register_cc_TextureBase(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_assets_TextureBase_getAnisotropy);
-SE_DECLARE_FUNC(js_assets_TextureBase_getGFXSampler);
-SE_DECLARE_FUNC(js_assets_TextureBase_getGFXTexture);
-SE_DECLARE_FUNC(js_assets_TextureBase_getHashForJS);
-SE_DECLARE_FUNC(js_assets_TextureBase_getId);
-SE_DECLARE_FUNC(js_assets_TextureBase_getPixelFormat);
-SE_DECLARE_FUNC(js_assets_TextureBase_getSamplerInfo);
-SE_DECLARE_FUNC(js_assets_TextureBase_setAnisotropy);
-SE_DECLARE_FUNC(js_assets_TextureBase_setFilters);
-SE_DECLARE_FUNC(js_assets_TextureBase_setMipFilter);
-SE_DECLARE_FUNC(js_assets_TextureBase_setWrapMode);
-SE_DECLARE_FUNC(js_assets_TextureBase_TextureBase);
 
 extern se::Object *__jsb_cc_IPropertyInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_IPropertyInfo_class; // NOLINT
@@ -401,6 +383,24 @@ SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4);
 SE_DECLARE_FUNC(js_assets_Material_setPropertyVec4Array);
 SE_DECLARE_FUNC(js_assets_Material_getHashForMaterialForJS);
 SE_DECLARE_FUNC(js_assets_Material_Material);
+
+extern se::Object *__jsb_cc_TextureBase_proto; // NOLINT
+extern se::Class * __jsb_cc_TextureBase_class; // NOLINT
+
+bool js_register_cc_TextureBase(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_assets_TextureBase_getAnisotropy);
+SE_DECLARE_FUNC(js_assets_TextureBase_getGFXSampler);
+SE_DECLARE_FUNC(js_assets_TextureBase_getGFXTexture);
+SE_DECLARE_FUNC(js_assets_TextureBase_getHashForJS);
+SE_DECLARE_FUNC(js_assets_TextureBase_getId);
+SE_DECLARE_FUNC(js_assets_TextureBase_getPixelFormat);
+SE_DECLARE_FUNC(js_assets_TextureBase_getSamplerInfo);
+SE_DECLARE_FUNC(js_assets_TextureBase_setAnisotropy);
+SE_DECLARE_FUNC(js_assets_TextureBase_setFilters);
+SE_DECLARE_FUNC(js_assets_TextureBase_setMipFilter);
+SE_DECLARE_FUNC(js_assets_TextureBase_setWrapMode);
+SE_DECLARE_FUNC(js_assets_TextureBase_TextureBase);
 
 extern se::Object *__jsb_cc_IRenderTextureCreateInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_IRenderTextureCreateInfo_class; // NOLINT
