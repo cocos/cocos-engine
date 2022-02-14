@@ -119,8 +119,8 @@ public:
          *  @note The return value (non-null) has to be released manually.
          */
     static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj);
-    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offet);
-    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offet, size_t byteLength);
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset);
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength);
 
     /**
          *  @brief Creates a JavaScript Array Buffer object from an existing pointer.
@@ -328,6 +328,11 @@ public:
     void clearPrivateData(bool clearMapping = true);
 
     /**
+     * @brief Sets whether to clear the mapping of native object & se::Object in finalizer
+     */
+    void setClearMappingInFinalizer(bool v) { _clearMappingInFinalizer = v; }
+
+    /**
          *  @brief Roots an object from garbage collection.
          *  @note Use this method when you want to store an object in a global or on the heap, where the garbage collector will not be able to discover your reference to it.
          *        An object may be rooted multiple times and must be unrooted an equal number of times before becoming eligible for garbage collection.
@@ -436,7 +441,7 @@ public:
     #endif
 
 private:
-    static void nativeObjectFinalizeHook(PrivateObjectBase *privateObject);
+    static void nativeObjectFinalizeHook(Object *seObj);
     static void setIsolate(v8::Isolate *isolate);
     static void cleanup();
     static void setup();
@@ -446,13 +451,14 @@ private:
 
     bool init(Class *cls, v8::Local<v8::Object> obj);
 
-    Class *    _cls;
-    ObjectWrap _obj;
-    uint32_t   _rootCount;
+    Class *     _cls{nullptr};
+    ObjectWrap  _obj;
+    uint32_t    _rootCount{0};
 
     PrivateObjectBase *    _privateObject{nullptr};
-    V8FinalizeFunc         _finalizeCb;
-    internal::PrivateData *_internalData;
+    V8FinalizeFunc         _finalizeCb{nullptr};
+    internal::PrivateData *_internalData{nullptr};
+    bool                   _clearMappingInFinalizer{true};
 
     #if CC_DEBUG && CC_DEBUG_JS_OBJECT_ID
     uint32_t _objectId = 0;

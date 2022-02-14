@@ -344,7 +344,7 @@ public:
 private:
     ScriptEngine();
     ~ScriptEngine();
-    static void privateDataFinalize(PrivateObjectBase *nativeObj);
+    static void privateDataFinalize(PrivateObjectBase *privateObj);
     static void onFatalErrorCallback(const char *location, const char *message);
     static void onOOMErrorCallback(const char *location, bool isHeapOom);
     static void onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
