@@ -15,7 +15,9 @@ let result = [];
 const cdbFile = path.join(__dirname, '../../native/build/compile_commands.json');
 console.log(cdbFile);
 if (fs.existsSync(cdbFile)) {
+    console.log("enter json parse");
     const db = JSON.parse(fs.readFileSync(cdbFile, { encoding: 'utf8' }));
+    console.log(db[0]);
     for (let f of ARGS) {
         const name = f.endsWith('.h') ? f.slice(0, -2) : f; // ignore .h extension name
         if (excludes.some((e) => name.includes(e))) continue;
