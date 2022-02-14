@@ -12,7 +12,8 @@ const excludes = [
 
 let result = [];
 
-const cdbFile = path.join(__dirname, './native/build/compile_commands.json');
+const cdbFile = path.join(__dirname, '../../native/build/compile_commands.json');
+console.log(cdbFile);
 if (fs.existsSync(cdbFile)) {
     const db = JSON.parse(fs.readFileSync(cdbFile, { encoding: 'utf8' }));
     for (let f of ARGS) {
