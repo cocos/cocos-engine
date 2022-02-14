@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "ScriptEngine.h"
+#include "application/ApplicationManager.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
@@ -317,24 +318,74 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
     }
 }
 
+void ScriptEngine::pushPromiseExeception(v8::Local<v8::Promise> &promise, v8::PromiseRejectEvent event, const char *stackTrace) {
+    using element_type = decltype(_promiseArray)::value_type;
+    element_type *current;
+
+    auto itr = std::find_if(_promiseArray.begin(), _promiseArray.end(), [&](const auto &e) -> bool {
+        return std::get<0>(e)->Get(_isolate) == promise;
+    });
+
+    if (itr == _promiseArray.end()) {//Not found, create one
+        _promiseArray.emplace_back(std::make_unique<v8::Persistent<v8::Promise>>(), std::vector<PromiseExceptionMsg>{});
+        std::get<0>(_promiseArray.back())->Reset(_isolate, promise);
+        current = &_promiseArray.back();
+    } else {
+        current = &(*itr);
+    }
+
+    auto &exceptions = std::get<1>(*current);
+    if (event == v8::kPromiseHandlerAddedAfterReject) {
+        //if event is kPromiseHandlerAddedAfterReject
+
+        for (int i = 0; i < exceptions.size(); i++) {
+            if (exceptions[i].event == v8::kPromiseRejectWithNoHandler) {
+                exceptions.erase(exceptions.begin() + i);
+                return;
+            }
+        }
+    }
+    exceptions.push_back(PromiseExceptionMsg{event, stackTrace});
+}
+void ScriptEngine::handlePromiseExceptions() {
+    shouldHandleExceptions = false;
+    if (_promiseArray.empty()) {
+        return;
+    }
+    const char* eventName;
+    for (auto& exceptionsPair : _promiseArray) {
+        for (auto exceptions : std::get<1>(exceptionsPair)) {
+            switch (exceptions.event) {
+                case v8::kPromiseRejectWithNoHandler:
+                    eventName = "unhandledRejectedPromise";
+                    break;
+                case v8::kPromiseHandlerAddedAfterReject:
+                    eventName = "handlerAddedAfterPromiseRejected";
+                    break;
+                case v8::kPromiseRejectAfterResolved:
+                    eventName = "rejectAfterPromiseResolved";
+                    break;
+                case v8::kPromiseResolveAfterResolved:
+                    eventName = "resolveAfterPromiseResolved";
+                    break;
+            }
+            getInstance()->callExceptionCallback("", eventName, exceptions.stackTrace.c_str());
+        
+        }
+        delete exceptionsPair;
+    }
+    
+}
+
 void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
+    /* Reject message contains different types, yet not every type will lead to the exception in the end.
+     * A detection is needed: if the reject handler is added after the promise is triggered, it's actually valid.*/
     v8::Isolate *     isolate = getInstance()->_isolate;
     v8::HandleScope   scope(isolate);
     std::stringstream ss;
     auto              event       = msg.GetEvent();
     auto              value       = msg.GetValue();
     auto              promiseName = msg.GetPromise()->GetConstructorName();
-    const char *      eventName   = "[invalidatePromiseEvent]";
-
-    if (event == v8::kPromiseRejectWithNoHandler) {
-        eventName = "unhandledRejectedPromise";
-    } else if (event == v8::kPromiseHandlerAddedAfterReject) {
-        eventName = "handlerAddedAfterPromiseRejected";
-    } else if (event == v8::kPromiseRejectAfterResolved) {
-        eventName = "rejectAfterPromiseResolved";
-    } else if (event == v8::kPromiseResolveAfterResolved) {
-        eventName = "resolveAfterPromiseResolved";
-    }
 
     if (!value.IsEmpty()) {
         // prepend error object to stack message
@@ -396,7 +447,16 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
     auto stackStr = getInstance()->getCurrentStackTrace();
     ss << "stacktrace: " << std::endl;
     ss << stackStr << std::endl;
-    getInstance()->callExceptionCallback("", eventName, ss.str().c_str());
+
+    getInstance()->pushPromiseExeception(msg.GetPromise(), event, ss.str().c_str());
+    if(!shouldHandleExceptions){
+        shouldHandleExceptions = true;
+        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=](){
+            se::ScriptEngine::getInstance()->handlePromiseExceptions();
+        });
+    }
+    
+
 }
 
 void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateData) {
