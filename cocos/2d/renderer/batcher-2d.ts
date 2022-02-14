@@ -662,6 +662,10 @@ export class Batcher2D implements IBatcher {
         if (this._opacityDirty && render && render.renderData && render.renderData.vertexCount > 0) {
             // HARD COUPLING
             updateOpacity(render.renderData, opacity);
+            const buffer = render.renderData.getMeshBuffer();
+            if (buffer) {
+                buffer.setDirty();
+            }
         }
 
         if (children.length > 0 && !node._static) {

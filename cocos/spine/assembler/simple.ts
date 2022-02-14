@@ -165,7 +165,7 @@ let _accessor: StaticVBAccessor = null!;
  */
 export const simple: IAssembler = {
     accessor: _accessor,
-    vCount: 65535,
+    vCount: 32767,
     ensureAccessor () {
         if (!_accessor) {
             const device = director.root!.device;
@@ -332,8 +332,6 @@ function fillVertices (skeletonColor: spine.Color,
     slotColor: spine.Color,
     clipper: spine.SkeletonClipping,
     slot: spine.Slot) {
-    const rd = _renderData!;
-
     _finalColor.a = slotColor.a * attachmentColor.a * skeletonColor.a * _nodeA * 255;
     _multiplier =  _premultipliedAlpha ? _finalColor.a : 255;
     _tempr = _nodeR * attachmentColor.r * skeletonColor.r * _multiplier;
@@ -345,13 +343,13 @@ function fillVertices (skeletonColor: spine.Color,
     _finalColor.b = _tempb * slotColor.b;
 
     if (slot.darkColor == null) {
-        _darkColor.set(0.0, 0.0, 0.0, 1.0);
+        _darkColor.set(1.0, 1.0, 1.0, 1.0);
     } else {
         _darkColor.r = slot.darkColor.r * _tempr;
         _darkColor.g = slot.darkColor.g * _tempg;
         _darkColor.b = slot.darkColor.b * _tempb;
     }
-    _darkColor.a =  _premultipliedAlpha ? 255 : 0;
+    _darkColor.a = _premultipliedAlpha ? 255 : 0;
 
     if (!clipper.isClipping()) {
         if (_vertexEffect) {

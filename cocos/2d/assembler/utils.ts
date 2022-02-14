@@ -95,8 +95,8 @@ export function updateOpacity (renderData: RenderData, opacity: number) {
                     vb[color] = ((vb[color] & 0xffffff00) | alpha) >>> 0;
                 }
             } else if (format.size / format.count === 4) {
-                // Float32 color
-                for (let alpha = offset; alpha < vb.length; alpha += stride) {
+                // RGBA32 color, alpha at position 3
+                for (let alpha = offset + 3; alpha < vb.length; alpha += stride) {
                     vb[alpha] = opacity;
                 }
             }
