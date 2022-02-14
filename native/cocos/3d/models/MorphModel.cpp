@@ -31,9 +31,8 @@ std::vector<scene::IMacroPatch> &MorphModel::getMacroPatches(index_t subModelInd
     if (_morphRenderingInstance) {
         _macroPatches = _morphRenderingInstance->requiredPatches(subModelIndex);
         return _macroPatches;
-    } else {
-        return Super::getMacroPatches(subModelIndex);
     }
+    return Super::getMacroPatches(subModelIndex);
 }
 
 void MorphModel::initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) {

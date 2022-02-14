@@ -243,7 +243,7 @@ public:
         bool    boolVal;
     } args[10] = {0};
 
-    virtual ~CustomEvent() = default;
+    virtual ~CustomEvent() = default; // NOLINT(modernize-use-nullptr)
 };
 
 class DeviceEvent : public OSEvent {
@@ -262,7 +262,7 @@ public:
         char    charVal;
         bool    boolVal;
     } args[3] = {0};
-    Type type = Type::DEVICE_MEMORY;
+    Type type{Type::DEVICE_MEMORY}; // NOLINT(modernize-use-nullptr)
 };
 
 class EventDispatcher {
