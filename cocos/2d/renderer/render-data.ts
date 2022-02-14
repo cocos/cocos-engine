@@ -336,6 +336,7 @@ export class MeshRenderData extends BaseRenderData {
         this._vc += vertexCount; // vertexOffset
         this._ic += indexCount; // indicesOffset
         this._byteLength = byteOffset; // byteOffset
+        this.indexRange = this.indexCount;
         return true;
     }
 
@@ -389,7 +390,7 @@ export class MeshRenderData extends BaseRenderData {
         this._initIAInfo(device);
         const ia = this._iaPool!.add();
         ia.firstIndex = this.indexStart;
-        ia.indexCount = this.indexCount;
+        ia.indexCount = this.indexRange;
         return ia;
     }
 
