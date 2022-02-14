@@ -1,4 +1,4 @@
-name: check version
+name: <Web> Check version
 
 #on: push
 on: [create, pull_request]

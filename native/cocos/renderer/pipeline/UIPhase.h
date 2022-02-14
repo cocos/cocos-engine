@@ -24,11 +24,18 @@
 ****************************************************************************/
 
 #pragma once
-#include "RenderPipeline.h"
-#include "scene/Camera.h"
+#include "base/Macros.h"
+#include "base/TypeDef.h"
 
 namespace cc {
+namespace scene {
+class Camera;
+}
+namespace gfx {
+class RenderPass;
+}
 namespace pipeline {
+class RenderPipeline;
 
 class CC_DLL UIPhase {
 public:

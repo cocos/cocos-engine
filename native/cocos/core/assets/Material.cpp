@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "core/assets/Material.h"
-#include "cocos/base/Variant.h"
 
 #include "base/Utils.h"
 #include "core/Root.h"
@@ -35,7 +34,6 @@
 #include "math/Color.h"
 #include "renderer/pipeline/helper/Utils.h"
 #include "scene/Pass.h"
-
 namespace cc {
 
 /* static */
@@ -55,6 +53,8 @@ uint64_t Material::getHashForMaterial(Material *material) {
 Material::Material() {
     _passes = std::make_shared<std::vector<IntrusivePtr<scene::Pass>>>();
 }
+
+Material::~Material() = default;
 
 void Material::initialize(const IMaterialInfo &info) {
     // cjh FIXME: remove hacking code here
@@ -403,9 +403,9 @@ void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialPro
     }
 
     const uint32_t binding = scene::Pass::getBindingFromHandle(handle);
-    if (const auto *pTexture = cc::get_if<cc::IntrusivePtr<gfx::Texture>>(&val)) {
+    if (const auto *pTexture = cc::get_if<IntrusivePtr<gfx::Texture>>(&val)) {
         pass->bindTexture(binding, const_cast<gfx::Texture *>(pTexture->get()), index);
-    } else if (const auto *pTextureBase = cc::get_if<cc::IntrusivePtr<TextureBase>>(&val)) {
+    } else if (const auto *pTextureBase = cc::get_if<IntrusivePtr<TextureBase>>(&val)) {
         auto *        textureBase = pTextureBase->get();
         gfx::Texture *texture     = nullptr;
         if (textureBase != nullptr) {

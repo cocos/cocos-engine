@@ -25,6 +25,7 @@
 
 #include "core/assets/TextureCube.h"
 #include "core/assets/ImageAsset.h"
+#include "core/assets/Texture2D.h"
 #include "renderer/gfx-base/GFXTexture.h"
 
 namespace cc {
@@ -70,6 +71,8 @@ TextureCube *TextureCube::fromTexture2DArray(const std::vector<Texture2D *> &tex
     return out;
 }
 
+TextureCube::TextureCube() = default;
+
 TextureCube::~TextureCube() = default;
 
 void TextureCube::setMipmaps(const std::vector<ITextureCubeMipmap> &value) {
@@ -101,6 +104,14 @@ void TextureCube::setMipmaps(const std::vector<ITextureCubeMipmap> &value) {
     }
 }
 
+void TextureCube::setMipmapsForJS(const std::vector<ITextureCubeMipmap> &value) {
+    _mipmaps = value;
+}
+
+void TextureCube::setImage(const ITextureCubeMipmap &value) {
+    _mipmaps.clear();
+    _mipmaps.emplace_back(value);
+}
 void TextureCube::reset(const ITextureCubeCreateInfo &info) {
     _width  = info.width;
     _height = info.height;

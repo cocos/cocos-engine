@@ -42,8 +42,8 @@ IDGenerator idGenerator("Tex");
 
 TextureBase::TextureBase() {
     // Id for generate hash in material
-    _id          = idGenerator.getNewId();
-    _gfxDevice   = getGFXDevice();
+    _id              = idGenerator.getNewId();
+    _gfxDevice       = getGFXDevice();
     std::size_t seed = 666;
     boost::hash_range(seed, _id.begin(), _id.end());
     _textureHash = static_cast<uint32_t>(seed);

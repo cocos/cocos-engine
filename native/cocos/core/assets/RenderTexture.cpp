@@ -27,6 +27,7 @@
 #include "core/Root.h"
 #include "core/utils/IDGenerator.h"
 #include "renderer/gfx-base/GFXDef-common.h"
+#include "scene/RenderWindow.h"
 
 namespace cc {
 
@@ -51,6 +52,9 @@ cc::scene::IRenderWindowInfo windowInfo{
     passInfo};
 
 } // namespace
+
+RenderTexture::RenderTexture()  = default;
+RenderTexture::~RenderTexture() = default;
 
 void RenderTexture::initialize(const IRenderTextureCreateInfo &info) {
     _name   = info.name.has_value() ? info.name.value() : "";

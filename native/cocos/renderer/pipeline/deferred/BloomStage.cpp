@@ -26,6 +26,7 @@
 
 #include "BloomStage.h"
 #include "../PipelineStateManager.h"
+#include "../PipelineUBO.h"
 #include "../RenderPipeline.h"
 #include "../RenderQueue.h"
 #include "frame-graph/DevicePass.h"
@@ -40,8 +41,10 @@
 #include "pipeline/Define.h"
 #include "pipeline/UIPhase.h"
 #include "renderer/pipeline/deferred/DeferredPipelineSceneData.h"
+#include "scene/Camera.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

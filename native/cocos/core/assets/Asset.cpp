@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "core/assets/Asset.h"
-#include "base/Macros.h"
 #include "base/DeferredReleasePool.h"
+#include "base/Macros.h"
 #include "core/utils/Path.h"
 
 namespace cc {
@@ -57,7 +57,7 @@ std::string Asset::getNativeUrl() const {
     }
     return _nativeUrl;
 }
-
+Asset::Asset() = default;
 Asset::~Asset() = default;
 
 NativeDep Asset::getNativeDep() const {

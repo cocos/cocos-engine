@@ -25,24 +25,21 @@
 
 #pragma once
 
-#include "core/assets/Asset.h"
-
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "base/Ptr.h"
 #include "cocos/base/Optional.h"
 #include "cocos/base/Variant.h"
-#include "core/Types.h"
 #include "core/assets/EffectAsset.h"
-#include "core/assets/TextureBase.h"
-#include "renderer/core/PassUtils.h"
-#include "renderer/gfx-base/GFXTexture.h"
-#include "scene/Pass.h"
 
 namespace cc {
 
 //class RenderableComponent;
+
+namespace scene {
+class Pass;
+}
 
 /**
  * @en The basic infos for material initialization.
@@ -104,7 +101,7 @@ public:
     }
 
     Material();
-    ~Material() override = default;
+    ~Material() override;
 
     /**
      * @en Initialize this material with the given information.

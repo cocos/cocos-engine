@@ -1,4 +1,4 @@
-name: 📝 Linter
+name: <Native> Linter
 
 on: pull_request
 

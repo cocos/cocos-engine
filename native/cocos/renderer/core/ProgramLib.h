@@ -31,17 +31,16 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "base/Vector.h"
 #include "cocos/base/Optional.h"
 #include "core/Types.h"
 #include "core/assets/EffectAsset.h"
-#include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef-common.h"
-#include "renderer/gfx-base/GFXDevice.h"
-#include "renderer/gfx-base/GFXPipelineLayout.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/RenderPipeline.h"
 
 namespace cc {
+class EffectAsset;
 
 struct IDefineRecord : public IDefineInfo {
     std::function<int32_t(const MacroValue &)> map{nullptr};
@@ -155,8 +154,8 @@ public:
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);
-    ProgramLib()  = default;
-    ~ProgramLib() = default;
+    ProgramLib();
+    ~ProgramLib();
 
     static ProgramLib *                            instance;
     Record<std::string, IProgramInfo>              _templates; // per shader

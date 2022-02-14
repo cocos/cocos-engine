@@ -27,6 +27,7 @@
 
 #include "base/Macros.h"
 #include "base/Ptr.h"
+#include "base/RefCounted.h"
 #include "base/TypeDef.h"
 #include "core/assets/Asset.h"
 namespace cc {
@@ -36,6 +37,7 @@ class Device;
 }
 
 class Material;
+class Asset;
 
 class BuiltinResMgr final : public RefCounted {
 public:

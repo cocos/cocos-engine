@@ -27,17 +27,14 @@
 
 #include <array>
 #include "Define.h"
-#include "scene/Camera.h"
-#include "scene/Light.h"
 
 namespace cc {
-
 class Mat4;
-
+namespace scene {
+class Camera;
+}
 namespace pipeline {
-
 class RenderPipeline;
-
 class CC_DLL PipelineUBO : public Object {
 public:
     static void    updateGlobalUBOView(const scene::Camera *camera, std::array<float, UBOGlobal::COUNT> *bufferView);

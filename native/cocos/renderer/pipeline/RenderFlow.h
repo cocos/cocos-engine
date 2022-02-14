@@ -26,9 +26,11 @@
 #pragma once
 
 #include "Define.h"
-#include "scene/Camera.h"
 
 namespace cc {
+namespace scene {
+class Camera;
+}
 namespace pipeline {
 
 class RenderPipeline;
@@ -43,7 +45,7 @@ struct CC_DLL RenderFlowInfo {
 
 class CC_DLL RenderFlow : public Object {
 public:
-    RenderFlow() = default;
+    RenderFlow();
     ~RenderFlow() override;
 
     virtual bool initialize(const RenderFlowInfo &info);

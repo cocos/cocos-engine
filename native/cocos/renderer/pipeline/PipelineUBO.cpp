@@ -24,15 +24,19 @@
 ****************************************************************************/
 
 #include "PipelineUBO.h"
+#include "GlobalDescriptorSetManager.h"
+#include "PipelineSceneData.h"
 #include "RenderPipeline.h"
 #include "SceneCulling.h"
 #include "application/ApplicationManager.h"
 #include "core/Root.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/Fog.h"
 #include "scene/RenderScene.h"
+#include "scene/Shadow.h"
 #include "scene/SpotLight.h"
 
 namespace cc {
@@ -178,10 +182,10 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 0] = static_cast<float>(camera->getNearClip());
     output[UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 1] = static_cast<float>(camera->getFarClip());
 
-    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 0] = sceneData->getShadingScale() * camera->getWindow()->getWidth() * camera->getViewport().x;
-    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 1] = sceneData->getShadingScale() * camera->getWindow()->getHeight() * camera->getViewport().y;
-    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 2] = sceneData->getShadingScale() * camera->getWindow()->getWidth() * camera->getViewport().z;
-    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 3] = sceneData->getShadingScale() * camera->getWindow()->getHeight() * camera->getViewport().w;
+    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 0] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getWidth()) * camera->getViewport().x;
+    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 1] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getHeight()) * camera->getViewport().y;
+    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 2] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getWidth()) * camera->getViewport().z;
+    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 3] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getHeight()) * camera->getViewport().w;
 }
 
 void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera) {

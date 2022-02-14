@@ -27,6 +27,8 @@
 #include "../BatchedBuffer.h"
 #include "../GeometryRenderer.h"
 #include "../InstancedBuffer.h"
+#include "../PipelineSceneData.h"
+#include "../PipelineUBO.h"
 #include "../PlanarShadowQueue.h"
 #include "../RenderAdditiveLightQueue.h"
 #include "../RenderBatchedQueue.h"
@@ -37,6 +39,7 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/UIPhase.h"
+#include "scene/Camera.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {

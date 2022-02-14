@@ -32,6 +32,7 @@
 #include "base/Log.h"
 #include "core/scene-graph/Node.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/PipelineSceneData.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"

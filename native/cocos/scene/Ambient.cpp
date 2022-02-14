@@ -26,6 +26,7 @@
 #include "scene/Ambient.h"
 #include "core/Root.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/PipelineSceneData.h"
 
 namespace {
 cc::Color col;

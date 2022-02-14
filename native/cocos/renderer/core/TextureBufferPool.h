@@ -28,9 +28,7 @@
 #include "audio/android/PcmBufferProvider.h"
 #include "cocos/base/Optional.h"
 #include "core/ArrayBuffer.h"
-#include "gfx-base/GFXTexture.h"
 #include "renderer/gfx-base/GFXDef.h"
-#include "renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
 using roundUpType = std::function<uint32_t(uint32_t size, uint32_t formatSize)>;
@@ -62,9 +60,9 @@ struct ITextureBufferPoolInfo {
 
 class TextureBufferPool : public RefCounted {
 public:
-    TextureBufferPool() = default;
+    TextureBufferPool();
     explicit TextureBufferPool(gfx::Device *device);
-    ~TextureBufferPool() override = default;
+    ~TextureBufferPool() override;
 
     void                 initialize(const ITextureBufferPoolInfo &info);
     void                 destroy();

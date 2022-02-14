@@ -24,11 +24,14 @@
 ****************************************************************************/
 
 #include "UIPhase.h"
+#include "RenderPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "pipeline/PipelineStateManager.h"
+#include "scene/Camera.h"
 #include "scene/DrawBatch2D.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

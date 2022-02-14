@@ -24,17 +24,18 @@
 ****************************************************************************/
 
 #include "PipelineSceneData.h"
+#include <sstream>
 #include "core/ArrayBuffer.h"
+#include "core/assets/Material.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "scene/Ambient.h"
 #include "scene/Fog.h"
 #include "scene/Octree.h"
+#include "scene/Pass.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
-
-#include <sstream>
 
 namespace cc {
 namespace pipeline {
