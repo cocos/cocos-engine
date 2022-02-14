@@ -697,7 +697,7 @@ void CCVKDevice::initFormatFeature() {
         }
         // texture storage support
         formatFeature = VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT;
-        if (properties.linearTilingFeatures & formatFeature) {
+        if (properties.optimalTilingFeatures & formatFeature) {
             _formatFeatures[i] |= FormatFeature::STORAGE_TEXTURE;
         }
         // sampled render target support
