@@ -372,7 +372,7 @@ private:
         std::string            stackTrace;
     };
     // Push promise and exception msg to _promiseArray
-    void pushPromiseExeception(v8::Local<v8::Promise> &promise, v8::PromiseRejectEvent event, const char *stackTrace);
+    void pushPromiseExeception(const v8::Local<v8::Promise> &promise, v8::PromiseRejectEvent event, const char *stackTrace);
 
     std::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, std::vector<PromiseExceptionMsg>>> _promiseArray;
 

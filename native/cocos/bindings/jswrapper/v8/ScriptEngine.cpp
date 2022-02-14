@@ -318,7 +318,7 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
     }
 }
 
-void ScriptEngine::pushPromiseExeception(v8::Local<v8::Promise> &promise, v8::PromiseRejectEvent event, const char *stackTrace) {
+void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, v8::PromiseRejectEvent event, const char *stackTrace) {
     using element_type = decltype(_promiseArray)::value_type;
     element_type *current;
 
