@@ -248,10 +248,8 @@ export const ttfUtils =  {
         let firstLinelabelY = _fontSize * (1 - BASELINE_RATIO / 2);
         if (_vAlign !== VerticalTextAlignment.TOP) {
             // free space in vertical direction
-            let blank = drawStartY + _canvasPadding.height + _fontSize - _canvasSize.height;
+            const blank = drawStartY + _canvasPadding.height + _fontSize - _canvasSize.height;
             if (_vAlign === VerticalTextAlignment.BOTTOM) {
-                // Unlike BMFont, needs to reserve space below.
-                blank += 0;
                 // BOTTOM
                 firstLinelabelY -= blank;
             } else {
