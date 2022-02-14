@@ -81,6 +81,7 @@ struct StandardSurface {
   float roughness;
   float metallic;
   float occlusion;
+  vec2 shadowBias;
 };
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
@@ -120,7 +121,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
-      shadow = CCShadowFactorBase(shadowPos, N);
+      shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
     }
   #endif
 

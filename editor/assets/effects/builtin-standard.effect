@@ -102,6 +102,7 @@ CCProgram standard-vs %{
   out vec3 v_normal;
   out vec2 v_uv;
   out vec2 v_uv1;
+  out vec2 v_shadowBias;
 
   #if USE_NORMAL_MAP
     out vec3 v_tangent;
@@ -127,6 +128,7 @@ CCProgram standard-vs %{
 
     v_position = pos.xyz;
     v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+    v_shadowBias = CCGetShadowBias();
 
     #if USE_TWOSIDE
       vec3 viewDirect = normalize(cc_cameraPos.xyz - v_position);
@@ -178,6 +180,7 @@ CCProgram standard-fs %{
   in vec2 v_uv;
   in vec2 v_uv1;
   in vec3 v_normal;
+  in vec2 v_shadowBias;
 
   #if USE_VERTEX_COLOR
     in vec4 v_color;
@@ -242,6 +245,7 @@ CCProgram standard-fs %{
     #endif
 
     s.normal = v_normal;
+    s.shadowBias = v_shadowBias;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
       s.normal =

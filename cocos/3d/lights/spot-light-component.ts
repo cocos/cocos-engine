@@ -198,7 +198,7 @@ export class SpotLight extends Light {
      * @zh 是否启用阴影？
      */
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @property({ group: { name: 'ShadowSettings', displayOrder: 1 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
     @type(CCBoolean)
     get shadowEnabled () {
@@ -216,7 +216,7 @@ export class SpotLight extends Light {
      * @zh 获取或者设置阴影pcf等级。
      */
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @property({ group: { name: 'ShadowSettings', displayOrder: 2  } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2  } })
     @editable
     @type(PCFType)
     get shadowPcf () {
@@ -234,7 +234,7 @@ export class SpotLight extends Light {
      * @zh 获取或者设置阴影纹理偏移值
      */
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @property({ group: { name: 'ShadowSettings', displayOrder: 3 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
     @editable
     @type(CCFloat)
     get shadowBias () {
@@ -252,7 +252,7 @@ export class SpotLight extends Light {
      * @zh 设置或者获取法线偏移。
      */
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @property({ group: { name: 'ShadowSettings', displayOrder: 4 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 4 } })
     @editable
     @type(CCFloat)
     get shadowNormalBias () {

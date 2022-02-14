@@ -44,6 +44,8 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { MorphRenderingInstance } from '../assets/morph';
 import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { CCFloat } from '../../core/data/utils/attribute';
+import { property } from '../../core/data/class-decorator';
 
 /**
  * @en Shadow projection mode.
@@ -181,12 +183,55 @@ export class MeshRenderer extends RenderableComponent {
     // @serializable
     private _subMeshShapesWeights: number[][] = [];
 
+    @serializable
+    protected _shadowBias = 0;
+
+    @serializable
+    protected _shadowNormalBias = 0;
+
+    /**
+     * @en local shadow bias.
+     * @zh 模型局部的阴影偏移。
+     */
+    @type(CCFloat)
+    @tooltip('i18n:model.shadow_bias')
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 0 } })
+    @disallowAnimation
+    get shadowBias () {
+        return this._shadowBias;
+    }
+
+    set shadowBias (val) {
+        this._shadowBias = val;
+        this._updateShadowBias();
+        this._onUpdateLocalShadowBias();
+    }
+
+    /**
+   * @en local shadow normal bias.
+   * @zh 模型局部的阴影法线偏移。
+   */
+    @type(CCFloat)
+    @tooltip('i18n:model.shadow_normal_bias')
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
+    @disallowAnimation
+    get shadowNormalBias () {
+        return this._shadowNormalBias;
+    }
+
+    set shadowNormalBias (val) {
+        this._shadowNormalBias = val;
+        this._updateShadowNormalBias();
+        this._onUpdateLocalShadowBias();
+    }
+
     /**
      * @en Shadow projection mode.
      * @zh 阴影投射方式。
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2 } })
     @disallowAnimation
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -203,6 +248,7 @@ export class MeshRenderer extends RenderableComponent {
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
     @disallowAnimation
     get receiveShadow () {
         return this._shadowReceivingMode;
@@ -284,6 +330,8 @@ export class MeshRenderer extends RenderableComponent {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
+        this._updateShadowBias();
+        this._updateShadowNormalBias();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -294,6 +342,8 @@ export class MeshRenderer extends RenderableComponent {
         }
         this._updateCastShadow();
         this._updateReceiveShadow();
+        this._updateShadowBias();
+        this._updateShadowNormalBias();
     }
 
     public onEnable () {
@@ -302,6 +352,8 @@ export class MeshRenderer extends RenderableComponent {
         }
         this._updateCastShadow();
         this._updateReceiveShadow();
+        this._updateShadowBias();
+        this._updateShadowNormalBias();
         this._attachToScene();
     }
 
@@ -429,6 +481,7 @@ export class MeshRenderer extends RenderableComponent {
             this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
             this._updateModelParams();
             this._onUpdateLightingmap();
+            this._onUpdateLocalShadowBias();
         }
     }
 
@@ -504,6 +557,17 @@ export class MeshRenderer extends RenderableComponent {
         ]);
     }
 
+    protected _onUpdateLocalShadowBias () {
+        if (this.model !== null) {
+            this.model.updateLocalShadowBias();
+        }
+
+        this.setInstancedAttribute('a_localShadowBias', [
+            this._shadowBias,
+            this._shadowNormalBias,
+        ]);
+    }
+
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (!this._model || !this._model.inited) { return; }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
@@ -514,6 +578,7 @@ export class MeshRenderer extends RenderableComponent {
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
         this._onUpdateLightingmap();
+        this._onUpdateLocalShadowBias();
     }
 
     protected _onMeshChanged (old: Mesh | null) {
@@ -535,6 +600,16 @@ export class MeshRenderer extends RenderableComponent {
     protected _onVisibilityChange (val: number) {
         if (!this._model) { return; }
         this._model.visFlags = val;
+    }
+
+    protected _updateShadowBias () {
+        if (!this._model) { return; }
+        this._model.shadowBias = this._shadowBias;
+    }
+
+    protected _updateShadowNormalBias () {
+        if (!this._model) { return; }
+        this._model.shadowNormalBias = this._shadowNormalBias;
     }
 
     protected _updateCastShadow () {

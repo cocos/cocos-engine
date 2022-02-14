@@ -83,6 +83,8 @@ void Model::updateUBOs(uint32_t stamp) {
         const float lightmapUVParam[4] = {_lightmapSettings._lightmapUVParam.x, _lightmapSettings._lightmapUVParam.y,
                                           _lightmapSettings._lightmapUVParam.z, _lightmapSettings._lightmapUVParam.w};
         memcpy(bufferView.data() + pipeline::UBOLocal::LIGHTINGMAP_UVPARAM, lightmapUVParam, sizeof(lightmapUVParam));
+        const float localShadowBias[4] = {_shadowBias, _shadowNormalBias, 0.0F, 0.0F};
+        memcpy(bufferView.data() + pipeline::UBOLocal::LOCAL_SHADOW_BIAS, &localShadowBias, sizeof(localShadowBias));
         _localBuffer->update(bufferView.data(), pipeline::UBOLocal::SIZE);
 
         const bool enableOcclusionQuery = pipeline::RenderPipeline::getInstance()->getOcclusionQueryEnabled();

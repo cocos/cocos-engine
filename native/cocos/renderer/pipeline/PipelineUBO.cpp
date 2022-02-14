@@ -99,7 +99,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::EXPOSURE_OFFSET + 3] = 0.0F;
 
     if (mainLight) {
-        const float shadowEnable = (shadowInfo->enabled && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) ? 1.0F : 0.0F;
+        const float shadowEnable = (mainLight->getShadowEnabled() && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) ? 1.0F : 0.0F;
         const Vec4  lightDir(mainLight->getDirection().x, mainLight->getDirection().y, mainLight->getDirection().z, shadowEnable);
         TO_VEC4(output, lightDir, UBOCamera::MAIN_LIT_DIR_OFFSET)
         TO_VEC3(output, mainLight->getColor(), UBOCamera::MAIN_LIT_COLOR_OFFSET)

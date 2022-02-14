@@ -3,6 +3,7 @@
 #include <cc-global>
 #include <cc-shadow>
 #include <packing>
+#include <cc-local-batch>
 
 // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
 #define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
@@ -29,14 +30,14 @@ float CCGetViewSpaceDepth(float depthHS)
   #pragma builtin(global)
   layout(set = 0, binding = 5) uniform highp sampler2D cc_spotLightingMap;
 
-  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal)
+  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias)
   {
     vec4 newShadowPos = shadowPos;
-    if(cc_shadowLPNNInfo.z > 0.0001)
+    if(normalBias > 0.0001)
     {
       vec4 viewNormal = cc_matLightView * vec4(worldNormal, 0.0);
       if(viewNormal.z < 0.1)
-        newShadowPos.xy += viewNormal.xy * cc_shadowProjInfo.xy * cc_shadowLPNNInfo.z * clamp(viewNormal.z, 0.001, 0.1);
+        newShadowPos.xy += viewNormal.xy * cc_shadowProjInfo.xy * normalBias * clamp(viewNormal.z, 0.001, 0.1);
     }
     return newShadowPos;
   }
@@ -82,8 +83,8 @@ float CCGetViewSpaceDepth(float depthHS)
     return result;
   }
   
-  float CCGetShadowFactorHard (vec4 shadowPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetShadowFactorHard (vec4 shadowPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -102,8 +103,8 @@ float CCGetViewSpaceDepth(float depthHS)
     return shadow;
   }
 
-  float CCGetShadowFactorSoft (vec4 shadowPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetShadowFactorSoft (vec4 shadowPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -136,8 +137,8 @@ float CCGetViewSpaceDepth(float depthHS)
     return mix(resultX, resultY, coefY);
   }
 
-  float CCGetShadowFactorSoft2X (vec4 shadowPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetShadowFactorSoft2X (vec4 shadowPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -198,8 +199,8 @@ float CCGetViewSpaceDepth(float depthHS)
     return shadow * 0.25;
   }
 
-  float CCGetSpotLightShadowFactorHard (vec4 shadowPos, vec3 worldPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetSpotLightShadowFactorHard (vec4 shadowPos, vec3 worldPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -220,8 +221,8 @@ float CCGetViewSpaceDepth(float depthHS)
     return shadow;
   }
 
-  float CCGetSpotLightShadowFactorSoft (vec4 shadowPos, vec3 worldPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetSpotLightShadowFactorSoft (vec4 shadowPos, vec3 worldPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -235,7 +236,6 @@ float CCGetViewSpaceDepth(float depthHS)
       depth = clipPos.z;
     }
 
-    float bias = cc_shadowWHPBInfo.w;
     vec2 oneTap = 1.0 / cc_shadowWHPBInfo.xy;
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
@@ -260,8 +260,8 @@ float CCGetViewSpaceDepth(float depthHS)
     return mix(resultX, resultY, coefY);
   }
 
-  float CCGetSpotLightShadowFactorSoft2X (vec4 shadowPos, vec3 worldPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
+  float CCGetSpotLightShadowFactorSoft2X (vec4 shadowPos, vec3 worldPos, float bias) {
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -275,7 +275,6 @@ float CCGetViewSpaceDepth(float depthHS)
       depth = clipPos.z;
     }
 
-    float bias = cc_shadowWHPBInfo.w;
     vec2 mapSize = cc_shadowWHPBInfo.xy;
     vec2 oneTap = 1.0 / mapSize;
     float clipPos_offset_L = clipPos.x - oneTap.x;
@@ -329,30 +328,30 @@ float CCGetViewSpaceDepth(float depthHS)
     return shadow * 0.25;
   }
 
-float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos)
+float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
 {
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 1.9) { 
-    return CCGetSpotLightShadowFactorSoft2X(shadowPos, worldPos);
+    return CCGetSpotLightShadowFactorSoft2X(shadowPos, worldPos, shadowBias.x);
   }else if (pcf > 0.9) { 
-    return CCGetSpotLightShadowFactorSoft(shadowPos, worldPos);
+    return CCGetSpotLightShadowFactorSoft(shadowPos, worldPos, shadowBias.x);
   }else { 
-    return CCGetSpotLightShadowFactorHard(shadowPos, worldPos); 
+    return CCGetSpotLightShadowFactorHard(shadowPos, worldPos, shadowBias.x); 
   }
 }
 
-float CCShadowFactorBase(vec4 shadowPos, vec3 N)
+float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 {
   float realtimeShadow = 1.0;
-  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N);
+  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y);
   
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 1.9) { 
-    realtimeShadow =  CCGetShadowFactorSoft2X(pos);
+    realtimeShadow =  CCGetShadowFactorSoft2X(pos, shadowBias.x);
   }else if (pcf > 0.9) {
-    realtimeShadow = CCGetShadowFactorSoft(pos);
+    realtimeShadow = CCGetShadowFactorSoft(pos, shadowBias.x);
   }else { 
-    realtimeShadow = CCGetShadowFactorHard(pos); 
+    realtimeShadow = CCGetShadowFactorHard(pos, shadowBias.x); 
   }
   return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
 }

@@ -13,6 +13,7 @@ struct ToonSurface {
   vec3 shade1;
   vec3 shade2;
   vec3 emissive;
+  vec2 shadowBias;
   float baseStep;
   float baseFeather;
   float shadeStep;
@@ -98,7 +99,7 @@ struct ToonSurface {
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
     if(s.shadowCover < NL && cc_mainLitDir.w > 0.0) {
-        shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N);
+        shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N, s.shadowBias);
     }
     #endif
 

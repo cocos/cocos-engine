@@ -49,7 +49,7 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
       if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
-        shadow = CCSpotShadowFactorBase(shadowPos, position);
+        shadow = CCSpotShadowFactorBase(shadowPos, position, s.shadowBias);
       }
     #endif
 
