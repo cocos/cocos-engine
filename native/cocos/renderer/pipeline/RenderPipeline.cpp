@@ -23,23 +23,23 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "RenderPipeline.h"
 #include <boost/functional/hash.hpp>
 
 #include "BatchedBuffer.h"
 #include "GeometryRenderer.h"
+#include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
+#include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
+#include "PipelineUBO.h"
 #include "RenderFlow.h"
 #include "RenderPipeline.h"
 #include "frame-graph/FrameGraph.h"
-#include "gfx-base/GFXCommandBuffer.h"
-#include "gfx-base/GFXDescriptorSet.h"
-#include "gfx-base/GFXDescriptorSetLayout.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXTexture.h"
 #include "helper/Utils.h"
+#include "scene/Camera.h"
 #include "scene/Skybox.h"
-
 namespace cc {
 namespace pipeline {
 
@@ -298,6 +298,8 @@ void RenderPipeline::generateConstantMacros() {
         _device->getCapabilities().maxFragmentUniformVectors,
         _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
 }
+
+gfx::DescriptorSetLayout *RenderPipeline::getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
 
 RenderStage *RenderPipeline::getRenderstageByName(const String &name) const {
     for (auto *flow : _flows) {

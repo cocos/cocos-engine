@@ -26,10 +26,9 @@
 #pragma once
 
 #include <string>
+#include "base/Ptr.h"
 #include "base/TypeDef.h"
 #include "cocos/base/Variant.h"
-#include "core/Types.h"
-#include "core/assets/TextureBase.h"
 
 #include "math/Color.h"
 #include "math/Mat3.h"
@@ -42,6 +41,8 @@
 #include "renderer/gfx-base/GFXDef.h"
 
 namespace cc {
+
+class TextureBase;
 
 constexpr uint32_t TYPE_MASK    = 0xfc000000; //  6 bits => 64 types
 constexpr uint32_t BINDING_MASK = 0x03f00000; //  6 bits => 64 bindings
@@ -71,7 +72,7 @@ using MacroValue = cc::variant<int32_t, bool, std::string>;
  */
 using MacroRecord = Record<std::string, MacroValue>;
 
-using MaterialProperty = cc::variant<cc::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, cc::IntrusivePtr<TextureBase> /*10*/, cc::IntrusivePtr<gfx::Texture> /*11*/>;
+using MaterialProperty = cc::variant<cc::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, IntrusivePtr<TextureBase> /*10*/, IntrusivePtr<gfx::Texture> /*11*/>;
 
 using MaterialPropertyList = std::vector<MaterialProperty>;
 

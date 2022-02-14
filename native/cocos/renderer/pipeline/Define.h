@@ -30,15 +30,14 @@
 #include "base/Object.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
-#include "gfx-base/GFXDef-common.h"
 #include "renderer/gfx-base/GFXDef.h"
-#include "scene/Light.h"
 
 namespace cc {
 
 namespace scene {
 class Model;
 class SubModel;
+class Light;
 } // namespace scene
 
 namespace pipeline {

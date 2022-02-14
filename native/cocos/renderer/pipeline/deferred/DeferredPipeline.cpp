@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "DeferredPipeline.h"
+#include "../GlobalDescriptorSetManager.h"
+#include "../PipelineUBO.h"
+#include "../RenderPipeline.h"
 #include "../SceneCulling.h"
 #include "../helper/Utils.h"
 #include "../shadow/ShadowFlow.h"
@@ -36,6 +39,7 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
+#include "pipeline/ClusterLightCulling.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {
@@ -54,6 +58,8 @@ namespace pipeline {
 DeferredPipeline::DeferredPipeline() {
     _pipelineSceneData = new DeferredPipelineSceneData();
 }
+
+DeferredPipeline::~DeferredPipeline() = default;
 
 framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferTexture[GBUFFER_COUNT] = {
     framegraph::FrameGraph::stringToHandle("gbufferAlbedoTexture"),

@@ -25,10 +25,13 @@
 
 #pragma once
 
+#include "cocos/base/Ptr.h"
 #include "gfx-base/GFXDef.h"
-#include "scene/Pass.h"
 
 namespace cc {
+namespace scene {
+class Pass;
+}
 namespace pipeline {
 
 class CC_DLL PipelineStateManager {

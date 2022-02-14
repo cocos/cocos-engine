@@ -28,15 +28,13 @@
 #include <array>
 
 #include <unordered_map>
-#include "gfx-base/GFXBuffer.h"
-#include "gfx-base/GFXInputAssembler.h"
-#include "pipeline/ClusterLightCulling.h"
 #include "pipeline/Enum.h"
 #include "pipeline/RenderPipeline.h"
-#include "scene/RenderWindow.h"
 
 namespace cc {
 namespace pipeline {
+class ClusterLightCulling;
+
 struct UBOGlobal;
 struct UBOCamera;
 struct UBOShadow;
@@ -44,7 +42,7 @@ struct UBOShadow;
 class CC_DLL DeferredPipeline : public RenderPipeline {
 public:
     DeferredPipeline();
-    ~DeferredPipeline() override = default;
+    ~DeferredPipeline() override;
 
     bool initialize(const RenderPipelineInfo &info) override;
     bool destroy() override;

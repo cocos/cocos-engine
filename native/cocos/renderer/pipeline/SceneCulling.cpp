@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "Define.h"
+#include "PipelineSceneData.h"
 #include "RenderPipeline.h"
 #include "SceneCulling.h"
 #include "core/geometry/AABB.h"
@@ -35,10 +36,12 @@
 #include "core/scene-graph/Node.h"
 #include "gfx-base/GFXDevice.h"
 #include "math/Quaternion.h"
+#include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/Light.h"
 #include "scene/Octree.h"
 #include "scene/RenderScene.h"
+#include "scene/Shadow.h"
 #include "scene/Skybox.h"
 #include "scene/SpotLight.h"
 
@@ -122,23 +125,23 @@ void updateDirLight(scene::Shadows *shadows, const scene::Light *light, std::arr
     const auto  nx       = normal.x;
     const auto  ny       = normal.y;
     const auto  nz       = normal.z;
-    auto &matLight = shadows->getMatLight();
-    matLight.m[0]  = 1 - nx * lx;
-    matLight.m[1]  = -nx * ly;
-    matLight.m[2]  = -nx * lz;
-    matLight.m[3]  = 0;
-    matLight.m[4]  = -ny * lx;
-    matLight.m[5]  = 1 - ny * ly;
-    matLight.m[6]  = -ny * lz;
-    matLight.m[7]  = 0;
-    matLight.m[8]  = -nz * lx;
-    matLight.m[9]  = -nz * ly;
-    matLight.m[10] = 1 - nz * lz;
-    matLight.m[11] = 0;
-    matLight.m[12] = lx * distance;
-    matLight.m[13] = ly * distance;
-    matLight.m[14] = lz * distance;
-    matLight.m[15] = 1;
+    auto &      matLight = shadows->getMatLight();
+    matLight.m[0]        = 1 - nx * lx;
+    matLight.m[1]        = -nx * ly;
+    matLight.m[2]        = -nx * lz;
+    matLight.m[3]        = 0;
+    matLight.m[4]        = -ny * lx;
+    matLight.m[5]        = 1 - ny * ly;
+    matLight.m[6]        = -ny * lz;
+    matLight.m[7]        = 0;
+    matLight.m[8]        = -nz * lx;
+    matLight.m[9]        = -nz * ly;
+    matLight.m[10]       = 1 - nz * lz;
+    matLight.m[11]       = 0;
+    matLight.m[12]       = lx * distance;
+    matLight.m[13]       = ly * distance;
+    matLight.m[14]       = lz * distance;
+    matLight.m[15]       = 1;
 
     memcpy(shadowUBO->data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
     memcpy(shadowUBO->data() + UBOShadow::SHADOW_COLOR_OFFSET, shadows->getShadowColor4f().data(), sizeof(float) * 4);

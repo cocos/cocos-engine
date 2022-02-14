@@ -29,6 +29,7 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXRenderPass.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

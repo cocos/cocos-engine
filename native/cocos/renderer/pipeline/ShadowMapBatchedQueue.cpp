@@ -36,11 +36,13 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/Camera.h"
 #include "scene/Shadow.h"
 #include "scene/SpotLight.h"
 
 namespace cc {
 namespace pipeline {
+
 ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
     _pipeline       = pipeline;
@@ -48,6 +50,8 @@ ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
     _instancedQueue = CC_NEW(RenderInstancedQueue);
     _batchedQueue   = CC_NEW(RenderBatchedQueue);
 }
+
+ShadowMapBatchedQueue::~ShadowMapBatchedQueue() = default;
 
 void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const scene::Light *light, gfx::CommandBuffer *cmdBuffer) {
     clear();

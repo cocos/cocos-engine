@@ -25,10 +25,12 @@
 
 #pragma once
 #include "base/CoreStd.h"
-#include "scene/Camera.h"
 #include "scene/Model.h"
 
 namespace cc {
+namespace scene {
+class Camera;
+}
 namespace gfx {
 class Device;
 class RenderPass;
@@ -44,7 +46,7 @@ class RenderBatchedQueue;
 class CC_DLL PlanarShadowQueue : public Object {
 public:
     explicit PlanarShadowQueue(RenderPipeline *pipeline);
-    ~PlanarShadowQueue() override = default;
+    ~PlanarShadowQueue() override;
 
     void clear();
     void gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);

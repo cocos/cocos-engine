@@ -26,6 +26,7 @@
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

@@ -32,6 +32,8 @@
 #include "core/assets/EffectAsset.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
+#include "renderer/pipeline/RenderPipeline.h"
+
 namespace cc {
 
 namespace {

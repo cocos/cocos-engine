@@ -76,7 +76,7 @@ public:
     };
 
     Model();
-    ~Model() override = default;
+    ~Model() override;
 
     void                              initialize();
     virtual void                      destroy();

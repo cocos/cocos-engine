@@ -26,6 +26,7 @@
 #include "RenderQueue.h"
 
 #include <utility>
+#include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
 #include "RenderPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -33,6 +34,7 @@
 #include "gfx-base/GFXShader.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

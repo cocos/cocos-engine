@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "ForwardPipeline.h"
+#include "../GlobalDescriptorSetManager.h"
+#include "../PipelineSceneData.h"
+#include "../PipelineUBO.h"
 #include "../SceneCulling.h"
 #include "../helper/Utils.h"
 #include "../shadow/ShadowFlow.h"

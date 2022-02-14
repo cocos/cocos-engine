@@ -26,13 +26,12 @@
 #pragma once
 
 #include "cocos/renderer/gfx-base/GFXDef.h"
-#include "cocos/renderer/gfx-base/GFXDevice.h"
-#include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/scene/Pass.h"
 #include "cocos/scene/RenderScene.h"
 
 namespace cc {
 namespace pipeline {
+class RenderPipeline;
 struct ShaderStrings {
     String glsl4;
     String glsl3;

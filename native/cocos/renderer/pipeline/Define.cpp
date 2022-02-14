@@ -26,6 +26,7 @@
 #include "Define.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/Light.h"
 
 namespace cc {
 namespace pipeline {

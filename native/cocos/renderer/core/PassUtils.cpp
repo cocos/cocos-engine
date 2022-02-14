@@ -27,14 +27,7 @@
 #include <cstdint>
 #include "base/Log.h"
 #include "core/Types.h"
-#include "gfx-base/GFXDef-common.h"
-#include "math/Color.h"
-#include "math/Mat3.h"
-#include "math/Mat4.h"
-#include "math/Vec2.h"
-#include "math/Vec3.h"
-#include "math/Vec4.h"
-#include "renderer/gfx-base/GFXDef.h"
+#include "core/assets/TextureBase.h"
 
 namespace cc {
 

@@ -34,6 +34,7 @@
 #include "base/Vector.h"
 #include "cocos/base/Optional.h"
 #include "core/Types.h"
+#include "core/assets/EffectAsset.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/RenderPipeline.h"

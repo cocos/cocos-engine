@@ -26,12 +26,12 @@
 #pragma once
 
 #include "Define.h"
-#include "scene/Camera.h"
-#include "scene/Light.h"
-#include "scene/Model.h"
-#include "scene/SubModel.h"
-
+#include "cocos/base/Macros.h"
 namespace cc {
+namespace scene {
+class Camera;
+class Pass;
+} // namespace scene
 namespace pipeline {
 struct RenderObject;
 class RenderInstancedQueue;
@@ -43,7 +43,7 @@ class RenderPipeline;
 class CC_DLL ShadowMapBatchedQueue : public Object {
 public:
     explicit ShadowMapBatchedQueue(RenderPipeline *);
-    ~ShadowMapBatchedQueue() override = default;
+    ~ShadowMapBatchedQueue() override;
     void destroy();
 
     void clear();

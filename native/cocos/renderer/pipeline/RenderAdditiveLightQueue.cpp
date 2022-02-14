@@ -26,12 +26,13 @@
 #include <array>
 
 #include "BatchedBuffer.h"
-#include "InstancedBuffer.h"
-#include "PipelineStateManager.h"
-#include "RenderAdditiveLightQueue.h"
-
 #include "Define.h"
 #include "GlobalDescriptorSetManager.h"
+#include "InstancedBuffer.h"
+#include "PipelineSceneData.h"
+#include "PipelineStateManager.h"
+#include "PipelineUBO.h"
+#include "RenderAdditiveLightQueue.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "SceneCulling.h"
@@ -39,8 +40,14 @@
 #include "core/geometry/Sphere.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
+#include "scene/Light.h"
+#include "scene/Pass.h"
 #include "scene/RenderScene.h"
+#include "scene/Shadow.h"
+#include "scene/SphereLight.h"
+#include "scene/SpotLight.h"
 
 namespace cc {
 namespace pipeline {
