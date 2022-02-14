@@ -45,8 +45,6 @@ protected:
     void doDestroy() override;
 
     GLES2GPUFramebuffer *_gpuFBO = nullptr;
-
-    uint32_t _lodLevel;
 };
 
 } // namespace gfx

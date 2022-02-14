@@ -34,7 +34,12 @@ export class WebGLTexture extends Texture {
         return  this._gpuTexture!;
     }
 
+    get lodLevel () :number {
+        return this._lodLevel;
+    }
+
     private _gpuTexture: IWebGLGPUTexture | null = null;
+    private _lodLevel = 0;
 
     public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean) {
         let texInfo = info as TextureInfo;
@@ -44,19 +49,8 @@ export class WebGLTexture extends Texture {
             this._isTextureView = true;
         }
 
-        this._info = new TextureInfo();
-        this._viewInfo = new TextureViewInfo();
+        this._info.copy(texInfo);
 
-        this._info.type = texInfo.type;
-        this._info.usage = texInfo.usage;
-        this._info.format = texInfo.format;
-        this._info.width = texInfo.width;
-        this._info.height = texInfo.height;
-        this._info.depth = texInfo.depth;
-        this._info.layerCount = texInfo.layerCount;
-        this._info.levelCount = texInfo.levelCount;
-        this._info.samples = texInfo.samples;
-        this._info.flags = texInfo.flags;
         this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
         this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
             this.depth, this._info.levelCount) * this._info.layerCount;
@@ -103,20 +97,9 @@ export class WebGLTexture extends Texture {
             this._viewInfo.baseLayer = 0;
             this._viewInfo.layerCount = 1;
         } else {
+            this._viewInfo.copy(viewInfo);
+            this._lodLevel = viewInfo.baseLevel;
             this._gpuTexture = (viewInfo.texture as WebGLTexture)._gpuTexture;
-
-            if (this._gpuTexture?.format !== texInfo.format) {
-                console.log('GPU memory alias is not supported');
-                return;
-            }
-
-            this._viewInfo.texture = viewInfo.texture;
-            this._viewInfo.type = viewInfo.type;
-            this._viewInfo.format = viewInfo.format;
-            this._viewInfo.baseLevel = viewInfo.baseLevel;
-            this._viewInfo.levelCount = viewInfo.levelCount;
-            this._viewInfo.baseLayer = viewInfo.baseLayer;
-            this._viewInfo.layerCount = viewInfo.layerCount;
         }
     }
 
@@ -129,9 +112,20 @@ export class WebGLTexture extends Texture {
     }
 
     public resize (width: number, height: number) {
+        if (this._info.width === width && this._info.height === height) {
+            return;
+        }
+
+        if (this._info.levelCount === WebGLTexture.getLevelCount(this._info.width, this._info.height)) {
+            this._info.levelCount = WebGLTexture.getLevelCount(width, height);
+        } else if (this._info.levelCount > 1) {
+            this._info.levelCount = Math.min(this._info.levelCount, WebGLTexture.getLevelCount(width, height));
+        }
+
         const oldSize = this._size;
         this._info.width = width;
         this._info.height = height;
+
         this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
             this.depth, this._info.levelCount) * this._info.layerCount;
 

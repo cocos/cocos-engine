@@ -52,19 +52,8 @@ export class WebGL2Texture extends Texture {
             this._isTextureView = true;
         }
 
-        this._info = new TextureInfo();
-        this._viewInfo = new TextureViewInfo();
+        this._info.copy(texInfo);
 
-        this._info.type = texInfo.type;
-        this._info.usage = texInfo.usage;
-        this._info.format = texInfo.format;
-        this._info.width = texInfo.width;
-        this._info.height = texInfo.height;
-        this._info.depth = texInfo.depth;
-        this._info.layerCount = texInfo.layerCount;
-        this._info.levelCount = texInfo.levelCount;
-        this._info.samples = texInfo.samples;
-        this._info.flags = texInfo.flags;
         this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
         this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
             this.depth, this._info.levelCount) * this._info.layerCount;
@@ -119,20 +108,13 @@ export class WebGL2Texture extends Texture {
                 levelCount: this._viewInfo.levelCount,
             };
         } else {
+            this._viewInfo.copy(viewInfo);
             this._gpuTexture = (viewInfo.texture as WebGL2Texture)._gpuTexture;
 
             if (this._gpuTexture?.format !== texInfo.format) {
                 console.log('GPU memory alias is not supported');
                 return;
             }
-
-            this._viewInfo.texture = viewInfo.texture;
-            this._viewInfo.type = viewInfo.type;
-            this._viewInfo.format = viewInfo.format;
-            this._viewInfo.baseLevel = viewInfo.baseLevel;
-            this._viewInfo.levelCount = viewInfo.levelCount;
-            this._viewInfo.baseLayer = viewInfo.baseLayer;
-            this._viewInfo.layerCount = viewInfo.layerCount;
 
             this._gpuTextureView = {
                 gpuTexture: this._gpuTexture,
@@ -153,6 +135,16 @@ export class WebGL2Texture extends Texture {
     }
 
     public resize (width: number, height: number) {
+        if (this._info.width === width && this._info.height === height) {
+            return;
+        }
+
+        if (this._info.levelCount === WebGL2Texture.getLevelCount(this._info.width, this._info.height)) {
+            this._info.levelCount = WebGL2Texture.getLevelCount(width, height);
+        } else if (this._info.levelCount > 1) {
+            this._info.levelCount = Math.min(this._info.levelCount, WebGL2Texture.getLevelCount(width, height));
+        }
+
         const oldSize = this._size;
         this._info.width = width;
         this._info.height = height;

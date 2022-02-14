@@ -170,6 +170,7 @@ export interface IWebGLGPUFramebuffer {
     isOffscreen: boolean;
     width: number;
     height: number;
+    lodLevel: number;
 }
 
 export interface IWebGLGPUSampler {

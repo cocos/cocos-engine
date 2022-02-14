@@ -1508,13 +1508,8 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
     GLES2GPUStateCache *cache         = device->stateCache();
     GLES2ObjectCache &  gfxStateCache = cache->gfxStateCache;
 
-    Rect                realRenderArea;
-    realRenderArea.x = renderArea->x;
-    realRenderArea.y = renderArea->y;
-    realRenderArea.width = renderArea->width << gpuFramebuffer->lodLevel;
-    realRenderArea.height = renderArea->height << gpuFramebuffer->lodLevel;
-
-    gfxStateCache.subpassIdx          = subpassIdx;
+    Rect realRenderArea;
+    gfxStateCache.subpassIdx = subpassIdx;
     if (subpassIdx) {
         gpuRenderPass  = gfxStateCache.gpuRenderPass;
         gpuFramebuffer = gfxStateCache.gpuFramebuffer;
@@ -1523,6 +1518,11 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
         clearDepth     = gfxStateCache.clearDepth;
         clearStencil   = gfxStateCache.clearStencil;
     } else {
+        realRenderArea.x      = renderArea->x;
+        realRenderArea.y      = renderArea->y;
+        realRenderArea.width  = renderArea->width << gpuFramebuffer->lodLevel;
+        realRenderArea.height = renderArea->height << gpuFramebuffer->lodLevel;
+
         gfxStateCache.gpuRenderPass  = gpuRenderPass;
         gfxStateCache.gpuFramebuffer = gpuFramebuffer;
         gfxStateCache.renderArea     = realRenderArea;

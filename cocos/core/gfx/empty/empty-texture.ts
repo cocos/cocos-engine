@@ -36,16 +36,8 @@ export class EmptyTexture extends Texture {
             this._isTextureView = true;
         }
 
-        this._info.type = texInfo.type;
-        this._info.usage = texInfo.usage;
-        this._info.format = texInfo.format;
-        this._info.width = texInfo.width;
-        this._info.height = texInfo.height;
-        this._info.depth = texInfo.depth;
-        this._info.layerCount = texInfo.layerCount;
-        this._info.levelCount = texInfo.levelCount;
-        this._info.samples = texInfo.samples;
-        this._info.flags = texInfo.flags;
+        this._info.copy(texInfo);
+
         this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
         this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
             this.depth, this._info.levelCount) * this._info.layerCount;
@@ -59,13 +51,7 @@ export class EmptyTexture extends Texture {
             this._viewInfo.baseLayer = 0;
             this._viewInfo.layerCount = 1;
         } else {
-            this._viewInfo.texture = viewInfo.texture;
-            this._viewInfo.type = viewInfo.type;
-            this._viewInfo.format = viewInfo.format;
-            this._viewInfo.baseLevel = viewInfo.baseLevel;
-            this._viewInfo.levelCount = viewInfo.levelCount;
-            this._viewInfo.baseLayer = viewInfo.baseLayer;
-            this._viewInfo.layerCount = viewInfo.layerCount;
+            this._viewInfo.copy(viewInfo);
         }
     }
     public destroy () {}

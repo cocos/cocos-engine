@@ -1621,34 +1621,43 @@ export function WebGLCmdFuncBeginRenderPass (
     const cache = device.stateCache;
     let clears: GLbitfield = 0;
 
+    const realRenderArea = new Rect();
+
+    if (gpuFramebuffer) {
+        realRenderArea.x = renderArea.x;
+        realRenderArea.y = renderArea.y;
+        realRenderArea.width = renderArea.width << gpuFramebuffer?.lodLevel;
+        realRenderArea.height = renderArea.height << gpuFramebuffer?.lodLevel;
+    }
+
     if (gpuFramebuffer && gpuRenderPass) {
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
-        if (cache.viewport.left !== renderArea.x
-            || cache.viewport.top !== renderArea.y
-            || cache.viewport.width !== renderArea.width
-            || cache.viewport.height !== renderArea.height) {
-            gl.viewport(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
+        if (cache.viewport.left !== realRenderArea.x
+            || cache.viewport.top !== realRenderArea.y
+            || cache.viewport.width !== realRenderArea.width
+            || cache.viewport.height !== realRenderArea.height) {
+            gl.viewport(realRenderArea.x, realRenderArea.y, realRenderArea.width, realRenderArea.height);
 
-            cache.viewport.left = renderArea.x;
-            cache.viewport.top = renderArea.y;
-            cache.viewport.width = renderArea.width;
-            cache.viewport.height = renderArea.height;
+            cache.viewport.left = realRenderArea.x;
+            cache.viewport.top = realRenderArea.y;
+            cache.viewport.width = realRenderArea.width;
+            cache.viewport.height = realRenderArea.height;
         }
 
-        if (cache.scissorRect.x !== renderArea.x
-            || cache.scissorRect.y !== renderArea.y
-            || cache.scissorRect.width !== renderArea.width
-            || cache.scissorRect.height !== renderArea.height) {
-            gl.scissor(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
+        if (cache.scissorRect.x !== realRenderArea.x
+            || cache.scissorRect.y !== realRenderArea.y
+            || cache.scissorRect.width !== realRenderArea.width
+            || cache.scissorRect.height !== realRenderArea.height) {
+            gl.scissor(realRenderArea.x, realRenderArea.y, realRenderArea.width, realRenderArea.height);
 
-            cache.scissorRect.x = renderArea.x;
-            cache.scissorRect.y = renderArea.y;
-            cache.scissorRect.width = renderArea.width;
-            cache.scissorRect.height = renderArea.height;
+            cache.scissorRect.x = realRenderArea.x;
+            cache.scissorRect.y = realRenderArea.y;
+            cache.scissorRect.width = realRenderArea.width;
+            cache.scissorRect.height = realRenderArea.height;
         }
 
         // const invalidateAttachments: GLenum[] = [];

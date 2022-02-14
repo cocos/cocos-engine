@@ -33,11 +33,9 @@ import {
     GFXObject,
     ObjectType,
     SampleCount,
-    TextureFlagBit,
     TextureFlags,
     TextureType,
     TextureUsage,
-    TextureUsageBit,
     TextureInfo,
     TextureViewInfo,
     ISwapchainTextureInfo,
@@ -160,8 +158,8 @@ export abstract class Texture extends GFXObject {
         return this._isTextureView;
     }
 
-    protected _info: TextureInfo = null!;
-    protected _viewInfo: TextureViewInfo = null!;
+    protected _info: TextureInfo = new TextureInfo();
+    protected _viewInfo: TextureViewInfo = new TextureViewInfo();
 
     protected _isPowerOf2 = false;
     protected _isTextureView = false;
@@ -184,4 +182,8 @@ export abstract class Texture extends GFXObject {
     public abstract resize (width: number, height: number): void;
 
     protected abstract initAsSwapchainTexture (info: ISwapchainTextureInfo): void;
+
+    public static getLevelCount (width: number, height: number): number {
+        return Math.floor(Math.log2(Math.max(width, height)));
+    }
 }
