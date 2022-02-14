@@ -353,7 +353,7 @@ void ScriptEngine::handlePromiseExceptions() {
     }
     const char* eventName;
     for (auto& exceptionsPair : _promiseArray) {
-        for (auto exceptions : std::get<1>(exceptionsPair)) {
+        for (const auto& exceptions : std::get<1>(exceptionsPair)) {
             switch (exceptions.event) {
                 case v8::kPromiseRejectWithNoHandler:
                     eventName = "unhandledRejectedPromise";
