@@ -39,7 +39,6 @@
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/RenderScene.h"
-#include "scene/SpotLight.h"
 
 namespace cc {
 namespace pipeline {
