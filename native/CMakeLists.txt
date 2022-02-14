@@ -1147,6 +1147,57 @@ cocos_source_files(
                  cocos/renderer/pipeline/GeometryRenderer.cpp
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
+                 cocos/renderer/pipeline/custom/LayoutGraphFwd.h
+                 cocos/renderer/pipeline/custom/LayoutGraphGraphs.h
+                 cocos/renderer/pipeline/custom/LayoutGraphJsb.cpp
+                 cocos/renderer/pipeline/custom/LayoutGraphJsb.h
+                 cocos/renderer/pipeline/custom/LayoutGraphNames.h
+                 cocos/renderer/pipeline/custom/LayoutGraphReflection.cpp
+                 cocos/renderer/pipeline/custom/LayoutGraphReflection.h
+                 cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
+                 cocos/renderer/pipeline/custom/LayoutGraphTypes.h
+                 cocos/renderer/pipeline/custom/RenderCommonFwd.h
+                 cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
+                 cocos/renderer/pipeline/custom/RenderCommonJsb.h
+                 cocos/renderer/pipeline/custom/RenderCommonNames.h
+                 cocos/renderer/pipeline/custom/RenderCommonReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderCommonReflection.h
+                 cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderCommonTypes.h
+                 cocos/renderer/pipeline/custom/RenderCompilerFwd.h
+                 cocos/renderer/pipeline/custom/RenderCompilerGraphs.h
+                 cocos/renderer/pipeline/custom/RenderCompilerImpl.cpp
+                 cocos/renderer/pipeline/custom/RenderCompilerNames.h
+                 cocos/renderer/pipeline/custom/RenderCompilerReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderCompilerReflection.h
+                 cocos/renderer/pipeline/custom/RenderCompilerTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderCompilerTypes.h
+                 cocos/renderer/pipeline/custom/RenderExampleFwd.h
+                 cocos/renderer/pipeline/custom/RenderExampleGraphs.h
+                 cocos/renderer/pipeline/custom/RenderExampleImpl.cpp
+                 cocos/renderer/pipeline/custom/RenderExampleNames.h
+                 cocos/renderer/pipeline/custom/RenderExampleReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderExampleReflection.h
+                 cocos/renderer/pipeline/custom/RenderExampleTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderExampleTypes.h
+                 cocos/renderer/pipeline/custom/RenderExecutorFwd.h
+                 cocos/renderer/pipeline/custom/RenderExecutorGraphs.h
+                 cocos/renderer/pipeline/custom/RenderExecutorJsb.cpp
+                 cocos/renderer/pipeline/custom/RenderExecutorJsb.h
+                 cocos/renderer/pipeline/custom/RenderExecutorNames.h
+                 cocos/renderer/pipeline/custom/RenderExecutorReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderExecutorReflection.h
+                 cocos/renderer/pipeline/custom/RenderExecutorTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderExecutorTypes.h
+                 cocos/renderer/pipeline/custom/RenderGraphFwd.h
+                 cocos/renderer/pipeline/custom/RenderGraphGraphs.h
+                 cocos/renderer/pipeline/custom/RenderGraphJsb.cpp
+                 cocos/renderer/pipeline/custom/RenderGraphJsb.h
+                 cocos/renderer/pipeline/custom/RenderGraphNames.h
+                 cocos/renderer/pipeline/custom/RenderGraphReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderGraphReflection.h
+                 cocos/renderer/pipeline/custom/RenderGraphTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderGraphTypes.h
 )
 
 ##### terrain
