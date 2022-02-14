@@ -13,7 +13,7 @@ fi
 
 GENERATER="Ninja"
 if [ -x "$(command -v ninja)" ]; then
-    MAKE_BIN=-DCMAKE_MAKE_PROGRAM="$(command -v ninja)"
+    MAKE_BIN=-DCMAKE_MAKE_PROGRAM="$(command -v ninja).exe"
 else
     echo "Ninja is not find, use 'make' instead."
     GENERATER="Unix Makefiles"
