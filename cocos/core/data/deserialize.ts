@@ -106,34 +106,34 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
     const ctor = obj.constructor as typeof ValueType;
     const typeId = BuiltinValueTypes.indexOf(ctor);
     switch (ctor) {
-    case Vec2:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.x, obj.y];
-    case Vec3:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.x, obj.y, obj.z];
-    case Vec4:
-    case Quat:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.x, obj.y, obj.z, obj.w];
-    case Color:
-        // @ts-expect-error Complex typing
-        return [typeId, obj._val];
-    case Size:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.width, obj.height];
-    case Rect:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.x, obj.y, obj.width, obj.height];
-    case Mat4: {
-        // @ts-expect-error Complex typing
-        const res: IValueTypeData = new Array<number>(1 + 16);
-        res[VALUETYPE_SETTER] = typeId;
-        Mat4.toArray(res, obj as Mat4, 1);
-        return res;
-    }
-    default:
-        return null;
+        case Vec2:
+            // @ts-expect-error Complex typing
+            return [typeId, obj.x, obj.y];
+        case Vec3:
+            // @ts-expect-error Complex typing
+            return [typeId, obj.x, obj.y, obj.z];
+        case Vec4:
+        case Quat:
+            // @ts-expect-error Complex typing
+            return [typeId, obj.x, obj.y, obj.z, obj.w];
+        case Color:
+            // @ts-expect-error Complex typing
+            return [typeId, obj._val];
+        case Size:
+            // @ts-expect-error Complex typing
+            return [typeId, obj.width, obj.height];
+        case Rect:
+            // @ts-expect-error Complex typing
+            return [typeId, obj.x, obj.y, obj.width, obj.height];
+        case Mat4: {
+            // @ts-expect-error Complex typing
+            const res: IValueTypeData = new Array<number>(1 + 16);
+            res[VALUETYPE_SETTER] = typeId;
+            Mat4.toArray(res, obj as Mat4, 1);
+            return res;
+        }
+        default:
+            return null;
     }
 }
 
@@ -163,7 +163,7 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
 // Both T and U have non-negative integer ranges.
 // When the value >= 0 represents T
 // When the value is < 0, it represents ~U. Use ~x to extract the value of U.
-type Bnot<T extends number, U extends number> = T|U;
+type Bnot<T extends number, U extends number> = T | U;
 
 // Combines a boolean and a number into one value.
 // The number must >= 0.
@@ -298,12 +298,12 @@ type AnyData = DataTypes[keyof DataTypes];
 
 type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleType>];
 
-type OtherObjectData = ICustomObjectDataContent | Exclude<DataTypes[PrimitiveObjectTypeID], (number|string|boolean|null)>;
+type OtherObjectData = ICustomObjectDataContent | Exclude<DataTypes[PrimitiveObjectTypeID], (number | string | boolean | null)>;
 
 // class Index of DataTypeID.CustomizedClass or PrimitiveObjectTypeID
 type OtherObjectTypeID = Bnot<number, PrimitiveObjectTypeID>;
 
-type Ctor<T> = new() => T;
+type Ctor<T> = new () => T;
 // Includes normal CCClass and fast defined class
 export interface CCClassConstructor<T> extends Ctor<T> {
     __values__: string[]
@@ -328,7 +328,7 @@ const CLASS_TYPE = 0;
 const CLASS_KEYS = 1;
 const CLASS_PROP_TYPE_OFFSET = 2;
 type IClass = [
-    string|AnyCtor,
+    string | AnyCtor,
     string[],
     // offset - It is used to specify the correspondence between the elements in CLASS_KEYS and their AdvancedType,
     //          which is only valid for AdvancedType.
@@ -475,14 +475,14 @@ interface IFileData extends Array<any> {
 
     [File.SharedUuids]: SharedString[] | Empty; // Shared uuid strings for dependent assets
     [File.SharedStrings]: SharedString[] | Empty;
-    [File.SharedClasses]: (IClass|string|AnyCCClass)[];
+    [File.SharedClasses]: (IClass | string | AnyCCClass)[];
     [File.SharedMasks]: IMask[] | Empty;  // Shared Object layouts for IClassObjectData
 
     // Data area
 
     // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...OtherObjectData[], RootInfo]
     // If the last element is not RootInfo(number), the first element will be the root object to return and it doesn't have native asset
-    [File.Instances]: (IClassObjectData|OtherObjectData|RootInfo)[];
+    [File.Instances]: (IClassObjectData | OtherObjectData | RootInfo)[];
     [File.InstanceTypes]: OtherObjectTypeID[] | Empty;
     // Object references infomation
     [File.Refs]: IRefs | Empty;
@@ -491,11 +491,11 @@ interface IFileData extends Array<any> {
 
     // Asset-dependent objects that are deserialized and parsed into object arrays
     // eslint-disable-next-line @typescript-eslint/ban-types
-    [File.DependObjs]: (object|InstanceIndex)[];
+    [File.DependObjs]: (object | InstanceIndex)[];
     // Asset-dependent key name or array index
-    [File.DependKeys]: (StringIndexBnotNumber|string)[];
+    [File.DependKeys]: (StringIndexBnotNumber | string)[];
     // UUID of dependent assets
-    [File.DependUuidIndices]: (StringIndex|string)[];
+    [File.DependUuidIndices]: (StringIndex | string)[];
 }
 
 // type Body = Pick<IFileData, File.Instances | File.InstanceTypes | File.Refs | File.DependObjs | File.DependKeys | File.DependUuidIndices>
@@ -587,7 +587,7 @@ export class Details {
     /**
      * @method reset
      */
-    reset  () {
+    reset () {
         if (FORCE_COMPILED) {
             this.uuidList = null;
             this.uuidObjList = null;
@@ -750,7 +750,13 @@ function parseCustomClass (data: IFileData, owner: any, key: string, value: ICus
 }
 
 function parseValueTypeCreated (data: IFileData, owner: any, key: string, value: IValueTypeData) {
-    BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](owner[key], value);
+    if (value[VALUETYPE_SETTER] > 0 && value[VALUETYPE_SETTER] <= 3) { // vec3, vec4, quat need to call set after set new value
+        const tmp = owner[key];
+        BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](tmp, value);
+        owner[key] = tmp;
+    } else {
+        BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](owner[key], value);
+    }
 }
 
 function parseValueType (data: IFileData, owner: any, key: string, value: IValueTypeData) {
@@ -802,7 +808,7 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
 
 const ASSIGNMENTS: {
     [K in keyof DataTypes]?: ParseFunction<DataTypes[K]>;
-// eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/ban-types
 } = new Array(DataTypeID.ARRAY_LENGTH) as {};
 ASSIGNMENTS[DataTypeID.SimpleType] = assignSimple;    // Only be used in the instances array
 ASSIGNMENTS[DataTypeID.InstanceRef] = assignInstanceRef;
@@ -1072,7 +1078,7 @@ deserialize.reportMissingClass = defaultReportMissingClass;
 class FileInfo {
     declare version: number;
     preprocessed = true;
-    constructor (version: number) {
+    constructor(version: number) {
         this.version = version;
     }
 }
@@ -1097,7 +1103,7 @@ export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder, r
     return sections;
 }
 
-export function packCustomObjData (type: string, data: IClassObjectData|OtherObjectData, hasNativeDep?: boolean): IFileData {
+export function packCustomObjData (type: string, data: IClassObjectData | OtherObjectData, hasNativeDep?: boolean): IFileData {
     return [
         SUPPORT_MIN_FORMAT_VERSION, EMPTY_PLACEHOLDER, EMPTY_PLACEHOLDER,
         [type],
