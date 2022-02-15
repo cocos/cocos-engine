@@ -920,664 +920,6 @@ bool js_register_assets_BufferAsset(se::Object* obj) // NOLINT(readability-ident
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_TextureBase_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_TextureBase_class = nullptr;  // NOLINT
-
-static bool js_assets_TextureBase_getAnisotropy(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getAnisotropy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getAnisotropy();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getAnisotropy : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_getAnisotropy)
-
-static bool js_assets_TextureBase_getGFXSampler(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getGFXSampler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::Sampler* result = cobj->getGFXSampler();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getGFXSampler : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_getGFXSampler)
-
-static bool js_assets_TextureBase_getGFXTexture(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getGFXTexture : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::Texture* result = cobj->getGFXTexture();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getGFXTexture : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_getGFXTexture)
-
-static bool js_assets_TextureBase_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getHashForJS : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        double result = cobj->getHashForJS();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getHashForJS : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_getHashForJS)
-
-static bool js_assets_TextureBase_getHeight(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getHeight();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getHeight : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_assets_TextureBase_getHeight)
-
-static bool js_assets_TextureBase_getId(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::string& result = cobj->getId();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getId : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_getId)
-
-static bool js_assets_TextureBase_getPixelFormat(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getPixelFormat : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        auto result = static_cast<int>(cobj->getPixelFormat());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getPixelFormat : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_getPixelFormat)
-
-static bool js_assets_TextureBase_getSamplerInfo(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getSamplerInfo : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::gfx::SamplerInfo& result = cobj->getSamplerInfo();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getSamplerInfo : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_getSamplerInfo)
-
-static bool js_assets_TextureBase_getWidth(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getWidth();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getWidth : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_assets_TextureBase_getWidth)
-
-static bool js_assets_TextureBase_isCompressed(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_isCompressed : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isCompressed();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_isCompressed : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_assets_TextureBase_isCompressed)
-
-static bool js_assets_TextureBase_setAnisotropy(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setAnisotropy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setAnisotropy : Error processing arguments");
-        cobj->setAnisotropy(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_setAnisotropy)
-
-static bool js_assets_TextureBase_setFilters(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setFilters : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<cc::Filter, false> arg0 = {};
-        HolderType<cc::Filter, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setFilters : Error processing arguments");
-        cobj->setFilters(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_setFilters)
-
-static bool js_assets_TextureBase_setHeight(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setHeight : Error processing arguments");
-        cobj->setHeight(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_SET(js_assets_TextureBase_setHeight)
-
-static bool js_assets_TextureBase_setMipFilter(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setMipFilter : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::Filter, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setMipFilter : Error processing arguments");
-        cobj->setMipFilter(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_setMipFilter)
-
-static bool js_assets_TextureBase_setWidth(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setWidth : Error processing arguments");
-        cobj->setWidth(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_SET(js_assets_TextureBase_setWidth)
-
-static bool js_assets_TextureBase_setWrapMode(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2( cobj, false, "js_assets_TextureBase_setWrapMode : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 2) {
-            HolderType<cc::WrapMode, false> arg0 = {};
-            HolderType<cc::WrapMode, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->setWrapMode(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<cc::WrapMode, false> arg0 = {};
-            HolderType<cc::WrapMode, false> arg1 = {};
-            HolderType<cc::WrapMode, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->setWrapMode(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_assets_TextureBase_setWrapMode)
-
-static bool js_assets_TextureBase_get__format(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__format : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_format, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_format, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__format)
-
-static bool js_assets_TextureBase_set__format(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__format : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_format, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__format : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__format)
-
-static bool js_assets_TextureBase_get__minFilter(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__minFilter : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_minFilter, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_minFilter, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__minFilter)
-
-static bool js_assets_TextureBase_set__minFilter(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__minFilter : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_minFilter, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__minFilter : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__minFilter)
-
-static bool js_assets_TextureBase_get__magFilter(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__magFilter : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_magFilter, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_magFilter, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__magFilter)
-
-static bool js_assets_TextureBase_set__magFilter(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__magFilter : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_magFilter, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__magFilter : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__magFilter)
-
-static bool js_assets_TextureBase_get__mipFilter(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__mipFilter : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_mipFilter, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_mipFilter, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__mipFilter)
-
-static bool js_assets_TextureBase_set__mipFilter(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__mipFilter : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_mipFilter, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__mipFilter : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__mipFilter)
-
-static bool js_assets_TextureBase_get__wrapS(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__wrapS : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_wrapS, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_wrapS, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__wrapS)
-
-static bool js_assets_TextureBase_set__wrapS(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__wrapS : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_wrapS, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__wrapS : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__wrapS)
-
-static bool js_assets_TextureBase_get__wrapT(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__wrapT : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_wrapT, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_wrapT, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__wrapT)
-
-static bool js_assets_TextureBase_set__wrapT(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__wrapT : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_wrapT, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__wrapT : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__wrapT)
-
-static bool js_assets_TextureBase_get__wrapR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__wrapR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_wrapR, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_wrapR, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__wrapR)
-
-static bool js_assets_TextureBase_set__wrapR(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__wrapR : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_wrapR, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__wrapR : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__wrapR)
-
-static bool js_assets_TextureBase_get__anisotropy(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__anisotropy : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_anisotropy, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_anisotropy, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__anisotropy)
-
-static bool js_assets_TextureBase_set__anisotropy(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__anisotropy : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_anisotropy, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__anisotropy : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__anisotropy)
-
-static bool js_assets_TextureBase_get__width(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__width : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_width, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_width, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__width)
-
-static bool js_assets_TextureBase_set__width(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__width : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_width, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__width : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__width)
-
-static bool js_assets_TextureBase_get__height(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__height : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_height, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_height, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_assets_TextureBase_get__height)
-
-static bool js_assets_TextureBase_set__height(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__height : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_height, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__height : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_assets_TextureBase_set__height)
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_TextureBase_finalize)
-
-static bool js_assets_TextureBase_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
-{
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::TextureBase);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_assets_TextureBase_constructor, __jsb_cc_TextureBase_class, js_cc_TextureBase_finalize)
-
-static bool js_cc_TextureBase_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_TextureBase_finalize)
-
-bool js_register_assets_TextureBase(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("TextureBase", obj, __jsb_cc_Asset_proto, _SE(js_assets_TextureBase_constructor));
-
-    cls->defineProperty("_format", _SE(js_assets_TextureBase_get__format), _SE(js_assets_TextureBase_set__format));
-    cls->defineProperty("_minFilter", _SE(js_assets_TextureBase_get__minFilter), _SE(js_assets_TextureBase_set__minFilter));
-    cls->defineProperty("_magFilter", _SE(js_assets_TextureBase_get__magFilter), _SE(js_assets_TextureBase_set__magFilter));
-    cls->defineProperty("_mipFilter", _SE(js_assets_TextureBase_get__mipFilter), _SE(js_assets_TextureBase_set__mipFilter));
-    cls->defineProperty("_wrapS", _SE(js_assets_TextureBase_get__wrapS), _SE(js_assets_TextureBase_set__wrapS));
-    cls->defineProperty("_wrapT", _SE(js_assets_TextureBase_get__wrapT), _SE(js_assets_TextureBase_set__wrapT));
-    cls->defineProperty("_wrapR", _SE(js_assets_TextureBase_get__wrapR), _SE(js_assets_TextureBase_set__wrapR));
-    cls->defineProperty("_anisotropy", _SE(js_assets_TextureBase_get__anisotropy), _SE(js_assets_TextureBase_set__anisotropy));
-    cls->defineProperty("_width", _SE(js_assets_TextureBase_get__width), _SE(js_assets_TextureBase_set__width));
-    cls->defineProperty("_height", _SE(js_assets_TextureBase_get__height), _SE(js_assets_TextureBase_set__height));
-    cls->defineProperty("isCompressed", _SE(js_assets_TextureBase_isCompressed_asGetter), nullptr);
-    cls->defineProperty({"_width", "width"}, _SE(js_assets_TextureBase_getWidth_asGetter), _SE(js_assets_TextureBase_setWidth_asSetter));
-    cls->defineProperty({"_height", "height"}, _SE(js_assets_TextureBase_getHeight_asGetter), _SE(js_assets_TextureBase_setHeight_asSetter));
-    cls->defineFunction("getAnisotropy", _SE(js_assets_TextureBase_getAnisotropy));
-    cls->defineFunction("getGFXSampler", _SE(js_assets_TextureBase_getGFXSampler));
-    cls->defineFunction("getGFXTexture", _SE(js_assets_TextureBase_getGFXTexture));
-    cls->defineFunction("getHash", _SE(js_assets_TextureBase_getHashForJS));
-    cls->defineFunction("getId", _SE(js_assets_TextureBase_getId));
-    cls->defineFunction("getPixelFormat", _SE(js_assets_TextureBase_getPixelFormat));
-    cls->defineFunction("getSamplerInfo", _SE(js_assets_TextureBase_getSamplerInfo));
-    cls->defineFunction("setAnisotropy", _SE(js_assets_TextureBase_setAnisotropy));
-    cls->defineFunction("setFilters", _SE(js_assets_TextureBase_setFilters));
-    cls->defineFunction("setMipFilter", _SE(js_assets_TextureBase_setMipFilter));
-    cls->defineFunction("setWrapMode", _SE(js_assets_TextureBase_setWrapMode));
-    cls->defineFinalizeFunction(_SE(js_cc_TextureBase_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::TextureBase>(cls);
-
-    __jsb_cc_TextureBase_proto = cls->getProto();
-    __jsb_cc_TextureBase_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
 se::Object* __jsb_cc_IPropertyInfo_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_IPropertyInfo_class = nullptr;  // NOLINT
 
@@ -9598,10 +8940,38 @@ static bool js_assets_Material_copy(se::State& s) // NOLINT(readability-identifi
         cobj->copy(arg0.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if (argc == 2) {
+        HolderType<const cc::Material*, false> arg0 = {};
+        HolderType<cc::IMaterialInfo*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_copy : Error processing arguments");
+        cobj->copy(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
 SE_BIND_FUNC(js_assets_Material_copy)
+
+static bool js_assets_Material_fillInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Material>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_Material_fillInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::IMaterialInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_fillInfo : Error processing arguments");
+        cobj->fillInfo(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_Material_fillInfo)
 
 static bool js_assets_Material_getEffectAsset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10795,6 +10165,7 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("hash", _SE(js_assets_Material_getHashForJS_asGetter), nullptr);
     cls->defineProperty("parent", _SE(js_assets_Material_getParent_asGetter), nullptr);
     cls->defineFunction("copy", _SE(js_assets_Material_copy));
+    cls->defineFunction("fillInfo", _SE(js_assets_Material_fillInfo));
     cls->defineFunction("getPasses", _SE(js_assets_Material_getPasses));
     cls->defineFunction("_getProperty", _SE(js_assets_Material_getProperty));
     cls->defineFunction("initialize", _SE(js_assets_Material_initialize));
@@ -10831,6 +10202,664 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
 
     __jsb_cc_Material_proto = cls->getProto();
     __jsb_cc_Material_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_TextureBase_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_TextureBase_class = nullptr;  // NOLINT
+
+static bool js_assets_TextureBase_getAnisotropy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getAnisotropy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getAnisotropy();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getAnisotropy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_getAnisotropy)
+
+static bool js_assets_TextureBase_getGFXSampler(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getGFXSampler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Sampler* result = cobj->getGFXSampler();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getGFXSampler : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_getGFXSampler)
+
+static bool js_assets_TextureBase_getGFXTexture(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getGFXTexture : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Texture* result = cobj->getGFXTexture();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getGFXTexture : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_getGFXTexture)
+
+static bool js_assets_TextureBase_getHashForJS(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getHashForJS : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        double result = cobj->getHashForJS();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getHashForJS : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_getHashForJS)
+
+static bool js_assets_TextureBase_getHeight(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getHeight : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getHeight();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_assets_TextureBase_getHeight)
+
+static bool js_assets_TextureBase_getId(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getId : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::string& result = cobj->getId();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_getId)
+
+static bool js_assets_TextureBase_getPixelFormat(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getPixelFormat : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        auto result = static_cast<int>(cobj->getPixelFormat());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getPixelFormat : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_getPixelFormat)
+
+static bool js_assets_TextureBase_getSamplerInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getSamplerInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::gfx::SamplerInfo& result = cobj->getSamplerInfo();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getSamplerInfo : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_getSamplerInfo)
+
+static bool js_assets_TextureBase_getWidth(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_getWidth : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getWidth();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_getWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_assets_TextureBase_getWidth)
+
+static bool js_assets_TextureBase_isCompressed(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_isCompressed : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isCompressed();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_isCompressed : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_assets_TextureBase_isCompressed)
+
+static bool js_assets_TextureBase_setAnisotropy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setAnisotropy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setAnisotropy : Error processing arguments");
+        cobj->setAnisotropy(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_setAnisotropy)
+
+static bool js_assets_TextureBase_setFilters(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setFilters : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::Filter, false> arg0 = {};
+        HolderType<cc::Filter, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setFilters : Error processing arguments");
+        cobj->setFilters(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_setFilters)
+
+static bool js_assets_TextureBase_setHeight(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setHeight : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setHeight : Error processing arguments");
+        cobj->setHeight(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_assets_TextureBase_setHeight)
+
+static bool js_assets_TextureBase_setMipFilter(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setMipFilter : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Filter, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setMipFilter : Error processing arguments");
+        cobj->setMipFilter(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_setMipFilter)
+
+static bool js_assets_TextureBase_setWidth(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_setWidth : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_TextureBase_setWidth : Error processing arguments");
+        cobj->setWidth(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_assets_TextureBase_setWidth)
+
+static bool js_assets_TextureBase_setWrapMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2( cobj, false, "js_assets_TextureBase_setWrapMode : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 2) {
+            HolderType<cc::WrapMode, false> arg0 = {};
+            HolderType<cc::WrapMode, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->setWrapMode(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            HolderType<cc::WrapMode, false> arg0 = {};
+            HolderType<cc::WrapMode, false> arg1 = {};
+            HolderType<cc::WrapMode, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->setWrapMode(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_assets_TextureBase_setWrapMode)
+
+static bool js_assets_TextureBase_get__format(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__format : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_format, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_format, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__format)
+
+static bool js_assets_TextureBase_set__format(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__format : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_format, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__format : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__format)
+
+static bool js_assets_TextureBase_get__minFilter(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__minFilter : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_minFilter, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_minFilter, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__minFilter)
+
+static bool js_assets_TextureBase_set__minFilter(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__minFilter : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_minFilter, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__minFilter : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__minFilter)
+
+static bool js_assets_TextureBase_get__magFilter(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__magFilter : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_magFilter, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_magFilter, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__magFilter)
+
+static bool js_assets_TextureBase_set__magFilter(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__magFilter : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_magFilter, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__magFilter : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__magFilter)
+
+static bool js_assets_TextureBase_get__mipFilter(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__mipFilter : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_mipFilter, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_mipFilter, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__mipFilter)
+
+static bool js_assets_TextureBase_set__mipFilter(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__mipFilter : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_mipFilter, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__mipFilter : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__mipFilter)
+
+static bool js_assets_TextureBase_get__wrapS(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__wrapS : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_wrapS, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_wrapS, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__wrapS)
+
+static bool js_assets_TextureBase_set__wrapS(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__wrapS : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_wrapS, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__wrapS : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__wrapS)
+
+static bool js_assets_TextureBase_get__wrapT(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__wrapT : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_wrapT, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_wrapT, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__wrapT)
+
+static bool js_assets_TextureBase_set__wrapT(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__wrapT : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_wrapT, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__wrapT : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__wrapT)
+
+static bool js_assets_TextureBase_get__wrapR(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__wrapR : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_wrapR, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_wrapR, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__wrapR)
+
+static bool js_assets_TextureBase_set__wrapR(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__wrapR : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_wrapR, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__wrapR : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__wrapR)
+
+static bool js_assets_TextureBase_get__anisotropy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__anisotropy : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_anisotropy, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_anisotropy, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__anisotropy)
+
+static bool js_assets_TextureBase_set__anisotropy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__anisotropy : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_anisotropy, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__anisotropy : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__anisotropy)
+
+static bool js_assets_TextureBase_get__width(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__width : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_width, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_width, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__width)
+
+static bool js_assets_TextureBase_set__width(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__width : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_width, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__width : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__width)
+
+static bool js_assets_TextureBase_get__height(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_get__height : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_height, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_height, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureBase_get__height)
+
+static bool js_assets_TextureBase_set__height(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureBase_set__height : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_height, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureBase_set__height : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureBase_set__height)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_TextureBase_finalize)
+
+static bool js_assets_TextureBase_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::TextureBase);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_TextureBase_constructor, __jsb_cc_TextureBase_class, js_cc_TextureBase_finalize)
+
+static bool js_cc_TextureBase_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_TextureBase_finalize)
+
+bool js_register_assets_TextureBase(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("TextureBase", obj, __jsb_cc_Asset_proto, _SE(js_assets_TextureBase_constructor));
+
+    cls->defineProperty("_format", _SE(js_assets_TextureBase_get__format), _SE(js_assets_TextureBase_set__format));
+    cls->defineProperty("_minFilter", _SE(js_assets_TextureBase_get__minFilter), _SE(js_assets_TextureBase_set__minFilter));
+    cls->defineProperty("_magFilter", _SE(js_assets_TextureBase_get__magFilter), _SE(js_assets_TextureBase_set__magFilter));
+    cls->defineProperty("_mipFilter", _SE(js_assets_TextureBase_get__mipFilter), _SE(js_assets_TextureBase_set__mipFilter));
+    cls->defineProperty("_wrapS", _SE(js_assets_TextureBase_get__wrapS), _SE(js_assets_TextureBase_set__wrapS));
+    cls->defineProperty("_wrapT", _SE(js_assets_TextureBase_get__wrapT), _SE(js_assets_TextureBase_set__wrapT));
+    cls->defineProperty("_wrapR", _SE(js_assets_TextureBase_get__wrapR), _SE(js_assets_TextureBase_set__wrapR));
+    cls->defineProperty("_anisotropy", _SE(js_assets_TextureBase_get__anisotropy), _SE(js_assets_TextureBase_set__anisotropy));
+    cls->defineProperty("_width", _SE(js_assets_TextureBase_get__width), _SE(js_assets_TextureBase_set__width));
+    cls->defineProperty("_height", _SE(js_assets_TextureBase_get__height), _SE(js_assets_TextureBase_set__height));
+    cls->defineProperty("isCompressed", _SE(js_assets_TextureBase_isCompressed_asGetter), nullptr);
+    cls->defineProperty({"_width", "width"}, _SE(js_assets_TextureBase_getWidth_asGetter), _SE(js_assets_TextureBase_setWidth_asSetter));
+    cls->defineProperty({"_height", "height"}, _SE(js_assets_TextureBase_getHeight_asGetter), _SE(js_assets_TextureBase_setHeight_asSetter));
+    cls->defineFunction("getAnisotropy", _SE(js_assets_TextureBase_getAnisotropy));
+    cls->defineFunction("getGFXSampler", _SE(js_assets_TextureBase_getGFXSampler));
+    cls->defineFunction("getGFXTexture", _SE(js_assets_TextureBase_getGFXTexture));
+    cls->defineFunction("getHash", _SE(js_assets_TextureBase_getHashForJS));
+    cls->defineFunction("getId", _SE(js_assets_TextureBase_getId));
+    cls->defineFunction("getPixelFormat", _SE(js_assets_TextureBase_getPixelFormat));
+    cls->defineFunction("getSamplerInfo", _SE(js_assets_TextureBase_getSamplerInfo));
+    cls->defineFunction("setAnisotropy", _SE(js_assets_TextureBase_setAnisotropy));
+    cls->defineFunction("setFilters", _SE(js_assets_TextureBase_setFilters));
+    cls->defineFunction("setMipFilter", _SE(js_assets_TextureBase_setMipFilter));
+    cls->defineFunction("setWrapMode", _SE(js_assets_TextureBase_setWrapMode));
+    cls->defineFinalizeFunction(_SE(js_cc_TextureBase_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::TextureBase>(cls);
+
+    __jsb_cc_TextureBase_proto = cls->getProto();
+    __jsb_cc_TextureBase_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();

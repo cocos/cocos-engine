@@ -2022,22 +2022,27 @@ class Generator(object):
         logger.info("====\n")
 
     def _parse_headers(self):
-        for header in self.headers:
-            logger.info(">>> parse_header: " + header)
-            if not os.path.exists(header):
-                logger.error("[error] header %s not found" % header)
-            # logger.info(">>>  arguments %s" % self.clang_args)
-            tu = self.index.parse(header, self.clang_args)
-            if len(tu.diagnostics) > 0:
-                self._pretty_print(tu.diagnostics)
-                is_fatal = False
-                for d in tu.diagnostics:
-                    if d.severity >= cindex.Diagnostic.Error:
-                        is_fatal = True
-                if is_fatal:
-                    logger.error("*** Found errors - can not continue")
-                    raise Exception("Fatal error in parsing headers")
-            self._deep_iterate(tu.cursor, 0, [])
+        header = os.path.join(os.path.dirname(__file__), "batch_input.h")
+        df = open(header, "w")
+        for h in self.headers:
+            df.write("#include \"%s\"\n" % (os.path.relpath(h, os.path.dirname(header))))
+            # logger.info("write header %s", h)
+        df.close()
+        logger.info(">>> parse_header: " + str(len(self.headers)))
+        if not os.path.exists(header):
+            logger.error("[error] header %s not found" % header)
+        # logger.info(">>>  arguments %s" % self.clang_args)
+        tu = self.index.parse(header, self.clang_args)
+        if len(tu.diagnostics) > 0:
+            self._pretty_print(tu.diagnostics)
+            is_fatal = False
+            for d in tu.diagnostics:
+                if d.severity >= cindex.Diagnostic.Error:
+                    is_fatal = True
+            if is_fatal:
+                logger.error("*** Found errors - can not continue")
+                raise Exception("Fatal error in parsing headers")
+        self._deep_iterate(tu.cursor, 0, [])
 
     def _deep_iterate(self, cursor, depth=0, nested_classes = []):
 

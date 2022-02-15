@@ -241,8 +241,7 @@ public:
     inline bool isUseDiffuseMap() const { return _useDiffuseMap; }
     inline void setUseDiffuseMap(bool val) {
         _useDiffuseMap = val;
-        updateGlobalBinding();
-        updatePipeline();
+        setDiffuseMaps(nullptr, nullptr);
     }
 
     /**

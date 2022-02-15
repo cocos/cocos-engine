@@ -78,23 +78,7 @@ void Material::initialize(const IMaterialInfo &info) {
         _props.clear();
     }
 
-    if (info.technique != cc::nullopt) {
-        _techIdx = info.technique.value();
-    }
-
-    if (info.effectAsset != nullptr) {
-        _effectAsset = info.effectAsset;
-    } else if (info.effectName != cc::nullopt) {
-        _effectAsset = EffectAsset::get(info.effectName.value());
-    }
-
-    if (info.defines != cc::nullopt) {
-        prepareInfo(info.defines.value(), _defines);
-    }
-
-    if (info.states != cc::nullopt) {
-        prepareInfo(info.states.value(), _states);
-    }
+    fillInfo(info);
     update();
 }
 
@@ -246,7 +230,26 @@ const MaterialPropertyVariant *Material::getProperty(const std::string &name, in
     return nullptr;
 }
 
-void Material::copy(const Material *mat) {
+void Material::fillInfo(const IMaterialInfo &info) {
+    if (info.technique != cc::nullopt) {
+        _techIdx = info.technique.value();
+    }
+
+    if (info.effectAsset != nullptr) {
+        _effectAsset = info.effectAsset;
+    } else if (info.effectName != cc::nullopt) {
+        _effectAsset = EffectAsset::get(info.effectName.value());
+    }
+    
+    if (info.defines != cc::nullopt) {
+        prepareInfo(info.defines.value(), _defines);
+    }
+    if (info.states != cc::nullopt) {
+        prepareInfo(info.states.value(), _states);
+    }
+}
+
+void Material::copy(const Material *mat, IMaterialInfo *overrides) {
     if (mat == nullptr) {
         return;
     }
@@ -265,6 +268,9 @@ void Material::copy(const Material *mat) {
         _states[i] = mat->_states[i];
     }
     _effectAsset = mat->_effectAsset;
+    if (overrides) {
+        fillInfo(*overrides);
+    }
     update();
 }
 

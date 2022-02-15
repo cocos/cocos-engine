@@ -76,6 +76,9 @@ public:
     const Vec4 &getGroundAlbedo() const;
     void        setGroundAlbedo(const Vec4 &color);
 
+    inline uint8_t getMipmapCount() const { return _mipmapCount; }
+    inline void    setMipmapCount(uint8_t count) { _mipmapCount = count; }
+
 protected:
     Vec4  _groundAlbedoHDR{0.2F, 0.2F, 0.2F, 1.F};
     Vec4  _skyColorHDR{0.2F, 0.5F, 0.8F, 1.F};
@@ -84,6 +87,7 @@ protected:
     Vec4  _groundAlbedoLDR{0.2F, 0.2F, 0.2F, 1.F};
     Vec4  _skyColorLDR{0.2F, 0.5F, 0.8F, 1.F};
     float _skyIllumLDR{0.F};
+    uint8_t _mipmapCount{1};
 
     bool _enabled{false};
 
