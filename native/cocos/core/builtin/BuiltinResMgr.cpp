@@ -477,7 +477,7 @@ void BuiltinResMgr::initTexture2DWithUuid(const std::string &uuid, const uint8_t
     IMemoryImageSource imageSource;
     imageSource.width      = width;
     imageSource.height     = height;
-    imageSource.data       = new (std::nothrow) ArrayBuffer(data, dataBytes);
+    imageSource.data       = new (std::nothrow) ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
     imageSource.compressed = false;
     imageSource.format     = PixelFormat::RGBA8888;
 
@@ -498,7 +498,7 @@ void BuiltinResMgr::initTextureCubeWithUuid(const std::string &uuid, const uint8
     IMemoryImageSource imageSource;
     imageSource.width      = width;
     imageSource.height     = height;
-    imageSource.data       = new (std::nothrow) ArrayBuffer(data, dataBytes);
+    imageSource.data       = new (std::nothrow) ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
     imageSource.compressed = false;
     imageSource.format     = PixelFormat::RGBA8888;
 
