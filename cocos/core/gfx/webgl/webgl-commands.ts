@@ -1608,6 +1608,7 @@ const gfxStateCache: IWebGLStateCache = {
     glPrimitive: 0,
 };
 
+const realRenderArea = new Rect();
 export function WebGLCmdFuncBeginRenderPass (
     device: WebGLDevice,
     gpuRenderPass: IWebGLGPURenderPass | null,
@@ -1621,13 +1622,11 @@ export function WebGLCmdFuncBeginRenderPass (
     const cache = device.stateCache;
     let clears: GLbitfield = 0;
 
-    const realRenderArea = new Rect();
-
     if (gpuFramebuffer) {
-        realRenderArea.x = renderArea.x;
-        realRenderArea.y = renderArea.y;
-        realRenderArea.width = renderArea.width << gpuFramebuffer?.lodLevel;
-        realRenderArea.height = renderArea.height << gpuFramebuffer?.lodLevel;
+        realRenderArea.x = renderArea.x << gpuFramebuffer.lodLevel;
+        realRenderArea.y = renderArea.y << gpuFramebuffer.lodLevel;
+        realRenderArea.width = renderArea.width << gpuFramebuffer.lodLevel;
+        realRenderArea.height = renderArea.height << gpuFramebuffer.lodLevel;
     }
 
     if (gpuFramebuffer && gpuRenderPass) {

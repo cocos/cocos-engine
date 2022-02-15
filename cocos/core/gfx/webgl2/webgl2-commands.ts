@@ -1339,7 +1339,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
         }
 
         for (let i = 0; i < gpuFramebuffer.gpuColorViews.length; ++i) {
-            const colorTexture = gpuFramebuffer.gpuColorViews[i].gpuTexture;
+            const colorTextureView = gpuFramebuffer.gpuColorViews[i];
+            const colorTexture = colorTextureView.gpuTexture;
             if (colorTexture) {
                 if (colorTexture.glTexture) {
                     gl.framebufferTexture2D(
@@ -1359,13 +1360,14 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                 }
 
                 attachments.push(gl.COLOR_ATTACHMENT0 + i);
-                gpuFramebuffer.width = Math.min(gpuFramebuffer.width, colorTexture.width);
-                gpuFramebuffer.height = Math.min(gpuFramebuffer.height, colorTexture.height);
+                gpuFramebuffer.width = Math.min(gpuFramebuffer.width, colorTexture.width >> colorTextureView.baseLevel);
+                gpuFramebuffer.height = Math.min(gpuFramebuffer.height, colorTexture.height >> colorTextureView.baseLevel);
             }
         }
 
-        const dst = gpuFramebuffer.gpuDepthStencilView!.gpuTexture;
-        if (dst) {
+        const dstView = gpuFramebuffer.gpuDepthStencilView;
+        const dst = dstView!.gpuTexture;
+        if (dst && dstView) {
             const glAttachment = FormatInfos[dst.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
             if (dst.glTexture) {
                 gl.framebufferTexture2D(
@@ -1383,8 +1385,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                     dst.glRenderbuffer,
                 );
             }
-            gpuFramebuffer.width = Math.min(gpuFramebuffer.width, dst.width);
-            gpuFramebuffer.height = Math.min(gpuFramebuffer.height, dst.height);
+            gpuFramebuffer.width = Math.min(gpuFramebuffer.width, dst.width >> dstView.baseLevel);
+            gpuFramebuffer.height = Math.min(gpuFramebuffer.height, dst.height >> dstView.baseLevel);
         }
 
         gl.drawBuffers(attachments);
