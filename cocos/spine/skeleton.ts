@@ -1485,6 +1485,14 @@ export class Skeleton extends Renderable2D {
         let frameIdx = Math.floor(this._accTime / frameTime);
         if (!frameCache.isCompleted) {
             frameCache.updateToFrame(frameIdx);
+            // Update render data size if needed
+            if (this._renderData
+                && (this._renderData.vertexCount < frameCache.maxVertexCount
+                || this._renderData.indexCount < frameCache.maxIndexCount)) {
+                this.maxVertexCount = frameCache.maxVertexCount;
+                this.maxIndexCount = frameCache.maxIndexCount;
+                this._renderData.resize(this.maxVertexCount, this.maxIndexCount);
+            }
         }
 
         if (frameCache.isCompleted && frameIdx >= frames.length) {

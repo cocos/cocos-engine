@@ -9,7 +9,7 @@ import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
+import { vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
 import { Color, director, Mat4, Node, Texture2D } from '../../core';
 import { BlendFactor } from '../../core/gfx';
@@ -55,7 +55,6 @@ let _vertexOffset = 0;
 let _vertexFloatOffset = 0;
 let _indexCount = 0;
 let _indexOffset = 0;
-let _vfOffset = 0;
 let _actualVCount = 0;
 let _actualICount = 0;
 let _tempr: number;
@@ -179,33 +178,33 @@ export const simple: IAssembler = {
     },
 
     createData (comp: Skeleton) {
-        this.ensureAccessor() as StaticVBAccessor;
-        const skins = comp._skeleton!.data.skins;
-        let vCount = 0;
-        let iCount = 0;
-        for (let i = 0; i < skins.length; ++i) {
-            const attachments = skins[i].attachments;
-            for (let j = 0; j < attachments.length; j++) {
-                const entry = attachments[j];
-                for (const key in entry) {
-                    const skin = entry[key];
-                    if (skin instanceof spine.RegionAttachment) {
-                        vCount += 4;
-                        iCount += 6;
-                    } else if (skin instanceof spine.MeshAttachment) {
-                        vCount += skin.worldVerticesLength >> 1;
-                        iCount += skin.triangles.length;
+        let rd = comp.renderData;
+        if (!rd) {
+            this.ensureAccessor() as StaticVBAccessor;
+            const skins = comp._skeleton!.data.skins;
+            let vCount = 0;
+            let iCount = 0;
+            for (let i = 0; i < skins.length; ++i) {
+                const attachments = skins[i].attachments;
+                for (let j = 0; j < attachments.length; j++) {
+                    const entry = attachments[j];
+                    for (const key in entry) {
+                        const skin = entry[key];
+                        if (skin instanceof spine.RegionAttachment) {
+                            vCount += 4;
+                            iCount += 6;
+                        } else if (skin instanceof spine.MeshAttachment) {
+                            vCount += skin.worldVerticesLength >> 1;
+                            iCount += skin.triangles.length;
+                        }
                     }
                 }
             }
-        }
-        let rd = comp.renderData;
-        if (!rd) {
             rd = RenderData.add(vfmtPosUvTwoColor, this.accessor);
-        }
-        rd.resize(vCount, iCount);
-        if (!rd.indices || iCount !== rd.indices.length) {
-            rd.indices = new Uint16Array(iCount);
+            rd.resize(vCount, iCount);
+            if (!rd.indices || iCount !== rd.indices.length) {
+                rd.indices = new Uint16Array(iCount);
+            }
         }
         return rd;
     },
@@ -281,10 +280,10 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     } else {
         if (_vertexEffect) _vertexEffect.begin(comp._skeleton);
         realTimeTraverse(batcher, worldMat);
-        // Ensure mesh buffer update
-        _accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
         if (_vertexEffect) _vertexEffect.end();
     }
+    // Ensure mesh buffer update
+    _accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
 
     // sync attached node matrix
     comp.attachUtil._syncAttachedNode();
@@ -491,7 +490,6 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
     _indexOffset = 0;
 
     let prevDrawIndexOffset = 0;
-    let cumulatedCount = 0;
 
     for (let slotIdx = 0, slotCount = locSkeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
         slot = locSkeleton.drawOrder[slotIdx];
@@ -657,7 +655,7 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
         clipper.clipEndWithSlot(slot);
     }
 
-    cumulatedCount = _indexOffset - prevDrawIndexOffset;
+    const cumulatedCount = _indexOffset - prevDrawIndexOffset;
     if (_currentTexture && cumulatedCount > 0) {
         _comp!._requestDrawData(_currentMaterial!, _currentTexture, prevDrawIndexOffset, cumulatedCount);
     }
@@ -697,13 +695,16 @@ function cacheTraverse (worldMat?: Mat4) {
     if (segments.length === 0) return;
 
     _perClipVertexSize = 12;
+    _vertexFloatOffset = 0;
+    _indexCount = 0;
+    _vertexOffset = 0;
+    _indexOffset = 0;
 
-    let vbuf: Float32Array;
-    let ibuf: Uint16Array;
     let material: MaterialInstance | null = null;
     const vertices = frame.vertices;
     const indices = frame.indices;
 
+    let chunkOffset = 0;
     let frameVFOffset = 0;
     let frameIndexOffset = 0;
     let segVFCount = 0;
@@ -720,103 +721,89 @@ function cacheTraverse (worldMat?: Mat4) {
     const needBatch = (_handleVal & FLAG_BATCH);
     const calcTranslate = needBatch && justTranslate;
 
-    let colorOffset = 0;
     const colors = frame.colors;
+    let colorOffset = 0;
     let nowColor = colors[colorOffset++];
     let maxVFOffset = nowColor.vfOffset;
     _handleColor(nowColor);
 
-    const renderData = _drawData!.renderData;
+    let prevDrawIndexOffset = 0;
+    const rd = _renderData!;
+    const vbuf = rd.chunk.vb;
+    const ibuf = rd.indices!;
     for (let i = 0, n = segments.length; i < n; i++) {
         const segInfo = segments[i];
         material = _getSlotMaterial(segInfo.blendMode!);
         if (!material) continue;
         if (!_currentMaterial) _currentMaterial = material;
-        if (!_currentTexture) _currentTexture = segInfo.tex!;
-        if (_drawData!.renderData.material) _drawData!.renderData.material = _currentMaterial;
 
         if (_mustFlush || material.hash !== _currentMaterial.hash || (segInfo.tex && segInfo.tex !== _currentTexture)) {
             _mustFlush = false;
-            if (!_drawData!.texture) {
-                _drawData!.texture = segInfo.tex!;
+            const cumulatedCount = _indexOffset - prevDrawIndexOffset;
+            // Submit draw data
+            if (cumulatedCount > 0) {
+                _comp!._requestDrawData(_currentMaterial, _currentTexture!, prevDrawIndexOffset, cumulatedCount);
+                prevDrawIndexOffset = _indexOffset;
             }
-            _drawData = _comp!.requestMeshRenderData(_useTint ? vfmtPosUvTwoColor : vfmtPosUvColor);
             _currentMaterial = material;
             _currentTexture = segInfo.tex!;
-            _drawData.texture = segInfo.tex!;
-            _drawData.renderData.material = _currentMaterial;
         }
 
         _vertexCount = segInfo.vertexCount;
         _indexCount = segInfo.indexCount;
 
-        renderData.reserve(_vertexCount, _indexCount);
-        _indexOffset = renderData.indexCount;
-        _vertexOffset = renderData.vertexCount;
-        _vfOffset = renderData.vDataOffset;
-        vbuf = renderData.vData;
-        ibuf = renderData.iData;
-
+        // Fill indices
+        chunkOffset = rd.chunk.vertexOffset;
         for (let ii = _indexOffset, il = _indexOffset + _indexCount; ii < il; ii++) {
-            ibuf[ii] = _vertexOffset + indices[frameIndexOffset++];
+            ibuf[ii] = chunkOffset + _vertexOffset + indices[frameIndexOffset++];
         }
 
+        // Fill vertices
         segVFCount = segInfo.vfCount;
-        // vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset)
-        const subArray = vertices.subarray(frameVFOffset, frameVFOffset + segVFCount);
-        frameVFOffset += segVFCount;
-        // x y r g b a u v r g b a
-        let floatOffset = _vfOffset;
-        _perVertexSize = _vfmtFloatSize(_useTint);
+        vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), frameVFOffset);
 
-        for (let ii = 0; ii < subArray.length;) {
-            vbuf[floatOffset + 0] = subArray[ii + 0];
-            vbuf[floatOffset + 1] = subArray[ii + 1];
-            vbuf[floatOffset + 3] = subArray[ii + 3];
-            vbuf[floatOffset + 4] = subArray[ii + 4];
-            vbuf[floatOffset + 5] = subArray[ii + 5];
-            vbuf[floatOffset + 6] = subArray[ii + 6];
-            vbuf[floatOffset + 7] = subArray[ii + 7];
-            vbuf[floatOffset + 8] = subArray[ii + 8];
-            if (_useTint) {
-                vbuf[floatOffset + 9] = subArray[ii + 9];
-                vbuf[floatOffset + 10] = subArray[ii + 10];
-                vbuf[floatOffset + 11] = subArray[ii + 11];
-                vbuf[floatOffset + 12] = subArray[ii + 12];
-            }
-            floatOffset += _perVertexSize;
-            ii += 13;
-        }
-
+        // Update local position to world position
         if (calcTranslate) {
-            for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il; ii += _perVertexSize) {
+            for (let ii = frameVFOffset, il = frameVFOffset + segVFCount; ii < il; ii += _perVertexSize) {
                 vbuf[ii] += _m12;
                 vbuf[ii + 1] += _m13;
             }
         } else if (needBatch) {
-            for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il; ii += _perVertexSize) {
+            for (let ii = frameVFOffset, il = frameVFOffset + segVFCount; ii < il; ii += _perVertexSize) {
                 _x = vbuf[ii];
                 _y = vbuf[ii + 1];
                 vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
                 vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
             }
         }
-        renderData.resize(renderData.vertexCount + _vertexCount, renderData.indexCount + _indexCount);
 
-        if (!_needColor) continue;
-
-        // handle color
-        // tip: step of frameColorOffset should fix with vertex attributes, (xyzuvrgbargba--xyuvcc)
-        let frameColorOffset = (frameVFOffset - segVFCount) / 13 * 6;
-        for (let ii = _vfOffset, iEnd = _vfOffset + segVFCount; ii < iEnd; ii += _perVertexSize, frameColorOffset += 6) {
-            if (frameColorOffset >= maxVFOffset) {
-                nowColor = colors[colorOffset++];
-                _handleColor(nowColor);
-                maxVFOffset = nowColor.vfOffset;
+        // Update color
+        if (_needColor) {
+            // handle color
+            // tip: step of frameColorOffset should fix with vertex attributes, (xyzuvrgbargba--xyuvcc)
+            let frameColorOffset = frameVFOffset / 13 * 6;
+            for (let ii = frameVFOffset, iEnd = frameVFOffset + segVFCount; ii < iEnd; ii += _perVertexSize, frameColorOffset += 6) {
+                if (frameColorOffset >= maxVFOffset) {
+                    nowColor = colors[colorOffset++];
+                    _handleColor(nowColor);
+                    maxVFOffset = nowColor.vfOffset;
+                }
+                vbuf.set(_finalColor32, ii + 5);
+                vbuf.set(_darkColor32, ii + 9);
             }
-            vbuf.set(_finalColor32, ii + 5);
-            vbuf.set(_darkColor32, ii + 9);
         }
+
+        // Segment increment
+        frameVFOffset += segVFCount;
+        _vertexOffset += _vertexCount;
+        _indexOffset += _indexCount;
+        _vertexCount = 0;
+        _indexCount = 0;
+    }
+
+    const cumulatedCount = _indexOffset - prevDrawIndexOffset;
+    if (_currentTexture && cumulatedCount > 0) {
+        _comp!._requestDrawData(_currentMaterial!, _currentTexture, prevDrawIndexOffset, cumulatedCount);
     }
 }
 

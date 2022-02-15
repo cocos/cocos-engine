@@ -96,6 +96,8 @@ export class AnimationCache {
     public frames: AnimationFrame[] = [];
     public totalTime = 0;
     public isCompleted = false;
+    public maxVertexCount = 0;
+    public maxIndexCount = 0;
 
     public _privateMode = false;
     protected _inited = false;
@@ -377,7 +379,8 @@ export class AnimationCache {
 
         // Fill vertices
         let vertices = frame.vertices;
-        const copyOutVerticeSize = _vfOffset / PerVertexSize * ExportVertexSize;
+        const vertexCount = _vfOffset / PerVertexSize;
+        const copyOutVerticeSize = vertexCount * ExportVertexSize;
         if (!vertices || vertices.length < copyOutVerticeSize) {
             vertices = frame.vertices = new Float32Array(copyOutVerticeSize);
         }
@@ -403,6 +406,8 @@ export class AnimationCache {
 
         frame.vertices = vertices;
         frame.indices = indices;
+        this.maxVertexCount = vertexCount > this.maxVertexCount ? vertexCount : this.maxVertexCount;
+        this.maxIndexCount = indices.length > this.maxIndexCount ? indices.length : this.maxIndexCount;
     }
 
     protected needToUpdate (toFrameIdx?: number) {
