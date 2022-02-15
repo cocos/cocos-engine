@@ -34,7 +34,7 @@ import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { assert, warnID } from '../../core/platform';
-import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, isEnglishWordPartAtFirst, isEnglishWordPartAtLast, getEnglishWordPartAtLast } from '../utils/text-utils';
+import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, isEnglishWordPartAtFirst, isEnglishWordPartAtLast, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
@@ -560,79 +560,138 @@ export class RichText extends UIComponent {
             let curStart = 0;
             let curEnd = longStr.length / 2;
             let curString = longStr.substring(curStart, curEnd);
+            let leftString = longStr.substring(curEnd);
             let curStringSize = this._calculateSize(styleIndex, curString);
 
             // calculate a threshold that is n times of this.maxWidth and less than 2048,
             // if maxWidth is greater than 2048, let all characters stay in a line.
             const lineCountFor2048 = this.maxWidth > 2048 ? 1 : 2048 / this.maxWidth;
-            const lineCountForOnePart = Math.floor(lineCountFor2048);
+            const lineCountForOnePart = 1;// Math.floor(lineCountFor2048);
             const sizeForOnePart = lineCountForOnePart * this.maxWidth;
+
+            // avoid to many loops since temporary input value (condition like value '7' is captured when user is inputting '700').
 
             // divide text into some pieces of which the size is less than sizeForOnePart
             while (curStringSize.x > sizeForOnePart) {
                 curEnd /= 2;
+                // at least one char can be a entity.
+                if (curEnd <= 1) {
+                    break;
+                }
 
                 curString = curString.substring(curStart, curEnd);
+                leftString = longStr.substring(curEnd);
                 curStringSize = this._calculateSize(styleIndex, curString);
             }
 
-            // approach target(sizeForOnePart - error)
-            const avgOneCharSize = curStringSize.x / (curEnd - curStart);
-            // The second stage of truncation into real lines could waste some spaces
-            // because of mixed arrangement of Chinese and English characters,
-            // so we need to reduce this part length for extra space
-            const offsetOfError = lineCountForOnePart * avgOneCharSize;
-            const sizeForOnePartWithOffset = sizeForOnePart - offsetOfError;
+            // // approach target(sizeForOnePart - error)
+            // const avgOneCharSize = curStringSize.x / (curEnd - curStart);
+            // // The second stage of truncation into real lines could waste some spaces
+            // // because of mixed arrangement of Chinese and English characters,
+            // // so we need to reduce this part length for extra space
+            // const offsetOfError = lineCountForOnePart * avgOneCharSize;
+            // const sizeForOnePartWithOffset = sizeForOnePart - offsetOfError;
 
-            // avoid endless loop
+            // avoid too many loops
             let tryCount = 100;
-            let isLastPart = curEnd >= text.length;
+
+            // 需要在这里面把单词切开的问题处理了
+            let curWordStep = 0;
+            //let isLastPart = curEnd >= text.length;
             while (tryCount && curStart < text.length) {
-                const unitCloseToTargetSize = Math.abs(curStringSize.x - sizeForOnePartWithOffset) < error
-                    ? 1 : Math.abs(curStringSize.x - sizeForOnePartWithOffset) / avgOneCharSize;
-                if (curStringSize.x > sizeForOnePartWithOffset) {
-                    curEnd -= unitCloseToTargetSize;
-                } else if (curStringSize.x + error < sizeForOnePartWithOffset) {
-                    if (isLastPart) {
-                        partStringArr.push(curString);
-                        const step = curEnd - curStart;
-                        curStart = curEnd;
-                        curEnd += step;
+                // const unitCloseToTargetSize = Math.abs(curStringSize.x - sizeForOnePartWithOffset) < error
+                //     ? 1 : Math.abs(curStringSize.x - sizeForOnePartWithOffset) / avgOneCharSize;
+                // if (curStringSize.x > sizeForOnePartWithOffset) {
+                //     curEnd -= unitCloseToTargetSize;
+                // } else
+                while (tryCount && curStringSize.x <= sizeForOnePart) {
+                    // if (isLastPart) {
+                    //     partStringArr.push(curString);
+                    //     const partStep = curEnd - curStart;
+                    //     curStart = curEnd;
+                    //     curEnd += partStep;
+                    //     break;
+                    // } else {
+                    //这里不应该直接算跟进多少个字符，应该是跟进下一个单词
+                    const nextPartExec = getEnglishWordPartAtFirst(leftString);
+                    if (nextPartExec && nextPartExec.length > 0) {
+                        curWordStep = nextPartExec[0].length;
+                        curEnd += curWordStep;
                     } else {
-                        curEnd += unitCloseToTargetSize;
+                        curEnd += 1;
                     }
-                } else {
-                    partStringArr.push(curString);
-                    const step = curEnd - curStart;
-                    curStart = curEnd;
-                    curEnd += step;
+
+                    //curEnd += unitCloseToTargetSize;
+                    //}
+
+                    curString = longStr.substring(curStart, curEnd);
+                    leftString = longStr.substring(curEnd);
+                    curStringSize = this._calculateSize(styleIndex, curString);
+
+                    //最后一组
+                    if (curEnd >= text.length) {
+                        curEnd = text.length;
+                        curString = longStr.substring(curStart, curEnd);
+                        partStringArr.push(curString);
+                        return partStringArr;
+                    }
+
+                    tryCount--;
                 }
 
-                if (curEnd >= text.length) {
-                    curEnd = text.length;
-                }
-                isLastPart = curEnd >= text.length;
+                //临界情况要重新考虑，应该是第一次超过后再退回一个单词的时候
+                //这里就是超过，从后面再开始减单词
+                curEnd -= curWordStep;
 
                 curString = longStr.substring(curStart, curEnd);
+                leftString = longStr.substring(curEnd);
                 curStringSize = this._calculateSize(styleIndex, curString);
+
+                //这里需要考虑本行末尾是否是半截单词
+                const lastWordExec = getEnglishWordPartAtLast(curString);
+                if (lastWordExec && lastWordExec.length > 0
+                    // to avoid endless loop when there is only one word in this line
+                    && curString !== lastWordExec[0]) {
+                    curEnd -= lastWordExec[0].length;
+                    curString = longStr.substring(curStart, curEnd);
+                }
+
+                partStringArr.push(curString);
+                const partStep = curEnd - curStart;
+                curStart = curEnd;
+                curEnd += partStep;
+
+                //得到一组后，更新当前的字符串
+                curString = longStr.substring(curStart, curEnd);
+                leftString = longStr.substring(curEnd);
+                curStringSize = this._calculateSize(styleIndex, curString);
+
+                //最后一组
+                if (curEnd >= text.length) {
+                    curEnd = text.length;
+                    curString = longStr.substring(curStart, curEnd);
+                    partStringArr.push(curString);
+                    break;
+                }
+                //isLastPart = curEnd >= text.length;
 
                 tryCount--;
             }
 
-            //validate the last english word is truncated
-            for (let i = 0; i < partStringArr.length; i++) {
-                if (i + 1 < partStringArr.length) {
-                    if (isEnglishWordPartAtFirst(partStringArr[i + 1])) {
-                        const lastPartExec = getEnglishWordPartAtLast(partStringArr[i]);
-                        if (lastPartExec && lastPartExec[0] !== partStringArr[i]) {
-                            const keepLength =  partStringArr[i].length - lastPartExec[0].length;
-                            const moveStr = partStringArr[i].substring(keepLength);
-                            partStringArr[i] =  partStringArr[i].substring(0, keepLength);
-                            partStringArr[i + 1] = moveStr + partStringArr[i + 1];
-                        }
-                    }
-                }
-            }
+            // //validate the last english word is truncated
+            // for (let i = 0; i < partStringArr.length; i++) {
+            //     if (i + 1 < partStringArr.length) {
+            //         if (isEnglishWordPartAtFirst(partStringArr[i + 1])) {
+            //             const lastPartExec = getEnglishWordPartAtLast(partStringArr[i]);
+            //             if (lastPartExec && lastPartExec[0] !== partStringArr[i]) {
+            //                 const keepLength =  partStringArr[i].length - lastPartExec[0].length;
+            //                 const moveStr = partStringArr[i].substring(keepLength);
+            //                 partStringArr[i] =  partStringArr[i].substring(0, keepLength);
+            //                 partStringArr[i + 1] = moveStr + partStringArr[i + 1];
+            //             }
+            //         }
+            //     }
+            // }
 
             return partStringArr;
         }

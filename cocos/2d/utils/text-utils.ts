@@ -235,6 +235,11 @@ export function isEnglishWordPartAtLast (stringToken: string) {
     return LAST_ENGLISH_REG.test(stringToken);
 }
 
+export function getEnglishWordPartAtFirst (stringToken: string) {
+    const result = FIRST_ENGLISH_REG.exec(stringToken);
+    return result;
+}
+
 export function getEnglishWordPartAtLast (stringToken: string) {
     const result = LAST_ENGLISH_REG.exec(stringToken);
     return result;
