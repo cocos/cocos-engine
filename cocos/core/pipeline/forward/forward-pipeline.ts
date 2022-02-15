@@ -44,6 +44,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { RenderGraph } from '../custom/render-graph';
 import { LayoutGraph } from '../custom/layout-graph';
 import { DeviceResourceGraph } from '../custom/executor';
+import { Pipeline } from '../custom/pipeline';
 
 const PIPELINE_TYPE = 0;
 

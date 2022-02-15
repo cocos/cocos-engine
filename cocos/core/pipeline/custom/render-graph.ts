@@ -1546,7 +1546,7 @@ export class RenderGraph implements impl.BidirectionalGraph
     index: Map<string, number> = new Map<string, number>();
 }
 
-export class Setter {
+export abstract class Setter {
     constructor (data: RenderData) {
         this._data = data;
     }
