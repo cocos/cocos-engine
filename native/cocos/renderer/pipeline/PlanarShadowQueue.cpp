@@ -53,8 +53,8 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
     clear();
 
     const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
-    const scene::Shadows *   shadows   = sceneData->getShadows();
-    if (shadows == nullptr || !shadows->isEnabled() || shadows->getType() != scene::ShadowType::PLANAR || shadows->getNormal().length() < 0.000001) {
+    const scene::Shadows *   shadowInfo   = sceneData->getShadows();
+    if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::PLANAR || shadowInfo->getNormal().length() < 0.000001F) {
         return;
     }
 
