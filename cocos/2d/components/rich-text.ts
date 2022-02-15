@@ -618,6 +618,7 @@ export class RichText extends UIComponent {
                         curWordStep = nextPartExec[0].length;
                         curEnd += curWordStep;
                     } else {
+                        curWordStep = 1;
                         curEnd += 1;
                     }
 
