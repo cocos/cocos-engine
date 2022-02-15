@@ -1943,271 +1943,271 @@ if(USE_MIDDLEWARE)
 
     if(USE_SPINE)
         cocos_source_files(
-            NO_WERROR   NO_UBUILD   cocos/editor-support/spine/Animation.cpp
-                         cocos/editor-support/spine/Animation.h
+            NO_WERROR   NO_UBUILD    cocos/editor-support/spine/Animation.cpp
+                                     cocos/editor-support/spine/Animation.h
             NO_WERROR   NO_UBUILD    cocos/editor-support/spine/AnimationState.cpp
-                         cocos/editor-support/spine/AnimationState.h
-            NO_WERROR    cocos/editor-support/spine/AnimationStateData.cpp
-                         cocos/editor-support/spine/AnimationStateData.h
-            NO_WERROR    cocos/editor-support/spine/Atlas.cpp
-                         cocos/editor-support/spine/Atlas.h
-            NO_WERROR    cocos/editor-support/spine/AtlasAttachmentLoader.cpp
-                         cocos/editor-support/spine/AtlasAttachmentLoader.h
-            NO_WERROR    cocos/editor-support/spine/Attachment.cpp
-                         cocos/editor-support/spine/Attachment.h
-            NO_WERROR    cocos/editor-support/spine/AttachmentLoader.cpp
-                         cocos/editor-support/spine/AttachmentLoader.h
-            NO_WERROR    cocos/editor-support/spine/AttachmentTimeline.cpp
-                         cocos/editor-support/spine/AttachmentTimeline.h
-                         cocos/editor-support/spine/AttachmentType.h
-                         cocos/editor-support/spine/BlendMode.h
-            NO_WERROR    cocos/editor-support/spine/Bone.cpp
-                         cocos/editor-support/spine/Bone.h
-            NO_WERROR    cocos/editor-support/spine/BoneData.cpp
-                         cocos/editor-support/spine/BoneData.h
-            NO_WERROR    cocos/editor-support/spine/BoundingBoxAttachment.cpp
-                         cocos/editor-support/spine/BoundingBoxAttachment.h
-            NO_WERROR    cocos/editor-support/spine/ClippingAttachment.cpp
-                         cocos/editor-support/spine/ClippingAttachment.h
-                         cocos/editor-support/spine/Color.h
-            NO_WERROR    cocos/editor-support/spine/ColorTimeline.cpp
-                         cocos/editor-support/spine/ColorTimeline.h
-            NO_WERROR    cocos/editor-support/spine/Constraint.cpp
-                         cocos/editor-support/spine/Constraint.h
-            NO_WERROR   NO_UBUILD cocos/editor-support/spine/ConstraintData.cpp
-                         cocos/editor-support/spine/ConstraintData.h
-                         cocos/editor-support/spine/ContainerUtil.h
-            NO_WERROR    cocos/editor-support/spine/CurveTimeline.cpp
-                         cocos/editor-support/spine/CurveTimeline.h
-                         cocos/editor-support/spine/Debug.h
-            NO_WERROR    cocos/editor-support/spine/DeformTimeline.cpp
-                         cocos/editor-support/spine/DeformTimeline.h
-                         cocos/editor-support/spine/dll.h
-            NO_WERROR    cocos/editor-support/spine/DrawOrderTimeline.cpp
-                         cocos/editor-support/spine/DrawOrderTimeline.h
-            NO_WERROR    cocos/editor-support/spine/Event.cpp
-                         cocos/editor-support/spine/Event.h
-            NO_WERROR    cocos/editor-support/spine/EventData.cpp
-                         cocos/editor-support/spine/EventData.h
-            NO_WERROR    cocos/editor-support/spine/EventTimeline.cpp
-                         cocos/editor-support/spine/EventTimeline.h
-            NO_WERROR    cocos/editor-support/spine/Extension.cpp
-                         cocos/editor-support/spine/Extension.h
-                         cocos/editor-support/spine/HashMap.h
-                         cocos/editor-support/spine/HasRendererObject.h
-            NO_WERROR    cocos/editor-support/spine/IkConstraint.cpp
-                         cocos/editor-support/spine/IkConstraint.h
-            NO_WERROR    cocos/editor-support/spine/IkConstraintData.cpp
-                         cocos/editor-support/spine/IkConstraintData.h
-            NO_WERROR    cocos/editor-support/spine/IkConstraintTimeline.cpp
-                         cocos/editor-support/spine/IkConstraintTimeline.h
-            NO_WERROR    cocos/editor-support/spine/Json.cpp
-                         cocos/editor-support/spine/Json.h
-            NO_WERROR    cocos/editor-support/spine/LinkedMesh.cpp
-                         cocos/editor-support/spine/LinkedMesh.h
-            NO_WERROR    cocos/editor-support/spine/MathUtil.cpp
-                         cocos/editor-support/spine/MathUtil.h
-            NO_WERROR    cocos/editor-support/spine/MeshAttachment.cpp
-                         cocos/editor-support/spine/MeshAttachment.h
-                         cocos/editor-support/spine/MixBlend.h
-                         cocos/editor-support/spine/MixDirection.h
-            NO_WERROR    cocos/editor-support/spine/PathAttachment.cpp
-                         cocos/editor-support/spine/PathAttachment.h
-            NO_WERROR    cocos/editor-support/spine/PathConstraint.cpp
-                         cocos/editor-support/spine/PathConstraint.h
-            NO_WERROR    cocos/editor-support/spine/PathConstraintData.cpp
-                         cocos/editor-support/spine/PathConstraintData.h
-            NO_WERROR    cocos/editor-support/spine/PathConstraintMixTimeline.cpp
-                         cocos/editor-support/spine/PathConstraintMixTimeline.h
-            NO_WERROR    cocos/editor-support/spine/PathConstraintPositionTimeline.cpp
-                         cocos/editor-support/spine/PathConstraintPositionTimeline.h
-            NO_WERROR    cocos/editor-support/spine/PathConstraintSpacingTimeline.cpp
-                         cocos/editor-support/spine/PathConstraintSpacingTimeline.h
-            NO_WERROR    cocos/editor-support/spine/PointAttachment.cpp
-                         cocos/editor-support/spine/PointAttachment.h
-                         cocos/editor-support/spine/Pool.h
-                         cocos/editor-support/spine/PositionMode.h
-            NO_WERROR    cocos/editor-support/spine/RegionAttachment.cpp
-                         cocos/editor-support/spine/RegionAttachment.h
-                         cocos/editor-support/spine/RotateMode.h
-            NO_WERROR    cocos/editor-support/spine/RotateTimeline.cpp
-                         cocos/editor-support/spine/RotateTimeline.h
-            NO_WERROR    cocos/editor-support/spine/RTTI.cpp
-                         cocos/editor-support/spine/RTTI.h
-            NO_WERROR    cocos/editor-support/spine/ScaleTimeline.cpp
-                         cocos/editor-support/spine/ScaleTimeline.h
-            NO_WERROR    cocos/editor-support/spine/ShearTimeline.cpp
-                         cocos/editor-support/spine/ShearTimeline.h
-            NO_WERROR    cocos/editor-support/spine/Skeleton.cpp
-                         cocos/editor-support/spine/Skeleton.h
-            NO_WERROR    cocos/editor-support/spine/SkeletonBinary.cpp
-                         cocos/editor-support/spine/SkeletonBinary.h
-            NO_WERROR    cocos/editor-support/spine/SkeletonBounds.cpp
-                         cocos/editor-support/spine/SkeletonBounds.h
-            NO_WERROR    cocos/editor-support/spine/SkeletonClipping.cpp
-                         cocos/editor-support/spine/SkeletonClipping.h
-            NO_WERROR    cocos/editor-support/spine/SkeletonData.cpp
-                         cocos/editor-support/spine/SkeletonData.h
-            NO_WERROR    cocos/editor-support/spine/SkeletonJson.cpp
-                         cocos/editor-support/spine/SkeletonJson.h
-            NO_WERROR    cocos/editor-support/spine/Skin.cpp
-                         cocos/editor-support/spine/Skin.h
-            NO_WERROR    cocos/editor-support/spine/Slot.cpp
-                         cocos/editor-support/spine/Slot.h
-            NO_WERROR    cocos/editor-support/spine/SlotData.cpp
-                         cocos/editor-support/spine/SlotData.h
-                         cocos/editor-support/spine/SpacingMode.h
-                         cocos/editor-support/spine/spine.h
-            NO_WERROR    cocos/editor-support/spine/SpineObject.cpp
-                         cocos/editor-support/spine/SpineObject.h
-                         cocos/editor-support/spine/SpineString.h
-            NO_WERROR    cocos/editor-support/spine/TextureLoader.cpp
-                         cocos/editor-support/spine/TextureLoader.h
-            NO_WERROR    cocos/editor-support/spine/Timeline.cpp
-                         cocos/editor-support/spine/Timeline.h
-                         cocos/editor-support/spine/TimelineType.h
-            NO_WERROR    cocos/editor-support/spine/TransformConstraint.cpp
-                         cocos/editor-support/spine/TransformConstraint.h
-            NO_WERROR    cocos/editor-support/spine/TransformConstraintData.cpp
-                         cocos/editor-support/spine/TransformConstraintData.h
-            NO_WERROR    cocos/editor-support/spine/TransformConstraintTimeline.cpp
-                         cocos/editor-support/spine/TransformConstraintTimeline.h
-                         cocos/editor-support/spine/TransformMode.h
-            NO_WERROR    cocos/editor-support/spine/TranslateTimeline.cpp
-                         cocos/editor-support/spine/TranslateTimeline.h
-            NO_WERROR    cocos/editor-support/spine/Triangulator.cpp
-                         cocos/editor-support/spine/Triangulator.h
-            NO_WERROR    cocos/editor-support/spine/TwoColorTimeline.cpp
-                         cocos/editor-support/spine/TwoColorTimeline.h
-            NO_WERROR    cocos/editor-support/spine/Updatable.cpp
-                         cocos/editor-support/spine/Updatable.h
-                         cocos/editor-support/spine/Vector.h
-            NO_WERROR    cocos/editor-support/spine/VertexAttachment.cpp
-                         cocos/editor-support/spine/VertexAttachment.h
-            NO_WERROR    cocos/editor-support/spine/VertexEffect.cpp
-                         cocos/editor-support/spine/VertexEffect.h
-                         cocos/editor-support/spine/Vertices.h
-            NO_WERROR    cocos/editor-support/spine-creator-support/AttachmentVertices.cpp
-                         cocos/editor-support/spine-creator-support/AttachmentVertices.h
-            NO_WERROR    cocos/editor-support/spine-creator-support/SkeletonAnimation.cpp
-                         cocos/editor-support/spine-creator-support/SkeletonAnimation.h
-            NO_WERROR    cocos/editor-support/spine-creator-support/SkeletonCache.cpp
-                         cocos/editor-support/spine-creator-support/SkeletonCache.h
-            NO_WERROR    cocos/editor-support/spine-creator-support/SkeletonCacheAnimation.cpp
-                         cocos/editor-support/spine-creator-support/SkeletonCacheAnimation.h
-            NO_WERROR    cocos/editor-support/spine-creator-support/SkeletonCacheMgr.cpp
-                         cocos/editor-support/spine-creator-support/SkeletonCacheMgr.h
-            NO_WERROR    cocos/editor-support/spine-creator-support/SkeletonDataMgr.cpp
-                         cocos/editor-support/spine-creator-support/SkeletonDataMgr.h
+                                     cocos/editor-support/spine/AnimationState.h
+            NO_WERROR                cocos/editor-support/spine/AnimationStateData.cpp
+                                     cocos/editor-support/spine/AnimationStateData.h
+            NO_WERROR                cocos/editor-support/spine/Atlas.cpp
+                                     cocos/editor-support/spine/Atlas.h
+            NO_WERROR                cocos/editor-support/spine/AtlasAttachmentLoader.cpp
+                                     cocos/editor-support/spine/AtlasAttachmentLoader.h
+            NO_WERROR                cocos/editor-support/spine/Attachment.cpp
+                                     cocos/editor-support/spine/Attachment.h
+            NO_WERROR                cocos/editor-support/spine/AttachmentLoader.cpp
+                                     cocos/editor-support/spine/AttachmentLoader.h
+            NO_WERROR                cocos/editor-support/spine/AttachmentTimeline.cpp
+                                     cocos/editor-support/spine/AttachmentTimeline.h
+                                     cocos/editor-support/spine/AttachmentType.h
+                                     cocos/editor-support/spine/BlendMode.h
+            NO_WERROR                cocos/editor-support/spine/Bone.cpp
+                                     cocos/editor-support/spine/Bone.h
+            NO_WERROR                cocos/editor-support/spine/BoneData.cpp
+                                     cocos/editor-support/spine/BoneData.h
+            NO_WERROR                cocos/editor-support/spine/BoundingBoxAttachment.cpp
+                                     cocos/editor-support/spine/BoundingBoxAttachment.h
+            NO_WERROR                cocos/editor-support/spine/ClippingAttachment.cpp
+                                     cocos/editor-support/spine/ClippingAttachment.h
+                                     cocos/editor-support/spine/Color.h
+            NO_WERROR                cocos/editor-support/spine/ColorTimeline.cpp
+                                     cocos/editor-support/spine/ColorTimeline.h
+            NO_WERROR                cocos/editor-support/spine/Constraint.cpp
+                                     cocos/editor-support/spine/Constraint.h
+            NO_WERROR   NO_UBUILD   cocos/editor-support/spine/ConstraintData.cpp
+                                     cocos/editor-support/spine/ConstraintData.h
+                                     cocos/editor-support/spine/ContainerUtil.h
+            NO_WERROR                cocos/editor-support/spine/CurveTimeline.cpp
+                                     cocos/editor-support/spine/CurveTimeline.h
+                                     cocos/editor-support/spine/Debug.h
+            NO_WERROR                cocos/editor-support/spine/DeformTimeline.cpp
+                                     cocos/editor-support/spine/DeformTimeline.h
+                                     cocos/editor-support/spine/dll.h
+            NO_WERROR                cocos/editor-support/spine/DrawOrderTimeline.cpp
+                                     cocos/editor-support/spine/DrawOrderTimeline.h
+            NO_WERROR                cocos/editor-support/spine/Event.cpp
+                                     cocos/editor-support/spine/Event.h
+            NO_WERROR                cocos/editor-support/spine/EventData.cpp
+                                     cocos/editor-support/spine/EventData.h
+            NO_WERROR                cocos/editor-support/spine/EventTimeline.cpp
+                                     cocos/editor-support/spine/EventTimeline.h
+            NO_WERROR                cocos/editor-support/spine/Extension.cpp
+                                     cocos/editor-support/spine/Extension.h
+                                     cocos/editor-support/spine/HashMap.h
+                                     cocos/editor-support/spine/HasRendererObject.h
+            NO_WERROR                cocos/editor-support/spine/IkConstraint.cpp
+                                     cocos/editor-support/spine/IkConstraint.h
+            NO_WERROR                cocos/editor-support/spine/IkConstraintData.cpp
+                                     cocos/editor-support/spine/IkConstraintData.h
+            NO_WERROR                cocos/editor-support/spine/IkConstraintTimeline.cpp
+                                     cocos/editor-support/spine/IkConstraintTimeline.h
+            NO_WERROR                cocos/editor-support/spine/Json.cpp
+                                     cocos/editor-support/spine/Json.h
+            NO_WERROR                cocos/editor-support/spine/LinkedMesh.cpp
+                                     cocos/editor-support/spine/LinkedMesh.h
+            NO_WERROR                cocos/editor-support/spine/MathUtil.cpp
+                                     cocos/editor-support/spine/MathUtil.h
+            NO_WERROR                cocos/editor-support/spine/MeshAttachment.cpp
+                                     cocos/editor-support/spine/MeshAttachment.h
+                                     cocos/editor-support/spine/MixBlend.h
+                                     cocos/editor-support/spine/MixDirection.h
+            NO_WERROR                cocos/editor-support/spine/PathAttachment.cpp
+                                     cocos/editor-support/spine/PathAttachment.h
+            NO_WERROR                cocos/editor-support/spine/PathConstraint.cpp
+                                     cocos/editor-support/spine/PathConstraint.h
+            NO_WERROR                cocos/editor-support/spine/PathConstraintData.cpp
+                                     cocos/editor-support/spine/PathConstraintData.h
+            NO_WERROR                cocos/editor-support/spine/PathConstraintMixTimeline.cpp
+                                     cocos/editor-support/spine/PathConstraintMixTimeline.h
+            NO_WERROR                cocos/editor-support/spine/PathConstraintPositionTimeline.cpp
+                                     cocos/editor-support/spine/PathConstraintPositionTimeline.h
+            NO_WERROR                cocos/editor-support/spine/PathConstraintSpacingTimeline.cpp
+                                     cocos/editor-support/spine/PathConstraintSpacingTimeline.h
+            NO_WERROR                cocos/editor-support/spine/PointAttachment.cpp
+                                     cocos/editor-support/spine/PointAttachment.h
+                                     cocos/editor-support/spine/Pool.h
+                                     cocos/editor-support/spine/PositionMode.h
+            NO_WERROR                cocos/editor-support/spine/RegionAttachment.cpp
+                                     cocos/editor-support/spine/RegionAttachment.h
+                                     cocos/editor-support/spine/RotateMode.h
+            NO_WERROR                cocos/editor-support/spine/RotateTimeline.cpp
+                                     cocos/editor-support/spine/RotateTimeline.h
+            NO_WERROR                cocos/editor-support/spine/RTTI.cpp
+                                     cocos/editor-support/spine/RTTI.h
+            NO_WERROR                cocos/editor-support/spine/ScaleTimeline.cpp
+                                     cocos/editor-support/spine/ScaleTimeline.h
+            NO_WERROR                cocos/editor-support/spine/ShearTimeline.cpp
+                                     cocos/editor-support/spine/ShearTimeline.h
+            NO_WERROR                cocos/editor-support/spine/Skeleton.cpp
+                                     cocos/editor-support/spine/Skeleton.h
+            NO_WERROR                cocos/editor-support/spine/SkeletonBinary.cpp
+                                     cocos/editor-support/spine/SkeletonBinary.h
+            NO_WERROR                cocos/editor-support/spine/SkeletonBounds.cpp
+                                     cocos/editor-support/spine/SkeletonBounds.h
+            NO_WERROR                cocos/editor-support/spine/SkeletonClipping.cpp
+                                     cocos/editor-support/spine/SkeletonClipping.h
+            NO_WERROR                cocos/editor-support/spine/SkeletonData.cpp
+                                     cocos/editor-support/spine/SkeletonData.h
+            NO_WERROR                cocos/editor-support/spine/SkeletonJson.cpp
+                                     cocos/editor-support/spine/SkeletonJson.h
+            NO_WERROR                cocos/editor-support/spine/Skin.cpp
+                                     cocos/editor-support/spine/Skin.h
+            NO_WERROR                cocos/editor-support/spine/Slot.cpp
+                                     cocos/editor-support/spine/Slot.h
+            NO_WERROR                cocos/editor-support/spine/SlotData.cpp
+                                     cocos/editor-support/spine/SlotData.h
+                                     cocos/editor-support/spine/SpacingMode.h
+                                     cocos/editor-support/spine/spine.h
+            NO_WERROR                cocos/editor-support/spine/SpineObject.cpp
+                                     cocos/editor-support/spine/SpineObject.h
+                                     cocos/editor-support/spine/SpineString.h
+            NO_WERROR                cocos/editor-support/spine/TextureLoader.cpp
+                                     cocos/editor-support/spine/TextureLoader.h
+            NO_WERROR                cocos/editor-support/spine/Timeline.cpp
+                                     cocos/editor-support/spine/Timeline.h
+                                     cocos/editor-support/spine/TimelineType.h
+            NO_WERROR                cocos/editor-support/spine/TransformConstraint.cpp
+                                     cocos/editor-support/spine/TransformConstraint.h
+            NO_WERROR                cocos/editor-support/spine/TransformConstraintData.cpp
+                                     cocos/editor-support/spine/TransformConstraintData.h
+            NO_WERROR                cocos/editor-support/spine/TransformConstraintTimeline.cpp
+                                     cocos/editor-support/spine/TransformConstraintTimeline.h
+                                     cocos/editor-support/spine/TransformMode.h
+            NO_WERROR                cocos/editor-support/spine/TranslateTimeline.cpp
+                                     cocos/editor-support/spine/TranslateTimeline.h
+            NO_WERROR                cocos/editor-support/spine/Triangulator.cpp
+                                     cocos/editor-support/spine/Triangulator.h
+            NO_WERROR                cocos/editor-support/spine/TwoColorTimeline.cpp
+                                     cocos/editor-support/spine/TwoColorTimeline.h
+            NO_WERROR                cocos/editor-support/spine/Updatable.cpp
+                                     cocos/editor-support/spine/Updatable.h
+                                     cocos/editor-support/spine/Vector.h
+            NO_WERROR                cocos/editor-support/spine/VertexAttachment.cpp
+                                     cocos/editor-support/spine/VertexAttachment.h
+            NO_WERROR                cocos/editor-support/spine/VertexEffect.cpp
+                                     cocos/editor-support/spine/VertexEffect.h
+                                     cocos/editor-support/spine/Vertices.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/AttachmentVertices.cpp
+                                     cocos/editor-support/spine-creator-support/AttachmentVertices.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonAnimation.cpp
+                                     cocos/editor-support/spine-creator-support/SkeletonAnimation.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonCache.cpp
+                                     cocos/editor-support/spine-creator-support/SkeletonCache.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonCacheAnimation.cpp
+                                     cocos/editor-support/spine-creator-support/SkeletonCacheAnimation.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonCacheMgr.cpp
+                                     cocos/editor-support/spine-creator-support/SkeletonCacheMgr.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/SkeletonDataMgr.cpp
+                                     cocos/editor-support/spine-creator-support/SkeletonDataMgr.h
             NO_WERROR   NO_UBUILD    cocos/editor-support/spine-creator-support/SkeletonRenderer.cpp
-                         cocos/editor-support/spine-creator-support/SkeletonRenderer.h
-            NO_WERROR    cocos/editor-support/spine-creator-support/spine-cocos2dx.cpp
-                         cocos/editor-support/spine-creator-support/spine-cocos2dx.h
-            NO_WERROR    cocos/editor-support/spine-creator-support/VertexEffectDelegate.cpp
-                         cocos/editor-support/spine-creator-support/VertexEffectDelegate.h
+                                     cocos/editor-support/spine-creator-support/SkeletonRenderer.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/spine-cocos2dx.cpp
+                                     cocos/editor-support/spine-creator-support/spine-cocos2dx.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/VertexEffectDelegate.cpp
+                                     cocos/editor-support/spine-creator-support/VertexEffectDelegate.h
 
         )
         cocos_source_files(
-        NO_WERROR    cocos/bindings/auto/jsb_spine_auto.cpp
+        NO_WERROR       cocos/bindings/auto/jsb_spine_auto.cpp
                         cocos/bindings/auto/jsb_spine_auto.h
-        NO_WERROR    cocos/bindings/manual/jsb_spine_manual.cpp
+        NO_WERROR       cocos/bindings/manual/jsb_spine_manual.cpp
                         cocos/bindings/manual/jsb_spine_manual.h
         )
     endif()
 
     if(USE_DRAGONBONES)
         cocos_source_files(
-                         cocos/editor-support/dragonbones/DragonBonesHeaders.h
-            NO_WERROR    cocos/editor-support/dragonbones/animation/Animation.cpp
-                         cocos/editor-support/dragonbones/animation/Animation.h
-            NO_WERROR    cocos/editor-support/dragonbones/animation/AnimationState.cpp
-                         cocos/editor-support/dragonbones/animation/AnimationState.h
-            NO_WERROR    cocos/editor-support/dragonbones/animation/BaseTimelineState.cpp
-                         cocos/editor-support/dragonbones/animation/BaseTimelineState.h
-                         cocos/editor-support/dragonbones/animation/IAnimatable.h
-            NO_WERROR    cocos/editor-support/dragonbones/animation/TimelineState.cpp
-                         cocos/editor-support/dragonbones/animation/TimelineState.h
-            NO_WERROR    cocos/editor-support/dragonbones/animation/WorldClock.cpp
-                         cocos/editor-support/dragonbones/animation/WorldClock.h
-            NO_WERROR    cocos/editor-support/dragonbones/armature/Armature.cpp
-                         cocos/editor-support/dragonbones/armature/Armature.h
-            NO_WERROR    cocos/editor-support/dragonbones/armature/Bone.cpp
-                         cocos/editor-support/dragonbones/armature/Bone.h
-            NO_WERROR    cocos/editor-support/dragonbones/armature/Constraint.cpp
-                         cocos/editor-support/dragonbones/armature/Constraint.h
-            NO_WERROR    cocos/editor-support/dragonbones/armature/DeformVertices.cpp
-                         cocos/editor-support/dragonbones/armature/DeformVertices.h
-                         cocos/editor-support/dragonbones/armature/IArmatureProxy.h
-            NO_WERROR    cocos/editor-support/dragonbones/armature/Slot.cpp
-                         cocos/editor-support/dragonbones/armature/Slot.h
-            NO_WERROR    cocos/editor-support/dragonbones/armature/TransformObject.cpp
-                         cocos/editor-support/dragonbones/armature/TransformObject.h
-            NO_WERROR    cocos/editor-support/dragonbones/core/BaseObject.cpp
-                         cocos/editor-support/dragonbones/core/BaseObject.h
-            NO_WERROR    cocos/editor-support/dragonbones/core/DragonBones.cpp
-                         cocos/editor-support/dragonbones/core/DragonBones.h
-            NO_WERROR    cocos/editor-support/dragonbones/event/EventObject.cpp
-                         cocos/editor-support/dragonbones/event/EventObject.h
-                         cocos/editor-support/dragonbones/event/IEventDispatcher.h
-            NO_WERROR    cocos/editor-support/dragonbones/factory/BaseFactory.cpp
-                         cocos/editor-support/dragonbones/factory/BaseFactory.h
-                         cocos/editor-support/dragonbones/geom/ColorTransform.h
-                         cocos/editor-support/dragonbones/geom/Matrix.h
-            NO_WERROR    cocos/editor-support/dragonbones/geom/Point.cpp
-                         cocos/editor-support/dragonbones/geom/Point.h
-                         cocos/editor-support/dragonbones/geom/Rectangle.h
-            NO_WERROR    cocos/editor-support/dragonbones/geom/Transform.cpp
-                         cocos/editor-support/dragonbones/geom/Transform.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/AnimationConfig.cpp
-                         cocos/editor-support/dragonbones/model/AnimationConfig.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/AnimationData.cpp
-                         cocos/editor-support/dragonbones/model/AnimationData.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/ArmatureData.cpp
-                         cocos/editor-support/dragonbones/model/ArmatureData.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/BoundingBoxData.cpp
-                         cocos/editor-support/dragonbones/model/BoundingBoxData.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/CanvasData.cpp
-                         cocos/editor-support/dragonbones/model/CanvasData.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/ConstraintData.cpp
-                         cocos/editor-support/dragonbones/model/ConstraintData.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/DisplayData.cpp
-                         cocos/editor-support/dragonbones/model/DisplayData.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/DragonBonesData.cpp
-                         cocos/editor-support/dragonbones/model/DragonBonesData.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/SkinData.cpp
-                         cocos/editor-support/dragonbones/model/SkinData.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/TextureAtlasData.cpp
-                         cocos/editor-support/dragonbones/model/TextureAtlasData.h
-            NO_WERROR    cocos/editor-support/dragonbones/model/UserData.cpp
-                         cocos/editor-support/dragonbones/model/UserData.h
-            NO_WERROR    cocos/editor-support/dragonbones/parser/BinaryDataParser.cpp
-                         cocos/editor-support/dragonbones/parser/BinaryDataParser.h
-            NO_WERROR    cocos/editor-support/dragonbones/parser/DataParser.cpp
-                         cocos/editor-support/dragonbones/parser/DataParser.h
-            NO_WERROR    cocos/editor-support/dragonbones/parser/JSONDataParser.cpp
-                         cocos/editor-support/dragonbones/parser/JSONDataParser.h
-            NO_WERROR    cocos/editor-support/dragonbones-creator-support/ArmatureCache.cpp
-                         cocos/editor-support/dragonbones-creator-support/ArmatureCache.h
-            NO_WERROR    cocos/editor-support/dragonbones-creator-support/ArmatureCacheMgr.cpp
-                         cocos/editor-support/dragonbones-creator-support/ArmatureCacheMgr.h
-            NO_WERROR    cocos/editor-support/dragonbones-creator-support/CCArmatureCacheDisplay.cpp
-                         cocos/editor-support/dragonbones-creator-support/CCArmatureCacheDisplay.h
+                                     cocos/editor-support/dragonbones/DragonBonesHeaders.h
+            NO_WERROR                cocos/editor-support/dragonbones/animation/Animation.cpp
+                                     cocos/editor-support/dragonbones/animation/Animation.h
+            NO_WERROR                cocos/editor-support/dragonbones/animation/AnimationState.cpp
+                                     cocos/editor-support/dragonbones/animation/AnimationState.h
+            NO_WERROR                cocos/editor-support/dragonbones/animation/BaseTimelineState.cpp
+                                     cocos/editor-support/dragonbones/animation/BaseTimelineState.h
+                                     cocos/editor-support/dragonbones/animation/IAnimatable.h
+            NO_WERROR                cocos/editor-support/dragonbones/animation/TimelineState.cpp
+                                     cocos/editor-support/dragonbones/animation/TimelineState.h
+            NO_WERROR                cocos/editor-support/dragonbones/animation/WorldClock.cpp
+                                     cocos/editor-support/dragonbones/animation/WorldClock.h
+            NO_WERROR                cocos/editor-support/dragonbones/armature/Armature.cpp
+                                     cocos/editor-support/dragonbones/armature/Armature.h
+            NO_WERROR                cocos/editor-support/dragonbones/armature/Bone.cpp
+                                     cocos/editor-support/dragonbones/armature/Bone.h
+            NO_WERROR                cocos/editor-support/dragonbones/armature/Constraint.cpp
+                                     cocos/editor-support/dragonbones/armature/Constraint.h
+            NO_WERROR                cocos/editor-support/dragonbones/armature/DeformVertices.cpp
+                                     cocos/editor-support/dragonbones/armature/DeformVertices.h
+                                     cocos/editor-support/dragonbones/armature/IArmatureProxy.h
+            NO_WERROR                cocos/editor-support/dragonbones/armature/Slot.cpp
+                                     cocos/editor-support/dragonbones/armature/Slot.h
+            NO_WERROR                cocos/editor-support/dragonbones/armature/TransformObject.cpp
+                                     cocos/editor-support/dragonbones/armature/TransformObject.h
+            NO_WERROR                cocos/editor-support/dragonbones/core/BaseObject.cpp
+                                     cocos/editor-support/dragonbones/core/BaseObject.h
+            NO_WERROR                cocos/editor-support/dragonbones/core/DragonBones.cpp
+                                     cocos/editor-support/dragonbones/core/DragonBones.h
+            NO_WERROR                cocos/editor-support/dragonbones/event/EventObject.cpp
+                                     cocos/editor-support/dragonbones/event/EventObject.h
+                                     cocos/editor-support/dragonbones/event/IEventDispatcher.h
+            NO_WERROR                cocos/editor-support/dragonbones/factory/BaseFactory.cpp
+                                     cocos/editor-support/dragonbones/factory/BaseFactory.h
+                                     cocos/editor-support/dragonbones/geom/ColorTransform.h
+                                     cocos/editor-support/dragonbones/geom/Matrix.h
+            NO_WERROR                cocos/editor-support/dragonbones/geom/Point.cpp
+                                     cocos/editor-support/dragonbones/geom/Point.h
+                                     cocos/editor-support/dragonbones/geom/Rectangle.h
+            NO_WERROR                cocos/editor-support/dragonbones/geom/Transform.cpp
+                                     cocos/editor-support/dragonbones/geom/Transform.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/AnimationConfig.cpp
+                                     cocos/editor-support/dragonbones/model/AnimationConfig.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/AnimationData.cpp
+                                     cocos/editor-support/dragonbones/model/AnimationData.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/ArmatureData.cpp
+                                     cocos/editor-support/dragonbones/model/ArmatureData.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/BoundingBoxData.cpp
+                                     cocos/editor-support/dragonbones/model/BoundingBoxData.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/CanvasData.cpp
+                                     cocos/editor-support/dragonbones/model/CanvasData.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/ConstraintData.cpp
+                                     cocos/editor-support/dragonbones/model/ConstraintData.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/DisplayData.cpp
+                                     cocos/editor-support/dragonbones/model/DisplayData.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/DragonBonesData.cpp
+                                     cocos/editor-support/dragonbones/model/DragonBonesData.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/SkinData.cpp
+                                     cocos/editor-support/dragonbones/model/SkinData.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/TextureAtlasData.cpp
+                                     cocos/editor-support/dragonbones/model/TextureAtlasData.h
+            NO_WERROR                cocos/editor-support/dragonbones/model/UserData.cpp
+                                     cocos/editor-support/dragonbones/model/UserData.h
+            NO_WERROR                cocos/editor-support/dragonbones/parser/BinaryDataParser.cpp
+                                     cocos/editor-support/dragonbones/parser/BinaryDataParser.h
+            NO_WERROR                cocos/editor-support/dragonbones/parser/DataParser.cpp
+                                     cocos/editor-support/dragonbones/parser/DataParser.h
+            NO_WERROR                cocos/editor-support/dragonbones/parser/JSONDataParser.cpp
+                                     cocos/editor-support/dragonbones/parser/JSONDataParser.h
+            NO_WERROR                cocos/editor-support/dragonbones-creator-support/ArmatureCache.cpp
+                                     cocos/editor-support/dragonbones-creator-support/ArmatureCache.h
+            NO_WERROR                cocos/editor-support/dragonbones-creator-support/ArmatureCacheMgr.cpp
+                                     cocos/editor-support/dragonbones-creator-support/ArmatureCacheMgr.h
+            NO_WERROR                cocos/editor-support/dragonbones-creator-support/CCArmatureCacheDisplay.cpp
+                                     cocos/editor-support/dragonbones-creator-support/CCArmatureCacheDisplay.h
             NO_WERROR   NO_UBUILD    cocos/editor-support/dragonbones-creator-support/CCArmatureDisplay.cpp
-                         cocos/editor-support/dragonbones-creator-support/CCArmatureDisplay.h
-                         cocos/editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h
-            NO_WERROR    cocos/editor-support/dragonbones-creator-support/CCFactory.cpp
-                         cocos/editor-support/dragonbones-creator-support/CCFactory.h
-            NO_WERROR    cocos/editor-support/dragonbones-creator-support/CCSlot.cpp
-                         cocos/editor-support/dragonbones-creator-support/CCSlot.h
-            NO_WERROR    cocos/editor-support/dragonbones-creator-support/CCTextureAtlasData.cpp
-                         cocos/editor-support/dragonbones-creator-support/CCTextureAtlasData.h
+                                     cocos/editor-support/dragonbones-creator-support/CCArmatureDisplay.h
+                                     cocos/editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h
+            NO_WERROR                cocos/editor-support/dragonbones-creator-support/CCFactory.cpp
+                                     cocos/editor-support/dragonbones-creator-support/CCFactory.h
+            NO_WERROR                cocos/editor-support/dragonbones-creator-support/CCSlot.cpp
+                                     cocos/editor-support/dragonbones-creator-support/CCSlot.h
+            NO_WERROR                cocos/editor-support/dragonbones-creator-support/CCTextureAtlasData.cpp
+                                     cocos/editor-support/dragonbones-creator-support/CCTextureAtlasData.h
 
         )
         cocos_source_files(
             NO_WERROR    cocos/bindings/auto/jsb_dragonbones_auto.cpp
-                        cocos/bindings/auto/jsb_dragonbones_auto.h
+                         cocos/bindings/auto/jsb_dragonbones_auto.h
             NO_WERROR    cocos/bindings/manual/jsb_dragonbones_manual.cpp
-                        cocos/bindings/manual/jsb_dragonbones_manual.h
+                         cocos/bindings/manual/jsb_dragonbones_manual.h
         )
     endif()
 endif()
@@ -2318,30 +2318,30 @@ if(USE_SE_V8)
     )
     if(USE_V8_DEBUGGER)
     cocos_source_files(MODULE ccbindings
-                     cocos/bindings/jswrapper/v8/debugger/base64.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/env.cpp
-                     cocos/bindings/jswrapper/v8/debugger/env.h
+                                cocos/bindings/jswrapper/v8/debugger/base64.h
+        NO_WERROR               cocos/bindings/jswrapper/v8/debugger/env.cpp
+                                cocos/bindings/jswrapper/v8/debugger/env.h
         NO_WERROR   NO_UBUILD   cocos/bindings/jswrapper/v8/debugger/http_parser.cpp
-                     cocos/bindings/jswrapper/v8/debugger/http_parser.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_agent.cpp
-                     cocos/bindings/jswrapper/v8/debugger/inspector_agent.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_io.cpp
-                     cocos/bindings/jswrapper/v8/debugger/inspector_io.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_socket.cpp
-                     cocos/bindings/jswrapper/v8/debugger/inspector_socket.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_socket_server.cpp
-                     cocos/bindings/jswrapper/v8/debugger/inspector_socket_server.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/node.cpp
-                     cocos/bindings/jswrapper/v8/debugger/node.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/node_debug_options.cpp
-                     cocos/bindings/jswrapper/v8/debugger/node_debug_options.h
-                     cocos/bindings/jswrapper/v8/debugger/node_mutex.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/SHA1.cpp
-                     cocos/bindings/jswrapper/v8/debugger/SHA1.h
-                     cocos/bindings/jswrapper/v8/debugger/util-inl.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/util.cpp
-                     cocos/bindings/jswrapper/v8/debugger/util.h
-                     cocos/bindings/jswrapper/v8/debugger/v8_inspector_protocol_json.h
+                                cocos/bindings/jswrapper/v8/debugger/http_parser.h
+        NO_WERROR               cocos/bindings/jswrapper/v8/debugger/inspector_agent.cpp
+                                cocos/bindings/jswrapper/v8/debugger/inspector_agent.h
+        NO_WERROR               cocos/bindings/jswrapper/v8/debugger/inspector_io.cpp
+                                cocos/bindings/jswrapper/v8/debugger/inspector_io.h
+        NO_WERROR               cocos/bindings/jswrapper/v8/debugger/inspector_socket.cpp
+                                cocos/bindings/jswrapper/v8/debugger/inspector_socket.h
+        NO_WERROR               cocos/bindings/jswrapper/v8/debugger/inspector_socket_server.cpp
+                                cocos/bindings/jswrapper/v8/debugger/inspector_socket_server.h
+        NO_WERROR               cocos/bindings/jswrapper/v8/debugger/node.cpp
+                                cocos/bindings/jswrapper/v8/debugger/node.h
+        NO_WERROR               cocos/bindings/jswrapper/v8/debugger/node_debug_options.cpp
+                                cocos/bindings/jswrapper/v8/debugger/node_debug_options.h
+                                cocos/bindings/jswrapper/v8/debugger/node_mutex.h
+        NO_WERROR               cocos/bindings/jswrapper/v8/debugger/SHA1.cpp
+                                cocos/bindings/jswrapper/v8/debugger/SHA1.h
+                                cocos/bindings/jswrapper/v8/debugger/util-inl.h
+        NO_WERROR               cocos/bindings/jswrapper/v8/debugger/util.cpp
+                                cocos/bindings/jswrapper/v8/debugger/util.h
+                                cocos/bindings/jswrapper/v8/debugger/v8_inspector_protocol_json.h
     )
     endif()
 endif()
@@ -2390,7 +2390,7 @@ cocos_source_files(MODULE ccbindings
 
 cocos_source_files(
     NO_WERROR    cocos/bindings/manual/jsb_global_init.cpp
-                cocos/bindings/manual/jsb_global_init.h
+                 cocos/bindings/manual/jsb_global_init.h
 )
 
 cocos_source_files(
