@@ -9,12 +9,12 @@ import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
+import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
 import { Color, director, Mat4, Node, Texture2D } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
-import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
+import { StaticVBAccessor, StaticVBChunk } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
 
 const FLAG_BATCH = 0x10;
@@ -152,35 +152,42 @@ function _spineColorToFloat32Array4 (spineColor: spine.Color) {
 }
 
 function _vfmtFloatSize (useTint: boolean) {
-    return 3 + 2 + 4 + 4;
-    // return useTint ? 3 + 2 + 4 + 4 : 3 + 2 + 4;
+    return useTint ? 3 + 2 + 4 + 4 : 3 + 2 + 4;
 }
 
 let _accessor: StaticVBAccessor = null!;
+let _tintAccessor: StaticVBAccessor = null!;
 
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
-    accessor: _accessor,
     vCount: 32767,
-    ensureAccessor () {
-        if (!_accessor) {
+    ensureAccessor (useTint: boolean) {
+        let accessor = useTint ? _tintAccessor : _accessor;
+        if (!accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
-            const attributes = vfmtPosUvTwoColor;
-            this.accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount);
-            // Register to batcher so that batcher can upload buffers after batching process
-            batcher.registerBufferAccessor(Number.parseInt('SPINE', 36), _accessor);
+            const attributes = useTint ? vfmtPosUvTwoColor : vfmtPosUvColor;
+            if (useTint) {
+                accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount);
+                // Register to batcher so that batcher can upload buffers after batching process
+                batcher.registerBufferAccessor(Number.parseInt('SPINE', 36), _accessor);
+            } else {
+                accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount);
+                // Register to batcher so that batcher can upload buffers after batching process
+                batcher.registerBufferAccessor(Number.parseInt('SPINE_TINT', 36), _accessor);
+            }
         }
-        return this.accessor as StaticVBAccessor;
+        return accessor;
     },
 
     createData (comp: Skeleton) {
         let rd = comp.renderData;
         if (!rd) {
-            this.ensureAccessor() as StaticVBAccessor;
+            const useTint = comp.useTint || comp.isAnimationCached();
+            const accessor = this.ensureAccessor(useTint) as StaticVBAccessor;
             const skins = comp._skeleton!.data.skins;
             let vCount = 0;
             let iCount = 0;
@@ -200,7 +207,7 @@ export const simple: IAssembler = {
                     }
                 }
             }
-            rd = RenderData.add(vfmtPosUvTwoColor, this.accessor);
+            rd = RenderData.add(useTint ? vfmtPosUvTwoColor : vfmtPosUvColor, accessor);
             rd.resize(vCount, iCount);
             if (!rd.indices || iCount !== rd.indices.length) {
                 rd.indices = new Uint16Array(iCount);
@@ -283,7 +290,8 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
         if (_vertexEffect) _vertexEffect.end();
     }
     // Ensure mesh buffer update
-    _accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
+    const accessor = _useTint ? _tintAccessor : _accessor;
+    accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
 
     // sync attached node matrix
     comp.attachUtil._syncAttachedNode();

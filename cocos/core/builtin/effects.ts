@@ -331,7 +331,7 @@ export const effects = [
     "shaders": [
       {
         "name": "spine|sprite-vs:vert|sprite-fs:frag",
-        "hash": 3350206924,
+        "hash": 3192452405,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 48, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -346,7 +346,7 @@ export const effects = [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
           { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 },
           { "name": "a_color", "defines": [], "format": 44, "location": 2 },
-          { "name": "a_color2", "defines": [], "format": 44, "location": 3 }
+          { "name": "a_color2", "defines": ["TWO_COLORED"], "format": 44, "location": 3 }
         ],
         "blocks": [
           {"name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [

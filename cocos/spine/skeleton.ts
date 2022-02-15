@@ -21,6 +21,7 @@ import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { RenderData } from '../2d';
 
 export const timeScale = 1.0;
 
@@ -415,7 +416,6 @@ export class Skeleton extends Renderable2D {
         if (value !== this._useTint) {
             this._useTint = value;
             this._updateUseTint();
-            this.markForUpdateRenderData();
         }
     }
     /**
@@ -1548,6 +1548,16 @@ export class Skeleton extends Renderable2D {
     // if change use tint mode, just clear material cache
     protected _updateUseTint () {
         this._cleanMaterialCache();
+        if (this._renderData) {
+            RenderData.remove(this._renderData);
+            this._renderData = null;
+        }
+        if (this._assembler) {
+            this._renderData = this._assembler.createData(this);
+            this.maxVertexCount = this._renderData!.vertexCount;
+            this.maxIndexCount = this._renderData!.indexCount;
+            this.markForUpdateRenderData();
+        }
     }
     // if change use batch mode, just clear material cache
     protected _updateBatch () {
