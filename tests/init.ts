@@ -1,5 +1,21 @@
 
 jest.mock(
+    '@cocos/webgpu/glslang.wasmurl',
+    () => ({
+        'default': '',
+    }),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@cocos/webgpu/webgpu.wasmurl',
+    () => ({
+        'default': '',
+    }),
+    { virtual: true, },
+);
+
+jest.mock(
     'internal:constants',
     () => jest.requireActual('../cocos/core/default-constants'),
     { virtual: true, },
