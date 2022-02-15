@@ -352,6 +352,7 @@ extern se::Class * __jsb_cc_Material_class; // NOLINT
 bool js_register_cc_Material(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_Material_copy);
+SE_DECLARE_FUNC(js_assets_Material_fillInfo);
 SE_DECLARE_FUNC(js_assets_Material_getPasses);
 SE_DECLARE_FUNC(js_assets_Material_getProperty);
 SE_DECLARE_FUNC(js_assets_Material_initialize);
