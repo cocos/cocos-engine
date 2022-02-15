@@ -919,10 +919,6 @@ void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture
     }
 }
 
-void cmdFuncGLES3CreateTextureView(GLES3Device *device, GLES3GPUTextureView *gpuTextureView) {
-    // nothing to do ?
-}
-
 void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
     if (gpuTexture->memoryless || gpuTexture->glTarget == GL_TEXTURE_EXTERNAL_OES) return;
 

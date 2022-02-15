@@ -1,4 +1,4 @@
-name: Apply clang format
+name: <Native> Apply clang format
 
 #on: [push, pull_request]
 on:
