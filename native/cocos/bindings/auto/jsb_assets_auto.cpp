@@ -8940,10 +8940,38 @@ static bool js_assets_Material_copy(se::State& s) // NOLINT(readability-identifi
         cobj->copy(arg0.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if (argc == 2) {
+        HolderType<const cc::Material*, false> arg0 = {};
+        HolderType<cc::IMaterialInfo*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_copy : Error processing arguments");
+        cobj->copy(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
 SE_BIND_FUNC(js_assets_Material_copy)
+
+static bool js_assets_Material_fillInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Material>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_Material_fillInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::IMaterialInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Material_fillInfo : Error processing arguments");
+        cobj->fillInfo(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_Material_fillInfo)
 
 static bool js_assets_Material_getEffectAsset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10137,6 +10165,7 @@ bool js_register_assets_Material(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("hash", _SE(js_assets_Material_getHashForJS_asGetter), nullptr);
     cls->defineProperty("parent", _SE(js_assets_Material_getParent_asGetter), nullptr);
     cls->defineFunction("copy", _SE(js_assets_Material_copy));
+    cls->defineFunction("fillInfo", _SE(js_assets_Material_fillInfo));
     cls->defineFunction("getPasses", _SE(js_assets_Material_getPasses));
     cls->defineFunction("_getProperty", _SE(js_assets_Material_getProperty));
     cls->defineFunction("initialize", _SE(js_assets_Material_initialize));
