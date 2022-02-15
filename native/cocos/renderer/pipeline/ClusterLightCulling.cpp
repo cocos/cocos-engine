@@ -25,8 +25,13 @@
 
 #include "ClusterLightCulling.h"
 #include "Define.h"
+#include "PipelineSceneData.h"
+#include "PipelineUBO.h"
+#include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "deferred/DeferredPipeline.h"
 #include "frame-graph/FrameGraph.h"
+#include "scene/Camera.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
 

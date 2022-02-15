@@ -26,10 +26,11 @@
 #pragma once
 
 #include "Define.h"
-#include "scene/Camera.h"
 
 namespace cc {
-
+namespace scene {
+class Camera;
+}
 namespace gfx {
 class Framebuffer;
 } // namespace gfx

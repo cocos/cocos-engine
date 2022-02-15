@@ -32,8 +32,6 @@ bool register_all_pipeline(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderObject);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderQueueDesc);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GlobalDSManager);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PipelineSceneData);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipelineInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipeline);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardPipeline);
@@ -45,6 +43,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ShadowFlow);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ShadowStage);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GlobalDSManager);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DeferredPipeline);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::MainFlow);
@@ -52,6 +51,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GbufferStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::LightingStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::BloomStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PostProcessStage);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PipelineSceneData);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::BatchedItem);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::BatchedBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GeometryRenderer);
@@ -72,60 +72,6 @@ bool js_register_cc_pipeline_RenderQueueDesc(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderQueueDesc *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_pipeline_GlobalDSManager_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_GlobalDSManager_class; // NOLINT
-
-bool js_register_cc_pipeline_GlobalDSManager(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindBuffer);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindSampler);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindTexture);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetLayout);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetMap);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getGlobalDescriptorSet);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getLinearSampler);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getPointSampler);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_update);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_setDescriptorSetLayout);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_GlobalDSManager);
-
-extern se::Object *__jsb_cc_pipeline_PipelineSceneData_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_PipelineSceneData_class; // NOLINT
-
-bool js_register_cc_pipeline_PipelineSceneData(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_activate);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_addRenderObject);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_addValidPunctualLight);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_clearRenderObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_clearValidPunctualLights);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_destroy);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getDirShadowObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererMaterials);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererPasses);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererShaders);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getMatShadowProj);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getMatShadowView);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getMatShadowViewProj);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryPass);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryShader);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOctree);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getShadowCameraFar);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getValidPunctualLights);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_isCastShadowObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setCastShadowObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setDirShadowObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setMatShadowProj);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setMatShadowView);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setMatShadowViewProj);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setShadowCameraFar);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_PipelineSceneData);
 
 extern se::Object *__jsb_cc_pipeline_RenderPipelineInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_RenderPipelineInfo_class; // NOLINT
@@ -245,6 +191,24 @@ SE_DECLARE_FUNC(js_pipeline_ShadowStage_setUsage);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_ShadowStage);
 
+extern se::Object *__jsb_cc_pipeline_GlobalDSManager_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_GlobalDSManager_class; // NOLINT
+
+bool js_register_cc_pipeline_GlobalDSManager(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindBuffer);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindSampler);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindTexture);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetLayout);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetMap);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getGlobalDescriptorSet);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getLinearSampler);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getPointSampler);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_update);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_setDescriptorSetLayout);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_GlobalDSManager);
+
 extern se::Object *__jsb_cc_pipeline_InstancedBuffer_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_InstancedBuffer_class; // NOLINT
 
@@ -307,6 +271,42 @@ bool js_register_cc_pipeline_PostProcessStage(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_PostProcessStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_PostProcessStage_PostProcessStage);
+
+extern se::Object *__jsb_cc_pipeline_PipelineSceneData_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_PipelineSceneData_class; // NOLINT
+
+bool js_register_cc_pipeline_PipelineSceneData(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_activate);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_addRenderObject);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_addValidPunctualLight);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_clearRenderObjects);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_clearValidPunctualLights);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_destroy);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getDirShadowObjects);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererMaterials);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererPasses);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererShaders);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getMatShadowProj);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getMatShadowView);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getMatShadowViewProj);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryPass);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryShader);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOctree);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getShadowCameraFar);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getValidPunctualLights);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_isCastShadowObjects);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setCastShadowObjects);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setDirShadowObjects);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setMatShadowProj);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setMatShadowView);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setMatShadowViewProj);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setShadowCameraFar);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_PipelineSceneData);
 
 extern se::Object *__jsb_cc_pipeline_BatchedItem_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_BatchedItem_class; // NOLINT

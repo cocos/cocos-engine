@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <array>
 #include "../RenderStage.h"
 #include "frame-graph/Handle.h"
 #include "pipeline/Enum.h"
@@ -67,7 +68,7 @@ public:
     }
 
 private:
-    uint      _phaseID = 0;
+    uint _phaseID = 0;
 
     static RenderStageInfo initInfo;
 

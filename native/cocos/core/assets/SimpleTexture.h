@@ -26,9 +26,7 @@
 #pragma once
 
 #include "core/ArrayBuffer.h"
-#include "core/assets/Asset.h"
 #include "core/assets/TextureBase.h"
-#include "renderer/gfx-base/GFXTexture.h"
 
 namespace cc {
 
@@ -43,7 +41,7 @@ class ImageAsset;
  */
 class SimpleTexture : public TextureBase {
 public:
-    ~SimpleTexture() override = default;
+    ~SimpleTexture() override;
 
     using Super = TextureBase;
     /**
@@ -112,12 +110,11 @@ public:
     void setMipmapLevel(uint32_t value);
 
 protected:
-    explicit SimpleTexture() = default;
-
+    SimpleTexture();
     void textureReady();
 
     /**
-     * @en This method is overrided by derived classes to provide GFX texture info.
+     * @en This method is override by derived classes to provide GFX texture info.
      * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
      * @param presumed The presumed GFX texture info.
      */
@@ -130,7 +127,7 @@ protected:
     void tryDestroyTexture();
     void notifyTextureUpdated();
 
-    IntrusivePtr<gfx::Texture> _gfxTexture{nullptr};
+    IntrusivePtr<gfx::Texture> _gfxTexture;
 
     uint32_t _mipmapLevel{1};
     // Cache these data to reduce JSB invoking.

@@ -28,18 +28,20 @@
 #include "frame-graph/DevicePass.h"
 #include "frame-graph/PassNodeBuilder.h"
 #include "frame-graph/Resource.h"
-#include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/Define.h"
 #include "pipeline/helper/Utils.h"
+#include "renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "renderer/pipeline/PipelineStateManager.h"
+#include "renderer/pipeline/PipelineUBO.h"
 #include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/RenderQueue.h"
 #include "renderer/pipeline/UIPhase.h"
 #include "renderer/pipeline/deferred/DeferredPipelineSceneData.h"
+#include "scene/Camera.h"
 #include "scene/RenderWindow.h"
 #include "scene/SubModel.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

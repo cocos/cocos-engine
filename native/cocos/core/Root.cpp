@@ -30,6 +30,7 @@
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
+#include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
 #include "scene/Camera.h"
@@ -280,17 +281,18 @@ void Root::destroyModel(scene::Model *model) { // NOLINT(readability-convert-mem
     if (model == nullptr) {
         return;
     }
-    model->destroy();
+
     if (model->getScene() != nullptr) {
         model->getScene()->removeModel(model);
     }
+    model->destroy();
 }
 
 void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-member-functions-to-static)
     if (light == nullptr) {
         return;
     }
-    light->destroy();
+    
     if (light->getScene() != nullptr) {
         if (light->getType() == scene::LightType::DIRECTIONAL) {
             light->getScene()->removeDirectionalLight(static_cast<scene::DirectionalLight *>(light));
@@ -300,6 +302,7 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
             light->getScene()->removeSpotLight(static_cast<scene::SpotLight *>(light));
         }
     }
+    light->destroy();
 }
 
 scene::Camera *Root::createCamera() const {

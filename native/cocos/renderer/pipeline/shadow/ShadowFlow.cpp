@@ -26,15 +26,17 @@
 #include "ShadowFlow.h"
 
 #include "../Define.h"
+#include "../GlobalDescriptorSetManager.h"
+#include "../PipelineSceneData.h"
+#include "../RenderPipeline.h"
 #include "../SceneCulling.h"
 #include "../forward/ForwardPipeline.h"
 #include "ShadowStage.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXFramebuffer.h"
-#include "gfx-base/GFXRenderPass.h"
-#include "gfx-base/GFXTexture.h"
+#include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/RenderScene.h"
+#include "scene/Shadow.h"
 
 namespace cc {
 namespace pipeline {
@@ -48,6 +50,7 @@ RenderFlowInfo ShadowFlow::initInfo = {
 };
 const RenderFlowInfo &ShadowFlow::getInitializeInfo() { return ShadowFlow::initInfo; }
 
+ShadowFlow::ShadowFlow()  = default;
 ShadowFlow::~ShadowFlow() = default;
 
 bool ShadowFlow::initialize(const RenderFlowInfo &info) {

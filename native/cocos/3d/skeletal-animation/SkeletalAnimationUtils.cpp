@@ -490,7 +490,8 @@ void JointAnimationInfo::destroy(const std::string &nodeID) {
 }
 
 const IAnimInfo &JointAnimationInfo::switchClip(IAnimInfo &info /*, AnimationClip *clip */) {
-    info.data[0] = 0;
+//    info.currentClip = clip;
+    info.data[0] = -1;
     info.buffer->update(info.data.buffer()->getData());
     info.dirty = false;
     return info;

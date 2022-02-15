@@ -146,29 +146,31 @@ bool BuiltinResMgr::initBuiltinRes(gfx::Device *device) {
 
     _isInitialized = true;
 
+    // NOTE:  C++ use const array to store color value, no need to synchronize ts's valueView logic
+
     // black texture
-    initTexture2DWithUuid("black-texture", BLACK_IMAGE_RGBA_DATA_2X2, sizeof(BLACK_IMAGE_RGBA_DATA_2X2), 2, 2, 4);
+    initTexture2DWithUuid("black-texture", BLACK_IMAGE_RGBA_DATA_2X2, sizeof(BLACK_IMAGE_RGBA_DATA_2X2), 2, 2);
 
     // empty texture
-    initTexture2DWithUuid("empty-texture", EMPTY_IMAGE_RGBA_DATA_2X2, sizeof(EMPTY_IMAGE_RGBA_DATA_2X2), 2, 2, 4);
+    initTexture2DWithUuid("empty-texture", EMPTY_IMAGE_RGBA_DATA_2X2, sizeof(EMPTY_IMAGE_RGBA_DATA_2X2), 2, 2);
 
     // grey texture
-    initTexture2DWithUuid("grey-texture", GREY_IMAGE_RGBA_DATA_2X2, sizeof(GREY_IMAGE_RGBA_DATA_2X2), 2, 2, 4);
+    initTexture2DWithUuid("grey-texture", GREY_IMAGE_RGBA_DATA_2X2, sizeof(GREY_IMAGE_RGBA_DATA_2X2), 2, 2);
 
     // white texture
-    initTexture2DWithUuid("white-texture", WHITE_IMAGE_RGBA_DATA_2X2, sizeof(WHITE_IMAGE_RGBA_DATA_2X2), 2, 2, 4);
+    initTexture2DWithUuid("white-texture", WHITE_IMAGE_RGBA_DATA_2X2, sizeof(WHITE_IMAGE_RGBA_DATA_2X2), 2, 2);
 
     // normal texture
-    initTexture2DWithUuid("normal-texture", NORMAL_IMAGE_RGBA_DATA_2X2, sizeof(NORMAL_IMAGE_RGBA_DATA_2X2), 2, 2, 4);
+    initTexture2DWithUuid("normal-texture", NORMAL_IMAGE_RGBA_DATA_2X2, sizeof(NORMAL_IMAGE_RGBA_DATA_2X2), 2, 2);
 
     // default texture
-    initTexture2DWithUuid("default-texture", DEFAULT_IMAGE_RGBA_DATA_16X16, sizeof(DEFAULT_IMAGE_RGBA_DATA_16X16), 16, 16, 4);
+    initTexture2DWithUuid("default-texture", DEFAULT_IMAGE_RGBA_DATA_16X16, sizeof(DEFAULT_IMAGE_RGBA_DATA_16X16), 16, 16);
 
     // white cube texture
-    initTextureCubeWithUuid("white-cube-texture", WHITE_IMAGE_RGBA_DATA_2X2, sizeof(WHITE_IMAGE_RGBA_DATA_2X2), 2, 2, 4);
+    initTextureCubeWithUuid("white-cube-texture", WHITE_IMAGE_RGBA_DATA_2X2, sizeof(WHITE_IMAGE_RGBA_DATA_2X2), 2, 2);
 
     // default cube texture
-    initTextureCubeWithUuid("default-cube-texture", DEFAULT_IMAGE_RGBA_DATA_16X16, sizeof(DEFAULT_IMAGE_RGBA_DATA_16X16), 16, 16, 4);
+    initTextureCubeWithUuid("default-cube-texture", DEFAULT_IMAGE_RGBA_DATA_16X16, sizeof(DEFAULT_IMAGE_RGBA_DATA_16X16), 16, 16);
 
     //cjh TODO:    if (SpriteFrame) {
     //        const spriteFrame = new SpriteFrame() as SpriteFrame;
@@ -471,52 +473,58 @@ void BuiltinResMgr::tryCompileAllPasses() {
     }
 }
 
-void BuiltinResMgr::initTexture2DWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height, uint32_t bytesPerPixel) {
-    auto *image = new (std::nothrow) Image();
-    if (image != nullptr) {
-        image->initWithRawData(data, static_cast<ssize_t>(dataBytes), static_cast<int32_t>(width), static_cast<int32_t>(height), static_cast<int32_t>(bytesPerPixel));
-        auto *texture = new (std::nothrow) Texture2D();
+void BuiltinResMgr::initTexture2DWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height) {
+    IMemoryImageSource imageSource;
+    imageSource.width      = width;
+    imageSource.height     = height;
+    imageSource.data       = new (std::nothrow) ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
+    imageSource.compressed = false;
+    imageSource.format     = PixelFormat::RGBA8888;
+
+    auto *texture = new (std::nothrow) Texture2D();
+    if (texture) {
         texture->setUuid(uuid);
 
         auto *imgAsset = new (std::nothrow) ImageAsset();
-        imgAsset->setNativeAsset(image);
+        imgAsset->setNativeAsset(imageSource);
         texture->setImage(imgAsset);
 
         texture->initialize();
         _resources.emplace(texture->getUuid(), texture);
-
-        delete image;
     }
 }
 
-void BuiltinResMgr::initTextureCubeWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height, uint32_t bytesPerPixel) {
-    auto *image = new (std::nothrow) Image();
-    if (image != nullptr) {
-        image->initWithRawData(data, static_cast<ssize_t>(dataBytes), static_cast<int32_t>(width), static_cast<int32_t>(height), static_cast<int32_t>(bytesPerPixel));
-        auto *texture = new (std::nothrow) TextureCube();
+void BuiltinResMgr::initTextureCubeWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height) {
+    IMemoryImageSource imageSource;
+    imageSource.width      = width;
+    imageSource.height     = height;
+    imageSource.data       = new (std::nothrow) ArrayBuffer(data, static_cast<uint32_t>(dataBytes));
+    imageSource.compressed = false;
+    imageSource.format     = PixelFormat::RGBA8888;
+
+    auto *texture = new (std::nothrow) TextureCube();
+    if (texture) {
         texture->setUuid(uuid);
         texture->setMipFilter(TextureCube::Filter::NEAREST);
 
         ITextureCubeMipmap mipmap;
         mipmap.front = new ImageAsset();
-        mipmap.front->setNativeAsset(image);
+        mipmap.front->setNativeAsset(imageSource);
         mipmap.back = new ImageAsset();
-        mipmap.back->setNativeAsset(image);
+        mipmap.back->setNativeAsset(imageSource);
         mipmap.left = new ImageAsset();
-        mipmap.left->setNativeAsset(image);
+        mipmap.left->setNativeAsset(imageSource);
         mipmap.right = new ImageAsset();
-        mipmap.right->setNativeAsset(image);
+        mipmap.right->setNativeAsset(imageSource);
         mipmap.top = new ImageAsset();
-        mipmap.top->setNativeAsset(image);
+        mipmap.top->setNativeAsset(imageSource);
         mipmap.bottom = new ImageAsset();
-        mipmap.bottom->setNativeAsset(image);
+        mipmap.bottom->setNativeAsset(imageSource);
 
         texture->setImage(mipmap);
 
         texture->initialize();
         _resources.emplace(texture->getUuid(), texture);
-
-        delete image;
     }
 }
 

@@ -28,15 +28,11 @@
 #include <string>
 #include <unordered_map>
 #include "Define.h"
-#include "GlobalDescriptorSetManager.h"
-#include "PipelineSceneData.h"
-#include "PipelineUBO.h"
 #include "base/CoreStd.h"
 #include "core/assets/Asset.h"
 #include "frame-graph/FrameGraph.h"
 #include "frame-graph/Handle.h"
 #include "renderer/core/PassUtils.h"
-#include "scene/Camera.h"
 #include "scene/Model.h"
 
 namespace cc {
@@ -46,14 +42,16 @@ class DescriptorSet;
 class DescriptorSetLayout;
 } // namespace gfx
 namespace scene {
+class Camera;
 class SubModel;
 } // namespace scene
 namespace pipeline {
 
+class PipelineUBO;
+class PipelineSceneData;
 class GlobalDSManager;
 class RenderStage;
 class GeometryRenderer;
-
 struct CC_DLL RenderPipelineInfo {
     uint           tag = 0;
     RenderFlowList flows;
@@ -86,7 +84,7 @@ public:
     inline void                                    setValue(const String &name, const std::string &value) { _macros[name] = value; }
     inline GlobalDSManager *                       getGlobalDSManager() const { return _globalDSManager; }
     inline gfx::DescriptorSet *                    getDescriptorSet() const { return _descriptorSet; }
-    inline gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
+    gfx::DescriptorSetLayout *                     getDescriptorSetLayout() const;
     inline PipelineSceneData *                     getPipelineSceneData() const { return _pipelineSceneData; }
     inline const gfx::CommandBufferList &          getCommandBuffers() const { return _commandBuffers; }
     inline const gfx::QueryPoolList &              getQueryPools() const { return _queryPools; }

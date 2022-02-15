@@ -1,10 +1,14 @@
 #include "renderer/pipeline/deferred/DeferredPipelineSceneData.h"
 #include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/deferred/BloomStage.h"
+#include "scene/Pass.h"
 #include "scene/Shadow.h"
 
 namespace cc {
 namespace pipeline {
+
+DeferredPipelineSceneData::DeferredPipelineSceneData()  = default;
+DeferredPipelineSceneData::~DeferredPipelineSceneData() = default;
 
 void DeferredPipelineSceneData::activate(gfx::Device *device, RenderPipeline *pipeline) {
     PipelineSceneData::activate(device, pipeline);

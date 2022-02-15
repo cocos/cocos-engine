@@ -28,9 +28,6 @@
 #include "Define.h"
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
-#include "gfx-base/GFXBuffer.h"
-#include "scene/Light.h"
-#include "scene/Pass.h"
 
 namespace cc {
 
@@ -38,11 +35,13 @@ namespace gfx {
 class Framebuffer;
 }
 namespace scene {
+class Pass;
 class Ambient;
 class Shadows;
 class Skybox;
 class Fog;
 class Octree;
+class Light;
 } // namespace scene
 namespace pipeline {
 

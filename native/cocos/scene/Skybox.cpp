@@ -36,6 +36,7 @@
 #include "renderer/core/MaterialInstance.h"
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDevice.h"
+#include "renderer/pipeline/PipelineSceneData.h"
 #include "scene/Ambient.h"
 #include "scene/Model.h"
 
@@ -47,7 +48,7 @@ namespace cc {
 namespace scene {
 
 SkyboxInfo::SkyboxInfo(/* args */) = default;
-SkyboxInfo::~SkyboxInfo() = default;
+SkyboxInfo::~SkyboxInfo()          = default;
 
 void SkyboxInfo::setEnabled(bool val) {
     _enabled = val;
@@ -205,14 +206,10 @@ void Skybox::setEnvMaps(TextureCube *envmapHDR, TextureCube *envmapLDR) {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         if (envmapHDR) {
-            Vec4 groundAlbedo = Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->getGroundAlbedo();
-            groundAlbedo.w    = static_cast<float>(envmapHDR->mipmapLevel());
-            Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->setGroundAlbedo(groundAlbedo);
+            Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->setMipmapCount(envmapHDR->mipmapLevel());
         }
     } else if (envmapLDR) {
-        Vec4 groundAlbedo = Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->getGroundAlbedo();
-        groundAlbedo.w    = static_cast<float>(envmapLDR->mipmapLevel());
-        Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->setGroundAlbedo(groundAlbedo);
+        Root::getInstance()->getPipeline()->getPipelineSceneData()->getAmbient()->setMipmapCount(envmapLDR->mipmapLevel());
     }
 
     updateGlobalBinding();
@@ -299,33 +296,40 @@ void Skybox::updatePipeline() const {
     const int32_t useDiffuseMapValue = (isUseIBL() && isUseDiffuseMap() && getDiffuseMap() != nullptr) ? (useRGBE ? 2 : 1) : 0;
     const bool    useHDRValue        = isUseHDR();
 
+    bool valueChanged = false;
     auto iter = pipeline->getMacros().find("CC_USE_IBL");
     if (iter != pipeline->getMacros().end()) {
         const MacroValue &macroIBL    = iter->second;
         const int32_t *   macroIBLPtr = cc::get_if<int32_t>(&macroIBL);
-        if (macroIBLPtr != nullptr && (*macroIBLPtr == useIBLValue)) {
-            auto iter = pipeline->getMacros().find("CC_USE_DIFFUSEMAP");
-            if (iter != pipeline->getMacros().end()) {
-                const MacroValue &macroDIFFUSEMAP    = iter->second;
-                const int32_t *   macroDIFFUSEMAPPtr = cc::get_if<int32_t>(&macroDIFFUSEMAP);
-                if (macroDIFFUSEMAPPtr != nullptr && ((*macroDIFFUSEMAPPtr != 0) == useDiffuseMapValue)) {
-                    auto iter = pipeline->getMacros().find("CC_USE_HDR");
-                    if (iter != pipeline->getMacros().end()) {
-                        const MacroValue &macroHDR    = iter->second;
-                        const int32_t *   macroHDRPtr = cc::get_if<int32_t>(&macroHDR);
-                        if (macroHDRPtr != nullptr && ((*macroHDRPtr != 0) == useHDRValue)) {
-                            return;
-                        }
-                    }
-                }
-            }
+        if (macroIBLPtr != nullptr && (*macroIBLPtr != useIBLValue)) {
+            pipeline->setValue("CC_USE_IBL", useIBLValue);
+            valueChanged = true;
         }
     }
-    pipeline->setValue("CC_USE_IBL", useIBLValue);
-    pipeline->setValue("CC_USE_DIFFUSEMAP", useDiffuseMapValue);
-    pipeline->setValue("CC_USE_HDR", useHDRValue);
 
-    root->onGlobalPipelineStateChanged();
+    auto iterDiffuseMap = pipeline->getMacros().find("CC_USE_DIFFUSEMAP");
+    if (iterDiffuseMap != pipeline->getMacros().end()) {
+        const MacroValue &macroDIFFUSEMAP    = iterDiffuseMap->second;
+        const int32_t *   macroDIFFUSEMAPPtr = cc::get_if<int32_t>(&macroDIFFUSEMAP);
+        if (macroDIFFUSEMAPPtr != nullptr && ((*macroDIFFUSEMAPPtr != 0) != useDiffuseMapValue)) {
+            pipeline->setValue("CC_USE_DIFFUSEMAP", useDiffuseMapValue);
+            valueChanged = true;
+        }
+    }
+
+    auto iterUseHDR = pipeline->getMacros().find("CC_USE_HDR");
+    if (iterUseHDR != pipeline->getMacros().end()) {
+        const MacroValue &macroHDR    = iterUseHDR->second;
+        const int32_t *   macroHDRPtr = cc::get_if<int32_t>(&macroHDR);
+        if (macroHDRPtr != nullptr && ((*macroHDRPtr != 0) != useHDRValue)) {
+            pipeline->setValue("CC_USE_HDR", useHDRValue);
+            valueChanged = true;
+        }
+    }
+
+    if (valueChanged) {
+        root->onGlobalPipelineStateChanged();
+    }  
 }
 
 void Skybox::updateGlobalBinding() {

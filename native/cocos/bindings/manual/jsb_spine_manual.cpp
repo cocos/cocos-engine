@@ -242,6 +242,7 @@ bool register_all_spine_manual(se::Object *obj) {
             // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
             // since native obj is already released and the new native object may be assigned with
             // the same address.
+            iter->second->setClearMappingInFinalizer(false);
             se::NativePtrToObjectMap::erase(iter);
         }
     });

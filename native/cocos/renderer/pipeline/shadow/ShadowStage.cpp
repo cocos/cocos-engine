@@ -25,15 +25,21 @@
 
 #include "ShadowStage.h"
 #include "../Define.h"
+#include "../PipelineSceneData.h"
+#include "../PipelineUBO.h"
 #include "../RenderPipeline.h"
 #include "../ShadowMapBatchedQueue.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "math/Vec2.h"
+#include "scene/Camera.h"
 #include "scene/Shadow.h"
 
 namespace cc {
 namespace pipeline {
+
+ShadowStage::ShadowStage()  = default;
+ShadowStage::~ShadowStage() = default;
 
 RenderStageInfo ShadowStage::initInfo = {
     "ShadowStage",

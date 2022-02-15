@@ -27,16 +27,15 @@
 
 #include "Define.h"
 #include "base/CoreStd.h"
-#include "scene/Camera.h"
-#include "scene/Light.h"
-#include "scene/Pass.h"
-#include "scene/SphereLight.h"
-#include "scene/SpotLight.h"
 
 namespace cc {
 namespace scene {
 class Camera;
-}
+class Pass;
+class Light;
+class SpotLight;
+class SphereLight;
+} // namespace scene
 namespace pipeline {
 struct RenderObject;
 class RenderPipeline;

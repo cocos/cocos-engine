@@ -26,6 +26,8 @@
 #include "GbufferStage.h"
 #include "../BatchedBuffer.h"
 #include "../InstancedBuffer.h"
+#include "../PipelineSceneData.h"
+#include "../PipelineUBO.h"
 #include "../PlanarShadowQueue.h"
 #include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
@@ -35,10 +37,8 @@
 #include "frame-graph/DevicePass.h"
 #include "frame-graph/DevicePassResourceTable.h"
 #include "frame-graph/Resource.h"
-#include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXFramebuffer.h"
-#include "gfx-base/GFXQueue.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {

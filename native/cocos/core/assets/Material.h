@@ -25,24 +25,21 @@
 
 #pragma once
 
-#include "core/assets/Asset.h"
-
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "base/Ptr.h"
 #include "cocos/base/Optional.h"
 #include "cocos/base/Variant.h"
-#include "core/Types.h"
 #include "core/assets/EffectAsset.h"
-#include "core/assets/TextureBase.h"
-#include "renderer/core/PassUtils.h"
-#include "renderer/gfx-base/GFXTexture.h"
-#include "scene/Pass.h"
 
 namespace cc {
 
 //class RenderableComponent;
+
+namespace scene {
+class Pass;
+}
 
 /**
  * @en The basic infos for material initialization.
@@ -104,7 +101,7 @@ public:
     }
 
     Material();
-    ~Material() override = default;
+    ~Material() override;
 
     /**
      * @en Initialize this material with the given information.
@@ -121,10 +118,13 @@ public:
      * @en
      * Destroy the material definitively.<br>
      * Cannot re-initialize after destroy.<br>
-     * For re-initialize purposes, call [[Material.initialize]] directly.
+     * Modifications on active materials can be acheived by<br>
+     * creating a new Material, invoke the `copy` function<br>
+     * with the desired overrides, and assigning it to the target components.
      * @zh
      * 彻底销毁材质，注意销毁后无法重新初始化。<br>
-     * 如需重新初始化材质，不必先调用 destroy。
+     * 如需修改现有材质，请创建一个新材质，<br>
+     * 调用 copy 函数传入需要的 overrides 并赋给目标组件。
      */
     bool destroy() override;
 
@@ -215,11 +215,14 @@ public:
     const MaterialPropertyVariant *getProperty(const std::string &name, index_t passIdx = CC_INVALID_INDEX) const;
 
     /**
-     * @en Copy the target material.
-     * @zh 复制目标材质到当前实例。
+     * @en Copy the target material, with optional overrides.
+     * @zh 复制目标材质到当前实例，允许提供重载信息。。
      * @param mat The material to be copied.
+     * @param overrides The overriding states on top of the original material.
      */
-    void copy(const Material *mat);
+    void copy(const Material *mat, IMaterialInfo* overrides = nullptr);
+
+    void fillInfo(const IMaterialInfo &info);
 
     // For deserialization, we need to make the following properties public
     /* @type(EffectAsset) */

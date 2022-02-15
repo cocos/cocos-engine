@@ -103,7 +103,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
     cc::gfx::Address::CLAMP,
 };
 
-const std::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_ENABLE_DIR_SHADOW", true}, {"CC_RECEIVE_SHADOW", true}};
+const std::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const std::string                         INST_MAT_WORLD = "a_matWorld0";
 } // namespace
 
@@ -113,6 +113,8 @@ namespace scene {
 Model::Model() {
     _device = Root::getInstance()->getDevice();
 }
+
+Model::~Model() = default;
 
 void Model::initialize() {
     if (_inited) return;

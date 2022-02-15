@@ -864,6 +864,37 @@ static const bool ENABLE_MULTI_TOUCH{true};
     */
 static const uint32_t MAX_LABEL_CANVAS_POOL_SIZE{20};
 
+/**
+     * @en
+     * Boolean that indicates if enable highp precision data in structure with fragment shader.
+     * Enable this option will make the variables defined by the HIGHP_VALUE_STRUCT_DEFINE macro in the shader more accurate, such as position.
+     * Enable this option can avoid some distorted lighting effects. That depends on whether your game has abnormal lighting effects on this platform.
+     * There will be a slight performance loss if enable this option, but the impact is not significant.
+     * Only affect WebGL backend
+     * @zh
+     * 用于设置是否在片元着色器中使用结构体的时候，允许其中的数据使用highp精度
+     * 将这个选项设置为 true 会让shader中使用HIGHP_VALUE_STRUCT_DEFINE宏定义的变量精度更高，比如位置信息等，避免出现一些失真的光照效果。是否开启这个选项很大程度上取决于你的游戏在此平台上是否出现了异常的表现。
+     * 开启后会有轻微的性能损失，但影响不大。
+     * 仅影响 WebGL 后端
+     * @default false
+     */
+static const bool ENABLE_WEBGL_HIGHP_STRUCT_VALUES{false};
+
+/**
+     * @zh Batcher2D 中内存增量的大小（KB）
+     * 这个值决定了当场景中存在的 2d 渲染组件的顶点数量超过当前 batcher2D 中可容纳的顶点数量时，内存扩充的增加量
+     * 这个值越大，共用同一个 meshBuffer 的 2d 渲染组件数量会更多，但每次扩充所占用的内存也会更大
+     * 默认值在标准格式（[[vfmtPosUvColor]]）下可容纳 4096 个顶点（4096*9*4/1024），你可以增加容量来提升每个批次可容纳的元素数量
+     * @en The MeshBuffer chunk size in Batcher2D (KB)
+     * This value determines the increase in memory expansion,
+     * when the number of vertices of 2d rendering components present in the scene exceeds the number of vertices,
+     * that can be accommodated in the current batcher2D.
+     * The larger this value is, the more 2d rendering components will share the same meshBuffer, but the more memory will be used for each expansion
+     * The default size can contain 4096 standard vertex ([[vfmtPosUvColor]]) in one buffer,
+     * you can user larger buffer size to increase the elements count per 2d draw batch.
+     * @default 144 KB
+     */
+static const uint32_t BATCHER2D_MEM_INCREMENT{144};
 } // namespace macro
 
 } // namespace cc

@@ -27,7 +27,6 @@
 
 #include "../RenderFlow.h"
 #include "scene/Define.h"
-#include "scene/Light.h"
 
 namespace cc {
 namespace pipeline {
@@ -35,7 +34,7 @@ class ForwardPipeline;
 
 class CC_DLL ShadowFlow : public RenderFlow {
 public:
-    ShadowFlow() = default;
+    ShadowFlow();
     ~ShadowFlow() override;
 
     static const RenderFlowInfo &getInitializeInfo();

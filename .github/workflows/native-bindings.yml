@@ -1,4 +1,4 @@
-name: 🔃 Glue
+name: <Native> Glue
 
 on:
   pull_request_target:
@@ -34,7 +34,7 @@ jobs:
             author: cocos-robot <cocos-robot@cocos.com>
             commit-message: "[ci skip][AUTO]: Automated genbindings update: ${{ github.event.pull_request.head.sha }}  (#${{ github.event.number }})"
             token: ${{ secrets.PR_TOKEN }}
-            push-to-fork: cocos-robot/cocos2d-x-lite
+            push-to-fork: cocos-robot/engine
             branch: t/bot/genbindings
             branch-suffix: short-commit-hash
             delete-branch: true

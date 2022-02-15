@@ -27,14 +27,14 @@
 
 #include "Define.h"
 #include "InstancedBuffer.h"
+#include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
 #include "PlanarShadowQueue.h"
 #include "RenderInstancedQueue.h"
 #include "RenderPipeline.h"
 #include "core/geometry/AABB.h"
-#include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXShader.h"
+#include "scene/Camera.h"
 #include "scene/Model.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
@@ -47,12 +47,14 @@ PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
     _instancedQueue = CC_NEW(RenderInstancedQueue);
 }
 
+PlanarShadowQueue::~PlanarShadowQueue() = default;
+
 void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
     clear();
 
-    const PipelineSceneData *sceneData  = _pipeline->getPipelineSceneData();
-    const scene::Shadows *   shadowInfo = sceneData->getShadows();
-    if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::PLANAR) {
+    const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
+    const scene::Shadows *   shadows   = sceneData->getShadows();
+    if (shadows == nullptr || !shadows->isEnabled() || shadows->getType() != scene::ShadowType::PLANAR || shadows->getNormal().length() < 0.000001) {
         return;
     }
 

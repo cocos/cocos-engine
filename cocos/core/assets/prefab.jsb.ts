@@ -83,6 +83,14 @@ const _descriptor2$o = _applyDecoratedDescriptor(_class2$B.prototype, 'optimizat
         return OptimizationPolicy.AUTO;
     },
 });
+const _descriptor2$p = _applyDecoratedDescriptor(_class2$B.prototype, 'persistent', [serializable, editable], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function initializer () {
+        return false;
+    },
+});
 
 prefabProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);

@@ -27,6 +27,7 @@
 #include "core/Root.h"
 #include "core/platform/Debug.h"
 #include "pipeline/Define.h"
+#include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
 #include "scene/Model.h"
 #include "scene/Pass.h"
@@ -53,7 +54,7 @@ void SubModel::update() {
 
 void SubModel::setPasses(const std::shared_ptr<std::vector<IntrusivePtr<Pass>>> &pPasses) {
     if (!pPasses || pPasses->size() > MAX_PASS_COUNT) {
-        debug::errorID(12004, MAX_PASS_COUNT); 
+        debug::errorID(12004, MAX_PASS_COUNT);
         return;
     }
 

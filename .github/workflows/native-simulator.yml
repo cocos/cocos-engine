@@ -1,4 +1,4 @@
-name: 🖥️ Simulator
+name: <Native> Simulator
 
 on: [pull_request]
 

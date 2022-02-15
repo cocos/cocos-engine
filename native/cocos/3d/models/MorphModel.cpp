@@ -30,11 +30,9 @@ namespace cc {
 std::vector<scene::IMacroPatch> &MorphModel::getMacroPatches(index_t subModelIndex) {
     if (_morphRenderingInstance) {
         _macroPatches = _morphRenderingInstance->requiredPatches(subModelIndex);
-    } else {
-        _macroPatches.clear();
+        return _macroPatches;
     }
-
-    return _macroPatches;
+    return Super::getMacroPatches(subModelIndex);
 }
 
 void MorphModel::initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) {

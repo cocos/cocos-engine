@@ -45,13 +45,9 @@ JSB_REGISTER_OBJECT_TYPE(cc::SceneGlobals);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Light);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Fog);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::FogInfo);
-JSB_REGISTER_OBJECT_TYPE(cc::scene::PassDynamicsValue);
-JSB_REGISTER_OBJECT_TYPE(cc::scene::Pass);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::IMacroPatch);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::ShadowsInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Shadows);
-JSB_REGISTER_OBJECT_TYPE(cc::scene::ICameraInfo);
-JSB_REGISTER_OBJECT_TYPE(cc::scene::Camera);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SubModel);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::InstancedAttributeBlock);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Model);
@@ -67,10 +63,14 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::Ambient);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::AmbientInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::DirectionalLight);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SpotLight);
+JSB_REGISTER_OBJECT_TYPE(cc::scene::PassDynamicsValue);
+JSB_REGISTER_OBJECT_TYPE(cc::scene::Pass);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::DrawBatch2D);
+JSB_REGISTER_OBJECT_TYPE(cc::scene::ICameraInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::scene::Camera);
+JSB_REGISTER_OBJECT_TYPE(cc::PassInstance);
 JSB_REGISTER_OBJECT_TYPE(cc::IMaterialInstanceInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::MaterialInstance);
-JSB_REGISTER_OBJECT_TYPE(cc::PassInstance);
 JSB_REGISTER_OBJECT_TYPE(cc::MorphModel);
 JSB_REGISTER_OBJECT_TYPE(cc::SkinningModel);
 JSB_REGISTER_OBJECT_TYPE(cc::BakedSkinningModel);
@@ -210,53 +210,6 @@ bool js_register_cc_scene_FogInfo(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_scene_FogInfo_activate);
 SE_DECLARE_FUNC(js_scene_FogInfo_FogInfo);
 
-extern se::Object *__jsb_cc_scene_PassDynamicsValue_proto; // NOLINT
-extern se::Class * __jsb_cc_scene_PassDynamicsValue_class; // NOLINT
-
-bool js_register_cc_scene_PassDynamicsValue(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::scene::PassDynamicsValue *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_scene_Pass_proto; // NOLINT
-extern se::Class * __jsb_cc_scene_Pass_class; // NOLINT
-
-bool js_register_cc_scene_Pass(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_scene_Pass_beginChangeStatesSilently);
-SE_DECLARE_FUNC(js_scene_Pass_bindSampler);
-SE_DECLARE_FUNC(js_scene_Pass_bindTexture);
-SE_DECLARE_FUNC(js_scene_Pass_destroy);
-SE_DECLARE_FUNC(js_scene_Pass_endChangeStatesSilently);
-SE_DECLARE_FUNC(js_scene_Pass_getBatchedBuffer);
-SE_DECLARE_FUNC(js_scene_Pass_getBinding);
-SE_DECLARE_FUNC(js_scene_Pass_getHandle);
-SE_DECLARE_FUNC(js_scene_Pass_getHash);
-SE_DECLARE_FUNC(js_scene_Pass_getInstancedBuffer);
-SE_DECLARE_FUNC(js_scene_Pass_getPassInfoFull);
-SE_DECLARE_FUNC(js_scene_Pass_getRootBlock);
-SE_DECLARE_FUNC(js_scene_Pass_getShaderVariant);
-SE_DECLARE_FUNC(js_scene_Pass_getUniform);
-SE_DECLARE_FUNC(js_scene_Pass_initPassFromTarget);
-SE_DECLARE_FUNC(js_scene_Pass_initialize);
-SE_DECLARE_FUNC(js_scene_Pass_overridePipelineStates);
-SE_DECLARE_FUNC(js_scene_Pass_resetTexture);
-SE_DECLARE_FUNC(js_scene_Pass_resetTextures);
-SE_DECLARE_FUNC(js_scene_Pass_resetUBOs);
-SE_DECLARE_FUNC(js_scene_Pass_resetUniform);
-SE_DECLARE_FUNC(js_scene_Pass_setDynamicState);
-SE_DECLARE_FUNC(js_scene_Pass_setUniform);
-SE_DECLARE_FUNC(js_scene_Pass_setUniformArray);
-SE_DECLARE_FUNC(js_scene_Pass_tryCompile);
-SE_DECLARE_FUNC(js_scene_Pass_update);
-SE_DECLARE_FUNC(js_scene_Pass_fillPipelineInfo);
-SE_DECLARE_FUNC(js_scene_Pass_getBindingFromHandle);
-SE_DECLARE_FUNC(js_scene_Pass_getCountFromHandle);
-SE_DECLARE_FUNC(js_scene_Pass_getOffsetFromHandle);
-SE_DECLARE_FUNC(js_scene_Pass_getPassHash);
-SE_DECLARE_FUNC(js_scene_Pass_getTypeFromHandle);
-SE_DECLARE_FUNC(js_scene_Pass_Pass);
-
 extern se::Object *__jsb_cc_scene_IMacroPatch_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_IMacroPatch_class; // NOLINT
 
@@ -295,33 +248,6 @@ SE_DECLARE_FUNC(js_scene_Shadows_isFixedArea);
 SE_DECLARE_FUNC(js_scene_Shadows_setMaxReceived);
 SE_DECLARE_FUNC(js_scene_Shadows_setShadowMapSize);
 SE_DECLARE_FUNC(js_scene_Shadows_Shadows);
-
-extern se::Object *__jsb_cc_scene_ICameraInfo_proto; // NOLINT
-extern se::Class * __jsb_cc_scene_ICameraInfo_class; // NOLINT
-
-bool js_register_cc_scene_ICameraInfo(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::scene::ICameraInfo *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_scene_Camera_proto; // NOLINT
-extern se::Class * __jsb_cc_scene_Camera_class; // NOLINT
-
-bool js_register_cc_scene_Camera(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_scene_Camera_attachToScene);
-SE_DECLARE_FUNC(js_scene_Camera_changeTargetWindow);
-SE_DECLARE_FUNC(js_scene_Camera_destroy);
-SE_DECLARE_FUNC(js_scene_Camera_detachCamera);
-SE_DECLARE_FUNC(js_scene_Camera_detachFromScene);
-SE_DECLARE_FUNC(js_scene_Camera_initialize);
-SE_DECLARE_FUNC(js_scene_Camera_resize);
-SE_DECLARE_FUNC(js_scene_Camera_setFixedSize);
-SE_DECLARE_FUNC(js_scene_Camera_setViewportInOrientedSpace);
-SE_DECLARE_FUNC(js_scene_Camera_update);
-SE_DECLARE_FUNC(js_scene_Camera_getStandardExposureValue);
-SE_DECLARE_FUNC(js_scene_Camera_getStandardLightMeterScale);
-SE_DECLARE_FUNC(js_scene_Camera_Camera);
 
 extern se::Object *__jsb_cc_scene_SubModel_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_SubModel_class; // NOLINT
@@ -587,6 +513,53 @@ SE_DECLARE_FUNC(js_scene_SpotLight_setShadowNormalBias);
 SE_DECLARE_FUNC(js_scene_SpotLight_setShadowPcf);
 SE_DECLARE_FUNC(js_scene_SpotLight_SpotLight);
 
+extern se::Object *__jsb_cc_scene_PassDynamicsValue_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_PassDynamicsValue_class; // NOLINT
+
+bool js_register_cc_scene_PassDynamicsValue(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::scene::PassDynamicsValue *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_scene_Pass_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_Pass_class; // NOLINT
+
+bool js_register_cc_scene_Pass(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_scene_Pass_beginChangeStatesSilently);
+SE_DECLARE_FUNC(js_scene_Pass_bindSampler);
+SE_DECLARE_FUNC(js_scene_Pass_bindTexture);
+SE_DECLARE_FUNC(js_scene_Pass_destroy);
+SE_DECLARE_FUNC(js_scene_Pass_endChangeStatesSilently);
+SE_DECLARE_FUNC(js_scene_Pass_getBatchedBuffer);
+SE_DECLARE_FUNC(js_scene_Pass_getBinding);
+SE_DECLARE_FUNC(js_scene_Pass_getHandle);
+SE_DECLARE_FUNC(js_scene_Pass_getHash);
+SE_DECLARE_FUNC(js_scene_Pass_getInstancedBuffer);
+SE_DECLARE_FUNC(js_scene_Pass_getPassInfoFull);
+SE_DECLARE_FUNC(js_scene_Pass_getRootBlock);
+SE_DECLARE_FUNC(js_scene_Pass_getShaderVariant);
+SE_DECLARE_FUNC(js_scene_Pass_getUniform);
+SE_DECLARE_FUNC(js_scene_Pass_initPassFromTarget);
+SE_DECLARE_FUNC(js_scene_Pass_initialize);
+SE_DECLARE_FUNC(js_scene_Pass_overridePipelineStates);
+SE_DECLARE_FUNC(js_scene_Pass_resetTexture);
+SE_DECLARE_FUNC(js_scene_Pass_resetTextures);
+SE_DECLARE_FUNC(js_scene_Pass_resetUBOs);
+SE_DECLARE_FUNC(js_scene_Pass_resetUniform);
+SE_DECLARE_FUNC(js_scene_Pass_setDynamicState);
+SE_DECLARE_FUNC(js_scene_Pass_setUniform);
+SE_DECLARE_FUNC(js_scene_Pass_setUniformArray);
+SE_DECLARE_FUNC(js_scene_Pass_tryCompile);
+SE_DECLARE_FUNC(js_scene_Pass_update);
+SE_DECLARE_FUNC(js_scene_Pass_fillPipelineInfo);
+SE_DECLARE_FUNC(js_scene_Pass_getBindingFromHandle);
+SE_DECLARE_FUNC(js_scene_Pass_getCountFromHandle);
+SE_DECLARE_FUNC(js_scene_Pass_getOffsetFromHandle);
+SE_DECLARE_FUNC(js_scene_Pass_getPassHash);
+SE_DECLARE_FUNC(js_scene_Pass_getTypeFromHandle);
+SE_DECLARE_FUNC(js_scene_Pass_Pass);
+
 extern se::Object *__jsb_cc_scene_DrawBatch2D_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_DrawBatch2D_class; // NOLINT
 
@@ -594,6 +567,40 @@ bool js_register_cc_scene_DrawBatch2D(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::scene::DrawBatch2D *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_scene_ICameraInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_ICameraInfo_class; // NOLINT
+
+bool js_register_cc_scene_ICameraInfo(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::scene::ICameraInfo *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_scene_Camera_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_Camera_class; // NOLINT
+
+bool js_register_cc_scene_Camera(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_scene_Camera_attachToScene);
+SE_DECLARE_FUNC(js_scene_Camera_changeTargetWindow);
+SE_DECLARE_FUNC(js_scene_Camera_destroy);
+SE_DECLARE_FUNC(js_scene_Camera_detachCamera);
+SE_DECLARE_FUNC(js_scene_Camera_detachFromScene);
+SE_DECLARE_FUNC(js_scene_Camera_initialize);
+SE_DECLARE_FUNC(js_scene_Camera_resize);
+SE_DECLARE_FUNC(js_scene_Camera_setFixedSize);
+SE_DECLARE_FUNC(js_scene_Camera_setViewportInOrientedSpace);
+SE_DECLARE_FUNC(js_scene_Camera_update);
+SE_DECLARE_FUNC(js_scene_Camera_getStandardExposureValue);
+SE_DECLARE_FUNC(js_scene_Camera_getStandardLightMeterScale);
+SE_DECLARE_FUNC(js_scene_Camera_Camera);
+
+extern se::Object *__jsb_cc_PassInstance_proto; // NOLINT
+extern se::Class * __jsb_cc_PassInstance_class; // NOLINT
+
+bool js_register_cc_PassInstance(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_scene_PassInstance_PassInstance);
 
 extern se::Object *__jsb_cc_IMaterialInstanceInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_IMaterialInstanceInfo_class; // NOLINT
@@ -611,13 +618,6 @@ bool js_register_cc_MaterialInstance(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_scene_MaterialInstance_onPassStateChange);
 SE_DECLARE_FUNC(js_scene_MaterialInstance_setRebuildPSOCallback);
 SE_DECLARE_FUNC(js_scene_MaterialInstance_MaterialInstance);
-
-extern se::Object *__jsb_cc_PassInstance_proto; // NOLINT
-extern se::Class * __jsb_cc_PassInstance_class; // NOLINT
-
-bool js_register_cc_PassInstance(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_scene_PassInstance_PassInstance);
 
 extern se::Object *__jsb_cc_MorphModel_proto; // NOLINT
 extern se::Class * __jsb_cc_MorphModel_class; // NOLINT

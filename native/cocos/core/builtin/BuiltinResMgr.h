@@ -27,6 +27,7 @@
 
 #include "base/Macros.h"
 #include "base/Ptr.h"
+#include "base/RefCounted.h"
 #include "base/TypeDef.h"
 #include "core/assets/Asset.h"
 namespace cc {
@@ -36,6 +37,7 @@ class Device;
 }
 
 class Material;
+class Asset;
 
 class BuiltinResMgr final : public RefCounted {
 public:
@@ -58,8 +60,8 @@ private:
 
     void initMaterials();
     void tryCompileAllPasses();
-    void initTexture2DWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height, uint32_t bytesPerPixel);
-    void initTextureCubeWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height, uint32_t bytesPerPixel);
+    void initTexture2DWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
+    void initTextureCubeWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
 
     static BuiltinResMgr *instance;
 

@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "MaterialInstance.h"
 #include "cocos/base/Optional.h"
 #include "scene/Pass.h"
 
 namespace cc {
+class MaterialInstance;
 /**
  * @en A pass instance defines an variant version of the [[Pass]]
  * @zh 表示 [[Pass]] 的一种特殊实例
@@ -39,7 +39,7 @@ public:
     using Super = scene::Pass;
 
     PassInstance(Pass *parent, MaterialInstance *owner);
-    ~PassInstance() override = default;
+    ~PassInstance() override;
     /**
      * @en The parent pass
      * @zh 相关联的原始 Pass
