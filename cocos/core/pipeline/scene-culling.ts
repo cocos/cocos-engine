@@ -261,11 +261,11 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
     dirLight: DirectionalLight, camera: Camera, shadowInfo: Shadows) {
     const device = pipeline.device;
 
-    if (dirLight.fixedArea) {
-        const x = dirLight.fixedOrthoSize;
-        const y = dirLight.fixedOrthoSize;
-        const near = dirLight.fixedNear;
-        const far = dirLight.fixedFar;
+    if (dirLight.shadowFixedArea) {
+        const x = dirLight.shadowOrthoSize;
+        const y = dirLight.shadowOrthoSize;
+        const near = dirLight.shadowNear;
+        const far = dirLight.shadowFar;
         Mat4.fromRT(_matShadowTrans, dirLight.node!.getWorldRotation(), dirLight.node!.getWorldPosition());
         Mat4.invert(_matShadowView, _matShadowTrans);
         Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,

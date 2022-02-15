@@ -257,13 +257,13 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
     @editable
     @type(CCBoolean)
-    get fixedArea () {
+    get shadowFixedArea () {
         return this._shadowFixedArea;
     }
-    set fixedArea (val) {
+    set shadowFixedArea (val) {
         this._shadowFixedArea = val;
         if (this._light) {
-            this._light.fixedArea = this._shadowFixedArea;
+            this._light.shadowFixedArea = this._shadowFixedArea;
         }
     }
 
@@ -278,13 +278,13 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
     @editable
     @type(CCFloat)
-    get fixedNear () {
+    get shadowNear () {
         return this._shadowNear;
     }
-    set fixedNear (val) {
+    set shadowNear (val) {
         this._shadowNear = val;
         if (this._light) {
-            this._light.fixedNear = this._shadowNear;
+            this._light.shadowNear = this._shadowNear;
         }
     }
 
@@ -299,13 +299,13 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
     @editable
     @type(CCFloat)
-    get fixedFar () {
+    get shadowFar () {
         return this._shadowFar;
     }
-    set fixedFar (val) {
+    set shadowFar (val) {
         this._shadowFar = Math.min(val, Shadows.MAX_FAR);
         if (this._light) {
-            this._light.fixedFar = this._shadowFar;
+            this._light.shadowFar = this._shadowFar;
         }
     }
 
@@ -319,13 +319,13 @@ export class DirectionalLight extends Light {
     })
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
     @type(CCFloat)
-    get fixedOrthoSize () {
+    get shadowOrthoSize () {
         return this._shadowOrthoSize;
     }
-    set fixedOrthoSize (val) {
+    set shadowOrthoSize (val) {
         this._shadowOrthoSize = val;
         if (this._light) {
-            this._light.fixedOrthoSize = this._shadowOrthoSize;
+            this._light.shadowOrthoSize = this._shadowOrthoSize;
         }
     }
 
@@ -348,10 +348,10 @@ export class DirectionalLight extends Light {
             this._light.shadowSaturation = this._shadowSaturation;
             this._light.shadowDistance = this._shadowDistance;
             this._light.shadowInvisibleOcclusionRange = this._shadowInvisibleOcclusionRange;
-            this._light.fixedArea = this._shadowFixedArea;
-            this._light.fixedNear = this._shadowNear;
-            this._light.fixedFar = this._shadowFar;
-            this._light.fixedOrthoSize = this._shadowOrthoSize;
+            this._light.shadowFixedArea = this._shadowFixedArea;
+            this._light.shadowNear = this._shadowNear;
+            this._light.shadowFar = this._shadowFar;
+            this._light.shadowOrthoSize = this._shadowOrthoSize;
         }
     }
 }

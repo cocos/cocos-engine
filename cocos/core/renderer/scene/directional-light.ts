@@ -207,10 +207,10 @@ export class DirectionalLight extends Light {
       * @en get or set fixed area shadow
       * @zh 是否是固定区域阴影
       */
-    get fixedArea () {
+    get shadowFixedArea () {
         return this._shadowFixedArea;
     }
-    set fixedArea (val) {
+    set shadowFixedArea (val) {
         this._shadowFixedArea = val;
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setShadowFixedArea(val);
@@ -221,10 +221,10 @@ export class DirectionalLight extends Light {
       * @en get or set shadow camera near
       * @zh 获取或者设置阴影相机近裁剪面
       */
-    get fixedNear () {
+    get shadowNear () {
         return this._shadowNear;
     }
-    set fixedNear (val) {
+    set shadowNear (val) {
         this._shadowNear = val;
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setShadowNear(val);
@@ -235,10 +235,10 @@ export class DirectionalLight extends Light {
       * @en get or set shadow camera far
       * @zh 获取或者设置阴影相机远裁剪面
       */
-    get fixedFar () {
+    get shadowFar () {
         return this._shadowFar;
     }
-    set fixedFar (val) {
+    set shadowFar (val) {
         this._shadowFar = Math.min(val, Shadows.MAX_FAR);
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setShadowFar(val);
@@ -249,10 +249,10 @@ export class DirectionalLight extends Light {
       * @en get or set shadow camera orthoSize
       * @zh 获取或者设置阴影相机正交大小
       */
-    get fixedOrthoSize () {
+    get shadowOrthoSize () {
         return this._shadowOrthoSize;
     }
-    set fixedOrthoSize (val) {
+    set shadowOrthoSize (val) {
         this._shadowOrthoSize = val;
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setShadowOrthoSize(val);
