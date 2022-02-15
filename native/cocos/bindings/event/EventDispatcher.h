@@ -148,6 +148,11 @@ public:
 };
 
 enum class KeyCode {
+    /**
+     * @en The back key on mobile phone
+     * @zh 移动端返回键
+     */
+    MOBILE_BACK     = 6,
     BACKSPACE       = 8,
     TAB             = 9,
     NUM_LOCK        = 12,
@@ -236,9 +241,9 @@ public:
         int16_t shortVal;
         char    charVal;
         bool    boolVal;
-    } args[10] = {0};
+    } args[10] = {};
 
-    virtual ~CustomEvent() = default;
+    virtual ~CustomEvent() = default; // NOLINT(modernize-use-nullptr)
 };
 
 class DeviceEvent : public OSEvent {
@@ -256,8 +261,8 @@ public:
         int16_t shortVal;
         char    charVal;
         bool    boolVal;
-    } args[3] = {0};
-    Type type = Type::DEVICE_MEMORY;
+    } args[3] = {};
+    Type type{Type::DEVICE_MEMORY}; // NOLINT(modernize-use-nullptr)
 };
 
 class EventDispatcher {
