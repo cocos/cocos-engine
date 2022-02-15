@@ -1,3 +1,4 @@
+// clang-format off
 #pragma once
 #include "renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "renderer/pipeline/custom/RenderCommonNames.h"

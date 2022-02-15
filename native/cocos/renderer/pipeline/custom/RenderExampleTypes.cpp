@@ -1,3 +1,4 @@
+// clang-format off
 #include "RenderExampleTypes.h"
 
 namespace cc {

@@ -1,3 +1,4 @@
+// clang-format off
 #pragma once
 #include "renderer/pipeline/custom/LayoutGraphReflection.h"
 #include "renderer/pipeline/custom/RenderExampleFwd.h"

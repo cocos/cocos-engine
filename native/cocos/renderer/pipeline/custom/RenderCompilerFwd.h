@@ -1,3 +1,4 @@
+// clang-format off
 #pragma once
 #include <boost/variant2/variant.hpp>
 #include "renderer/pipeline/custom/LayoutGraphFwd.h"

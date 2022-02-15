@@ -1,3 +1,4 @@
+// clang-format off
 #include "LayoutGraphTypes.h"
 
 namespace cc {

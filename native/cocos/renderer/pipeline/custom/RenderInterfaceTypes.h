@@ -1,3 +1,4 @@
+// clang-format off
 #pragma once
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/custom/RenderCommonTypes.h"

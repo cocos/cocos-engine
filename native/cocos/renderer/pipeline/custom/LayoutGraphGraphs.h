@@ -1,3 +1,4 @@
+// clang-format off
 #pragma once
 #include <boost/utility/string_view.hpp>
 #include "renderer/pipeline/custom/GraphImpl.h"

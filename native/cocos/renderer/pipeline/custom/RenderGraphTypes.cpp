@@ -1,3 +1,4 @@
+// clang-format off
 #include "RenderGraphTypes.h"
 
 namespace cc {

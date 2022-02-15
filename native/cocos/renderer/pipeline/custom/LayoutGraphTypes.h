@@ -1,3 +1,4 @@
+// clang-format off
 #pragma once
 #include <boost/container/pmr/vector.hpp>
 #include <boost/graph/adjacency_iterator.hpp>

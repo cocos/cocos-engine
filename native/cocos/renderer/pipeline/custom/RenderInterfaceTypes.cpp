@@ -1,3 +1,4 @@
+// clang-format off
 #include "RenderInterfaceTypes.h"
 
 namespace cc {

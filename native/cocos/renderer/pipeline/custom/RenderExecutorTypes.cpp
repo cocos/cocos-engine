@@ -1,3 +1,4 @@
+// clang-format off
 #include "RenderExecutorTypes.h"
 
 namespace cc {
