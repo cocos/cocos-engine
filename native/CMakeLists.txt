@@ -264,15 +264,15 @@ if(USE_AUDIO)
         )
     elseif(APPLE)
         cocos_source_files(
-                         cocos/audio/apple/AudioDecoder.h
-            NO_WERROR    cocos/audio/apple/AudioPlayer.mm
-            NO_WERROR    cocos/audio/apple/AudioDecoder.mm
-                         cocos/audio/apple/AudioPlayer.h
-            NO_WERROR    cocos/audio/apple/AudioEngine-inl.mm
-                         cocos/audio/apple/AudioMacros.h
-            NO_WERROR    cocos/audio/apple/AudioCache.mm
-                         cocos/audio/apple/AudioCache.h
-                         cocos/audio/apple/AudioEngine-inl.h
+                                    cocos/audio/apple/AudioDecoder.h
+            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioPlayer.mm
+            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
+                                    cocos/audio/apple/AudioPlayer.h
+            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-inl.mm
+                                    cocos/audio/apple/AudioMacros.h
+            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioCache.mm
+                                    cocos/audio/apple/AudioCache.h
+                                    cocos/audio/apple/AudioEngine-inl.h
         )
     endif()
 
@@ -530,37 +530,37 @@ elseif(OHOS)
     )
 elseif(MACOSX)
    cocos_source_files(
-    NO_WERROR   cocos/platform/mac/modules/Accelerometer.mm
-                cocos/platform/mac/modules/Accelerometer.h
-                cocos/platform/mac/modules/Battery.mm
-                cocos/platform/mac/modules/Battery.h
-    NO_WERROR   cocos/platform/mac/modules/Screen.mm
-                cocos/platform/mac/modules/Screen.h
-                cocos/platform/mac/modules/Network.mm
-                cocos/platform/mac/modules/Network.h
-                cocos/platform/mac/modules/Vibrator.mm
-                cocos/platform/mac/modules/Vibrator.h
-                cocos/platform/mac/modules/System.mm
-                cocos/platform/mac/modules/System.h
-                cocos/platform/mac/modules/SystemWindow.mm
-                cocos/platform/mac/modules/SystemWindow.h
+    NO_WERROR               cocos/platform/mac/modules/Accelerometer.mm
+                            cocos/platform/mac/modules/Accelerometer.h
+                            cocos/platform/mac/modules/Battery.mm
+                            cocos/platform/mac/modules/Battery.h
+    NO_WERROR   NO_UBUILD   cocos/platform/mac/modules/Screen.mm
+                            cocos/platform/mac/modules/Screen.h
+                            cocos/platform/mac/modules/Network.mm
+                            cocos/platform/mac/modules/Network.h
+                            cocos/platform/mac/modules/Vibrator.mm
+                            cocos/platform/mac/modules/Vibrator.h
+                            cocos/platform/mac/modules/System.mm
+                            cocos/platform/mac/modules/System.h
+                            cocos/platform/mac/modules/SystemWindow.mm
+                            cocos/platform/mac/modules/SystemWindow.h
    )
 elseif(IOS)
    cocos_source_files(
-    NO_WERROR   cocos/platform/ios/modules/Accelerometer.mm
-                cocos/platform/ios/modules/Accelerometer.h
-                cocos/platform/ios/modules/Battery.mm
-                cocos/platform/ios/modules/Battery.h
-    NO_WERROR   cocos/platform/ios/modules/Screen.mm
-                cocos/platform/ios/modules/Screen.h
-                cocos/platform/ios/modules/Network.mm
-                cocos/platform/ios/modules/Network.h
-                cocos/platform/ios/modules/Vibrator.mm
-                cocos/platform/ios/modules/Vibrator.h
-                cocos/platform/ios/modules/System.mm
-                cocos/platform/ios/modules/System.h
-                cocos/platform/ios/modules/SystemWindow.mm
-                cocos/platform/ios/modules/SystemWindow.h
+    NO_WERROR   NO_UBUILD   cocos/platform/ios/modules/Accelerometer.mm
+                            cocos/platform/ios/modules/Accelerometer.h
+                            cocos/platform/ios/modules/Battery.mm
+                            cocos/platform/ios/modules/Battery.h
+    NO_WERROR   NO_UBUILD   cocos/platform/ios/modules/Screen.mm
+                            cocos/platform/ios/modules/Screen.h
+                            cocos/platform/ios/modules/Network.mm
+                            cocos/platform/ios/modules/Network.h
+                            cocos/platform/ios/modules/Vibrator.mm
+                            cocos/platform/ios/modules/Vibrator.h
+                            cocos/platform/ios/modules/System.mm
+                            cocos/platform/ios/modules/System.h
+                            cocos/platform/ios/modules/SystemWindow.mm
+                            cocos/platform/ios/modules/SystemWindow.h
    )
 elseif(LINUX)
     cocos_source_files(
@@ -755,11 +755,11 @@ endif()
 
 if(APPLE)
     cocos_source_files(
-                     cocos/network/DownloaderImpl-apple.h
-                     cocos/network/DownloaderImpl-apple.mm
-                     cocos/network/HttpAsynConnection-apple.h
-        NO_WERROR    cocos/network/HttpAsynConnection-apple.m
-                     cocos/network/HttpClient-apple.mm
+                                cocos/network/DownloaderImpl-apple.h
+                                cocos/network/DownloaderImpl-apple.mm
+                                cocos/network/HttpAsynConnection-apple.h
+        NO_WERROR   NO_UBUILD   cocos/network/HttpAsynConnection-apple.m
+                    NO_UBUILD   cocos/network/HttpClient-apple.mm
     )
     if(USE_SOCKET)
         cocos_source_files(
@@ -794,7 +794,7 @@ endif()
 
 if(WINDOWS OR MACOSX OR LINUX OR QNX)
     cocos_source_files(
-        NO_WERROR    cocos/network/HttpClient.cpp
+        NO_WERROR   NO_UBUILD   cocos/network/HttpClient.cpp
     )
 endif()
 
@@ -908,8 +908,8 @@ elseif(APPLE)
         )
     elseif(IOS)
         cocos_source_files(
-                         cocos/platform/ios/View.h
-            NO_WERROR    cocos/platform/ios/View.mm     # CAMetalLayer bug for apple
+                                    cocos/platform/ios/View.h
+            NO_WERROR   NO_UBUILD   cocos/platform/ios/View.mm     # CAMetalLayer bug for apple
         )
     endif()
 elseif(LINUX)
@@ -1376,48 +1376,48 @@ endif()
 
 if(CC_USE_METAL)
     cocos_source_files(
-                     cocos/renderer/gfx-metal/MTLBuffer.h
-                     cocos/renderer/gfx-metal/MTLBuffer.mm
-                     cocos/renderer/gfx-metal/MTLCommandBuffer.h
-                     cocos/renderer/gfx-metal/MTLCommandBuffer.mm
-                     cocos/renderer/gfx-metal/MTLDevice.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLDevice.mm      # CAMetalLayer bug for apple
-                     cocos/renderer/gfx-metal/MTLFramebuffer.mm
-                     cocos/renderer/gfx-metal/MTLFramebuffer.h
-                     cocos/renderer/gfx-metal/MTLGPUObjects.h
-                     cocos/renderer/gfx-metal/MTLInputAssembler.h
-                     cocos/renderer/gfx-metal/MTLInputAssembler.mm
-                     cocos/renderer/gfx-metal/MTLDescriptorSetLayout.h
-                     cocos/renderer/gfx-metal/MTLDescriptorSetLayout.mm
-                     cocos/renderer/gfx-metal/MTLPipelineLayout.h
-                     cocos/renderer/gfx-metal/MTLPipelineLayout.mm
-                     cocos/renderer/gfx-metal/MTLPipelineState.h
-                     cocos/renderer/gfx-metal/MTLPipelineState.mm
-                     cocos/renderer/gfx-metal/MTLDescriptorSet.h
-                     cocos/renderer/gfx-metal/MTLDescriptorSet.mm
-                     cocos/renderer/gfx-metal/MTLQueue.h
-                     cocos/renderer/gfx-metal/MTLQueue.mm
-                     cocos/renderer/gfx-metal/MTLQueryPool.h
-                     cocos/renderer/gfx-metal/MTLQueryPool.mm
-                     cocos/renderer/gfx-metal/MTLRenderPass.h
-                     cocos/renderer/gfx-metal/MTLRenderPass.mm
-                     cocos/renderer/gfx-metal/MTLSampler.h
-                     cocos/renderer/gfx-metal/MTLSampler.mm
-                     cocos/renderer/gfx-metal/MTLShader.h
-                     cocos/renderer/gfx-metal/MTLShader.mm
-                     cocos/renderer/gfx-metal/MTLStd.cpp
-                     cocos/renderer/gfx-metal/MTLStd.h
-                     cocos/renderer/gfx-metal/MTLTexture.h
-                     cocos/renderer/gfx-metal/MTLTexture.mm
-                     cocos/renderer/gfx-metal/MTLUtils.h
-                     cocos/renderer/gfx-metal/MTLUtils.mm
-                     cocos/renderer/gfx-metal/MTLRenderCommandEncoder.h
-                     cocos/renderer/gfx-metal/MTLComputeCommandEncoder.h
-                     cocos/renderer/gfx-metal/MTLCommandEncoder.h
-                     cocos/renderer/gfx-metal/MTLConfig.h
-                     cocos/renderer/gfx-metal/MTLSemaphore.h
-                     cocos/renderer/gfx-metal/MTLSwapchain.h
-                     cocos/renderer/gfx-metal/MTLSwapchain.mm
+                             cocos/renderer/gfx-metal/MTLBuffer.h
+                             cocos/renderer/gfx-metal/MTLBuffer.mm
+                             cocos/renderer/gfx-metal/MTLCommandBuffer.h
+                             cocos/renderer/gfx-metal/MTLCommandBuffer.mm
+                             cocos/renderer/gfx-metal/MTLDevice.h
+    NO_WERROR   NO_UBUILD    cocos/renderer/gfx-metal/MTLDevice.mm      # CAMetalLayer bug for apple
+                             cocos/renderer/gfx-metal/MTLFramebuffer.mm
+                             cocos/renderer/gfx-metal/MTLFramebuffer.h
+                             cocos/renderer/gfx-metal/MTLGPUObjects.h
+                             cocos/renderer/gfx-metal/MTLInputAssembler.h
+                             cocos/renderer/gfx-metal/MTLInputAssembler.mm
+                             cocos/renderer/gfx-metal/MTLDescriptorSetLayout.h
+                             cocos/renderer/gfx-metal/MTLDescriptorSetLayout.mm
+                             cocos/renderer/gfx-metal/MTLPipelineLayout.h
+                             cocos/renderer/gfx-metal/MTLPipelineLayout.mm
+                             cocos/renderer/gfx-metal/MTLPipelineState.h
+                             cocos/renderer/gfx-metal/MTLPipelineState.mm
+                             cocos/renderer/gfx-metal/MTLDescriptorSet.h
+                             cocos/renderer/gfx-metal/MTLDescriptorSet.mm
+                             cocos/renderer/gfx-metal/MTLQueue.h
+                             cocos/renderer/gfx-metal/MTLQueue.mm
+                             cocos/renderer/gfx-metal/MTLQueryPool.h
+                             cocos/renderer/gfx-metal/MTLQueryPool.mm
+                             cocos/renderer/gfx-metal/MTLRenderPass.h
+                             cocos/renderer/gfx-metal/MTLRenderPass.mm
+                             cocos/renderer/gfx-metal/MTLSampler.h
+                             cocos/renderer/gfx-metal/MTLSampler.mm
+                             cocos/renderer/gfx-metal/MTLShader.h
+                             cocos/renderer/gfx-metal/MTLShader.mm
+                             cocos/renderer/gfx-metal/MTLStd.cpp
+                             cocos/renderer/gfx-metal/MTLStd.h
+                             cocos/renderer/gfx-metal/MTLTexture.h
+                             cocos/renderer/gfx-metal/MTLTexture.mm
+                             cocos/renderer/gfx-metal/MTLUtils.h
+                             cocos/renderer/gfx-metal/MTLUtils.mm
+                             cocos/renderer/gfx-metal/MTLRenderCommandEncoder.h
+                             cocos/renderer/gfx-metal/MTLComputeCommandEncoder.h
+                             cocos/renderer/gfx-metal/MTLCommandEncoder.h
+                             cocos/renderer/gfx-metal/MTLConfig.h
+                             cocos/renderer/gfx-metal/MTLSemaphore.h
+                             cocos/renderer/gfx-metal/MTLSwapchain.h
+                             cocos/renderer/gfx-metal/MTLSwapchain.mm
     )
 endif()
 
@@ -1867,53 +1867,53 @@ cocos_source_files(MODULE ccgeometry
 ##### script bindings
 ######## dop
 cocos_source_files(
-    NO_WERROR    cocos/bindings/dop/BufferPool.cpp
-                cocos/bindings/dop/BufferPool.h
-    NO_WERROR    cocos/bindings/dop/jsb_dop.cpp
-                cocos/bindings/dop/jsb_dop.h
-                cocos/bindings/dop/PoolType.h
-                cocos/bindings/dop/BufferAllocator.h
-    NO_WERROR    cocos/bindings/dop/BufferAllocator.cpp
+    NO_WERROR   NO_UBUILD   cocos/bindings/dop/BufferPool.cpp
+                            cocos/bindings/dop/BufferPool.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/dop/jsb_dop.cpp
+                            cocos/bindings/dop/jsb_dop.h
+                            cocos/bindings/dop/PoolType.h
+                            cocos/bindings/dop/BufferAllocator.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/dop/BufferAllocator.cpp
 )
 
 ######## auto
 cocos_source_files(
-    NO_WERROR    cocos/bindings/auto/jsb_cocos_auto.cpp
-                 cocos/bindings/auto/jsb_cocos_auto.h
-    NO_WERROR    cocos/bindings/auto/jsb_extension_auto.cpp
-                 cocos/bindings/auto/jsb_extension_auto.h
-    NO_WERROR    cocos/bindings/auto/jsb_gfx_auto.cpp
-                 cocos/bindings/auto/jsb_gfx_auto.h
-    NO_WERROR    cocos/bindings/auto/jsb_network_auto.cpp
-                 cocos/bindings/auto/jsb_network_auto.h
-    NO_WERROR    cocos/bindings/auto/jsb_pipeline_auto.cpp
-                 cocos/bindings/auto/jsb_pipeline_auto.h
-    NO_WERROR    cocos/bindings/auto/jsb_scene_auto.cpp
-                 cocos/bindings/auto/jsb_scene_auto.h
-    NO_WERROR    cocos/bindings/auto/jsb_assets_auto.cpp
-                 cocos/bindings/auto/jsb_assets_auto.h
-    NO_WERROR    cocos/bindings/auto/jsb_geometry_auto.cpp
-                 cocos/bindings/auto/jsb_geometry_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_cocos_auto.cpp
+                            cocos/bindings/auto/jsb_cocos_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_extension_auto.cpp
+                            cocos/bindings/auto/jsb_extension_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gfx_auto.cpp
+                            cocos/bindings/auto/jsb_gfx_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_network_auto.cpp
+                            cocos/bindings/auto/jsb_network_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_pipeline_auto.cpp
+                            cocos/bindings/auto/jsb_pipeline_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_scene_auto.cpp
+                            cocos/bindings/auto/jsb_scene_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_assets_auto.cpp
+                            cocos/bindings/auto/jsb_assets_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_geometry_auto.cpp
+                            cocos/bindings/auto/jsb_geometry_auto.h
 )
 
 if(USE_AUDIO)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/auto/jsb_audio_auto.cpp
-                     cocos/bindings/auto/jsb_audio_auto.h
+        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_auto.cpp
+                                cocos/bindings/auto/jsb_audio_auto.h
     )
 endif()
 
 if(USE_VIDEO)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/auto/jsb_video_auto.cpp
-                     cocos/bindings/auto/jsb_video_auto.h
+        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_video_auto.cpp
+                                cocos/bindings/auto/jsb_video_auto.h
     )
 endif()
 
 if(USE_WEBVIEW)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/auto/jsb_webview_auto.cpp
-                     cocos/bindings/auto/jsb_webview_auto.h
+        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_webview_auto.cpp
+                                cocos/bindings/auto/jsb_webview_auto.h
     )
 endif()
 
@@ -1937,15 +1937,15 @@ if(USE_MIDDLEWARE)
     )
 
     cocos_source_files(
-        NO_WERROR    cocos/bindings/auto/jsb_editor_support_auto.cpp
-                    cocos/bindings/auto/jsb_editor_support_auto.h
+        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_editor_support_auto.cpp
+                                cocos/bindings/auto/jsb_editor_support_auto.h
     )
 
     if(USE_SPINE)
         cocos_source_files(
-            NO_WERROR    cocos/editor-support/spine/Animation.cpp
+            NO_WERROR   NO_UBUILD   cocos/editor-support/spine/Animation.cpp
                          cocos/editor-support/spine/Animation.h
-            NO_WERROR    cocos/editor-support/spine/AnimationState.cpp
+            NO_WERROR   NO_UBUILD    cocos/editor-support/spine/AnimationState.cpp
                          cocos/editor-support/spine/AnimationState.h
             NO_WERROR    cocos/editor-support/spine/AnimationStateData.cpp
                          cocos/editor-support/spine/AnimationStateData.h
@@ -1974,7 +1974,7 @@ if(USE_MIDDLEWARE)
                          cocos/editor-support/spine/ColorTimeline.h
             NO_WERROR    cocos/editor-support/spine/Constraint.cpp
                          cocos/editor-support/spine/Constraint.h
-            NO_WERROR    cocos/editor-support/spine/ConstraintData.cpp
+            NO_WERROR   NO_UBUILD cocos/editor-support/spine/ConstraintData.cpp
                          cocos/editor-support/spine/ConstraintData.h
                          cocos/editor-support/spine/ContainerUtil.h
             NO_WERROR    cocos/editor-support/spine/CurveTimeline.cpp
@@ -2099,7 +2099,7 @@ if(USE_MIDDLEWARE)
                          cocos/editor-support/spine-creator-support/SkeletonCacheMgr.h
             NO_WERROR    cocos/editor-support/spine-creator-support/SkeletonDataMgr.cpp
                          cocos/editor-support/spine-creator-support/SkeletonDataMgr.h
-            NO_WERROR    cocos/editor-support/spine-creator-support/SkeletonRenderer.cpp
+            NO_WERROR   NO_UBUILD    cocos/editor-support/spine-creator-support/SkeletonRenderer.cpp
                          cocos/editor-support/spine-creator-support/SkeletonRenderer.h
             NO_WERROR    cocos/editor-support/spine-creator-support/spine-cocos2dx.cpp
                          cocos/editor-support/spine-creator-support/spine-cocos2dx.h
@@ -2192,7 +2192,7 @@ if(USE_MIDDLEWARE)
                          cocos/editor-support/dragonbones-creator-support/ArmatureCacheMgr.h
             NO_WERROR    cocos/editor-support/dragonbones-creator-support/CCArmatureCacheDisplay.cpp
                          cocos/editor-support/dragonbones-creator-support/CCArmatureCacheDisplay.h
-            NO_WERROR    cocos/editor-support/dragonbones-creator-support/CCArmatureDisplay.cpp
+            NO_WERROR   NO_UBUILD    cocos/editor-support/dragonbones-creator-support/CCArmatureDisplay.cpp
                          cocos/editor-support/dragonbones-creator-support/CCArmatureDisplay.h
                          cocos/editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h
             NO_WERROR    cocos/editor-support/dragonbones-creator-support/CCFactory.cpp
@@ -2321,7 +2321,7 @@ if(USE_SE_V8)
                      cocos/bindings/jswrapper/v8/debugger/base64.h
         NO_WERROR    cocos/bindings/jswrapper/v8/debugger/env.cpp
                      cocos/bindings/jswrapper/v8/debugger/env.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/http_parser.cpp
+        NO_WERROR   NO_UBUILD   cocos/bindings/jswrapper/v8/debugger/http_parser.cpp
                      cocos/bindings/jswrapper/v8/debugger/http_parser.h
         NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_agent.cpp
                      cocos/bindings/jswrapper/v8/debugger/inspector_agent.h
@@ -2475,7 +2475,7 @@ elseif(MACOSX)
 elseif(IOS)
     if(USE_EDIT_BOX)
         cocos_source_files(
-             NO_WERROR cocos/ui/edit-box/EditBox-ios.mm
+             NO_WERROR  NO_UBUILD   cocos/ui/edit-box/EditBox-ios.mm
         )
     endif()
     if(USE_VIDEO)
@@ -2485,7 +2485,7 @@ elseif(IOS)
     endif()
     if(USE_WEBVIEW)
        cocos_source_files(
-            NO_WERROR    cocos/ui/webview/WebViewImpl-ios.mm
+            NO_WERROR   NO_UBUILD   cocos/ui/webview/WebViewImpl-ios.mm
        )
    endif()
 elseif(WIN32)
