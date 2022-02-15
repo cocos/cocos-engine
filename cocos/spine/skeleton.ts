@@ -1554,8 +1554,6 @@ export class Skeleton extends Renderable2D {
         }
         if (this._assembler) {
             this._renderData = this._assembler.createData(this);
-            this.maxVertexCount = this._renderData!.vertexCount;
-            this.maxIndexCount = this._renderData!.indexCount;
             this.markForUpdateRenderData();
         }
     }
@@ -1682,8 +1680,6 @@ export class Skeleton extends Renderable2D {
         }
         if (this._skeleton && this._assembler) {
             this._renderData = this._assembler.createData(this);
-            this.maxVertexCount = this._renderData!.vertexCount;
-            this.maxIndexCount = this._renderData!.indexCount;
             this.markForUpdateRenderData();
             this._updateColor();
         }

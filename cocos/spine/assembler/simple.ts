@@ -212,6 +212,8 @@ export const simple: IAssembler = {
             if (!rd.indices || iCount !== rd.indices.length) {
                 rd.indices = new Uint16Array(iCount);
             }
+            comp.maxVertexCount = vCount;
+            comp.maxIndexCount = iCount;
         }
         return rd;
     },

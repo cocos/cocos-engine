@@ -29,12 +29,12 @@ CCProgram sprite-vs %{
   in vec3 a_position;
   in vec2 a_texCoord;
   in vec4 a_color;
-  in vec4 a_color2;
 
   out vec4 v_light;
   out vec2 uv0;
 
   #if TWO_COLORED
+    in vec4 a_color2;
     out vec4 v_dark;
   #endif
 
