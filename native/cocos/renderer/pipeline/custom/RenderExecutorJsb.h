@@ -1,3 +1,3 @@
 #pragma once
-#include <cocos/bindings/manual/jsb_conversions.h>
-#include <cocos/renderer/pipeline/custom/RenderExecutorFwd.h>
+#include "bindings/manual/jsb_conversions.h"
+#include "renderer/pipeline/custom/RenderExecutorFwd.h"

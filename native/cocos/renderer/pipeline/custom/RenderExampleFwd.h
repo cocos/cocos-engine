@@ -1,7 +1,7 @@
 #pragma once
-#include <cocos/renderer/pipeline/custom/LayoutGraphFwd.h>
-#include <cocos/renderer/pipeline/custom/RenderGraphFwd.h>
 #include <boost/variant2/variant.hpp>
+#include "renderer/pipeline/custom/LayoutGraphFwd.h"
+#include "renderer/pipeline/custom/RenderGraphFwd.h"
 #include <functional>
 
 namespace cc {

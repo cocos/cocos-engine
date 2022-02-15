@@ -1,16 +1,16 @@
 #pragma once
-#include <cocos/renderer/pipeline/custom/GraphTypes.h>
-#include <cocos/renderer/pipeline/custom/LayoutGraphTypes.h>
-#include <cocos/renderer/pipeline/custom/Map.h>
-#include <cocos/renderer/pipeline/custom/RenderExampleFwd.h>
-#include <cocos/renderer/pipeline/custom/RenderGraphTypes.h>
-#include <cocos/renderer/pipeline/custom/Set.h>
-#include <cocos/renderer/pipeline/custom/String.h>
 #include <boost/container/pmr/vector.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "renderer/pipeline/custom/GraphTypes.h"
+#include "renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "renderer/pipeline/custom/Map.h"
+#include "renderer/pipeline/custom/RenderExampleFwd.h"
+#include "renderer/pipeline/custom/RenderGraphTypes.h"
+#include "renderer/pipeline/custom/Set.h"
+#include "renderer/pipeline/custom/String.h"
 
 namespace cc {
 

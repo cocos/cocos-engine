@@ -1,3 +1,3 @@
 #pragma once
-#include <cocos/renderer/pipeline/custom/RenderCommonReflection.h>
-#include <cocos/renderer/pipeline/custom/RenderGraphFwd.h>
+#include "renderer/pipeline/custom/RenderCommonReflection.h"
+#include "renderer/pipeline/custom/RenderGraphFwd.h"

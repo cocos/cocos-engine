@@ -1,2 +1,2 @@
 #pragma once
-#include <cocos/renderer/pipeline/custom/RenderCommonFwd.h>
+#include "renderer/pipeline/custom/RenderCommonFwd.h"

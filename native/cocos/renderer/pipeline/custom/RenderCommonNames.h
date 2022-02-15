@@ -1,5 +1,5 @@
 #pragma once
-#include <cocos/renderer/pipeline/custom/RenderCommonTypes.h>
+#include "renderer/pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 

@@ -1,6 +1,6 @@
 #pragma once
-#include <cocos/renderer/pipeline/custom/RenderCommonFwd.h>
 #include <boost/variant2/variant.hpp>
+#include "renderer/pipeline/custom/RenderCommonFwd.h"
 
 namespace cc {
 

@@ -1198,6 +1198,9 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderGraphReflection.h
                  cocos/renderer/pipeline/custom/RenderGraphTypes.cpp
                  cocos/renderer/pipeline/custom/RenderGraphTypes.h
+                 cocos/renderer/pipeline/custom/RenderInterfaceFwd.h
+                 cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
 )
 
 ##### terrain
@@ -1939,6 +1942,8 @@ cocos_source_files(
                  cocos/bindings/auto/jsb_network_auto.h
     NO_WERROR    cocos/bindings/auto/jsb_pipeline_auto.cpp
                  cocos/bindings/auto/jsb_pipeline_auto.h
+    NO_WERROR    cocos/bindings/auto/jsb_render_auto.cpp
+                 cocos/bindings/auto/jsb_render_auto.h
     NO_WERROR    cocos/bindings/auto/jsb_scene_auto.cpp
                  cocos/bindings/auto/jsb_scene_auto.h
     NO_WERROR    cocos/bindings/auto/jsb_assets_auto.cpp

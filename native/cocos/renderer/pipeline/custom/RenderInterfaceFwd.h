@@ -1,13 +1,13 @@
 #pragma once
 #include <boost/variant2/variant.hpp>
-#include "renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "renderer/pipeline/custom/RenderGraphFwd.h"
+#include "renderer/gfx-base/GFXDef-common.h"
+#include "renderer/pipeline/custom/RenderCommonFwd.h"
 
 namespace cc {
 
 namespace render {
 
-struct RenderCompiler;
+class Pipeline;
 
 } // namespace render
 

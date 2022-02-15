@@ -1,4 +1,4 @@
 #pragma once
-#include <cocos/renderer/pipeline/custom/LayoutGraphReflection.h>
-#include <cocos/renderer/pipeline/custom/RenderCompilerFwd.h>
-#include <cocos/renderer/pipeline/custom/RenderGraphReflection.h>
+#include "renderer/pipeline/custom/LayoutGraphReflection.h"
+#include "renderer/pipeline/custom/RenderCompilerFwd.h"
+#include "renderer/pipeline/custom/RenderGraphReflection.h"

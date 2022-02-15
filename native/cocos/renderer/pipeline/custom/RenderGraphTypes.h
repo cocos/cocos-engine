@@ -1,20 +1,20 @@
 #pragma once
-#include <cocos/renderer/gfx-base/GFXBuffer.h>
-#include <cocos/renderer/gfx-base/GFXDef-common.h>
-#include <cocos/renderer/gfx-base/GFXTexture.h>
-#include <cocos/renderer/gfx-base/states/GFXSampler.h>
-#include <cocos/renderer/pipeline/PipelineSceneData.h>
-#include <cocos/renderer/pipeline/custom/GraphTypes.h>
-#include <cocos/renderer/pipeline/custom/Map.h>
-#include <cocos/renderer/pipeline/custom/RenderCommonTypes.h>
-#include <cocos/renderer/pipeline/custom/RenderGraphFwd.h>
-#include <cocos/renderer/pipeline/custom/String.h>
-#include <cocos/scene/Camera.h>
 #include <boost/container/pmr/vector.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "renderer/gfx-base/GFXBuffer.h"
+#include "renderer/gfx-base/GFXDef-common.h"
+#include "renderer/gfx-base/GFXTexture.h"
+#include "renderer/gfx-base/states/GFXSampler.h"
+#include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/GraphTypes.h"
+#include "renderer/pipeline/custom/Map.h"
+#include "renderer/pipeline/custom/RenderCommonTypes.h"
+#include "renderer/pipeline/custom/RenderGraphFwd.h"
+#include "renderer/pipeline/custom/String.h"
+#include "scene/Camera.h"
 
 namespace cc {
 

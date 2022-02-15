@@ -1,6 +1,6 @@
 #pragma once
-#include <cocos/renderer/pipeline/custom/LayoutGraphTypes.h>
-#include <cocos/renderer/pipeline/custom/RenderCommonNames.h>
+#include "renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "renderer/pipeline/custom/RenderCommonNames.h"
 
 namespace cc {
 
