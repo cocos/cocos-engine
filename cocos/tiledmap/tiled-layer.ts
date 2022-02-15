@@ -407,8 +407,8 @@ export class TiledLayer extends Renderable2D {
 
     onDisable () {
         super.onDisable();
-        this.node.parent!.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
-        this.node.parent!.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.parent?.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent?.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);

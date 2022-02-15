@@ -354,14 +354,14 @@ export class Renderable2D extends RenderableComponent {
      */
     public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
-        if (enable && this._renderFlag) {
+        if (enable) {
             const renderData = this._renderData;
             if (renderData) {
                 renderData.vertDirty = true;
             }
 
             this._renderDataFlag = enable;
-        } else if (!enable) {
+        } else {
             this._renderDataFlag = enable;
         }
     }
