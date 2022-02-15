@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "ScriptEngine.h"
-#include "application/ApplicationManager.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
@@ -318,7 +317,7 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
     }
 }
 
-void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, v8::PromiseRejectEvent event, const char *stackTrace) {
+void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char* event, const char *stackTrace) {
     using element_type = decltype(_promiseArray)::value_type;
     element_type *current;
 
@@ -335,11 +334,11 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
     }
 
     auto &exceptions = std::get<1>(*current);
-    if (event == v8::kPromiseHandlerAddedAfterReject) {
+    if (std::strcmp(event,"handlerAddedAfterPromiseRejected")) {
         //if event is kPromiseHandlerAddedAfterReject
 
         for (int i = 0; i < exceptions.size(); i++) {
-            if (exceptions[i].event == v8::kPromiseRejectWithNoHandler) {
+            if (std::strcmp(exceptions[i].event,"unhandledRejectedPromise")) {
                 exceptions.erase(exceptions.begin() + i);
                 return;
             }
@@ -347,29 +346,15 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
     }
     exceptions.push_back(PromiseExceptionMsg{event, stackTrace});
 }
+
 void ScriptEngine::handlePromiseExceptions() {
     if (_promiseArray.empty()) {
         return;
     }
-    const char* eventName;
     for (auto& exceptionsPair : _promiseArray) {
-        for (const auto& exceptions : std::get<1>(exceptionsPair)) {
-            switch (exceptions.event) {
-                case v8::kPromiseRejectWithNoHandler:
-                    eventName = "unhandledRejectedPromise";
-                    break;
-                case v8::kPromiseHandlerAddedAfterReject:
-                    eventName = "handlerAddedAfterPromiseRejected";
-                    break;
-                case v8::kPromiseRejectAfterResolved:
-                    eventName = "rejectAfterPromiseResolved";
-                    break;
-                case v8::kPromiseResolveAfterResolved:
-                    eventName = "resolveAfterPromiseResolved";
-                    break;
-            }
-            getInstance()->callExceptionCallback("", eventName, exceptions.stackTrace.c_str());
-        
+        auto& e_vector = std::get<1>(exceptionsPair);
+        for (const auto& exceptions : e_vector) {
+            getInstance()->callExceptionCallback("", exceptions.event, exceptions.stackTrace);
         }
         std::get<0>(exceptionsPair).get()->Reset();
     }
@@ -446,8 +431,24 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
     auto stackStr = getInstance()->getCurrentStackTrace();
     ss << "stacktrace: " << std::endl;
     ss << stackStr << std::endl;
-
-    getInstance()->pushPromiseExeception(msg.GetPromise(), event, ss.str().c_str());
+    //Check event immediately, for certain case throw exception.
+    const char* eventName;
+    switch (event) {
+        case v8::kPromiseRejectWithNoHandler:
+            eventName = "unhandledRejectedPromise";
+            getInstance()->pushPromiseExeception(msg.GetPromise(), "unhandledRejectedPromise", ss.str().c_str());
+            break;
+        case v8::kPromiseHandlerAddedAfterReject:
+            eventName = "handlerAddedAfterPromiseRejected"; 
+            getInstance()->pushPromiseExeception(msg.GetPromise(), "handlerAddedAfterPromiseRejected", ss.str().c_str());
+            break;
+        case v8::kPromiseRejectAfterResolved:
+            getInstance()->callExceptionCallback("", "rejectAfterPromiseResolved", stackStr.c_str());
+            break;
+        case v8::kPromiseResolveAfterResolved:
+            getInstance()->callExceptionCallback("", "resolveAfterPromiseResolved", stackStr.c_str());
+            break;
+    }
 }
 
 void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateData) {

@@ -368,11 +368,11 @@ private:
     bool postInit();
     // Struct to save exception info
     struct PromiseExceptionMsg {
-        v8::PromiseRejectEvent event;
-        std::string            stackTrace;
+        const char* event;
+        const char* stackTrace;
     };
     // Push promise and exception msg to _promiseArray
-    void pushPromiseExeception(const v8::Local<v8::Promise> &promise, v8::PromiseRejectEvent event, const char *stackTrace);
+    void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char* event, const char *stackTrace);
 
     std::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, std::vector<PromiseExceptionMsg>>> _promiseArray;
 
