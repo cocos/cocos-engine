@@ -136,12 +136,7 @@ export class AudioClip extends Asset {
         return this._player ? this._player.volume : 0;
     }
 
-    /**
-     * @deprecated since v3.1.0, please use AudioSource.prototype.getLoop() instead.
-     */
-    public getLoop () {
-        return this._player ? this._player.loop : false;
-    }
+    public test = 1;
 
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.setCurrentTime() instead.
