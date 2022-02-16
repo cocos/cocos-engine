@@ -13,7 +13,7 @@ module.exports = {
     transformIgnorePatterns: [
         // ignore everything in the node_modules EXCEPT for:
         // - @cocos/dragonbones-js
-        'node_modules/(?!(@cocos/dragonbones-js)/)',
+        'node_modules/(?!(@cocos/dragonbones-js|@cocos/webgpu)/)',
     ],
     setupFilesAfterEnv: [
         "./tests/setup-after-env.ts",
