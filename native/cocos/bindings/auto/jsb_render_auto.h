@@ -9,6 +9,7 @@
 bool register_all_render(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::render::Setter);
+JSB_REGISTER_OBJECT_TYPE(cc::render::RasterPass);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);
 
 
@@ -19,6 +20,13 @@ bool js_register_cc_render_Setter(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_render_Setter_setCBuffer);
 SE_DECLARE_FUNC(js_render_Setter_setMat4);
+
+extern se::Object *__jsb_cc_render_RasterPass_proto; // NOLINT
+extern se::Class * __jsb_cc_render_RasterPass_class; // NOLINT
+
+bool js_register_cc_render_RasterPass(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_RasterPass_addRasterView);
 
 extern se::Object *__jsb_cc_render_Pipeline_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Pipeline_class; // NOLINT

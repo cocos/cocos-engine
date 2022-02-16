@@ -5,6 +5,7 @@
 #include "cocos/bindings/manual/jsb_global.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphJsb.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -74,6 +75,45 @@ bool js_register_render_Setter(se::Object* obj) // NOLINT(readability-identifier
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_render_RasterPass_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_RasterPass_class = nullptr;  // NOLINT
+
+static bool js_render_RasterPass_addRasterView(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPass>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_RasterPass_addRasterView : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<cc::render::RasterView, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_RasterPass_addRasterView : Error processing arguments");
+        cobj->addRasterView(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_RasterPass_addRasterView)
+
+bool js_register_render_RasterPass(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("RasterPass", obj, nullptr, nullptr);
+
+    cls->defineFunction("addRasterView", _SE(js_render_RasterPass_addRasterView));
+    cls->install();
+    JSBClassType::registerClass<cc::render::RasterPass>(cls);
+
+    __jsb_cc_render_RasterPass_proto = cls->getProto();
+    __jsb_cc_render_RasterPass_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_render_Pipeline_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_Pipeline_class = nullptr;  // NOLINT
 
@@ -133,6 +173,7 @@ bool register_all_render(se::Object* obj)    // NOLINT
     se::Object* ns = nsVal.toObject();
 
     js_register_render_Pipeline(ns);
+    js_register_render_RasterPass(ns);
     js_register_render_Setter(ns);
     return true;
 }

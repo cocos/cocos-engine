@@ -1,7 +1,7 @@
 // clang-format off
 #pragma once
 #include "renderer/gfx-base/GFXDef-common.h"
-#include "renderer/pipeline/custom/RenderCommonTypes.h"
+#include "renderer/pipeline/custom/RenderGraphTypes.h"
 #include "renderer/pipeline/custom/RenderInterfaceFwd.h"
 
 namespace cc {
@@ -37,6 +37,21 @@ public:
 };
 
 inline Setter::~Setter() noexcept = default;
+
+class RasterPass {
+public:
+    RasterPass() noexcept = default;
+    RasterPass(RasterPass&& rhs)      = delete;
+    RasterPass(RasterPass const& rhs) = delete;
+    RasterPass& operator=(RasterPass&& rhs) = delete;
+    RasterPass& operator=(RasterPass const& rhs) = delete;
+
+    virtual ~RasterPass() noexcept = 0;
+
+    virtual void addRasterView(const std::string& name, const RasterView& view) = 0;
+};
+
+inline RasterPass::~RasterPass() noexcept = default;
 
 class Pipeline {
 public:

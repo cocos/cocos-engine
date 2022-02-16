@@ -233,8 +233,8 @@ struct RasterView {
         return {mSlotName.get_allocator().resource()};
     }
 
-    RasterView(const allocator_type& alloc) noexcept; // NOLINT
-    RasterView(PmrString slotName, AccessType accessType, AttachmentType attachmentType, gfx::LoadOp loadOp, gfx::StoreOp storeOp, gfx::ClearFlagBit clearFlags, gfx::Color clearColor, const allocator_type& alloc) noexcept;
+    RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    RasterView(PmrString slotName, AccessType accessType, AttachmentType attachmentType, gfx::LoadOp loadOp, gfx::StoreOp storeOp, gfx::ClearFlagBit clearFlags, gfx::Color clearColor, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     RasterView(RasterView&& rhs, const allocator_type& alloc);
     RasterView(RasterView const& rhs, const allocator_type& alloc);
 
