@@ -352,7 +352,7 @@ function fillVertices (skeletonColor: spine.Color,
     _finalColor.b = _tempb * slotColor.b;
 
     if (slot.darkColor == null) {
-        _darkColor.set(1.0, 1.0, 1.0, 1.0);
+        _darkColor.set(0.0, 0.0, 0.0, 1.0);
     } else {
         _darkColor.r = slot.darkColor.r * _tempr;
         _darkColor.g = slot.darkColor.g * _tempg;
