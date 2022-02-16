@@ -563,19 +563,16 @@ export class RichText extends UIComponent {
             let leftString = longStr.substring(curEnd);
             let curStringSize = this._calculateSize(styleIndex, curString);
 
-            // calculate a threshold that is n times of this.maxWidth and less than 2048,
-            // if maxWidth is greater than 2048, let all characters stay in a line.
-            const lineCountFor2048 = this.maxWidth > 2048 ? 1 : 2048 / this.maxWidth;
-            const lineCountForOnePart = 1;// Math.floor(lineCountFor2048);
+            // a line should be an unit to split long string
+            const lineCountForOnePart = 1;
             const sizeForOnePart = lineCountForOnePart * this.maxWidth;
-
-            // avoid to many loops since temporary input value (condition like value '7' is captured when user is inputting '700').
 
             // divide text into some pieces of which the size is less than sizeForOnePart
             while (curStringSize.x > sizeForOnePart) {
                 curEnd /= 2;
-                // at least one char can be a entity.
-                if (curEnd <= 1) {
+                // at least one char can be an entity, step back.
+                if (curEnd < 1) {
+                    curEnd *= 2;
                     break;
                 }
 
@@ -584,52 +581,24 @@ export class RichText extends UIComponent {
                 curStringSize = this._calculateSize(styleIndex, curString);
             }
 
-            // // approach target(sizeForOnePart - error)
-            // const avgOneCharSize = curStringSize.x / (curEnd - curStart);
-            // // The second stage of truncation into real lines could waste some spaces
-            // // because of mixed arrangement of Chinese and English characters,
-            // // so we need to reduce this part length for extra space
-            // const offsetOfError = lineCountForOnePart * avgOneCharSize;
-            // const sizeForOnePartWithOffset = sizeForOnePart - offsetOfError;
-
             // avoid too many loops
             let tryCount = 100;
-
-            // 需要在这里面把单词切开的问题处理了
-            let curWordStep = 0;
-            //let isLastPart = curEnd >= text.length;
+            // the minimum step of expansion or reduction
+            let curWordStep = 1;
             while (tryCount && curStart < text.length) {
-                // const unitCloseToTargetSize = Math.abs(curStringSize.x - sizeForOnePartWithOffset) < error
-                //     ? 1 : Math.abs(curStringSize.x - sizeForOnePartWithOffset) / avgOneCharSize;
-                // if (curStringSize.x > sizeForOnePartWithOffset) {
-                //     curEnd -= unitCloseToTargetSize;
-                // } else
                 while (tryCount && curStringSize.x <= sizeForOnePart) {
-                    // if (isLastPart) {
-                    //     partStringArr.push(curString);
-                    //     const partStep = curEnd - curStart;
-                    //     curStart = curEnd;
-                    //     curEnd += partStep;
-                    //     break;
-                    // } else {
-                    //这里不应该直接算跟进多少个字符，应该是跟进下一个单词
                     const nextPartExec = getEnglishWordPartAtFirst(leftString);
+                    // add a character, unless there is a complete word at the beginning of the next line
                     if (nextPartExec && nextPartExec.length > 0) {
                         curWordStep = nextPartExec[0].length;
-                        curEnd += curWordStep;
-                    } else {
-                        curWordStep = 1;
-                        curEnd += 1;
                     }
-
-                    //curEnd += unitCloseToTargetSize;
-                    //}
+                    curEnd += curWordStep;
 
                     curString = longStr.substring(curStart, curEnd);
                     leftString = longStr.substring(curEnd);
                     curStringSize = this._calculateSize(styleIndex, curString);
 
-                    //最后一组
+                    // Exit1: the last part of long string, the end of the method
                     if (curEnd >= text.length) {
                         curEnd = text.length;
                         curString = longStr.substring(curStart, curEnd);
@@ -640,59 +609,50 @@ export class RichText extends UIComponent {
                     tryCount--;
                 }
 
-                //临界情况要重新考虑，应该是第一次超过后再退回一个单词的时候
-                //这里就是超过，从后面再开始减单词
-                curEnd -= curWordStep;
-
-                curString = longStr.substring(curStart, curEnd);
-                leftString = longStr.substring(curEnd);
-                curStringSize = this._calculateSize(styleIndex, curString);
-
-                //这里需要考虑本行末尾是否是半截单词
-                const lastWordExec = getEnglishWordPartAtLast(curString);
-                if (lastWordExec && lastWordExec.length > 0
-                    // to avoid endless loop when there is only one word in this line
-                    && curString !== lastWordExec[0]) {
-                    curEnd -= lastWordExec[0].length;
+                // reduce condition：size > maxwidth && curString.length >= 2
+                while (tryCount && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
+                    curEnd -= curWordStep;
                     curString = longStr.substring(curStart, curEnd);
+                    curStringSize = this._calculateSize(styleIndex, curString);
+                    // after the first reduction, the step should be 1.
+                    curWordStep = 1;
+
+                    tryCount--;
                 }
 
+                // consider there is a part of a word at the end of this line, it should be moved to the next line
+                if (curString.length >= 2) {
+                    const lastWordExec = getEnglishWordPartAtLast(curString);
+                    if (lastWordExec && lastWordExec.length > 0
+                    // to avoid endless loop when there is only one word in this line
+                    && curString !== lastWordExec[0]) {
+                        curEnd -= lastWordExec[0].length;
+                        curString = longStr.substring(curStart, curEnd);
+                    }
+                }
+
+                // curStart and curEnd can be float since they are like positions of pointer,
+                // but step must be integer because we split the complete characters of which the unit is integer.
+                // it is reasonable that using the length of this result to estimate the next result.
                 partStringArr.push(curString);
-                const partStep = curEnd - curStart;
+                const partStep = curString.length;
                 curStart = curEnd;
                 curEnd += partStep;
 
-                //得到一组后，更新当前的字符串
                 curString = longStr.substring(curStart, curEnd);
                 leftString = longStr.substring(curEnd);
                 curStringSize = this._calculateSize(styleIndex, curString);
 
-                //最后一组
+                // Exit2: the last part of long string, the end of the method
                 if (curEnd >= text.length) {
                     curEnd = text.length;
                     curString = longStr.substring(curStart, curEnd);
                     partStringArr.push(curString);
                     break;
                 }
-                //isLastPart = curEnd >= text.length;
 
                 tryCount--;
             }
-
-            // //validate the last english word is truncated
-            // for (let i = 0; i < partStringArr.length; i++) {
-            //     if (i + 1 < partStringArr.length) {
-            //         if (isEnglishWordPartAtFirst(partStringArr[i + 1])) {
-            //             const lastPartExec = getEnglishWordPartAtLast(partStringArr[i]);
-            //             if (lastPartExec && lastPartExec[0] !== partStringArr[i]) {
-            //                 const keepLength =  partStringArr[i].length - lastPartExec[0].length;
-            //                 const moveStr = partStringArr[i].substring(keepLength);
-            //                 partStringArr[i] =  partStringArr[i].substring(0, keepLength);
-            //                 partStringArr[i + 1] = moveStr + partStringArr[i + 1];
-            //             }
-            //         }
-            //     }
-            // }
 
             return partStringArr;
         }
