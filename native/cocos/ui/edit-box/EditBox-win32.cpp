@@ -35,6 +35,8 @@
 #include <locale>
 #include <memory>
 
+#include "Richedit.h"
+
 namespace cc {
 
 /*************************************************************************
@@ -158,7 +160,7 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     if (!g_hwndEditBox) {
         HWND parent = getCurrentWindowHwnd();
 
-        UINT32 flags  = WS_CHILD | ES_LEFT | WS_TABSTOP | ES_AUTOHSCROLL;
+        UINT32 flags  = WS_CHILD | showInfo.textAlignment | WS_TABSTOP | ES_AUTOHSCROLL;
         g_isMultiline = showInfo.isMultiline;
         if (g_isMultiline) {
             flags |= ES_MULTILINE;
@@ -166,7 +168,7 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
         if (showInfo.inputType == "password")
             flags |= WS_EX_TRANSPARENT;
 
-        g_hwndEditBox = CreateWindowEx(
+        /* g_hwndEditBox = CreateWindowEx(
             WS_EX_WINDOWEDGE,
             L"EDIT",
             NULL,
@@ -178,7 +180,22 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
             parent,
             0,
             NULL,
-            NULL);
+            NULL);*/
+        LoadLibrary(TEXT("Msftedit.dll"));
+        g_hwndEditBox = CreateWindowEx(
+            0, 
+            MSFTEDIT_CLASS,
+            TEXT("TypeHere"),
+            flags,
+            0,
+            0,
+            0,
+            0,
+            parent,
+            NULL,
+            NULL,
+            NULL
+        );
 
         if (!g_hwndEditBox) {
             wchar_t buffer[256] = {0};
@@ -208,9 +225,29 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
                  SWP_NOZORDER);
 
     ::SetWindowTextW(g_hwndEditBox, str2ws(showInfo.defaultValue).c_str());
+    std::string s = "Hello";
+    ::SetWindowTextW(g_hwndEditBox, str2ws(s).c_str());
+    
     ::PostMessage(g_hwndEditBox, WM_ACTIVATE, 0, 0);
     ::ShowWindow(g_hwndEditBox, SW_SHOW);
+    /* Get current length of text in the box */
+    int index = GetWindowTextLength(g_hwndEditBox);
     SetFocus(g_hwndEditBox);
+    /* Set the caret to the end of the text in the box */
+    SendMessage(g_hwndEditBox, EM_SETSEL, (WPARAM)index, (LPARAM)index);
+    SendMessage(g_hwndEditBox, EM_SETFONTSIZE, showInfo.fontSize, 0);
+
+    CHARFORMAT2 cf;
+    cf.cbSize = sizeof(CHARFORMAT2);
+    cf.crTextColor = RGB((showInfo.fontColor & 0x00ff0000)>>16,(showInfo.fontColor & 0x0000ff00)>>8,(showInfo.fontColor & 0x000000ff));
+    //cf.crTextColor = showInfo.fontColor;
+    cf.crBackColor = RGB((showInfo.backGroundColor & 0x00ff0000)>>16,(showInfo.backGroundColor & 0x0000ff00)>>8,(showInfo.backGroundColor & 0x000000ff));
+    cf.dwMask = CFM_COLOR | CFM_BACKCOLOR;
+    cf.dwEffects = (showInfo.isUnderline ? CFE_UNDERLINE : 0) | (showInfo.isBold ? CFE_BOLD : 0) | (showInfo.isItalic ? CFE_ITALIC : 0);
+    cf.bUnderlineColor = showInfo.underlineColor;
+    
+    SendMessage(g_hwndEditBox, EM_SETCHARFORMAT, SCF_DEFAULT, (LPARAM)&cf);
+
 }
 
 void EditBox::hide() {
