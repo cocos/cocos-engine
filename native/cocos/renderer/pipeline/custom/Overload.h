@@ -1,5 +1,6 @@
 #pragma once
 #include <cocos/base/Variant.h>
+#include <boost/mp11/algorithm.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -43,6 +44,12 @@ struct vertex_overloaded : overloaded_t<Ts...> { // NOLINT
 template <class GraphT, class... Ts>
 auto visit_vertex(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) { // NOLINT
     return cc::visit(vertex_overloaded<Ts...>{std::move(args)...}, value(v, g));
+}
+
+template <typename V>
+auto variant_from_index(size_t index) -> V { // NOLINT
+    return boost::mp11::mp_with_index<boost::mp11::mp_size<V>>(index,
+        [](auto i) { return V(boost::variant2::in_place_index<i>); });
 }
 
 } // namespace cc
