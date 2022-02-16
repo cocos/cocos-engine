@@ -256,7 +256,7 @@ void cmdFuncGLES3CreateInputAssembler(GLES3Device *device, GLES3GPUInputAssemble
 void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler);
 void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
 void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
-void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses, const std::vector<AccessType> &nextAccesses, GLES3GPUGlobalBarrier *barrier);
+void cmdFuncGLES3CreateGeneralBarrier(GLES3Device *device, GLES3GPUGeneralBarrier *barrier);
 void cmdFuncGLES3CreateQueryPool(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
 void cmdFuncGLES3DestroyQueryPool(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
 void cmdFuncGLES3PrepareSamplerInfo(GLES3Device *device, GLES3GPUSampler *gpuSampler);

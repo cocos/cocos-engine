@@ -1,7 +1,7 @@
-/*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,43 +21,28 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
-/**
- * @packageDocumentation
- * @module gfx
- */
+#include "VKGeneralBarrier.h"
+#include "../VKCommands.h"
+#include "../VKDevice.h"
 
-import { murmurhash2_32_gc } from '../../../utils/murmurhash2_gc';
-import { GFXObject, ObjectType, GlobalBarrierInfo } from '../define';
+namespace cc {
+namespace gfx {
 
-/**
- * @en GFX global barrier.
- * @zh GFX 全局内存屏障。
- */
-export class GlobalBarrier extends GFXObject {
-    get info (): Readonly<GlobalBarrierInfo> { return this._info; }
-    get hash (): number { return this._hash; }
+CCVKGeneralBarrier::CCVKGeneralBarrier(const GeneralBarrierInfo &info) : GeneralBarrier(info) {
+    _typedID = generateObjectID<decltype(this)>();
 
-    protected _info: GlobalBarrierInfo = new GlobalBarrierInfo();
-    protected _hash = 0;
+    _gpuBarrier = CC_NEW(CCVKGPUGeneralBarrier);
+    getAccessTypes(info.prevAccesses, _gpuBarrier->prevAccesses);
+    getAccessTypes(info.nextAccesses, _gpuBarrier->nextAccesses);
 
-    constructor (info: GlobalBarrierInfo, hash: number) {
-        super(ObjectType.GLOBAL_BARRIER);
-        this._info.copy(info);
-        this._hash = hash;
-    }
-
-    static computeHash (info: GlobalBarrierInfo) {
-        let res = 'prev:';
-        for (let i = 0; i < info.prevAccesses.length; ++i) {
-            res += ` ${info.prevAccesses[i]}`;
-        }
-        res += 'next:';
-        for (let i = 0; i < info.nextAccesses.length; ++i) {
-            res += ` ${info.nextAccesses[i]}`;
-        }
-
-        return murmurhash2_32_gc(res, 666);
-    }
+    cmdFuncCCVKCreateGeneralBarrier(CCVKDevice::getInstance(), _gpuBarrier);
 }
+
+CCVKGeneralBarrier::~CCVKGeneralBarrier() {
+    CC_SAFE_DELETE(_gpuBarrier);
+}
+
+} // namespace gfx
+} // namespace cc

@@ -34,23 +34,16 @@ CCVKTextureBarrier::CCVKTextureBarrier(const TextureBarrierInfo &info) : Texture
     _typedID = generateObjectID<decltype(this)>();
 
     _gpuBarrier = CC_NEW(CCVKGPUTextureBarrier);
-    _gpuBarrier->accessTypes.resize(info.prevAccesses.size() + info.nextAccesses.size());
+    getAccessTypes(info.prevAccesses, _gpuBarrier->prevAccesses);
+    getAccessTypes(info.nextAccesses, _gpuBarrier->nextAccesses);
 
-    uint32_t index = 0U;
-    for (AccessType type : info.prevAccesses) {
-        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint32_t>(type)];
-    }
-    for (AccessType type : info.nextAccesses) {
-        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint32_t>(type)];
-    }
-
-    _gpuBarrier->barrier.prevAccessCount = utils::toUint(info.prevAccesses.size());
-    _gpuBarrier->barrier.pPrevAccesses   = _gpuBarrier->accessTypes.data();
-    _gpuBarrier->barrier.nextAccessCount = utils::toUint(info.nextAccesses.size());
-    _gpuBarrier->barrier.pNextAccesses   = _gpuBarrier->accessTypes.data() + info.prevAccesses.size();
+    _gpuBarrier->barrier.prevAccessCount = utils::toUint(_gpuBarrier->prevAccesses.size());
+    _gpuBarrier->barrier.pPrevAccesses   = _gpuBarrier->prevAccesses.data();
+    _gpuBarrier->barrier.nextAccessCount = utils::toUint(_gpuBarrier->nextAccesses.size());
+    _gpuBarrier->barrier.pNextAccesses   = _gpuBarrier->nextAccesses.data();
 
     _gpuBarrier->barrier.prevLayout = _gpuBarrier->barrier.nextLayout = THSVS_IMAGE_LAYOUT_OPTIMAL;
-    _gpuBarrier->barrier.discardContents                              = info.discardContents;
+    _gpuBarrier->barrier.discardContents                              = !!info.discardContents;
     _gpuBarrier->barrier.subresourceRange.baseMipLevel                = 0U;
     _gpuBarrier->barrier.subresourceRange.levelCount                  = VK_REMAINING_MIP_LEVELS;
     _gpuBarrier->barrier.subresourceRange.baseArrayLayer              = 0U;

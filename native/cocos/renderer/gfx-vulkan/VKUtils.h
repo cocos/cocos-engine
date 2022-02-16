@@ -71,11 +71,13 @@ VkShaderStageFlags    mapVkShaderStageFlags(ShaderStageFlagBit stages);
 SurfaceTransform      mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform);
 String                mapVendorName(uint32_t vendorID);
 
-void         fullPipelineBarrier(VkCommandBuffer cmdBuff);
-VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple);
-bool         isLayerSupported(const char *required, const vector<VkLayerProperties> &available);
-bool         isExtensionSupported(const char *required, const vector<VkExtensionProperties> &available);
-bool         isFormatSupported(VkPhysicalDevice device, VkFormat format);
+void                   fullPipelineBarrier(VkCommandBuffer cmdBuff);
+const ThsvsAccessType *getAccessType(AccessFlagBit flag);
+void                   getAccessTypes(AccessFlags flag, vector<ThsvsAccessType> &v);
+VkDeviceSize           roundUp(VkDeviceSize numToRound, uint32_t multiple);
+bool                   isLayerSupported(const char *required, const vector<VkLayerProperties> &available);
+bool                   isExtensionSupported(const char *required, const vector<VkExtensionProperties> &available);
+bool                   isFormatSupported(VkPhysicalDevice device, VkFormat format);
 
 extern const VkSurfaceTransformFlagsKHR TRANSFORMS_THAT_REQUIRE_FLIPPING;
 extern const VkPrimitiveTopology        VK_PRIMITIVE_MODES[];
@@ -89,7 +91,6 @@ extern const VkFilter                   VK_FILTERS[];
 extern const VkSamplerMipmapMode        VK_SAMPLER_MIPMAP_MODES[];
 extern const VkSamplerAddressMode       VK_SAMPLER_ADDRESS_MODES[];
 extern const VkPipelineBindPoint        VK_PIPELINE_BIND_POINTS[];
-extern const ThsvsAccessType            THSVS_ACCESS_TYPES[];
 extern const VkResolveModeFlagBits      VK_RESOLVE_MODES[];
 extern const VkImageLayout              VK_IMAGE_LAYOUTS[];
 extern const VkStencilFaceFlags         VK_STENCIL_FACE_FLAGS[];

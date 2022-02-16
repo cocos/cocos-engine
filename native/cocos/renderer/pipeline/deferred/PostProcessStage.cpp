@@ -28,7 +28,6 @@
 #include "../PipelineStateManager.h"
 #include "../RenderPipeline.h"
 #include "../RenderQueue.h"
-#include "pipeline/UIPhase.h"
 #include "frame-graph/DevicePass.h"
 #include "frame-graph/PassNodeBuilder.h"
 #include "frame-graph/Resource.h"
@@ -36,6 +35,7 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/Define.h"
+#include "pipeline/UIPhase.h"
 #include "pipeline/helper/Utils.h"
 #include "scene/SubModel.h"
 
@@ -111,7 +111,7 @@ void PostProcessStage::render(scene::Camera *camera) {
     _clearColors[0].w = camera->clearColor.w;
     _renderArea       = RenderPipeline::getRenderArea(camera);
     _inputAssembler   = _pipeline->getIAByRenderArea(_renderArea);
-    auto *pipeline = _pipeline;
+    auto *pipeline    = _pipeline;
     float shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
     auto  postSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         if (pipeline->getBloomEnabled()) {
@@ -147,9 +147,10 @@ void PostProcessStage::render(scene::Camera *camera) {
             }
         }
 
-        gfx::AccessType accessType{camera->window->swapchain ? gfx::AccessType::COLOR_ATTACHMENT_WRITE : gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
-        colorAttachmentInfo.beginAccesses.push_back(accessType);
-        colorAttachmentInfo.endAccesses.push_back(accessType);
+        colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses =
+            camera->window->swapchain
+                 ? gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE
+                 : gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
 
         gfx::TextureInfo textureInfo = {
             gfx::TextureType::TEX2D,
@@ -169,8 +170,7 @@ void PostProcessStage::render(scene::Camera *camera) {
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
         depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
         depthAttachmentInfo.loadOp        = gfx::LoadOp::CLEAR;
-        depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
-        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+        depthAttachmentInfo.beginAccesses = depthAttachmentInfo.endAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
 
         data.depth = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutDepthTexture));
         if (!data.depth.isValid()) {

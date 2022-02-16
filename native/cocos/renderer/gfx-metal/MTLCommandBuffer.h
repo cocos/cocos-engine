@@ -75,7 +75,7 @@ public:
     void                                blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
     void                                execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void                                dispatch(const DispatchInfo &info) override;
-    void                                pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
+    void                                pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
     void                                copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count);
     void                                beginQuery(QueryPool *queryPool, uint32_t id) override;
     void                                endQuery(QueryPool *queryPool, uint32_t id) override;

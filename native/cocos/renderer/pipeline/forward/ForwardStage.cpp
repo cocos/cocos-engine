@@ -181,7 +181,7 @@ void ForwardStage::render(scene::Camera *camera) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
             }
         }
-        colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
+        colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
 
         data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
@@ -199,8 +199,8 @@ void ForwardStage::render(scene::Camera *camera) {
         depthAttachmentInfo.loadOp        = gfx::LoadOp::CLEAR;
         depthAttachmentInfo.clearDepth    = camera->clearDepth;
         depthAttachmentInfo.clearStencil  = camera->clearStencil;
-        depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
-        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+        depthAttachmentInfo.beginAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
+        depthAttachmentInfo.endAccesses   = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
         if (static_cast<gfx::ClearFlagBit>(clearFlags & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL && (!hasFlag(clearFlags, gfx::ClearFlagBit::DEPTH) || !hasFlag(clearFlags, gfx::ClearFlagBit::STENCIL))) {
             depthAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
         }

@@ -65,7 +65,7 @@ void Device::destroy() {
         CC_SAFE_DELETE(pair.second);
     }
 
-    for (auto pair : _globalBarriers) {
+    for (auto pair : _generalBarriers) {
         CC_SAFE_DELETE(pair.second);
     }
 
@@ -103,11 +103,11 @@ Sampler *Device::getSampler(const SamplerInfo &info) {
     return _samplers[info];
 }
 
-GlobalBarrier *Device::getGlobalBarrier(const GlobalBarrierInfo &info) {
-    if (!_globalBarriers.count(info)) {
-        _globalBarriers[info] = createGlobalBarrier(info);
+GeneralBarrier *Device::getGeneralBarrier(const GeneralBarrierInfo &info) {
+    if (!_generalBarriers.count(info)) {
+        _generalBarriers[info] = createGeneralBarrier(info);
     }
-    return _globalBarriers[info];
+    return _generalBarriers[info];
 }
 
 TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {

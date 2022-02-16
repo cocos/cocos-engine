@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,28 +21,34 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ */
 
-#pragma once
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-#include "../VKStd.h"
-#include "gfx-base/states/GFXGlobalBarrier.h"
+import { murmurhash2_32_gc } from '../../../utils/murmurhash2_gc';
+import { GFXObject, ObjectType, GeneralBarrierInfo } from '../define';
 
-namespace cc {
-namespace gfx {
+/**
+ * @en GFX global barrier.
+ * @zh GFX 全局内存屏障。
+ */
+export class GeneralBarrier extends GFXObject {
+    get info (): Readonly<GeneralBarrierInfo> { return this._info; }
+    get hash (): number { return this._hash; }
 
-class CCVKGPUGlobalBarrier;
+    protected _info: GeneralBarrierInfo = new GeneralBarrierInfo();
+    protected _hash = 0;
 
-class CC_VULKAN_API CCVKGlobalBarrier : public GlobalBarrier {
-public:
-    explicit CCVKGlobalBarrier(const GlobalBarrierInfo &info);
-    ~CCVKGlobalBarrier() override;
+    constructor (info: GeneralBarrierInfo, hash: number) {
+        super(ObjectType.GLOBAL_BARRIER);
+        this._info.copy(info);
+        this._hash = hash;
+    }
 
-    inline const CCVKGPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }
-
-protected:
-    CCVKGPUGlobalBarrier *_gpuBarrier = nullptr;
-};
-
-} // namespace gfx
-} // namespace cc
+    static computeHash (info: GeneralBarrierInfo) {
+        return murmurhash2_32_gc(`${info.prevAccesses} ${info.nextAccesses}`, 666);
+    }
+}

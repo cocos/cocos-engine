@@ -25,6 +25,7 @@
 
 #include "ValidationUtils.h"
 
+#include "DeviceValidator.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "gfx-base/GFXInputAssembler.h"
 #include "gfx-base/GFXPipelineState.h"
@@ -35,6 +36,7 @@ namespace cc {
 namespace utils {
 
 String getStacktraceJS() {
+    if (!gfx::DeviceValidator::allowStacktraceJS) return "";
     return se::ScriptEngine::getInstance()->getCurrentStackTrace();
 }
 

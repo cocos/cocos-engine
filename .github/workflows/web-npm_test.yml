@@ -1,4 +1,4 @@
-name: npm test
+name: <Web> npm test
 
 on: [push, pull_request]
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,22 +23,26 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GLES3GlobalBarrier.h"
-#include "../GLES3Commands.h"
+#pragma once
+
+#include "../VKStd.h"
+#include "gfx-base/states/GFXGeneralBarrier.h"
 
 namespace cc {
 namespace gfx {
 
-GLES3GlobalBarrier::GLES3GlobalBarrier(const GlobalBarrierInfo &info) : GlobalBarrier(info) {
-    _typedID = generateObjectID<decltype(this)>();
+class CCVKGPUGeneralBarrier;
 
-    _gpuBarrier = CC_NEW(GLES3GPUGlobalBarrier);
-    cmdFuncGLES3CreateGlobalBarrier(info.prevAccesses, info.nextAccesses, _gpuBarrier);
-}
+class CC_VULKAN_API CCVKGeneralBarrier : public GeneralBarrier {
+public:
+    explicit CCVKGeneralBarrier(const GeneralBarrierInfo &info);
+    ~CCVKGeneralBarrier() override;
 
-GLES3GlobalBarrier::~GLES3GlobalBarrier() {
-    CC_SAFE_DELETE(_gpuBarrier);
-}
+    inline const CCVKGPUGeneralBarrier *gpuBarrier() const { return _gpuBarrier; }
+
+protected:
+    CCVKGPUGeneralBarrier *_gpuBarrier = nullptr;
+};
 
 } // namespace gfx
 } // namespace cc
