@@ -219,11 +219,13 @@ exports.updatePropByDump = function(panel, dump) {
             } else {
                 $prop = panel.$props[key] = panel.$[key] = document.createElement('ui-prop');
                 $prop.setAttribute('type', 'dump');
-                $prop.render(info);
             }
 
+            $prop.displayOrder = info.displayOrder === undefined ? 0 : Number(info.displayOrder);
+            $prop.displayOrder += 100;
+
             if (element && element.displayOrder !== undefined) {
-                info.displayOrder = element.displayOrder;
+                $prop.displayOrder = element.displayOrder;
             }
 
             if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
@@ -247,14 +249,14 @@ exports.updatePropByDump = function(panel, dump) {
                         }
                     }
 
-                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop, info.displayOrder);
+                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
                 } else {
-                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, info.displayOrder);
+                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
                 }
             }
         } else if (!$prop.isConnected || !$prop.parentElement) {
             if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
-                exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, info.displayOrder);
+                exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
             }
         }
         $prop.render(info);
@@ -436,7 +438,7 @@ exports.appendChildByDisplayOrder = function(parent, newChild, displayOrder = 0)
     const children = Array.from(parent.children);
 
     const child = children.find((child) => {
-        if (child.dump && child.dump.displayOrder > displayOrder) {
+        if (child.dump && child.displayOrder > displayOrder) {
             return child;
         }
 
