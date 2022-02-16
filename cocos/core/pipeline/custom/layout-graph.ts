@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import * as impl from './graph';
 import { NodeType, ParameterType, UpdateFrequency, ValueType } from './types';
 

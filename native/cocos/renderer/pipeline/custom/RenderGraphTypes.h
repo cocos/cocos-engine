@@ -263,7 +263,7 @@ struct ComputeView {
         return {mName.get_allocator().resource()};
     }
 
-    ComputeView(const allocator_type& alloc) noexcept; // NOLINT
+    ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
     ComputeView(ComputeView&& rhs, const allocator_type& alloc);
     ComputeView(ComputeView const& rhs, const allocator_type& alloc);
 
@@ -471,8 +471,8 @@ struct CopyPair {
         return {mSource.get_allocator().resource()};
     }
 
-    CopyPair(const allocator_type& alloc) noexcept; // NOLINT
-    CopyPair(PmrString source, PmrString target, uint32_t mipLevels, uint32_t numSlices, uint32_t sourceMostDetailedMip, uint32_t sourceFirstSlice, uint32_t sourcePlaneSlice, uint32_t targetMostDetailedMip, uint32_t targetFirstSlice, uint32_t targetPlaneSlice, const allocator_type& alloc) noexcept;
+    CopyPair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    CopyPair(PmrString source, PmrString target, uint32_t mipLevels, uint32_t numSlices, uint32_t sourceMostDetailedMip, uint32_t sourceFirstSlice, uint32_t sourcePlaneSlice, uint32_t targetMostDetailedMip, uint32_t targetFirstSlice, uint32_t targetPlaneSlice, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     CopyPair(CopyPair&& rhs, const allocator_type& alloc);
     CopyPair(CopyPair const& rhs, const allocator_type& alloc);
 
@@ -517,8 +517,8 @@ struct MovePair {
         return {mSource.get_allocator().resource()};
     }
 
-    MovePair(const allocator_type& alloc) noexcept; // NOLINT
-    MovePair(PmrString source, PmrString target, uint32_t mipLevels, uint32_t numSlices, uint32_t targetMostDetailedMip, uint32_t targetFirstSlice, uint32_t targetPlaneSlice, const allocator_type& alloc) noexcept;
+    MovePair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    MovePair(PmrString source, PmrString target, uint32_t mipLevels, uint32_t numSlices, uint32_t targetMostDetailedMip, uint32_t targetFirstSlice, uint32_t targetPlaneSlice, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     MovePair(MovePair&& rhs, const allocator_type& alloc);
     MovePair(MovePair const& rhs, const allocator_type& alloc);
 
