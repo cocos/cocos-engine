@@ -30,9 +30,13 @@
 #include "math/Math.h"
 
 /**
- * This file should be synced with engine/cocos/core/gfx/base/define.ts
+ * Some general guide lines:
+ * Always use explicit numeric types rather than `int`, `long`, etc. for a stable memory layout
+ * Structs marked with ALIGNAS specifiers MUST guarantee not to be implicitly padded
+ *
+ * This file should be synced with cocos/core/gfx/base/define.ts
  * every time changes being made, by manually running:
- * node tools/gfx-define-generator/generate.js
+ * node native/tools/gfx-define-generator/generate.js
  *
  * Due to Clang AST's incompleteness for now we are parsing this header manually.
  * Some caveat:
@@ -82,6 +86,9 @@ using IndexList          = vector<uint32_t>;
 constexpr uint32_t MAX_ATTACHMENTS  = 4U;
 constexpr uint32_t INVALID_BINDING  = ~0U;
 constexpr uint32_t SUBPASS_EXTERNAL = ~0U;
+
+// Although the standard is not limited, some devices do not support up to 65536 queries
+constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767;
 
 using BufferList              = vector<Buffer *>;
 using TextureList             = vector<Texture *>;
@@ -1211,7 +1218,7 @@ using TextureBarrierInfoList = vector<TextureBarrierInfo>;
 
 struct FramebufferInfo {
     RenderPass *renderPass{nullptr};
-    TextureList colorTextures;                // @ts-overrides { type: '(Texture | null)[]' }
+    TextureList colorTextures;
     Texture *   depthStencilTexture{nullptr}; // @ts-nullable
 };
 
@@ -1240,6 +1247,7 @@ struct InputState {
     AttributeList attributes;
 };
 
+// The memory layout of this structure should exactly match a plain `Uint32Array`
 struct RasterizerState {
     uint32_t    isDiscard{0}; // @ts-boolean
     PolygonMode polygonMode{PolygonMode::FILL};
@@ -1270,6 +1278,7 @@ struct RasterizerState {
     }
 };
 
+// The memory layout of this structure should exactly match a plain `Uint32Array`
 struct DepthStencilState {
     uint32_t       depthTest{1};  // @ts-boolean
     uint32_t       depthWrite{1}; // @ts-boolean
@@ -1327,6 +1336,7 @@ struct BlendTarget {
 
 using BlendTargetList = vector<BlendTarget>;
 
+// The memory layout of this structure should exactly match a plain `Uint32Array`
 struct BlendState {
     uint32_t        isA2C{0};      // @ts-boolean
     uint32_t        isIndepend{0}; // @ts-boolean
@@ -1376,9 +1386,6 @@ struct CommandBufferInfo {
 struct QueueInfo {
     QueueType type{QueueType::GRAPHICS};
 };
-
-// Although the standard is not limited, some devices do not support up to 65536 queries
-constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767;
 
 struct QueryPoolInfo {
     QueryType type{QueryType::OCCLUSION};

@@ -24,7 +24,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "renderer/pipeline/deferred/PostProcessStage.h"
+#include "PostProcessStage.h"
 #include "frame-graph/DevicePass.h"
 #include "frame-graph/PassNodeBuilder.h"
 #include "frame-graph/Resource.h"

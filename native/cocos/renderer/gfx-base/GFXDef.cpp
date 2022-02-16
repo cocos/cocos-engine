@@ -529,7 +529,7 @@ std::pair<uint32_t, uint32_t> formatAlignment(Format format) {
     }
 }
 
-std::array<uint32_t, 32> GFX_TYPE_SIZES = {
+static constexpr std::array<uint32_t, static_cast<size_t>(Type::COUNT)> GFX_TYPE_SIZES = {
     0,  // UNKNOWN
     4,  // BOOL
     8,  // BOOL2
@@ -569,12 +569,10 @@ std::array<uint32_t, 32> GFX_TYPE_SIZES = {
  * @zh 得到 GFX 数据类型的大小。
  * @param type The target type.
  */
-uint32_t getTypeSize(gfx::Type type) {
-    if (static_cast<int>(type) < GFX_TYPE_SIZES.size()) {
-        return GFX_TYPE_SIZES[static_cast<int>(type)];
+uint32_t getTypeSize(Type type) {
+    if (type < Type::COUNT) {
+        return GFX_TYPE_SIZES[toNumber(type)];
     }
-
-    CC_LOG_WARNING("getTypeSize: wrong type: %d", static_cast<int>(type));
     return 0;
 }
 

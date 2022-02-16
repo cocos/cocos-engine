@@ -1953,7 +1953,7 @@ class Generator(object):
         headLicense = ''
         implLicense = ''
 
-        licensePattern = re.compile('\/\*{5,}.*?\*{5,}\/\s', re.S)
+        licensePattern = re.compile('\/\*{5,}.*?\*{5,}\/\s*', re.S)
         with io.open(headfilepath, 'a+', newline="\n") as headReader:
             headReader.seek(0)
             headMatch = licensePattern.search(headReader.read())
