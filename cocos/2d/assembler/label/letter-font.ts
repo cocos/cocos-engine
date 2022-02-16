@@ -46,8 +46,9 @@ export const letterFont = mixin(bmfontUtils, {
 
         return _shareAtlas.getTexture();
     },
-
+    
     _updateFontFamily (comp) {
+        this.enableDpr(true);
         shareLabelInfo.fontAtlas = _shareAtlas;
         shareLabelInfo.fontFamily = this._getFontFamily(comp);
 
