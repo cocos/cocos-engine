@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,34 +23,41 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+#include "WGPUQueryPool.h"
+#include "WGPUCommandBuffer.h"
+#include "WGPUDevice.h"
+#include "WGPUObject.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+CCWGPUQueryPool::CCWGPUQueryPool() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+CCWGPUQueryPool::~CCWGPUQueryPool() {
+    destroy();
+}
 
-protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
+void CCWGPUQueryPool::doInit(const QueryPoolInfo& /*info*/) {
+    CCWGPUDevice* device           = CCWGPUDevice::getInstance();
+    _gpuQueryPool                  = CC_NEW(CCWGPUQueryPoolObject);
+    _gpuQueryPool->type            = _type;
+    _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
+    _gpuQueryPool->idPool.resize(_maxQueryObjects, 0U);
+
+    //TODO_Zeqiang: wgpu query
+
+    //cmdFuncGLES3CreateQuery(device, _gpuQueryPool);
+}
+
+void CCWGPUQueryPool::doDestroy() {
+    if (_gpuQueryPool) {
+        //cmdFuncGLES3DestroyQuery(GLES3Device::getInstance(), _gpuQueryPool);
+        CC_DELETE(_gpuQueryPool);
+        _gpuQueryPool = nullptr;
     }
-
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
-
-    uint32_t _typedID = 0U; // inited by sub-classes
-};
+}
 
 } // namespace gfx
 } // namespace cc

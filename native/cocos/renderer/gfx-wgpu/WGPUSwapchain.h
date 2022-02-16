@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,41 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+
+#include "WGPUDef.h"
+#include "gfx-base/GFXSwapchain.h"
 
 namespace cc {
+
 namespace gfx {
+struct CCWGPUSwapchainObject;
 
-class GFXObject : public Object {
+class CCWGPUTexture;
+class CCWGPUDevice;
+class CCWGPUSwapchain final : public Swapchain {
 public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+    CCWGPUSwapchain(CCWGPUDevice* device);
+    ~CCWGPUSwapchain();
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+    inline CCWGPUSwapchainObject* gpuSwapchainObject() { return _gpuSwapchainObj; }
+
+    CCWGPUTexture* getColorTexture();
+
+    CCWGPUTexture* getDepthStencilTexture();
+
+    void update();
 
 protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
+    CCWGPUSwapchain() = delete;
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+    void doInit(const SwapchainInfo& info) override;
+    void doDestroy() override;
+    void doResize(uint32_t width, uint32_t height, SurfaceTransform transform) override;
+    void doDestroySurface() override;
+    void doCreateSurface(void* windowHandle) override;
 
-    uint32_t _typedID = 0U; // inited by sub-classes
+    CCWGPUSwapchainObject* _gpuSwapchainObj = nullptr;
+    CCWGPUDevice*          _device          = nullptr;
 };
 
 } // namespace gfx

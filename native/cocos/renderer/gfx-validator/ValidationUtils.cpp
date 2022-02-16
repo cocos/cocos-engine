@@ -27,6 +27,10 @@
 
 #include "DeviceValidator.h"
 #include "bindings/jswrapper/SeApi.h"
+#ifndef CC_WGPU_WASM
+    #include "bindings/jswrapper/SeApi.h"
+#endif
+
 #include "gfx-base/GFXInputAssembler.h"
 #include "gfx-base/GFXPipelineState.h"
 #include "gfx-base/GFXRenderPass.h"
@@ -36,8 +40,12 @@ namespace cc {
 namespace utils {
 
 String getStacktraceJS() {
+#ifndef CC_WGPU_WASM
     if (!gfx::DeviceValidator::allowStacktraceJS) return "";
     return se::ScriptEngine::getInstance()->getCurrentStackTrace();
+#else
+    return "";
+#endif
 }
 
 } // namespace utils

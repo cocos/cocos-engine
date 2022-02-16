@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,34 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+
+#include <vector>
+#include "gfx-base/GFXQueryPool.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+class CCWGPUQueryPoolObject;
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+class CCWGPUQueryPool final : public QueryPool {
+public:
+    CCWGPUQueryPool();
+    ~CCWGPUQueryPool() override;
+
+    inline CCWGPUQueryPoolObject *gpuQueryPool() const { return _gpuQueryPool; }
+    inline uint32_t               getIdCount() const { return static_cast<uint32_t>(_ids.size()); }
+    inline void                   clearId() { _ids.clear(); }
+    inline void                   addId(uint32_t id) { _ids.push_back(id); }
+    inline uint32_t               getId(uint32_t index) const { return _ids[index]; }
+    inline std::mutex &           getMutex() { return _mutex; }
+    inline void                   setResults(std::unordered_map<uint32_t, uint64_t> &&results) { _results = results; }
 
 protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
+    void doInit(const QueryPoolInfo &info) override;
+    void doDestroy() override;
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
-
-    uint32_t _typedID = 0U; // inited by sub-classes
+    CCWGPUQueryPoolObject *_gpuQueryPool = nullptr;
+    std::vector<uint32_t>  _ids;
 };
 
 } // namespace gfx
