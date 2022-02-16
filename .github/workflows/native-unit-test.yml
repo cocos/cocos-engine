@@ -30,7 +30,7 @@ jobs:
       - name: Run Unit Tests
         shell: bash
         run: |
-          cmake -B tests/unit-test/build -S tests/unit-test -G"Visual Studio 16 2019" -A win32
+          cmake -B tests/unit-test/build -S tests/unit-test
           cmake --build tests/unit-test/build --config Release
           ./tests/unit-test/build/src/Release/CocosTest.exe
       
