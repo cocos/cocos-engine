@@ -3,6 +3,7 @@
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/custom/RenderCommonTypes.h"
 #include "renderer/pipeline/custom/RenderInterfaceFwd.h"
+
 namespace cc {
 
 class Mat4;
