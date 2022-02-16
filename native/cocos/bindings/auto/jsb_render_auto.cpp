@@ -390,7 +390,7 @@ SE_BIND_FUNC(js_render_RasterQueue_addSceneOfCamera)
 
 bool js_register_render_RasterQueue(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("RasterQueue", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("RasterQueue", obj, __jsb_cc_render_Setter_proto, nullptr);
 
     cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterQueue_addFullscreenQuad));
     cls->defineFunction("addScene", _SE(js_render_RasterQueue_addScene));
@@ -569,7 +569,7 @@ SE_BIND_FUNC(js_render_RasterPass_addRasterView)
 
 bool js_register_render_RasterPass(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("RasterPass", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("RasterPass", obj, __jsb_cc_render_Setter_proto, nullptr);
 
     cls->defineFunction("addComputeView", _SE(js_render_RasterPass_addComputeView));
     cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterPass_addFullscreenQuad));
@@ -671,7 +671,7 @@ SE_BIND_FUNC(js_render_ComputeQueue_addDispatch)
 
 bool js_register_render_ComputeQueue(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("ComputeQueue", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("ComputeQueue", obj, __jsb_cc_render_Setter_proto, nullptr);
 
     cls->defineFunction("addDispatch", _SE(js_render_ComputeQueue_addDispatch));
     cls->install();
@@ -845,7 +845,7 @@ SE_BIND_FUNC(js_render_ComputePass_addQueue)
 
 bool js_register_render_ComputePass(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("ComputePass", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("ComputePass", obj, __jsb_cc_render_Setter_proto, nullptr);
 
     cls->defineFunction("addComputeView", _SE(js_render_ComputePass_addComputeView));
     cls->defineFunction("addDispatch", _SE(js_render_ComputePass_addDispatch));
@@ -1228,6 +1228,7 @@ bool register_all_render(se::Object* obj)    // NOLINT
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_render_Setter(ns);
     js_register_render_ComputePass(ns);
     js_register_render_ComputeQueue(ns);
     js_register_render_CopyPass(ns);
@@ -1235,7 +1236,6 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_Pipeline(ns);
     js_register_render_RasterPass(ns);
     js_register_render_RasterQueue(ns);
-    js_register_render_Setter(ns);
     return true;
 }
 
