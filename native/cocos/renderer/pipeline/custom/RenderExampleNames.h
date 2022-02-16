@@ -1,8 +1,8 @@
 // clang-format off
 #pragma once
-#include "renderer/pipeline/custom/LayoutGraphNames.h"
-#include "renderer/pipeline/custom/RenderExampleTypes.h"
-#include "renderer/pipeline/custom/RenderGraphNames.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphNames.h"
+#include "cocos/renderer/pipeline/custom/RenderExampleTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphNames.h"
 
 namespace cc {
 

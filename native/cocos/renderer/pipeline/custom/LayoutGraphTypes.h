@@ -5,10 +5,10 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
-#include "renderer/pipeline/custom/GraphTypes.h"
-#include "renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "renderer/pipeline/custom/Map.h"
-#include "renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/GraphTypes.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
+#include "cocos/renderer/pipeline/custom/Map.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 

@@ -1,7 +1,7 @@
 // clang-format off
-#include "renderer/pipeline/custom/JsbConversion.h"
-#include "renderer/pipeline/custom/RenderGraphJsb.h"
-#include "renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/JsbConversion.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphJsb.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 
 bool nativevalue_to_se(const cc::render::RasterView &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());

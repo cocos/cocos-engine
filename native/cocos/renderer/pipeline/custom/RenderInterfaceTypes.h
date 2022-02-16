@@ -1,8 +1,8 @@
 // clang-format off
 #pragma once
-#include "renderer/gfx-base/GFXDef-common.h"
-#include "renderer/pipeline/custom/RenderGraphTypes.h"
-#include "renderer/pipeline/custom/RenderInterfaceFwd.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
 namespace cc {
 

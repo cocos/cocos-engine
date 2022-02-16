@@ -5,12 +5,12 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
-#include "renderer/gfx-base/GFXBuffer.h"
-#include "renderer/gfx-base/GFXDef-common.h"
-#include "renderer/gfx-base/GFXTexture.h"
-#include "renderer/pipeline/custom/GraphTypes.h"
-#include "renderer/pipeline/custom/RenderCommonTypes.h"
-#include "renderer/pipeline/custom/RenderExecutorFwd.h"
+#include "cocos/renderer/gfx-base/GFXBuffer.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/renderer/gfx-base/GFXTexture.h"
+#include "cocos/renderer/pipeline/custom/GraphTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderExecutorFwd.h"
 
 namespace cc {
 

@@ -1,6 +1,6 @@
 // clang-format off
 #pragma once
-#include "renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 

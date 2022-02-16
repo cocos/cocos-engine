@@ -1,3 +1,3 @@
 // clang-format off
 #pragma once
-#include "renderer/pipeline/custom/RenderCommonFwd.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"

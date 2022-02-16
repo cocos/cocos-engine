@@ -1,10 +1,10 @@
 // clang-format off
 #pragma once
 #include <boost/variant2/variant.hpp>
-#include "renderer/gfx-base/GFXDef-common.h"
-#include "renderer/pipeline/PipelineSceneData.h"
-#include "renderer/pipeline/custom/RenderCommonFwd.h"
-#include "scene/Camera.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/renderer/pipeline/PipelineSceneData.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
+#include "cocos/scene/Camera.h"
 
 namespace cc {
 
