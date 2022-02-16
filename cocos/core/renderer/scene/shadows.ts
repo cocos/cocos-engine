@@ -216,7 +216,6 @@ export class Shadows {
     }
     public set shadowMapDirty (val: boolean) {
         this._shadowMapDirty = val;
-
     }
 
     public get matLight () {
@@ -244,12 +243,15 @@ export class Shadows {
     public maxReceived = 4;
 
     // local set
-    public firstSetCSM = false;
     public shadowCameraFar = 0;
     public matShadowView = new Mat4();
     public matShadowProj = new Mat4();
     public matShadowViewProj = new Mat4();
+    protected _matLight = new Mat4();
+    protected _material: Material | null = null;
+    protected _instancingMaterial: Material | null = null;
 
+    // public properties of shadow
     protected _enabled = false;
     protected _type = SHADOW_TYPE_NONE;
     protected _distance = 0;
@@ -257,11 +259,6 @@ export class Shadows {
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _size: Vec2 = new Vec2(512, 512);
     protected _shadowMapDirty = false;
-
-    protected _matLight = new Mat4();
-    protected _material: Material | null = null;
-    protected _instancingMaterial: Material | null = null;
-
 
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._material) {

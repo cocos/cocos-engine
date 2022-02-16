@@ -209,15 +209,15 @@ public:
 
     void activate(Shadows *resource);
 
-    float      _distance{0.F};
-    uint32_t   _maxReceived{4};
+    bool       _enabled{false};
     ShadowType _type{ShadowType::PLANAR};
-    Shadows *  _resource{nullptr};
-    Color      _shadowColor{0, 0, 0, 76};
     Vec3       _normal{0.F, 1.F, 0.F};
+    float      _distance{0.F};
+    Color      _shadowColor{0, 0, 0, 76};
+    uint32_t   _maxReceived{4};
     Vec2       _size{512.F, 512.F};
 
-    bool       _enabled{false};
+    Shadows   *_resource{nullptr};
 };
 
 class Shadows final {
@@ -244,8 +244,8 @@ public:
     void         activate();
 
     /**
-     * @en Whether activate planar shadow.
-     * @zh 是否启用平面阴影？
+     * @en Whether activate shadow.
+     * @zh 是否启用阴影？
      */
     inline bool isEnabled() const { return _enabled; }
     inline void setEnabled(bool val) {
@@ -296,9 +296,13 @@ public:
      * @zh 获取或者设置阴影纹理大小。
      */
     inline const Vec2 &getSize() const { return _size; }
-    inline void        setSize(const Vec2 &val) { _size.set(val); }
+    inline void        setSize(const Vec2 &val) {
+        _size.set(val);
+        _shadowMapDirty = true;
+    }
     inline void        setShadowMapSize(float value) {
         _size.set(value, value);
+        _shadowMapDirty = true;
     }
     inline float getShadowMapSize() const {
         return _size.x;
@@ -321,13 +325,20 @@ public:
      * @en get or set shadow max received
      * @zh 获取或者设置阴影接收的最大光源数量
      */
-    inline void setMaxReceived(uint32_t val) {
-        _maxReceived = val;
-    }
+    inline void     setMaxReceived(uint32_t val) { _maxReceived = val; }
+    inline uint32_t getMaxReceived() const { return _maxReceived; }
 
-    inline uint32_t getMaxReceived() const {
-        return _maxReceived;
-    }
+    inline float getShadowCameraFar() const { return _shadowCameraFar; }
+    inline void  setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
+
+    inline Mat4  getMatShadowView() const { return _matShadowView; }
+    inline void  setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
+
+    inline Mat4  getMatShadowProj() const { return _matShadowProj; }
+    inline void  setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
+
+    inline Mat4  getMatShadowViewProj() const { return _matShadowViewProj; }
+    inline void  setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
 
 private:
     void updatePlanarInfo();
@@ -347,18 +358,18 @@ private:
     uint32_t _maxReceived{4};
 
     // local set
-    bool  _firstSetCSM{false};
-    float _shadowCameraFar{0.F};
-    Mat4  _matShadowView;
-    Mat4  _matShadowProj;
-    Mat4  _matShadowViewProj;
+    float                  _shadowCameraFar{0.0F};
+    Mat4                   _matShadowView;
+    Mat4                   _matShadowProj;
+    Mat4                   _matShadowViewProj;
 
+    // public properties of shadow
     Vec3                   _normal{0.F, 1.F, 0.F};
     Color                  _shadowColor{0, 0, 0, 76};
     std::array<float, 4>   _shadowColor4f{0.F, 0.F, 0.F, 76.F / 255.F};
     Mat4                   _matLight;
-    IntrusivePtr<Material> _material;
-    IntrusivePtr<Material> _instancingMaterial;
+    IntrusivePtr<Material> _material{nullptr};
+    IntrusivePtr<Material> _instancingMaterial{nullptr};
     Vec2                   _size{512.F, 512.F};
     bool                   _enabled{false};
     float                  _distance{0.F};

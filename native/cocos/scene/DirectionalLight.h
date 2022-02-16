@@ -52,14 +52,14 @@ public:
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
     inline void setShadowOrthoSize(float orthoSize) { _shadowOrthoSize = orthoSize; }
 
-    inline bool  getShadowEnabled() const { return _shadowEnabled; }
+    inline bool  isShadowEnabled() const { return _shadowEnabled; }
     inline float getShadowPcf() const { return _shadowPcf; }
     inline float getShadowBias() const { return _shadowBias; }
     inline float getShadowNormalBias() const { return _shadowNormalBias; }
     inline float getShadowSaturation() const { return _shadowSaturation; }
     inline float getShadowDistance() const { return _shadowDistance; }
     inline float getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
-    inline bool  getShadowFixedArea() const { return _shadowFixedArea; }
+    inline bool  isShadowFixedArea() const { return _shadowFixedArea; }
     inline float getShadowNear() const { return _shadowNear; }
     inline float getShadowFar() const { return _shadowFar; }
     inline float getShadowOrthoSize() const { return _shadowOrthoSize; }

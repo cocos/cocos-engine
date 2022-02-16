@@ -44,8 +44,6 @@ const _vec3_p = new Vec3();
 const _shadowPos = new Vec3();
 const _mat4_trans = new Mat4();
 const _castLightViewBounds = new AABB();
-const _castWorldBounds = new AABB();
-let _castBoundsInited = false;
 const _sphere = Sphere.create(0, 0, 0, 1);
 const _cameraBoundingSphere = new Sphere();
 const _validFrustum = new Frustum();
@@ -65,7 +63,6 @@ const _texelSize = new Vec2();
 const _projSnap = new Vec3();
 const _snap = new Vec3();
 const _focus = new Vec3(0, 0, 0);
-const _ab = new AABB();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const dirShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -261,11 +258,11 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
     dirLight: DirectionalLight, camera: Camera, shadowInfo: Shadows) {
     const device = pipeline.device;
 
-    if (dirLight.fixedArea) {
-        const x = dirLight.fixedOrthoSize;
-        const y = dirLight.fixedOrthoSize;
-        const near = dirLight.fixedNear;
-        const far = dirLight.fixedFar;
+    if (dirLight.shadowFixedArea) {
+        const x = dirLight.shadowOrthoSize;
+        const y = dirLight.shadowOrthoSize;
+        const near = dirLight.shadowNear;
+        const far = dirLight.shadowFar;
         Mat4.fromRT(_matShadowTrans, dirLight.node!.getWorldRotation(), dirLight.node!.getWorldPosition());
         Mat4.invert(_matShadowView, _matShadowTrans);
         Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
@@ -364,8 +361,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
     const castShadowObjects = sceneData.castShadowObjects;
     castShadowPool.freeArray(castShadowObjects); castShadowObjects.length = 0;
-    _castBoundsInited = false;
-
     let dirShadowObjects: IRenderObject[] | null = null;
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
@@ -405,14 +400,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         if (model.enabled) {
             if (model.castShadow) {
                 castShadowObjects.push(getCastShadowRenderObject(model, camera));
-            }
-
-            if (shadows.firstSetCSM && model.worldBounds) {
-                if (!_castBoundsInited) {
-                    _castWorldBounds.copy(model.worldBounds);
-                    _castBoundsInited = true;
-                }
-                AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
             }
 
             if (model.node && ((visibility & model.node.layer) === model.node.layer)

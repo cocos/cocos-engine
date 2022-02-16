@@ -263,7 +263,7 @@ export class DirectionalLight extends Light {
     set fixedArea (val) {
         this._shadowFixedArea = val;
         if (this._light) {
-            this._light.fixedArea = this._shadowFixedArea;
+            this._light.shadowFixedArea = this._shadowFixedArea;
         }
     }
 
@@ -284,7 +284,7 @@ export class DirectionalLight extends Light {
     set fixedNear (val) {
         this._shadowNear = val;
         if (this._light) {
-            this._light.fixedNear = this._shadowNear;
+            this._light.shadowNear = this._shadowNear;
         }
     }
 
@@ -305,7 +305,7 @@ export class DirectionalLight extends Light {
     set fixedFar (val) {
         this._shadowFar = Math.min(val, Shadows.MAX_FAR);
         if (this._light) {
-            this._light.fixedFar = this._shadowFar;
+            this._light.shadowFar = this._shadowFar;
         }
     }
 
@@ -325,7 +325,7 @@ export class DirectionalLight extends Light {
     set fixedOrthoSize (val) {
         this._shadowOrthoSize = val;
         if (this._light) {
-            this._light.fixedOrthoSize = this._shadowOrthoSize;
+            this._light.shadowOrthoSize = this._shadowOrthoSize;
         }
     }
 
@@ -346,10 +346,12 @@ export class DirectionalLight extends Light {
             this._light.shadowBias = this._shadowBias;
             this._light.shadowNormalBias = this._shadowNormalBias;
             this._light.shadowSaturation = this._shadowSaturation;
-            this._light.fixedArea = this._shadowFixedArea;
-            this._light.fixedNear = this._shadowNear;
-            this._light.fixedFar = this._shadowFar;
-            this._light.fixedOrthoSize = this._shadowOrthoSize;
+            this._light.shadowDistance = this._shadowDistance;
+            this._light.shadowInvisibleOcclusionRange = this._shadowInvisibleOcclusionRange;
+            this._light.shadowFixedArea = this._shadowFixedArea;
+            this._light.shadowNear = this._shadowNear;
+            this._light.shadowFar = this._shadowFar;
+            this._light.shadowOrthoSize = this._shadowOrthoSize;
         }
     }
 }
