@@ -1,5 +1,5 @@
 import glslangURL from '@cocos/webgpu/glslang.wasmurl';
-import webgpuURL from '@cocos/webgpu/webgpu.wasmurl';
+import webgpuURL from '@cocos/webgpu/webgpu_wasm.wasmurl';
 import glslangLoader from '@cocos/webgpu/glslang';
 import wasmDevice from '@cocos/webgpu/webgpu_wasm';
 
