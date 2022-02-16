@@ -26,6 +26,7 @@
 #include "VKDevice.h"
 #include "VKBuffer.h"
 #include "VKCommandBuffer.h"
+#include "VKCommands.h"
 #include "VKDescriptorSet.h"
 #include "VKDescriptorSetLayout.h"
 #include "VKFramebuffer.h"
@@ -41,7 +42,8 @@
 #include "VKTexture.h"
 #include "VKUtils.h"
 #include "base/Utils.h"
-#include "states/VKGlobalBarrier.h"
+#include "gfx-base/GFXDef-common.h"
+#include "states/VKGeneralBarrier.h"
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
 
@@ -286,7 +288,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _caps.maxComputeWorkGroupSize        = {limits.maxComputeWorkGroupSize[0], limits.maxComputeWorkGroupSize[1], limits.maxComputeWorkGroupSize[2]};
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     // UNASSIGNED-BestPractices-vkCreateComputePipelines-compute-work-group-size
-    _caps.maxComputeWorkGroupInvocations = 64;
+    _caps.maxComputeWorkGroupInvocations = std::min(_caps.maxComputeWorkGroupInvocations, 64U);
 #endif // defined(VK_USE_PLATFORM_ANDROID_KHR)
 
     ///////////////////// Resource Initialization /////////////////////
@@ -388,7 +390,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     ThsvsImageBarrier barrier{};
     barrier.nextAccessCount             = 1;
-    barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::VERTEX_SHADER_READ_TEXTURE)];
+    barrier.pNextAccesses               = getAccessType(AccessFlagBit::VERTEX_SHADER_READ_TEXTURE);
     barrier.image                       = _gpuDevice->defaultTexture.vkImage;
     barrier.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
@@ -406,6 +408,12 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _gpuDevice->defaultBuffer.size = _gpuDevice->defaultBuffer.stride = 16U;
     _gpuDevice->defaultBuffer.count                                   = 1U;
     cmdFuncCCVKCreateBuffer(this, &_gpuDevice->defaultBuffer);
+
+    getAccessTypes(AccessFlagBit::COLOR_ATTACHMENT_WRITE, _gpuDevice->defaultColorBarrier.nextAccesses);
+    cmdFuncCCVKCreateGeneralBarrier(this, &_gpuDevice->defaultColorBarrier);
+
+    getAccessTypes(AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE, _gpuDevice->defaultDepthStencilBarrier.nextAccesses);
+    cmdFuncCCVKCreateGeneralBarrier(this, &_gpuDevice->defaultDepthStencilBarrier);
 
     VkPipelineCacheCreateInfo pipelineCacheInfo{VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO};
     VK_CHECK(vkCreatePipelineCache(_gpuDevice->vkDevice, &pipelineCacheInfo, nullptr, &_gpuDevice->vkPipelineCache));
@@ -598,9 +606,6 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
         gpuSwapchains[i]->curImageIndex = vkSwapchainIndices[i];
         queue->gpuQueue()->lastSignaledSemaphores.push_back(acquireSemaphore);
 
-        // swapchain indices may be different
-        //CCASSERT(_gpuDevice->curBackBufferIndex == vkSwapchainIndices[i], "wrong image index?");
-
         vkAcquireBarriers[i].image = gpuSwapchains[i]->swapchainImages[vkSwapchainIndices[i]];
         vkPresentBarriers[i].image = gpuSwapchains[i]->swapchainImages[vkSwapchainIndices[i]];
     }
@@ -778,8 +783,8 @@ Sampler *CCVKDevice::createSampler(const SamplerInfo &info) {
     return CC_NEW(CCVKSampler(info));
 }
 
-GlobalBarrier *CCVKDevice::createGlobalBarrier(const GlobalBarrierInfo &info) {
-    return CC_NEW(CCVKGlobalBarrier(info));
+GeneralBarrier *CCVKDevice::createGeneralBarrier(const GeneralBarrierInfo &info) {
+    return CC_NEW(CCVKGeneralBarrier(info));
 }
 
 TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info) {

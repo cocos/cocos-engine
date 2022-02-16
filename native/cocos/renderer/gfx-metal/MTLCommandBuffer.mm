@@ -126,7 +126,7 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     _firstDirtyDescriptorSet = UINT_MAX;
     _commandBufferBegan      = true;
     _firstRenderPass         = true;
-    
+
     _colorAppearedBefore.reset();
 }
 
@@ -901,7 +901,7 @@ void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
     _computeEncoder.endEncoding();
 }
 
-void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+void CCMTLCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
     // Metal tracks non-heap resources automatically, which means no need to add a barrier same encoder.
 }
 

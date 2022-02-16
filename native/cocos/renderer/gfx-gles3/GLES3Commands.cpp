@@ -1653,15 +1653,15 @@ void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gp
     gpuFBO->uberInstance.resolveFramebuffer.destroy(cache, framebufferCacheMap);
 }
 
-void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses, const std::vector<AccessType> &nextAccesses, GLES3GPUGlobalBarrier *barrier) {
+void cmdFuncGLES3CreateGeneralBarrier(GLES3Device * /*device*/, GLES3GPUGeneralBarrier *barrier) {
     bool hasShaderWrites = false;
-    for (auto prevAccesse : prevAccesses) {
-        switch (prevAccesse) {
-            case AccessType::COMPUTE_SHADER_WRITE:
-            case AccessType::VERTEX_SHADER_WRITE:
-            case AccessType::FRAGMENT_SHADER_WRITE:
-            case AccessType::COLOR_ATTACHMENT_WRITE:
-            case AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE:
+    for (uint32_t mask = toNumber(barrier->prevAccesses); mask; mask = utils::clearLowestBit(mask)) {
+        switch (static_cast<AccessFlagBit>(utils::getLowestBit(mask))) {
+            case AccessFlagBit::COMPUTE_SHADER_WRITE:
+            case AccessFlagBit::VERTEX_SHADER_WRITE:
+            case AccessFlagBit::FRAGMENT_SHADER_WRITE:
+            case AccessFlagBit::COLOR_ATTACHMENT_WRITE:
+            case AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE:
                 hasShaderWrites = true;
                 break;
             default:
@@ -1670,64 +1670,64 @@ void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses
     }
 
     if (hasShaderWrites) {
-        for (auto nextAccesse : nextAccesses) {
-            switch (nextAccesse) {
-                case AccessType::INDIRECT_BUFFER:
+        for (uint32_t mask = toNumber(barrier->nextAccesses); mask; mask = utils::clearLowestBit(mask)) {
+            switch (static_cast<AccessFlagBit>(utils::getLowestBit(mask))) {
+                case AccessFlagBit::INDIRECT_BUFFER:
                     barrier->glBarriers |= GL_COMMAND_BARRIER_BIT;
                     break;
-                case AccessType::INDEX_BUFFER:
+                case AccessFlagBit::INDEX_BUFFER:
                     barrier->glBarriers |= GL_ELEMENT_ARRAY_BARRIER_BIT;
                     break;
-                case AccessType::VERTEX_BUFFER:
+                case AccessFlagBit::VERTEX_BUFFER:
                     barrier->glBarriers |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
                     break;
-                case AccessType::COMPUTE_SHADER_READ_UNIFORM_BUFFER:
-                case AccessType::VERTEX_SHADER_READ_UNIFORM_BUFFER:
-                case AccessType::FRAGMENT_SHADER_READ_UNIFORM_BUFFER:
+                case AccessFlagBit::COMPUTE_SHADER_READ_UNIFORM_BUFFER:
+                case AccessFlagBit::VERTEX_SHADER_READ_UNIFORM_BUFFER:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_UNIFORM_BUFFER:
                     barrier->glBarriersByRegion |= GL_UNIFORM_BARRIER_BIT;
                     break;
-                case AccessType::COMPUTE_SHADER_READ_TEXTURE:
-                case AccessType::VERTEX_SHADER_READ_TEXTURE:
-                case AccessType::FRAGMENT_SHADER_READ_TEXTURE:
-                case AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT:
-                case AccessType::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT:
+                case AccessFlagBit::COMPUTE_SHADER_READ_TEXTURE:
+                case AccessFlagBit::VERTEX_SHADER_READ_TEXTURE:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT:
                     barrier->glBarriersByRegion |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
                     barrier->glBarriersByRegion |= GL_TEXTURE_FETCH_BARRIER_BIT;
                     break;
-                case AccessType::COMPUTE_SHADER_READ_OTHER:
-                case AccessType::VERTEX_SHADER_READ_OTHER:
-                case AccessType::FRAGMENT_SHADER_READ_OTHER:
+                case AccessFlagBit::COMPUTE_SHADER_READ_OTHER:
+                case AccessFlagBit::VERTEX_SHADER_READ_OTHER:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_OTHER:
                     barrier->glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
                     break;
-                case AccessType::COLOR_ATTACHMENT_READ:
-                case AccessType::DEPTH_STENCIL_ATTACHMENT_READ:
+                case AccessFlagBit::COLOR_ATTACHMENT_READ:
+                case AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_READ:
                     barrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     break;
-                case AccessType::TRANSFER_READ:
+                case AccessFlagBit::TRANSFER_READ:
                     barrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     barrier->glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
                     barrier->glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
                     barrier->glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
                     break;
-                case AccessType::COMPUTE_SHADER_WRITE:
-                case AccessType::VERTEX_SHADER_WRITE:
-                case AccessType::FRAGMENT_SHADER_WRITE:
+                case AccessFlagBit::COMPUTE_SHADER_WRITE:
+                case AccessFlagBit::VERTEX_SHADER_WRITE:
+                case AccessFlagBit::FRAGMENT_SHADER_WRITE:
                     barrier->glBarriersByRegion |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
                     barrier->glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
                     break;
-                case AccessType::COLOR_ATTACHMENT_WRITE:
-                case AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE:
+                case AccessFlagBit::COLOR_ATTACHMENT_WRITE:
+                case AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE:
                     barrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     break;
-                case AccessType::TRANSFER_WRITE:
+                case AccessFlagBit::TRANSFER_WRITE:
                     barrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     barrier->glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
                     barrier->glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
                     barrier->glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
                     break;
-                case AccessType::HOST_PREINITIALIZED:
-                case AccessType::HOST_WRITE:
-                case AccessType::PRESENT:
+                case AccessFlagBit::HOST_PREINITIALIZED:
+                case AccessFlagBit::HOST_WRITE:
+                case AccessFlagBit::PRESENT:
                 default:
                     break;
             }

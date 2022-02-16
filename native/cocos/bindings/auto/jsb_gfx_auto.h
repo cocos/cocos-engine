@@ -430,15 +430,15 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::RenderPassInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPassInfo);
 
-extern se::Object* __jsb_cc_gfx_GlobalBarrierInfo_proto;
-extern se::Class* __jsb_cc_gfx_GlobalBarrierInfo_class;
+extern se::Object* __jsb_cc_gfx_GeneralBarrierInfo_proto;
+extern se::Class* __jsb_cc_gfx_GeneralBarrierInfo_class;
 
-bool js_register_cc_gfx_GlobalBarrierInfo(se::Object* obj);
+bool js_register_cc_gfx_GeneralBarrierInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 template<>
-bool sevalue_to_native(const se::Value &, cc::gfx::GlobalBarrierInfo *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::GlobalBarrierInfo);
+bool sevalue_to_native(const se::Value &, cc::gfx::GeneralBarrierInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::GeneralBarrierInfo);
 
 extern se::Object* __jsb_cc_gfx_TextureBarrierInfo_proto;
 extern se::Class* __jsb_cc_gfx_TextureBarrierInfo_class;
@@ -833,17 +833,17 @@ SE_DECLARE_FUNC(js_gfx_Swapchain_initialize);
 SE_DECLARE_FUNC(js_gfx_Swapchain_resize);
 SE_DECLARE_FUNC(js_gfx_Swapchain_Swapchain);
 
-extern se::Object* __jsb_cc_gfx_GlobalBarrier_proto;
-extern se::Class* __jsb_cc_gfx_GlobalBarrier_class;
+extern se::Object* __jsb_cc_gfx_GeneralBarrier_proto;
+extern se::Class* __jsb_cc_gfx_GeneralBarrier_class;
 
-bool js_register_cc_gfx_GlobalBarrier(se::Object* obj);
+bool js_register_cc_gfx_GeneralBarrier(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::GlobalBarrier);
-SE_DECLARE_FUNC(js_gfx_GlobalBarrier_getHash);
-SE_DECLARE_FUNC(js_gfx_GlobalBarrier_getInfo);
-SE_DECLARE_FUNC(js_gfx_GlobalBarrier_computeHash);
-SE_DECLARE_FUNC(js_gfx_GlobalBarrier_GlobalBarrier);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::GeneralBarrier);
+SE_DECLARE_FUNC(js_gfx_GeneralBarrier_getHash);
+SE_DECLARE_FUNC(js_gfx_GeneralBarrier_getInfo);
+SE_DECLARE_FUNC(js_gfx_GeneralBarrier_computeHash);
+SE_DECLARE_FUNC(js_gfx_GeneralBarrier_GeneralBarrier);
 
 extern se::Object* __jsb_cc_gfx_Sampler_proto;
 extern se::Class* __jsb_cc_gfx_Sampler_class;
@@ -892,7 +892,7 @@ SE_DECLARE_FUNC(js_gfx_Device_createSwapchain);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
 SE_DECLARE_FUNC(js_gfx_Device_flushCommands);
 SE_DECLARE_FUNC(js_gfx_Device_getFormatFeatures);
-SE_DECLARE_FUNC(js_gfx_Device_getGlobalBarrier);
+SE_DECLARE_FUNC(js_gfx_Device_getGeneralBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPool);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPoolResults);
 SE_DECLARE_FUNC(js_gfx_Device_getSampler);
@@ -911,4 +911,3 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceManager);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_addSurfaceEventListener);
-

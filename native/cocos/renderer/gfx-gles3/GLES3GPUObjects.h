@@ -321,8 +321,11 @@ public:
     unordered_map<size_t, GLuint> glVAOs;
 };
 
-class GLES3GPUGlobalBarrier final : public Object {
+class GLES3GPUGeneralBarrier final : public Object {
 public:
+    AccessFlags prevAccesses = AccessFlagBit::NONE;
+    AccessFlags nextAccesses = AccessFlagBit::NONE;
+
     GLbitfield glBarriers         = 0U;
     GLbitfield glBarriersByRegion = 0U;
 };
@@ -340,7 +343,7 @@ public:
 
     vector<AttachmentStatistics> statistics; // per attachment
 
-    vector<GLES3GPUGlobalBarrier> barriers; // per subpass
+    vector<GLES3GPUGeneralBarrier> barriers; // per subpass
 };
 
 class GLES3GPUFramebufferCacheMap;

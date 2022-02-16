@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,27 +21,34 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ */
 
-#include <boost/functional/hash.hpp>
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-#include "base/CoreStd.h"
+import { murmurhash2_32_gc } from '../../../utils/murmurhash2_gc';
+import { GFXObject, ObjectType, GeneralBarrierInfo } from '../define';
 
-#include "GFXGlobalBarrier.h"
-#include "base/Utils.h"
+/**
+ * @en GFX global barrier.
+ * @zh GFX 全局内存屏障。
+ */
+export class GeneralBarrier extends GFXObject {
+    get info (): Readonly<GeneralBarrierInfo> { return this._info; }
+    get hash (): number { return this._hash; }
 
-namespace cc {
-namespace gfx {
+    protected _info: GeneralBarrierInfo = new GeneralBarrierInfo();
+    protected _hash = 0;
 
-GlobalBarrier::GlobalBarrier(const GlobalBarrierInfo &info)
-: GFXObject(ObjectType::GLOBAL_BARRIER) {
-    _info = info;
-    _hash = computeHash(info);
+    constructor (info: Readonly<GeneralBarrierInfo>, hash: number) {
+        super(ObjectType.GLOBAL_BARRIER);
+        this._info.copy(info);
+        this._hash = hash;
+    }
+
+    static computeHash (info: Readonly<GeneralBarrierInfo>) {
+        return murmurhash2_32_gc(`${info.prevAccesses} ${info.nextAccesses}`, 666);
+    }
 }
-
-size_t GlobalBarrier::computeHash(const GlobalBarrierInfo &info) {
-    return Hasher<GlobalBarrierInfo>()(info);
-}
-
-} // namespace gfx
-} // namespace cc

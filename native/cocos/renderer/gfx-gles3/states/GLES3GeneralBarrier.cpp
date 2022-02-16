@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,41 +23,26 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include "base/Agent.h"
-#include "gfx-base/GFXBuffer.h"
+#include "GLES3GeneralBarrier.h"
+#include "../GLES3Commands.h"
+#include "gfx-gles3/GLES3Device.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL BufferValidator final : public Agent<Buffer> {
-public:
-    explicit BufferValidator(Buffer *actor);
-    ~BufferValidator() override;
+GLES3GeneralBarrier::GLES3GeneralBarrier(const GeneralBarrierInfo &info) : GeneralBarrier(info) {
+    _typedID = generateObjectID<decltype(this)>();
 
-    void update(const void *buffer, uint32_t size) override;
+    _gpuBarrier               = CC_NEW(GLES3GPUGeneralBarrier);
+    _gpuBarrier->prevAccesses = info.prevAccesses;
+    _gpuBarrier->nextAccesses = info.nextAccesses;
 
-    void sanityCheck(const void *buffer, uint32_t size);
+    cmdFuncGLES3CreateGeneralBarrier(GLES3Device::getInstance(), _gpuBarrier);
+}
 
-    inline bool isInited() const { return _inited; }
-
-protected:
-    void doInit(const BufferInfo &info) override;
-    void doInit(const BufferViewInfo &info) override;
-    void doResize(uint32_t size, uint32_t count) override;
-    void doDestroy() override;
-
-    vector<uint8_t> _buffer;
-
-    uint64_t _lastUpdateFrame{0U};
-    uint64_t _totalUpdateTimes{0U};
-    uint64_t _creationFrame{0U};
-
-    bool _inited{false};
-
-    String _initStack;
-};
+GLES3GeneralBarrier::~GLES3GeneralBarrier() {
+    CC_SAFE_DELETE(_gpuBarrier);
+}
 
 } // namespace gfx
 } // namespace cc

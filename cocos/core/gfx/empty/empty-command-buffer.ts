@@ -31,7 +31,7 @@ import { InputAssembler } from '../base/input-assembler';
 import { PipelineState } from '../base/pipeline-state';
 import { Texture } from '../base/texture';
 import { RenderPass } from '../base/render-pass';
-import { GlobalBarrier } from '../base/states/global-barrier';
+import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { StencilFace, BufferSource, CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo } from '../base/define';
 
@@ -61,5 +61,5 @@ export class EmptyCommandBuffer extends CommandBuffer {
     public updateBuffer (buffer: Buffer, data: BufferSource, size?: number) {}
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {}
     public execute (cmdBuffs: CommandBuffer[], count: number) {}
-    public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {}
+    public pipelineBarrier (GeneralBarrier: GeneralBarrier, textureBarriers: TextureBarrier[]) {}
 }

@@ -72,10 +72,22 @@ public:
 };
 
 struct CCVKAccessInfo {
-    VkPipelineStageFlags stageMask;
-    VkAccessFlags        accessMask;
-    VkImageLayout        imageLayout;
-    bool                 hasWriteAccess;
+    VkPipelineStageFlags stageMask{0};
+    VkAccessFlags        accessMask{0};
+    VkImageLayout        imageLayout{VK_IMAGE_LAYOUT_UNDEFINED};
+    bool                 hasWriteAccess{false};
+};
+
+class CCVKGPUGeneralBarrier final : public Object {
+public:
+    VkPipelineStageFlags srcStageMask = 0U;
+    VkPipelineStageFlags dstStageMask = 0U;
+    VkMemoryBarrier      vkBarrier{};
+
+    vector<ThsvsAccessType> prevAccesses;
+    vector<ThsvsAccessType> nextAccesses;
+
+    ThsvsGlobalBarrier barrier{};
 };
 
 class CCVKGPURenderPass final : public Object {
@@ -85,15 +97,13 @@ public:
     SubpassInfoList        subpasses;
     SubpassDependencyList  dependencies;
 
-    // per attachment
-    vector<vector<ThsvsAccessType>> beginAccesses;
-    vector<vector<ThsvsAccessType>> endAccesses;
-
     VkRenderPass vkRenderPass;
 
     // helper storage
     vector<VkClearValue>          clearValues;
     vector<VkSampleCountFlagBits> sampleCounts; // per subpass
+
+    const CCVKGPUGeneralBarrier *getBarrier(size_t index, CCVKGPUDevice *gpuDevice) const;
 };
 
 class CCVKGPUSwapchain;
@@ -345,24 +355,16 @@ public:
     VkPipeline             vkPipeline    = VK_NULL_HANDLE;
 };
 
-class CCVKGPUGlobalBarrier final : public Object {
-public:
-    VkPipelineStageFlags srcStageMask = 0U;
-    VkPipelineStageFlags dstStageMask = 0U;
-    VkMemoryBarrier      vkBarrier{};
-
-    vector<ThsvsAccessType> accessTypes;
-    ThsvsGlobalBarrier      barrier{};
-};
-
 class CCVKGPUTextureBarrier final : public Object {
 public:
     VkPipelineStageFlags srcStageMask = 0U;
     VkPipelineStageFlags dstStageMask = 0U;
     VkImageMemoryBarrier vkBarrier{};
 
-    vector<ThsvsAccessType> accessTypes;
-    ThsvsImageBarrier       barrier{};
+    vector<ThsvsAccessType> prevAccesses;
+    vector<ThsvsAccessType> nextAccesses;
+
+    ThsvsImageBarrier barrier{};
 };
 
 class CCVKGPUCommandBufferPool;
@@ -392,6 +394,9 @@ public:
     CCVKGPUTexture     defaultTexture;
     CCVKGPUTextureView defaultTextureView;
     CCVKGPUBuffer      defaultBuffer;
+
+    CCVKGPUGeneralBarrier defaultColorBarrier;
+    CCVKGPUGeneralBarrier defaultDepthStencilBarrier;
 
     unordered_set<CCVKGPUSwapchain *> swapchains;
 

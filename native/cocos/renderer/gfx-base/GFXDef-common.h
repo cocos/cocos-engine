@@ -30,9 +30,13 @@
 #include "math/Math.h"
 
 /**
- * This file should be synced with engine/cocos/core/gfx/base/define.ts
+ * Some general guide lines:
+ * Always use explicit numeric types rather than `int`, `long`, etc. for a stable memory layout
+ * Structs marked with ALIGNAS specifiers MUST guarantee not to be implicitly padded
+ *
+ * This file should be synced with cocos/core/gfx/base/define.ts
  * every time changes being made, by manually running:
- * node tools/gfx-define-generator/generate.js
+ * node native/tools/gfx-define-generator/generate.js
  *
  * Due to Clang AST's incompleteness for now we are parsing this header manually.
  * Some caveat:
@@ -42,6 +46,7 @@
  * * aliases can only be used as types, not values (e.g. BufferUsage::NONE is illegal)
  * * parser directives can be specified in comments right after struct member declarations:
  *   * @ts-nullable: declare the member optional
+ *   * @ts-boolean: declare the member as boolean, even if the type is not `bool`
  *   * @ts-overrides `YAML declaration`: overrides any parsed results, use with caution
  * * each struct member have to be specified in a single line, including optional parser directives
  * * members with a name starts with an underscore is automatically ignored
@@ -54,7 +59,7 @@ class GFXObject;
 class Device;
 class Swapchain;
 class Buffer;
-class GlobalBarrier;
+class GeneralBarrier;
 class TextureBarrier;
 class Texture;
 class Sampler;
@@ -76,10 +81,14 @@ using TextureBarrierList = vector<TextureBarrier *>;
 using BufferDataList     = vector<const uint8_t *>;
 using CommandBufferList  = vector<CommandBuffer *>;
 using QueryPoolList      = vector<QueryPool *>;
+using IndexList          = vector<uint32_t>;
 
 constexpr uint32_t MAX_ATTACHMENTS  = 4U;
 constexpr uint32_t INVALID_BINDING  = ~0U;
 constexpr uint32_t SUBPASS_EXTERNAL = ~0U;
+
+// Although the standard is not limited, some devices do not support up to 65536 queries
+constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767;
 
 using BufferList              = vector<Buffer *>;
 using TextureList             = vector<Texture *>;
@@ -605,43 +614,42 @@ enum class StoreOp : uint32_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(StoreOp);
 
-enum class AccessType : uint32_t {
-    NONE,
+enum class AccessFlagBit : uint32_t {
+    NONE = 0,
 
-    // Read access
-    INDIRECT_BUFFER,                                     // Read as an indirect buffer for drawing or dispatch
-    INDEX_BUFFER,                                        // Read as an index buffer for drawing
-    VERTEX_BUFFER,                                       // Read as a vertex buffer for drawing
-    VERTEX_SHADER_READ_UNIFORM_BUFFER,                   // Read as a uniform buffer in a vertex shader
-    VERTEX_SHADER_READ_TEXTURE,                          // Read as a sampled image/uniform texel buffer in a vertex shader
-    VERTEX_SHADER_READ_OTHER,                            // Read as any other resource in a vertex shader
-    FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                 // Read as a uniform buffer in a fragment shader
-    FRAGMENT_SHADER_READ_TEXTURE,                        // Read as a sampled image/uniform texel buffer in a fragment shader
-    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,         // Read as an input attachment with a color format in a fragment shader
-    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT, // Read as an input attachment with a depth/stencil format in a fragment shader
-    FRAGMENT_SHADER_READ_OTHER,                          // Read as any other resource in a fragment shader
-    COLOR_ATTACHMENT_READ,                               // Read by standard blending/logic operations or subpass load operations
-    DEPTH_STENCIL_ATTACHMENT_READ,                       // Read by depth/stencil tests or subpass load operations
-    COMPUTE_SHADER_READ_UNIFORM_BUFFER,                  // Read as a uniform buffer in a compute shader
-    COMPUTE_SHADER_READ_TEXTURE,                         // Read as a sampled image/uniform texel buffer in a compute shader
-    COMPUTE_SHADER_READ_OTHER,                           // Read as any other resource in a compute shader
-    TRANSFER_READ,                                       // Read as the source of a transfer operation
-    HOST_READ,                                           // Read on the host
-    PRESENT,                                             // Read by the presentation engine
+    // Read accesses
+    INDIRECT_BUFFER                                     = 1 << 0,  // Read as an indirect buffer for drawing or dispatch
+    INDEX_BUFFER                                        = 1 << 1,  // Read as an index buffer for drawing
+    VERTEX_BUFFER                                       = 1 << 2,  // Read as a vertex buffer for drawing
+    VERTEX_SHADER_READ_UNIFORM_BUFFER                   = 1 << 3,  // Read as a uniform buffer in a vertex shader
+    VERTEX_SHADER_READ_TEXTURE                          = 1 << 4,  // Read as a sampled image/uniform texel buffer in a vertex shader
+    VERTEX_SHADER_READ_OTHER                            = 1 << 5,  // Read as any other resource in a vertex shader
+    FRAGMENT_SHADER_READ_UNIFORM_BUFFER                 = 1 << 6,  // Read as a uniform buffer in a fragment shader
+    FRAGMENT_SHADER_READ_TEXTURE                        = 1 << 7,  // Read as a sampled image/uniform texel buffer in a fragment shader
+    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT         = 1 << 8,  // Read as an input attachment with a color format in a fragment shader
+    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT = 1 << 9,  // Read as an input attachment with a depth/stencil format in a fragment shader
+    FRAGMENT_SHADER_READ_OTHER                          = 1 << 10, // Read as any other resource in a fragment shader
+    COLOR_ATTACHMENT_READ                               = 1 << 11, // Read by standard blending/logic operations or subpass load operations
+    DEPTH_STENCIL_ATTACHMENT_READ                       = 1 << 12, // Read by depth/stencil tests or subpass load operations
+    COMPUTE_SHADER_READ_UNIFORM_BUFFER                  = 1 << 13, // Read as a uniform buffer in a compute shader
+    COMPUTE_SHADER_READ_TEXTURE                         = 1 << 14, // Read as a sampled image/uniform texel buffer in a compute shader
+    COMPUTE_SHADER_READ_OTHER                           = 1 << 15, // Read as any other resource in a compute shader
+    TRANSFER_READ                                       = 1 << 16, // Read as the source of a transfer operation
+    HOST_READ                                           = 1 << 17, // Read on the host
+    PRESENT                                             = 1 << 18, // Read by the presentation engine
 
-    // Write access
-    VERTEX_SHADER_WRITE,            // Written as any resource in a vertex shader
-    FRAGMENT_SHADER_WRITE,          // Written as any resource in a fragment shader
-    COLOR_ATTACHMENT_WRITE,         // Written as a color attachment during rendering, or via a subpass store op
-    DEPTH_STENCIL_ATTACHMENT_WRITE, // Written as a depth/stencil attachment during rendering, or via a subpass store op
-    COMPUTE_SHADER_WRITE,           // Written as any resource in a compute shader
-    TRANSFER_WRITE,                 // Written as the destination of a transfer operation
-    HOST_PREINITIALIZED,            // Data pre-filled by host before device access starts
-    HOST_WRITE,                     // Written on the host
+    // Write accesses
+    VERTEX_SHADER_WRITE            = 1 << 19, // Written as any resource in a vertex shader
+    FRAGMENT_SHADER_WRITE          = 1 << 20, // Written as any resource in a fragment shader
+    COLOR_ATTACHMENT_WRITE         = 1 << 21, // Written as a color attachment during rendering, or via a subpass store op
+    DEPTH_STENCIL_ATTACHMENT_WRITE = 1 << 22, // Written as a depth/stencil attachment during rendering, or via a subpass store op
+    COMPUTE_SHADER_WRITE           = 1 << 23, // Written as any resource in a compute shader
+    TRANSFER_WRITE                 = 1 << 24, // Written as the destination of a transfer operation
+    HOST_PREINITIALIZED            = 1 << 25, // Data pre-filled by host before device access starts
+    HOST_WRITE                     = 1 << 26, // Written on the host
 };
-CC_ENUM_CONVERSION_OPERATOR(AccessType);
-
-using AccessTypeList = std::vector<AccessType>;
+CC_ENUM_BITWISE_OPERATORS(AccessFlagBit);
+using AccessFlags = AccessFlagBit;
 
 enum class ResolveMode : uint32_t {
     NONE,
@@ -765,29 +773,29 @@ using ClearFlags = ClearFlagBit;
 CC_ENUM_BITWISE_OPERATORS(ClearFlagBit);
 
 struct Size {
-    uint32_t x{0U};
-    uint32_t y{0U};
-    uint32_t z{0U};
+    uint32_t x{0};
+    uint32_t y{0};
+    uint32_t z{0};
 };
 
 struct DeviceCaps {
-    uint32_t maxVertexAttributes{0U};
-    uint32_t maxVertexUniformVectors{0U};
-    uint32_t maxFragmentUniformVectors{0U};
-    uint32_t maxTextureUnits{0U};
-    uint32_t maxImageUnits{0U};
-    uint32_t maxVertexTextureUnits{0U};
-    uint32_t maxColorRenderTargets{0U};
-    uint32_t maxShaderStorageBufferBindings{0U};
-    uint32_t maxShaderStorageBlockSize{0U};
-    uint32_t maxUniformBufferBindings{0U};
-    uint32_t maxUniformBlockSize{0U};
-    uint32_t maxTextureSize{0U};
-    uint32_t maxCubeMapTextureSize{0U};
-    uint32_t uboOffsetAlignment{1U};
+    uint32_t maxVertexAttributes{0};
+    uint32_t maxVertexUniformVectors{0};
+    uint32_t maxFragmentUniformVectors{0};
+    uint32_t maxTextureUnits{0};
+    uint32_t maxImageUnits{0};
+    uint32_t maxVertexTextureUnits{0};
+    uint32_t maxColorRenderTargets{0};
+    uint32_t maxShaderStorageBufferBindings{0};
+    uint32_t maxShaderStorageBlockSize{0};
+    uint32_t maxUniformBufferBindings{0};
+    uint32_t maxUniformBlockSize{0};
+    uint32_t maxTextureSize{0};
+    uint32_t maxCubeMapTextureSize{0};
+    uint32_t uboOffsetAlignment{1};
 
-    uint32_t maxComputeSharedMemorySize{0U};
-    uint32_t maxComputeWorkGroupInvocations{0U};
+    uint32_t maxComputeSharedMemorySize{0};
+    uint32_t maxComputeWorkGroupInvocations{0};
     Size     maxComputeWorkGroupSize;
     Size     maxComputeWorkGroupCount;
 
@@ -807,27 +815,27 @@ struct Offset {
 struct Rect {
     int32_t  x{0};
     int32_t  y{0};
-    uint32_t width{0U};
-    uint32_t height{0U};
+    uint32_t width{0};
+    uint32_t height{0};
 };
 
 struct Extent {
-    uint32_t width{0U};
-    uint32_t height{0U};
-    uint32_t depth{1U};
+    uint32_t width{0};
+    uint32_t height{0};
+    uint32_t depth{1};
 };
 
 struct TextureSubresLayers {
-    uint32_t mipLevel{0U};
-    uint32_t baseArrayLayer{0U};
-    uint32_t layerCount{1U};
+    uint32_t mipLevel{0};
+    uint32_t baseArrayLayer{0};
+    uint32_t layerCount{1};
 };
 
 struct TextureSubresRange {
-    uint32_t baseMipLevel{0U};
-    uint32_t levelCount{1U};
-    uint32_t baseArrayLayer{0U};
-    uint32_t layerCount{1U};
+    uint32_t baseMipLevel{0};
+    uint32_t levelCount{1};
+    uint32_t baseArrayLayer{0};
+    uint32_t layerCount{1};
 };
 
 struct TextureCopy {
@@ -849,8 +857,8 @@ struct TextureBlit {
 using TextureBlitList = vector<TextureBlit>;
 
 struct BufferTextureCopy {
-    uint32_t            buffStride{0U};
-    uint32_t            buffTexHeight{0U};
+    uint32_t            buffStride{0};
+    uint32_t            buffTexHeight{0};
     Offset              texOffset;
     Extent              texExtent;
     TextureSubresLayers texSubres;
@@ -860,8 +868,8 @@ using BufferTextureCopyList = vector<BufferTextureCopy>;
 struct Viewport {
     int32_t  left{0};
     int32_t  top{0};
-    uint32_t width{0U};
-    uint32_t height{0U};
+    uint32_t width{0};
+    uint32_t height{0};
     float    minDepth{0.F};
     float    maxDepth{1.F};
 };
@@ -890,23 +898,23 @@ using ColorList = vector<Color>;
  * assigned based on the total available descriptor slots on the runtime device.
  */
 struct BindingMappingInfo {
-    std::vector<uint32_t> maxBlockCounts{0};
-    std::vector<uint32_t> maxSamplerTextureCounts{0};
-    std::vector<uint32_t> maxSamplerCounts{0};
-    std::vector<uint32_t> maxTextureCounts{0};
-    std::vector<uint32_t> maxBufferCounts{0};
-    std::vector<uint32_t> maxImageCounts{0};
-    std::vector<uint32_t> maxSubpassInputCounts{0};
+    IndexList maxBlockCounts{0};
+    IndexList maxSamplerTextureCounts{0};
+    IndexList maxSamplerCounts{0};
+    IndexList maxTextureCounts{0};
+    IndexList maxBufferCounts{0};
+    IndexList maxImageCounts{0};
+    IndexList maxSubpassInputCounts{0};
 
-    std::vector<uint32_t> setIndices{0};
+    IndexList setIndices{0};
 };
 
 struct SwapchainInfo {
     void *    windowHandle{nullptr}; // @ts-overrides { type: 'HTMLCanvasElement' }
     VsyncMode vsyncMode{VsyncMode::ON};
 
-    uint32_t width{0U};
-    uint32_t height{0U};
+    uint32_t width{0};
+    uint32_t height{0};
 };
 
 struct DeviceInfo {
@@ -916,37 +924,37 @@ struct DeviceInfo {
 struct ALIGNAS(8) BufferInfo {
     BufferUsage usage{BufferUsageBit::NONE};
     MemoryUsage memUsage{MemoryUsageBit::NONE};
-    uint32_t    size{0U};
-    uint32_t    stride{1U}; // in bytes
+    uint32_t    size{0};
+    uint32_t    stride{1}; // in bytes
     BufferFlags flags{BufferFlagBit::NONE};
-    uint32_t    _padding{0U};
+    uint32_t    _padding{0};
 };
 
 struct BufferViewInfo {
     Buffer * buffer{nullptr};
-    uint32_t offset{0U};
-    uint32_t range{0U};
+    uint32_t offset{0};
+    uint32_t range{0};
 };
 
 struct DrawInfo {
-    uint32_t vertexCount{0U};
-    uint32_t firstVertex{0U};
-    uint32_t indexCount{0U};
-    uint32_t firstIndex{0U};
+    uint32_t vertexCount{0};
+    uint32_t firstVertex{0};
+    uint32_t indexCount{0};
+    uint32_t firstIndex{0};
     int32_t  vertexOffset{0};
-    uint32_t instanceCount{0U};
-    uint32_t firstInstance{0U};
+    uint32_t instanceCount{0};
+    uint32_t firstInstance{0};
 };
 
 using DrawInfoList = vector<DrawInfo>;
 
 struct DispatchInfo {
-    uint32_t groupCountX{0U};
-    uint32_t groupCountY{0U};
-    uint32_t groupCountZ{0U};
+    uint32_t groupCountX{0};
+    uint32_t groupCountY{0};
+    uint32_t groupCountZ{0};
 
     Buffer * indirectBuffer{nullptr}; // @ts-nullable
-    uint32_t indirectOffset{0U};
+    uint32_t indirectOffset{0};
 };
 
 using DispatchInfoList = vector<DispatchInfo>;
@@ -959,16 +967,16 @@ struct ALIGNAS(8) TextureInfo {
     TextureType  type{TextureType::TEX2D};
     TextureUsage usage{TextureUsageBit::NONE};
     Format       format{Format::UNKNOWN};
-    uint32_t     width{0U};
-    uint32_t     height{0U};
+    uint32_t     width{0};
+    uint32_t     height{0};
     TextureFlags flags{TextureFlagBit::NONE};
-    uint32_t     layerCount{1U};
-    uint32_t     levelCount{1U};
+    uint32_t     layerCount{1};
+    uint32_t     levelCount{1};
     SampleCount  samples{SampleCount::ONE};
-    uint32_t     depth{1U};
+    uint32_t     depth{1};
     void *       externalRes{nullptr}; // CVPixelBuffer for Metal, EGLImage for GLES
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
-    uint32_t _padding{0U};
+    uint32_t _padding{0};
 #endif
 };
 
@@ -976,12 +984,12 @@ struct ALIGNAS(8) TextureViewInfo {
     Texture *   texture{nullptr};
     TextureType type{TextureType::TEX2D};
     Format      format{Format::UNKNOWN};
-    uint32_t    baseLevel{0U};
-    uint32_t    levelCount{1U};
-    uint32_t    baseLayer{0U};
-    uint32_t    layerCount{1U};
+    uint32_t    baseLevel{0};
+    uint32_t    levelCount{1};
+    uint32_t    baseLayer{0};
+    uint32_t    layerCount{1};
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
-    uint32_t _padding{0U};
+    uint32_t _padding{0};
 #endif
 };
 
@@ -992,83 +1000,83 @@ struct ALIGNAS(8) SamplerInfo {
     Address        addressU{Address::WRAP};
     Address        addressV{Address::WRAP};
     Address        addressW{Address::WRAP};
-    uint32_t       maxAnisotropy{0U};
+    uint32_t       maxAnisotropy{0};
     ComparisonFunc cmpFunc{ComparisonFunc::ALWAYS};
 };
 
 struct Uniform {
     String   name;
     Type     type{Type::UNKNOWN};
-    uint32_t count{0U};
+    uint32_t count{0};
 };
 
 using UniformList = vector<Uniform>;
 
 struct UniformBlock {
-    uint32_t    set{0U};
-    uint32_t    binding{0U};
+    uint32_t    set{0};
+    uint32_t    binding{0};
     String      name;
     UniformList members;
-    uint32_t    count{0U};
+    uint32_t    count{0};
 };
 
 using UniformBlockList = vector<UniformBlock>;
 
 struct UniformSamplerTexture {
-    uint32_t set{0U};
-    uint32_t binding{0U};
+    uint32_t set{0};
+    uint32_t binding{0};
     String   name;
     Type     type{Type::UNKNOWN};
-    uint32_t count{0U};
+    uint32_t count{0};
 };
 
 using UniformSamplerTextureList = vector<UniformSamplerTexture>;
 
 struct UniformSampler {
-    uint32_t set{0U};
-    uint32_t binding{0U};
+    uint32_t set{0};
+    uint32_t binding{0};
     String   name;
-    uint32_t count{0U};
+    uint32_t count{0};
 };
 
 using UniformSamplerList = vector<UniformSampler>;
 
 struct UniformTexture {
-    uint32_t set{0U};
-    uint32_t binding{0U};
+    uint32_t set{0};
+    uint32_t binding{0};
     String   name;
     Type     type{Type::UNKNOWN};
-    uint32_t count{0U};
+    uint32_t count{0};
 };
 
 using UniformTextureList = vector<UniformTexture>;
 
 struct UniformStorageImage {
-    uint32_t     set{0U};
-    uint32_t     binding{0U};
+    uint32_t     set{0};
+    uint32_t     binding{0};
     String       name;
     Type         type{Type::UNKNOWN};
-    uint32_t     count{0U};
+    uint32_t     count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
 };
 
 using UniformStorageImageList = vector<UniformStorageImage>;
 
 struct UniformStorageBuffer {
-    uint32_t     set{0U};
-    uint32_t     binding{0U};
+    uint32_t     set{0};
+    uint32_t     binding{0};
     String       name;
-    uint32_t     count{0U};
+    uint32_t     count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
 };
 
 using UniformStorageBufferList = vector<UniformStorageBuffer>;
 
 struct UniformInputAttachment {
-    uint32_t set{0U};
-    uint32_t binding{0U};
+    uint32_t set{0};
+    uint32_t binding{0};
     String   name;
-    uint32_t count{0U};
+    uint32_t count{0};
 };
 
 using UniformInputAttachmentList = vector<UniformInputAttachment>;
@@ -1084,9 +1092,9 @@ struct Attribute {
     String   name;
     Format   format{Format::UNKNOWN};
     bool     isNormalized{false};
-    uint32_t stream{0U};
+    uint32_t stream{0};
     bool     isInstanced{false};
-    uint32_t location{0U};
+    uint32_t location{0};
 };
 
 using AttributeList = vector<Attribute>;
@@ -1111,35 +1119,39 @@ struct InputAssemblerInfo {
     Buffer *      indirectBuffer{nullptr}; // @ts-nullable
 };
 
-struct ColorAttachment {
-    Format                  format{Format::UNKNOWN};
-    SampleCount             sampleCount{SampleCount::ONE};
-    LoadOp                  loadOp{LoadOp::CLEAR};
-    StoreOp                 storeOp{StoreOp::STORE};
-    std::vector<AccessType> beginAccesses;
-    std::vector<AccessType> endAccesses{AccessType::COLOR_ATTACHMENT_WRITE};
-    bool                    isGeneralLayout{false};
+struct ALIGNAS(8) ColorAttachment {
+    Format         format{Format::UNKNOWN};
+    SampleCount    sampleCount{SampleCount::ONE};
+    LoadOp         loadOp{LoadOp::CLEAR};
+    StoreOp        storeOp{StoreOp::STORE};
+    GeneralBarrier *barrier{nullptr};
+    uint32_t       isGeneralLayout{0}; // @ts-boolean
+#if CC_CPU_ARCH == CC_CPU_ARCH_64
+    uint32_t _padding{0};
+#endif
 };
 
 using ColorAttachmentList = vector<ColorAttachment>;
 
-struct DepthStencilAttachment {
-    Format                  format{Format::UNKNOWN};
-    SampleCount             sampleCount{SampleCount::ONE};
-    LoadOp                  depthLoadOp{LoadOp::CLEAR};
-    StoreOp                 depthStoreOp{StoreOp::STORE};
-    LoadOp                  stencilLoadOp{LoadOp::CLEAR};
-    StoreOp                 stencilStoreOp{StoreOp::STORE};
-    std::vector<AccessType> beginAccesses;
-    std::vector<AccessType> endAccesses{AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
-    bool                    isGeneralLayout{false};
+struct ALIGNAS(8) DepthStencilAttachment {
+    Format         format{Format::UNKNOWN};
+    SampleCount    sampleCount{SampleCount::ONE};
+    LoadOp         depthLoadOp{LoadOp::CLEAR};
+    StoreOp        depthStoreOp{StoreOp::STORE};
+    LoadOp         stencilLoadOp{LoadOp::CLEAR};
+    StoreOp        stencilStoreOp{StoreOp::STORE};
+    GeneralBarrier *barrier{nullptr};
+    uint32_t       isGeneralLayout{0}; // @ts-boolean
+#if CC_CPU_ARCH == CC_CPU_ARCH_64
+    uint32_t _padding{0};
+#endif
 };
 
 struct SubpassInfo {
-    std::vector<uint32_t> inputs;
-    std::vector<uint32_t> colors;
-    std::vector<uint32_t> resolves;
-    std::vector<uint32_t> preserves;
+    IndexList inputs;
+    IndexList colors;
+    IndexList resolves;
+    IndexList preserves;
 
     uint32_t    depthStencil{INVALID_BINDING};
     uint32_t    depthStencilResolve{INVALID_BINDING};
@@ -1149,11 +1161,13 @@ struct SubpassInfo {
 
 using SubpassInfoList = vector<SubpassInfo>;
 
-struct SubpassDependency {
-    uint32_t                srcSubpass{0U};
-    uint32_t                dstSubpass{0U};
-    std::vector<AccessType> srcAccesses;
-    std::vector<AccessType> dstAccesses;
+struct ALIGNAS(8) SubpassDependency {
+    uint32_t       srcSubpass{0};
+    uint32_t       dstSubpass{0};
+    GeneralBarrier *barrier{nullptr};
+#if CC_CPU_ARCH == CC_CPU_ARCH_32
+    uint32_t _padding{0};
+#endif
 };
 
 using SubpassDependencyList = vector<SubpassDependency>;
@@ -1165,17 +1179,17 @@ struct RenderPassInfo {
     SubpassDependencyList  dependencies;
 };
 
-struct GlobalBarrierInfo {
-    std::vector<AccessType> prevAccesses;
-    std::vector<AccessType> nextAccesses;
+struct ALIGNAS(8) GeneralBarrierInfo {
+    AccessFlags prevAccesses{AccessFlagBit::NONE};
+    AccessFlags nextAccesses{AccessFlagBit::NONE};
 };
-using GlobalBarrierInfoList = vector<GlobalBarrierInfo>;
+using GeneralBarrierInfoList = vector<GeneralBarrierInfo>;
 
-struct TextureBarrierInfo {
-    std::vector<AccessType> prevAccesses;
-    std::vector<AccessType> nextAccesses;
+struct ALIGNAS(8) TextureBarrierInfo {
+    AccessFlags prevAccesses{AccessFlagBit::NONE};
+    AccessFlags nextAccesses{AccessFlagBit::NONE};
 
-    bool discardContents{false};
+    uint64_t discardContents{0}; // @ts-boolean
 
     Queue *srcQueue{nullptr}; // @ts-nullable
     Queue *dstQueue{nullptr}; // @ts-nullable
@@ -1191,7 +1205,7 @@ struct FramebufferInfo {
 struct DescriptorSetLayoutBinding {
     uint32_t         binding{INVALID_BINDING};
     DescriptorType   descriptorType{DescriptorType::UNKNOWN};
-    uint32_t         count{0U};
+    uint32_t         count{0};
     ShaderStageFlags stageFlags{ShaderStageFlagBit::NONE};
     SamplerList      immutableSamplers;
 };
@@ -1213,48 +1227,48 @@ struct InputState {
     AttributeList attributes;
 };
 
-// Use uint32_t for all boolean values to convert memory to RasterizerState* in shared memory.
+// The memory layout of this struct should exactly match a plain `Uint32Array`
 struct RasterizerState {
-    uint32_t    isDiscard{0U};
+    uint32_t    isDiscard{0}; // @ts-boolean
     PolygonMode polygonMode{PolygonMode::FILL};
     ShadeModel  shadeModel{ShadeModel::GOURAND};
     CullMode    cullMode{CullMode::BACK};
-    uint32_t    isFrontFaceCCW{1U};
-    uint32_t    depthBiasEnabled{0U};
+    uint32_t    isFrontFaceCCW{1};   // @ts-boolean
+    uint32_t    depthBiasEnabled{0}; // @ts-boolean
     float       depthBias{0.F};
     float       depthBiasClamp{0.F};
     float       depthBiasSlop{0.F};
-    uint32_t    isDepthClip{1U};
-    uint32_t    isMultisample{0U};
+    uint32_t    isDepthClip{1};   // @ts-boolean
+    uint32_t    isMultisample{0}; // @ts-boolean
     float       lineWidth{1.F};
 };
 
-// Use uint32_t for all boolean values to convert memory to DepthStencilState* in shared memory.
+// The memory layout of this struct should exactly match a plain `Uint32Array`
 struct DepthStencilState {
-    uint32_t       depthTest{1U};
-    uint32_t       depthWrite{1U};
+    uint32_t       depthTest{1};  // @ts-boolean
+    uint32_t       depthWrite{1}; // @ts-boolean
     ComparisonFunc depthFunc{ComparisonFunc::LESS};
-    uint32_t       stencilTestFront{0U};
+    uint32_t       stencilTestFront{0}; // @ts-boolean
     ComparisonFunc stencilFuncFront{ComparisonFunc::ALWAYS};
-    uint32_t       stencilReadMaskFront{0xffffffffU};
-    uint32_t       stencilWriteMaskFront{0xffffffffU};
+    uint32_t       stencilReadMaskFront{0xffffffff};
+    uint32_t       stencilWriteMaskFront{0xffffffff};
     StencilOp      stencilFailOpFront{StencilOp::KEEP};
     StencilOp      stencilZFailOpFront{StencilOp::KEEP};
     StencilOp      stencilPassOpFront{StencilOp::KEEP};
-    uint32_t       stencilRefFront{1U};
-    uint32_t       stencilTestBack{0U};
+    uint32_t       stencilRefFront{1};
+    uint32_t       stencilTestBack{0}; // @ts-boolean
     ComparisonFunc stencilFuncBack{ComparisonFunc::ALWAYS};
-    uint32_t       stencilReadMaskBack{0xffffffffU};
-    uint32_t       stencilWriteMaskBack{0xffffffffU};
+    uint32_t       stencilReadMaskBack{0xffffffff};
+    uint32_t       stencilWriteMaskBack{0xffffffff};
     StencilOp      stencilFailOpBack{StencilOp::KEEP};
     StencilOp      stencilZFailOpBack{StencilOp::KEEP};
     StencilOp      stencilPassOpBack{StencilOp::KEEP};
-    uint32_t       stencilRefBack{1U};
+    uint32_t       stencilRefBack{1};
 };
 
-// Use uint32_t for all boolean values to do convert memory to BlendTarget* in shared memory.
+// The memory layout of this struct should exactly match a plain `Uint32Array`
 struct BlendTarget {
-    uint32_t    blend{0U};
+    uint32_t    blend{0}; // @ts-boolean
     BlendFactor blendSrc{BlendFactor::ONE};
     BlendFactor blendDst{BlendFactor::ZERO};
     BlendOp     blendEq{BlendOp::ADD};
@@ -1266,12 +1280,12 @@ struct BlendTarget {
 
 using BlendTargetList = vector<BlendTarget>;
 
-// Use uint32_t for all boolean values to do memeory copy in shared memory.
+// The memory layout of this struct should exactly match a plain `Uint32Array`
 struct BlendState {
-    uint32_t        isA2C{0U};
-    uint32_t        isIndepend{0U};
+    uint32_t        isA2C{0};      // @ts-boolean
+    uint32_t        isIndepend{0}; // @ts-boolean
     Color           blendColor;
-    BlendTargetList targets{1U};
+    BlendTargetList targets{1};
 };
 
 struct PipelineStateInfo {
@@ -1285,7 +1299,7 @@ struct PipelineStateInfo {
     PrimitiveMode     primitive{PrimitiveMode::TRIANGLE_LIST};
     DynamicStateFlags dynamicStates{DynamicStateFlagBit::NONE};
     PipelineBindPoint bindPoint{PipelineBindPoint::GRAPHICS};
-    uint32_t          subpass{0U};
+    uint32_t          subpass{0};
 };
 
 struct CommandBufferInfo {
@@ -1297,9 +1311,6 @@ struct QueueInfo {
     QueueType type{QueueType::GRAPHICS};
 };
 
-// Although the standard is not limited, some devices do not support up to 65536 queries
-constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767U;
-
 struct QueryPoolInfo {
     QueryType type{QueryType::OCCLUSION};
     uint32_t  maxQueryObjects{DEFAULT_MAX_QUERY_OBJECTS};
@@ -1308,8 +1319,8 @@ struct QueryPoolInfo {
 
 struct FormatInfo {
     const String     name;
-    const uint32_t   size{0U};
-    const uint32_t   count{0U};
+    const uint32_t   size{0};
+    const uint32_t   count{0};
     const FormatType type{FormatType::NONE};
     const bool       hasAlpha{false};
     const bool       hasDepth{false};
@@ -1318,14 +1329,14 @@ struct FormatInfo {
 };
 
 struct MemoryStatus {
-    uint32_t bufferSize{0U};
-    uint32_t textureSize{0U};
+    uint32_t bufferSize{0};
+    uint32_t textureSize{0};
 };
 
 struct DynamicStencilStates {
-    uint32_t writeMask{0U};
-    uint32_t compareMask{0U};
-    uint32_t reference{0U};
+    uint32_t writeMask{0};
+    uint32_t compareMask{0};
+    uint32_t reference{0};
 };
 
 struct DynamicStates {

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,26 +23,26 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include "../GLES3Std.h"
-#include "gfx-base/states/GFXGlobalBarrier.h"
+#include "VKGeneralBarrier.h"
+#include "../VKCommands.h"
+#include "../VKDevice.h"
 
 namespace cc {
 namespace gfx {
 
-class GLES3GPUGlobalBarrier;
+CCVKGeneralBarrier::CCVKGeneralBarrier(const GeneralBarrierInfo &info) : GeneralBarrier(info) {
+    _typedID = generateObjectID<decltype(this)>();
 
-class CC_GLES3_API GLES3GlobalBarrier : public GlobalBarrier {
-public:
-    explicit GLES3GlobalBarrier(const GlobalBarrierInfo &info);
-    ~GLES3GlobalBarrier() override;
+    _gpuBarrier = CC_NEW(CCVKGPUGeneralBarrier);
+    getAccessTypes(info.prevAccesses, _gpuBarrier->prevAccesses);
+    getAccessTypes(info.nextAccesses, _gpuBarrier->nextAccesses);
 
-    inline const GLES3GPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }
+    cmdFuncCCVKCreateGeneralBarrier(CCVKDevice::getInstance(), _gpuBarrier);
+}
 
-protected:
-    GLES3GPUGlobalBarrier *_gpuBarrier = nullptr;
-};
+CCVKGeneralBarrier::~CCVKGeneralBarrier() {
+    CC_SAFE_DELETE(_gpuBarrier);
+}
 
 } // namespace gfx
 } // namespace cc

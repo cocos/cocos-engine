@@ -55,11 +55,11 @@ import { WebGLTexture } from './webgl-texture';
 import {
     CommandBufferType, ShaderInfo,
     QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
-    RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GlobalBarrierInfo,
+    RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GeneralBarrierInfo,
     QueueType, API, Feature, BufferTextureCopy, SwapchainInfo, FormatFeature, FormatFeatureBit, Format,
 } from '../base/define';
 import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers, WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
-import { GlobalBarrier } from '../base/states/global-barrier';
+import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
@@ -498,12 +498,12 @@ export class WebGLDevice extends Device {
         return this._samplers.get(hash)!;
     }
 
-    public getGlobalBarrier (info: Readonly<GlobalBarrierInfo>) {
-        const hash = GlobalBarrier.computeHash(info);
-        if (!this._globalBarriers.has(hash)) {
-            this._globalBarriers.set(hash, new GlobalBarrier(info, hash));
+    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>) {
+        const hash = GeneralBarrier.computeHash(info);
+        if (!this._generalBarrierss.has(hash)) {
+            this._generalBarrierss.set(hash, new GeneralBarrier(info, hash));
         }
-        return this._globalBarriers.get(hash)!;
+        return this._generalBarrierss.get(hash)!;
     }
 
     public getTextureBarrier (info: Readonly<TextureBarrierInfo>) {

@@ -35,7 +35,7 @@
 #include "VKQueue.h"
 #include "VKRenderPass.h"
 #include "VKTexture.h"
-#include "states/VKGlobalBarrier.h"
+#include "states/VKGeneralBarrier.h"
 #include "states/VKTextureBarrier.h"
 
 namespace cc {
@@ -133,15 +133,15 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
                          0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
 #endif
 
-    _curGPUFBO                       = static_cast<CCVKFramebuffer *>(fbo)->gpuFBO();
-    CCVKGPURenderPass *gpuRenderPass = static_cast<CCVKRenderPass *>(renderPass)->gpuRenderPass();
-    VkFramebuffer      framebuffer   = _curGPUFBO->vkFramebuffer;
+    _curGPUFBO        = static_cast<CCVKFramebuffer *>(fbo)->gpuFBO();
+    _curGPURenderPass = static_cast<CCVKRenderPass *>(renderPass)->gpuRenderPass();
+    VkFramebuffer framebuffer{_curGPUFBO->vkFramebuffer};
     if (!_curGPUFBO->isOffscreen) {
         framebuffer = _curGPUFBO->swapchain->vkSwapchainFramebufferListMap[_curGPUFBO][_curGPUFBO->swapchain->curImageIndex];
     }
 
-    vector<VkClearValue> &clearValues     = gpuRenderPass->clearValues;
-    bool                  depthEnabled    = gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN;
+    vector<VkClearValue> &clearValues     = _curGPURenderPass->clearValues;
+    bool                  depthEnabled    = _curGPURenderPass->depthStencilAttachment.format != Format::UNKNOWN;
     size_t                attachmentCount = depthEnabled ? clearValues.size() - 1 : clearValues.size();
 
     for (size_t i = 0U; i < attachmentCount; ++i) {
@@ -159,7 +159,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     };
 
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
-    passBeginInfo.renderPass        = gpuRenderPass->vkRenderPass;
+    passBeginInfo.renderPass        = _curGPURenderPass->vkRenderPass;
     passBeginInfo.framebuffer       = framebuffer;
     passBeginInfo.clearValueCount   = utils::toUint(clearValues.size());
     passBeginInfo.pClearValues      = clearValues.data();
@@ -184,13 +184,14 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
 void CCVKCommandBuffer::endRenderPass() {
     vkCmdEndRenderPass(_gpuCommandBuffer->vkCommandBuffer);
 
-    size_t colorAttachmentCount = _curGPUFBO->gpuRenderPass->colorAttachments.size();
+    CCVKGPUDevice *gpuDevice            = CCVKDevice::getInstance()->gpuDevice();
+    size_t         colorAttachmentCount = _curGPURenderPass->colorAttachments.size();
     for (size_t i = 0U; i < colorAttachmentCount; ++i) {
-        _curGPUFBO->gpuColorViews[i]->gpuTexture->currentAccessTypes = _curGPUFBO->gpuRenderPass->endAccesses[i];
+        _curGPUFBO->gpuColorViews[i]->gpuTexture->currentAccessTypes = _curGPURenderPass->getBarrier(i, gpuDevice)->nextAccesses;
     }
 
-    if (_curGPUFBO->gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
-        _curGPUFBO->gpuDepthStencilView->gpuTexture->currentAccessTypes = _curGPUFBO->gpuRenderPass->endAccesses[colorAttachmentCount];
+    if (_curGPURenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
+        _curGPUFBO->gpuDepthStencilView->gpuTexture->currentAccessTypes = _curGPURenderPass->getBarrier(colorAttachmentCount, gpuDevice)->nextAccesses;
     }
 
     _curGPUFBO = nullptr;
@@ -603,7 +604,7 @@ void CCVKCommandBuffer::dispatch(const DispatchInfo &info) {
     }
 }
 
-void CCVKCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
+void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
     VkPipelineStageFlags        srcStageMask         = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     VkPipelineStageFlags        dstStageMask         = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     VkMemoryBarrier const *     pMemoryBarrier       = nullptr;
@@ -611,7 +612,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const Text
     VkImageMemoryBarrier const *pImageMemoryBarriers = nullptr;
 
     if (barrier) {
-        const auto *gpuBarrier = static_cast<const CCVKGlobalBarrier *>(barrier)->gpuBarrier();
+        const auto *gpuBarrier = static_cast<const CCVKGeneralBarrier *>(barrier)->gpuBarrier();
         srcStageMask |= gpuBarrier->srcStageMask;
         dstStageMask |= gpuBarrier->dstStageMask;
         pMemoryBarrier     = &gpuBarrier->vkBarrier;

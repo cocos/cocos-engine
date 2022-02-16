@@ -959,8 +959,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXSwapchain.h
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
-                 cocos/renderer/gfx-base/states/GFXGlobalBarrier.cpp
-                 cocos/renderer/gfx-base/states/GFXGlobalBarrier.h
+                 cocos/renderer/gfx-base/states/GFXGeneralBarrier.cpp
+                 cocos/renderer/gfx-base/states/GFXGeneralBarrier.h
                  cocos/renderer/gfx-base/states/GFXSampler.cpp
                  cocos/renderer/gfx-base/states/GFXSampler.h
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.cpp
@@ -1278,8 +1278,8 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/GLES3Texture.h
                      cocos/renderer/gfx-gles3/GLES3Wrangler.cpp
                      cocos/renderer/gfx-gles3/GLES3Wrangler.h
-                     cocos/renderer/gfx-gles3/states/GLES3GlobalBarrier.cpp
-                     cocos/renderer/gfx-gles3/states/GLES3GlobalBarrier.h
+                     cocos/renderer/gfx-gles3/states/GLES3GeneralBarrier.cpp
+                     cocos/renderer/gfx-gles3/states/GLES3GeneralBarrier.h
                      cocos/renderer/gfx-gles3/states/GLES3Sampler.cpp
                      cocos/renderer/gfx-gles3/states/GLES3Sampler.h
     )
@@ -1376,8 +1376,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKUtils.h
                      cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
-                     cocos/renderer/gfx-vulkan/states/VKGlobalBarrier.cpp
-                     cocos/renderer/gfx-vulkan/states/VKGlobalBarrier.h
+                     cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.cpp
+                     cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.h
                      cocos/renderer/gfx-vulkan/states/VKSampler.cpp
                      cocos/renderer/gfx-vulkan/states/VKSampler.h
                      cocos/renderer/gfx-vulkan/states/VKTextureBarrier.cpp
