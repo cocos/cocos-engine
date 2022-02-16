@@ -236,14 +236,24 @@ bool js_register_cc_scene_Shadows(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_Shadows_activate);
 SE_DECLARE_FUNC(js_scene_Shadows_destroy);
+SE_DECLARE_FUNC(js_scene_Shadows_getInstancingMaterial);
+SE_DECLARE_FUNC(js_scene_Shadows_getMatLight);
+SE_DECLARE_FUNC(js_scene_Shadows_getMatShadowProj);
+SE_DECLARE_FUNC(js_scene_Shadows_getMatShadowView);
+SE_DECLARE_FUNC(js_scene_Shadows_getMatShadowViewProj);
 SE_DECLARE_FUNC(js_scene_Shadows_getMaterial);
-SE_DECLARE_FUNC(js_scene_Shadows_getMaxReceived);
 SE_DECLARE_FUNC(js_scene_Shadows_getPlanarInstanceShader);
 SE_DECLARE_FUNC(js_scene_Shadows_getPlanarShader);
+SE_DECLARE_FUNC(js_scene_Shadows_getShadowCameraFar);
 SE_DECLARE_FUNC(js_scene_Shadows_getShadowColor4f);
 SE_DECLARE_FUNC(js_scene_Shadows_getShadowMapSize);
 SE_DECLARE_FUNC(js_scene_Shadows_initialize);
-SE_DECLARE_FUNC(js_scene_Shadows_setMaxReceived);
+SE_DECLARE_FUNC(js_scene_Shadows_isShadowMapDirty);
+SE_DECLARE_FUNC(js_scene_Shadows_setMatShadowProj);
+SE_DECLARE_FUNC(js_scene_Shadows_setMatShadowView);
+SE_DECLARE_FUNC(js_scene_Shadows_setMatShadowViewProj);
+SE_DECLARE_FUNC(js_scene_Shadows_setShadowCameraFar);
+SE_DECLARE_FUNC(js_scene_Shadows_setShadowMapDirty);
 SE_DECLARE_FUNC(js_scene_Shadows_setShadowMapSize);
 SE_DECLARE_FUNC(js_scene_Shadows_Shadows);
 
