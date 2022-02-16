@@ -53,8 +53,8 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
     clear();
 
     const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
-    const scene::Shadows *   shadows   = sceneData->getShadows();
-    if (shadows == nullptr || !shadows->isEnabled() || shadows->getType() != scene::ShadowType::PLANAR || shadows->getNormal().length() < 0.000001) {
+    const scene::Shadows *   shadowInfo   = sceneData->getShadows();
+    if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::PLANAR || shadowInfo->getNormal().length() < 0.000001F) {
         return;
     }
 
@@ -75,13 +75,13 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
         }
     }
 
-    auto &           passes          = *shadows->getInstancingMaterial()->getPasses();
+    const auto &     passes          = *shadowInfo->getInstancingMaterial()->getPasses();
     InstancedBuffer *instancedBuffer = passes[0]->getInstancedBuffer();
 
     geometry::AABB ab;
     for (const auto *model : _castModels) {
         // frustum culling
-        model->getWorldBounds()->transform(shadows->getMatLight(), &ab);
+        model->getWorldBounds()->transform(shadowInfo->getMatLight(), &ab);
         if (!ab.aabbFrustum(camera->getFrustum())) {
             continue;
         }
@@ -108,9 +108,9 @@ void PlanarShadowQueue::clear() {
 }
 
 void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
-    const auto *             shadows   = sceneData->getShadows();
-    if (shadows == nullptr || !shadows->isEnabled() || shadows->getType() != scene::ShadowType::PLANAR || shadows->getNormal().length() < 0.000001F) {
+    const PipelineSceneData *sceneData  = _pipeline->getPipelineSceneData();
+    const auto *             shadowInfo = sceneData->getShadows();
+    if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::PLANAR || shadowInfo->getNormal().length() < 0.000001F) {
         return;
     }
 
@@ -120,7 +120,7 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
         return;
     }
 
-    const scene::Pass *pass = (*shadows->getMaterial()->getPasses())[0];
+    const scene::Pass *pass = (*shadowInfo->getMaterial()->getPasses())[0];
     cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
 
     for (const auto *model : _pendingModels) {

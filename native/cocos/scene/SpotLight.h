@@ -83,7 +83,7 @@ public:
     inline void setFrustum(const geometry::Frustum &frustum) { *_frustum = frustum; }
 
     inline void setShadowEnabled(bool enabled) { _shadowEnabled = enabled; }
-    inline bool getShadowEnabled() const { return _shadowEnabled; }
+    inline bool isShadowEnabled() const { return _shadowEnabled; }
 
     inline float getShadowPcf() const { return _shadowPcf; }
     inline void  setShadowPcf(float pcf) { _shadowPcf = pcf; }
@@ -111,7 +111,7 @@ private:
     // shadow info
     bool _shadowEnabled{false};
     // TODO(minggo): use PCTFType instead.
-    float _shadowPcf{0.F};
+    float _shadowPcf{0.0F};
     float _shadowBias{0.00001F};
     float _shadowNormalBias{0.0F};
 

@@ -50,8 +50,8 @@ const deepCopy = <T extends ICopyable>(target: T[], source: T[], Ctor: Construct
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated from engine-native/cocos/renderer/core/gfx/GFXDef-common.h
- * by the script engine-native/tools/gfx-define-generator/generate.js.
+ * The following section is auto-generated from native/cocos/renderer/core/gfx/GFXDef-common.h
+ * by the script native/tools/gfx-define-generator/generate.js.
  * Changes to these public interfaces should be made there first and synced back.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
@@ -1825,8 +1825,8 @@ export class DynamicStates {
 
 /**
  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
- * The above section is auto-generated from engine-native/cocos/renderer/core/gfx/GFXDef-common.h
- * by the script engine-native/tools/gfx-define-generator/generate.js.
+ * The above section is auto-generated from native/cocos/renderer/core/gfx/GFXDef-common.h
+ * by the script native/tools/gfx-define-generator/generate.js.
  * Changes to these public interfaces should be made there first and synced back.
  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
  */

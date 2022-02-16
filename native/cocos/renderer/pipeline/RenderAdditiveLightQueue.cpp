@@ -213,8 +213,8 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
     const auto  exposure        = camera->getExposure();
     const auto  validLightCount = _validPunctualLights.size();
     const auto *sceneData       = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo      = sceneData->getShadows();
 
-    const auto *shadows = sceneData->getShadows();
     size_t      offset  = 0;
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
@@ -266,12 +266,12 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
             case scene::LightType::SPHERE:
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3]              = 0;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
-                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F : 0.0F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
                 break;
             case scene::LightType::SPOT: {
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3]              = 1.0F;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
-                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F : 0.0F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (spotLight->isShadowEnabled() && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F : 0.0F;
 
                 index                     = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction     = spotLight->getDirection();
@@ -288,14 +288,14 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 }
 
 void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    const auto *        sceneData = _pipeline->getPipelineSceneData();
-    auto *              shadows   = sceneData->getShadows();
-    const auto *const   scene     = camera->getScene();
-    auto *              device    = gfx::Device::getInstance();
-    const bool          hFTexture = supportsR32FloatTexture(device);
-    const float         linear    = 0.0F;
-    const float         packing   = hFTexture ? 0.0F : 1.0F;
-    const scene::Light *mainLight = scene->getMainLight();
+    const auto *        sceneData  = _pipeline->getPipelineSceneData();
+    auto *              shadowInfo = sceneData->getShadows();
+    const auto *const   scene      = camera->getScene();
+    auto *              device     = gfx::Device::getInstance();
+    const bool          hFTexture  = supportsR32FloatTexture(device);
+    const float         linear     = 0.0F;
+    const float         packing    = hFTexture ? 0.0F : 1.0F;
+    const scene::Light *mainLight  = scene->getMainLight();
 
     for (uint i = 0; i < _validPunctualLights.size(); ++i) {
         const auto *light         = _validPunctualLights[i];
@@ -310,12 +310,12 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
             case scene::LightType::SPHERE: {
                 // update planar PROJ
                 if (mainLight) {
-                    updateDirLight(const_cast<scene::Shadows *>(shadows), mainLight, &_shadowUBO);
-                    updatePlanarNormalAndDistance(const_cast<scene::Shadows *>(shadows), &_shadowUBO);
+                    updateDirLight(shadowInfo, mainLight, &_shadowUBO);
+                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 // Reserve sphere light shadow interface
-                const auto &shadowSize         = shadows->getSize();
+                const auto &shadowSize         = shadowInfo->getSize();
                 float       shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, 1.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(float) * 4);
 
@@ -326,8 +326,8 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 const auto *spotLight = static_cast<const scene::SpotLight *>(light);
                 // update planar PROJ
                 if (mainLight) {
-                    updateDirLight(shadows, mainLight, &_shadowUBO);
-                    updatePlanarNormalAndDistance(shadows, &_shadowUBO);
+                    updateDirLight(shadowInfo, mainLight, &_shadowUBO);
+                    updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
                 }
 
                 const auto &matShadowCamera = light->getNode()->getWorldMatrix();
@@ -348,7 +348,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 float shadowNFLSInfos[4] = {0.1F, spotLight->getRange(), linear, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
-                const auto &shadowSize         = shadows->getSize();
+                const auto &shadowSize         = shadowInfo->getSize();
                 float       shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, spotLight->getShadowPcf(), spotLight->getShadowBias()};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
 
@@ -377,7 +377,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 break;
         }
 
-        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, shadows->getShadowColor4f().data(), sizeof(float) * 4);
+        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, shadowInfo->getShadowColor4f().data(), sizeof(float) * 4);
 
         descriptorSet->update();
 

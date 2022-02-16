@@ -71,16 +71,16 @@ void getShadowWorldMatrix(const geometry::Sphere *sphere, const cc::Quaternion &
     Mat4::fromRT(rotation, translation, shadowWorldMat);
 }
 
-void updateSphereLight(scene::Shadows *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+void updateSphereLight(scene::Shadows *shadowInfo, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
     const auto *node = light->getNode();
-    if (!node->getChangedFlags() && !shadows->isShadowMapDirty()) {
+    if (!node->getChangedFlags() && !shadowInfo->isShadowMapDirty()) {
         return;
     }
 
-    shadows->setShadowMapDirty(false);
+    shadowInfo->setShadowMapDirty(false);
     const auto &position = node->getWorldPosition();
-    const auto &normal   = shadows->getNormal();
-    const auto  distance = shadows->getDistance() + 0.001F; // avoid z-fighting
+    const auto &normal   = shadowInfo->getNormal();
+    const auto  distance = shadowInfo->getDistance() + 0.001F; // avoid z-fighting
     const auto  ndL      = normal.dot(position);
     const auto  lx       = position.x;
     const auto  ly       = position.y;
@@ -88,7 +88,7 @@ void updateSphereLight(scene::Shadows *shadows, const scene::Light *light, std::
     const auto  nx       = normal.x;
     const auto  ny       = normal.y;
     const auto  nz       = normal.z;
-    auto &      matLight = shadows->getMatLight();
+    auto &      matLight = shadowInfo->getMatLight();
     matLight.m[0]        = ndL - distance - lx * nx;
     matLight.m[1]        = -ly * nx;
     matLight.m[2]        = -lz * nx;
@@ -109,14 +109,14 @@ void updateSphereLight(scene::Shadows *shadows, const scene::Light *light, std::
     memcpy(shadowUBO->data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
 }
 
-void updateDirLight(scene::Shadows *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+void updateDirLight(scene::Shadows *shadowInfo, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
     const auto *     node     = light->getNode();
     const auto &     rotation = node->getWorldRotation();
     const Quaternion qt(rotation.x, rotation.y, rotation.z, rotation.w);
     cc::Vec3         forward(0.0F, 0.0F, -1.0F);
     forward.transformQuat(qt);
-    const auto &normal   = shadows->getNormal();
-    const auto  distance = shadows->getDistance() + 0.001F; // avoid z-fighting
+    const auto &normal   = shadowInfo->getNormal();
+    const auto  distance = shadowInfo->getDistance() + 0.001F; // avoid z-fighting
     const auto  ndL      = normal.dot(forward);
     const auto  scale    = 1.0F / ndL;
     const auto  lx       = forward.x * scale;
@@ -125,7 +125,7 @@ void updateDirLight(scene::Shadows *shadows, const scene::Light *light, std::arr
     const auto  nx       = normal.x;
     const auto  ny       = normal.y;
     const auto  nz       = normal.z;
-    auto &      matLight = shadows->getMatLight();
+    auto &      matLight = shadowInfo->getMatLight();
     matLight.m[0]        = 1 - nx * lx;
     matLight.m[1]        = -nx * ly;
     matLight.m[2]        = -nx * lz;
@@ -144,12 +144,12 @@ void updateDirLight(scene::Shadows *shadows, const scene::Light *light, std::arr
     matLight.m[15]       = 1;
 
     memcpy(shadowUBO->data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
-    memcpy(shadowUBO->data() + UBOShadow::SHADOW_COLOR_OFFSET, shadows->getShadowColor4f().data(), sizeof(float) * 4);
+    memcpy(shadowUBO->data() + UBOShadow::SHADOW_COLOR_OFFSET, shadowInfo->getShadowColor4f().data(), sizeof(float) * 4);
 }
 
-void updatePlanarNormalAndDistance(scene::Shadows *shadows, std::array<float, UBOShadow::COUNT> *shadowUBO) {
-    const Vec3  normal          = shadows->getNormal().getNormalized();
-    const float planarNDInfo[4] = {normal.x, normal.y, normal.z, shadows->getDistance()};
+void updatePlanarNormalAndDistance(scene::Shadows *shadowInfo, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+    const Vec3  normal          = shadowInfo->getNormal().getNormalized();
+    const float planarNDInfo[4] = {normal.x, normal.y, normal.z, shadowInfo->getDistance()};
     memcpy(shadowUBO->data() + UBOShadow::PLANAR_NORMAL_DISTANCE_INFO_OFFSET, &planarNDInfo, sizeof(planarNDInfo));
 }
 
@@ -218,14 +218,14 @@ void updateDirFrustum(const geometry::Sphere *cameraBoundingSphere, const Quater
 void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera *camera, geometry::Frustum *out) {
     const gfx::Device *             device                  = gfx::Device::getInstance();
     PipelineSceneData *const        sceneData               = pipeline->getPipelineSceneData();
-    const scene::Shadows *          shadowInfo              = sceneData->getShadows();
+    scene::Shadows *                shadowInfo              = sceneData->getShadows();
     const scene::RenderScene *const scene                   = camera->getScene();
     const scene::DirectionalLight * mainLight               = scene->getMainLight();
     const float                     invisibleOcclusionRange = mainLight->getShadowInvisibleOcclusionRange();
     const float                     shadowMapWidth          = shadowInfo->getSize().x;
     const auto *                    node                    = mainLight->getNode();
     const Quaternion &              rotation                = node->getWorldRotation();
-    const bool                      fixedArea               = mainLight->getShadowFixedArea();
+    const bool                      fixedArea               = mainLight->isShadowFixedArea();
 
     if (fixedArea) {
         const float x         = mainLight->getShadowOrthoSize();
@@ -243,9 +243,9 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
         Mat4::createOrthographicOffCenter(-x, x, -y, y, -nearClamp,
                                           farClamp, clipSpaceMinZ, projectionSinY, 0, &matShadowProj);
         Mat4 matShadowViewProj = matShadowProj * matShadowView;
-        sceneData->setMatShadowView(matShadowView);
-        sceneData->setMatShadowProj(matShadowProj);
-        sceneData->setMatShadowViewProj(matShadowViewProj);
+        shadowInfo->setMatShadowView(matShadowView);
+        shadowInfo->setMatShadowProj(matShadowProj);
+        shadowInfo->setMatShadowViewProj(matShadowViewProj);
 
         out->createOrtho(x * 2.0F, y * 2.0F, nearClamp, farClamp, matShadowViewInv);
     } else {
@@ -289,14 +289,14 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
         const float orthoSizeMax = cameraBoundingSphere.getRadius() * 2.0F;
         // use lerp(min, accurate_max) to save shadowMap usage
         const float orthoSize = orthoSizeMin * 0.8F + orthoSizeMax * 0.2F;
-        sceneData->setShadowCameraFar(r + invisibleOcclusionRange);
+        shadowInfo->setShadowCameraFar(r + invisibleOcclusionRange);
 
         // snap to whole texels
         const float halfOrthoSize = orthoSize * 0.5F;
         Mat4        matShadowProj;
         const float projectionSinY = device->getCapabilities().clipSpaceSignY;
         const float clipSpaceMinZ  = device->getCapabilities().clipSpaceMinZ;
-        Mat4::createOrthographicOffCenter(-halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1F, sceneData->getShadowCameraFar(),
+        Mat4::createOrthographicOffCenter(-halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1F, shadowInfo->getShadowCameraFar(),
                                           clipSpaceMinZ, projectionSinY, 0, &matShadowProj);
 
         if (shadowMapWidth > 0.0F) {
@@ -315,7 +315,7 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
             Mat4::fromRT(rotation, snap, &matShadowTrans);
             matShadowView    = matShadowTrans.getInversed();
             matShadowViewInv = matShadowTrans.clone();
-            out->createOrtho(orthoSize, orthoSize, 0.1F, sceneData->getShadowCameraFar(), matShadowViewInv);
+            out->createOrtho(orthoSize, orthoSize, 0.1F, shadowInfo->getShadowCameraFar(), matShadowViewInv);
         } else {
             for (uint i = 0; i < 8; i++) {
                 out->vertices[i].setZero();
@@ -324,22 +324,22 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
         }
 
         const Mat4 matShadowViewProj = matShadowProj * matShadowView;
-        sceneData->setMatShadowView(matShadowView);
-        sceneData->setMatShadowProj(matShadowProj);
-        sceneData->setMatShadowViewProj(matShadowViewProj);
+        shadowInfo->setMatShadowView(matShadowView);
+        shadowInfo->setMatShadowProj(matShadowProj);
+        shadowInfo->setMatShadowViewProj(matShadowViewProj);
     }
 }
 void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
-    PipelineSceneData *const        sceneData = pipeline->getPipelineSceneData();
-    const scene::Shadows *          shadows   = sceneData->getShadows();
-    const scene::Skybox *           skyBox    = sceneData->getSkybox();
-    const scene::RenderScene *const scene     = camera->getScene();
-    const scene::DirectionalLight * mainLight = scene->getMainLight();
+    PipelineSceneData *const        sceneData  = pipeline->getPipelineSceneData();
+    const scene::Shadows *          shadowInfo = sceneData->getShadows();
+    const scene::Skybox *           skyBox     = sceneData->getSkybox();
+    const scene::RenderScene *const scene      = camera->getScene();
+    const scene::DirectionalLight * mainLight  = scene->getMainLight();
     geometry::Frustum               dirLightFrustum;
 
     RenderObjectList dirShadowObjects;
     bool             isShadowMap = false;
-    if (shadows != nullptr && shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP) {
+    if (shadowInfo != nullptr && shadowInfo->isEnabled() && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
         isShadowMap = true;
 
         // update dirLightFrustum
