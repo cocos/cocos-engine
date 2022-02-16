@@ -547,8 +547,7 @@ export class RichText extends UIComponent {
         }
     }
 
-    // error means toleration of difference of current splitted string size and the target single line size.
-    protected SplitLongStringApproximatelyInThresholdWithInError (text: string, styleIndex: number, error: number) {
+    protected SplitLongStringApproximatelyInThresholdWithInError (text: string, styleIndex: number) {
         const labelSize = this._calculateSize(styleIndex, text);
         const partStringArr: string[] = [];
         if (labelSize.x < 2048) {
@@ -582,11 +581,11 @@ export class RichText extends UIComponent {
             }
 
             // avoid too many loops
-            let tryCount = 100;
+            let leftTryTimes = 1000;
             // the minimum step of expansion or reduction
             let curWordStep = 1;
-            while (tryCount && curStart < text.length) {
-                while (tryCount && curStringSize.x <= sizeForOnePart) {
+            while (leftTryTimes && curStart < text.length) {
+                while (leftTryTimes && curStringSize.x < sizeForOnePart) {
                     const nextPartExec = getEnglishWordPartAtFirst(leftString);
                     // add a character, unless there is a complete word at the beginning of the next line
                     if (nextPartExec && nextPartExec.length > 0) {
@@ -598,26 +597,18 @@ export class RichText extends UIComponent {
                     leftString = longStr.substring(curEnd);
                     curStringSize = this._calculateSize(styleIndex, curString);
 
-                    // Exit1: the last part of long string, the end of the method
-                    if (curEnd >= text.length) {
-                        curEnd = text.length;
-                        curString = longStr.substring(curStart, curEnd);
-                        partStringArr.push(curString);
-                        return partStringArr;
-                    }
-
-                    tryCount--;
+                    leftTryTimes--;
                 }
 
                 // reduce condition：size > maxwidth && curString.length >= 2
-                while (tryCount && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
+                while (leftTryTimes && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
                     curEnd -= curWordStep;
                     curString = longStr.substring(curStart, curEnd);
                     curStringSize = this._calculateSize(styleIndex, curString);
                     // after the first reduction, the step should be 1.
                     curWordStep = 1;
 
-                    tryCount--;
+                    leftTryTimes--;
                 }
 
                 // consider there is a part of a word at the end of this line, it should be moved to the next line
@@ -643,15 +634,15 @@ export class RichText extends UIComponent {
                 leftString = longStr.substring(curEnd);
                 curStringSize = this._calculateSize(styleIndex, curString);
 
-                // Exit2: the last part of long string, the end of the method
+                leftTryTimes--;
+
+                // Exit: the last part of long string, the end of the method
                 if (curEnd >= text.length) {
                     curEnd = text.length;
                     curString = longStr.substring(curStart, curEnd);
                     partStringArr.push(curString);
                     break;
                 }
-
-                tryCount--;
             }
 
             return partStringArr;
@@ -1006,7 +997,7 @@ export class RichText extends UIComponent {
                 }
             }
 
-            const splitArr: string[] = this.SplitLongStringApproximatelyInThresholdWithInError(text, i, this.fontSize);
+            const splitArr: string[] = this.SplitLongStringApproximatelyInThresholdWithInError(text, i);
             text = splitArr.join('\n');
 
             const multilineTexts = text.split('\n');
