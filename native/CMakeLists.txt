@@ -1974,7 +1974,7 @@ if(USE_MIDDLEWARE)
                                      cocos/editor-support/spine/ColorTimeline.h
             NO_WERROR                cocos/editor-support/spine/Constraint.cpp
                                      cocos/editor-support/spine/Constraint.h
-            NO_WERROR   NO_UBUILD   cocos/editor-support/spine/ConstraintData.cpp
+            NO_WERROR   NO_UBUILD    cocos/editor-support/spine/ConstraintData.cpp
                                      cocos/editor-support/spine/ConstraintData.h
                                      cocos/editor-support/spine/ContainerUtil.h
             NO_WERROR                cocos/editor-support/spine/CurveTimeline.cpp
@@ -2184,7 +2184,7 @@ if(USE_MIDDLEWARE)
                                      cocos/editor-support/dragonbones/parser/BinaryDataParser.h
             NO_WERROR                cocos/editor-support/dragonbones/parser/DataParser.cpp
                                      cocos/editor-support/dragonbones/parser/DataParser.h
-            NO_WERROR                cocos/editor-support/dragonbones/parser/JSONDataParser.cpp
+            NO_WERROR   NO_UBUILD    cocos/editor-support/dragonbones/parser/JSONDataParser.cpp
                                      cocos/editor-support/dragonbones/parser/JSONDataParser.h
             NO_WERROR                cocos/editor-support/dragonbones-creator-support/ArmatureCache.cpp
                                      cocos/editor-support/dragonbones-creator-support/ArmatureCache.h
