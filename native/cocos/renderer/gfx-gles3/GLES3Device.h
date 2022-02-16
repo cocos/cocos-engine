@@ -53,7 +53,7 @@ public:
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
     using Device::createFramebuffer;
-    using Device::createGlobalBarrier;
+    using Device::createGeneralBarrier;
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
@@ -111,7 +111,7 @@ protected:
     PipelineState *      createPipelineState() override;
 
     Sampler *      createSampler(const SamplerInfo &info) override;
-    GlobalBarrier *createGlobalBarrier(const GlobalBarrierInfo &info) override;
+    GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;

@@ -133,7 +133,7 @@ private:
     vector<scene::Light *> _validLights;
     std::vector<float>     _lightBufferData;
 
-    gfx::GlobalBarrier *_resetBarrier{nullptr};
+    gfx::GeneralBarrier *_resetBarrier{nullptr};
 
     gfx::DispatchInfo _buildingDispatchInfo;
     gfx::DispatchInfo _resetDispatchInfo;

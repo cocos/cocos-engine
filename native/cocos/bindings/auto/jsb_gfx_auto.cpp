@@ -9541,59 +9541,32 @@ static bool js_gfx_ColorAttachment_set_storeOp(se::State& s) // NOLINT(readabili
 }
 SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_storeOp)
 
-static bool js_gfx_ColorAttachment_get_beginAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_ColorAttachment_get_barrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::ColorAttachment>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_get_beginAccesses : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_get_barrier : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->beginAccesses, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->barrier, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->beginAccesses, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->barrier, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_ColorAttachment_get_beginAccesses)
+SE_BIND_PROP_GET(js_gfx_ColorAttachment_get_barrier)
 
-static bool js_gfx_ColorAttachment_set_beginAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_ColorAttachment_set_barrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::gfx::ColorAttachment>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_set_beginAccesses : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_set_barrier : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->beginAccesses, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_ColorAttachment_set_beginAccesses : Error processing new value");
+    ok &= sevalue_to_native(args[0], &cobj->barrier, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_ColorAttachment_set_barrier : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_beginAccesses)
-
-static bool js_gfx_ColorAttachment_get_endAccesses(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::ColorAttachment>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_get_endAccesses : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->endAccesses, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->endAccesses, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_ColorAttachment_get_endAccesses)
-
-static bool js_gfx_ColorAttachment_set_endAccesses(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::ColorAttachment>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_set_endAccesses : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->endAccesses, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_ColorAttachment_set_endAccesses : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_endAccesses)
+SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_barrier)
 
 static bool js_gfx_ColorAttachment_get_isGeneralLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -9651,13 +9624,9 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ColorAttachment * to, se:
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->storeOp), ctx);
     }
-    json->getProperty("beginAccesses", &field, true);
+    json->getProperty("barrier", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->beginAccesses), ctx);
-    }
-    json->getProperty("endAccesses", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->endAccesses), ctx);
+        ok &= sevalue_to_native(field, &(to->barrier), ctx);
     }
     json->getProperty("isGeneralLayout", &field, true);
     if(!field.isNullOrUndefined()) {
@@ -9711,13 +9680,10 @@ static bool js_gfx_ColorAttachment_constructor(se::State& s) // NOLINT(readabili
         ok &= sevalue_to_native(args[3], &(cobj->storeOp), nullptr);
     }
     if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->beginAccesses), nullptr);
+        ok &= sevalue_to_native(args[4], &(cobj->barrier), nullptr);
     }
     if (argc > 5 && !args[5].isUndefined()) {
-        ok &= sevalue_to_native(args[5], &(cobj->endAccesses), nullptr);
-    }
-    if (argc > 6 && !args[6].isUndefined()) {
-        ok &= sevalue_to_native(args[6], &(cobj->isGeneralLayout), nullptr);
+        ok &= sevalue_to_native(args[5], &(cobj->isGeneralLayout), nullptr);
     }
 
     if(!ok) {
@@ -9744,8 +9710,7 @@ bool js_register_gfx_ColorAttachment(se::Object* obj) // NOLINT(readability-iden
     cls->defineProperty("sampleCount", _SE(js_gfx_ColorAttachment_get_sampleCount), _SE(js_gfx_ColorAttachment_set_sampleCount));
     cls->defineProperty("loadOp", _SE(js_gfx_ColorAttachment_get_loadOp), _SE(js_gfx_ColorAttachment_set_loadOp));
     cls->defineProperty("storeOp", _SE(js_gfx_ColorAttachment_get_storeOp), _SE(js_gfx_ColorAttachment_set_storeOp));
-    cls->defineProperty("beginAccesses", _SE(js_gfx_ColorAttachment_get_beginAccesses), _SE(js_gfx_ColorAttachment_set_beginAccesses));
-    cls->defineProperty("endAccesses", _SE(js_gfx_ColorAttachment_get_endAccesses), _SE(js_gfx_ColorAttachment_set_endAccesses));
+    cls->defineProperty("barrier", _SE(js_gfx_ColorAttachment_get_barrier), _SE(js_gfx_ColorAttachment_set_barrier));
     cls->defineProperty("isGeneralLayout", _SE(js_gfx_ColorAttachment_get_isGeneralLayout), _SE(js_gfx_ColorAttachment_set_isGeneralLayout));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_ColorAttachment_finalize));
     cls->install();
@@ -9923,59 +9888,32 @@ static bool js_gfx_DepthStencilAttachment_set_stencilStoreOp(se::State& s) // NO
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_stencilStoreOp)
 
-static bool js_gfx_DepthStencilAttachment_get_beginAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_DepthStencilAttachment_get_barrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::DepthStencilAttachment>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_get_beginAccesses : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_get_barrier : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->beginAccesses, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->barrier, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->beginAccesses, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->barrier, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_DepthStencilAttachment_get_beginAccesses)
+SE_BIND_PROP_GET(js_gfx_DepthStencilAttachment_get_barrier)
 
-static bool js_gfx_DepthStencilAttachment_set_beginAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_DepthStencilAttachment_set_barrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::gfx::DepthStencilAttachment>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_set_beginAccesses : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_set_barrier : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->beginAccesses, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilAttachment_set_beginAccesses : Error processing new value");
+    ok &= sevalue_to_native(args[0], &cobj->barrier, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilAttachment_set_barrier : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_beginAccesses)
-
-static bool js_gfx_DepthStencilAttachment_get_endAccesses(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::DepthStencilAttachment>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_get_endAccesses : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->endAccesses, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->endAccesses, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_DepthStencilAttachment_get_endAccesses)
-
-static bool js_gfx_DepthStencilAttachment_set_endAccesses(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::DepthStencilAttachment>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_set_endAccesses : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->endAccesses, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilAttachment_set_endAccesses : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_endAccesses)
+SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_barrier)
 
 static bool js_gfx_DepthStencilAttachment_get_isGeneralLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -10041,13 +9979,9 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DepthStencilAttachment * 
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->stencilStoreOp), ctx);
     }
-    json->getProperty("beginAccesses", &field, true);
+    json->getProperty("barrier", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->beginAccesses), ctx);
-    }
-    json->getProperty("endAccesses", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->endAccesses), ctx);
+        ok &= sevalue_to_native(field, &(to->barrier), ctx);
     }
     json->getProperty("isGeneralLayout", &field, true);
     if(!field.isNullOrUndefined()) {
@@ -10107,13 +10041,10 @@ static bool js_gfx_DepthStencilAttachment_constructor(se::State& s) // NOLINT(re
         ok &= sevalue_to_native(args[5], &(cobj->stencilStoreOp), nullptr);
     }
     if (argc > 6 && !args[6].isUndefined()) {
-        ok &= sevalue_to_native(args[6], &(cobj->beginAccesses), nullptr);
+        ok &= sevalue_to_native(args[6], &(cobj->barrier), nullptr);
     }
     if (argc > 7 && !args[7].isUndefined()) {
-        ok &= sevalue_to_native(args[7], &(cobj->endAccesses), nullptr);
-    }
-    if (argc > 8 && !args[8].isUndefined()) {
-        ok &= sevalue_to_native(args[8], &(cobj->isGeneralLayout), nullptr);
+        ok &= sevalue_to_native(args[7], &(cobj->isGeneralLayout), nullptr);
     }
 
     if(!ok) {
@@ -10142,8 +10073,7 @@ bool js_register_gfx_DepthStencilAttachment(se::Object* obj) // NOLINT(readabili
     cls->defineProperty("depthStoreOp", _SE(js_gfx_DepthStencilAttachment_get_depthStoreOp), _SE(js_gfx_DepthStencilAttachment_set_depthStoreOp));
     cls->defineProperty("stencilLoadOp", _SE(js_gfx_DepthStencilAttachment_get_stencilLoadOp), _SE(js_gfx_DepthStencilAttachment_set_stencilLoadOp));
     cls->defineProperty("stencilStoreOp", _SE(js_gfx_DepthStencilAttachment_get_stencilStoreOp), _SE(js_gfx_DepthStencilAttachment_set_stencilStoreOp));
-    cls->defineProperty("beginAccesses", _SE(js_gfx_DepthStencilAttachment_get_beginAccesses), _SE(js_gfx_DepthStencilAttachment_set_beginAccesses));
-    cls->defineProperty("endAccesses", _SE(js_gfx_DepthStencilAttachment_get_endAccesses), _SE(js_gfx_DepthStencilAttachment_set_endAccesses));
+    cls->defineProperty("barrier", _SE(js_gfx_DepthStencilAttachment_get_barrier), _SE(js_gfx_DepthStencilAttachment_set_barrier));
     cls->defineProperty("isGeneralLayout", _SE(js_gfx_DepthStencilAttachment_get_isGeneralLayout), _SE(js_gfx_DepthStencilAttachment_set_isGeneralLayout));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DepthStencilAttachment_finalize));
     cls->install();
@@ -10576,59 +10506,32 @@ static bool js_gfx_SubpassDependency_set_dstSubpass(se::State& s) // NOLINT(read
 }
 SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_dstSubpass)
 
-static bool js_gfx_SubpassDependency_get_srcAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_SubpassDependency_get_barrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_get_srcAccesses : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_get_barrier : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->srcAccesses, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->barrier, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->srcAccesses, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->barrier, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_srcAccesses)
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_barrier)
 
-static bool js_gfx_SubpassDependency_set_srcAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_SubpassDependency_set_barrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_set_srcAccesses : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_set_barrier : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->srcAccesses, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_SubpassDependency_set_srcAccesses : Error processing new value");
+    ok &= sevalue_to_native(args[0], &cobj->barrier, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_SubpassDependency_set_barrier : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_srcAccesses)
-
-static bool js_gfx_SubpassDependency_get_dstAccesses(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_get_dstAccesses : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->dstAccesses, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->dstAccesses, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_dstAccesses)
-
-static bool js_gfx_SubpassDependency_set_dstAccesses(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_set_dstAccesses : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->dstAccesses, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_SubpassDependency_set_dstAccesses : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_dstAccesses)
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_barrier)
 
 
 template<>
@@ -10651,13 +10554,9 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassDependency * to, s
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->dstSubpass), ctx);
     }
-    json->getProperty("srcAccesses", &field, true);
+    json->getProperty("barrier", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->srcAccesses), ctx);
-    }
-    json->getProperty("dstAccesses", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->dstAccesses), ctx);
+        ok &= sevalue_to_native(field, &(to->barrier), ctx);
     }
     return ok;
 }
@@ -10701,10 +10600,7 @@ static bool js_gfx_SubpassDependency_constructor(se::State& s) // NOLINT(readabi
         ok &= sevalue_to_native(args[1], &(cobj->dstSubpass), nullptr);
     }
     if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->srcAccesses), nullptr);
-    }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->dstAccesses), nullptr);
+        ok &= sevalue_to_native(args[2], &(cobj->barrier), nullptr);
     }
 
     if(!ok) {
@@ -10729,8 +10625,7 @@ bool js_register_gfx_SubpassDependency(se::Object* obj) // NOLINT(readability-id
 
     cls->defineProperty("srcSubpass", _SE(js_gfx_SubpassDependency_get_srcSubpass), _SE(js_gfx_SubpassDependency_set_srcSubpass));
     cls->defineProperty("dstSubpass", _SE(js_gfx_SubpassDependency_get_dstSubpass), _SE(js_gfx_SubpassDependency_set_dstSubpass));
-    cls->defineProperty("srcAccesses", _SE(js_gfx_SubpassDependency_get_srcAccesses), _SE(js_gfx_SubpassDependency_set_srcAccesses));
-    cls->defineProperty("dstAccesses", _SE(js_gfx_SubpassDependency_get_dstAccesses), _SE(js_gfx_SubpassDependency_set_dstAccesses));
+    cls->defineProperty("barrier", _SE(js_gfx_SubpassDependency_get_barrier), _SE(js_gfx_SubpassDependency_set_barrier));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_SubpassDependency_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::SubpassDependency>(cls);
@@ -10965,13 +10860,13 @@ bool js_register_gfx_RenderPassInfo(se::Object* obj) // NOLINT(readability-ident
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_GlobalBarrierInfo_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_gfx_GlobalBarrierInfo_class = nullptr;  // NOLINT
+se::Object* __jsb_cc_gfx_GeneralBarrierInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_GeneralBarrierInfo_class = nullptr;  // NOLINT
 
-static bool js_gfx_GlobalBarrierInfo_get_prevAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_GeneralBarrierInfo_get_prevAccesses(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrierInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_GlobalBarrierInfo_get_prevAccesses : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::GeneralBarrierInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_GeneralBarrierInfo_get_prevAccesses : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -10980,25 +10875,25 @@ static bool js_gfx_GlobalBarrierInfo_get_prevAccesses(se::State& s) // NOLINT(re
     SE_HOLD_RETURN_VALUE(cobj->prevAccesses, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GlobalBarrierInfo_get_prevAccesses)
+SE_BIND_PROP_GET(js_gfx_GeneralBarrierInfo_get_prevAccesses)
 
-static bool js_gfx_GlobalBarrierInfo_set_prevAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_GeneralBarrierInfo_set_prevAccesses(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrierInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_GlobalBarrierInfo_set_prevAccesses : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::GeneralBarrierInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_GeneralBarrierInfo_set_prevAccesses : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->prevAccesses, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrierInfo_set_prevAccesses : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_gfx_GeneralBarrierInfo_set_prevAccesses : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GlobalBarrierInfo_set_prevAccesses)
+SE_BIND_PROP_SET(js_gfx_GeneralBarrierInfo_set_prevAccesses)
 
-static bool js_gfx_GlobalBarrierInfo_get_nextAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_GeneralBarrierInfo_get_nextAccesses(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrierInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_GlobalBarrierInfo_get_nextAccesses : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::GeneralBarrierInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_GeneralBarrierInfo_get_nextAccesses : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
@@ -11007,28 +10902,28 @@ static bool js_gfx_GlobalBarrierInfo_get_nextAccesses(se::State& s) // NOLINT(re
     SE_HOLD_RETURN_VALUE(cobj->nextAccesses, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GlobalBarrierInfo_get_nextAccesses)
+SE_BIND_PROP_GET(js_gfx_GeneralBarrierInfo_get_nextAccesses)
 
-static bool js_gfx_GlobalBarrierInfo_set_nextAccesses(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_GeneralBarrierInfo_set_nextAccesses(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrierInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_GlobalBarrierInfo_set_nextAccesses : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::GeneralBarrierInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_GeneralBarrierInfo_set_nextAccesses : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     ok &= sevalue_to_native(args[0], &cobj->nextAccesses, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrierInfo_set_nextAccesses : Error processing new value");
+    SE_PRECONDITION2(ok, false, "js_gfx_GeneralBarrierInfo_set_nextAccesses : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GlobalBarrierInfo_set_nextAccesses)
+SE_BIND_PROP_SET(js_gfx_GeneralBarrierInfo_set_nextAccesses)
 
 
 template<>
-bool sevalue_to_native(const se::Value &from, cc::gfx::GlobalBarrierInfo * to, se::Object *ctx)
+bool sevalue_to_native(const se::Value &from, cc::gfx::GeneralBarrierInfo * to, se::Object *ctx)
 {
     assert(from.isObject());
     se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::gfx::GlobalBarrierInfo*>(json->getPrivateData());
+    auto* data = reinterpret_cast<cc::gfx::GeneralBarrierInfo*>(json->getPrivateData());
     if (data) {
         *to = *data;
         return true;
@@ -11046,9 +10941,9 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::GlobalBarrierInfo * to, s
     return ok;
 }
 
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GlobalBarrierInfo_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GeneralBarrierInfo_finalize)
 
-static bool js_gfx_GlobalBarrierInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_GeneralBarrierInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -11056,7 +10951,7 @@ static bool js_gfx_GlobalBarrierInfo_constructor(se::State& s) // NOLINT(readabi
 
     if(argc == 0)
     {
-        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GlobalBarrierInfo);
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GeneralBarrierInfo);
         s.thisObject()->setPrivateObject(ptr);
         return true;
     }
@@ -11065,8 +10960,8 @@ static bool js_gfx_GlobalBarrierInfo_constructor(se::State& s) // NOLINT(readabi
     {
         se::Object *json = args[0].toObject();
         se::Value field;
-        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GlobalBarrierInfo);
-        auto cobj = ptr->get<cc::gfx::GlobalBarrierInfo>();
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GeneralBarrierInfo);
+        auto cobj = ptr->get<cc::gfx::GeneralBarrierInfo>();
         ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
             delete ptr;
@@ -11076,8 +10971,8 @@ static bool js_gfx_GlobalBarrierInfo_constructor(se::State& s) // NOLINT(readabi
         s.thisObject()->setPrivateObject(ptr);
         return true;
     }
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GlobalBarrierInfo);
-    auto cobj = ptr->get<cc::gfx::GlobalBarrierInfo>();
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::gfx::GeneralBarrierInfo);
+    auto cobj = ptr->get<cc::gfx::GeneralBarrierInfo>();
     if (argc > 0 && !args[0].isUndefined()) {
         ok &= sevalue_to_native(args[0], &(cobj->prevAccesses), nullptr);
     }
@@ -11093,26 +10988,26 @@ static bool js_gfx_GlobalBarrierInfo_constructor(se::State& s) // NOLINT(readabi
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GlobalBarrierInfo_constructor, __jsb_cc_gfx_GlobalBarrierInfo_class, js_cc_gfx_GlobalBarrierInfo_finalize)
+SE_BIND_CTOR(js_gfx_GeneralBarrierInfo_constructor, __jsb_cc_gfx_GeneralBarrierInfo_class, js_cc_gfx_GeneralBarrierInfo_finalize)
 
-static bool js_cc_gfx_GlobalBarrierInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_cc_gfx_GeneralBarrierInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_GlobalBarrierInfo_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_GeneralBarrierInfo_finalize)
 
-bool js_register_gfx_GlobalBarrierInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
+bool js_register_gfx_GeneralBarrierInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("GlobalBarrierInfo", obj, nullptr, _SE(js_gfx_GlobalBarrierInfo_constructor));
+    auto* cls = se::Class::create("GeneralBarrierInfo", obj, nullptr, _SE(js_gfx_GeneralBarrierInfo_constructor));
 
-    cls->defineProperty("prevAccesses", _SE(js_gfx_GlobalBarrierInfo_get_prevAccesses), _SE(js_gfx_GlobalBarrierInfo_set_prevAccesses));
-    cls->defineProperty("nextAccesses", _SE(js_gfx_GlobalBarrierInfo_get_nextAccesses), _SE(js_gfx_GlobalBarrierInfo_set_nextAccesses));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_GlobalBarrierInfo_finalize));
+    cls->defineProperty("prevAccesses", _SE(js_gfx_GeneralBarrierInfo_get_prevAccesses), _SE(js_gfx_GeneralBarrierInfo_set_prevAccesses));
+    cls->defineProperty("nextAccesses", _SE(js_gfx_GeneralBarrierInfo_get_nextAccesses), _SE(js_gfx_GeneralBarrierInfo_set_nextAccesses));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_GeneralBarrierInfo_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::gfx::GlobalBarrierInfo>(cls);
+    JSBClassType::registerClass<cc::gfx::GeneralBarrierInfo>(cls);
 
-    __jsb_cc_gfx_GlobalBarrierInfo_proto = cls->getProto();
-    __jsb_cc_gfx_GlobalBarrierInfo_class = cls;
+    __jsb_cc_gfx_GeneralBarrierInfo_proto = cls->getProto();
+    __jsb_cc_gfx_GeneralBarrierInfo_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -16653,7 +16548,7 @@ static bool js_gfx_CommandBuffer_pipelineBarrier(se::State& s) // NOLINT(readabi
     size_t argc = args.size();
     do {
         if (argc == 1) {
-            HolderType<cc::gfx::GlobalBarrier*, false> arg0 = {};
+            HolderType<cc::gfx::GeneralBarrier*, false> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
@@ -16664,7 +16559,7 @@ static bool js_gfx_CommandBuffer_pipelineBarrier(se::State& s) // NOLINT(readabi
 
     do {
         if (argc == 4) {
-            HolderType<cc::gfx::GlobalBarrier*, false> arg0 = {};
+            HolderType<cc::gfx::GeneralBarrier*, false> arg0 = {};
             HolderType<cc::gfx::TextureBarrier**, false> arg1 = {};
             HolderType<cc::gfx::Texture**, false> arg2 = {};
             HolderType<unsigned int, false> arg3 = {};
@@ -16684,7 +16579,7 @@ static bool js_gfx_CommandBuffer_pipelineBarrier(se::State& s) // NOLINT(readabi
 
     do {
         if (argc == 3) {
-            HolderType<cc::gfx::GlobalBarrier*, false> arg0 = {};
+            HolderType<cc::gfx::GeneralBarrier*, false> arg0 = {};
             HolderType<std::vector<cc::gfx::TextureBarrier *>, true> arg1 = {};
             HolderType<std::vector<cc::gfx::Texture *>, true> arg2 = {};
 
@@ -19323,96 +19218,96 @@ bool js_register_gfx_Swapchain(se::Object* obj) // NOLINT(readability-identifier
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_gfx_GlobalBarrier_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_gfx_GlobalBarrier_class = nullptr;  // NOLINT
+se::Object* __jsb_cc_gfx_GeneralBarrier_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_gfx_GeneralBarrier_class = nullptr;  // NOLINT
 
-static bool js_gfx_GlobalBarrier_getHash(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_GeneralBarrier_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrier>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_GlobalBarrier_getHash : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::GeneralBarrier>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_GeneralBarrier_getHash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const size_t& result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_getHash : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GeneralBarrier_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GlobalBarrier_getHash)
+SE_BIND_FUNC(js_gfx_GeneralBarrier_getHash)
 
-static bool js_gfx_GlobalBarrier_getInfo(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_GeneralBarrier_getInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrier>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_GlobalBarrier_getInfo : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::GeneralBarrier>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_GeneralBarrier_getInfo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::gfx::GlobalBarrierInfo& result = cobj->getInfo();
+        const cc::gfx::GeneralBarrierInfo& result = cobj->getInfo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_getInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GeneralBarrier_getInfo : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GlobalBarrier_getInfo)
+SE_BIND_FUNC(js_gfx_GeneralBarrier_getInfo)
 
-static bool js_gfx_GlobalBarrier_computeHash_static(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_GeneralBarrier_computeHash_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::gfx::GlobalBarrierInfo, true> arg0 = {};
+        HolderType<cc::gfx::GeneralBarrierInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_computeHash_static : Error processing arguments");
-        size_t result = cc::gfx::GlobalBarrier::computeHash(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_gfx_GeneralBarrier_computeHash_static : Error processing arguments");
+        size_t result = cc::gfx::GeneralBarrier::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_computeHash_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GeneralBarrier_computeHash_static : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GlobalBarrier_computeHash_static)
+SE_BIND_FUNC(js_gfx_GeneralBarrier_computeHash_static)
 
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GlobalBarrier_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GeneralBarrier_finalize)
 
-static bool js_gfx_GlobalBarrier_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
+static bool js_gfx_GeneralBarrier_constructor(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
 {
-    //#3 cc::gfx::GlobalBarrier: is_skip_construtor True
-    se::ScriptEngine::getInstance()->throwException("cc::gfx::GlobalBarrier constructor is skipped");
+    //#3 cc::gfx::GeneralBarrier: is_skip_construtor True
+    se::ScriptEngine::getInstance()->throwException("cc::gfx::GeneralBarrier constructor is skipped");
     return false;
 }
-SE_BIND_CTOR(js_gfx_GlobalBarrier_constructor, __jsb_cc_gfx_GlobalBarrier_class, js_cc_gfx_GlobalBarrier_finalize)
+SE_BIND_CTOR(js_gfx_GeneralBarrier_constructor, __jsb_cc_gfx_GeneralBarrier_class, js_cc_gfx_GeneralBarrier_finalize)
 
-static bool js_cc_gfx_GlobalBarrier_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_cc_gfx_GeneralBarrier_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_GlobalBarrier_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_GeneralBarrier_finalize)
 
-bool js_register_gfx_GlobalBarrier(se::Object* obj) // NOLINT(readability-identifier-naming)
+bool js_register_gfx_GeneralBarrier(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("GlobalBarrier", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_GlobalBarrier_constructor));
+    auto* cls = se::Class::create("GeneralBarrier", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_GeneralBarrier_constructor));
 
-    cls->defineFunction("getHash", _SE(js_gfx_GlobalBarrier_getHash));
-    cls->defineFunction("getInfo", _SE(js_gfx_GlobalBarrier_getInfo));
-    cls->defineStaticFunction("computeHash", _SE(js_gfx_GlobalBarrier_computeHash_static));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_GlobalBarrier_finalize));
+    cls->defineFunction("getHash", _SE(js_gfx_GeneralBarrier_getHash));
+    cls->defineFunction("getInfo", _SE(js_gfx_GeneralBarrier_getInfo));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_GeneralBarrier_computeHash_static));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_GeneralBarrier_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::gfx::GlobalBarrier>(cls);
+    JSBClassType::registerClass<cc::gfx::GeneralBarrier>(cls);
 
-    __jsb_cc_gfx_GlobalBarrier_proto = cls->getProto();
-    __jsb_cc_gfx_GlobalBarrier_class = cls;
+    __jsb_cc_gfx_GeneralBarrier_proto = cls->getProto();
+    __jsb_cc_gfx_GeneralBarrier_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -20095,6 +19990,28 @@ static bool js_gfx_Device_getFormatFeatures(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_gfx_Device_getFormatFeatures)
 
+static bool js_gfx_Device_getGeneralBarrier(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getGeneralBarrier : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::GeneralBarrierInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getGeneralBarrier : Error processing arguments");
+        cc::gfx::GeneralBarrier* result = cobj->getGeneralBarrier(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getGeneralBarrier : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_getGeneralBarrier)
+
 static bool js_gfx_Device_getGfxAPI(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
@@ -20113,28 +20030,6 @@ static bool js_gfx_Device_getGfxAPI(se::State& s) // NOLINT(readability-identifi
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_gfx_Device_getGfxAPI)
-
-static bool js_gfx_Device_getGlobalBarrier(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getGlobalBarrier : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::GlobalBarrierInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getGlobalBarrier : Error processing arguments");
-        cc::gfx::GlobalBarrier* result = cobj->getGlobalBarrier(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getGlobalBarrier : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_getGlobalBarrier)
 
 static bool js_gfx_Device_getMemoryStatus(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20442,7 +20337,7 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("destroy", _SE(js_gfx_Device_destroy));
     cls->defineFunction("flushCommands", _SE(js_gfx_Device_flushCommands));
     cls->defineFunction("getFormatFeatures", _SE(js_gfx_Device_getFormatFeatures));
-    cls->defineFunction("getGlobalBarrier", _SE(js_gfx_Device_getGlobalBarrier));
+    cls->defineFunction("getGeneralBarrier", _SE(js_gfx_Device_getGeneralBarrier));
     cls->defineFunction("getQueryPool", _SE(js_gfx_Device_getQueryPool));
     cls->defineFunction("getQueryPoolResults", _SE(js_gfx_Device_getQueryPoolResults));
     cls->defineFunction("getSampler", _SE(js_gfx_Device_getSampler));
@@ -20573,8 +20468,8 @@ bool register_all_gfx(se::Object* obj)    // NOLINT
     js_register_gfx_Extent(ns);
     js_register_gfx_Framebuffer(ns);
     js_register_gfx_FramebufferInfo(ns);
-    js_register_gfx_GlobalBarrier(ns);
-    js_register_gfx_GlobalBarrierInfo(ns);
+    js_register_gfx_GeneralBarrier(ns);
+    js_register_gfx_GeneralBarrierInfo(ns);
     js_register_gfx_IndirectBuffer(ns);
     js_register_gfx_InputAssembler(ns);
     js_register_gfx_InputAssemblerInfo(ns);

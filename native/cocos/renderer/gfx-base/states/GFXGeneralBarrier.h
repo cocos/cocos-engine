@@ -30,17 +30,17 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL GlobalBarrier : public GFXObject {
+class CC_DLL GeneralBarrier : public GFXObject {
 public:
-    explicit GlobalBarrier(const GlobalBarrierInfo &info);
+    explicit GeneralBarrier(const GeneralBarrierInfo &info);
 
-    static size_t computeHash(const GlobalBarrierInfo &info);
+    static size_t computeHash(const GeneralBarrierInfo &info);
 
-    inline const GlobalBarrierInfo &getInfo() const { return _info; }
+    inline const GeneralBarrierInfo &getInfo() const { return _info; }
     inline const size_t &           getHash() const { return _hash; }
 
 protected:
-    GlobalBarrierInfo _info;
+    GeneralBarrierInfo _info;
     size_t            _hash{0U};
 };
 

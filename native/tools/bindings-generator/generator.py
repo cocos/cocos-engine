@@ -1166,7 +1166,7 @@ class NativeClass(object):
                         # logger.error(" old getter %s" % old.__dict__)
                         # logger.error(" getter_list %s\n setter_list: %s", self.getter_list, self.setter_list)
                         item["getter"] = getter.implementations[0]
-                        item["getter"].signature_name = "js_%s_%s_%s" % (self.generator.prefix, self.class_name, old.func_name)    
+                        item["getter"].signature_name = "js_%s_%s_%s" % (self.generator.prefix, self.class_name, old.func_name)
                 if setter is not None:
                     self.setter_list.append(get_func_name(setter))
                 self.getter_setter.append(item)
@@ -1176,7 +1176,7 @@ class NativeClass(object):
         classes = list(self.nested_classes)
         classes.append(self.class_name)
         return "_".join(classes)
-    
+
     @property
     def nested_class_array(self):
         classes = list(self.nested_classes)
@@ -1296,7 +1296,7 @@ class NativeClass(object):
         actually generate the code. it uses the current target templates/rules in order to
         generate the right code
         '''
-        
+
         if not self.is_ref_class:
             self.is_ref_class = self._is_ref_class()
 
@@ -1311,7 +1311,7 @@ class NativeClass(object):
         self.generator.head_file.write(unicode(prelude_h))
         self.generator.impl_file.write(unicode(prelude_c))
         self.generator.regi_file_lines.append(unicode(regtype_h))
-        
+
         for m in self.methods_clean():
             m['impl'].generate_code(self)
         for m in self.static_methods_clean():
@@ -1329,9 +1329,9 @@ class NativeClass(object):
         return (self.is_struct and not self.generator.should_skip_field(self.class_name, field_name)) or self.generator.should_bind_field(self.class_name, field_name)
 
     def generate_struct_constructor(self):
-        stream = open(os.path.join(
-            self.generator.target, "conversions.yaml"), "r")
-        config = yaml.load(stream)
+        stream = io.open(os.path.join(
+            self.generator.target, "conversions.yaml"), "r", newline="\n")
+        config = yaml.safe_load(stream)
         tpl = Template(config['definitions']['constructor'],
                        searchList=[self])
         self.struct_constructor_name = str(tpl)
@@ -1392,7 +1392,7 @@ class NativeClass(object):
             return True
 
         return False
-        
+
     def _contains_same_method(self, methods, curr):
         for method in methods:
             if len(curr.arguments) == len(method.arguments):
@@ -1475,7 +1475,7 @@ class NativeClass(object):
                         self.methods[registration_name] = m
                     else:
                         previous_m = self.methods[registration_name]
-                        
+
                         if not self._previous_method_already_contains(previous_m, m):
                             if isinstance(previous_m, NativeOverloadedFunction):
                                 previous_m.append(m)
@@ -1739,7 +1739,7 @@ class Generator(object):
                         shadow_getter_setter =  len(name_variants[0].split("?")) == 1
                         field_name = name_variants[0].split("?")[0]
                         cap_field_name = capitalize(field_name)
-                        
+
                         if len(field_components) > 3:
                             raise Exception("getter_setter parse %s:%s failed" % (getter_setter_class_name, field_name))
 
@@ -1826,7 +1826,7 @@ class Generator(object):
         return False
 
     def should_skip_public_field(self, class_name, field_name, verbose=False):
-       
+
         if class_name == "*" and "*" in self.skip_public_fields_classes:
             for func in self.skip_public_fields_classes["*"]:
                 if re.match(func, field_name):
@@ -1943,7 +1943,7 @@ class Generator(object):
     def generate_code(self):
         # must read the yaml file first
         stream = open(os.path.join(self.target, "conversions.yaml"), "r")
-        data = yaml.load(stream)
+        data = yaml.safe_load(stream)
         self.config = data
         implfilepath = os.path.join(self.outdir, self.out_file + ".cpp")
         headfilepath = os.path.join(self.outdir, self.out_file + ".h")
@@ -1953,12 +1953,14 @@ class Generator(object):
         headLicense = ''
         implLicense = ''
 
-        licensePattern = re.compile('\/\*{5,}.*?\*{5,}\/\s*', re.S)
-        with open(headfilepath, 'a+') as headReader:
+        licensePattern = re.compile('\/\*{5,}.*?\*{5,}\/\s', re.S)
+        with io.open(headfilepath, 'a+', newline="\n") as headReader:
+            headReader.seek(0)
             headMatch = licensePattern.search(headReader.read())
             if headMatch:
                 headLicense = headMatch.group()
-        with open(implfilepath, 'a+') as implReader:
+        with io.open(implfilepath, 'a+', newline="\n") as implReader:
+            implReader.seek(0)
             implMatch = licensePattern.search(implReader.read())
             if implMatch:
                 implLicense = implMatch.group()
@@ -1985,7 +1987,7 @@ class Generator(object):
             self.target, "templates", "layout_foot.c"), searchList=[self])
         self.head_file.write(unicode(layout_h))
         self.impl_file.write(unicode(layout_c))
-        
+
         try:
             self.json_file.write(unicode(json.dumps(self.class_json_list, sort_keys=False, indent=4)))
         except Exception as err:
@@ -1998,12 +2000,12 @@ class Generator(object):
 
     def inplace_change(self, filename, old_string, new_string):
         logger.info("replace file %s" % filename)
-        with open(filename) as f:
+        with io.open(filename, newline="\n") as f:
             s = f.read()
             if old_string not in s:
                 print('"{old_string}" not found in {filename}.'.format(**locals()))
                 return
-        with open(filename, 'w') as f:
+        with io.open(filename, 'w', newline="\n") as f:
             s = s.replace(old_string, new_string)
             f.write(s)
 
@@ -2023,7 +2025,7 @@ class Generator(object):
 
     def _parse_headers(self):
         header = os.path.join(os.path.dirname(__file__), "batch_input.h")
-        df = open(header, "w")
+        df = io.open(header, "w", newline="\n")
         for h in self.headers:
             df.write("#include \"%s\"\n" % (os.path.relpath(h, os.path.dirname(header))))
             # logger.info("write header %s", h)
@@ -2046,7 +2048,7 @@ class Generator(object):
 
     def _deep_iterate(self, cursor, depth=0, nested_classes = []):
 
-        if nested_classes is None:     
+        if nested_classes is None:
             logger.error(" ? depth %s, nested_classes %s" %(depth, nested_classes))
 
         def get_children_array_from_iter(iter):

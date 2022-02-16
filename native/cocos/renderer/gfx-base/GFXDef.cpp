@@ -43,28 +43,29 @@ size_t quickHashTrivialStruct(const T *info, size_t count = 1) {
 
 template <>
 size_t Hasher<ColorAttachment>::operator()(const ColorAttachment &info) const {
-    size_t seed = 6;
-    boost::hash_combine(seed, info.format);
-    boost::hash_combine(seed, info.sampleCount);
-    boost::hash_combine(seed, info.loadOp);
-    boost::hash_combine(seed, info.storeOp);
-    boost::hash_combine(seed, info.beginAccesses);
-    boost::hash_combine(seed, info.endAccesses);
-    return seed;
+    return quickHashTrivialStruct(&info);
+}
+
+bool operator==(const ColorAttachment &lhs, const ColorAttachment &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(ColorAttachment));
 }
 
 template <>
 size_t Hasher<DepthStencilAttachment>::operator()(const DepthStencilAttachment &info) const {
-    size_t seed = 8;
-    boost::hash_combine(seed, info.format);
-    boost::hash_combine(seed, info.sampleCount);
-    boost::hash_combine(seed, info.depthLoadOp);
-    boost::hash_combine(seed, info.depthStoreOp);
-    boost::hash_combine(seed, info.stencilLoadOp);
-    boost::hash_combine(seed, info.stencilStoreOp);
-    boost::hash_combine(seed, info.beginAccesses);
-    boost::hash_combine(seed, info.endAccesses);
-    return seed;
+    return quickHashTrivialStruct(&info);
+}
+
+bool operator==(const DepthStencilAttachment &lhs, const DepthStencilAttachment &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(DepthStencilAttachment));
+}
+
+template <>
+size_t Hasher<SubpassDependency>::operator()(const SubpassDependency &info) const {
+    return quickHashTrivialStruct(&info);
+}
+
+bool operator==(const SubpassDependency &lhs, const SubpassDependency &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(SubpassDependency));
 }
 
 template <>
@@ -81,14 +82,15 @@ size_t Hasher<SubpassInfo>::operator()(const SubpassInfo &info) const {
     return seed;
 }
 
-template <>
-size_t Hasher<SubpassDependency>::operator()(const SubpassDependency &info) const {
-    size_t seed = 4;
-    boost::hash_combine(seed, info.srcSubpass);
-    boost::hash_combine(seed, info.dstSubpass);
-    boost::hash_combine(seed, info.srcAccesses);
-    boost::hash_combine(seed, info.dstAccesses);
-    return seed;
+bool operator==(const SubpassInfo &lhs, const SubpassInfo &rhs) {
+    return lhs.inputs == rhs.inputs &&
+           lhs.colors == rhs.colors &&
+           lhs.resolves == rhs.resolves &&
+           lhs.preserves == rhs.preserves &&
+           lhs.depthStencil == rhs.depthStencil &&
+           lhs.depthStencilResolve == rhs.depthStencilResolve &&
+           lhs.depthResolveMode == rhs.depthResolveMode &&
+           lhs.stencilResolveMode == rhs.stencilResolveMode;
 }
 
 template <>
@@ -101,13 +103,26 @@ size_t Hasher<RenderPassInfo>::operator()(const RenderPassInfo &info) const {
     return seed;
 }
 
+bool operator==(const RenderPassInfo &lhs, const RenderPassInfo &rhs) {
+    return lhs.colorAttachments == rhs.colorAttachments &&
+           lhs.depthStencilAttachment == rhs.depthStencilAttachment &&
+           lhs.subpasses == rhs.subpasses &&
+           lhs.dependencies == rhs.dependencies;
+}
+
 template <>
 size_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) const {
-    size_t seed = 3;
-    boost::hash_combine(seed, info.renderPass);
+    // render pass is mostly irrelevant
+    size_t seed = 2;
     boost::hash_combine(seed, info.colorTextures);
     boost::hash_combine(seed, info.depthStencilTexture);
     return seed;
+}
+
+bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
+    // render pass is mostly irrelevant
+    return lhs.colorTextures == rhs.colorTextures &&
+           lhs.depthStencilTexture == rhs.depthStencilTexture;
 }
 
 template <>
@@ -115,14 +130,26 @@ size_t Hasher<TextureInfo>::operator()(const TextureInfo &info) const {
     return quickHashTrivialStruct(&info);
 }
 
+bool operator==(const TextureInfo &lhs, const TextureInfo &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(TextureInfo));
+}
+
 template <>
 size_t Hasher<TextureViewInfo>::operator()(const TextureViewInfo &info) const {
     return quickHashTrivialStruct(&info);
 }
 
+bool operator==(const TextureViewInfo &lhs, const TextureViewInfo &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(TextureViewInfo));
+}
+
 template <>
 size_t Hasher<BufferInfo>::operator()(const BufferInfo &info) const {
     return quickHashTrivialStruct(&info);
+}
+
+bool operator==(const BufferInfo &lhs, const BufferInfo &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(BufferInfo));
 }
 
 template <>
@@ -141,146 +168,52 @@ size_t Hasher<SamplerInfo>::operator()(const SamplerInfo &info) const {
     return hash;
 }
 
-template <>
-size_t Hasher<GlobalBarrierInfo>::operator()(const GlobalBarrierInfo &info) const {
-    size_t seed = 2;
-    boost::hash_combine(seed, info.prevAccesses);
-    boost::hash_combine(seed, info.nextAccesses);
-    return seed;
-}
-
-template <>
-size_t Hasher<TextureBarrierInfo>::operator()(const TextureBarrierInfo &info) const {
-    size_t seed = 5;
-    boost::hash_combine(seed, info.prevAccesses);
-    boost::hash_combine(seed, info.nextAccesses);
-    boost::hash_combine(seed, info.discardContents);
-    boost::hash_combine(seed, info.srcQueue);
-    boost::hash_combine(seed, info.dstQueue);
-    return seed;
-}
-
-bool operator==(const ColorAttachment &lhs, const ColorAttachment &rhs) {
-    return lhs.format == rhs.format &&
-           lhs.sampleCount == rhs.sampleCount &&
-           lhs.loadOp == rhs.loadOp &&
-           lhs.storeOp == rhs.storeOp &&
-           lhs.isGeneralLayout == rhs.isGeneralLayout &&
-           lhs.beginAccesses == rhs.beginAccesses &&
-           lhs.endAccesses == rhs.endAccesses;
-}
-
-bool operator==(const DepthStencilAttachment &lhs, const DepthStencilAttachment &rhs) {
-    return lhs.format == rhs.format &&
-           lhs.sampleCount == rhs.sampleCount &&
-           lhs.depthLoadOp == rhs.depthLoadOp &&
-           lhs.depthStoreOp == rhs.depthStoreOp &&
-           lhs.stencilLoadOp == rhs.stencilLoadOp &&
-           lhs.stencilStoreOp == rhs.stencilStoreOp &&
-           lhs.isGeneralLayout == rhs.isGeneralLayout &&
-           lhs.beginAccesses == rhs.beginAccesses &&
-           lhs.endAccesses == rhs.endAccesses;
-}
-
-bool operator==(const SubpassInfo &lhs, const SubpassInfo &rhs) {
-    return lhs.colors == rhs.colors &&
-           lhs.resolves == rhs.resolves &&
-           lhs.inputs == rhs.inputs &&
-           lhs.preserves == rhs.preserves &&
-           lhs.depthStencil == rhs.depthStencil &&
-           lhs.depthStencilResolve == rhs.depthStencilResolve &&
-           lhs.depthResolveMode == rhs.depthResolveMode &&
-           lhs.stencilResolveMode == rhs.stencilResolveMode;
-}
-
-bool operator==(const SubpassDependency &lhs, const SubpassDependency &rhs) {
-    return lhs.srcAccesses == rhs.srcAccesses &&
-           lhs.dstAccesses == rhs.dstAccesses &&
-           lhs.srcSubpass == rhs.srcSubpass &&
-           lhs.dstSubpass == rhs.dstSubpass;
-}
-
-bool operator==(const RenderPassInfo &lhs, const RenderPassInfo &rhs) {
-    return lhs.colorAttachments == rhs.colorAttachments &&
-           lhs.depthStencilAttachment == rhs.depthStencilAttachment &&
-           lhs.subpasses == rhs.subpasses &&
-           lhs.dependencies == rhs.dependencies;
-}
-
-bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
-    return lhs.renderPass == rhs.renderPass &&
-           lhs.colorTextures == rhs.colorTextures &&
-           lhs.depthStencilTexture == rhs.depthStencilTexture;
-}
-
-bool operator==(const Viewport &lhs, const Viewport &rhs) {
-    return lhs.left == rhs.left &&
-           lhs.top == rhs.top &&
-           lhs.width == rhs.width &&
-           lhs.height == rhs.height &&
-           lhs.minDepth == rhs.minDepth &&
-           lhs.maxDepth == rhs.maxDepth;
-}
-
-bool operator==(const Rect &lhs, const Rect &rhs) {
-    return lhs.x == rhs.x &&
-           lhs.y == rhs.y &&
-           lhs.width == rhs.width &&
-           lhs.height == rhs.height;
-}
-
-bool operator==(const Color &lhs, const Color &rhs) {
-    return lhs.x == rhs.x &&
-           lhs.y == rhs.y &&
-           lhs.z == rhs.z &&
-           lhs.w == rhs.w;
-}
-
-bool operator==(const Offset &lhs, const Offset &rhs) {
-    return lhs.x == rhs.x &&
-           lhs.y == rhs.y &&
-           lhs.z == rhs.z;
-}
-
-bool operator==(const Extent &lhs, const Extent &rhs) {
-    return lhs.width == rhs.width &&
-           lhs.height == rhs.height &&
-           lhs.depth == rhs.depth;
-}
-
-bool operator==(const Size &lhs, const Size &rhs) {
-    return lhs.x == rhs.x &&
-           lhs.y == rhs.y &&
-           lhs.z == rhs.z;
-}
-
-bool operator==(const TextureInfo &lhs, const TextureInfo &rhs) {
-    return !memcmp(&lhs, &rhs, sizeof(TextureInfo));
-}
-
-bool operator==(const TextureViewInfo &lhs, const TextureViewInfo &rhs) {
-    return !memcmp(&lhs, &rhs, sizeof(TextureViewInfo));
-}
-
-bool operator==(const BufferInfo &lhs, const BufferInfo &rhs) {
-    return !memcmp(&lhs, &rhs, sizeof(BufferInfo));
-}
-
 bool operator==(const SamplerInfo &lhs, const SamplerInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(SamplerInfo));
 }
 
-bool operator==(const GlobalBarrierInfo &lhs, const GlobalBarrierInfo &rhs) {
-    return lhs.prevAccesses == rhs.prevAccesses &&
-           lhs.nextAccesses == rhs.nextAccesses;
+template <>
+size_t Hasher<GeneralBarrierInfo>::operator()(const GeneralBarrierInfo &info) const {
+    return quickHashTrivialStruct(&info);
+}
+
+bool operator==(const GeneralBarrierInfo &lhs, const GeneralBarrierInfo &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(GeneralBarrierInfo));
+}
+
+template <>
+size_t Hasher<TextureBarrierInfo>::operator()(const TextureBarrierInfo &info) const {
+    return quickHashTrivialStruct(&info);
 }
 
 bool operator==(const TextureBarrierInfo &lhs, const TextureBarrierInfo &rhs) {
-    return lhs.prevAccesses == rhs.prevAccesses &&
-           lhs.nextAccesses == rhs.nextAccesses &&
-           lhs.discardContents == rhs.discardContents &&
-           lhs.srcQueue == rhs.srcQueue &&
-           lhs.dstQueue == rhs.dstQueue;
+    return !memcmp(&lhs, &rhs, sizeof(TextureBarrierInfo));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool operator==(const Viewport &lhs, const Viewport &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(Viewport));
+}
+
+bool operator==(const Rect &lhs, const Rect &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(Rect));
+}
+
+bool operator==(const Color &lhs, const Color &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(Color));
+}
+
+bool operator==(const Offset &lhs, const Offset &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(Offset));
+}
+
+bool operator==(const Extent &lhs, const Extent &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(Extent));
+}
+
+bool operator==(const Size &lhs, const Size &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(Size));
 }
 
 const FormatInfo GFX_FORMAT_INFOS[] = {

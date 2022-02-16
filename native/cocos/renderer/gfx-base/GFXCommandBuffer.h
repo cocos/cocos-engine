@@ -63,7 +63,7 @@ public:
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter)                                                                                     = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count)                                                                                                                                              = 0;
     virtual void dispatch(const DispatchInfo &info)                                                                                                                                                                   = 0;
-    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                            = 0;
+    virtual void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                            = 0;
     virtual void beginQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                        = 0;
     virtual void endQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                          = 0;
     virtual void resetQueryPool(QueryPool *queryPool)                                                                                                                                                                 = 0;
@@ -89,8 +89,8 @@ public:
 
     inline void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlitList &regions, Filter filter);
 
-    inline void pipelineBarrier(const GlobalBarrier *barrier);
-    inline void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures);
+    inline void pipelineBarrier(const GeneralBarrier *barrier);
+    inline void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures);
 
     inline Queue *           getQueue() const { return _queue; }
     inline CommandBufferType getType() const { return _type; }
@@ -165,11 +165,11 @@ void CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const 
     blitTexture(srcTexture, dstTexture, regions.data(), utils::toUint(regions.size()), filter);
 }
 
-void CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier) {
+void CommandBuffer::pipelineBarrier(const GeneralBarrier *barrier) {
     pipelineBarrier(barrier, nullptr, nullptr, 0U);
 }
 
-void CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures) {
+void CommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures) {
     pipelineBarrier(barrier, textureBarriers.data(), textures.data(), utils::toUint(textureBarriers.size()));
 }
 

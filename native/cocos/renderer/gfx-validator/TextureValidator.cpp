@@ -122,7 +122,7 @@ void TextureValidator::doResize(uint32_t width, uint32_t height, uint32_t /*size
 void TextureValidator::sanityCheck() {
     CCASSERT(isInited(), "alread destroyed?");
 
-    uint32_t cur = DeviceValidator::getInstance()->currentFrame();
+    uint64_t cur = DeviceValidator::getInstance()->currentFrame();
 
     // FIXME: minggo: as current implementation need to update some textures more than once, so disable it.
     // Should enable it when it is fixed.
