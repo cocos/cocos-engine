@@ -44,7 +44,7 @@ import {
     CommandBufferInfo,
     BufferTextureCopy, Color, Rect, Viewport, DrawInfo,
 } from './define';
-import { GlobalBarrier } from './states/global-barrier';
+import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
 
 /**
@@ -264,8 +264,8 @@ export abstract class CommandBuffer extends GFXObject {
     /**
      * @en Insert pipeline memory barriers.
      * @zh 插入管线内存屏障。
-     * @param globalBarrier The global memory barrier to apply.
+     * @param barrier The global memory barrier to apply.
      * @param textureBarriers The texture memory barriers to apply.
      */
-    public abstract pipelineBarrier (globalBarrier: GlobalBarrier | null, textureBarriers?: TextureBarrier[], textures?: Texture[]): void;
+    public abstract pipelineBarrier (barrier: GeneralBarrier | null, textureBarriers?: TextureBarrier[], textures?: Texture[]): void;
 }

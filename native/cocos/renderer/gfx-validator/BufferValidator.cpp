@@ -24,23 +24,13 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
-#include "base/Log.h"
-#include "base/Macros.h"
-#include "base/threading/MessageQueue.h"
-
-#include "bindings/jswrapper/SeApi.h"
 
 #include "BufferValidator.h"
 #include "DeviceValidator.h"
 #include "ValidationUtils.h"
-#include "gfx-base/GFXDef-common.h"
-
-#include <cstring>
 
 namespace cc {
 namespace gfx {
-
-bool BufferValidator::recordInitStack{true};
 
 BufferValidator::BufferValidator(Buffer *actor)
 : Agent<Buffer>(actor) {
@@ -51,7 +41,7 @@ BufferValidator::~BufferValidator() {
     DeviceResourceTracker<Buffer>::erase(this);
     CC_SAFE_DELETE(_actor);
 
-    uint32_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
+    uint64_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
     // skip those that have never been updated
     if (!_isBufferView && hasFlag(_memUsage, MemoryUsageBit::HOST) && _totalUpdateTimes && _totalUpdateTimes < lifeTime / 3) {
         CC_LOG_WARNING("Triple buffer enabled for infrequently-updated buffer, consider using MemoryUsageBit::DEVICE instead");
@@ -68,7 +58,7 @@ void BufferValidator::doInit(const BufferInfo &info) {
     CCASSERT(info.size, "zero-sized buffer?");
     CCASSERT(info.size / info.stride * info.stride == info.size, "size is not multiple of stride?");
 
-    if (recordInitStack) _initStack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+    _initStack = utils::getStacktraceJS();
 
     _creationFrame    = DeviceValidator::getInstance()->currentFrame();
     _totalUpdateTimes = 0U;
@@ -148,12 +138,12 @@ void BufferValidator::update(const void *buffer, uint32_t size) {
 }
 
 void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
-    uint32_t cur = DeviceValidator::getInstance()->currentFrame();
+    uint64_t cur = DeviceValidator::getInstance()->currentFrame();
 
     if (cur == _lastUpdateFrame) {
         // FIXME: minggo: as current implementation need to update some buffers more than once, so disable it.
         // Should enable it when it is fixed.
-        // CC_LOG_WARNING(se::ScriptEngine::getInstance()->getCurrentStackTrace().c_str());
+        // CC_LOG_WARNING(utils::getStacktraceJS().c_str());
         // CC_LOG_WARNING("performance warning: buffer updated more than once per frame");
     }
 
@@ -163,11 +153,6 @@ void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
     }
 
     _lastUpdateFrame = cur;
-
-    if (DeviceValidator::getInstance()->isRecording()) {
-        _buffer.resize(_size);
-        memcpy(_buffer.data(), buffer, size);
-    }
 }
 
 } // namespace gfx

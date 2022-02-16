@@ -87,17 +87,25 @@ void DescriptorSetValidator::update() {
         if (sampler->getInfo().magFilter == Filter::LINEAR ||
             sampler->getInfo().mipFilter == Filter::LINEAR ||
             sampler->getInfo().minFilter == Filter::LINEAR) {
-            auto feature = DeviceValidator::getInstance()->getFormatFeatures(format);
             if (!hasFlag(DeviceValidator::getInstance()->getFormatFeatures(format), FormatFeature::LINEAR_FILTER)) {
                 CC_LOG_WARNING("[WARNING]: Format doesn't support linear filter.");
             }
         }
     }
 
+    CCASSERT(_referenceStamp < DeviceValidator::getInstance()->currentFrame(),
+             "DescriptorSet can not be updated after bound to CommandBuffer");
+
+    /////////// execute ///////////
+
     if (!_isDirty) return;
 
-    _isDirty = false;
     _actor->update();
+    _isDirty = false;
+}
+
+void DescriptorSetValidator::updateReferenceStamp() {
+    _referenceStamp = DeviceValidator::getInstance()->currentFrame();
 }
 
 void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {

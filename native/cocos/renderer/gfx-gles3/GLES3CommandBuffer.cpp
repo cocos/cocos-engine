@@ -36,7 +36,7 @@
 #include "GLES3QueryPool.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Texture.h"
-#include "states/GLES3GlobalBarrier.h"
+#include "states/GLES3GeneralBarrier.h"
 
 namespace cc {
 namespace gfx {
@@ -428,10 +428,10 @@ void GLES3CommandBuffer::dispatch(const DispatchInfo &info) {
     _curCmdPackage->cmds.push(GLESCmdType::DISPATCH);
 }
 
-void GLES3CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const * /*textureBarriers*/, const Texture *const * /*textures*/, uint32_t /*textureBarrierCount*/) {
+void GLES3CommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const * /*textureBarriers*/, const Texture *const * /*textures*/, uint32_t /*textureBarrierCount*/) {
     if (!barrier) return;
 
-    const auto *gpuBarrier = static_cast<const GLES3GlobalBarrier *>(barrier)->gpuBarrier();
+    const auto *gpuBarrier = static_cast<const GLES3GeneralBarrier *>(barrier)->gpuBarrier();
 
     GLES3CmdBarrier *cmd  = _cmdAllocator->barrierCmdPool.alloc();
     cmd->barriers         = gpuBarrier->glBarriers;

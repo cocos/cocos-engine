@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,36 +23,24 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKGlobalBarrier.h"
-#include "../VKGPUObjects.h"
+#include <boost/functional/hash.hpp>
+
+#include "base/CoreStd.h"
+
+#include "GFXGeneralBarrier.h"
+#include "base/Utils.h"
 
 namespace cc {
 namespace gfx {
 
-CCVKGlobalBarrier::CCVKGlobalBarrier(const GlobalBarrierInfo &info) : GlobalBarrier(info) {
-    _typedID = generateObjectID<decltype(this)>();
-
-    _gpuBarrier = CC_NEW(CCVKGPUGlobalBarrier);
-    _gpuBarrier->accessTypes.resize(info.prevAccesses.size() + info.nextAccesses.size());
-
-    uint32_t index = 0U;
-    for (AccessType type : info.prevAccesses) {
-        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint32_t>(type)];
-    }
-    for (AccessType type : info.nextAccesses) {
-        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint32_t>(type)];
-    }
-
-    _gpuBarrier->barrier.prevAccessCount = utils::toUint(info.prevAccesses.size());
-    _gpuBarrier->barrier.pPrevAccesses   = _gpuBarrier->accessTypes.data();
-    _gpuBarrier->barrier.nextAccessCount = utils::toUint(info.nextAccesses.size());
-    _gpuBarrier->barrier.pNextAccesses   = _gpuBarrier->accessTypes.data() + info.prevAccesses.size();
-
-    thsvsGetVulkanMemoryBarrier(_gpuBarrier->barrier, &_gpuBarrier->srcStageMask, &_gpuBarrier->dstStageMask, &_gpuBarrier->vkBarrier);
+GeneralBarrier::GeneralBarrier(const GeneralBarrierInfo &info)
+: GFXObject(ObjectType::GLOBAL_BARRIER) {
+    _info = info;
+    _hash = computeHash(info);
 }
 
-CCVKGlobalBarrier::~CCVKGlobalBarrier() {
-    CC_SAFE_DELETE(_gpuBarrier);
+size_t GeneralBarrier::computeHash(const GeneralBarrierInfo &info) {
+    return Hasher<GeneralBarrierInfo>()(info);
 }
 
 } // namespace gfx

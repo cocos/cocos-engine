@@ -48,5 +48,5 @@ export * from './base/render-pass';
 export * from './base/states/sampler';
 export * from './base/shader';
 export * from './base/texture';
-export * from './base/states/global-barrier';
+export * from './base/states/general-barrier';
 export * from './base/states/texture-barrier';
