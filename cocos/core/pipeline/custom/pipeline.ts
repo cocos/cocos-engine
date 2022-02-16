@@ -19,7 +19,7 @@ export abstract class Setter {
     public abstract setSampler(name: string, sampler: Sampler): void;
 }
 
-export abstract class RasterQueue extends Setter {
+export abstract class RasterQueue {
     public abstract addSceneOfCamera(camera: Camera, name: string): void;
     public abstract addSceneOfCamera(camera: Camera): void;
     public abstract addScene(name: string): void;
@@ -28,7 +28,7 @@ export abstract class RasterQueue extends Setter {
     public abstract addFullscreenQuad(shader: string): void;
 }
 
-export abstract class RasterPass extends Setter {
+export abstract class RasterPass {
     public abstract addRasterView(name: string, view: RasterView): void;
     public abstract addComputeView(name: string, view: ComputeView): void;
     public abstract addQueue(hint: QueueHint, layoutName: string, name: string): RasterQueue;
@@ -39,13 +39,13 @@ export abstract class RasterPass extends Setter {
     public abstract addFullscreenQuad(shader: string): void;
 }
 
-export abstract class ComputeQueue extends Setter {
+export abstract class ComputeQueue {
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string, name: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
-export abstract class ComputePass extends Setter {
+export abstract class ComputePass {
     public abstract addComputeView(name: string, view: ComputeView): void;
     public abstract addQueue(layoutName: string, name: string): ComputeQueue;
     public abstract addQueue(layoutName: string): ComputeQueue;

@@ -48,11 +48,15 @@ public:
 
 inline Setter::~Setter() noexcept = default;
 
-class RasterQueue : public Setter {
+class RasterQueue {
 public:
     RasterQueue() noexcept = default;
+    RasterQueue(RasterQueue&& rhs)      = delete;
+    RasterQueue(RasterQueue const& rhs) = delete;
+    RasterQueue& operator=(RasterQueue&& rhs) = delete;
+    RasterQueue& operator=(RasterQueue const& rhs) = delete;
 
-    ~RasterQueue() noexcept override = 0;
+    virtual ~RasterQueue() noexcept = 0;
 
     virtual void addSceneOfCamera(scene::Camera* camera, const std::string& name) = 0;
     virtual void addSceneOfCamera(scene::Camera* camera) = 0;
@@ -64,11 +68,15 @@ public:
 
 inline RasterQueue::~RasterQueue() noexcept = default;
 
-class RasterPass : public Setter {
+class RasterPass {
 public:
     RasterPass() noexcept = default;
+    RasterPass(RasterPass&& rhs)      = delete;
+    RasterPass(RasterPass const& rhs) = delete;
+    RasterPass& operator=(RasterPass&& rhs) = delete;
+    RasterPass& operator=(RasterPass const& rhs) = delete;
 
-    ~RasterPass() noexcept override = 0;
+    virtual ~RasterPass() noexcept = 0;
 
     virtual void addRasterView(const std::string& name, const RasterView& view) = 0;
     virtual void addComputeView(const std::string& name, const ComputeView& view) = 0;
@@ -82,11 +90,15 @@ public:
 
 inline RasterPass::~RasterPass() noexcept = default;
 
-class ComputeQueue : public Setter {
+class ComputeQueue {
 public:
     ComputeQueue() noexcept = default;
+    ComputeQueue(ComputeQueue&& rhs)      = delete;
+    ComputeQueue(ComputeQueue const& rhs) = delete;
+    ComputeQueue& operator=(ComputeQueue&& rhs) = delete;
+    ComputeQueue& operator=(ComputeQueue const& rhs) = delete;
 
-    ~ComputeQueue() noexcept override = 0;
+    virtual ~ComputeQueue() noexcept = 0;
 
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const std::string& layoutName, const std::string& name) = 0;
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const std::string& layoutName) = 0;
@@ -95,11 +107,15 @@ public:
 
 inline ComputeQueue::~ComputeQueue() noexcept = default;
 
-class ComputePass : public Setter {
+class ComputePass {
 public:
     ComputePass() noexcept = default;
+    ComputePass(ComputePass&& rhs)      = delete;
+    ComputePass(ComputePass const& rhs) = delete;
+    ComputePass& operator=(ComputePass&& rhs) = delete;
+    ComputePass& operator=(ComputePass const& rhs) = delete;
 
-    ~ComputePass() noexcept override = 0;
+    virtual ~ComputePass() noexcept = 0;
 
     virtual void addComputeView(const std::string& name, const ComputeView& view) = 0;
 
