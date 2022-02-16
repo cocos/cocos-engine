@@ -173,7 +173,7 @@ export const simple: IAssembler = {
             if (useTint) {
                 accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount);
                 // Register to batcher so that batcher can upload buffers after batching process
-                batcher.registerBufferAccessor(Number.parseInt('SPINE_TINT', 36), _tintAccessor);
+                batcher.registerBufferAccessor(Number.parseInt('SPINETINT', 36), _tintAccessor);
             } else {
                 accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount);
                 // Register to batcher so that batcher can upload buffers after batching process
