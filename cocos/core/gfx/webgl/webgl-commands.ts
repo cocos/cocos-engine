@@ -744,7 +744,8 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
     }
 }
 
-export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer, buffer: BufferSource, offset: number, size: number) {
+export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer, buffer: Readonly<BufferSource>,
+    offset: number, size: number) {
     if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
         if (ArrayBuffer.isView(buffer)) {
             gpuBuffer.vf32!.set(buffer as Float32Array, offset / Float32Array.BYTES_PER_ELEMENT);
@@ -1613,8 +1614,8 @@ export function WebGLCmdFuncBeginRenderPass (
     device: WebGLDevice,
     gpuRenderPass: IWebGLGPURenderPass | null,
     gpuFramebuffer: IWebGLGPUFramebuffer | null,
-    renderArea: Rect,
-    clearColors: Color[],
+    renderArea: Readonly<Rect>,
+    clearColors: Readonly<Color[]>,
     clearDepth: number,
     clearStencil: number,
 ) {
@@ -1784,9 +1785,9 @@ export function WebGLCmdFuncBindStates (
     device: WebGLDevice,
     gpuPipelineState: IWebGLGPUPipelineState | null,
     gpuInputAssembler: IWebGLGPUInputAssembler | null,
-    gpuDescriptorSets: IWebGLGPUDescriptorSet[],
-    dynamicOffsets: number[],
-    dynamicStates: DynamicStates,
+    gpuDescriptorSets: Readonly<IWebGLGPUDescriptorSet[]>,
+    dynamicOffsets: Readonly<number[]>,
+    dynamicStates: Readonly<DynamicStates>,
 ) {
     const { gl } = device;
     const cache = device.stateCache;
@@ -2652,9 +2653,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLC
 
 export function WebGLCmdFuncCopyTexImagesToTexture (
     device: WebGLDevice,
-    texImages: TexImageSource[],
+    texImages: Readonly<TexImageSource[]>,
     gpuTexture: IWebGLGPUTexture,
-    regions: BufferTextureCopy[],
+    regions: Readonly<BufferTextureCopy[]>,
 ) {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -2703,9 +2704,9 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
 
 export function WebGLCmdFuncCopyBuffersToTexture (
     device: WebGLDevice,
-    buffers: ArrayBufferView[],
+    buffers: Readonly<ArrayBufferView[]>,
     gpuTexture: IWebGLGPUTexture,
-    regions: BufferTextureCopy[],
+    regions: Readonly<BufferTextureCopy[]>,
 ) {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -2785,8 +2786,8 @@ export function WebGLCmdFuncCopyBuffersToTexture (
 export function WebGLCmdFuncCopyTextureToBuffers (
     device: WebGLDevice,
     gpuTexture: IWebGLGPUTexture,
-    buffers: ArrayBufferView[],
-    regions: BufferTextureCopy[],
+    buffers: Readonly<ArrayBufferView[]>,
+    regions: Readonly<BufferTextureCopy[]>,
 ) {
     const { gl } = device;
     const cache = device.stateCache;

@@ -60,5 +60,5 @@ export abstract class Queue extends GFXObject {
      * @param cmdBuffs The command buffers to be submitted.
      * @param fence The syncing fence.
      */
-    public abstract submit (cmdBuffs: CommandBuffer[]): void;
+    public abstract submit (cmdBuffs: Readonly<CommandBuffer[]>): void;
 }

@@ -141,7 +141,7 @@ export class WebGLBuffer extends Buffer {
         }
     }
 
-    public update (buffer: BufferSource, size?: number) {
+    public update (buffer: Readonly<BufferSource>, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
@@ -159,7 +159,7 @@ export class WebGLBuffer extends Buffer {
         WebGLCmdFuncUpdateBuffer(
             WebGLDeviceManager.instance,
             this._gpuBuffer!,
-            buffer,
+            buffer as BufferSource,
             0,
             buffSize,
         );

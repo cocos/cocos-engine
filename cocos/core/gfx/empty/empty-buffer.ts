@@ -49,5 +49,5 @@ export class EmptyBuffer extends Buffer {
     }
     public destroy () {}
     public resize (size: number) {}
-    public update (buffer: BufferSource, size?: number) {}
+    public update (buffer: Readonly<BufferSource>, size?: number) {}
 }

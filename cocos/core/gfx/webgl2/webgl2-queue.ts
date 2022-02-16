@@ -40,7 +40,7 @@ export class WebGL2Queue extends Queue {
     public destroy () {
     }
 
-    public submit (cmdBuffs: CommandBuffer[]) {
+    public submit (cmdBuffs: Readonly<CommandBuffer[]>) {
         for (let i = 0; i < cmdBuffs.length; i++) {
             const cmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
             // WebGL2CmdFuncExecuteCmds(this._device as WebGL2Device, cmdBuff.cmdPackage); // opted out

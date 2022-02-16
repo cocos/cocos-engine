@@ -107,15 +107,15 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     public beginRenderPass (
         renderPass: RenderPass,
         framebuffer: Framebuffer,
-        renderArea: Rect,
-        clearColors: Color[],
+        renderArea: Readonly<Rect>,
+        clearColors: Readonly<Color[]>,
         clearDepth: number,
         clearStencil: number,
     ) {
         const cmd = this._cmdAllocator.beginRenderPassCmdPool.alloc(WebGL2CmdBeginRenderPass);
         cmd.gpuRenderPass = (renderPass as WebGL2RenderPass).gpuRenderPass;
         cmd.gpuFramebuffer = (framebuffer as WebGL2Framebuffer).gpuFramebuffer;
-        cmd.renderArea = renderArea;
+        cmd.renderArea.copy(renderArea);
         for (let i = 0; i < clearColors.length; ++i) {
             cmd.clearColors[i] = clearColors[i];
         }
@@ -140,7 +140,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]) {
+    public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: Readonly<number[]>) {
         const gpuDescriptorSets = (descriptorSet as WebGL2DescriptorSet).gpuDescriptorSet;
         if (gpuDescriptorSets !== this._curGPUDescriptorSets[set]) {
             this._curGPUDescriptorSets[set] = gpuDescriptorSets;
@@ -163,7 +163,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         this._isStateInvalied = true;
     }
 
-    public setViewport (viewport: Viewport) {
+    public setViewport (viewport: Readonly<Viewport>) {
         const cache = this._curDynamicStates.viewport;
         if (cache.left !== viewport.left
             || cache.top !== viewport.top
@@ -181,7 +181,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public setScissor (scissor: Rect) {
+    public setScissor (scissor: Readonly<Rect>) {
         const cache = this._curDynamicStates.scissor;
         if (cache.x !== scissor.x
             || cache.y !== scissor.y
@@ -273,7 +273,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public draw (infoOrAssembler: DrawInfo | InputAssembler) {
+    public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>) {
         if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass
             || this._type === CommandBufferType.SECONDARY) {
             if (this._isStateInvalied) {
@@ -310,7 +310,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public updateBuffer (buffer: Buffer, data: BufferSource, size?: number) {
+    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number) {
         if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
             || this._type === CommandBufferType.SECONDARY) {
             const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
@@ -322,14 +322,14 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
                 // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
                 if (buffer.usage & BufferUsageBit.INDIRECT) {
-                    buff = data;
+                    buff = data as BufferSource;
                 } else {
                     if (size !== undefined) {
                         buffSize = size;
                     } else {
                         buffSize = (data as ArrayBuffer).byteLength;
                     }
-                    buff = data;
+                    buff = data as BufferSource;
                 }
 
                 cmd.gpuBuffer = gpuBuffer;
@@ -345,17 +345,17 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {
         if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
             || this._type === CommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
                 const cmd = this._cmdAllocator.copyBufferToTextureCmdPool.alloc(WebGL2CmdCopyBufferToTexture);
                 cmd.gpuTexture = gpuTexture;
-                cmd.regions = regions;
+                cmd.regions = regions as BufferTextureCopy[];
                 // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
                 // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
-                cmd.buffers = buffers;
+                cmd.buffers = buffers as ArrayBufferView[];
 
                 this.cmdPackage.copyBufferToTextureCmds.push(cmd);
                 this.cmdPackage.cmds.push(WebGL2Cmd.COPY_BUFFER_TO_TEXTURE);
@@ -365,7 +365,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public execute (cmdBuffs: CommandBuffer[], count: number) {
+    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number) {
         for (let i = 0; i < count; ++i) {
             const webGL2CmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
 
@@ -407,7 +407,8 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public pipelineBarrier (GeneralBarrier: GeneralBarrier | null, textureBarriers?: TextureBarrier[], textures?: Texture[]) {}
+    public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier> | null, textureBarriers?: Readonly<TextureBarrier[]>,
+        textures?: Readonly<Texture[]>) {}
 
     protected bindStates () {
         const bindStatesCmd = this._cmdAllocator.bindStatesCmdPool.alloc(WebGL2CmdBindStates);

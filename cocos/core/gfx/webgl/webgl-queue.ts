@@ -39,7 +39,7 @@ export class WebGLQueue extends Queue {
     public destroy () {
     }
 
-    public submit (cmdBuffs: CommandBuffer[]) {
+    public submit (cmdBuffs: Readonly<CommandBuffer[]>) {
         const len = cmdBuffs.length;
         for (let i = 0; i < len; i++) {
             const cmdBuff = cmdBuffs[i];

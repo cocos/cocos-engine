@@ -947,7 +947,8 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
     }
 }
 
-export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer, buffer: BufferSource, offset: number, size: number) {
+export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer, buffer: Readonly<BufferSource>,
+    offset: number, size: number) {
     if (gpuBuffer.usage & BufferUsageBit.INDIRECT) {
         gpuBuffer.indirects.clearDraws();
         const drawInfos = (buffer as IndirectBuffer).drawInfos;
@@ -1788,8 +1789,8 @@ export function WebGL2CmdFuncBeginRenderPass (
     device: WebGL2Device,
     gpuRenderPass: IWebGL2GPURenderPass | null,
     gpuFramebuffer: IWebGL2GPUFramebuffer | null,
-    renderArea: Rect,
-    clearColors: Color[],
+    renderArea: Readonly<Rect>,
+    clearColors: Readonly<Color[]>,
     clearDepth: number,
     clearStencil: number,
 ) {
@@ -1954,9 +1955,9 @@ export function WebGL2CmdFuncBindStates (
     device: WebGL2Device,
     gpuPipelineState: IWebGL2GPUPipelineState | null,
     gpuInputAssembler: IWebGL2GPUInputAssembler | null,
-    gpuDescriptorSets: IWebGL2GPUDescriptorSet[],
-    dynamicOffsets: number[],
-    dynamicStates: DynamicStates,
+    gpuDescriptorSets: Readonly<IWebGL2GPUDescriptorSet[]>,
+    dynamicOffsets: Readonly<number[]>,
+    dynamicStates: Readonly<DynamicStates>,
 ) {
     const { gl } = device;
     const cache = device.stateCache;
@@ -2606,9 +2607,9 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2Device, cmdPackage: WebG
 
 export function WebGL2CmdFuncCopyTexImagesToTexture (
     device: WebGL2Device,
-    texImages: TexImageSource[],
+    texImages: Readonly<TexImageSource[]>,
     gpuTexture: IWebGL2GPUTexture,
-    regions: BufferTextureCopy[],
+    regions: Readonly<BufferTextureCopy[]>,
 ) {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -2654,9 +2655,9 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
 
 export function WebGL2CmdFuncCopyBuffersToTexture (
     device: WebGL2Device,
-    buffers: ArrayBufferView[],
+    buffers: Readonly<ArrayBufferView[]>,
     gpuTexture: IWebGL2GPUTexture,
-    regions: BufferTextureCopy[],
+    regions: Readonly<BufferTextureCopy[]>,
 ) {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -2733,8 +2734,8 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
 export function WebGL2CmdFuncCopyTextureToBuffers (
     device: WebGL2Device,
     gpuTexture: IWebGL2GPUTexture,
-    buffers: ArrayBufferView[],
-    regions: BufferTextureCopy[],
+    buffers: Readonly<ArrayBufferView[]>,
+    regions: Readonly<BufferTextureCopy[]>,
 ) {
     const { gl } = device;
     const cache = device.stateCache;
@@ -2772,8 +2773,8 @@ export function WebGL2CmdFuncBlitFramebuffer (
     device: WebGL2Device,
     src: IWebGL2GPUFramebuffer,
     dst: IWebGL2GPUFramebuffer,
-    srcRect: Rect,
-    dstRect: Rect,
+    srcRect: Readonly<Rect>,
+    dstRect: Readonly<Rect>,
     filter: Filter,
 ) {
     const { gl } = device;

@@ -32,5 +32,5 @@ export class EmptyQueue extends Queue {
         this._type = info.type;
     }
     public destroy () {}
-    public submit (cmdBuffs: CommandBuffer[]) {}
+    public submit (cmdBuffs: Readonly<CommandBuffer[]>) {}
 }

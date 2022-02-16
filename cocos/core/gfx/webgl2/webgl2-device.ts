@@ -233,9 +233,9 @@ export class WebGL2Device extends Device {
         this._swapchain = null;
     }
 
-    public flushCommands (cmdBuffs: CommandBuffer[]) {}
+    public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>) {}
 
-    public acquire (swapchains: Swapchain[]) {}
+    public acquire (swapchains: Readonly<Swapchain[]>) {}
 
     public present () {
         const queue = (this._queue as WebGL2Queue);
@@ -565,7 +565,7 @@ export class WebGL2Device extends Device {
         return this._textureBarriers.get(hash)!;
     }
 
-    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {
         WebGL2CmdFuncCopyBuffersToTexture(
             this,
             buffers,
@@ -574,7 +574,7 @@ export class WebGL2Device extends Device {
         );
     }
 
-    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
+    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>) {
         WebGL2CmdFuncCopyTextureToBuffers(
             this,
             (texture as WebGL2Texture).gpuTexture,
@@ -584,9 +584,9 @@ export class WebGL2Device extends Device {
     }
 
     public copyTexImagesToTexture (
-        texImages: TexImageSource[],
+        texImages: Readonly<TexImageSource[]>,
         texture: Texture,
-        regions: BufferTextureCopy[],
+        regions: Readonly<BufferTextureCopy[]>,
     ) {
         WebGL2CmdFuncCopyTexImagesToTexture(
             this,

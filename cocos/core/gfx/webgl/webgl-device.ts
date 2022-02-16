@@ -514,16 +514,16 @@ export class WebGLDevice extends Device {
         return this._textureBarriers.get(hash)!;
     }
 
-    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {
         WebGLCmdFuncCopyBuffersToTexture(
             this,
-            buffers,
+            buffers as ArrayBufferView[],
             (texture as WebGLTexture).gpuTexture,
             regions,
         );
     }
 
-    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
+    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>) {
         WebGLCmdFuncCopyTextureToBuffers(
             this,
             (texture as WebGLTexture).gpuTexture,
@@ -533,9 +533,9 @@ export class WebGLDevice extends Device {
     }
 
     public copyTexImagesToTexture (
-        texImages: TexImageSource[],
+        texImages: Readonly<TexImageSource[]>,
         texture: Texture,
-        regions: BufferTextureCopy[],
+        regions: Readonly<BufferTextureCopy[]>,
     ) {
         WebGLCmdFuncCopyTexImagesToTexture(
             this,

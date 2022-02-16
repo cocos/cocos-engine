@@ -194,9 +194,9 @@ export class EmptyDevice extends Device {
         return this._textureBarriers.get(hash)!;
     }
 
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: BufferTextureCopy[]) {}
-    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {}
-    public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: BufferTextureCopy[]) {}
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
+    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>) {}
+    public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
 }
 
 legacyCC.EmptyDevice = EmptyDevice;

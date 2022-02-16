@@ -133,7 +133,7 @@ export abstract class CommandBuffer extends GFXObject {
      * @param clearStencil The clearing stencil.
      */
     public abstract beginRenderPass (renderPass: RenderPass, framebuffer: Framebuffer,
-        renderArea: Rect, clearColors: Color[], clearDepth: number, clearStencil: number): void;
+        renderArea: Readonly<Rect>, clearColors: Readonly<Color[]>, clearDepth: number, clearStencil: number): void;
 
     /**
      * @en End render pass.
@@ -156,7 +156,7 @@ export abstract class CommandBuffer extends GFXObject {
      * @param descriptorSet The descriptor set to be bound.
      * @param dynamicOffsets The offset numbers for dynamic bindings.
      */
-    public abstract bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
+    public abstract bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: Readonly<number[]>): void;
 
     /**
      * @en Bind input assembler.
@@ -170,14 +170,14 @@ export abstract class CommandBuffer extends GFXObject {
      * @zh 设置视口。
      * @param viewport The new viewport.
      */
-    public abstract setViewport (viewport: Viewport): void;
+    public abstract setViewport (viewport: Readonly<Viewport>): void;
 
     /**
      * @en Set scissor range.
      * @zh 设置剪裁区域。
      * @param scissor The new scissor range.
      */
-    public abstract setScissor (scissor: Rect): void;
+    public abstract setScissor (scissor: Readonly<Rect>): void;
 
     /**
      * @en Set line width.
@@ -200,7 +200,7 @@ export abstract class CommandBuffer extends GFXObject {
      * @zh 设置混合因子。
      * @param blendConstants The new blend constants.
      */
-    public abstract setBlendConstants (blendConstants: Color): void;
+    public abstract setBlendConstants (blendConstants: Readonly<Color>): void;
 
     /**
      * @en Set depth bound.
@@ -232,7 +232,7 @@ export abstract class CommandBuffer extends GFXObject {
      * @zh 绘制。
      * @param infoOrAssembler The draw call information.
      */
-    public abstract draw (infoOrAssembler: DrawInfo | InputAssembler): void;
+    public abstract draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>): void;
 
     /**
      * @en Update buffer.
@@ -241,7 +241,7 @@ export abstract class CommandBuffer extends GFXObject {
      * @param data The source data.
      * @param size Size in bytes to be updated.
      */
-    public abstract updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
+    public abstract updateBuffer (buffer: Buffer, data: Readonly<ArrayBuffer>, size?: number): void;
 
     /**
      * @en Copy buffer to texture.
@@ -251,7 +251,7 @@ export abstract class CommandBuffer extends GFXObject {
      * @param dstLayout The target texture layout.
      * @param regions The region descriptions.
      */
-    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void;
+    public abstract copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Execute specified command buffers.
@@ -259,7 +259,7 @@ export abstract class CommandBuffer extends GFXObject {
      * @param cmdBuffs The command buffers to be executed.
      * @param count The number of command buffers to be executed.
      */
-    public abstract execute (cmdBuffs: CommandBuffer[], count: number): void;
+    public abstract execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void;
 
     /**
      * @en Insert pipeline memory barriers.
@@ -267,5 +267,6 @@ export abstract class CommandBuffer extends GFXObject {
      * @param barrier The global memory barrier to apply.
      * @param textureBarriers The texture memory barriers to apply.
      */
-    public abstract pipelineBarrier (barrier: GeneralBarrier | null, textureBarriers?: TextureBarrier[], textures?: Texture[]): void;
+    public abstract pipelineBarrier (barrier: Readonly<GeneralBarrier> | null, textureBarriers?: Readonly<TextureBarrier[]>,
+        textures?: Readonly<Texture[]>): void;
 }

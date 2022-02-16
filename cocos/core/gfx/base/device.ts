@@ -172,7 +172,7 @@ export abstract class Device {
      * @en Acquire next swapchain image.
      * @zh 获取下一个交换链缓冲。
      */
-    public abstract acquire (swapchains: Swapchain[]): void;
+    public abstract acquire (swapchains: Readonly<Swapchain[]>): void;
 
     /**
      * @en Present current swapchain image.
@@ -184,7 +184,7 @@ export abstract class Device {
      * @en Flush the specified command buffers.
      * @zh 实际录制指定的命令缓冲。
      */
-    public abstract flushCommands (cmdBuffs: CommandBuffer[]): void;
+    public abstract flushCommands (cmdBuffs: Readonly<CommandBuffer[]>): void;
 
     /**
      * @en Create command buffer.
@@ -305,7 +305,7 @@ export abstract class Device {
      * @param texture The texture to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: BufferTextureCopy[]): void;
+    public abstract copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Copy texture to buffers
@@ -314,7 +314,7 @@ export abstract class Device {
      * @param buffers The buffer to copy to.
      * @param regions The region descriptions
      */
-    public abstract copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void;
+    public abstract copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Copy texture images to texture.
@@ -323,7 +323,7 @@ export abstract class Device {
      * @param texture The texture to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void;
+    public abstract copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Whether the device has specific feature.
