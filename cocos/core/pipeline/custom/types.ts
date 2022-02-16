@@ -95,8 +95,3 @@ export const enum NodeType {
     Internal,
     Leaf,
 }
-/*
-import { UpdateFrequency, ParameterType, Boundedness, ResourceType,
-ValueType, ResourceResidency, QueueHint, ResourceDimension, SampleDesc,
-NodeType } from './types';
-*/

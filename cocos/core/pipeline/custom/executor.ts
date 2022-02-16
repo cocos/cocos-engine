@@ -374,6 +374,3 @@ export class DeviceResourceGraph implements impl.BidirectionalGraph
     readonly _name: string[] = [];
     readonly _refCounts: number[] = [];
 }
-/*
-import {DeviceResourceGraph } from './executor';
-*/

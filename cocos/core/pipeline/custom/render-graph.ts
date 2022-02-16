@@ -1834,16 +1834,3 @@ export class CopyPass {
     private readonly _vertID: number;
     private readonly _pass: CopyPassData;
 }
-/*
-import { ResourceFlags, TextureLayout, ResourceDesc, ResourceTraits,
-ResourceGraph,
-AttachmentType, AccessType, RasterView, ClearValueType, ComputeView,
-RasterSubpass,
-SubpassGraph,
-RasterPassData, ComputePassData, CopyPair, CopyPassData, MovePair,
-MovePassData, RaytracePassData, RenderQueueData, SceneData, Dispatch,
-Blit, PresentPassData, RenderData,
-RenderGraph,
-Setter, RasterQueue, RasterPass, ComputeQueue, ComputePass,
-MovePass, CopyPass } from './render-graph';
-*/

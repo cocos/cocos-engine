@@ -588,9 +588,3 @@ export class LayoutGraph implements impl.BidirectionalGraph
     readonly _updateFrequencies: UpdateFrequency[] = [];
     readonly _layouts: LayoutData[] = [];
 }
-/*
-import { Constant, ConstantBuffer, DescriptorType, DescriptorBlock,
-DescriptorArray, UnboundedDescriptor, DescriptorTable, DescriptorSet, LayoutData,
-ShaderProgramData, GroupNodeData, ShaderNodeData,
-LayoutGraph } from './layout-graph';
-*/
