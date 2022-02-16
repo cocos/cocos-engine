@@ -3,6 +3,19 @@
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/custom/RenderCommonTypes.h"
 #include "renderer/pipeline/custom/RenderInterfaceFwd.h"
+namespace cc {
+
+class Mat4;
+class Mat4;
+class Quaternion;
+class Color;
+class Vec4;
+class Vec3;
+class Vec2;
+class Size;
+class Rect;
+
+} // namespace cc
 
 namespace cc {
 
@@ -18,6 +31,7 @@ public:
 
     virtual ~Setter() noexcept = 0;
 
+    virtual void setMat4(const std::string& name, const cc::Mat4& mat) = 0;
     virtual void setCBuffer(const std::string& name, gfx::Buffer* buffer) = 0;
 };
 

@@ -37,11 +37,33 @@ static bool js_render_Setter_setCBuffer(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_render_Setter_setCBuffer)
 
+static bool js_render_Setter_setMat4(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::Setter>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_Setter_setMat4 : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<cc::Mat4, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_Setter_setMat4 : Error processing arguments");
+        cobj->setMat4(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_render_Setter_setMat4)
+
 bool js_register_render_Setter(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Setter", obj, nullptr, nullptr);
 
     cls->defineFunction("setCBuffer", _SE(js_render_Setter_setCBuffer));
+    cls->defineFunction("setMat4", _SE(js_render_Setter_setMat4));
     cls->install();
     JSBClassType::registerClass<cc::render::Setter>(cls);
 
