@@ -50,7 +50,7 @@ export abstract class Queue extends GFXObject {
         super(ObjectType.QUEUE);
     }
 
-    public abstract initialize (info: QueueInfo): void;
+    public abstract initialize (info: Readonly<QueueInfo>): void;
 
     public abstract destroy (): void;
 

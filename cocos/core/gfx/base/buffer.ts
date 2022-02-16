@@ -103,7 +103,7 @@ export abstract class Buffer extends GFXObject {
         super(ObjectType.BUFFER);
     }
 
-    public abstract initialize (info: BufferInfo | BufferViewInfo): void;
+    public abstract initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>): void;
 
     public abstract destroy (): void;
 

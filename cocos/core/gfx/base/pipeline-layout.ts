@@ -46,7 +46,7 @@ export abstract class PipelineLayout extends GFXObject {
         super(ObjectType.PIPELINE_LAYOUT);
     }
 
-    public abstract initialize (info: PipelineLayoutInfo): void;
+    public abstract initialize (info: Readonly<PipelineLayoutInfo>): void;
 
     public abstract destroy (): void;
 }

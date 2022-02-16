@@ -42,13 +42,13 @@ export class GlobalBarrier extends GFXObject {
     protected _info: GlobalBarrierInfo = new GlobalBarrierInfo();
     protected _hash = 0;
 
-    constructor (info: GlobalBarrierInfo, hash: number) {
+    constructor (info: Readonly<GlobalBarrierInfo>, hash: number) {
         super(ObjectType.GLOBAL_BARRIER);
         this._info.copy(info);
         this._hash = hash;
     }
 
-    static computeHash (info: GlobalBarrierInfo) {
+    static computeHash (info: Readonly<GlobalBarrierInfo>) {
         let res = 'prev:';
         for (let i = 0; i < info.prevAccesses.length; ++i) {
             res += ` ${info.prevAccesses[i]}`;

@@ -138,7 +138,7 @@ export abstract class Texture extends GFXObject {
      * @en Get texture info.
      * @zh 纹理信息。
      */
-    get info (): TextureInfo {
+    get info (): Readonly<TextureInfo> {
         return this._info;
     }
 
@@ -146,7 +146,7 @@ export abstract class Texture extends GFXObject {
      * @en Get view info.
      * @zh 纹理视图信息。
      */
-    get viewInfo (): TextureViewInfo {
+    get viewInfo (): Readonly<TextureViewInfo> {
         return this._viewInfo;
     }
 
@@ -169,7 +169,7 @@ export abstract class Texture extends GFXObject {
         super(ObjectType.TEXTURE);
     }
 
-    public abstract initialize (info: TextureInfo | TextureViewInfo): void;
+    public abstract initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>): void;
 
     public abstract destroy (): void;
 
@@ -181,7 +181,7 @@ export abstract class Texture extends GFXObject {
      */
     public abstract resize (width: number, height: number): void;
 
-    protected abstract initAsSwapchainTexture (info: ISwapchainTextureInfo): void;
+    protected abstract initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>): void;
 
     public static getLevelCount (width: number, height: number): number {
         return Math.floor(Math.log2(Math.max(width, height)));

@@ -36,7 +36,7 @@ export class WebGL2Sampler extends Sampler {
 
     private _gpuSampler: IWebGL2GPUSampler | null = null;
 
-    constructor (info: SamplerInfo, hash: number) {
+    constructor (info: Readonly<SamplerInfo>, hash: number) {
         super(info, hash);
 
         this._gpuSampler = {

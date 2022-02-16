@@ -28,7 +28,7 @@ import { Swapchain } from '../base/swapchain';
 import { EmptyTexture } from './empty-texture';
 
 export class EmptySwapchain extends Swapchain {
-    public initialize (info: SwapchainInfo) {
+    public initialize (info: Readonly<SwapchainInfo>) {
         this._colorTexture = new EmptyTexture();
         // @ts-expect-error(2445) private initializer
         this._colorTexture.initAsSwapchainTexture({

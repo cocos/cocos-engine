@@ -32,7 +32,7 @@ export class WebGLDescriptorSetLayout extends DescriptorSetLayout {
 
     private _gpuDescriptorSetLayout: IWebGLGPUDescriptorSetLayout | null = null;
 
-    public initialize (info: DescriptorSetLayoutInfo) {
+    public initialize (info: Readonly<DescriptorSetLayoutInfo>) {
         Array.prototype.push.apply(this._bindings, info.bindings);
 
         let descriptorCount = 0; let maxBinding = -1;

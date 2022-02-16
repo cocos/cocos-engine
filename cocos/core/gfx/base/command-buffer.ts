@@ -103,7 +103,7 @@ export abstract class CommandBuffer extends GFXObject {
         super(ObjectType.COMMAND_BUFFER);
     }
 
-    public abstract initialize (info: CommandBufferInfo): void;
+    public abstract initialize (info: Readonly<CommandBufferInfo>): void;
 
     public abstract destroy (): void;
 

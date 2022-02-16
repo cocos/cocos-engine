@@ -38,7 +38,7 @@ export class WebGL2Framebuffer extends Framebuffer {
 
     private _gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
 
-    public initialize (info: FramebufferInfo) {
+    public initialize (info: Readonly<FramebufferInfo>) {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;

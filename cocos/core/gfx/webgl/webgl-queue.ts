@@ -32,7 +32,7 @@ export class WebGLQueue extends Queue {
     public numInstances = 0;
     public numTris = 0;
 
-    public initialize (info: QueueInfo) {
+    public initialize (info: Readonly<QueueInfo>) {
         this._type = info.type;
     }
 

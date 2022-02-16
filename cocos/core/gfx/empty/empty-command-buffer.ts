@@ -36,7 +36,7 @@ import { TextureBarrier } from '../base/states/texture-barrier';
 import { StencilFace, BufferSource, CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo } from '../base/define';
 
 export class EmptyCommandBuffer extends CommandBuffer {
-    public initialize (info: CommandBufferInfo) {
+    public initialize (info: Readonly<CommandBufferInfo>) {
         this._type = info.type;
         this._queue = info.queue;
     }

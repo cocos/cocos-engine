@@ -27,7 +27,7 @@ import { BufferSource, BufferInfo, BufferViewInfo } from '../base/define';
 import { Buffer } from '../base/buffer';
 
 export class EmptyBuffer extends Buffer {
-    public initialize (info: BufferInfo | BufferViewInfo) {
+    public initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>) {
         if ('buffer' in info) { // buffer view
             this._isBufferView = true;
 

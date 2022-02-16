@@ -41,9 +41,10 @@ export class WebGLTexture extends Texture {
     private _gpuTexture: IWebGLGPUTexture | null = null;
     private _lodLevel = 0;
 
-    public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean) {
-        let texInfo = info as TextureInfo;
-        const viewInfo = info as TextureViewInfo;
+    public initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean) {
+        let texInfo = info as Readonly<TextureInfo>;
+        const viewInfo = info as Readonly<TextureViewInfo>;
+
         if ('texture' in info) {
             texInfo = viewInfo.texture.info;
             this._isTextureView = true;
@@ -141,7 +142,7 @@ export class WebGLTexture extends Texture {
 
     // ======================= Swapchain Specific ======================= //
 
-    protected initAsSwapchainTexture (info: ISwapchainTextureInfo) {
+    protected initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>) {
         const texInfo = new TextureInfo();
         texInfo.format = info.format;
         texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;

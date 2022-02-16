@@ -57,7 +57,7 @@ export class WebGL2IndirectDrawInfos {
         this.instancedDraw = false;
     }
 
-    public setDrawInfo (idx: number, info: DrawInfo) {
+    public setDrawInfo (idx: number, info: Readonly<DrawInfo>) {
         this._ensureCapacity(idx);
         this.drawByIndex = info.indexCount > 0;
         this.instancedDraw = !!info.instanceCount;

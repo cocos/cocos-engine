@@ -1348,7 +1348,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                         gl.COLOR_ATTACHMENT0 + i,
                         colorTexture.glTarget,
                         colorTexture.glTexture,
-                        gpuFramebuffer.gpuDepthStencilView!.baseLevel,
+                        colorTextureView.baseLevel,
                     );
                 } else {
                     gl.framebufferRenderbuffer(
@@ -1366,8 +1366,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
         }
 
         const dstView = gpuFramebuffer.gpuDepthStencilView;
-        const dst = dstView!.gpuTexture;
-        if (dst && dstView) {
+        if (dstView) {
+            const dst = dstView.gpuTexture;
             const glAttachment = FormatInfos[dst.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
             if (dst.glTexture) {
                 gl.framebufferTexture2D(
@@ -2475,7 +2475,7 @@ export function WebGL2CmdFuncBindStates (
     } // update dynamic states
 }
 
-export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: DrawInfo) {
+export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: Readonly<DrawInfo>) {
     const { gl } = device;
     const { gpuInputAssembler, glPrimitive } = gfxStateCache;
     const md = device.extensions.WEBGL_multi_draw;
