@@ -86,6 +86,7 @@ using IndexList          = vector<uint32_t>;
 constexpr uint32_t MAX_ATTACHMENTS  = 4U;
 constexpr uint32_t INVALID_BINDING  = ~0U;
 constexpr uint32_t SUBPASS_EXTERNAL = ~0U;
+constexpr uint32_t MAX_VIEWPORTS    = 4U;
 
 // Although the standard is not limited, some devices do not support up to 65536 queries
 constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767;
@@ -864,15 +865,6 @@ struct BufferTextureCopy {
 };
 using BufferTextureCopyList = vector<BufferTextureCopy>;
 
-struct Viewport {
-    int32_t  left{0};
-    int32_t  top{0};
-    uint32_t width{0};
-    uint32_t height{0};
-    float    minDepth{0.F};
-    float    maxDepth{1.F};
-};
-
 struct Color {
     float x{0.F};
     float y{0.F};
@@ -1119,12 +1111,12 @@ struct InputAssemblerInfo {
 };
 
 struct ALIGNAS(8) ColorAttachment {
-    Format         format{Format::UNKNOWN};
-    SampleCount    sampleCount{SampleCount::ONE};
-    LoadOp         loadOp{LoadOp::CLEAR};
-    StoreOp        storeOp{StoreOp::STORE};
+    Format          format{Format::UNKNOWN};
+    SampleCount     sampleCount{SampleCount::ONE};
+    LoadOp          loadOp{LoadOp::CLEAR};
+    StoreOp         storeOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-    uint32_t       isGeneralLayout{0}; // @ts-boolean
+    uint32_t        isGeneralLayout{0}; // @ts-boolean
 #if CC_CPU_ARCH == CC_CPU_ARCH_64
     uint32_t _padding{0};
 #endif
@@ -1133,14 +1125,14 @@ struct ALIGNAS(8) ColorAttachment {
 using ColorAttachmentList = vector<ColorAttachment>;
 
 struct ALIGNAS(8) DepthStencilAttachment {
-    Format         format{Format::UNKNOWN};
-    SampleCount    sampleCount{SampleCount::ONE};
-    LoadOp         depthLoadOp{LoadOp::CLEAR};
-    StoreOp        depthStoreOp{StoreOp::STORE};
-    LoadOp         stencilLoadOp{LoadOp::CLEAR};
-    StoreOp        stencilStoreOp{StoreOp::STORE};
+    Format          format{Format::UNKNOWN};
+    SampleCount     sampleCount{SampleCount::ONE};
+    LoadOp          depthLoadOp{LoadOp::CLEAR};
+    StoreOp         depthStoreOp{StoreOp::STORE};
+    LoadOp          stencilLoadOp{LoadOp::CLEAR};
+    StoreOp         stencilStoreOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-    uint32_t       isGeneralLayout{0}; // @ts-boolean
+    uint32_t        isGeneralLayout{0}; // @ts-boolean
 #if CC_CPU_ARCH == CC_CPU_ARCH_64
     uint32_t _padding{0};
 #endif
@@ -1156,17 +1148,22 @@ struct SubpassInfo {
     uint32_t    depthStencilResolve{INVALID_BINDING};
     ResolveMode depthResolveMode{ResolveMode::NONE};
     ResolveMode stencilResolveMode{ResolveMode::NONE};
+
+    // which views rendering is broadcast to
+    uint32_t viewMask = INVALID_BINDING;
 };
 
 using SubpassInfoList = vector<SubpassInfo>;
 
 struct ALIGNAS(8) SubpassDependency {
-    uint32_t       srcSubpass{0};
-    uint32_t       dstSubpass{0};
+    uint32_t        srcSubpass{0};
+    uint32_t        dstSubpass{0};
     GeneralBarrier *barrier{nullptr};
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     uint32_t _padding{0};
 #endif
+    // which views in the source subpass the views in the destination subpass depend on
+    uint32_t viewOffset = 0U;
 };
 
 using SubpassDependencyList = vector<SubpassDependency>;
@@ -1288,9 +1285,10 @@ struct BlendState {
 };
 
 struct PipelineStateInfo {
-    Shader *          shader{nullptr};
-    PipelineLayout *  pipelineLayout{nullptr};
-    RenderPass *      renderPass{nullptr};
+    Shader *        shader{nullptr};
+    PipelineLayout *pipelineLayout{nullptr};
+    RenderPass *    renderPass{nullptr};
+
     InputState        inputState;
     RasterizerState   rasterizerState;
     DepthStencilState depthStencilState;
@@ -1299,6 +1297,9 @@ struct PipelineStateInfo {
     DynamicStateFlags dynamicStates{DynamicStateFlagBit::NONE};
     PipelineBindPoint bindPoint{PipelineBindPoint::GRAPHICS};
     uint32_t          subpass{0};
+
+    // number of viewports
+    uint32_t viewports = 1U;
 };
 
 struct CommandBufferInfo {
@@ -1338,16 +1339,16 @@ struct DynamicStencilStates {
     uint32_t reference{0};
 };
 
+using ViewportList = std::vector<Rect>;
 struct DynamicStates {
-    Viewport viewport;
-    Rect     scissor;
-    Color    blendConstant;
-    float    lineWidth{1.F};
-    float    depthBiasConstant{0.F};
-    float    depthBiasClamp{0.F};
-    float    depthBiasSlope{0.F};
-    float    depthMinBounds{0.F};
-    float    depthMaxBounds{0.F};
+    ViewportList viewports;
+    Color        blendConstant;
+    float        lineWidth{1.F};
+    float        depthBiasConstant{0.F};
+    float        depthBiasClamp{0.F};
+    float        depthBiasSlope{0.F};
+    float        depthMinBounds{0.F};
+    float        depthMaxBounds{0.F};
 
     DynamicStencilStates stencilStatesFront;
     DynamicStencilStates stencilStatesBack;

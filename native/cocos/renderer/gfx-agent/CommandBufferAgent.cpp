@@ -254,23 +254,14 @@ void CommandBufferAgent::bindInputAssembler(InputAssembler *ia) {
         });
 }
 
-void CommandBufferAgent::setViewport(const Viewport &vp) {
-    ENQUEUE_MESSAGE_2(
+void CommandBufferAgent::setViewports(const Rect *vp, uint32_t count) {
+    ENQUEUE_MESSAGE_3(
         _messageQueue, CommandBufferSetViewport,
         actor, getActor(),
         vp, vp,
+        count, count,
         {
-            actor->setViewport(vp);
-        });
-}
-
-void CommandBufferAgent::setScissor(const Rect &rect) {
-    ENQUEUE_MESSAGE_2(
-        _messageQueue, CommandBufferSetScissor,
-        actor, getActor(),
-        rect, rect,
-        {
-            actor->setScissor(rect);
+            actor->setViewports(vp, count);
         });
 }
 

@@ -113,6 +113,10 @@ void CCVKCommandBuffer::end() {
     _curGPUFBO                       = nullptr;
     _curGPUInputAssember             = nullptr;
     _curDynamicStates.viewport.width = _curDynamicStates.viewport.height = _curDynamicStates.scissor.width = _curDynamicStates.scissor.height = 0U;
+
+    _curDynamicStates.viewports.resize(1);
+    _curDynamicStates.viewports[0] = {};
+
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
     _gpuCommandBuffer->began = false;
 
@@ -259,21 +263,34 @@ void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
     }
 }
 
-void CCVKCommandBuffer::setViewport(const Viewport &vp) {
-    if (_curDynamicStates.viewport != vp) {
-        _curDynamicStates.viewport = vp;
+void CCVKCommandBuffer::setViewports(const Rect *vp, uint32_t count) {
+    int start = -1;
 
-        VkViewport viewport{static_cast<float>(vp.left), static_cast<float>(vp.top), static_cast<float>(vp.width), static_cast<float>(vp.height), vp.minDepth, vp.maxDepth};
-        vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
+    static vector<VkViewport> vkViewports;
+    static vector<VkRect2D>   vkScissors;
+    vkViewports.resize(count);
+    vkScissors.resize(count);
+
+    ViewportList &viewports = _curDynamicStates.viewports;
+
+    viewports.resize(count);
+
+    for (int i = 0; i < count; i++) {
+        if (viewports[i] != vp[i]) {
+            start = i;
+            copy(&vp[i], &vp[count - 1], viewports.begin() + i);
+            break;
+        }
     }
-}
 
-void CCVKCommandBuffer::setScissor(const Rect &rect) {
-    if (_curDynamicStates.scissor != rect) {
-        _curDynamicStates.scissor = rect;
+    if (start != -1) {
+        transform(viewports.cbegin() + start, viewports.cend(), vkViewports.cbegin() + start,
+                  [](const Rect &v) { return VkViewport{static_cast<float>(v.x), static_cast<float>(v.y), static_cast<float>(v.width), static_cast<float>(v.height), 0.f, 1.f}; });
+        transform(viewports.cbegin() + start, viewports.cend(), vkScissors.cbegin() + start,
+                  [](const Rect &v) { return VkRect2D{{v.x, v.y}, {v.width, v.height}}; });
 
-        VkRect2D scissor = {{rect.x, rect.y}, {rect.width, rect.height}};
-        vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &scissor);
+        vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, start, count - start, vkViewports.data() + start);
+        vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, start, count - start, vkScissors.data() + start);
     }
 }
 

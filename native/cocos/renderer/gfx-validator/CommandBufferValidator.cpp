@@ -260,24 +260,24 @@ void CommandBufferValidator::bindInputAssembler(InputAssembler *ia) {
     _actor->bindInputAssembler(static_cast<InputAssemblerValidator *>(ia)->getActor());
 }
 
-void CommandBufferValidator::setViewport(const Viewport &vp) {
+void CommandBufferValidator::setViewports(const Rect *vp, uint32_t count) {
     CCASSERT(isInited(), "alread destroyed?");
 
-    _curStates.viewport = vp;
+    CCASSERT(count < MAX_VIEWPORTS, "too many viewports?");
+
+    ViewportList &viewports = _curStates.viewports;
+    viewports.resize(count);
+
+    for (int i = 0; i < count; i++) {
+        if (viewports[i] != vp[i]) {
+            copy(&vp[i], &vp[count - 1], viewports.begin() + i);
+            break;
+        }
+    }
 
     /////////// execute ///////////
 
-    _actor->setViewport(vp);
-}
-
-void CommandBufferValidator::setScissor(const Rect &rect) {
-    CCASSERT(isInited(), "alread destroyed?");
-
-    _curStates.scissor = rect;
-
-    /////////// execute ///////////
-
-    _actor->setScissor(rect);
+    _actor->setViewports(vp, count);
 }
 
 void CommandBufferValidator::setLineWidth(float width) {

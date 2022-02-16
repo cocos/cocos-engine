@@ -48,8 +48,7 @@ public:
     virtual void bindPipelineState(PipelineState *pso)                                                                                                                                                                = 0;
     virtual void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets)                                                                           = 0;
     virtual void bindInputAssembler(InputAssembler *ia)                                                                                                                                                               = 0;
-    virtual void setViewport(const Viewport &vp)                                                                                                                                                                      = 0;
-    virtual void setScissor(const Rect &rect)                                                                                                                                                                         = 0;
+    virtual void setViewports(const Rect *vp, uint32_t count)                                                                                                                                                         = 0;
     virtual void setLineWidth(float width)                                                                                                                                                                            = 0;
     virtual void setDepthBias(float constant, float clamp, float slope)                                                                                                                                               = 0;
     virtual void setBlendConstants(const Color &constants)                                                                                                                                                            = 0;
@@ -63,11 +62,14 @@ public:
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter)                                                                                     = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count)                                                                                                                                              = 0;
     virtual void dispatch(const DispatchInfo &info)                                                                                                                                                                   = 0;
-    virtual void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                            = 0;
+    virtual void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                           = 0;
     virtual void beginQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                        = 0;
     virtual void endQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                          = 0;
     virtual void resetQueryPool(QueryPool *queryPool)                                                                                                                                                                 = 0;
     virtual void completeQueryPool(QueryPool *queryPool) {}
+
+    // set both viewports and scissors
+    inline void setViewport(const Rect &vp) { setViewports(&vp, 1); }
 
     inline void begin();
     inline void begin(RenderPass *renderPass);
