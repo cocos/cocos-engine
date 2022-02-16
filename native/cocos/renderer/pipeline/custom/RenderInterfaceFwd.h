@@ -8,6 +8,7 @@ namespace cc {
 
 namespace render {
 
+class Setter;
 class Pipeline;
 
 } // namespace render

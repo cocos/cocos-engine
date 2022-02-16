@@ -8,6 +8,21 @@ namespace cc {
 
 namespace render {
 
+class Setter {
+public:
+    Setter() noexcept = default;
+    Setter(Setter&& rhs)      = delete;
+    Setter(Setter const& rhs) = delete;
+    Setter& operator=(Setter&& rhs) = delete;
+    Setter& operator=(Setter const& rhs) = delete;
+
+    virtual ~Setter() noexcept = 0;
+
+    virtual void setCBuffer(const std::string& name, gfx::Buffer* buffer) = 0;
+};
+
+inline Setter::~Setter() noexcept = default;
+
 class Pipeline {
 public:
     Pipeline() noexcept = default;

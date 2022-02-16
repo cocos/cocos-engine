@@ -46,13 +46,6 @@ struct Blit;
 struct PresentPassData;
 struct RenderData;
 struct RenderGraph;
-class Setter;
-class RasterQueue;
-class RasterPass;
-class ComputeQueue;
-class ComputePass;
-struct MovePass;
-struct CopyPass;
 
 } // namespace render
 

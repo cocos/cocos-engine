@@ -64,13 +64,6 @@ inline const char* getName(const Blit& /*v*/) noexcept { return "Blit"; }
 inline const char* getName(const PresentPassData& /*v*/) noexcept { return "PresentPassData"; }
 inline const char* getName(const RenderData& /*v*/) noexcept { return "RenderData"; }
 inline const char* getName(const RenderGraph& /*v*/) noexcept { return "RenderGraph"; }
-inline const char* getName(const Setter& /*v*/) noexcept { return "Setter"; }
-inline const char* getName(const RasterQueue& /*v*/) noexcept { return "RasterQueue"; }
-inline const char* getName(const RasterPass& /*v*/) noexcept { return "RasterPass"; }
-inline const char* getName(const ComputeQueue& /*v*/) noexcept { return "ComputeQueue"; }
-inline const char* getName(const ComputePass& /*v*/) noexcept { return "ComputePass"; }
-inline const char* getName(const MovePass& /*v*/) noexcept { return "MovePass"; }
-inline const char* getName(const CopyPass& /*v*/) noexcept { return "CopyPass"; }
 
 } // namespace render
 

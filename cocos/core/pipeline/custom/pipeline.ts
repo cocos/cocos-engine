@@ -1,4 +1,9 @@
-import { Format } from '../../gfx/index';
+import { Buffer, Format } from '../../gfx/index';
+
+export abstract class Setter {
+    // APIs
+    public abstract setCBuffer(name: string, buffer: Buffer): void;
+}
 
 export abstract class Pipeline {
     // APIs
