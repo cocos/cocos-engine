@@ -317,24 +317,57 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
     }
 }
 
+void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char* event, const char *stackTrace) {
+    using element_type = decltype(_promiseArray)::value_type;
+    element_type *current;
+
+    auto itr = std::find_if(_promiseArray.begin(), _promiseArray.end(), [&](const auto &e) -> bool {
+        return std::get<0>(e)->Get(_isolate) == promise;
+    });
+
+    if (itr == _promiseArray.end()) {//Not found, create one
+        _promiseArray.emplace_back(std::make_unique<v8::Persistent<v8::Promise>>(), std::vector<PromiseExceptionMsg>{});
+        std::get<0>(_promiseArray.back())->Reset(_isolate, promise);
+        current = &_promiseArray.back();
+    } else {
+        current = &(*itr);
+    }
+
+    auto &exceptions = std::get<1>(*current);
+    if (std::strcmp(event,"handlerAddedAfterPromiseRejected") == 0) {
+        for (int i = 0; i < exceptions.size(); i++) {
+            if (std::strcmp(exceptions[i].event,"unhandledRejectedPromise") == 0) {
+                exceptions.erase(exceptions.begin() + i);
+                return;
+            }
+        }
+    }
+    exceptions.push_back(PromiseExceptionMsg{event, stackTrace});
+}
+
+void ScriptEngine::handlePromiseExceptions() {
+    if (_promiseArray.empty()) {
+        return;
+    }
+    for (auto& exceptionsPair : _promiseArray) {
+        auto& exceptionVector = std::get<1>(exceptionsPair);
+        for (const auto& exceptions : exceptionVector) {
+            getInstance()->callExceptionCallback("", exceptions.event, exceptions.stackTrace);
+        }
+        std::get<0>(exceptionsPair).get()->Reset();
+    }
+    _promiseArray.clear();
+}
+
 void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
+    /* Reject message contains different types, yet not every type will lead to the exception in the end.
+     * A detection is needed: if the reject handler is added after the promise is triggered, it's actually valid.*/
     v8::Isolate *     isolate = getInstance()->_isolate;
     v8::HandleScope   scope(isolate);
     std::stringstream ss;
     auto              event       = msg.GetEvent();
     auto              value       = msg.GetValue();
     auto              promiseName = msg.GetPromise()->GetConstructorName();
-    const char *      eventName   = "[invalidatePromiseEvent]";
-
-    if (event == v8::kPromiseRejectWithNoHandler) {
-        eventName = "unhandledRejectedPromise";
-    } else if (event == v8::kPromiseHandlerAddedAfterReject) {
-        eventName = "handlerAddedAfterPromiseRejected";
-    } else if (event == v8::kPromiseRejectAfterResolved) {
-        eventName = "rejectAfterPromiseResolved";
-    } else if (event == v8::kPromiseResolveAfterResolved) {
-        eventName = "resolveAfterPromiseResolved";
-    }
 
     if (!value.IsEmpty()) {
         // prepend error object to stack message
@@ -396,7 +429,24 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
     auto stackStr = getInstance()->getCurrentStackTrace();
     ss << "stacktrace: " << std::endl;
     ss << stackStr << std::endl;
-    getInstance()->callExceptionCallback("", eventName, ss.str().c_str());
+    //Check event immediately, for certain case throw exception.
+    const char* eventName;
+    switch (event) {
+        case v8::kPromiseRejectWithNoHandler:
+            eventName = "unhandledRejectedPromise";
+            getInstance()->pushPromiseExeception(msg.GetPromise(), "unhandledRejectedPromise", ss.str().c_str());
+            break;
+        case v8::kPromiseHandlerAddedAfterReject:
+            eventName = "handlerAddedAfterPromiseRejected"; 
+            getInstance()->pushPromiseExeception(msg.GetPromise(), "handlerAddedAfterPromiseRejected", ss.str().c_str());
+            break;
+        case v8::kPromiseRejectAfterResolved:
+            getInstance()->callExceptionCallback("", "rejectAfterPromiseResolved", stackStr.c_str());
+            break;
+        case v8::kPromiseResolveAfterResolved:
+            getInstance()->callExceptionCallback("", "resolveAfterPromiseResolved", stackStr.c_str());
+            break;
+    }
 }
 
 void ScriptEngine::privateDataFinalize(PrivateObjectBase *privateObj) {
