@@ -38,29 +38,29 @@ template <class DirectedCategory, class VertexDescriptor>
 struct EdgeDescriptor {
     EdgeDescriptor() = default;
     EdgeDescriptor(VertexDescriptor s, VertexDescriptor t) noexcept // NOLINT
-    : m_source(s), m_target(t) {}
+    : source(s), target(t) {}
 
     void expectsNoProperty() const noexcept {
         // CC_EXPECTS(false);
     }
-    VertexDescriptor m_source = static_cast<VertexDescriptor>(-1);
-    VertexDescriptor m_target = static_cast<VertexDescriptor>(-1);
+    VertexDescriptor source = static_cast<VertexDescriptor>(-1);
+    VertexDescriptor target = static_cast<VertexDescriptor>(-1);
 };
 
 template <class VertexDescriptor>
 inline bool operator==(
     const EdgeDescriptor<boost::directed_tag, VertexDescriptor> &lhs,
     const EdgeDescriptor<boost::directed_tag, VertexDescriptor> &rhs) noexcept {
-    return lhs.m_source == rhs.m_source &&
-           lhs.m_target == rhs.m_target;
+    return lhs.source == rhs.source &&
+           lhs.target == rhs.target;
 }
 
 template <class VertexDescriptor>
 inline bool operator==(
     const EdgeDescriptor<boost::bidirectional_tag, VertexDescriptor> &lhs,
     const EdgeDescriptor<boost::bidirectional_tag, VertexDescriptor> &rhs) noexcept {
-    return lhs.m_source == rhs.m_source &&
-           lhs.m_target == rhs.m_target;
+    return lhs.source == rhs.source &&
+           lhs.target == rhs.target;
 }
 
 template <class VertexDescriptor>
@@ -83,20 +83,20 @@ struct EdgeDescriptorWithProperty : EdgeDescriptor<DirectedCategory, VertexDescr
 
     EdgeDescriptorWithProperty() = default;
     EdgeDescriptorWithProperty(VertexDescriptor s, VertexDescriptor t, const property_type *p) noexcept
-    : EdgeDescriptor<DirectedCategory, VertexDescriptor>(s, t), mEdgeProperty(const_cast<property_type *>(p)) {}
+    : EdgeDescriptor<DirectedCategory, VertexDescriptor>(s, t), edgeProperty(const_cast<property_type *>(p)) {}
 
     property_type *get_property() const noexcept { // NOLINT
-        return mEdgeProperty;
+        return edgeProperty;
     }
 
-    property_type *mEdgeProperty = nullptr;
+    property_type *edgeProperty = nullptr;
 };
 
 template <class DirectedCategory, class VertexDescriptor>
 inline bool operator==(
     const EdgeDescriptorWithProperty<DirectedCategory, VertexDescriptor> &lhs,
     const EdgeDescriptorWithProperty<DirectedCategory, VertexDescriptor> &rhs) noexcept {
-    return lhs.mEdgeProperty == rhs.mEdgeProperty;
+    return lhs.edgeProperty == rhs.edgeProperty;
 }
 
 template <class DirectedCategory, class VertexDescriptor>
@@ -110,7 +110,7 @@ template <class DirectedCategory, class VertexDescriptor>
 inline bool operator<(
     const EdgeDescriptorWithProperty<DirectedCategory, VertexDescriptor> &lhs,
     const EdgeDescriptorWithProperty<DirectedCategory, VertexDescriptor> &rhs) noexcept {
-    return lhs.mEdgeProperty < rhs.mEdgeProperty;
+    return lhs.edgeProperty < rhs.edgeProperty;
 }
 
 //--------------------------------------------------------------------
@@ -120,23 +120,23 @@ template <class VertexDescriptor>
 class StoredEdge {
 public:
     StoredEdge(VertexDescriptor target) noexcept // NOLINT(google-explicit-constructor)
-    : m_target(target) {}
+    : target(target) {}
     const VertexDescriptor &get_target() const noexcept { // NOLINT
-        return m_target;
+        return target;
     }
     VertexDescriptor &get_target() noexcept { // NOLINT
-        return m_target;
+        return target;
     }
     // auto operator<=>(const StoredEdge&) const noexcept = default;
 
-    VertexDescriptor m_target;
+    VertexDescriptor target;
 };
 
 template <class VertexDescriptor>
 inline bool operator==(
     const StoredEdge<VertexDescriptor> &lhs,
     const StoredEdge<VertexDescriptor> &rhs) noexcept {
-    return lhs.m_target == rhs.m_target;
+    return lhs.target == rhs.target;
 }
 
 template <class VertexDescriptor>
@@ -150,16 +150,16 @@ template <class VertexDescriptor>
 inline bool operator<(
     const StoredEdge<VertexDescriptor> &lhs,
     const StoredEdge<VertexDescriptor> &rhs) noexcept {
-    return lhs.m_target < rhs.m_target;
+    return lhs.target < rhs.target;
 }
 
 template <class VertexDescriptor, class EdgeProperty>
 class StoredEdgeWithProperty : public StoredEdge<VertexDescriptor> {
 public:
     StoredEdgeWithProperty(VertexDescriptor target, const EdgeProperty &p)
-    : StoredEdge<VertexDescriptor>(target), mProperty(new EdgeProperty(p)) {}
+    : StoredEdge<VertexDescriptor>(target), property(new EdgeProperty(p)) {}
     StoredEdgeWithProperty(VertexDescriptor target, std::unique_ptr<EdgeProperty> &&ptr)
-    : StoredEdge<VertexDescriptor>(target), mProperty(std::move(ptr)) {}
+    : StoredEdge<VertexDescriptor>(target), property(std::move(ptr)) {}
     StoredEdgeWithProperty(VertexDescriptor target) // NOLINT(google-explicit-constructor)
     : StoredEdge<VertexDescriptor>(target) {}
 
@@ -167,14 +167,14 @@ public:
     StoredEdgeWithProperty &operator=(StoredEdgeWithProperty &&) noexcept = default;
 
     EdgeProperty &get_property() noexcept { // NOLINT
-        CC_EXPECTS(mProperty);
-        return *mProperty;
+        CC_EXPECTS(property);
+        return *property;
     }
     const EdgeProperty &get_property() const noexcept { // NOLINT
-        CC_EXPECTS(mProperty);
-        return *mProperty;
+        CC_EXPECTS(property);
+        return *property;
     }
-    std::unique_ptr<EdgeProperty> mProperty;
+    std::unique_ptr<EdgeProperty> property;
 };
 
 template <class VertexDescriptor, class EdgeListIter, class EdgeProperty = boost::no_property>
@@ -274,14 +274,14 @@ struct OutEdgeIter : boost::iterator_adaptor<
 
     OutEdgeIter() = default;
     OutEdgeIter(const BaseIter &i, const VertexDescriptor &src) noexcept
-    : Base(i), mSource(src) {}
+    : Base(i), source(src) {}
 
     EdgeDescriptor dereference() const noexcept {
         // this->base() return out edge list iterator
         return EdgeDescriptor{
-            mSource, (*this->base()).get_target()};
+            source, (*this->base()).get_target()};
     }
-    VertexDescriptor mSource = {};
+    VertexDescriptor source = {};
 };
 
 template <class BaseIter, class VertexDescriptor, class EdgeDescriptor, class Difference>
@@ -294,14 +294,14 @@ struct OutPropertyEdgeIter : boost::iterator_adaptor<
 
     OutPropertyEdgeIter() = default;
     OutPropertyEdgeIter(const BaseIter &i, const VertexDescriptor &src) noexcept
-    : Base(i), mSource(src) {}
+    : Base(i), source(src) {}
 
     EdgeDescriptor dereference() const noexcept {
         // this->base() return out edge list iterator
         return EdgeDescriptor{
-            mSource, (*this->base()).get_target(), &(*this->base()).get_property()};
+            source, (*this->base()).get_target(), &(*this->base()).get_property()};
     }
-    VertexDescriptor mSource = {};
+    VertexDescriptor source = {};
 };
 
 //--------------------------------------------------------------------
@@ -317,13 +317,13 @@ struct InEdgeIter : boost::iterator_adaptor<
 
     InEdgeIter() = default;
     InEdgeIter(const BaseIter &i, const VertexDescriptor &src) noexcept
-    : Base(i), mSource(src) {}
+    : Base(i), source(src) {}
 
     EdgeDescriptor dereference() const noexcept {
         return EdgeDescriptor{
-            (*this->base()).get_target(), mSource};
+            (*this->base()).get_target(), source};
     }
-    VertexDescriptor mSource = {};
+    VertexDescriptor source = {};
 };
 
 template <class BaseIter, class VertexDescriptor, class EdgeDescriptor, class Difference>
@@ -336,13 +336,13 @@ struct InPropertyEdgeIter : boost::iterator_adaptor<
 
     InPropertyEdgeIter() = default;
     InPropertyEdgeIter(const BaseIter &i, const VertexDescriptor &src) noexcept
-    : Base(i), mSource(src) {}
+    : Base(i), source(src) {}
 
     EdgeDescriptor dereference() const noexcept {
         return EdgeDescriptor{
-            (*this->base()).get_target(), mSource, &this->base()->get_property()};
+            (*this->base()).get_target(), source, &this->base()->get_property()};
     }
-    VertexDescriptor mSource = {};
+    VertexDescriptor source = {};
 };
 
 //--------------------------------------------------------------------
@@ -362,7 +362,7 @@ struct UndirectedEdgeIter : boost::iterator_adaptor<
 
     EdgeDescriptor dereference() const noexcept {
         return EdgeDescriptor{
-            (*this->base()).m_source, (*this->base()).m_target, &this->base()->get_property()};
+            (*this->base()).source, (*this->base()).target, &this->base()->get_property()};
     }
 };
 
@@ -433,24 +433,24 @@ protected:
 template <class VertexDescriptor, class EdgeProperty = boost::no_property>
 struct ListEdge {
     ListEdge(VertexDescriptor s, VertexDescriptor t) // NOLINT
-    : m_source(s), m_target(t) {}
+    : source(s), target(t) {}
 
     ListEdge(VertexDescriptor s, VertexDescriptor t, EdgeProperty &&p) // NOLINT
-    : m_source(s), m_target(t), mProperty(std::move(p)) {}
+    : source(s), target(t), property(std::move(p)) {}
 
     ListEdge(VertexDescriptor s, VertexDescriptor t, const EdgeProperty &p) // NOLINT
-    : m_source(s), m_target(t), mProperty(p) {}
+    : source(s), target(t), property(p) {}
 
     template <class... T>
     ListEdge(VertexDescriptor s, VertexDescriptor t, T &&...args) // NOLINT
-    : m_source(s), m_target(t), mProperty(std::forward<T>(args)...) {}
+    : source(s), target(t), property(std::forward<T>(args)...) {}
 
-    EdgeProperty       &get_property() noexcept { return mProperty; }       // NOLINT
-    const EdgeProperty &get_property() const noexcept { return mProperty; } // NOLINT
+    EdgeProperty       &get_property() noexcept { return property; }       // NOLINT
+    const EdgeProperty &get_property() const noexcept { return property; } // NOLINT
 
-    VertexDescriptor m_source = {};
-    VertexDescriptor m_target = {};
-    EdgeProperty     mProperty;
+    VertexDescriptor source = {};
+    VertexDescriptor target = {};
+    EdgeProperty     property;
 };
 
 // template<class VertexDescriptor, PmrAllocatorUserClass_ EdgeProperty>
@@ -458,36 +458,36 @@ template <class VertexDescriptor, class EdgeProperty>
 struct PmrListEdge {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return allocator_type{mProperty.get_allocator().resource()};
+        return allocator_type{property.get_allocator().resource()};
     }
     // cntrs
     PmrListEdge(VertexDescriptor s, VertexDescriptor t, const allocator_type &alloc) // NOLINT
-    : m_source(s), m_target(t), mProperty(alloc) {}
+    : source(s), target(t), property(alloc) {}
 
     PmrListEdge(VertexDescriptor s, VertexDescriptor t, EdgeProperty &&p, const allocator_type &alloc) // NOLINT
-    : m_source(s), m_target(t), mProperty(std::move(p), alloc) {}
+    : source(s), target(t), property(std::move(p), alloc) {}
 
     PmrListEdge(VertexDescriptor s, VertexDescriptor t, const EdgeProperty &p, const allocator_type &alloc) // NOLINT
-    : m_source(s), m_target(t), mProperty(p, alloc) {}
+    : source(s), target(t), property(p, alloc) {}
 
     template <class... T>
     PmrListEdge(VertexDescriptor s, VertexDescriptor t, T &&...args) // NOLINT
-    : m_source(s), m_target(t), mProperty(std::forward<T>(args)...) {}
+    : source(s), target(t), property(std::forward<T>(args)...) {}
 
     // move/copy cntrs
     PmrListEdge(PmrListEdge &&rhs, const allocator_type &alloc)
-    : m_source(std::move(rhs.m_source)), m_target(std::move(rhs.m_target)), mProperty(std::move(rhs.mProperty), alloc) {}
+    : source(std::move(rhs.source)), target(std::move(rhs.target)), property(std::move(rhs.property), alloc) {}
     PmrListEdge(const PmrListEdge &rhs, const allocator_type &alloc)
-    : m_source(rhs.m_source), m_target(rhs.m_target), mProperty(rhs.mProperty, alloc) {}
+    : source(rhs.source), target(rhs.target), property(rhs.property, alloc) {}
 
     PmrListEdge(const PmrListEdge &) = delete;
 
-    EdgeProperty       &get_property() noexcept { return mProperty; }       // NOLINT
-    const EdgeProperty &get_property() const noexcept { return mProperty; } // NOLINT
+    EdgeProperty       &get_property() noexcept { return property; }       // NOLINT
+    const EdgeProperty &get_property() const noexcept { return property; } // NOLINT
 
-    VertexDescriptor m_source = {};
-    VertexDescriptor m_target = {};
-    EdgeProperty     mProperty;
+    VertexDescriptor source = {};
+    VertexDescriptor target = {};
+    EdgeProperty     property;
 };
 
 // Polymorphic Graph
@@ -495,27 +495,27 @@ template <class Tag, class Handle>
 struct ValueHandle : Tag {
     ValueHandle() noexcept = default;
     ValueHandle(ValueHandle &&rhs) noexcept
-    : mValue(std::move(rhs.mValue)) {}
+    : value(std::move(rhs.value)) {}
     ValueHandle(const ValueHandle &rhs) noexcept
-    : mValue(rhs.mValue) {}
+    : value(rhs.value) {}
     ValueHandle &operator=(ValueHandle &&rhs) noexcept {
-        mValue = std::move(rhs.mValue);
+        value = std::move(rhs.value);
         return *this;
     }
     ValueHandle &operator=(const ValueHandle &rhs) noexcept {
-        mValue = rhs.mValue;
+        value = rhs.value;
         return *this;
     }
 
     ValueHandle(const Handle &handle) noexcept // NOLINT(google-explicit-constructor)
-    : mValue(handle) {}
+    : value(handle) {}
     ValueHandle(Handle &&handle) noexcept // NOLINT(google-explicit-constructor)
-    : mValue(std::move(handle)) {}
+    : value(std::move(handle)) {}
     template <class... Args>
     ValueHandle(Args &&...args) noexcept // NOLINT(google-explicit-constructor)
-    : mValue(std::forward<Args>(args)...) {}
+    : value(std::forward<Args>(args)...) {}
 
-    Handle mValue = {};
+    Handle value = {};
 };
 
 // Reference Graph

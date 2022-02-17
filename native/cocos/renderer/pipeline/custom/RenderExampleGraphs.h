@@ -17,12 +17,12 @@ namespace example {
 // IncidenceGraph
 inline RenderDependencyGraph::vertex_descriptor
 source(const RenderDependencyGraph::edge_descriptor& e, const RenderDependencyGraph& /*g*/) noexcept {
-    return e.m_source;
+    return e.source;
 }
 
 inline RenderDependencyGraph::vertex_descriptor
 target(const RenderDependencyGraph::edge_descriptor& e, const RenderDependencyGraph& /*g*/) noexcept {
-    return e.m_target;
+    return e.target;
 }
 
 inline std::pair<RenderDependencyGraph::out_edge_iterator, RenderDependencyGraph::out_edge_iterator>
@@ -363,12 +363,12 @@ add_vertex(std::piecewise_construct_t, Component0&& c0, Component1&& c1, Compone
 // IncidenceGraph
 inline RenderValueGraph::vertex_descriptor
 source(const RenderValueGraph::edge_descriptor& e, const RenderValueGraph& /*g*/) noexcept {
-    return e.m_source;
+    return e.source;
 }
 
 inline RenderValueGraph::vertex_descriptor
 target(const RenderValueGraph::edge_descriptor& e, const RenderValueGraph& /*g*/) noexcept {
-    return e.m_target;
+    return e.target;
 }
 
 inline std::pair<RenderValueGraph::out_edge_iterator, RenderValueGraph::out_edge_iterator>

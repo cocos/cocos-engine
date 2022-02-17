@@ -15,12 +15,12 @@ namespace render {
 // IncidenceGraph
 inline LayoutGraph::vertex_descriptor
 source(const LayoutGraph::edge_descriptor& e, const LayoutGraph& /*g*/) noexcept {
-    return e.m_source;
+    return e.source;
 }
 
 inline LayoutGraph::vertex_descriptor
 target(const LayoutGraph::edge_descriptor& e, const LayoutGraph& /*g*/) noexcept {
-    return e.m_target;
+    return e.target;
 }
 
 inline std::pair<LayoutGraph::out_edge_iterator, LayoutGraph::out_edge_iterator>
@@ -197,12 +197,12 @@ inline void remove_edge_if(Predicate&& pred, LayoutGraph& g) noexcept { // NOLIN
 // AddressableGraph
 inline LayoutGraph::vertex_descriptor
 parent(const LayoutGraph::ownership_descriptor& e, const LayoutGraph& /*g*/) noexcept {
-    return e.m_source;
+    return e.source;
 }
 
 inline LayoutGraph::vertex_descriptor
 child(const LayoutGraph::ownership_descriptor& e, const LayoutGraph& /*g*/) noexcept {
-    return e.m_target;
+    return e.target;
 }
 
 inline std::pair<LayoutGraph::children_iterator, LayoutGraph::children_iterator>
@@ -461,10 +461,10 @@ value_id(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // N
     return cc::visit(
         overload(
             [](const impl::ValueHandle<Group_, vertex_descriptor>& h) {
-                return h.mValue;
+                return h.value;
             },
             [](const impl::ValueHandle<Shader_, vertex_descriptor>& h) {
-                return h.mValue;
+                return h.value;
             }),
         g.vertices[u].handle);
 }
@@ -489,10 +489,10 @@ value(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
     return cc::visit(
         overload(
             [&](const impl::ValueHandle<Group_, vertex_descriptor>& h) {
-                return LayoutGraph::vertex_value_type{&g.groupNodes[h.mValue]};
+                return LayoutGraph::vertex_value_type{&g.groupNodes[h.value]};
             },
             [&](const impl::ValueHandle<Shader_, vertex_descriptor>& h) {
-                return LayoutGraph::vertex_value_type{&g.shaderNodes[h.mValue]};
+                return LayoutGraph::vertex_value_type{&g.shaderNodes[h.value]};
             }),
         g.vertices[u].handle);
 }
@@ -503,10 +503,10 @@ value(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     return cc::visit(
         overload(
             [&](const impl::ValueHandle<Group_, vertex_descriptor>& h) {
-                return LayoutGraph::vertex_const_value_type{&g.groupNodes[h.mValue]};
+                return LayoutGraph::vertex_const_value_type{&g.groupNodes[h.value]};
             },
             [&](const impl::ValueHandle<Shader_, vertex_descriptor>& h) {
-                return LayoutGraph::vertex_const_value_type{&g.shaderNodes[h.mValue]};
+                return LayoutGraph::vertex_const_value_type{&g.shaderNodes[h.value]};
             }),
         g.vertices[u].handle);
 }
@@ -561,7 +561,7 @@ get<GroupNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.groupNodes[handle.mValue];
+    return g.groupNodes[handle.value];
 }
 
 template <>
@@ -570,7 +570,7 @@ get<ShaderNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.shaderNodes[handle.mValue];
+    return g.shaderNodes[handle.value];
 }
 
 template <class ValueT>
@@ -583,7 +583,7 @@ get<GroupNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.groupNodes[handle.mValue];
+    return g.groupNodes[handle.value];
 }
 
 template <>
@@ -592,7 +592,7 @@ get<ShaderNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.shaderNodes[handle.mValue];
+    return g.shaderNodes[handle.value];
 }
 
 [[nodiscard]] inline GroupNodeData&
@@ -600,7 +600,7 @@ get(Group_ /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.groupNodes[handle.mValue];
+    return g.groupNodes[handle.value];
 }
 
 [[nodiscard]] inline ShaderNodeData&
@@ -608,7 +608,7 @@ get(Shader_ /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.shaderNodes[handle.mValue];
+    return g.shaderNodes[handle.value];
 }
 
 [[nodiscard]] inline const GroupNodeData&
@@ -616,7 +616,7 @@ get(Group_ /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.groupNodes[handle.mValue];
+    return g.groupNodes[handle.value];
 }
 
 [[nodiscard]] inline const ShaderNodeData&
@@ -624,7 +624,7 @@ get(Shader_ /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
         g.vertices[v].handle);
-    return g.shaderNodes[handle.mValue];
+    return g.shaderNodes[handle.value];
 }
 
 template <class ValueT>
@@ -643,7 +643,7 @@ get_if<GroupNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noe
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
-        ptr = &g.groupNodes[pHandle->mValue];
+        ptr = &g.groupNodes[pHandle->value];
     }
     return ptr;
 }
@@ -660,7 +660,7 @@ get_if<ShaderNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) no
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
-        ptr = &g.shaderNodes[pHandle->mValue];
+        ptr = &g.shaderNodes[pHandle->value];
     }
     return ptr;
 }
@@ -681,7 +681,7 @@ get_if<GroupNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGrap
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
-        ptr = &g.groupNodes[pHandle->mValue];
+        ptr = &g.groupNodes[pHandle->value];
     }
     return ptr;
 }
@@ -698,7 +698,7 @@ get_if<ShaderNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGra
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
-        ptr = &g.shaderNodes[pHandle->mValue];
+        ptr = &g.shaderNodes[pHandle->value];
     }
     return ptr;
 }
@@ -942,18 +942,18 @@ inline void remove_vertex_value_impl(const LayoutGraph::vertex_handle_type& h, L
     cc::visit(
         overload(
             [&](const impl::ValueHandle<Group_, vertex_descriptor>& h) {
-                g.groupNodes.erase(g.groupNodes.begin() + std::ptrdiff_t(h.mValue));
-                if (h.mValue == g.groupNodes.size()) {
+                g.groupNodes.erase(g.groupNodes.begin() + std::ptrdiff_t(h.value));
+                if (h.value == g.groupNodes.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<Group_>(g.vertices, h.mValue);
+                impl::reindexVectorHandle<Group_>(g.vertices, h.value);
             },
             [&](const impl::ValueHandle<Shader_, vertex_descriptor>& h) {
-                g.shaderNodes.erase(g.shaderNodes.begin() + std::ptrdiff_t(h.mValue));
-                if (h.mValue == g.shaderNodes.size()) {
+                g.shaderNodes.erase(g.shaderNodes.begin() + std::ptrdiff_t(h.value));
+                if (h.value == g.shaderNodes.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<Shader_>(g.vertices, h.mValue);
+                impl::reindexVectorHandle<Shader_>(g.vertices, h.value);
             }),
         h);
 }

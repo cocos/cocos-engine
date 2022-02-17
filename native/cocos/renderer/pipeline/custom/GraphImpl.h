@@ -308,7 +308,7 @@ template <class EdgeDescriptor, class IncidenceList>
 inline void removeIncidenceEdge(EdgeDescriptor e, IncidenceList &el) noexcept {
     e.expectsNoProperty();
     for (auto i = el.begin(); i != el.end(); ++i) {
-        if ((*i).get_target() == e.m_target) {
+        if ((*i).get_target() == e.target) {
             el.erase(i);
             return;
         }
@@ -476,7 +476,7 @@ inline void reindexVectorHandle(Container &container, HandleDescriptor u) {
     using handle_type = ValueHandle<Tag, HandleDescriptor>;
     for (auto &vert : container) {
         if (boost::variant2::holds_alternative<handle_type>(vert.handle)) {
-            auto &v = boost::variant2::get<handle_type>(vert.handle).mValue;
+            auto &v = boost::variant2::get<handle_type>(vert.handle).value;
             if (v > u) {
                 --v;
             }
@@ -506,11 +506,11 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::undirected_t
     auto ei    = g.edges.begin();
     auto eiEnd = g.edges.end();
     for (; ei != eiEnd; ++ei) {
-        if (ei->m_source > u) {
-            --ei->m_source;
+        if (ei->source > u) {
+            --ei->source;
         }
-        if (ei->m_target > u) {
-            --ei->m_target;
+        if (ei->target > u) {
+            --ei->target;
         }
     }
 }
@@ -549,11 +549,11 @@ inline void removeVectorVertex(Graph           &g, EdgeList           &/*edges*/
         auto ei    = g.edges.begin();
         auto eiEnd = g.edges.end();
         for (; ei != eiEnd; ++ei) {
-            if (ei->m_source > u) {
-                --ei->m_source;
+            if (ei->source > u) {
+                --ei->source;
             }
-            if (ei->m_target > u) {
-                --ei->m_target;
+            if (ei->target > u) {
+                --ei->target;
             }
         }
     }
