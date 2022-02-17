@@ -11,9 +11,9 @@ void CCVertInput(inout StandardVertInput In)
 {
   CCDecode(In);
   #if CC_USE_MORPH
-    applyMorph(In);
+    applyMorph(In.position, In.normal, In.tangent);
   #endif
   #if CC_USE_SKINNING
-    CCSkin(In);
+    CCSkin(In.position, In.normal, In.tangent);
   #endif
 }
