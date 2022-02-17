@@ -25,11 +25,11 @@
 
 import { JSB } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
-import { Vec3 } from '../../math';
+import { Vec2, Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
 import { NativeDirectionalLight } from './native-scene';
-import { PCFType, Shadows } from './shadows';
+import { CSMLevel, PCFType, Shadows } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -49,6 +49,9 @@ export class DirectionalLight extends Light {
     protected _shadowSaturation = 1.0;
     protected _shadowDistance = 100;
     protected _shadowInvisibleOcclusionRange = 200;
+    protected _shadowCSMLevel = CSMLevel.level_3;
+    protected _shadowCSMLambda = 0.75;
+    protected _shadowFrustumItem: Vec2[] = [];
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -200,6 +203,53 @@ export class DirectionalLight extends Light {
         this._shadowInvisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setShadowInvisibleOcclusionRange(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow CSM weighted average coefficient
+      * @zh 获取或者设置级联阴影的加权平均系数
+     */
+    get shadowCSMLambda () {
+        return this._shadowCSMLambda;
+    }
+    set shadowCSMLambda (val) {
+        this._shadowCSMLambda = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowCSMLevel(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow CSM level
+      * @zh 获取或者设置级联阴影层数
+     */
+    get shadowCSMLevel () {
+        return this._shadowCSMLevel;
+    }
+    set shadowCSMLevel (val) {
+        this._shadowCSMLevel = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowCSMLambda(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow CSM level
+      * @zh 获取或者设置级联阴影层数
+     */
+    get shadowFrustumItem () {
+        return this._shadowFrustumItem;
+    }
+    set shadowFrustumItem (val) {
+        this._shadowFrustumItem = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowFrustumItem(
+                this._shadowFrustumItem[0],
+                this._shadowFrustumItem[1],
+                this._shadowFrustumItem[2],
+                this._shadowFrustumItem[3],
+            );
         }
     }
 
