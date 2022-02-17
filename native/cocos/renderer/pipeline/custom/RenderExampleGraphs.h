@@ -85,13 +85,13 @@ num_vertices(const RenderDependencyGraph& g) noexcept { // NOLINT
 inline std::pair<RenderDependencyGraph::edge_iterator, RenderDependencyGraph::edge_iterator>
 edges(const RenderDependencyGraph& g) noexcept {
     return std::make_pair(
-        RenderDependencyGraph::edge_iterator(const_cast<RenderDependencyGraph&>(g).mEdges.begin()),
-        RenderDependencyGraph::edge_iterator(const_cast<RenderDependencyGraph&>(g).mEdges.end()));
+        RenderDependencyGraph::edge_iterator(const_cast<RenderDependencyGraph&>(g).edges.begin()),
+        RenderDependencyGraph::edge_iterator(const_cast<RenderDependencyGraph&>(g).edges.end()));
 }
 
 inline RenderDependencyGraph::edges_size_type
 num_edges(const RenderDependencyGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<RenderDependencyGraph::edges_size_type>(g.mEdges.size());
+    return gsl::narrow_cast<RenderDependencyGraph::edges_size_type>(g.edges.size());
 }
 
 // MutableGraph(Edge)
@@ -99,7 +99,7 @@ inline std::pair<RenderDependencyGraph::edge_descriptor, bool>
 add_edge( // NOLINT
     RenderDependencyGraph::vertex_descriptor u,
     RenderDependencyGraph::vertex_descriptor v, RenderDependencyGraph& g) {
-    auto edgeIter = g.mEdges.emplace(g.mEdges.end(), u, v);
+    auto edgeIter = g.edges.emplace(g.edges.end(), u, v);
     auto& outEdgeList = g.out_edge_list(u);
     outEdgeList.emplace_back(v, edgeIter);
 
@@ -143,7 +143,7 @@ inline void remove_edge(RenderDependencyGraph::out_edge_iterator iter, RenderDep
     auto& outEdgeList = g.out_edge_list(source(e, g));
     auto& inEdgeList  = g.in_edge_list(target(e, g));
     impl::removeIncidenceEdge(e, inEdgeList);
-    g.mEdges.erase(iter.base()->get_iter());
+    g.edges.erase(iter.base()->get_iter());
     outEdgeList.erase(iter.base());
 }
 
@@ -166,7 +166,7 @@ inline void remove_out_edge_if(RenderDependencyGraph::vertex_descriptor u, Predi
     auto& outEdgeList  = g.out_edge_list(u);
     impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
     for (const auto& v : garbage) {
-        g.mEdges.erase(v);
+        g.edges.erase(v);
     }
 }
 
@@ -189,7 +189,7 @@ inline void remove_in_edge_if(RenderDependencyGraph::vertex_descriptor v, Predic
     auto& inEdgeList   = g.in_edge_list(v);
     impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
     for (const auto& v : garbage) {
-        g.mEdges.erase(v);
+        g.edges.erase(v);
     }
 }
 
@@ -217,7 +217,7 @@ inline void clear_out_edges(RenderDependencyGraph::vertex_descriptor u, RenderDe
         impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
             return e.get_target() == u;
         });
-        g.mEdges.erase((*iter).get_iter());
+        g.edges.erase((*iter).get_iter());
     }
     outEdgeList.clear();
 }
@@ -232,7 +232,7 @@ inline void clear_in_edges(RenderDependencyGraph::vertex_descriptor u, RenderDep
         impl::sequenceEraseIf(outEdgeList, [u](const auto& e) {
             return e.get_target() == u;
         });
-        g.mEdges.erase((*iter).get_iter());
+        g.edges.erase((*iter).get_iter());
     }
     inEdgeList.clear();
 }
@@ -244,10 +244,10 @@ inline void clear_vertex(RenderDependencyGraph::vertex_descriptor u, RenderDepen
 
 inline void remove_vertex(RenderDependencyGraph::vertex_descriptor u, RenderDependencyGraph& g) noexcept { // NOLINT
     { // UuidGraph
-        const auto& key = g.mPassIDs[u];
-        auto num = g.mPassIndex.erase(key);
+        const auto& key = g.passIDs[u];
+        auto num = g.passIndex.erase(key);
         CC_ENSURES(num == 1);
-        for (auto&& pair : g.mPassIndex) {
+        for (auto&& pair : g.passIndex) {
             auto& v = pair.second;
             if (v > u) {
                 --v;
@@ -257,10 +257,10 @@ inline void remove_vertex(RenderDependencyGraph::vertex_descriptor u, RenderDepe
     impl::removeVectorVertex(const_cast<RenderDependencyGraph&>(g), u, RenderDependencyGraph::directed_category{});
 
     // remove components
-    g.mPasses.erase(g.mPasses.begin() + std::ptrdiff_t(u));
-    g.mValueIDs.erase(g.mValueIDs.begin() + std::ptrdiff_t(u));
-    g.mPassIDs.erase(g.mPassIDs.begin() + std::ptrdiff_t(u));
-    g.mTraits.erase(g.mTraits.begin() + std::ptrdiff_t(u));
+    g.passes.erase(g.passes.begin() + std::ptrdiff_t(u));
+    g.valueIDs.erase(g.valueIDs.begin() + std::ptrdiff_t(u));
+    g.passIDs.erase(g.passIDs.begin() + std::ptrdiff_t(u));
+    g.traits.erase(g.traits.begin() + std::ptrdiff_t(u));
 }
 
 // MutablePropertyGraph(Edge)
@@ -270,7 +270,7 @@ add_edge( // NOLINT
     RenderDependencyGraph::vertex_descriptor u,
     RenderDependencyGraph::vertex_descriptor v,
     EdgeProperty&& p, RenderDependencyGraph& g) {
-    auto edgeIter = g.mEdges.emplace(g.mEdges.end(), u, v, std::forward<EdgeProperty>(p));
+    auto edgeIter = g.edges.emplace(g.edges.end(), u, v, std::forward<EdgeProperty>(p));
     auto& outEdgeList = g.out_edge_list(u);
     outEdgeList.emplace_back(v, edgeIter);
 
@@ -286,7 +286,7 @@ add_edge( // NOLINT
     RenderDependencyGraph::vertex_descriptor u,
     RenderDependencyGraph::vertex_descriptor v,
     RenderDependencyGraph& g, T&&... args) {
-    auto edgeIter = g.mEdges.emplace(g.mEdges.end(), u, v, std::forward<T>(args)...);
+    auto edgeIter = g.edges.emplace(g.edges.end(), u, v, std::forward<T>(args)...);
     auto& outEdgeList = g.out_edge_list(u);
     outEdgeList.emplace_back(v, edgeIter);
 
@@ -300,19 +300,19 @@ add_edge( // NOLINT
 template <class Component0, class Component1, class Component2, class Component3>
 inline RenderDependencyGraph::vertex_descriptor
 add_vertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, RenderDependencyGraph& g) { // NOLINT
-    auto v = gsl::narrow_cast<RenderDependencyGraph::vertex_descriptor>(g.mVertices.size());
+    auto v = gsl::narrow_cast<RenderDependencyGraph::vertex_descriptor>(g.vertices.size());
 
-    g.mVertices.emplace_back();
+    g.vertices.emplace_back();
 
     { // UuidGraph
         const auto& uuid = c2;
-        auto res = g.mPassIndex.emplace(uuid, v);
+        auto res = g.passIndex.emplace(uuid, v);
         CC_ENSURES(res.second);
     }
-    g.mPasses.emplace_back(std::forward<Component0>(c0));
-    g.mValueIDs.emplace_back(std::forward<Component1>(c1));
-    g.mPassIDs.emplace_back(std::forward<Component2>(c2));
-    g.mTraits.emplace_back(std::forward<Component3>(c3));
+    g.passes.emplace_back(std::forward<Component0>(c0));
+    g.valueIDs.emplace_back(std::forward<Component1>(c1));
+    g.passIDs.emplace_back(std::forward<Component2>(c2));
+    g.traits.emplace_back(std::forward<Component3>(c3));
 
     return v;
 }
@@ -320,14 +320,14 @@ add_vertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, R
 template <class Component0, class Component1, class Component2, class Component3>
 inline RenderDependencyGraph::vertex_descriptor
 add_vertex(std::piecewise_construct_t, Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, RenderDependencyGraph& g) { // NOLINT
-    auto v = gsl::narrow_cast<RenderDependencyGraph::vertex_descriptor>(g.mVertices.size());
+    auto v = gsl::narrow_cast<RenderDependencyGraph::vertex_descriptor>(g.vertices.size());
 
-    g.mVertices.emplace_back();
+    g.vertices.emplace_back();
 
     { // UuidGraph
         invoke_hpp::apply(
             [&](const auto&... args) {
-                auto res = g.mPassIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
+                auto res = g.passIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
                 CC_ENSURES(res.second);
             },
             c2);
@@ -335,25 +335,25 @@ add_vertex(std::piecewise_construct_t, Component0&& c0, Component1&& c1, Compone
 
     invoke_hpp::apply(
         [&](auto&&... args) {
-            g.mPasses.emplace_back(std::forward<decltype(args)>(args)...);
+            g.passes.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
     invoke_hpp::apply(
         [&](auto&&... args) {
-            g.mValueIDs.emplace_back(std::forward<decltype(args)>(args)...);
+            g.valueIDs.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component1>(c1));
 
     invoke_hpp::apply(
         [&](auto&&... args) {
-            g.mPassIDs.emplace_back(std::forward<decltype(args)>(args)...);
+            g.passIDs.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component2>(c2));
 
     invoke_hpp::apply(
         [&](auto&&... args) {
-            g.mTraits.emplace_back(std::forward<decltype(args)>(args)...);
+            g.traits.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component3>(c3));
 
@@ -578,10 +578,10 @@ inline void clear_vertex(RenderValueGraph::vertex_descriptor u, RenderValueGraph
 
 inline void remove_vertex(RenderValueGraph::vertex_descriptor u, RenderValueGraph& g) noexcept { // NOLINT
     { // UuidGraph
-        const auto& key = g.mNodes[u];
-        auto num = g.mIndex.erase(key);
+        const auto& key = g.nodes[u];
+        auto num = g.index.erase(key);
         CC_ENSURES(num == 1);
-        for (auto&& pair : g.mIndex) {
+        for (auto&& pair : g.index) {
             auto& v = pair.second;
             if (v > u) {
                 --v;
@@ -591,23 +591,23 @@ inline void remove_vertex(RenderValueGraph::vertex_descriptor u, RenderValueGrap
     impl::removeVectorVertex(const_cast<RenderValueGraph&>(g), u, RenderValueGraph::directed_category{});
 
     // remove components
-    g.mNodes.erase(g.mNodes.begin() + std::ptrdiff_t(u));
+    g.nodes.erase(g.nodes.begin() + std::ptrdiff_t(u));
 }
 
 // MutablePropertyGraph(Vertex)
 template <class Component0>
 inline RenderValueGraph::vertex_descriptor
 add_vertex(Component0&& c0, RenderValueGraph& g) { // NOLINT
-    auto v = gsl::narrow_cast<RenderValueGraph::vertex_descriptor>(g.mVertices.size());
+    auto v = gsl::narrow_cast<RenderValueGraph::vertex_descriptor>(g.vertices.size());
 
-    g.mVertices.emplace_back();
+    g.vertices.emplace_back();
 
     { // UuidGraph
         const auto& uuid = c0;
-        auto res = g.mIndex.emplace(uuid, v);
+        auto res = g.index.emplace(uuid, v);
         CC_ENSURES(res.second);
     }
-    g.mNodes.emplace_back(std::forward<Component0>(c0));
+    g.nodes.emplace_back(std::forward<Component0>(c0));
 
     return v;
 }
@@ -615,14 +615,14 @@ add_vertex(Component0&& c0, RenderValueGraph& g) { // NOLINT
 template <class Component0>
 inline RenderValueGraph::vertex_descriptor
 add_vertex(std::piecewise_construct_t, Component0&& c0, RenderValueGraph& g) { // NOLINT
-    auto v = gsl::narrow_cast<RenderValueGraph::vertex_descriptor>(g.mVertices.size());
+    auto v = gsl::narrow_cast<RenderValueGraph::vertex_descriptor>(g.vertices.size());
 
-    g.mVertices.emplace_back();
+    g.vertices.emplace_back();
 
     { // UuidGraph
         invoke_hpp::apply(
             [&](const auto&... args) {
-                auto res = g.mIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
+                auto res = g.index.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
                 CC_ENSURES(res.second);
             },
             c0);
@@ -630,7 +630,7 @@ add_vertex(std::piecewise_construct_t, Component0&& c0, RenderValueGraph& g) { /
 
     invoke_hpp::apply(
         [&](auto&&... args) {
-            g.mNodes.emplace_back(std::forward<decltype(args)>(args)...);
+            g.nodes.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
@@ -654,7 +654,7 @@ struct property_map<cc::render::example::RenderDependencyGraph, vertex_index_t> 
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::pass_> {
+struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::Pass_> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
@@ -690,7 +690,7 @@ struct property_map<cc::render::example::RenderDependencyGraph, T cc::render::ex
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::valueID_> {
+struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::ValueID_> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
@@ -707,7 +707,7 @@ struct property_map<cc::render::example::RenderDependencyGraph, cc::render::exam
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::passID_> {
+struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::PassID_> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
@@ -724,7 +724,7 @@ struct property_map<cc::render::example::RenderDependencyGraph, cc::render::exam
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::traits_> {
+struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::Traits_> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
@@ -797,7 +797,7 @@ struct property_map<cc::render::example::RenderValueGraph, vertex_index_t> {
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderValueGraph, cc::render::example::RenderValueGraph::node_> {
+struct property_map<cc::render::example::RenderValueGraph, cc::render::example::RenderValueGraph::Node_> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderValueGraph,
@@ -856,73 +856,73 @@ get(boost::container::pmr::vector<boost::default_color_type>& colors, const Rend
 }
 
 // Vertex Component
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::pass_>::const_type
-get(RenderDependencyGraph::pass_ /*tag*/, const RenderDependencyGraph& g) noexcept {
-    return {g.mPasses};
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Pass_>::const_type
+get(RenderDependencyGraph::Pass_ /*tag*/, const RenderDependencyGraph& g) noexcept {
+    return {g.passes};
 }
 
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::pass_>::type
-get(RenderDependencyGraph::pass_ /*tag*/, RenderDependencyGraph& g) noexcept {
-    return {g.mPasses};
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Pass_>::type
+get(RenderDependencyGraph::Pass_ /*tag*/, RenderDependencyGraph& g) noexcept {
+    return {g.passes};
 }
 
 // Vertex ComponentMember
 template <class T>
 inline typename boost::property_map<RenderDependencyGraph, T RenderPassNode::*>::const_type
 get(T RenderPassNode::*memberPointer, const RenderDependencyGraph& g) noexcept {
-    return {g.mPasses, memberPointer};
+    return {g.passes, memberPointer};
 }
 
 template <class T>
 inline typename boost::property_map<RenderDependencyGraph, T RenderPassNode::*>::type
 get(T RenderPassNode::*memberPointer, RenderDependencyGraph& g) noexcept {
-    return {g.mPasses, memberPointer};
+    return {g.passes, memberPointer};
 }
 
 // Vertex Component
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::valueID_>::const_type
-get(RenderDependencyGraph::valueID_ /*tag*/, const RenderDependencyGraph& g) noexcept {
-    return {g.mValueIDs};
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueID_>::const_type
+get(RenderDependencyGraph::ValueID_ /*tag*/, const RenderDependencyGraph& g) noexcept {
+    return {g.valueIDs};
 }
 
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::valueID_>::type
-get(RenderDependencyGraph::valueID_ /*tag*/, RenderDependencyGraph& g) noexcept {
-    return {g.mValueIDs};
-}
-
-// Vertex Component
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::passID_>::const_type
-get(RenderDependencyGraph::passID_ /*tag*/, const RenderDependencyGraph& g) noexcept {
-    return {g.mPassIDs};
-}
-
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::passID_>::type
-get(RenderDependencyGraph::passID_ /*tag*/, RenderDependencyGraph& g) noexcept {
-    return {g.mPassIDs};
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueID_>::type
+get(RenderDependencyGraph::ValueID_ /*tag*/, RenderDependencyGraph& g) noexcept {
+    return {g.valueIDs};
 }
 
 // Vertex Component
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::traits_>::const_type
-get(RenderDependencyGraph::traits_ /*tag*/, const RenderDependencyGraph& g) noexcept {
-    return {g.mTraits};
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassID_>::const_type
+get(RenderDependencyGraph::PassID_ /*tag*/, const RenderDependencyGraph& g) noexcept {
+    return {g.passIDs};
 }
 
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::traits_>::type
-get(RenderDependencyGraph::traits_ /*tag*/, RenderDependencyGraph& g) noexcept {
-    return {g.mTraits};
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassID_>::type
+get(RenderDependencyGraph::PassID_ /*tag*/, RenderDependencyGraph& g) noexcept {
+    return {g.passIDs};
+}
+
+// Vertex Component
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Traits_>::const_type
+get(RenderDependencyGraph::Traits_ /*tag*/, const RenderDependencyGraph& g) noexcept {
+    return {g.traits};
+}
+
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Traits_>::type
+get(RenderDependencyGraph::Traits_ /*tag*/, RenderDependencyGraph& g) noexcept {
+    return {g.traits};
 }
 
 // Vertex ComponentMember
 template <class T>
 inline typename boost::property_map<RenderDependencyGraph, T RenderPassTraits::*>::const_type
 get(T RenderPassTraits::*memberPointer, const RenderDependencyGraph& g) noexcept {
-    return {g.mTraits, memberPointer};
+    return {g.traits, memberPointer};
 }
 
 template <class T>
 inline typename boost::property_map<RenderDependencyGraph, T RenderPassTraits::*>::type
 get(T RenderPassTraits::*memberPointer, RenderDependencyGraph& g) noexcept {
-    return {g.mTraits, memberPointer};
+    return {g.traits, memberPointer};
 }
 
 // Vertex Constant Getter
@@ -996,13 +996,13 @@ inline void put(
 // UuidGraph
 [[nodiscard]] inline RenderDependencyGraph::vertex_descriptor
 vertex(const RenderGraph::vertex_descriptor& key, const RenderDependencyGraph& g) {
-    return g.mPassIndex.at(key);
+    return g.passIndex.at(key);
 }
 
 template <class KeyLike>
 [[nodiscard]] inline RenderDependencyGraph::vertex_descriptor
 vertex(const KeyLike& key, const RenderDependencyGraph& g) {
-    const auto& index = g.mPassIndex;
+    const auto& index = g.passIndex;
     auto iter = index.find(key);
     if (iter == index.end()) {
         throw std::out_of_range("at(key, RenderDependencyGraph) out of range");
@@ -1013,7 +1013,7 @@ vertex(const KeyLike& key, const RenderDependencyGraph& g) {
 template <class KeyLike>
 [[nodiscard]] inline RenderDependencyGraph::vertex_descriptor
 find_vertex(const KeyLike& key, const RenderDependencyGraph& g) noexcept { // NOLINT
-    const auto& index = g.mPassIndex;
+    const auto& index = g.passIndex;
     auto iter = index.find(key);
     if (iter == index.end()) {
         return RenderDependencyGraph::null_vertex();
@@ -1023,15 +1023,15 @@ find_vertex(const KeyLike& key, const RenderDependencyGraph& g) noexcept { // NO
 
 [[nodiscard]] inline bool
 contains(const RenderGraph::vertex_descriptor& key, const RenderDependencyGraph& g) noexcept {
-    auto iter = g.mPassIndex.find(key);
-    return iter != g.mPassIndex.end();
+    auto iter = g.passIndex.find(key);
+    return iter != g.passIndex.end();
 }
 
 template <class KeyLike>
 [[nodiscard]] inline bool
 contains(const KeyLike& key, const RenderDependencyGraph& g) noexcept {
-    auto iter = g.mPassIndex.find(key);
-    return iter != g.mPassIndex.end();
+    auto iter = g.passIndex.find(key);
+    return iter != g.passIndex.end();
 }
 
 // MutableGraph(Vertex)
@@ -1039,10 +1039,10 @@ inline RenderDependencyGraph::vertex_descriptor
 add_vertex(RenderDependencyGraph& g, const RenderGraph::vertex_descriptor& key) { // NOLINT
     return add_vertex(
         std::piecewise_construct,
-        std::forward_as_tuple(), // mPasses
-        std::forward_as_tuple(), // mValueIDs
-        std::forward_as_tuple(key), // mPassIDs
-        std::forward_as_tuple(), // mTraits
+        std::forward_as_tuple(), // passes
+        std::forward_as_tuple(), // valueIDs
+        std::forward_as_tuple(key), // passIDs
+        std::forward_as_tuple(), // traits
         g);
 }
 
@@ -1063,27 +1063,27 @@ get(boost::container::pmr::vector<boost::default_color_type>& colors, const Rend
 }
 
 // Vertex Component
-inline typename boost::property_map<RenderValueGraph, RenderValueGraph::node_>::const_type
-get(RenderValueGraph::node_ /*tag*/, const RenderValueGraph& g) noexcept {
-    return {g.mNodes};
+inline typename boost::property_map<RenderValueGraph, RenderValueGraph::Node_>::const_type
+get(RenderValueGraph::Node_ /*tag*/, const RenderValueGraph& g) noexcept {
+    return {g.nodes};
 }
 
-inline typename boost::property_map<RenderValueGraph, RenderValueGraph::node_>::type
-get(RenderValueGraph::node_ /*tag*/, RenderValueGraph& g) noexcept {
-    return {g.mNodes};
+inline typename boost::property_map<RenderValueGraph, RenderValueGraph::Node_>::type
+get(RenderValueGraph::Node_ /*tag*/, RenderValueGraph& g) noexcept {
+    return {g.nodes};
 }
 
 // Vertex ComponentMember
 template <class T>
 inline typename boost::property_map<RenderValueGraph, T RenderValueNode::*>::const_type
 get(T RenderValueNode::*memberPointer, const RenderValueGraph& g) noexcept {
-    return {g.mNodes, memberPointer};
+    return {g.nodes, memberPointer};
 }
 
 template <class T>
 inline typename boost::property_map<RenderValueGraph, T RenderValueNode::*>::type
 get(T RenderValueNode::*memberPointer, RenderValueGraph& g) noexcept {
-    return {g.mNodes, memberPointer};
+    return {g.nodes, memberPointer};
 }
 
 // Vertex Constant Getter
@@ -1112,13 +1112,13 @@ inline void put(
 // UuidGraph
 [[nodiscard]] inline RenderValueGraph::vertex_descriptor
 vertex(const RenderValueNode& key, const RenderValueGraph& g) {
-    return g.mIndex.at(key);
+    return g.index.at(key);
 }
 
 template <class KeyLike>
 [[nodiscard]] inline RenderValueGraph::vertex_descriptor
 vertex(const KeyLike& key, const RenderValueGraph& g) {
-    const auto& index = g.mIndex;
+    const auto& index = g.index;
     auto iter = index.find(key);
     if (iter == index.end()) {
         throw std::out_of_range("at(key, RenderValueGraph) out of range");
@@ -1129,7 +1129,7 @@ vertex(const KeyLike& key, const RenderValueGraph& g) {
 template <class KeyLike>
 [[nodiscard]] inline RenderValueGraph::vertex_descriptor
 find_vertex(const KeyLike& key, const RenderValueGraph& g) noexcept { // NOLINT
-    const auto& index = g.mIndex;
+    const auto& index = g.index;
     auto iter = index.find(key);
     if (iter == index.end()) {
         return RenderValueGraph::null_vertex();
@@ -1139,15 +1139,15 @@ find_vertex(const KeyLike& key, const RenderValueGraph& g) noexcept { // NOLINT
 
 [[nodiscard]] inline bool
 contains(const RenderValueNode& key, const RenderValueGraph& g) noexcept {
-    auto iter = g.mIndex.find(key);
-    return iter != g.mIndex.end();
+    auto iter = g.index.find(key);
+    return iter != g.index.end();
 }
 
 template <class KeyLike>
 [[nodiscard]] inline bool
 contains(const KeyLike& key, const RenderValueGraph& g) noexcept {
-    auto iter = g.mIndex.find(key);
-    return iter != g.mIndex.end();
+    auto iter = g.index.find(key);
+    return iter != g.index.end();
 }
 
 // MutableGraph(Vertex)
@@ -1155,7 +1155,7 @@ inline RenderValueGraph::vertex_descriptor
 add_vertex(RenderValueGraph& g, const RenderValueNode& key) { // NOLINT
     return add_vertex(
         std::piecewise_construct,
-        std::forward_as_tuple(key), // mNodes
+        std::forward_as_tuple(key), // nodes
         g);
 }
 

@@ -6,148 +6,148 @@ namespace cc {
 namespace render {
 
 ConstantBuffer::ConstantBuffer(const allocator_type& alloc) noexcept
-: mConstants(alloc) {}
+: constants(alloc) {}
 
 ConstantBuffer::ConstantBuffer(ConstantBuffer&& rhs, const allocator_type& alloc)
-: mSize(rhs.mSize),
-  mConstants(std::move(rhs.mConstants), alloc) {}
+: size(rhs.size),
+  constants(std::move(rhs.constants), alloc) {}
 
 ConstantBuffer::ConstantBuffer(ConstantBuffer const& rhs, const allocator_type& alloc)
-: mSize(rhs.mSize),
-  mConstants(rhs.mConstants, alloc) {}
+: size(rhs.size),
+  constants(rhs.constants, alloc) {}
 
 DescriptorBlock::DescriptorBlock(const allocator_type& alloc) noexcept
-: mAttributeIDs(alloc) {}
+: attributeIDs(alloc) {}
 
 DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
-: mType(rhs.mType),
-  mCapacity(rhs.mCapacity),
-  mAttributeIDs(std::move(rhs.mAttributeIDs), alloc) {}
+: type(rhs.type),
+  capacity(rhs.capacity),
+  attributeIDs(std::move(rhs.attributeIDs), alloc) {}
 
 DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
-: mType(rhs.mType),
-  mCapacity(rhs.mCapacity),
-  mAttributeIDs(rhs.mAttributeIDs, alloc) {}
+: type(rhs.type),
+  capacity(rhs.capacity),
+  attributeIDs(rhs.attributeIDs, alloc) {}
 
 UnboundedDescriptor::UnboundedDescriptor(const allocator_type& alloc) noexcept
-: mDescriptors(alloc) {}
+: descriptors(alloc) {}
 
 UnboundedDescriptor::UnboundedDescriptor(UnboundedDescriptor&& rhs, const allocator_type& alloc)
-: mType(rhs.mType),
-  mDescriptors(std::move(rhs.mDescriptors), alloc) {}
+: type(rhs.type),
+  descriptors(std::move(rhs.descriptors), alloc) {}
 
 UnboundedDescriptor::UnboundedDescriptor(UnboundedDescriptor const& rhs, const allocator_type& alloc)
-: mType(rhs.mType),
-  mDescriptors(rhs.mDescriptors, alloc) {}
+: type(rhs.type),
+  descriptors(rhs.descriptors, alloc) {}
 
 DescriptorTable::DescriptorTable(const allocator_type& alloc) noexcept
-: mBlocks(alloc) {}
+: blocks(alloc) {}
 
 DescriptorTable::DescriptorTable(DescriptorTable&& rhs, const allocator_type& alloc)
-: mSlot(rhs.mSlot),
-  mCapacity(rhs.mCapacity),
-  mBlocks(std::move(rhs.mBlocks), alloc) {}
+: slot(rhs.slot),
+  capacity(rhs.capacity),
+  blocks(std::move(rhs.blocks), alloc) {}
 
 DescriptorTable::DescriptorTable(DescriptorTable const& rhs, const allocator_type& alloc)
-: mSlot(rhs.mSlot),
-  mCapacity(rhs.mCapacity),
-  mBlocks(rhs.mBlocks, alloc) {}
+: slot(rhs.slot),
+  capacity(rhs.capacity),
+  blocks(rhs.blocks, alloc) {}
 
 DescriptorSet::DescriptorSet(const allocator_type& alloc) noexcept
-: mTables(alloc),
-  mUnbounded(alloc) {}
+: tables(alloc),
+  unbounded(alloc) {}
 
 DescriptorSet::DescriptorSet(DescriptorSet&& rhs, const allocator_type& alloc)
-: mTables(std::move(rhs.mTables), alloc),
-  mUnbounded(std::move(rhs.mUnbounded), alloc) {}
+: tables(std::move(rhs.tables), alloc),
+  unbounded(std::move(rhs.unbounded), alloc) {}
 
 DescriptorSet::DescriptorSet(DescriptorSet const& rhs, const allocator_type& alloc)
-: mTables(rhs.mTables, alloc),
-  mUnbounded(rhs.mUnbounded, alloc) {}
+: tables(rhs.tables, alloc),
+  unbounded(rhs.unbounded, alloc) {}
 
 LayoutData::LayoutData(const allocator_type& alloc) noexcept
-: mConstantBuffers(alloc),
-  mDescriptorSets(alloc) {}
+: constantBuffers(alloc),
+  descriptorSets(alloc) {}
 
 LayoutData::LayoutData(LayoutData&& rhs, const allocator_type& alloc)
-: mConstantBuffers(std::move(rhs.mConstantBuffers), alloc),
-  mDescriptorSets(std::move(rhs.mDescriptorSets), alloc) {}
+: constantBuffers(std::move(rhs.constantBuffers), alloc),
+  descriptorSets(std::move(rhs.descriptorSets), alloc) {}
 
 LayoutData::LayoutData(LayoutData const& rhs, const allocator_type& alloc)
-: mConstantBuffers(rhs.mConstantBuffers, alloc),
-  mDescriptorSets(rhs.mDescriptorSets, alloc) {}
+: constantBuffers(rhs.constantBuffers, alloc),
+  descriptorSets(rhs.descriptorSets, alloc) {}
 
 ShaderProgramData::ShaderProgramData(const allocator_type& alloc) noexcept
-: mLayouts(alloc) {}
+: layouts(alloc) {}
 
 ShaderProgramData::ShaderProgramData(ShaderProgramData&& rhs, const allocator_type& alloc)
-: mLayouts(std::move(rhs.mLayouts), alloc) {}
+: layouts(std::move(rhs.layouts), alloc) {}
 
 ShaderProgramData::ShaderProgramData(ShaderProgramData const& rhs, const allocator_type& alloc)
-: mLayouts(rhs.mLayouts, alloc) {}
+: layouts(rhs.layouts, alloc) {}
 
 ShaderNodeData::ShaderNodeData(const allocator_type& alloc) noexcept
-: mShaderPrograms(alloc),
-  mShaderIndex(alloc) {}
+: shaderPrograms(alloc),
+  shaderIndex(alloc) {}
 
 ShaderNodeData::ShaderNodeData(ShaderNodeData&& rhs, const allocator_type& alloc)
-: mRootSignature(std::move(rhs.mRootSignature)),
-  mShaderPrograms(std::move(rhs.mShaderPrograms), alloc),
-  mShaderIndex(std::move(rhs.mShaderIndex), alloc) {}
+: rootSignature(std::move(rhs.rootSignature)),
+  shaderPrograms(std::move(rhs.shaderPrograms), alloc),
+  shaderIndex(std::move(rhs.shaderIndex), alloc) {}
 
 ShaderNodeData::ShaderNodeData(ShaderNodeData const& rhs, const allocator_type& alloc)
-: mRootSignature(rhs.mRootSignature),
-  mShaderPrograms(rhs.mShaderPrograms, alloc),
-  mShaderIndex(rhs.mShaderIndex, alloc) {}
+: rootSignature(rhs.rootSignature),
+  shaderPrograms(rhs.shaderPrograms, alloc),
+  shaderIndex(rhs.shaderIndex, alloc) {}
 
 LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
-: mVertices(alloc),
-  mName(alloc),
-  mUpdateFrequencies(alloc),
-  mLayouts(alloc),
-  mGroupNodes(alloc),
-  mShaderNodes(alloc),
-  mPathIndex(alloc) {}
+: vertices(alloc),
+  names(alloc),
+  updateFrequencies(alloc),
+  layouts(alloc),
+  groupNodes(alloc),
+  shaderNodes(alloc),
+  pathIndex(alloc) {}
 
 LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
-: mVertices(std::move(rhs.mVertices), alloc),
-  mName(std::move(rhs.mName), alloc),
-  mUpdateFrequencies(std::move(rhs.mUpdateFrequencies), alloc),
-  mLayouts(std::move(rhs.mLayouts), alloc),
-  mGroupNodes(std::move(rhs.mGroupNodes), alloc),
-  mShaderNodes(std::move(rhs.mShaderNodes), alloc),
-  mPathIndex(std::move(rhs.mPathIndex), alloc) {}
+: vertices(std::move(rhs.vertices), alloc),
+  names(std::move(rhs.names), alloc),
+  updateFrequencies(std::move(rhs.updateFrequencies), alloc),
+  layouts(std::move(rhs.layouts), alloc),
+  groupNodes(std::move(rhs.groupNodes), alloc),
+  shaderNodes(std::move(rhs.shaderNodes), alloc),
+  pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
-: mVertices(rhs.mVertices, alloc),
-  mName(rhs.mName, alloc),
-  mUpdateFrequencies(rhs.mUpdateFrequencies, alloc),
-  mLayouts(rhs.mLayouts, alloc),
-  mGroupNodes(rhs.mGroupNodes, alloc),
-  mShaderNodes(rhs.mShaderNodes, alloc),
-  mPathIndex(rhs.mPathIndex, alloc) {}
+: vertices(rhs.vertices, alloc),
+  names(rhs.names, alloc),
+  updateFrequencies(rhs.updateFrequencies, alloc),
+  layouts(rhs.layouts, alloc),
+  groupNodes(rhs.groupNodes, alloc),
+  shaderNodes(rhs.shaderNodes, alloc),
+  pathIndex(rhs.pathIndex, alloc) {}
 
 // ContinuousContainer
 void LayoutGraph::reserve(vertices_size_type sz) {
-    mVertices.reserve(sz);
-    mName.reserve(sz);
-    mUpdateFrequencies.reserve(sz);
-    mLayouts.reserve(sz);
+    this->vertices.reserve(sz);
+    names.reserve(sz);
+    updateFrequencies.reserve(sz);
+    layouts.reserve(sz);
 }
 
 LayoutGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
-: mOutEdges(alloc),
-  mInEdges(alloc) {}
+: outEdges(alloc),
+  inEdges(alloc) {}
 
 LayoutGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
-: mOutEdges(std::move(rhs.mOutEdges), alloc),
-  mInEdges(std::move(rhs.mInEdges), alloc),
-  mHandle(std::move(rhs.mHandle)) {}
+: outEdges(std::move(rhs.outEdges), alloc),
+  inEdges(std::move(rhs.inEdges), alloc),
+  handle(std::move(rhs.handle)) {}
 
 LayoutGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
-: mOutEdges(rhs.mOutEdges, alloc),
-  mInEdges(rhs.mInEdges, alloc),
-  mHandle(rhs.mHandle) {}
+: outEdges(rhs.outEdges, alloc),
+  inEdges(rhs.inEdges, alloc),
+  handle(rhs.handle) {}
 
 } // namespace render
 

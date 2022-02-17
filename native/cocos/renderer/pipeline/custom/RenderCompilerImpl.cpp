@@ -5,9 +5,8 @@ namespace cc {
 namespace render {
 
 int RenderCompiler::compile() {
-    auto*       scratch = mScratch;
-    auto&       rg      = mGraph;
-    const auto& resg    = mResourceGraph;
+    auto&       rg      = graph;
+    const auto& resg    = resourceGraph;
 
     return 0;
 }

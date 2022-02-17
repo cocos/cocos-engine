@@ -15,14 +15,14 @@ namespace cc {
 namespace render {
 
 struct Constant {
-    ValueType mType;
-    uint32_t  mValueID = 0xFFFFFFFF;
+    ValueType type;
+    uint32_t  valueID = 0xFFFFFFFF;
 };
 
 struct ConstantBuffer {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mConstants.get_allocator().resource()};
+        return {constants.get_allocator().resource()};
     }
 
     ConstantBuffer(const allocator_type& alloc) noexcept; // NOLINT
@@ -34,8 +34,8 @@ struct ConstantBuffer {
     ConstantBuffer& operator=(ConstantBuffer&& rhs) = default;
     ConstantBuffer& operator=(ConstantBuffer const& rhs) = default;
 
-    uint32_t                                mSize = 0;
-    boost::container::pmr::vector<Constant> mConstants;
+    uint32_t                                size = 0;
+    boost::container::pmr::vector<Constant> constants;
 };
 
 using DescriptorType = boost::variant2::variant<CBuffer_, RWBuffer_, RWTexture_, Buffer_, Texture_, Sampler_>;
@@ -55,7 +55,7 @@ inline bool operator!=(const DescriptorType& lhs, const DescriptorType& rhs) noe
 struct DescriptorBlock {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mAttributeIDs.get_allocator().resource()};
+        return {attributeIDs.get_allocator().resource()};
     }
 
     DescriptorBlock(const allocator_type& alloc) noexcept; // NOLINT
@@ -67,20 +67,20 @@ struct DescriptorBlock {
     DescriptorBlock& operator=(DescriptorBlock&& rhs) = default;
     DescriptorBlock& operator=(DescriptorBlock const& rhs) = default;
 
-    DescriptorType                          mType;
-    uint32_t                                mCapacity = 0;
-    boost::container::pmr::vector<uint32_t> mAttributeIDs;
+    DescriptorType                          type;
+    uint32_t                                capacity = 0;
+    boost::container::pmr::vector<uint32_t> attributeIDs;
 };
 
 struct DescriptorArray {
-    uint32_t mCapacity    = 0;
-    uint32_t mAttributeID = 0xFFFFFFFF;
+    uint32_t capacity    = 0;
+    uint32_t attributeID = 0xFFFFFFFF;
 };
 
 struct UnboundedDescriptor {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mDescriptors.get_allocator().resource()};
+        return {descriptors.get_allocator().resource()};
     }
 
     UnboundedDescriptor(const allocator_type& alloc) noexcept; // NOLINT
@@ -92,14 +92,14 @@ struct UnboundedDescriptor {
     UnboundedDescriptor& operator=(UnboundedDescriptor&& rhs) = default;
     UnboundedDescriptor& operator=(UnboundedDescriptor const& rhs) = default;
 
-    DescriptorType                                 mType;
-    boost::container::pmr::vector<DescriptorArray> mDescriptors;
+    DescriptorType                                 type;
+    boost::container::pmr::vector<DescriptorArray> descriptors;
 };
 
 struct DescriptorTable {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mBlocks.get_allocator().resource()};
+        return {blocks.get_allocator().resource()};
     }
 
     DescriptorTable(const allocator_type& alloc) noexcept; // NOLINT
@@ -111,15 +111,15 @@ struct DescriptorTable {
     DescriptorTable& operator=(DescriptorTable&& rhs) = default;
     DescriptorTable& operator=(DescriptorTable const& rhs) = default;
 
-    uint32_t                                       mSlot     = 0;
-    uint32_t                                       mCapacity = 0;
-    boost::container::pmr::vector<DescriptorBlock> mBlocks;
+    uint32_t                                       slot     = 0;
+    uint32_t                                       capacity = 0;
+    boost::container::pmr::vector<DescriptorBlock> blocks;
 };
 
 struct DescriptorSet {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mTables.get_allocator().resource()};
+        return {tables.get_allocator().resource()};
     }
 
     DescriptorSet(const allocator_type& alloc) noexcept; // NOLINT
@@ -131,14 +131,14 @@ struct DescriptorSet {
     DescriptorSet& operator=(DescriptorSet&& rhs) = default;
     DescriptorSet& operator=(DescriptorSet const& rhs) = default;
 
-    boost::container::pmr::vector<DescriptorTable> mTables;
-    UnboundedDescriptor                            mUnbounded;
+    boost::container::pmr::vector<DescriptorTable> tables;
+    UnboundedDescriptor                            unbounded;
 };
 
 struct LayoutData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mConstantBuffers.get_allocator().resource()};
+        return {constantBuffers.get_allocator().resource()};
     }
 
     LayoutData(const allocator_type& alloc) noexcept; // NOLINT
@@ -150,14 +150,14 @@ struct LayoutData {
     LayoutData& operator=(LayoutData&& rhs) = default;
     LayoutData& operator=(LayoutData const& rhs) = default;
 
-    PmrTransparentMap<ParameterType, ConstantBuffer> mConstantBuffers;
-    PmrTransparentMap<ParameterType, DescriptorSet>  mDescriptorSets;
+    PmrTransparentMap<ParameterType, ConstantBuffer> constantBuffers;
+    PmrTransparentMap<ParameterType, DescriptorSet>  descriptorSets;
 };
 
 struct ShaderProgramData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mLayouts.get_allocator().resource()};
+        return {layouts.get_allocator().resource()};
     }
 
     ShaderProgramData(const allocator_type& alloc) noexcept; // NOLINT
@@ -169,21 +169,21 @@ struct ShaderProgramData {
     ShaderProgramData& operator=(ShaderProgramData&& rhs) = default;
     ShaderProgramData& operator=(ShaderProgramData const& rhs) = default;
 
-    PmrTransparentMap<UpdateFrequency, LayoutData> mLayouts;
+    PmrTransparentMap<UpdateFrequency, LayoutData> layouts;
 };
 
 struct GroupNodeData {
     GroupNodeData() = default;
     GroupNodeData(NodeType nodeTypeIn) noexcept // NOLINT
-    : mNodeType(nodeTypeIn) {}
+    : nodeType(nodeTypeIn) {}
 
-    NodeType mNodeType = NodeType::INTERNAL;
+    NodeType nodeType = NodeType::INTERNAL;
 };
 
 struct ShaderNodeData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mShaderPrograms.get_allocator().resource()};
+        return {shaderPrograms.get_allocator().resource()};
     }
 
     ShaderNodeData(const allocator_type& alloc) noexcept; // NOLINT
@@ -195,9 +195,9 @@ struct ShaderNodeData {
     ShaderNodeData& operator=(ShaderNodeData&& rhs) = default;
     ShaderNodeData& operator=(ShaderNodeData const& rhs) = default;
 
-    std::string                                      mRootSignature;
-    boost::container::pmr::vector<ShaderProgramData> mShaderPrograms;
-    PmrTransparentMap<std::string, uint32_t>         mShaderIndex;
+    std::string                                      rootSignature;
+    boost::container::pmr::vector<ShaderProgramData> shaderPrograms;
+    PmrTransparentMap<std::string, uint32_t>         shaderIndex;
 };
 
 struct Group_ {};
@@ -206,7 +206,7 @@ struct Shader_ {};
 struct LayoutGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mVertices.get_allocator().resource()};
+        return {vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -261,29 +261,29 @@ struct LayoutGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
-        return {0, static_cast<vertices_size_type>(mVertices.size())};
+        return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
     inline vertex_descriptor current_id() const noexcept { // NOLINT
-        return static_cast<vertex_descriptor>(mVertices.size());
+        return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(mVertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -309,17 +309,17 @@ struct LayoutGraph {
 
     // AddressableGraph help functions
     inline boost::container::pmr::vector<out_edge_type>& children_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& children_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& parents_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& parents_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
 
     // PolymorphicGraph
@@ -337,7 +337,7 @@ struct LayoutGraph {
     struct vertex_type { // NOLINT
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
-            return {mOutEdges.get_allocator().resource()};
+            return {outEdges.get_allocator().resource()};
         }
 
         vertex_type(const allocator_type& alloc) noexcept; // NOLINT
@@ -349,29 +349,29 @@ struct LayoutGraph {
         vertex_type& operator=(vertex_type&& rhs) = default;
         vertex_type& operator=(vertex_type const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> mOutEdges;
-        boost::container::pmr::vector<in_edge_type>  mInEdges;
-        vertex_handle_type                           mHandle;
+        boost::container::pmr::vector<out_edge_type> outEdges;
+        boost::container::pmr::vector<in_edge_type>  inEdges;
+        vertex_handle_type                           handle;
     };
 
-    struct name_ { // NOLINT
-    } static constexpr name = {}; // NOLINT
-    struct update_ { // NOLINT
-    } static constexpr update = {}; // NOLINT
-    struct layout_ { // NOLINT
-    } static constexpr layout = {}; // NOLINT
+    struct Name_ { // NOLINT
+    } static constexpr Name = {}; // NOLINT
+    struct Update_ { // NOLINT
+    } static constexpr Update = {}; // NOLINT
+    struct Layout_ { // NOLINT
+    } static constexpr Layout = {}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> mVertices;
+    boost::container::pmr::vector<vertex_type> vertices;
     // Components
-    boost::container::pmr::vector<std::string>     mName;
-    boost::container::pmr::vector<UpdateFrequency> mUpdateFrequencies;
-    boost::container::pmr::vector<LayoutData>      mLayouts;
+    boost::container::pmr::vector<std::string>     names;
+    boost::container::pmr::vector<UpdateFrequency> updateFrequencies;
+    boost::container::pmr::vector<LayoutData>      layouts;
     // PolymorphicGraph
-    boost::container::pmr::vector<GroupNodeData>  mGroupNodes;
-    boost::container::pmr::vector<ShaderNodeData> mShaderNodes;
+    boost::container::pmr::vector<GroupNodeData>  groupNodes;
+    boost::container::pmr::vector<ShaderNodeData> shaderNodes;
     // Path
-    PmrTransparentMap<std::string, vertex_descriptor> mPathIndex;
+    PmrTransparentMap<std::string, vertex_descriptor> pathIndex;
 };
 
 } // namespace render

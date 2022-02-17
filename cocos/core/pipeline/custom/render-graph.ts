@@ -91,21 +91,21 @@ export class ResourceGraphTraitsMap implements impl.PropertyMap {
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum ResourceGraphComponent {
-    name,
-    desc,
-    traits,
+    Name,
+    Desc,
+    Traits,
 }
 
 interface ResourceGraphComponentType {
-    [ResourceGraphComponent.name]: string;
-    [ResourceGraphComponent.desc]: ResourceDesc;
-    [ResourceGraphComponent.traits]: ResourceTraits;
+    [ResourceGraphComponent.Name]: string;
+    [ResourceGraphComponent.Desc]: ResourceDesc;
+    [ResourceGraphComponent.Traits]: ResourceTraits;
 }
 
 interface ResourceGraphComponentPropertyMap {
-    [ResourceGraphComponent.name]: ResourceGraphNameMap;
-    [ResourceGraphComponent.desc]: ResourceGraphDescMap;
-    [ResourceGraphComponent.traits]: ResourceGraphTraitsMap;
+    [ResourceGraphComponent.Name]: ResourceGraphNameMap;
+    [ResourceGraphComponent.Desc]: ResourceGraphDescMap;
+    [ResourceGraphComponent.Traits]: ResourceGraphTraitsMap;
 }
 
 //-----------------------------------------------------------------
@@ -299,11 +299,11 @@ export class ResourceGraph implements impl.BidirectionalGraph
     get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap {
         switch (tag) {
         // Components
-        case 'name':
+        case 'Name':
             return new ResourceGraphNameMap(this._names);
-        case 'desc':
+        case 'Desc':
             return new ResourceGraphDescMap(this._descs);
-        case 'traits':
+        case 'Traits':
             return new ResourceGraphTraitsMap(this._traits);
         default:
             throw Error('property map not found');
@@ -313,11 +313,11 @@ export class ResourceGraph implements impl.BidirectionalGraph
     // ComponentGraph
     component<T extends ResourceGraphComponent> (id: T, v: number): ResourceGraphComponentType[T] {
         switch (id) {
-        case ResourceGraphComponent.name:
+        case ResourceGraphComponent.Name:
             return this._names[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.desc:
+        case ResourceGraphComponent.Desc:
             return this._descs[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.traits:
+        case ResourceGraphComponent.Traits:
             return this._traits[v] as ResourceGraphComponentType[T];
         default:
             throw Error('component not found');
@@ -325,11 +325,11 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     componentMap<T extends ResourceGraphComponent> (id: T): ResourceGraphComponentPropertyMap[T] {
         switch (id) {
-        case ResourceGraphComponent.name:
+        case ResourceGraphComponent.Name:
             return new ResourceGraphNameMap(this._names) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.desc:
+        case ResourceGraphComponent.Desc:
             return new ResourceGraphDescMap(this._descs) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.traits:
+        case ResourceGraphComponent.Traits:
             return new ResourceGraphTraitsMap(this._traits) as ResourceGraphComponentPropertyMap[T];
         default:
             throw Error('component map not found');
@@ -345,7 +345,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         return this._traits[v];
     }
 
-    readonly components: string[] = ['name', 'desc', 'traits'];
+    readonly components: string[] = ['Name', 'Desc', 'Traits'];
     readonly _vertices: ResourceGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descs: ResourceDesc[] = [];
@@ -444,18 +444,18 @@ export class SubpassGraphSubpassMap implements impl.PropertyMap {
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum SubpassGraphComponent {
-    name,
-    subpass,
+    Name,
+    Subpass,
 }
 
 interface SubpassGraphComponentType {
-    [SubpassGraphComponent.name]: string;
-    [SubpassGraphComponent.subpass]: RasterSubpass;
+    [SubpassGraphComponent.Name]: string;
+    [SubpassGraphComponent.Subpass]: RasterSubpass;
 }
 
 interface SubpassGraphComponentPropertyMap {
-    [SubpassGraphComponent.name]: SubpassGraphNameMap;
-    [SubpassGraphComponent.subpass]: SubpassGraphSubpassMap;
+    [SubpassGraphComponent.Name]: SubpassGraphNameMap;
+    [SubpassGraphComponent.Subpass]: SubpassGraphSubpassMap;
 }
 
 //-----------------------------------------------------------------
@@ -646,9 +646,9 @@ export class SubpassGraph implements impl.BidirectionalGraph
     get (tag: string): SubpassGraphNameMap | SubpassGraphSubpassMap {
         switch (tag) {
         // Components
-        case 'name':
+        case 'Name':
             return new SubpassGraphNameMap(this._names);
-        case 'subpass':
+        case 'Subpass':
             return new SubpassGraphSubpassMap(this._subpasses);
         default:
             throw Error('property map not found');
@@ -658,9 +658,9 @@ export class SubpassGraph implements impl.BidirectionalGraph
     // ComponentGraph
     component<T extends SubpassGraphComponent> (id: T, v: number): SubpassGraphComponentType[T] {
         switch (id) {
-        case SubpassGraphComponent.name:
+        case SubpassGraphComponent.Name:
             return this._names[v] as SubpassGraphComponentType[T];
-        case SubpassGraphComponent.subpass:
+        case SubpassGraphComponent.Subpass:
             return this._subpasses[v] as SubpassGraphComponentType[T];
         default:
             throw Error('component not found');
@@ -668,9 +668,9 @@ export class SubpassGraph implements impl.BidirectionalGraph
     }
     componentMap<T extends SubpassGraphComponent> (id: T): SubpassGraphComponentPropertyMap[T] {
         switch (id) {
-        case SubpassGraphComponent.name:
+        case SubpassGraphComponent.Name:
             return new SubpassGraphNameMap(this._names) as SubpassGraphComponentPropertyMap[T];
-        case SubpassGraphComponent.subpass:
+        case SubpassGraphComponent.Subpass:
             return new SubpassGraphSubpassMap(this._subpasses) as SubpassGraphComponentPropertyMap[T];
         default:
             throw Error('component map not found');
@@ -683,7 +683,7 @@ export class SubpassGraph implements impl.BidirectionalGraph
         return this._subpasses[v];
     }
 
-    readonly components: string[] = ['name', 'subpass'];
+    readonly components: string[] = ['Name', 'Subpass'];
     readonly _vertices: SubpassGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _subpasses: RasterSubpass[] = [];
@@ -935,21 +935,21 @@ export class RenderGraphDataMap implements impl.PropertyMap {
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum RenderGraphComponent {
-    name,
-    layout,
-    data,
+    Name,
+    Layout,
+    Data,
 }
 
 interface RenderGraphComponentType {
-    [RenderGraphComponent.name]: string;
-    [RenderGraphComponent.layout]: string;
-    [RenderGraphComponent.data]: RenderData;
+    [RenderGraphComponent.Name]: string;
+    [RenderGraphComponent.Layout]: string;
+    [RenderGraphComponent.Data]: RenderData;
 }
 
 interface RenderGraphComponentPropertyMap {
-    [RenderGraphComponent.name]: RenderGraphNameMap;
-    [RenderGraphComponent.layout]: RenderGraphLayoutMap;
-    [RenderGraphComponent.data]: RenderGraphDataMap;
+    [RenderGraphComponent.Name]: RenderGraphNameMap;
+    [RenderGraphComponent.Layout]: RenderGraphLayoutMap;
+    [RenderGraphComponent.Data]: RenderGraphDataMap;
 }
 
 //-----------------------------------------------------------------
@@ -1186,11 +1186,11 @@ export class RenderGraph implements impl.BidirectionalGraph
     get (tag: string): RenderGraphNameMap | RenderGraphLayoutMap | RenderGraphDataMap {
         switch (tag) {
         // Components
-        case 'name':
+        case 'Name':
             return new RenderGraphNameMap(this._names);
-        case 'layout':
+        case 'Layout':
             return new RenderGraphLayoutMap(this._layoutNodes);
-        case 'data':
+        case 'Data':
             return new RenderGraphDataMap(this._data);
         default:
             throw Error('property map not found');
@@ -1200,11 +1200,11 @@ export class RenderGraph implements impl.BidirectionalGraph
     // ComponentGraph
     component<T extends RenderGraphComponent> (id: T, v: number): RenderGraphComponentType[T] {
         switch (id) {
-        case RenderGraphComponent.name:
+        case RenderGraphComponent.Name:
             return this._names[v] as RenderGraphComponentType[T];
-        case RenderGraphComponent.layout:
+        case RenderGraphComponent.Layout:
             return this._layoutNodes[v] as RenderGraphComponentType[T];
-        case RenderGraphComponent.data:
+        case RenderGraphComponent.Data:
             return this._data[v] as RenderGraphComponentType[T];
         default:
             throw Error('component not found');
@@ -1212,11 +1212,11 @@ export class RenderGraph implements impl.BidirectionalGraph
     }
     componentMap<T extends RenderGraphComponent> (id: T): RenderGraphComponentPropertyMap[T] {
         switch (id) {
-        case RenderGraphComponent.name:
+        case RenderGraphComponent.Name:
             return new RenderGraphNameMap(this._names) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.layout:
+        case RenderGraphComponent.Layout:
             return new RenderGraphLayoutMap(this._layoutNodes) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.data:
+        case RenderGraphComponent.Data:
             return new RenderGraphDataMap(this._data) as RenderGraphComponentPropertyMap[T];
         default:
             throw Error('component map not found');
@@ -1538,7 +1538,7 @@ export class RenderGraph implements impl.BidirectionalGraph
         }
     }
 
-    readonly components: string[] = ['name', 'layout', 'data'];
+    readonly components: string[] = ['Name', 'Layout', 'Data'];
     readonly _vertices: RenderGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _layoutNodes: string[] = [];

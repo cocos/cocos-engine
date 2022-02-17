@@ -8,25 +8,25 @@ bool nativevalue_to_se(const cc::render::RasterView &from, se::Value &to, se::Ob
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
 
-    nativevalue_to_se(from.mSlotName, tmp, ctx);
+    nativevalue_to_se(from.slotName, tmp, ctx);
     obj->setProperty("slotName", tmp);
 
-    nativevalue_to_se(from.mAccessType, tmp, ctx);
+    nativevalue_to_se(from.accessType, tmp, ctx);
     obj->setProperty("accessType", tmp);
 
-    nativevalue_to_se(from.mAttachmentType, tmp, ctx);
+    nativevalue_to_se(from.attachmentType, tmp, ctx);
     obj->setProperty("attachmentType", tmp);
 
-    nativevalue_to_se(from.mLoadOp, tmp, ctx);
+    nativevalue_to_se(from.loadOp, tmp, ctx);
     obj->setProperty("loadOp", tmp);
 
-    nativevalue_to_se(from.mStoreOp, tmp, ctx);
+    nativevalue_to_se(from.storeOp, tmp, ctx);
     obj->setProperty("storeOp", tmp);
 
-    nativevalue_to_se(from.mClearFlags, tmp, ctx);
+    nativevalue_to_se(from.clearFlags, tmp, ctx);
     obj->setProperty("clearFlags", tmp);
 
-    nativevalue_to_se(from.mClearColor, tmp, ctx);
+    nativevalue_to_se(from.clearColor, tmp, ctx);
     obj->setProperty("clearColor", tmp);
 
     to.setObject(obj);
@@ -37,19 +37,19 @@ bool nativevalue_to_se(const cc::render::ComputeView &from, se::Value &to, se::O
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
 
-    nativevalue_to_se(from.mName, tmp, ctx);
+    nativevalue_to_se(from.name, tmp, ctx);
     obj->setProperty("name", tmp);
 
-    nativevalue_to_se(from.mAccessType, tmp, ctx);
+    nativevalue_to_se(from.accessType, tmp, ctx);
     obj->setProperty("accessType", tmp);
 
-    nativevalue_to_se(from.mClearFlags, tmp, ctx);
+    nativevalue_to_se(from.clearFlags, tmp, ctx);
     obj->setProperty("clearFlags", tmp);
 
-    nativevalue_to_se(from.mClearColor, tmp, ctx);
+    nativevalue_to_se(from.clearColor, tmp, ctx);
     obj->setProperty("clearColor", tmp);
 
-    nativevalue_to_se(from.mClearValueType, tmp, ctx);
+    nativevalue_to_se(from.clearValueType, tmp, ctx);
     obj->setProperty("clearValueType", tmp);
 
     to.setObject(obj);
@@ -60,34 +60,34 @@ bool nativevalue_to_se(const cc::render::CopyPair &from, se::Value &to, se::Obje
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
 
-    nativevalue_to_se(from.mSource, tmp, ctx);
+    nativevalue_to_se(from.source, tmp, ctx);
     obj->setProperty("source", tmp);
 
-    nativevalue_to_se(from.mTarget, tmp, ctx);
+    nativevalue_to_se(from.target, tmp, ctx);
     obj->setProperty("target", tmp);
 
-    nativevalue_to_se(from.mMipLevels, tmp, ctx);
+    nativevalue_to_se(from.mipLevels, tmp, ctx);
     obj->setProperty("mipLevels", tmp);
 
-    nativevalue_to_se(from.mNumSlices, tmp, ctx);
+    nativevalue_to_se(from.numSlices, tmp, ctx);
     obj->setProperty("numSlices", tmp);
 
-    nativevalue_to_se(from.mSourceMostDetailedMip, tmp, ctx);
+    nativevalue_to_se(from.sourceMostDetailedMip, tmp, ctx);
     obj->setProperty("sourceMostDetailedMip", tmp);
 
-    nativevalue_to_se(from.mSourceFirstSlice, tmp, ctx);
+    nativevalue_to_se(from.sourceFirstSlice, tmp, ctx);
     obj->setProperty("sourceFirstSlice", tmp);
 
-    nativevalue_to_se(from.mSourcePlaneSlice, tmp, ctx);
+    nativevalue_to_se(from.sourcePlaneSlice, tmp, ctx);
     obj->setProperty("sourcePlaneSlice", tmp);
 
-    nativevalue_to_se(from.mTargetMostDetailedMip, tmp, ctx);
+    nativevalue_to_se(from.targetMostDetailedMip, tmp, ctx);
     obj->setProperty("targetMostDetailedMip", tmp);
 
-    nativevalue_to_se(from.mTargetFirstSlice, tmp, ctx);
+    nativevalue_to_se(from.targetFirstSlice, tmp, ctx);
     obj->setProperty("targetFirstSlice", tmp);
 
-    nativevalue_to_se(from.mTargetPlaneSlice, tmp, ctx);
+    nativevalue_to_se(from.targetPlaneSlice, tmp, ctx);
     obj->setProperty("targetPlaneSlice", tmp);
 
     to.setObject(obj);
@@ -98,25 +98,25 @@ bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Obje
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
 
-    nativevalue_to_se(from.mSource, tmp, ctx);
+    nativevalue_to_se(from.source, tmp, ctx);
     obj->setProperty("source", tmp);
 
-    nativevalue_to_se(from.mTarget, tmp, ctx);
+    nativevalue_to_se(from.target, tmp, ctx);
     obj->setProperty("target", tmp);
 
-    nativevalue_to_se(from.mMipLevels, tmp, ctx);
+    nativevalue_to_se(from.mipLevels, tmp, ctx);
     obj->setProperty("mipLevels", tmp);
 
-    nativevalue_to_se(from.mNumSlices, tmp, ctx);
+    nativevalue_to_se(from.numSlices, tmp, ctx);
     obj->setProperty("numSlices", tmp);
 
-    nativevalue_to_se(from.mTargetMostDetailedMip, tmp, ctx);
+    nativevalue_to_se(from.targetMostDetailedMip, tmp, ctx);
     obj->setProperty("targetMostDetailedMip", tmp);
 
-    nativevalue_to_se(from.mTargetFirstSlice, tmp, ctx);
+    nativevalue_to_se(from.targetFirstSlice, tmp, ctx);
     obj->setProperty("targetFirstSlice", tmp);
 
-    nativevalue_to_se(from.mTargetPlaneSlice, tmp, ctx);
+    nativevalue_to_se(from.targetPlaneSlice, tmp, ctx);
     obj->setProperty("targetPlaneSlice", tmp);
 
     to.setObject(obj);
@@ -131,31 +131,31 @@ bool sevalue_to_native(const se::Value &from, cc::render::RasterView *to, se::Ob
     se::Value field;
     obj->getProperty("slotName", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mSlotName), ctx);
+        ok &= sevalue_to_native(field, &(to->slotName), ctx);
     }
     obj->getProperty("accessType", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mAccessType), ctx);
+        ok &= sevalue_to_native(field, &(to->accessType), ctx);
     }
     obj->getProperty("attachmentType", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mAttachmentType), ctx);
+        ok &= sevalue_to_native(field, &(to->attachmentType), ctx);
     }
     obj->getProperty("loadOp", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mLoadOp), ctx);
+        ok &= sevalue_to_native(field, &(to->loadOp), ctx);
     }
     obj->getProperty("storeOp", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mStoreOp), ctx);
+        ok &= sevalue_to_native(field, &(to->storeOp), ctx);
     }
     obj->getProperty("clearFlags", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mClearFlags), ctx);
+        ok &= sevalue_to_native(field, &(to->clearFlags), ctx);
     }
     obj->getProperty("clearColor", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mClearColor), ctx);
+        ok &= sevalue_to_native(field, &(to->clearColor), ctx);
     }
     return ok;
 }
@@ -168,23 +168,23 @@ bool sevalue_to_native(const se::Value &from, cc::render::ComputeView *to, se::O
     se::Value field;
     obj->getProperty("name", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mName), ctx);
+        ok &= sevalue_to_native(field, &(to->name), ctx);
     }
     obj->getProperty("accessType", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mAccessType), ctx);
+        ok &= sevalue_to_native(field, &(to->accessType), ctx);
     }
     obj->getProperty("clearFlags", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mClearFlags), ctx);
+        ok &= sevalue_to_native(field, &(to->clearFlags), ctx);
     }
     obj->getProperty("clearColor", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mClearColor), ctx);
+        ok &= sevalue_to_native(field, &(to->clearColor), ctx);
     }
     obj->getProperty("clearValueType", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mClearValueType), ctx);
+        ok &= sevalue_to_native(field, &(to->clearValueType), ctx);
     }
     return ok;
 }
@@ -197,43 +197,43 @@ bool sevalue_to_native(const se::Value &from, cc::render::CopyPair *to, se::Obje
     se::Value field;
     obj->getProperty("source", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mSource), ctx);
+        ok &= sevalue_to_native(field, &(to->source), ctx);
     }
     obj->getProperty("target", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mTarget), ctx);
+        ok &= sevalue_to_native(field, &(to->target), ctx);
     }
     obj->getProperty("mipLevels", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mMipLevels), ctx);
+        ok &= sevalue_to_native(field, &(to->mipLevels), ctx);
     }
     obj->getProperty("numSlices", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mNumSlices), ctx);
+        ok &= sevalue_to_native(field, &(to->numSlices), ctx);
     }
     obj->getProperty("sourceMostDetailedMip", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mSourceMostDetailedMip), ctx);
+        ok &= sevalue_to_native(field, &(to->sourceMostDetailedMip), ctx);
     }
     obj->getProperty("sourceFirstSlice", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mSourceFirstSlice), ctx);
+        ok &= sevalue_to_native(field, &(to->sourceFirstSlice), ctx);
     }
     obj->getProperty("sourcePlaneSlice", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mSourcePlaneSlice), ctx);
+        ok &= sevalue_to_native(field, &(to->sourcePlaneSlice), ctx);
     }
     obj->getProperty("targetMostDetailedMip", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mTargetMostDetailedMip), ctx);
+        ok &= sevalue_to_native(field, &(to->targetMostDetailedMip), ctx);
     }
     obj->getProperty("targetFirstSlice", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mTargetFirstSlice), ctx);
+        ok &= sevalue_to_native(field, &(to->targetFirstSlice), ctx);
     }
     obj->getProperty("targetPlaneSlice", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mTargetPlaneSlice), ctx);
+        ok &= sevalue_to_native(field, &(to->targetPlaneSlice), ctx);
     }
     return ok;
 }
@@ -246,31 +246,31 @@ bool sevalue_to_native(const se::Value &from, cc::render::MovePair *to, se::Obje
     se::Value field;
     obj->getProperty("source", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mSource), ctx);
+        ok &= sevalue_to_native(field, &(to->source), ctx);
     }
     obj->getProperty("target", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mTarget), ctx);
+        ok &= sevalue_to_native(field, &(to->target), ctx);
     }
     obj->getProperty("mipLevels", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mMipLevels), ctx);
+        ok &= sevalue_to_native(field, &(to->mipLevels), ctx);
     }
     obj->getProperty("numSlices", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mNumSlices), ctx);
+        ok &= sevalue_to_native(field, &(to->numSlices), ctx);
     }
     obj->getProperty("targetMostDetailedMip", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mTargetMostDetailedMip), ctx);
+        ok &= sevalue_to_native(field, &(to->targetMostDetailedMip), ctx);
     }
     obj->getProperty("targetFirstSlice", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mTargetFirstSlice), ctx);
+        ok &= sevalue_to_native(field, &(to->targetFirstSlice), ctx);
     }
     obj->getProperty("targetPlaneSlice", &field, true);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mTargetPlaneSlice), ctx);
+        ok &= sevalue_to_native(field, &(to->targetPlaneSlice), ctx);
     }
     return ok;
 }

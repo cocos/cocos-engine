@@ -110,13 +110,13 @@ export class LayoutGraphVertex {
 //-----------------------------------------------------------------
 // PropertyGraph Concept
 export class LayoutGraphNameMap implements impl.PropertyMap {
-    constructor (readonly name: string[]) {
-        this._name = name;
+    constructor (readonly names: string[]) {
+        this._names = names;
     }
     get (v: number): string {
-        return this._name[v];
+        return this._names[v];
     }
-    readonly _name: string[];
+    readonly _names: string[];
 }
 
 export class LayoutGraphUpdateMap implements impl.PropertyMap {
@@ -142,21 +142,21 @@ export class LayoutGraphLayoutMap implements impl.PropertyMap {
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum LayoutGraphComponent {
-    name,
-    update,
-    layout,
+    Name,
+    Update,
+    Layout,
 }
 
 interface LayoutGraphComponentType {
-    [LayoutGraphComponent.name]: string;
-    [LayoutGraphComponent.update]: UpdateFrequency;
-    [LayoutGraphComponent.layout]: LayoutData;
+    [LayoutGraphComponent.Name]: string;
+    [LayoutGraphComponent.Update]: UpdateFrequency;
+    [LayoutGraphComponent.Layout]: LayoutData;
 }
 
 interface LayoutGraphComponentPropertyMap {
-    [LayoutGraphComponent.name]: LayoutGraphNameMap;
-    [LayoutGraphComponent.update]: LayoutGraphUpdateMap;
-    [LayoutGraphComponent.layout]: LayoutGraphLayoutMap;
+    [LayoutGraphComponent.Name]: LayoutGraphNameMap;
+    [LayoutGraphComponent.Update]: LayoutGraphUpdateMap;
+    [LayoutGraphComponent.Layout]: LayoutGraphLayoutMap;
 }
 
 //-----------------------------------------------------------------
@@ -246,7 +246,7 @@ export class LayoutGraph implements impl.BidirectionalGraph
         const vert = new LayoutGraphVertex(id, object);
         const v = this._vertices.length;
         this._vertices.push(vert);
-        this._name.push(name);
+        this._names.push(name);
         this._updateFrequencies.push(update);
         this._layouts.push(layout);
 
@@ -288,7 +288,7 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     removeVertex (u: number): void {
         this._vertices.splice(u, 1);
-        this._name.splice(u, 1);
+        this._names.splice(u, 1);
         this._updateFrequencies.splice(u, 1);
         this._layouts.splice(u, 1);
 
@@ -354,21 +354,21 @@ export class LayoutGraph implements impl.BidirectionalGraph
     //-----------------------------------------------------------------
     // NamedGraph
     vertexName (v: number): string {
-        return this._name[v];
+        return this._names[v];
     }
     vertexNameMap (): LayoutGraphNameMap {
-        return new LayoutGraphNameMap(this._name);
+        return new LayoutGraphNameMap(this._names);
     }
     //-----------------------------------------------------------------
     // PropertyGraph
     get (tag: string): LayoutGraphNameMap | LayoutGraphUpdateMap | LayoutGraphLayoutMap {
         switch (tag) {
         // Components
-        case 'name':
-            return new LayoutGraphNameMap(this._name);
-        case 'update':
+        case 'Name':
+            return new LayoutGraphNameMap(this._names);
+        case 'Update':
             return new LayoutGraphUpdateMap(this._updateFrequencies);
-        case 'layout':
+        case 'Layout':
             return new LayoutGraphLayoutMap(this._layouts);
         default:
             throw Error('property map not found');
@@ -378,11 +378,11 @@ export class LayoutGraph implements impl.BidirectionalGraph
     // ComponentGraph
     component<T extends LayoutGraphComponent> (id: T, v: number): LayoutGraphComponentType[T] {
         switch (id) {
-        case LayoutGraphComponent.name:
-            return this._name[v] as LayoutGraphComponentType[T];
-        case LayoutGraphComponent.update:
+        case LayoutGraphComponent.Name:
+            return this._names[v] as LayoutGraphComponentType[T];
+        case LayoutGraphComponent.Update:
             return this._updateFrequencies[v] as LayoutGraphComponentType[T];
-        case LayoutGraphComponent.layout:
+        case LayoutGraphComponent.Layout:
             return this._layouts[v] as LayoutGraphComponentType[T];
         default:
             throw Error('component not found');
@@ -390,18 +390,18 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     componentMap<T extends LayoutGraphComponent> (id: T): LayoutGraphComponentPropertyMap[T] {
         switch (id) {
-        case LayoutGraphComponent.name:
-            return new LayoutGraphNameMap(this._name) as LayoutGraphComponentPropertyMap[T];
-        case LayoutGraphComponent.update:
+        case LayoutGraphComponent.Name:
+            return new LayoutGraphNameMap(this._names) as LayoutGraphComponentPropertyMap[T];
+        case LayoutGraphComponent.Update:
             return new LayoutGraphUpdateMap(this._updateFrequencies) as LayoutGraphComponentPropertyMap[T];
-        case LayoutGraphComponent.layout:
+        case LayoutGraphComponent.Layout:
             return new LayoutGraphLayoutMap(this._layouts) as LayoutGraphComponentPropertyMap[T];
         default:
             throw Error('component map not found');
         }
     }
     getName (v: number): string {
-        return this._name[v];
+        return this._names[v];
     }
     getUpdate (v: number): UpdateFrequency {
         return this._updateFrequencies[v];
@@ -554,7 +554,7 @@ export class LayoutGraph implements impl.BidirectionalGraph
         if (u === 0xFFFFFFFF) {
             for (const v of this._vertices.keys()) {
                 const vert = this._vertices[v];
-                if (vert._inEdges.length === 0 && this._name[v] === name) {
+                if (vert._inEdges.length === 0 && this._names[v] === name) {
                     return v;
                 }
             }
@@ -562,7 +562,7 @@ export class LayoutGraph implements impl.BidirectionalGraph
         }
         for (const oe of this._vertices[u]._outEdges) {
             const child = oe.target as number;
-            if (name === this._name[child]) {
+            if (name === this._names[child]) {
                 return child;
             }
         }
@@ -583,9 +583,9 @@ export class LayoutGraph implements impl.BidirectionalGraph
         return impl.getPath(this, v);
     }
 
-    readonly components: string[] = ['name', 'update', 'layout'];
+    readonly components: string[] = ['Name', 'Update', 'Layout'];
     readonly _vertices: LayoutGraphVertex[] = [];
-    readonly _name: string[] = [];
+    readonly _names: string[] = [];
     readonly _updateFrequencies: UpdateFrequency[] = [];
     readonly _layouts: LayoutData[] = [];
 }

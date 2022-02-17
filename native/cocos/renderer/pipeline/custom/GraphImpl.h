@@ -338,7 +338,7 @@ inline void removeDirectedAllEdgeProperties(Graph &g, IncidenceList &el, VertexD
             // are adjacent in the out edge list. This *may* actually hold
             // for multisets also.
             bool skip = (std::next(i) != end && i->get_iter() == std::next(i)->get_iter());
-            g.mEdges.erase((*i).get_iter());
+            g.edges.erase((*i).get_iter());
             if (skip) {
                 ++i;
             }
@@ -396,7 +396,7 @@ inline void removeUndirectedEdge(Graph &g, EdgeDescriptor e, EdgeProperty &p) no
             break;
         }
     }
-    g.mEdges.erase(edgeIterToErase);
+    g.edges.erase(edgeIterToErase);
 }
 
 template <class Graph, class IncidenceIterator, class IncidenceList, class Predicate>
@@ -429,7 +429,7 @@ inline void sequenceRemoveUndirectedOutEdgeIf(Graph            &g,
                 }
 
                 // Erase the edge property
-                g.mEdges.erase((*i.base()).get_iter());
+                g.edges.erase((*i.base()).get_iter());
             }
         }
     }
@@ -449,7 +449,7 @@ inline void associativeRemoveUndirectedOutEdgeIf(Graph            &g,
             }
 
             // Erase the edge property
-            g.mEdges.erase((*first.base()).get_iter());
+            g.edges.erase((*first.base()).get_iter());
 
             // Erase the edge in the source
             el.erase(first.base());
@@ -475,8 +475,8 @@ inline void reindexVectorHandle(Container &container, HandleDescriptor u) {
 
     using handle_type = ValueHandle<Tag, HandleDescriptor>;
     for (auto &vert : container) {
-        if (boost::variant2::holds_alternative<handle_type>(vert.mHandle)) {
-            auto &v = boost::variant2::get<handle_type>(vert.mHandle).mValue;
+        if (boost::variant2::holds_alternative<handle_type>(vert.handle)) {
+            auto &v = boost::variant2::get<handle_type>(vert.handle).mValue;
             if (v > u) {
                 --v;
             }
@@ -486,7 +486,7 @@ inline void reindexVectorHandle(Container &container, HandleDescriptor u) {
 
 template <class Graph, class VertexDescriptor>
 inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::directed_tag /*tag*/) {
-    g.mVertices.erase(g.mVertices.begin() + u);
+    g.vertices.erase(g.vertices.begin() + u);
     auto numV = num_vertices(g);
     if (u != numV) {
         for (VertexDescriptor v = 0; v < numV; ++v) {
@@ -497,14 +497,14 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::directed_tag
 
 template <class Graph, class VertexDescriptor>
 inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::undirected_tag /*tag*/) {
-    g.mVertices.erase(g.mVertices.begin() + u);
+    g.vertices.erase(g.vertices.begin() + u);
     VertexDescriptor numV = num_vertices(g);
     for (VertexDescriptor v = 0; v < numV; ++v) {
         reindexEdgeList(g.out_edge_list(v), u);
     }
 
-    auto ei    = g.mEdges.begin();
-    auto eiEnd = g.mEdges.end();
+    auto ei    = g.edges.begin();
+    auto eiEnd = g.edges.end();
     for (; ei != eiEnd; ++ei) {
         if (ei->m_source > u) {
             --ei->m_source;
@@ -517,7 +517,7 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::undirected_t
 
 template <class Graph, class VertexDescriptor>
 inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::bidirectional_tag /*tag*/) {
-    g.mVertices.erase(g.mVertices.begin() + u);
+    g.vertices.erase(g.vertices.begin() + u);
     VertexDescriptor numV = num_vertices(g);
     VertexDescriptor v;
     if (u != numV) {
@@ -534,7 +534,7 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::bidirectiona
 template <class Graph, class VertexDescriptor, class EdgeList>
 inline void removeVectorVertex(Graph           &g, EdgeList           &/*edges*/,
                                VertexDescriptor u, boost::bidirectional_tag /*tag*/) {
-    g.mVertices.erase(g.mVertices.begin() + u);
+    g.vertices.erase(g.vertices.begin() + u);
     VertexDescriptor numV = num_vertices(g);
     VertexDescriptor v;
     if (u != numV) {
@@ -546,8 +546,8 @@ inline void removeVectorVertex(Graph           &g, EdgeList           &/*edges*/
             reindexEdgeList(g.in_edge_list(v), u);
         }
 
-        auto ei    = g.mEdges.begin();
-        auto eiEnd = g.mEdges.end();
+        auto ei    = g.edges.begin();
+        auto eiEnd = g.edges.end();
         for (; ei != eiEnd; ++ei) {
             if (ei->m_source > u) {
                 --ei->m_source;

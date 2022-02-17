@@ -6,412 +6,412 @@ namespace cc {
 namespace render {
 
 ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
-: mVertices(alloc),
-  mNames(alloc),
-  mDescs(alloc),
-  mTraits(alloc),
-  mValueIndex(alloc) {}
+: vertices(alloc),
+  names(alloc),
+  descs(alloc),
+  traits(alloc),
+  valueIndex(alloc) {}
 
 ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
-: mVertices(std::move(rhs.mVertices), alloc),
-  mNames(std::move(rhs.mNames), alloc),
-  mDescs(std::move(rhs.mDescs), alloc),
-  mTraits(std::move(rhs.mTraits), alloc),
-  mValueIndex(std::move(rhs.mValueIndex), alloc) {}
+: vertices(std::move(rhs.vertices), alloc),
+  names(std::move(rhs.names), alloc),
+  descs(std::move(rhs.descs), alloc),
+  traits(std::move(rhs.traits), alloc),
+  valueIndex(std::move(rhs.valueIndex), alloc) {}
 
 ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc)
-: mVertices(rhs.mVertices, alloc),
-  mNames(rhs.mNames, alloc),
-  mDescs(rhs.mDescs, alloc),
-  mTraits(rhs.mTraits, alloc),
-  mValueIndex(rhs.mValueIndex, alloc) {}
+: vertices(rhs.vertices, alloc),
+  names(rhs.names, alloc),
+  descs(rhs.descs, alloc),
+  traits(rhs.traits, alloc),
+  valueIndex(rhs.valueIndex, alloc) {}
 
 // ContinuousContainer
 void ResourceGraph::reserve(vertices_size_type sz) {
-    mVertices.reserve(sz);
-    mNames.reserve(sz);
-    mDescs.reserve(sz);
-    mTraits.reserve(sz);
+    this->vertices.reserve(sz);
+    names.reserve(sz);
+    descs.reserve(sz);
+    traits.reserve(sz);
 }
 
 ResourceGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
-: mOutEdges(alloc),
-  mInEdges(alloc) {}
+: outEdges(alloc),
+  inEdges(alloc) {}
 
 ResourceGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
-: mOutEdges(std::move(rhs.mOutEdges), alloc),
-  mInEdges(std::move(rhs.mInEdges), alloc) {}
+: outEdges(std::move(rhs.outEdges), alloc),
+  inEdges(std::move(rhs.inEdges), alloc) {}
 
 ResourceGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
-: mOutEdges(rhs.mOutEdges, alloc),
-  mInEdges(rhs.mInEdges, alloc) {}
+: outEdges(rhs.outEdges, alloc),
+  inEdges(rhs.inEdges, alloc) {}
 
 RasterView::RasterView(const allocator_type& alloc) noexcept
-: mSlotName(alloc) {}
+: slotName(alloc) {}
 
 RasterView::RasterView(PmrString slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
-: mSlotName(std::move(slotNameIn), alloc),
-  mAccessType(accessTypeIn),
-  mAttachmentType(attachmentTypeIn),
-  mLoadOp(loadOpIn),
-  mStoreOp(storeOpIn),
-  mClearFlags(clearFlagsIn),
-  mClearColor(clearColorIn) {}
+: slotName(std::move(slotNameIn), alloc),
+  accessType(accessTypeIn),
+  attachmentType(attachmentTypeIn),
+  loadOp(loadOpIn),
+  storeOp(storeOpIn),
+  clearFlags(clearFlagsIn),
+  clearColor(clearColorIn) {}
 
 RasterView::RasterView(RasterView&& rhs, const allocator_type& alloc)
-: mSlotName(std::move(rhs.mSlotName), alloc),
-  mAccessType(rhs.mAccessType),
-  mAttachmentType(rhs.mAttachmentType),
-  mLoadOp(rhs.mLoadOp),
-  mStoreOp(rhs.mStoreOp),
-  mClearFlags(rhs.mClearFlags),
-  mClearColor(rhs.mClearColor) {}
+: slotName(std::move(rhs.slotName), alloc),
+  accessType(rhs.accessType),
+  attachmentType(rhs.attachmentType),
+  loadOp(rhs.loadOp),
+  storeOp(rhs.storeOp),
+  clearFlags(rhs.clearFlags),
+  clearColor(rhs.clearColor) {}
 
 RasterView::RasterView(RasterView const& rhs, const allocator_type& alloc)
-: mSlotName(rhs.mSlotName, alloc),
-  mAccessType(rhs.mAccessType),
-  mAttachmentType(rhs.mAttachmentType),
-  mLoadOp(rhs.mLoadOp),
-  mStoreOp(rhs.mStoreOp),
-  mClearFlags(rhs.mClearFlags),
-  mClearColor(rhs.mClearColor) {}
+: slotName(rhs.slotName, alloc),
+  accessType(rhs.accessType),
+  attachmentType(rhs.attachmentType),
+  loadOp(rhs.loadOp),
+  storeOp(rhs.storeOp),
+  clearFlags(rhs.clearFlags),
+  clearColor(rhs.clearColor) {}
 
 ComputeView::ComputeView(const allocator_type& alloc) noexcept
-: mName(alloc) {}
+: name(alloc) {}
 
 ComputeView::ComputeView(ComputeView&& rhs, const allocator_type& alloc)
-: mName(std::move(rhs.mName), alloc),
-  mAccessType(rhs.mAccessType),
-  mClearFlags(rhs.mClearFlags),
-  mClearColor(rhs.mClearColor),
-  mClearValueType(rhs.mClearValueType) {}
+: name(std::move(rhs.name), alloc),
+  accessType(rhs.accessType),
+  clearFlags(rhs.clearFlags),
+  clearColor(rhs.clearColor),
+  clearValueType(rhs.clearValueType) {}
 
 ComputeView::ComputeView(ComputeView const& rhs, const allocator_type& alloc)
-: mName(rhs.mName, alloc),
-  mAccessType(rhs.mAccessType),
-  mClearFlags(rhs.mClearFlags),
-  mClearColor(rhs.mClearColor),
-  mClearValueType(rhs.mClearValueType) {}
+: name(rhs.name, alloc),
+  accessType(rhs.accessType),
+  clearFlags(rhs.clearFlags),
+  clearColor(rhs.clearColor),
+  clearValueType(rhs.clearValueType) {}
 
 RasterSubpass::RasterSubpass(const allocator_type& alloc) noexcept
-: mRasterViews(alloc),
-  mComputeViews(alloc) {}
+: rasterViews(alloc),
+  computeViews(alloc) {}
 
 RasterSubpass::RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc)
-: mRasterViews(std::move(rhs.mRasterViews), alloc),
-  mComputeViews(std::move(rhs.mComputeViews), alloc) {}
+: rasterViews(std::move(rhs.rasterViews), alloc),
+  computeViews(std::move(rhs.computeViews), alloc) {}
 
 RasterSubpass::RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc)
-: mRasterViews(rhs.mRasterViews, alloc),
-  mComputeViews(rhs.mComputeViews, alloc) {}
+: rasterViews(rhs.rasterViews, alloc),
+  computeViews(rhs.computeViews, alloc) {}
 
 SubpassGraph::SubpassGraph(const allocator_type& alloc) noexcept
-: mVertices(alloc),
-  mNames(alloc),
-  mSubpasses(alloc) {}
+: vertices(alloc),
+  names(alloc),
+  subpasses(alloc) {}
 
 SubpassGraph::SubpassGraph(SubpassGraph&& rhs, const allocator_type& alloc)
-: mVertices(std::move(rhs.mVertices), alloc),
-  mNames(std::move(rhs.mNames), alloc),
-  mSubpasses(std::move(rhs.mSubpasses), alloc) {}
+: vertices(std::move(rhs.vertices), alloc),
+  names(std::move(rhs.names), alloc),
+  subpasses(std::move(rhs.subpasses), alloc) {}
 
 SubpassGraph::SubpassGraph(SubpassGraph const& rhs, const allocator_type& alloc)
-: mVertices(rhs.mVertices, alloc),
-  mNames(rhs.mNames, alloc),
-  mSubpasses(rhs.mSubpasses, alloc) {}
+: vertices(rhs.vertices, alloc),
+  names(rhs.names, alloc),
+  subpasses(rhs.subpasses, alloc) {}
 
 // ContinuousContainer
 void SubpassGraph::reserve(vertices_size_type sz) {
-    mVertices.reserve(sz);
-    mNames.reserve(sz);
-    mSubpasses.reserve(sz);
+    this->vertices.reserve(sz);
+    names.reserve(sz);
+    subpasses.reserve(sz);
 }
 
 SubpassGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
-: mOutEdges(alloc),
-  mInEdges(alloc) {}
+: outEdges(alloc),
+  inEdges(alloc) {}
 
 SubpassGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
-: mOutEdges(std::move(rhs.mOutEdges), alloc),
-  mInEdges(std::move(rhs.mInEdges), alloc) {}
+: outEdges(std::move(rhs.outEdges), alloc),
+  inEdges(std::move(rhs.inEdges), alloc) {}
 
 SubpassGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
-: mOutEdges(rhs.mOutEdges, alloc),
-  mInEdges(rhs.mInEdges, alloc) {}
+: outEdges(rhs.outEdges, alloc),
+  inEdges(rhs.inEdges, alloc) {}
 
 RasterPassData::RasterPassData(const allocator_type& alloc) noexcept
-: mRasterViews(alloc),
-  mComputeViews(alloc),
-  mSubpassGraph(alloc) {}
+: rasterViews(alloc),
+  computeViews(alloc),
+  subpassGraph(alloc) {}
 
 RasterPassData::RasterPassData(RasterPassData&& rhs, const allocator_type& alloc)
-: mRasterViews(std::move(rhs.mRasterViews), alloc),
-  mComputeViews(std::move(rhs.mComputeViews), alloc),
-  mSubpassGraph(std::move(rhs.mSubpassGraph), alloc) {}
+: rasterViews(std::move(rhs.rasterViews), alloc),
+  computeViews(std::move(rhs.computeViews), alloc),
+  subpassGraph(std::move(rhs.subpassGraph), alloc) {}
 
 RasterPassData::RasterPassData(RasterPassData const& rhs, const allocator_type& alloc)
-: mRasterViews(rhs.mRasterViews, alloc),
-  mComputeViews(rhs.mComputeViews, alloc),
-  mSubpassGraph(rhs.mSubpassGraph, alloc) {}
+: rasterViews(rhs.rasterViews, alloc),
+  computeViews(rhs.computeViews, alloc),
+  subpassGraph(rhs.subpassGraph, alloc) {}
 
 ComputePassData::ComputePassData(const allocator_type& alloc) noexcept
-: mComputeViews(alloc) {}
+: computeViews(alloc) {}
 
 ComputePassData::ComputePassData(ComputePassData&& rhs, const allocator_type& alloc)
-: mComputeViews(std::move(rhs.mComputeViews), alloc) {}
+: computeViews(std::move(rhs.computeViews), alloc) {}
 
 ComputePassData::ComputePassData(ComputePassData const& rhs, const allocator_type& alloc)
-: mComputeViews(rhs.mComputeViews, alloc) {}
+: computeViews(rhs.computeViews, alloc) {}
 
 CopyPair::CopyPair(const allocator_type& alloc) noexcept
-: mSource(alloc),
-  mTarget(alloc) {}
+: source(alloc),
+  target(alloc) {}
 
 CopyPair::CopyPair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
-: mSource(std::move(sourceIn), alloc),
-  mTarget(std::move(targetIn), alloc),
-  mMipLevels(mipLevelsIn),
-  mNumSlices(numSlicesIn),
-  mSourceMostDetailedMip(sourceMostDetailedMipIn),
-  mSourceFirstSlice(sourceFirstSliceIn),
-  mSourcePlaneSlice(sourcePlaneSliceIn),
-  mTargetMostDetailedMip(targetMostDetailedMipIn),
-  mTargetFirstSlice(targetFirstSliceIn),
-  mTargetPlaneSlice(targetPlaneSliceIn) {}
+: source(std::move(sourceIn), alloc),
+  target(std::move(targetIn), alloc),
+  mipLevels(mipLevelsIn),
+  numSlices(numSlicesIn),
+  sourceMostDetailedMip(sourceMostDetailedMipIn),
+  sourceFirstSlice(sourceFirstSliceIn),
+  sourcePlaneSlice(sourcePlaneSliceIn),
+  targetMostDetailedMip(targetMostDetailedMipIn),
+  targetFirstSlice(targetFirstSliceIn),
+  targetPlaneSlice(targetPlaneSliceIn) {}
 
 CopyPair::CopyPair(CopyPair&& rhs, const allocator_type& alloc)
-: mSource(std::move(rhs.mSource), alloc),
-  mTarget(std::move(rhs.mTarget), alloc),
-  mMipLevels(rhs.mMipLevels),
-  mNumSlices(rhs.mNumSlices),
-  mSourceMostDetailedMip(rhs.mSourceMostDetailedMip),
-  mSourceFirstSlice(rhs.mSourceFirstSlice),
-  mSourcePlaneSlice(rhs.mSourcePlaneSlice),
-  mTargetMostDetailedMip(rhs.mTargetMostDetailedMip),
-  mTargetFirstSlice(rhs.mTargetFirstSlice),
-  mTargetPlaneSlice(rhs.mTargetPlaneSlice) {}
+: source(std::move(rhs.source), alloc),
+  target(std::move(rhs.target), alloc),
+  mipLevels(rhs.mipLevels),
+  numSlices(rhs.numSlices),
+  sourceMostDetailedMip(rhs.sourceMostDetailedMip),
+  sourceFirstSlice(rhs.sourceFirstSlice),
+  sourcePlaneSlice(rhs.sourcePlaneSlice),
+  targetMostDetailedMip(rhs.targetMostDetailedMip),
+  targetFirstSlice(rhs.targetFirstSlice),
+  targetPlaneSlice(rhs.targetPlaneSlice) {}
 
 CopyPair::CopyPair(CopyPair const& rhs, const allocator_type& alloc)
-: mSource(rhs.mSource, alloc),
-  mTarget(rhs.mTarget, alloc),
-  mMipLevels(rhs.mMipLevels),
-  mNumSlices(rhs.mNumSlices),
-  mSourceMostDetailedMip(rhs.mSourceMostDetailedMip),
-  mSourceFirstSlice(rhs.mSourceFirstSlice),
-  mSourcePlaneSlice(rhs.mSourcePlaneSlice),
-  mTargetMostDetailedMip(rhs.mTargetMostDetailedMip),
-  mTargetFirstSlice(rhs.mTargetFirstSlice),
-  mTargetPlaneSlice(rhs.mTargetPlaneSlice) {}
+: source(rhs.source, alloc),
+  target(rhs.target, alloc),
+  mipLevels(rhs.mipLevels),
+  numSlices(rhs.numSlices),
+  sourceMostDetailedMip(rhs.sourceMostDetailedMip),
+  sourceFirstSlice(rhs.sourceFirstSlice),
+  sourcePlaneSlice(rhs.sourcePlaneSlice),
+  targetMostDetailedMip(rhs.targetMostDetailedMip),
+  targetFirstSlice(rhs.targetFirstSlice),
+  targetPlaneSlice(rhs.targetPlaneSlice) {}
 
 CopyPassData::CopyPassData(const allocator_type& alloc) noexcept
-: mCopyPairs(alloc) {}
+: copyPairs(alloc) {}
 
 CopyPassData::CopyPassData(CopyPassData&& rhs, const allocator_type& alloc)
-: mCopyPairs(std::move(rhs.mCopyPairs), alloc) {}
+: copyPairs(std::move(rhs.copyPairs), alloc) {}
 
 CopyPassData::CopyPassData(CopyPassData const& rhs, const allocator_type& alloc)
-: mCopyPairs(rhs.mCopyPairs, alloc) {}
+: copyPairs(rhs.copyPairs, alloc) {}
 
 MovePair::MovePair(const allocator_type& alloc) noexcept
-: mSource(alloc),
-  mTarget(alloc) {}
+: source(alloc),
+  target(alloc) {}
 
 MovePair::MovePair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
-: mSource(std::move(sourceIn), alloc),
-  mTarget(std::move(targetIn), alloc),
-  mMipLevels(mipLevelsIn),
-  mNumSlices(numSlicesIn),
-  mTargetMostDetailedMip(targetMostDetailedMipIn),
-  mTargetFirstSlice(targetFirstSliceIn),
-  mTargetPlaneSlice(targetPlaneSliceIn) {}
+: source(std::move(sourceIn), alloc),
+  target(std::move(targetIn), alloc),
+  mipLevels(mipLevelsIn),
+  numSlices(numSlicesIn),
+  targetMostDetailedMip(targetMostDetailedMipIn),
+  targetFirstSlice(targetFirstSliceIn),
+  targetPlaneSlice(targetPlaneSliceIn) {}
 
 MovePair::MovePair(MovePair&& rhs, const allocator_type& alloc)
-: mSource(std::move(rhs.mSource), alloc),
-  mTarget(std::move(rhs.mTarget), alloc),
-  mMipLevels(rhs.mMipLevels),
-  mNumSlices(rhs.mNumSlices),
-  mTargetMostDetailedMip(rhs.mTargetMostDetailedMip),
-  mTargetFirstSlice(rhs.mTargetFirstSlice),
-  mTargetPlaneSlice(rhs.mTargetPlaneSlice) {}
+: source(std::move(rhs.source), alloc),
+  target(std::move(rhs.target), alloc),
+  mipLevels(rhs.mipLevels),
+  numSlices(rhs.numSlices),
+  targetMostDetailedMip(rhs.targetMostDetailedMip),
+  targetFirstSlice(rhs.targetFirstSlice),
+  targetPlaneSlice(rhs.targetPlaneSlice) {}
 
 MovePair::MovePair(MovePair const& rhs, const allocator_type& alloc)
-: mSource(rhs.mSource, alloc),
-  mTarget(rhs.mTarget, alloc),
-  mMipLevels(rhs.mMipLevels),
-  mNumSlices(rhs.mNumSlices),
-  mTargetMostDetailedMip(rhs.mTargetMostDetailedMip),
-  mTargetFirstSlice(rhs.mTargetFirstSlice),
-  mTargetPlaneSlice(rhs.mTargetPlaneSlice) {}
+: source(rhs.source, alloc),
+  target(rhs.target, alloc),
+  mipLevels(rhs.mipLevels),
+  numSlices(rhs.numSlices),
+  targetMostDetailedMip(rhs.targetMostDetailedMip),
+  targetFirstSlice(rhs.targetFirstSlice),
+  targetPlaneSlice(rhs.targetPlaneSlice) {}
 
 MovePassData::MovePassData(const allocator_type& alloc) noexcept
-: mMovePairs(alloc) {}
+: movePairs(alloc) {}
 
 MovePassData::MovePassData(MovePassData&& rhs, const allocator_type& alloc)
-: mMovePairs(std::move(rhs.mMovePairs), alloc) {}
+: movePairs(std::move(rhs.movePairs), alloc) {}
 
 MovePassData::MovePassData(MovePassData const& rhs, const allocator_type& alloc)
-: mMovePairs(rhs.mMovePairs, alloc) {}
+: movePairs(rhs.movePairs, alloc) {}
 
 RaytracePassData::RaytracePassData(const allocator_type& alloc) noexcept
-: mComputeViews(alloc) {}
+: computeViews(alloc) {}
 
 RaytracePassData::RaytracePassData(RaytracePassData&& rhs, const allocator_type& alloc)
-: mComputeViews(std::move(rhs.mComputeViews), alloc) {}
+: computeViews(std::move(rhs.computeViews), alloc) {}
 
 RaytracePassData::RaytracePassData(RaytracePassData const& rhs, const allocator_type& alloc)
-: mComputeViews(rhs.mComputeViews, alloc) {}
+: computeViews(rhs.computeViews, alloc) {}
 
 SceneData::SceneData(const allocator_type& alloc) noexcept
-: mName(alloc),
-  mScenes(alloc) {}
+: name(alloc),
+  scenes(alloc) {}
 
 SceneData::SceneData(PmrString nameIn, const allocator_type& alloc) noexcept
-: mName(std::move(nameIn), alloc),
-  mScenes(alloc) {}
+: name(std::move(nameIn), alloc),
+  scenes(alloc) {}
 
 SceneData::SceneData(SceneData&& rhs, const allocator_type& alloc)
-: mName(std::move(rhs.mName), alloc),
-  mCamera(rhs.mCamera),
-  mScenes(std::move(rhs.mScenes), alloc) {}
+: name(std::move(rhs.name), alloc),
+  camera(rhs.camera),
+  scenes(std::move(rhs.scenes), alloc) {}
 
 SceneData::SceneData(SceneData const& rhs, const allocator_type& alloc)
-: mName(rhs.mName, alloc),
-  mCamera(rhs.mCamera),
-  mScenes(rhs.mScenes, alloc) {}
+: name(rhs.name, alloc),
+  camera(rhs.camera),
+  scenes(rhs.scenes, alloc) {}
 
 Dispatch::Dispatch(const allocator_type& alloc) noexcept
-: mShader(alloc) {}
+: shader(alloc) {}
 
 Dispatch::Dispatch(PmrString shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept // NOLINT
-: mShader(std::move(shaderIn), alloc),
-  mThreadGroupCountX(threadGroupCountXIn),
-  mThreadGroupCountY(threadGroupCountYIn),
-  mThreadGroupCountZ(threadGroupCountZIn) {}
+: shader(std::move(shaderIn), alloc),
+  threadGroupCountX(threadGroupCountXIn),
+  threadGroupCountY(threadGroupCountYIn),
+  threadGroupCountZ(threadGroupCountZIn) {}
 
 Dispatch::Dispatch(Dispatch&& rhs, const allocator_type& alloc)
-: mShader(std::move(rhs.mShader), alloc),
-  mThreadGroupCountX(rhs.mThreadGroupCountX),
-  mThreadGroupCountY(rhs.mThreadGroupCountY),
-  mThreadGroupCountZ(rhs.mThreadGroupCountZ) {}
+: shader(std::move(rhs.shader), alloc),
+  threadGroupCountX(rhs.threadGroupCountX),
+  threadGroupCountY(rhs.threadGroupCountY),
+  threadGroupCountZ(rhs.threadGroupCountZ) {}
 
 Dispatch::Dispatch(Dispatch const& rhs, const allocator_type& alloc)
-: mShader(rhs.mShader, alloc),
-  mThreadGroupCountX(rhs.mThreadGroupCountX),
-  mThreadGroupCountY(rhs.mThreadGroupCountY),
-  mThreadGroupCountZ(rhs.mThreadGroupCountZ) {}
+: shader(rhs.shader, alloc),
+  threadGroupCountX(rhs.threadGroupCountX),
+  threadGroupCountY(rhs.threadGroupCountY),
+  threadGroupCountZ(rhs.threadGroupCountZ) {}
 
 Blit::Blit(const allocator_type& alloc) noexcept
-: mShader(alloc) {}
+: shader(alloc) {}
 
 Blit::Blit(PmrString shaderIn, const allocator_type& alloc) noexcept
-: mShader(std::move(shaderIn), alloc) {}
+: shader(std::move(shaderIn), alloc) {}
 
 Blit::Blit(Blit&& rhs, const allocator_type& alloc)
-: mShader(std::move(rhs.mShader), alloc) {}
+: shader(std::move(rhs.shader), alloc) {}
 
 Blit::Blit(Blit const& rhs, const allocator_type& alloc)
-: mShader(rhs.mShader, alloc) {}
+: shader(rhs.shader, alloc) {}
 
 PresentPassData::PresentPassData(const allocator_type& alloc) noexcept
-: mResourceName(alloc) {}
+: resourceName(alloc) {}
 
 PresentPassData::PresentPassData(PmrString resourceNameIn, uint32_t syncIntervalIn, uint32_t flagsIn, const allocator_type& alloc) noexcept // NOLINT
-: mResourceName(std::move(resourceNameIn), alloc),
-  mSyncInterval(syncIntervalIn),
-  mFlags(flagsIn) {}
+: resourceName(std::move(resourceNameIn), alloc),
+  syncInterval(syncIntervalIn),
+  flags(flagsIn) {}
 
 PresentPassData::PresentPassData(PresentPassData&& rhs, const allocator_type& alloc)
-: mResourceName(std::move(rhs.mResourceName), alloc),
-  mSyncInterval(rhs.mSyncInterval),
-  mFlags(rhs.mFlags) {}
+: resourceName(std::move(rhs.resourceName), alloc),
+  syncInterval(rhs.syncInterval),
+  flags(rhs.flags) {}
 
 PresentPassData::PresentPassData(PresentPassData const& rhs, const allocator_type& alloc)
-: mResourceName(rhs.mResourceName, alloc),
-  mSyncInterval(rhs.mSyncInterval),
-  mFlags(rhs.mFlags) {}
+: resourceName(rhs.resourceName, alloc),
+  syncInterval(rhs.syncInterval),
+  flags(rhs.flags) {}
 
 RenderData::RenderData(const allocator_type& alloc) noexcept
-: mConstants(alloc),
-  mBuffers(alloc),
-  mTextures(alloc),
-  mSamplers(alloc) {}
+: constants(alloc),
+  buffers(alloc),
+  textures(alloc),
+  samplers(alloc) {}
 
 RenderData::RenderData(RenderData&& rhs, const allocator_type& alloc)
-: mConstants(std::move(rhs.mConstants), alloc),
-  mBuffers(std::move(rhs.mBuffers), alloc),
-  mTextures(std::move(rhs.mTextures), alloc),
-  mSamplers(std::move(rhs.mSamplers), alloc) {}
+: constants(std::move(rhs.constants), alloc),
+  buffers(std::move(rhs.buffers), alloc),
+  textures(std::move(rhs.textures), alloc),
+  samplers(std::move(rhs.samplers), alloc) {}
 
 RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
-: mObjects(alloc),
-  mVertices(alloc),
-  mNames(alloc),
-  mLayoutNodes(alloc),
-  mData(alloc),
-  mRasterPasses(alloc),
-  mComputePasses(alloc),
-  mCopyPasses(alloc),
-  mMovePasses(alloc),
-  mPresentPasses(alloc),
-  mRaytracePasses(alloc),
-  mRenderQueues(alloc),
-  mScenes(alloc),
-  mBlits(alloc),
-  mDispatches(alloc),
-  mIndex(alloc) {}
+: objects(alloc),
+  vertices(alloc),
+  names(alloc),
+  layoutNodes(alloc),
+  data(alloc),
+  rasterPasses(alloc),
+  computePasses(alloc),
+  copyPasses(alloc),
+  movePasses(alloc),
+  presentPasses(alloc),
+  raytracePasses(alloc),
+  renderQueues(alloc),
+  scenes(alloc),
+  blits(alloc),
+  dispatches(alloc),
+  index(alloc) {}
 
 RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
-: mObjects(std::move(rhs.mObjects), alloc),
-  mVertices(std::move(rhs.mVertices), alloc),
-  mNames(std::move(rhs.mNames), alloc),
-  mLayoutNodes(std::move(rhs.mLayoutNodes), alloc),
-  mData(std::move(rhs.mData), alloc),
-  mRasterPasses(std::move(rhs.mRasterPasses), alloc),
-  mComputePasses(std::move(rhs.mComputePasses), alloc),
-  mCopyPasses(std::move(rhs.mCopyPasses), alloc),
-  mMovePasses(std::move(rhs.mMovePasses), alloc),
-  mPresentPasses(std::move(rhs.mPresentPasses), alloc),
-  mRaytracePasses(std::move(rhs.mRaytracePasses), alloc),
-  mRenderQueues(std::move(rhs.mRenderQueues), alloc),
-  mScenes(std::move(rhs.mScenes), alloc),
-  mBlits(std::move(rhs.mBlits), alloc),
-  mDispatches(std::move(rhs.mDispatches), alloc),
-  mIndex(std::move(rhs.mIndex), alloc) {}
+: objects(std::move(rhs.objects), alloc),
+  vertices(std::move(rhs.vertices), alloc),
+  names(std::move(rhs.names), alloc),
+  layoutNodes(std::move(rhs.layoutNodes), alloc),
+  data(std::move(rhs.data), alloc),
+  rasterPasses(std::move(rhs.rasterPasses), alloc),
+  computePasses(std::move(rhs.computePasses), alloc),
+  copyPasses(std::move(rhs.copyPasses), alloc),
+  movePasses(std::move(rhs.movePasses), alloc),
+  presentPasses(std::move(rhs.presentPasses), alloc),
+  raytracePasses(std::move(rhs.raytracePasses), alloc),
+  renderQueues(std::move(rhs.renderQueues), alloc),
+  scenes(std::move(rhs.scenes), alloc),
+  blits(std::move(rhs.blits), alloc),
+  dispatches(std::move(rhs.dispatches), alloc),
+  index(std::move(rhs.index), alloc) {}
 
 // ContinuousContainer
 void RenderGraph::reserve(vertices_size_type sz) {
-    mObjects.reserve(sz);
-    mVertices.reserve(sz);
-    mNames.reserve(sz);
-    mLayoutNodes.reserve(sz);
-    mData.reserve(sz);
+    this->objects.reserve(sz);
+    this->vertices.reserve(sz);
+    names.reserve(sz);
+    layoutNodes.reserve(sz);
+    data.reserve(sz);
 }
 
 RenderGraph::object_type::object_type(const allocator_type& alloc) noexcept
-: mChildren(alloc),
-  mParents(alloc) {}
+: children(alloc),
+  parents(alloc) {}
 
 RenderGraph::object_type::object_type(object_type&& rhs, const allocator_type& alloc)
-: mChildren(std::move(rhs.mChildren), alloc),
-  mParents(std::move(rhs.mParents), alloc) {}
+: children(std::move(rhs.children), alloc),
+  parents(std::move(rhs.parents), alloc) {}
 
 RenderGraph::object_type::object_type(object_type const& rhs, const allocator_type& alloc)
-: mChildren(rhs.mChildren, alloc),
-  mParents(rhs.mParents, alloc) {}
+: children(rhs.children, alloc),
+  parents(rhs.parents, alloc) {}
 
 RenderGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
-: mOutEdges(alloc),
-  mInEdges(alloc) {}
+: outEdges(alloc),
+  inEdges(alloc) {}
 
 RenderGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
-: mOutEdges(std::move(rhs.mOutEdges), alloc),
-  mInEdges(std::move(rhs.mInEdges), alloc),
-  mHandle(std::move(rhs.mHandle)) {}
+: outEdges(std::move(rhs.outEdges), alloc),
+  inEdges(std::move(rhs.inEdges), alloc),
+  handle(std::move(rhs.handle)) {}
 
 RenderGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
-: mOutEdges(rhs.mOutEdges, alloc),
-  mInEdges(rhs.mInEdges, alloc),
-  mHandle(rhs.mHandle) {}
+: outEdges(rhs.outEdges, alloc),
+  inEdges(rhs.inEdges, alloc),
+  handle(rhs.handle) {}
 
 } // namespace render
 

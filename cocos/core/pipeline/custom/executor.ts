@@ -42,13 +42,13 @@ export class DeviceResourceGraphVertex {
 //-----------------------------------------------------------------
 // PropertyGraph Concept
 export class DeviceResourceGraphNameMap implements impl.PropertyMap {
-    constructor (readonly name: string[]) {
-        this._name = name;
+    constructor (readonly names: string[]) {
+        this._names = names;
     }
     get (v: number): string {
-        return this._name[v];
+        return this._names[v];
     }
-    readonly _name: string[];
+    readonly _names: string[];
 }
 
 export class DeviceResourceGraphRefCountMap implements impl.PropertyMap {
@@ -64,18 +64,18 @@ export class DeviceResourceGraphRefCountMap implements impl.PropertyMap {
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum DeviceResourceGraphComponent {
-    name,
-    refCount,
+    Name,
+    RefCount,
 }
 
 interface DeviceResourceGraphComponentType {
-    [DeviceResourceGraphComponent.name]: string;
-    [DeviceResourceGraphComponent.refCount]: number;
+    [DeviceResourceGraphComponent.Name]: string;
+    [DeviceResourceGraphComponent.RefCount]: number;
 }
 
 interface DeviceResourceGraphComponentPropertyMap {
-    [DeviceResourceGraphComponent.name]: DeviceResourceGraphNameMap;
-    [DeviceResourceGraphComponent.refCount]: DeviceResourceGraphRefCountMap;
+    [DeviceResourceGraphComponent.Name]: DeviceResourceGraphNameMap;
+    [DeviceResourceGraphComponent.RefCount]: DeviceResourceGraphRefCountMap;
 }
 
 //-----------------------------------------------------------------
@@ -160,7 +160,7 @@ export class DeviceResourceGraph implements impl.BidirectionalGraph
         const vert = new DeviceResourceGraphVertex(id, object);
         const v = this._vertices.length;
         this._vertices.push(vert);
-        this._name.push(name);
+        this._names.push(name);
         this._refCounts.push(refCount);
         return v;
     }
@@ -194,7 +194,7 @@ export class DeviceResourceGraph implements impl.BidirectionalGraph
     }
     removeVertex (u: number): void {
         this._vertices.splice(u, 1);
-        this._name.splice(u, 1);
+        this._names.splice(u, 1);
         this._refCounts.splice(u, 1);
 
         const sz = this._vertices.length;
@@ -259,19 +259,19 @@ export class DeviceResourceGraph implements impl.BidirectionalGraph
     //-----------------------------------------------------------------
     // NamedGraph
     vertexName (v: number): string {
-        return this._name[v];
+        return this._names[v];
     }
     vertexNameMap (): DeviceResourceGraphNameMap {
-        return new DeviceResourceGraphNameMap(this._name);
+        return new DeviceResourceGraphNameMap(this._names);
     }
     //-----------------------------------------------------------------
     // PropertyGraph
     get (tag: string): DeviceResourceGraphNameMap | DeviceResourceGraphRefCountMap {
         switch (tag) {
         // Components
-        case 'name':
-            return new DeviceResourceGraphNameMap(this._name);
-        case 'refCount':
+        case 'Name':
+            return new DeviceResourceGraphNameMap(this._names);
+        case 'RefCount':
             return new DeviceResourceGraphRefCountMap(this._refCounts);
         default:
             throw Error('property map not found');
@@ -281,9 +281,9 @@ export class DeviceResourceGraph implements impl.BidirectionalGraph
     // ComponentGraph
     component<T extends DeviceResourceGraphComponent> (id: T, v: number): DeviceResourceGraphComponentType[T] {
         switch (id) {
-        case DeviceResourceGraphComponent.name:
-            return this._name[v] as DeviceResourceGraphComponentType[T];
-        case DeviceResourceGraphComponent.refCount:
+        case DeviceResourceGraphComponent.Name:
+            return this._names[v] as DeviceResourceGraphComponentType[T];
+        case DeviceResourceGraphComponent.RefCount:
             return this._refCounts[v] as DeviceResourceGraphComponentType[T];
         default:
             throw Error('component not found');
@@ -291,16 +291,16 @@ export class DeviceResourceGraph implements impl.BidirectionalGraph
     }
     componentMap<T extends DeviceResourceGraphComponent> (id: T): DeviceResourceGraphComponentPropertyMap[T] {
         switch (id) {
-        case DeviceResourceGraphComponent.name:
-            return new DeviceResourceGraphNameMap(this._name) as DeviceResourceGraphComponentPropertyMap[T];
-        case DeviceResourceGraphComponent.refCount:
+        case DeviceResourceGraphComponent.Name:
+            return new DeviceResourceGraphNameMap(this._names) as DeviceResourceGraphComponentPropertyMap[T];
+        case DeviceResourceGraphComponent.RefCount:
             return new DeviceResourceGraphRefCountMap(this._refCounts) as DeviceResourceGraphComponentPropertyMap[T];
         default:
             throw Error('component map not found');
         }
     }
     getName (v: number): string {
-        return this._name[v];
+        return this._names[v];
     }
     getRefCount (v: number): number {
         return this._refCounts[v];
@@ -370,8 +370,8 @@ export class DeviceResourceGraph implements impl.BidirectionalGraph
         }
     }
 
-    readonly components: string[] = ['name', 'refCount'];
+    readonly components: string[] = ['Name', 'RefCount'];
     readonly _vertices: DeviceResourceGraphVertex[] = [];
-    readonly _name: string[] = [];
+    readonly _names: string[] = [];
     readonly _refCounts: number[] = [];
 }

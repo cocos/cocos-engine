@@ -27,7 +27,7 @@ enum class DependencyType {
 struct RenderPassNode {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mOutputs.get_allocator().resource()};
+        return {outputs.get_allocator().resource()};
     }
 
     RenderPassNode(const allocator_type& alloc) noexcept; // NOLINT
@@ -39,18 +39,18 @@ struct RenderPassNode {
     RenderPassNode& operator=(RenderPassNode&& rhs) = default;
     RenderPassNode& operator=(RenderPassNode const& rhs) = default;
 
-    PmrFlatSet<uint32_t> mOutputs;
-    PmrFlatSet<uint32_t> mInputs;
+    PmrFlatSet<uint32_t> outputs;
+    PmrFlatSet<uint32_t> inputs;
 };
 
 struct RenderPassTraits {
-    bool mKeep = false;
+    bool keep = false;
 };
 
 struct RenderDependencyGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mVertices.get_allocator().resource()};
+        return {vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -109,29 +109,29 @@ struct RenderDependencyGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
-        return {0, static_cast<vertices_size_type>(mVertices.size())};
+        return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
     inline vertex_descriptor current_id() const noexcept { // NOLINT
-        return static_cast<vertex_descriptor>(mVertices.size());
+        return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(mVertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -157,7 +157,7 @@ struct RenderDependencyGraph {
     struct vertex_type { // NOLINT
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
-            return {mOutEdges.get_allocator().resource()};
+            return {outEdges.get_allocator().resource()};
         }
 
         vertex_type(const allocator_type& alloc) noexcept; // NOLINT
@@ -169,49 +169,49 @@ struct RenderDependencyGraph {
         vertex_type& operator=(vertex_type&& rhs) = default;
         vertex_type& operator=(vertex_type const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> mOutEdges;
-        boost::container::pmr::vector<in_edge_type>  mInEdges;
+        boost::container::pmr::vector<out_edge_type> outEdges;
+        boost::container::pmr::vector<in_edge_type>  inEdges;
     };
 
-    struct pass_ { // NOLINT
-    } static constexpr pass = {}; // NOLINT
-    struct valueID_ { // NOLINT
-    } static constexpr valueID = {}; // NOLINT
-    struct passID_ { // NOLINT
-    } static constexpr passID = {}; // NOLINT
-    struct traits_ { // NOLINT
-    } static constexpr traits = {}; // NOLINT
+    struct Pass_ { // NOLINT
+    } static constexpr Pass = {}; // NOLINT
+    struct ValueID_ { // NOLINT
+    } static constexpr ValueID = {}; // NOLINT
+    struct PassID_ { // NOLINT
+    } static constexpr PassID = {}; // NOLINT
+    struct Traits_ { // NOLINT
+    } static constexpr Traits = {}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> mVertices;
+    boost::container::pmr::vector<vertex_type> vertices;
     // Components
-    boost::container::pmr::vector<RenderPassNode>                 mPasses;
-    boost::container::pmr::vector<PmrFlatSet<uint32_t>>           mValueIDs;
-    boost::container::pmr::vector<RenderGraph::vertex_descriptor> mPassIDs;
-    boost::container::pmr::vector<RenderPassTraits>               mTraits;
+    boost::container::pmr::vector<RenderPassNode>                 passes;
+    boost::container::pmr::vector<PmrFlatSet<uint32_t>>           valueIDs;
+    boost::container::pmr::vector<RenderGraph::vertex_descriptor> passIDs;
+    boost::container::pmr::vector<RenderPassTraits>               traits;
     // Edges
-    PmrList<edge_type> mEdges;
+    PmrList<edge_type> edges;
     // UuidGraph
-    PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> mPassIndex;
+    PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    PmrUnorderedMap<PmrString, uint32_t>                            mValueIndex;
-    boost::container::pmr::vector<PmrString>                        mValueNames;
-    boost::container::pmr::vector<ResourceGraph::vertex_descriptor> mResourceHandles;
+    PmrUnorderedMap<PmrString, uint32_t>                            valueIndex;
+    boost::container::pmr::vector<PmrString>                        valueNames;
+    boost::container::pmr::vector<ResourceGraph::vertex_descriptor> resourceHandles;
 };
 
 struct RenderValueNode {
     RenderValueNode() = default;
     RenderValueNode(uint32_t passIDIn, uint32_t valueIDIn) noexcept // NOLINT
-    : mPassID(passIDIn),
-      mValueID(valueIDIn) {}
+    : passID(passIDIn),
+      valueID(valueIDIn) {}
 
-    uint32_t mPassID  = 0xFFFFFFFF;
-    uint32_t mValueID = 0xFFFFFFFF;
+    uint32_t passID  = 0xFFFFFFFF;
+    uint32_t valueID = 0xFFFFFFFF;
 };
 
 inline bool operator==(const RenderValueNode& lhs, const RenderValueNode& rhs) noexcept {
-    return std::forward_as_tuple(lhs.mPassID, lhs.mValueID) ==
-           std::forward_as_tuple(rhs.mPassID, rhs.mValueID);
+    return std::forward_as_tuple(lhs.passID, lhs.valueID) ==
+           std::forward_as_tuple(rhs.passID, rhs.valueID);
 }
 
 inline bool operator!=(const RenderValueNode& lhs, const RenderValueNode& rhs) noexcept {
@@ -221,7 +221,7 @@ inline bool operator!=(const RenderValueNode& lhs, const RenderValueNode& rhs) n
 struct RenderValueGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mVertices.get_allocator().resource()};
+        return {vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -273,29 +273,29 @@ struct RenderValueGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
-        return {0, static_cast<vertices_size_type>(mVertices.size())};
+        return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
     inline vertex_descriptor current_id() const noexcept { // NOLINT
-        return static_cast<vertex_descriptor>(mVertices.size());
+        return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(mVertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -309,7 +309,7 @@ struct RenderValueGraph {
     struct vertex_type { // NOLINT
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
-            return {mOutEdges.get_allocator().resource()};
+            return {outEdges.get_allocator().resource()};
         }
 
         vertex_type(const allocator_type& alloc) noexcept; // NOLINT
@@ -321,27 +321,27 @@ struct RenderValueGraph {
         vertex_type& operator=(vertex_type&& rhs) = default;
         vertex_type& operator=(vertex_type const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> mOutEdges;
-        boost::container::pmr::vector<in_edge_type>  mInEdges;
+        boost::container::pmr::vector<out_edge_type> outEdges;
+        boost::container::pmr::vector<in_edge_type>  inEdges;
     };
 
-    struct node_ { // NOLINT
-    } static constexpr node = {}; // NOLINT
+    struct Node_ { // NOLINT
+    } static constexpr Node = {}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> mVertices;
+    boost::container::pmr::vector<vertex_type> vertices;
     // Components
-    boost::container::pmr::vector<RenderValueNode> mNodes;
+    boost::container::pmr::vector<RenderValueNode> nodes;
     // UuidGraph
-    PmrUnorderedMap<RenderValueNode, vertex_descriptor> mIndex;
+    PmrUnorderedMap<RenderValueNode, vertex_descriptor> index;
 };
 
 struct RenderCompiler {
     RenderCompiler(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraph& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn) noexcept
-    : mResourceGraph(resourceGraphIn),
-      mGraph(graphIn),
-      mLayoutGraph(layoutGraphIn),
-      mScratch(scratchIn) {}
+    : resourceGraph(resourceGraphIn),
+      graph(graphIn),
+      layoutGraph(layoutGraphIn),
+      scratch(scratchIn) {}
     RenderCompiler(RenderCompiler&& rhs)      = delete;
     RenderCompiler(RenderCompiler const& rhs) = delete;
     RenderCompiler& operator=(RenderCompiler&& rhs) = delete;
@@ -351,10 +351,10 @@ struct RenderCompiler {
     int audit(std::ostream& oss) const;
     int compile();
 
-    ResourceGraph&                          mResourceGraph;
-    RenderGraph&                            mGraph;
-    LayoutGraph&                            mLayoutGraph;
-    boost::container::pmr::memory_resource* mScratch = nullptr;
+    ResourceGraph&                          resourceGraph;
+    RenderGraph&                            graph;
+    LayoutGraph&                            layoutGraph;
+    boost::container::pmr::memory_resource* scratch = nullptr;
 };
 
 } // namespace example
@@ -367,8 +367,8 @@ namespace std {
 
 inline size_t hash<cc::render::example::RenderValueNode>::operator()(const cc::render::example::RenderValueNode& v) const noexcept {
     size_t seed = 0;
-    boost::hash_combine(seed, v.mPassID);
-    boost::hash_combine(seed, v.mValueID);
+    boost::hash_combine(seed, v.passID);
+    boost::hash_combine(seed, v.valueID);
     return seed;
 }
 

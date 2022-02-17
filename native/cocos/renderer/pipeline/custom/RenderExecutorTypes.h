@@ -19,7 +19,7 @@ namespace render {
 struct DeviceResourceGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mVertices.get_allocator().resource()};
+        return {vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -71,29 +71,29 @@ struct DeviceResourceGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
-        return {0, static_cast<vertices_size_type>(mVertices.size())};
+        return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
     inline vertex_descriptor current_id() const noexcept { // NOLINT
-        return static_cast<vertex_descriptor>(mVertices.size());
+        return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(mVertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -115,7 +115,7 @@ struct DeviceResourceGraph {
     struct vertex_type { // NOLINT
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
-            return {mOutEdges.get_allocator().resource()};
+            return {outEdges.get_allocator().resource()};
         }
 
         vertex_type(const allocator_type& alloc) noexcept; // NOLINT
@@ -127,24 +127,24 @@ struct DeviceResourceGraph {
         vertex_type& operator=(vertex_type&& rhs) = default;
         vertex_type& operator=(vertex_type const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> mOutEdges;
-        boost::container::pmr::vector<in_edge_type>  mInEdges;
-        vertex_handle_type                           mHandle;
+        boost::container::pmr::vector<out_edge_type> outEdges;
+        boost::container::pmr::vector<in_edge_type>  inEdges;
+        vertex_handle_type                           handle;
     };
 
-    struct name_ { // NOLINT
-    } static constexpr name = {}; // NOLINT
-    struct refCount_ { // NOLINT
-    } static constexpr refCount = {}; // NOLINT
+    struct Name_ { // NOLINT
+    } static constexpr Name = {}; // NOLINT
+    struct RefCount_ { // NOLINT
+    } static constexpr RefCount = {}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> mVertices;
+    boost::container::pmr::vector<vertex_type> vertices;
     // Components
-    boost::container::pmr::vector<std::string> mName;
-    boost::container::pmr::vector<int32_t>     mRefCounts;
+    boost::container::pmr::vector<std::string> names;
+    boost::container::pmr::vector<int32_t>     refCounts;
     // PolymorphicGraph
-    boost::container::pmr::vector<std::unique_ptr<gfx::Buffer>>  mBuffers;
-    boost::container::pmr::vector<std::unique_ptr<gfx::Texture>> mTextures;
+    boost::container::pmr::vector<std::unique_ptr<gfx::Buffer>>  buffers;
+    boost::container::pmr::vector<std::unique_ptr<gfx::Texture>> textures;
 };
 
 } // namespace render

@@ -64,35 +64,35 @@ enum class TextureLayout {
 };
 
 struct ResourceDesc {
-    ResourceDimension mDimension        = ResourceDimension::BUFFER;
-    uint32_t          mAlignment        = 0;
-    uint32_t          mWidth            = 0;
-    uint32_t          mHeight           = 0;
-    uint16_t          mDepthOrArraySize = 0;
-    uint16_t          mMipLevels        = 0;
-    gfx::Format       mFormat           = gfx::Format::UNKNOWN;
-    gfx::SampleCount  mSampleCount      = gfx::SampleCount::ONE;
-    TextureLayout     mLayout           = TextureLayout::UNKNOWN;
-    ResourceFlags     mFlags            = ResourceFlags::NONE;
+    ResourceDimension dimension        = ResourceDimension::BUFFER;
+    uint32_t          alignment        = 0;
+    uint32_t          width            = 0;
+    uint32_t          height           = 0;
+    uint16_t          depthOrArraySize = 0;
+    uint16_t          mipLevels        = 0;
+    gfx::Format       format           = gfx::Format::UNKNOWN;
+    gfx::SampleCount  sampleCount      = gfx::SampleCount::ONE;
+    TextureLayout     layout           = TextureLayout::UNKNOWN;
+    ResourceFlags     flags            = ResourceFlags::NONE;
 };
 
 struct ResourceTraits {
     ResourceTraits() = default;
     ResourceTraits(ResourceResidency residencyIn) noexcept // NOLINT
-    : mResidency(residencyIn) {}
+    : residency(residencyIn) {}
 
     bool hasSideEffects() const noexcept {
-        return boost::variant2::holds_alternative<Persistent_>(mResidency) ||
-               boost::variant2::holds_alternative<Backbuffer_>(mResidency);
+        return boost::variant2::holds_alternative<Persistent_>(residency) ||
+               boost::variant2::holds_alternative<Backbuffer_>(residency);
     }
 
-    ResourceResidency mResidency;
+    ResourceResidency residency;
 };
 
 struct ResourceGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mVertices.get_allocator().resource()};
+        return {vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -147,29 +147,29 @@ struct ResourceGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
-        return {0, static_cast<vertices_size_type>(mVertices.size())};
+        return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
     inline vertex_descriptor current_id() const noexcept { // NOLINT
-        return static_cast<vertex_descriptor>(mVertices.size());
+        return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(mVertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -183,7 +183,7 @@ struct ResourceGraph {
     struct vertex_type { // NOLINT
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
-            return {mOutEdges.get_allocator().resource()};
+            return {outEdges.get_allocator().resource()};
         }
 
         vertex_type(const allocator_type& alloc) noexcept; // NOLINT
@@ -195,25 +195,25 @@ struct ResourceGraph {
         vertex_type& operator=(vertex_type&& rhs) = default;
         vertex_type& operator=(vertex_type const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> mOutEdges;
-        boost::container::pmr::vector<in_edge_type>  mInEdges;
+        boost::container::pmr::vector<out_edge_type> outEdges;
+        boost::container::pmr::vector<in_edge_type>  inEdges;
     };
 
-    struct name_ { // NOLINT
-    } static constexpr name = {}; // NOLINT
-    struct desc_ { // NOLINT
-    } static constexpr desc = {}; // NOLINT
-    struct traits_ { // NOLINT
-    } static constexpr traits = {}; // NOLINT
+    struct Name_ { // NOLINT
+    } static constexpr Name = {}; // NOLINT
+    struct Desc_ { // NOLINT
+    } static constexpr Desc = {}; // NOLINT
+    struct Traits_ { // NOLINT
+    } static constexpr Traits = {}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> mVertices;
+    boost::container::pmr::vector<vertex_type> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>      mNames;
-    boost::container::pmr::vector<ResourceDesc>   mDescs;
-    boost::container::pmr::vector<ResourceTraits> mTraits;
+    boost::container::pmr::vector<PmrString>      names;
+    boost::container::pmr::vector<ResourceDesc>   descs;
+    boost::container::pmr::vector<ResourceTraits> traits;
     // UuidGraph
-    PmrUnorderedMap<PmrString, vertex_descriptor> mValueIndex;
+    PmrUnorderedMap<PmrString, vertex_descriptor> valueIndex;
 };
 
 enum class AttachmentType {
@@ -230,7 +230,7 @@ enum class AccessType {
 struct RasterView {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mSlotName.get_allocator().resource()};
+        return {slotName.get_allocator().resource()};
     }
 
     RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
@@ -243,13 +243,13 @@ struct RasterView {
     RasterView& operator=(RasterView&& rhs) = default;
     RasterView& operator=(RasterView const& rhs) = default;
 
-    PmrString         mSlotName;
-    AccessType        mAccessType     = AccessType::WRITE;
-    AttachmentType    mAttachmentType = AttachmentType::RENDER_TARGET;
-    gfx::LoadOp       mLoadOp         = gfx::LoadOp::LOAD;
-    gfx::StoreOp      mStoreOp        = gfx::StoreOp::STORE;
-    gfx::ClearFlagBit mClearFlags     = gfx::ClearFlagBit::ALL;
-    gfx::Color        mClearColor;
+    PmrString         slotName;
+    AccessType        accessType     = AccessType::WRITE;
+    AttachmentType    attachmentType = AttachmentType::RENDER_TARGET;
+    gfx::LoadOp       loadOp         = gfx::LoadOp::LOAD;
+    gfx::StoreOp      storeOp        = gfx::StoreOp::STORE;
+    gfx::ClearFlagBit clearFlags     = gfx::ClearFlagBit::ALL;
+    gfx::Color        clearColor;
 };
 
 enum class ClearValueType {
@@ -260,7 +260,7 @@ enum class ClearValueType {
 struct ComputeView {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mName.get_allocator().resource()};
+        return {name.get_allocator().resource()};
     }
 
     ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
@@ -273,23 +273,23 @@ struct ComputeView {
     ComputeView& operator=(ComputeView const& rhs) = default;
 
     bool isRead() const {
-        return mAccessType != AccessType::WRITE;
+        return accessType != AccessType::WRITE;
     }
     bool isWrite() const {
-        return mAccessType != AccessType::READ;
+        return accessType != AccessType::READ;
     }
 
-    PmrString         mName;
-    AccessType        mAccessType = AccessType::READ;
-    gfx::ClearFlagBit mClearFlags = gfx::ClearFlagBit::NONE;
-    gfx::Color        mClearColor;
-    ClearValueType    mClearValueType = ClearValueType::FLOAT_TYPE;
+    PmrString         name;
+    AccessType        accessType = AccessType::READ;
+    gfx::ClearFlagBit clearFlags = gfx::ClearFlagBit::NONE;
+    gfx::Color        clearColor;
+    ClearValueType    clearValueType = ClearValueType::FLOAT_TYPE;
 };
 
 struct RasterSubpass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mRasterViews.get_allocator().resource()};
+        return {rasterViews.get_allocator().resource()};
     }
 
     RasterSubpass(const allocator_type& alloc) noexcept; // NOLINT
@@ -301,14 +301,14 @@ struct RasterSubpass {
     RasterSubpass& operator=(RasterSubpass&& rhs) = default;
     RasterSubpass& operator=(RasterSubpass const& rhs) = default;
 
-    PmrTransparentMap<PmrString, RasterView>                                 mRasterViews;
-    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> mComputeViews;
+    PmrTransparentMap<PmrString, RasterView>                                 rasterViews;
+    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
 };
 
 struct SubpassGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mVertices.get_allocator().resource()};
+        return {vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -363,29 +363,29 @@ struct SubpassGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
-        return {0, static_cast<vertices_size_type>(mVertices.size())};
+        return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
     inline vertex_descriptor current_id() const noexcept { // NOLINT
-        return static_cast<vertex_descriptor>(mVertices.size());
+        return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(mVertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -399,7 +399,7 @@ struct SubpassGraph {
     struct vertex_type { // NOLINT
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
-            return {mOutEdges.get_allocator().resource()};
+            return {outEdges.get_allocator().resource()};
         }
 
         vertex_type(const allocator_type& alloc) noexcept; // NOLINT
@@ -411,26 +411,26 @@ struct SubpassGraph {
         vertex_type& operator=(vertex_type&& rhs) = default;
         vertex_type& operator=(vertex_type const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> mOutEdges;
-        boost::container::pmr::vector<in_edge_type>  mInEdges;
+        boost::container::pmr::vector<out_edge_type> outEdges;
+        boost::container::pmr::vector<in_edge_type>  inEdges;
     };
 
-    struct name_ { // NOLINT
-    } static constexpr name = {}; // NOLINT
-    struct subpass_ { // NOLINT
-    } static constexpr subpass = {}; // NOLINT
+    struct Name_ { // NOLINT
+    } static constexpr Name = {}; // NOLINT
+    struct Subpass_ { // NOLINT
+    } static constexpr Subpass = {}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> mVertices;
+    boost::container::pmr::vector<vertex_type> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>     mNames;
-    boost::container::pmr::vector<RasterSubpass> mSubpasses;
+    boost::container::pmr::vector<PmrString>     names;
+    boost::container::pmr::vector<RasterSubpass> subpasses;
 };
 
 struct RasterPassData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mRasterViews.get_allocator().resource()};
+        return {rasterViews.get_allocator().resource()};
     }
 
     RasterPassData(const allocator_type& alloc) noexcept; // NOLINT
@@ -442,15 +442,15 @@ struct RasterPassData {
     RasterPassData& operator=(RasterPassData&& rhs) = default;
     RasterPassData& operator=(RasterPassData const& rhs) = default;
 
-    PmrTransparentMap<PmrString, RasterView>                                 mRasterViews;
-    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> mComputeViews;
-    SubpassGraph                                                             mSubpassGraph;
+    PmrTransparentMap<PmrString, RasterView>                                 rasterViews;
+    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
+    SubpassGraph                                                             subpassGraph;
 };
 
 struct ComputePassData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mComputeViews.get_allocator().resource()};
+        return {computeViews.get_allocator().resource()};
     }
 
     ComputePassData(const allocator_type& alloc) noexcept; // NOLINT
@@ -462,13 +462,13 @@ struct ComputePassData {
     ComputePassData& operator=(ComputePassData&& rhs) = default;
     ComputePassData& operator=(ComputePassData const& rhs) = default;
 
-    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> mComputeViews;
+    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
 };
 
 struct CopyPair {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mSource.get_allocator().resource()};
+        return {source.get_allocator().resource()};
     }
 
     CopyPair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
@@ -481,22 +481,22 @@ struct CopyPair {
     CopyPair& operator=(CopyPair&& rhs) = default;
     CopyPair& operator=(CopyPair const& rhs) = default;
 
-    PmrString mSource;
-    PmrString mTarget;
-    uint32_t  mMipLevels             = 0xFFFFFFFF;
-    uint32_t  mNumSlices             = 0xFFFFFFFF;
-    uint32_t  mSourceMostDetailedMip = 0;
-    uint32_t  mSourceFirstSlice      = 0;
-    uint32_t  mSourcePlaneSlice      = 0;
-    uint32_t  mTargetMostDetailedMip = 0;
-    uint32_t  mTargetFirstSlice      = 0;
-    uint32_t  mTargetPlaneSlice      = 0;
+    PmrString source;
+    PmrString target;
+    uint32_t  mipLevels             = 0xFFFFFFFF;
+    uint32_t  numSlices             = 0xFFFFFFFF;
+    uint32_t  sourceMostDetailedMip = 0;
+    uint32_t  sourceFirstSlice      = 0;
+    uint32_t  sourcePlaneSlice      = 0;
+    uint32_t  targetMostDetailedMip = 0;
+    uint32_t  targetFirstSlice      = 0;
+    uint32_t  targetPlaneSlice      = 0;
 };
 
 struct CopyPassData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mCopyPairs.get_allocator().resource()};
+        return {copyPairs.get_allocator().resource()};
     }
 
     CopyPassData(const allocator_type& alloc) noexcept; // NOLINT
@@ -508,13 +508,13 @@ struct CopyPassData {
     CopyPassData& operator=(CopyPassData&& rhs) = default;
     CopyPassData& operator=(CopyPassData const& rhs) = default;
 
-    boost::container::pmr::vector<CopyPair> mCopyPairs;
+    boost::container::pmr::vector<CopyPair> copyPairs;
 };
 
 struct MovePair {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mSource.get_allocator().resource()};
+        return {source.get_allocator().resource()};
     }
 
     MovePair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
@@ -527,19 +527,19 @@ struct MovePair {
     MovePair& operator=(MovePair&& rhs) = default;
     MovePair& operator=(MovePair const& rhs) = default;
 
-    PmrString mSource;
-    PmrString mTarget;
-    uint32_t  mMipLevels             = 0xFFFFFFFF;
-    uint32_t  mNumSlices             = 0xFFFFFFFF;
-    uint32_t  mTargetMostDetailedMip = 0;
-    uint32_t  mTargetFirstSlice      = 0;
-    uint32_t  mTargetPlaneSlice      = 0;
+    PmrString source;
+    PmrString target;
+    uint32_t  mipLevels             = 0xFFFFFFFF;
+    uint32_t  numSlices             = 0xFFFFFFFF;
+    uint32_t  targetMostDetailedMip = 0;
+    uint32_t  targetFirstSlice      = 0;
+    uint32_t  targetPlaneSlice      = 0;
 };
 
 struct MovePassData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mMovePairs.get_allocator().resource()};
+        return {movePairs.get_allocator().resource()};
     }
 
     MovePassData(const allocator_type& alloc) noexcept; // NOLINT
@@ -551,13 +551,13 @@ struct MovePassData {
     MovePassData& operator=(MovePassData&& rhs) = default;
     MovePassData& operator=(MovePassData const& rhs) = default;
 
-    boost::container::pmr::vector<MovePair> mMovePairs;
+    boost::container::pmr::vector<MovePair> movePairs;
 };
 
 struct RaytracePassData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mComputeViews.get_allocator().resource()};
+        return {computeViews.get_allocator().resource()};
     }
 
     RaytracePassData(const allocator_type& alloc) noexcept; // NOLINT
@@ -569,7 +569,7 @@ struct RaytracePassData {
     RaytracePassData& operator=(RaytracePassData&& rhs) = default;
     RaytracePassData& operator=(RaytracePassData const& rhs) = default;
 
-    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> mComputeViews;
+    PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
 };
 
 struct Queue_ {};
@@ -581,15 +581,15 @@ struct Present_ {};
 struct RenderQueueData {
     RenderQueueData() = default;
     RenderQueueData(QueueHint hintIn) noexcept // NOLINT
-    : mHint(hintIn) {}
+    : hint(hintIn) {}
 
-    QueueHint mHint = QueueHint::RENDER_OPAQUE;
+    QueueHint hint = QueueHint::RENDER_OPAQUE;
 };
 
 struct SceneData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mName.get_allocator().resource()};
+        return {name.get_allocator().resource()};
     }
 
     SceneData(const allocator_type& alloc) noexcept; // NOLINT
@@ -602,15 +602,15 @@ struct SceneData {
     SceneData& operator=(SceneData&& rhs) = default;
     SceneData& operator=(SceneData const& rhs) = default;
 
-    PmrString                                mName;
-    scene::Camera*                           mCamera = nullptr;
-    boost::container::pmr::vector<PmrString> mScenes;
+    PmrString                                name;
+    scene::Camera*                           camera = nullptr;
+    boost::container::pmr::vector<PmrString> scenes;
 };
 
 struct Dispatch {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mShader.get_allocator().resource()};
+        return {shader.get_allocator().resource()};
     }
 
     Dispatch(const allocator_type& alloc) noexcept; // NOLINT
@@ -623,16 +623,16 @@ struct Dispatch {
     Dispatch& operator=(Dispatch&& rhs) = default;
     Dispatch& operator=(Dispatch const& rhs) = default;
 
-    PmrString mShader;
-    uint32_t  mThreadGroupCountX = 0;
-    uint32_t  mThreadGroupCountY = 0;
-    uint32_t  mThreadGroupCountZ = 0;
+    PmrString shader;
+    uint32_t  threadGroupCountX = 0;
+    uint32_t  threadGroupCountY = 0;
+    uint32_t  threadGroupCountZ = 0;
 };
 
 struct Blit {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mShader.get_allocator().resource()};
+        return {shader.get_allocator().resource()};
     }
 
     Blit(const allocator_type& alloc) noexcept; // NOLINT
@@ -645,13 +645,13 @@ struct Blit {
     Blit& operator=(Blit&& rhs) = default;
     Blit& operator=(Blit const& rhs) = default;
 
-    PmrString mShader;
+    PmrString shader;
 };
 
 struct PresentPassData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mResourceName.get_allocator().resource()};
+        return {resourceName.get_allocator().resource()};
     }
 
     PresentPassData(const allocator_type& alloc) noexcept; // NOLINT
@@ -664,15 +664,15 @@ struct PresentPassData {
     PresentPassData& operator=(PresentPassData&& rhs) = default;
     PresentPassData& operator=(PresentPassData const& rhs) = default;
 
-    PmrString mResourceName;
-    uint32_t  mSyncInterval = 0;
-    uint32_t  mFlags        = 0;
+    PmrString resourceName;
+    uint32_t  syncInterval = 0;
+    uint32_t  flags        = 0;
 };
 
 struct RenderData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mConstants.get_allocator().resource()};
+        return {constants.get_allocator().resource()};
     }
 
     RenderData(const allocator_type& alloc) noexcept; // NOLINT
@@ -683,16 +683,16 @@ struct RenderData {
     RenderData& operator=(RenderData&& rhs) = default;
     RenderData& operator=(RenderData const& rhs) = delete;
 
-    PmrUnorderedMap<uint32_t, boost::container::pmr::vector<uint8_t>> mConstants;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Buffer>>           mBuffers;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Texture>>          mTextures;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Sampler>>          mSamplers;
+    PmrUnorderedMap<uint32_t, boost::container::pmr::vector<uint8_t>> constants;
+    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Buffer>>           buffers;
+    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Texture>>          textures;
+    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Sampler>>          samplers;
 };
 
 struct RenderGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {mObjects.get_allocator().resource()};
+        return {objects.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -746,29 +746,29 @@ struct RenderGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mOutEdges;
+        return this->vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mVertices[v].mInEdges;
+        return this->vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
-        return {0, static_cast<vertices_size_type>(mVertices.size())};
+        return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
     inline vertex_descriptor current_id() const noexcept { // NOLINT
-        return static_cast<vertex_descriptor>(mVertices.size());
+        return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(mVertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -794,17 +794,17 @@ struct RenderGraph {
 
     // AddressableGraph help functions
     inline boost::container::pmr::vector<children_edge_type>& children_list(vertex_descriptor v) noexcept { // NOLINT
-        return mObjects[v].mChildren;
+        return this->objects[v].children;
     }
     inline const boost::container::pmr::vector<children_edge_type>& children_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mObjects[v].mChildren;
+        return this->objects[v].children;
     }
 
     inline boost::container::pmr::vector<parent_edge_type>& parents_list(vertex_descriptor v) noexcept { // NOLINT
-        return mObjects[v].mParents;
+        return this->objects[v].parents;
     }
     inline const boost::container::pmr::vector<parent_edge_type>& parents_list(vertex_descriptor v) const noexcept { // NOLINT
-        return mObjects[v].mParents;
+        return this->objects[v].parents;
     }
 
     // PolymorphicGraph
@@ -830,7 +830,7 @@ struct RenderGraph {
     struct object_type { // NOLINT
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
-            return {mChildren.get_allocator().resource()};
+            return {children.get_allocator().resource()};
         }
 
         object_type(const allocator_type& alloc) noexcept; // NOLINT
@@ -842,14 +842,14 @@ struct RenderGraph {
         object_type& operator=(object_type&& rhs) = default;
         object_type& operator=(object_type const& rhs) = default;
 
-        boost::container::pmr::vector<children_edge_type> mChildren;
-        boost::container::pmr::vector<parent_edge_type>   mParents;
+        boost::container::pmr::vector<children_edge_type> children;
+        boost::container::pmr::vector<parent_edge_type>   parents;
     };
 
     struct vertex_type { // NOLINT
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
-            return {mOutEdges.get_allocator().resource()};
+            return {outEdges.get_allocator().resource()};
         }
 
         vertex_type(const allocator_type& alloc) noexcept; // NOLINT
@@ -861,39 +861,39 @@ struct RenderGraph {
         vertex_type& operator=(vertex_type&& rhs) = default;
         vertex_type& operator=(vertex_type const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> mOutEdges;
-        boost::container::pmr::vector<in_edge_type>  mInEdges;
-        vertex_handle_type                           mHandle;
+        boost::container::pmr::vector<out_edge_type> outEdges;
+        boost::container::pmr::vector<in_edge_type>  inEdges;
+        vertex_handle_type                           handle;
     };
 
-    struct name_ { // NOLINT
-    } static constexpr name = {}; // NOLINT
-    struct layout_ { // NOLINT
-    } static constexpr layout = {}; // NOLINT
-    struct data_ { // NOLINT
-    } static constexpr data = {}; // NOLINT
+    struct Name_ { // NOLINT
+    } static constexpr Name = {}; // NOLINT
+    struct Layout_ { // NOLINT
+    } static constexpr Layout = {}; // NOLINT
+    struct Data_ { // NOLINT
+    } static constexpr Data = {}; // NOLINT
 
     // Owners
-    boost::container::pmr::vector<object_type> mObjects;
+    boost::container::pmr::vector<object_type> objects;
     // Vertices
-    boost::container::pmr::vector<vertex_type> mVertices;
+    boost::container::pmr::vector<vertex_type> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>  mNames;
-    boost::container::pmr::vector<PmrString>  mLayoutNodes;
-    boost::container::pmr::vector<RenderData> mData;
+    boost::container::pmr::vector<PmrString>  names;
+    boost::container::pmr::vector<PmrString>  layoutNodes;
+    boost::container::pmr::vector<RenderData> data;
     // PolymorphicGraph
-    boost::container::pmr::vector<RasterPassData>   mRasterPasses;
-    boost::container::pmr::vector<ComputePassData>  mComputePasses;
-    boost::container::pmr::vector<CopyPassData>     mCopyPasses;
-    boost::container::pmr::vector<MovePassData>     mMovePasses;
-    boost::container::pmr::vector<PresentPassData>  mPresentPasses;
-    boost::container::pmr::vector<RaytracePassData> mRaytracePasses;
-    boost::container::pmr::vector<RenderQueueData>  mRenderQueues;
-    boost::container::pmr::vector<SceneData>        mScenes;
-    boost::container::pmr::vector<Blit>             mBlits;
-    boost::container::pmr::vector<Dispatch>         mDispatches;
+    boost::container::pmr::vector<RasterPassData>   rasterPasses;
+    boost::container::pmr::vector<ComputePassData>  computePasses;
+    boost::container::pmr::vector<CopyPassData>     copyPasses;
+    boost::container::pmr::vector<MovePassData>     movePasses;
+    boost::container::pmr::vector<PresentPassData>  presentPasses;
+    boost::container::pmr::vector<RaytracePassData> raytracePasses;
+    boost::container::pmr::vector<RenderQueueData>  renderQueues;
+    boost::container::pmr::vector<SceneData>        scenes;
+    boost::container::pmr::vector<Blit>             blits;
+    boost::container::pmr::vector<Dispatch>         dispatches;
     // Members
-    PmrUnorderedMap<PmrString, uint32_t> mIndex;
+    PmrUnorderedMap<PmrString, uint32_t> index;
 };
 
 } // namespace render
