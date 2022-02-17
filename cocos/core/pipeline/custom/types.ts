@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 export const enum UpdateFrequency {
-    PerInstance,
-    PerBatch,
-    PerQueue,
-    PerPass,
-    Count,
+    PER_INSTANCE,
+    PER_BATCH,
+    PER_QUEUE,
+    PER_PASS,
+    COUNT,
 }
 
 export const enum ParameterType {
@@ -74,17 +74,17 @@ export const enum ResourceResidency {
 }
 
 export const enum QueueHint {
-    Opaque,
-    Cutout,
-    Transparent,
-    Count,
+    RENDER_OPAQUE,
+    RENDER_CUTOUT,
+    RENDER_TRANSPARENT,
+    COUNT,
 }
 
 export const enum ResourceDimension {
-    Buffer,
-    Texture1D,
-    Texture2D,
-    Texture3D,
+    BUFFER,
+    TEXTURE1D,
+    TEXTURE2D,
+    TEXTURE3D,
 }
 
 export class SampleDesc {
@@ -93,6 +93,6 @@ export class SampleDesc {
 }
 
 export const enum NodeType {
-    Internal,
-    Leaf,
+    INTERNAL,
+    LEAF,
 }

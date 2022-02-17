@@ -22,14 +22,14 @@ namespace cc {
 namespace render {
 
 enum class ResourceFlags : uint32_t {
-    None                     = 0,    // NOLINT
-    AllowRenderTarget        = 0x1,  // NOLINT
-    AllowDepthStencil        = 0x2,  // NOLINT
-    AllowUnorderedAccess     = 0x4,  // NOLINT
-    DenyShaderResource       = 0x8,  // NOLINT
-    AllowCrossAdapter        = 0x10, // NOLINT
-    AllowSimultaneousAccess  = 0x20, // NOLINT
-    VideoDecodeReferenceOnly = 0x40, // NOLINT
+    NONE = 0,
+    ALLOW_RENDER_TARGET = 0x1,
+    ALLOW_DEPTH_STENCIL = 0x2,
+    ALLOW_UNORDERED_ACCESS = 0x4,
+    DENY_SHADER_RESOURCE = 0x8,
+    ALLOW_CROSS_ADAPTER = 0x10,
+    ALLOW_SIMULTANEOUS_ACCESS = 0x20,
+    VIDEO_DECODE_REFERENCE_ONLY = 0x40,
 };
 
 constexpr ResourceFlags operator|(const ResourceFlags lhs, const ResourceFlags rhs) noexcept {
@@ -57,14 +57,14 @@ constexpr bool any(ResourceFlags e) noexcept {
 }
 
 enum class TextureLayout {
-    Unknown,          // NOLINT
-    RowMajor,         // NOLINT
-    UndefinedSwizzle, // NOLINT
-    StandardSwizzle,  // NOLINT
+    UNKNOWN,
+    ROW_MAJOR,
+    UNDEFINED_SWIZZLE,
+    STANDARD_SWIZZLE,
 };
 
 struct ResourceDesc {
-    ResourceDimension mDimension        = ResourceDimension::Buffer;
+    ResourceDimension mDimension        = ResourceDimension::BUFFER;
     uint32_t          mAlignment        = 0;
     uint32_t          mWidth            = 0;
     uint32_t          mHeight           = 0;
@@ -72,8 +72,8 @@ struct ResourceDesc {
     uint16_t          mMipLevels        = 0;
     gfx::Format       mFormat           = gfx::Format::UNKNOWN;
     gfx::SampleCount  mSampleCount      = gfx::SampleCount::ONE;
-    TextureLayout     mLayout           = TextureLayout::Unknown;
-    ResourceFlags     mFlags            = ResourceFlags::None;
+    TextureLayout     mLayout           = TextureLayout::UNKNOWN;
+    ResourceFlags     mFlags            = ResourceFlags::NONE;
 };
 
 struct ResourceTraits {
@@ -217,14 +217,14 @@ struct ResourceGraph {
 };
 
 enum class AttachmentType {
-    RenderTarget, // NOLINT
-    DepthStencil, // NOLINT
+    RENDER_TARGET,
+    DEPTH_STENCIL,
 };
 
 enum class AccessType {
-    Read,      // NOLINT
-    ReadWrite, // NOLINT
-    Write,     // NOLINT
+    READ,
+    READ_WRITE,
+    WRITE,
 };
 
 struct RasterView {
@@ -244,8 +244,8 @@ struct RasterView {
     RasterView& operator=(RasterView const& rhs) = default;
 
     PmrString         mSlotName;
-    AccessType        mAccessType     = AccessType::Write;
-    AttachmentType    mAttachmentType = AttachmentType::RenderTarget;
+    AccessType        mAccessType     = AccessType::WRITE;
+    AttachmentType    mAttachmentType = AttachmentType::RENDER_TARGET;
     gfx::LoadOp       mLoadOp         = gfx::LoadOp::LOAD;
     gfx::StoreOp      mStoreOp        = gfx::StoreOp::STORE;
     gfx::ClearFlagBit mClearFlags     = gfx::ClearFlagBit::ALL;
@@ -253,8 +253,8 @@ struct RasterView {
 };
 
 enum class ClearValueType {
-    Float, // NOLINT
-    Int,   // NOLINT
+    FLOAT_TYPE,
+    INT_TYPE,
 };
 
 struct ComputeView {
@@ -273,17 +273,17 @@ struct ComputeView {
     ComputeView& operator=(ComputeView const& rhs) = default;
 
     bool isRead() const {
-        return mAccessType != AccessType::Write;
+        return mAccessType != AccessType::WRITE;
     }
     bool isWrite() const {
-        return mAccessType != AccessType::Read;
+        return mAccessType != AccessType::READ;
     }
 
     PmrString         mName;
-    AccessType        mAccessType = AccessType::Read;
+    AccessType        mAccessType = AccessType::READ;
     gfx::ClearFlagBit mClearFlags = gfx::ClearFlagBit::NONE;
     gfx::Color        mClearColor;
-    ClearValueType    mClearValueType = ClearValueType::Float;
+    ClearValueType    mClearValueType = ClearValueType::FLOAT_TYPE;
 };
 
 struct RasterSubpass {
@@ -583,7 +583,7 @@ struct RenderQueueData {
     RenderQueueData(QueueHint hint) noexcept // NOLINT
     : mHint(hint) {}
 
-    QueueHint mHint = QueueHint::Opaque;
+    QueueHint mHint = QueueHint::RENDER_OPAQUE;
 };
 
 struct SceneData {

@@ -58,7 +58,7 @@ export class ShaderProgramData {
 }
 
 export class GroupNodeData {
-    constructor (nodeType: NodeType = NodeType.Internal) {
+    constructor (nodeType: NodeType = NodeType.INTERNAL) {
         this.nodeType = nodeType;
     }
     nodeType: NodeType;

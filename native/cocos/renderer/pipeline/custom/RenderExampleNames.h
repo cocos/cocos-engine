@@ -12,8 +12,8 @@ namespace example {
 
 inline const char* getName(DependencyType e) noexcept {
     switch (e) {
-        case DependencyType::Order: return "Order";
-        case DependencyType::Value: return "Value";
+        case DependencyType::ORDER: return "ORDER";
+        case DependencyType::DATA: return "DATA";
     }
     return "";
 }

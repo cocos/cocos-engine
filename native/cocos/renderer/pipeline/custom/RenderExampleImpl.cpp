@@ -83,14 +83,14 @@ void addPassNodeValue(RenderPassNode& node, PmrFlatSet<uint32_t>& values,
     // add to inputs and outputs
     // inputs and outputs may overlap
     switch (type) {
-        case AccessType::Read:
+        case AccessType::READ:
             node.mInputs.emplace(valueID);
             break;
-        case AccessType::ReadWrite:
+        case AccessType::READ_WRITE:
             node.mOutputs.emplace(valueID);
             node.mInputs.emplace(valueID);
             break;
-        case AccessType::Write:
+        case AccessType::WRITE:
             node.mOutputs.emplace(valueID);
             break;
         default:
@@ -131,13 +131,13 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
         for (uint32_t i = 1; i != values.size(); ++i) {
             const auto& value = values[i];
             if (value.isRead()) {
-                if (type == AccessType::Write) {
-                    type = AccessType::ReadWrite;
+                if (type == AccessType::WRITE) {
+                    type = AccessType::READ_WRITE;
                 }
             }
             if (value.isWrite()) {
-                if (type == AccessType::Read) {
-                    type = AccessType::ReadWrite;
+                if (type == AccessType::READ) {
+                    type = AccessType::READ_WRITE;
                 }
             }
         }
@@ -178,8 +178,8 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                 auto& valueIDs = get(RDG::valueID, rdg, vertID);
 
                 for (const auto& pair : pass.mCopyPairs) {
-                    addPassNodeValue(rdg, node, valueIDs, pair.mSource, AccessType::Read);
-                    addPassNodeValue(rdg, node, valueIDs, pair.mTarget, AccessType::Write);
+                    addPassNodeValue(rdg, node, valueIDs, pair.mSource, AccessType::READ);
+                    addPassNodeValue(rdg, node, valueIDs, pair.mTarget, AccessType::WRITE);
                 }
             },
             [&](const MovePassData& pass) {
@@ -188,8 +188,8 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                 auto& valueIDs = get(RDG::valueID, rdg, vertID);
 
                 for (const auto& pair : pass.mMovePairs) {
-                    addPassNodeValue(rdg, node, valueIDs, pair.mSource, AccessType::Read);
-                    addPassNodeValue(rdg, node, valueIDs, pair.mTarget, AccessType::Write);
+                    addPassNodeValue(rdg, node, valueIDs, pair.mSource, AccessType::READ);
+                    addPassNodeValue(rdg, node, valueIDs, pair.mTarget, AccessType::WRITE);
                 }
             },
             [&](const RaytracePassData& pass) {
@@ -207,7 +207,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                 auto& node     = get(RDG::pass, rdg, vertID);
                 auto& valueIDs = get(RDG::valueID, rdg, vertID);
 
-                addPassNodeValue(rdg, node, valueIDs, pass.mResourceName, AccessType::Read);
+                addPassNodeValue(rdg, node, valueIDs, pass.mResourceName, AccessType::READ);
             },
             [&](const auto&) {
                 // do nothing
@@ -257,10 +257,10 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
                 // try get pass dependency edge
                 auto e = edge(srcPassID, dstPassID, rdg);
                 if (!e.second) { // no pass dependency edge, add one
-                    add_edge(srcPassID, dstPassID, rdg, DependencyType::Value);
+                    add_edge(srcPassID, dstPassID, rdg, DependencyType::DATA);
                 } else {
                     // upgrade dependency type to DependencyType::Value
-                    put(boost::edge_bundle, rdg, e.first, DependencyType::Value);
+                    put(boost::edge_bundle, rdg, e.first, DependencyType::DATA);
                 }
             };
 
@@ -279,7 +279,7 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
             }
             if (!found) { // input value not found, add it to initial pass
                 // add init value nodes
-                addPassNodeValue(initPass, initValueIDs, valueID, AccessType::Write);
+                addPassNodeValue(initPass, initValueIDs, valueID, AccessType::WRITE);
                 addValueEdge(initPassID, dstPassID);
             }
         }
@@ -459,14 +459,14 @@ int RenderCompiler::compile() {
 
     add_vertex(
         "name",
-        UpdateFrequency::PerInstance,
+        UpdateFrequency::PER_INSTANCE,
         LayoutData(scratch),
         GroupNodeData{},
         mLayoutGraph);
 
     add_vertex(Shader_{},
         std::forward_as_tuple("name"),
-        std::forward_as_tuple(UpdateFrequency::PerInstance),
+        std::forward_as_tuple(UpdateFrequency::PER_INSTANCE),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         mLayoutGraph);

@@ -20,8 +20,8 @@ namespace render {
 namespace example {
 
 enum class DependencyType {
-    Order, // NOLINT
-    Value, // NOLINT
+    ORDER,
+    DATA,
 };
 
 struct RenderPassNode {

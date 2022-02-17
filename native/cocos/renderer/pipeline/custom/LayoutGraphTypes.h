@@ -177,7 +177,7 @@ struct GroupNodeData {
     GroupNodeData(NodeType nodeType) noexcept // NOLINT
     : mNodeType(nodeType) {}
 
-    NodeType mNodeType = NodeType::Internal;
+    NodeType mNodeType = NodeType::INTERNAL;
 };
 
 struct ShaderNodeData {

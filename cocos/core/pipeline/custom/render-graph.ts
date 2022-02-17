@@ -8,25 +8,25 @@ import { legacyCC } from '../../global-exports';
 import { RenderScene } from '../../renderer/scene';
 
 export const enum ResourceFlags {
-    None = 0,
-    AllowRenderTarget = 0x1,
-    AllowDepthStencil = 0x2,
-    AllowUnorderedAccess = 0x4,
-    DenyShaderResource = 0x8,
-    AllowCrossAdapter = 0x10,
-    AllowSimultaneousAccess = 0x20,
-    VideoDecodeReferenceOnly = 0x40,
+    NONE = 0,
+    ALLOW_RENDER_TARGET = 0x1,
+    ALLOW_DEPTH_STENCIL = 0x2,
+    ALLOW_UNORDERED_ACCESS = 0x4,
+    DENY_SHADER_RESOURCE = 0x8,
+    ALLOW_CROSS_ADAPTER = 0x10,
+    ALLOW_SIMULTANEOUS_ACCESS = 0x20,
+    VIDEO_DECODE_REFERENCE_ONLY = 0x40,
 }
 
 export const enum TextureLayout {
-    Unknown,
-    RowMajor,
-    UndefinedSwizzle,
-    StandardSwizzle,
+    UNKNOWN,
+    ROW_MAJOR,
+    UNDEFINED_SWIZZLE,
+    STANDARD_SWIZZLE,
 }
 
 export class ResourceDesc {
-    dimension: ResourceDimension = ResourceDimension.Buffer;
+    dimension: ResourceDimension = ResourceDimension.BUFFER;
     alignment = 0;
     width = 0;
     height = 0;
@@ -34,8 +34,8 @@ export class ResourceDesc {
     mipLevels = 0;
     format: Format = Format.UNKNOWN;
     sampleCount: SampleCount = SampleCount.ONE;
-    layout: TextureLayout = TextureLayout.Unknown;
-    flags: ResourceFlags = ResourceFlags.None;
+    layout: TextureLayout = TextureLayout.UNKNOWN;
+    flags: ResourceFlags = ResourceFlags.NONE;
 }
 
 export class ResourceTraits {
@@ -353,21 +353,21 @@ export class ResourceGraph implements impl.BidirectionalGraph
 }
 
 export const enum AttachmentType {
-    RenderTarget,
-    DepthStencil,
+    RENDER_TARGET,
+    DEPTH_STENCIL,
 }
 
 export const enum AccessType {
-    Read,
-    ReadWrite,
-    Write,
+    READ,
+    READ_WRITE,
+    WRITE,
 }
 
 export class RasterView {
     constructor (
         slotName = '',
-        accessType: AccessType = AccessType.Write,
-        attachmentType: AttachmentType = AttachmentType.RenderTarget,
+        accessType: AccessType = AccessType.WRITE,
+        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
         loadOp: LoadOp = LoadOp.LOAD,
         storeOp: StoreOp = StoreOp.STORE,
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
@@ -391,16 +391,16 @@ export class RasterView {
 }
 
 export const enum ClearValueType {
-    Float,
-    Int,
+    FLOAT_TYPE,
+    INT_TYPE,
 }
 
 export class ComputeView {
     name = '';
-    accessType: AccessType = AccessType.Read;
+    accessType: AccessType = AccessType.READ;
     clearFlags: ClearFlagBit = ClearFlagBit.NONE;
     clearColor: Color = new Color();
-    clearValueType: ClearValueType = ClearValueType.Float;
+    clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE;
 }
 
 export class RasterSubpass {
@@ -775,7 +775,7 @@ export class RaytracePassData {
 }
 
 export class RenderQueueData {
-    constructor (hint: QueueHint = QueueHint.Opaque) {
+    constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE) {
         this.hint = hint;
     }
     hint: QueueHint;

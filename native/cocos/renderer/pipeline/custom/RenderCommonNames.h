@@ -8,11 +8,11 @@ namespace render {
 
 inline const char* getName(UpdateFrequency e) noexcept {
     switch (e) {
-        case UpdateFrequency::PerInstance: return "PerInstance";
-        case UpdateFrequency::PerBatch: return "PerBatch";
-        case UpdateFrequency::PerQueue: return "PerQueue";
-        case UpdateFrequency::PerPass: return "PerPass";
-        case UpdateFrequency::Count: return "Count";
+        case UpdateFrequency::PER_INSTANCE: return "PER_INSTANCE";
+        case UpdateFrequency::PER_BATCH: return "PER_BATCH";
+        case UpdateFrequency::PER_QUEUE: return "PER_QUEUE";
+        case UpdateFrequency::PER_PASS: return "PER_PASS";
+        case UpdateFrequency::COUNT: return "COUNT";
     }
     return "";
 }
@@ -83,27 +83,27 @@ inline const char* getName(const Backbuffer_& /*v*/) noexcept { return "Backbuff
 inline const char* getName(const Memoryless_& /*v*/) noexcept { return "Memoryless"; }
 inline const char* getName(QueueHint e) noexcept {
     switch (e) {
-        case QueueHint::Opaque: return "Opaque";
-        case QueueHint::Cutout: return "Cutout";
-        case QueueHint::Transparent: return "Transparent";
-        case QueueHint::Count: return "Count";
+        case QueueHint::RENDER_OPAQUE: return "RENDER_OPAQUE";
+        case QueueHint::RENDER_CUTOUT: return "RENDER_CUTOUT";
+        case QueueHint::RENDER_TRANSPARENT: return "RENDER_TRANSPARENT";
+        case QueueHint::COUNT: return "COUNT";
     }
     return "";
 }
 inline const char* getName(ResourceDimension e) noexcept {
     switch (e) {
-        case ResourceDimension::Buffer: return "Buffer";
-        case ResourceDimension::Texture1D: return "Texture1D";
-        case ResourceDimension::Texture2D: return "Texture2D";
-        case ResourceDimension::Texture3D: return "Texture3D";
+        case ResourceDimension::BUFFER: return "BUFFER";
+        case ResourceDimension::TEXTURE1D: return "TEXTURE1D";
+        case ResourceDimension::TEXTURE2D: return "TEXTURE2D";
+        case ResourceDimension::TEXTURE3D: return "TEXTURE3D";
     }
     return "";
 }
 inline const char* getName(const SampleDesc& /*v*/) noexcept { return "SampleDesc"; }
 inline const char* getName(NodeType e) noexcept {
     switch (e) {
-        case NodeType::Internal: return "Internal";
-        case NodeType::Leaf: return "Leaf";
+        case NodeType::INTERNAL: return "INTERNAL";
+        case NodeType::LEAF: return "LEAF";
     }
     return "";
 }

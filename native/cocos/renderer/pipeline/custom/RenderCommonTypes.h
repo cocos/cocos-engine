@@ -7,11 +7,11 @@ namespace cc {
 namespace render {
 
 enum class UpdateFrequency {
-    PerInstance, // NOLINT
-    PerBatch,    // NOLINT
-    PerQueue,    // NOLINT
-    PerPass,     // NOLINT
-    Count,       // NOLINT
+    PER_INSTANCE,
+    PER_BATCH,
+    PER_QUEUE,
+    PER_PASS,
+    COUNT,
 };
 
 struct CBV_ {};
@@ -119,17 +119,17 @@ struct Memoryless_ {};
 using ResourceResidency = boost::variant2::variant<Managed_, Persistent_, Backbuffer_, Memoryless_>;
 
 enum class QueueHint {
-    Opaque,      // NOLINT
-    Cutout,      // NOLINT
-    Transparent, // NOLINT
-    Count,       // NOLINT
+    RENDER_OPAQUE,
+    RENDER_CUTOUT,
+    RENDER_TRANSPARENT,
+    COUNT,
 };
 
 enum class ResourceDimension {
-    Buffer,    // NOLINT
-    Texture1D, // NOLINT
-    Texture2D, // NOLINT
-    Texture3D, // NOLINT
+    BUFFER,
+    TEXTURE1D,
+    TEXTURE2D,
+    TEXTURE3D,
 };
 
 struct SampleDesc {
@@ -138,8 +138,8 @@ struct SampleDesc {
 };
 
 enum class NodeType {
-    Internal, // NOLINT
-    Leaf,     // NOLINT
+    INTERNAL,
+    LEAF,
 };
 
 } // namespace render

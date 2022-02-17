@@ -9,10 +9,10 @@ namespace render {
 
 inline const char* getName(TextureLayout e) noexcept {
     switch (e) {
-        case TextureLayout::Unknown: return "Unknown";
-        case TextureLayout::RowMajor: return "RowMajor";
-        case TextureLayout::UndefinedSwizzle: return "UndefinedSwizzle";
-        case TextureLayout::StandardSwizzle: return "StandardSwizzle";
+        case TextureLayout::UNKNOWN: return "UNKNOWN";
+        case TextureLayout::ROW_MAJOR: return "ROW_MAJOR";
+        case TextureLayout::UNDEFINED_SWIZZLE: return "UNDEFINED_SWIZZLE";
+        case TextureLayout::STANDARD_SWIZZLE: return "STANDARD_SWIZZLE";
     }
     return "";
 }
@@ -21,24 +21,24 @@ inline const char* getName(const ResourceTraits& /*v*/) noexcept { return "Resou
 inline const char* getName(const ResourceGraph& /*v*/) noexcept { return "ResourceGraph"; }
 inline const char* getName(AttachmentType e) noexcept {
     switch (e) {
-        case AttachmentType::RenderTarget: return "RenderTarget";
-        case AttachmentType::DepthStencil: return "DepthStencil";
+        case AttachmentType::RENDER_TARGET: return "RENDER_TARGET";
+        case AttachmentType::DEPTH_STENCIL: return "DEPTH_STENCIL";
     }
     return "";
 }
 inline const char* getName(AccessType e) noexcept {
     switch (e) {
-        case AccessType::Read: return "Read";
-        case AccessType::ReadWrite: return "ReadWrite";
-        case AccessType::Write: return "Write";
+        case AccessType::READ: return "READ";
+        case AccessType::READ_WRITE: return "READ_WRITE";
+        case AccessType::WRITE: return "WRITE";
     }
     return "";
 }
 inline const char* getName(const RasterView& /*v*/) noexcept { return "RasterView"; }
 inline const char* getName(ClearValueType e) noexcept {
     switch (e) {
-        case ClearValueType::Float: return "Float";
-        case ClearValueType::Int: return "Int";
+        case ClearValueType::FLOAT_TYPE: return "FLOAT_TYPE";
+        case ClearValueType::INT_TYPE: return "INT_TYPE";
     }
     return "";
 }
