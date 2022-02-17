@@ -106,34 +106,34 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
     const ctor = obj.constructor as typeof ValueType;
     const typeId = BuiltinValueTypes.indexOf(ctor);
     switch (ctor) {
-        case Vec2:
-            // @ts-expect-error Complex typing
-            return [typeId, obj.x, obj.y];
-        case Vec3:
-            // @ts-expect-error Complex typing
-            return [typeId, obj.x, obj.y, obj.z];
-        case Vec4:
-        case Quat:
-            // @ts-expect-error Complex typing
-            return [typeId, obj.x, obj.y, obj.z, obj.w];
-        case Color:
-            // @ts-expect-error Complex typing
-            return [typeId, obj._val];
-        case Size:
-            // @ts-expect-error Complex typing
-            return [typeId, obj.width, obj.height];
-        case Rect:
-            // @ts-expect-error Complex typing
-            return [typeId, obj.x, obj.y, obj.width, obj.height];
-        case Mat4: {
-            // @ts-expect-error Complex typing
-            const res: IValueTypeData = new Array<number>(1 + 16);
-            res[VALUETYPE_SETTER] = typeId;
-            Mat4.toArray(res, obj as Mat4, 1);
-            return res;
-        }
-        default:
-            return null;
+    case Vec2:
+        // @ts-expect-error Complex typing
+        return [typeId, obj.x, obj.y];
+    case Vec3:
+        // @ts-expect-error Complex typing
+        return [typeId, obj.x, obj.y, obj.z];
+    case Vec4:
+    case Quat:
+        // @ts-expect-error Complex typing
+        return [typeId, obj.x, obj.y, obj.z, obj.w];
+    case Color:
+        // @ts-expect-error Complex typing
+        return [typeId, obj._val];
+    case Size:
+        // @ts-expect-error Complex typing
+        return [typeId, obj.width, obj.height];
+    case Rect:
+        // @ts-expect-error Complex typing
+        return [typeId, obj.x, obj.y, obj.width, obj.height];
+    case Mat4: {
+        // @ts-expect-error Complex typing
+        const res: IValueTypeData = new Array<number>(1 + 16);
+        res[VALUETYPE_SETTER] = typeId;
+        Mat4.toArray(res, obj as Mat4, 1);
+        return res;
+    }
+    default:
+        return null;
     }
 }
 
@@ -1082,7 +1082,7 @@ deserialize.reportMissingClass = defaultReportMissingClass;
 class FileInfo {
     declare version: number;
     preprocessed = true;
-    constructor(version: number) {
+    constructor (version: number) {
         this.version = version;
     }
 }
