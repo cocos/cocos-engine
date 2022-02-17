@@ -52,7 +52,7 @@ int RenderCompiler::validate() const {
     const auto& lg = layoutGraph;
     try {
         for (const auto& vertID : make_range(vertices(rg))) {
-            visit_vertex(
+            visitVertex(
                 vertID, rg,
                 [&](const RasterPassData& pass) {
                     checkComputeValue(pass.computeViews);
@@ -145,7 +145,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
     };
 
     for (const auto passID : make_range(vertices(rg))) {
-        visit_vertex(
+        visitVertex(
             passID, rg,
             [&](const RasterPassData& pass) {
                 auto  vertID   = add_vertex(rdg, passID);

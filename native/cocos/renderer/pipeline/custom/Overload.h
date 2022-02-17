@@ -9,45 +9,45 @@ namespace cc {
 // https://stackoverflow.com/questions/50510122/stdvariant-with-overloaded-lambdas-alternative-with-msvc
 
 template <class... Ts>
-struct overloaded_t {}; // NOLINT
+struct Overloaded {}; // NOLINT
 
 template <class T0>
-struct overloaded_t<T0> : T0 {
+struct Overloaded<T0> : T0 {
     using T0::operator();
-    overloaded_t(T0 t0) // NOLINT
+    Overloaded(T0 t0) // NOLINT
     : T0(std::move(t0)) {}
 };
 
 template <class T0, class T1, class... Ts>
-struct overloaded_t<T0, T1, Ts...> : T0, overloaded_t<T1, Ts...> {
+struct Overloaded<T0, T1, Ts...> : T0, Overloaded<T1, Ts...> {
     using T0::                     operator();
-    using overloaded_t<T1, Ts...>::operator();
-    overloaded_t(T0 t0, T1 t1, Ts... ts)
-    : T0(std::move(t0)), overloaded_t<T1, Ts...>(std::move(t1), std::move(ts)...) {}
+    using Overloaded<T1, Ts...>::operator();
+    Overloaded(T0 t0, T1 t1, Ts... ts)
+    : T0(std::move(t0)), Overloaded<T1, Ts...>(std::move(t1), std::move(ts)...) {}
 };
 
 template <class... Ts>
-overloaded_t<Ts...> overload(Ts... ts) {
+Overloaded<Ts...> overload(Ts... ts) {
     return {std::move(ts)...};
 }
 
 template <class... Ts>
-struct vertex_overloaded_t : overloaded_t<Ts...> { // NOLINT
-    vertex_overloaded_t(Ts... ts)                  // NOLINT
-    : overloaded_t<Ts...>(std::move(ts)...) {}
+struct VertexOverloaded : Overloaded<Ts...> { // NOLINT
+    VertexOverloaded(Ts... ts)                  // NOLINT
+    : Overloaded<Ts...>(std::move(ts)...) {}
     template <class T>
     auto operator()(T *ptr) {
-        return this->overloaded_t<Ts...>::operator()(*ptr);
+        return this->Overloaded<Ts...>::operator()(*ptr);
     }
 };
 
 template <class GraphT, class... Ts>
-auto visit_vertex(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) { // NOLINT
-    return cc::visit(vertex_overloaded_t<Ts...>{std::move(args)...}, value(v, g));
+auto visitVertex(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) { // NOLINT
+    return cc::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
 }
 
 template <typename V>
-auto variant_from_index(size_t index) -> V { // NOLINT
+auto variantFromIndex(size_t index) -> V { // NOLINT
     return boost::mp11::mp_with_index<boost::mp11::mp_size<V>>(index,
         [](auto i) { return V(boost::variant2::in_place_index<i>); });
 }
