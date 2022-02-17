@@ -30,6 +30,7 @@ import {
     ColorAttachment, DepthStencilAttachment, UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
 } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
+import { WebGL2Device } from './webgl2-device';
 
 export class WebGL2IndirectDrawInfos {
     public counts: Int32Array;
@@ -188,6 +189,8 @@ export interface IWebGL2GPUSampler {
     glWrapS: GLenum;
     glWrapT: GLenum;
     glWrapR: GLenum;
+
+    getGLSampler (device: WebGL2Device, minLod: number, maxLod: number) : WebGLSampler;
 }
 
 export interface IWebGL2GPUInput {

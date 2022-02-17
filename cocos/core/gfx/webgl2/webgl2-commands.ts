@@ -1241,52 +1241,34 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
     }
 }
 
-export function WebGL2CmdFuncCreateSampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler, minLod: number, maxLod: number) {
+export function WebGL2CmdFuncPrepareSamplerInfo (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler) {
     const { gl } = device;
-    const samplerHash = minLod << 16 | maxLod;
 
-    if (gpuSampler.glSamplers.has(samplerHash)) {
-        return;
-    }
-
-    const glSampler = gl.createSampler();
-    if (glSampler) {
-        if (gpuSampler.minFilter === Filter.LINEAR || gpuSampler.minFilter === Filter.ANISOTROPIC) {
-            if (gpuSampler.mipFilter === Filter.LINEAR || gpuSampler.mipFilter === Filter.ANISOTROPIC) {
-                gpuSampler.glMinFilter = gl.LINEAR_MIPMAP_LINEAR;
-            } else if (gpuSampler.mipFilter === Filter.POINT) {
-                gpuSampler.glMinFilter = gl.LINEAR_MIPMAP_NEAREST;
-            } else {
-                gpuSampler.glMinFilter = gl.LINEAR;
-            }
-        } else if (gpuSampler.mipFilter === Filter.LINEAR || gpuSampler.mipFilter === Filter.ANISOTROPIC) {
-            gpuSampler.glMinFilter = gl.NEAREST_MIPMAP_LINEAR;
+    if (gpuSampler.minFilter === Filter.LINEAR || gpuSampler.minFilter === Filter.ANISOTROPIC) {
+        if (gpuSampler.mipFilter === Filter.LINEAR || gpuSampler.mipFilter === Filter.ANISOTROPIC) {
+            gpuSampler.glMinFilter = gl.LINEAR_MIPMAP_LINEAR;
         } else if (gpuSampler.mipFilter === Filter.POINT) {
-            gpuSampler.glMinFilter = gl.NEAREST_MIPMAP_NEAREST;
+            gpuSampler.glMinFilter = gl.LINEAR_MIPMAP_NEAREST;
         } else {
-            gpuSampler.glMinFilter = gl.NEAREST;
+            gpuSampler.glMinFilter = gl.LINEAR;
         }
-
-        if (gpuSampler.magFilter === Filter.LINEAR || gpuSampler.magFilter === Filter.ANISOTROPIC) {
-            gpuSampler.glMagFilter = gl.LINEAR;
-        } else {
-            gpuSampler.glMagFilter = gl.NEAREST;
-        }
-
-        gpuSampler.glWrapS = WebGLWraps[gpuSampler.addressU];
-        gpuSampler.glWrapT = WebGLWraps[gpuSampler.addressV];
-        gpuSampler.glWrapR = WebGLWraps[gpuSampler.addressW];
-
-        gpuSampler.glSamplers.set(samplerHash, glSampler);
-
-        gl.samplerParameteri(glSampler, gl.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
-        gl.samplerParameteri(glSampler, gl.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
-        gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_S, gpuSampler.glWrapS);
-        gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_T, gpuSampler.glWrapT);
-        gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_R, gpuSampler.glWrapR);
-        gl.samplerParameterf(glSampler, gl.TEXTURE_MIN_LOD, minLod);
-        gl.samplerParameterf(glSampler, gl.TEXTURE_MAX_LOD, maxLod);
+    } else if (gpuSampler.mipFilter === Filter.LINEAR || gpuSampler.mipFilter === Filter.ANISOTROPIC) {
+        gpuSampler.glMinFilter = gl.NEAREST_MIPMAP_LINEAR;
+    } else if (gpuSampler.mipFilter === Filter.POINT) {
+        gpuSampler.glMinFilter = gl.NEAREST_MIPMAP_NEAREST;
+    } else {
+        gpuSampler.glMinFilter = gl.NEAREST;
     }
+
+    if (gpuSampler.magFilter === Filter.LINEAR || gpuSampler.magFilter === Filter.ANISOTROPIC) {
+        gpuSampler.glMagFilter = gl.LINEAR;
+    } else {
+        gpuSampler.glMagFilter = gl.NEAREST;
+    }
+
+    gpuSampler.glWrapS = WebGLWraps[gpuSampler.addressU];
+    gpuSampler.glWrapT = WebGLWraps[gpuSampler.addressV];
+    gpuSampler.glWrapR = WebGLWraps[gpuSampler.addressW];
 }
 
 export function WebGL2CmdFuncDestroySampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler) {
@@ -1307,16 +1289,6 @@ export function WebGL2CmdFuncDestroySampler (device: WebGL2Device, gpuSampler: I
     }
 
     gpuSampler.glSamplers.clear();
-}
-
-function getGLSampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler, minLod: number, maxLod: number) : WebGLSampler {
-    // better if WebGL2CmdFuncCreateSampler can return value
-    const samplerHash = minLod << 16 | maxLod;
-    if (!gpuSampler.glSamplers.has(samplerHash)) {
-        WebGL2CmdFuncCreateSampler(device, gpuSampler, minLod, maxLod);
-    }
-    const sampler = gpuSampler.glSamplers.get(samplerHash)!;
-    return sampler;
 }
 
 export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebuffer: IWebGL2GPUFramebuffer) {
@@ -2273,7 +2245,7 @@ export function WebGL2CmdFuncBindStates (
                     }
 
                     const { gpuSampler } = gpuDescriptor; // get sampler with different mipmap levels
-                    const glSampler = getGLSampler(device, gpuSampler, minLod, maxLod);
+                    const glSampler = gpuSampler.getGLSampler(device, minLod, maxLod);
                     if (cache.glSamplerUnits[texUnit] !== glSampler) {
                         gl.bindSampler(texUnit, glSampler);
                         cache.glSamplerUnits[texUnit] = glSampler;

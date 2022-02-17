@@ -66,7 +66,6 @@ void GLES2Texture::doInit(const TextureInfo& /*info*/) {
 
 void GLES2Texture::doInit(const TextureViewInfo& info) {
     _gpuTexture = static_cast<GLES2Texture*>(info.texture)->gpuTexture();
-    _lodLevel   = info.baseLevel;
 }
 
 void GLES2Texture::doDestroy() {

@@ -40,8 +40,6 @@ public:
 
     inline GLES2GPUTexture *gpuTexture() const { return _gpuTexture; }
 
-    inline uint32_t lodLevel() const { return _lodLevel; }
-
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
@@ -50,7 +48,6 @@ protected:
     void doInit(const SwapchainTextureInfo &info) override;
 
     GLES2GPUTexture *_gpuTexture = nullptr;
-    uint32_t         _lodLevel    = 0;
 };
 
 } // namespace gfx
