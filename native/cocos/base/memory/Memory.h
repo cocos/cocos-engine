@@ -26,7 +26,6 @@
 #pragma once
 
 #include "MemDef.h"
-#include "MemTracker.h"
 #include "StlAlloc.h"
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     #include <Availability.h>

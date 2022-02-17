@@ -26,7 +26,6 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "MemDef.h"
 #include <deque>
 #include <list>
 #include <map>
@@ -77,9 +76,8 @@ using unordered_map = std::unordered_map<K, V, H, P>;
 template <typename K, typename V, typename H = std::hash<K>, typename P = std::equal_to<K>>
 using unordered_multimap = std::unordered_multimap<K, V, H, P>;
 
-typedef std::string String;
-typedef std::wstring WString;
-
-typedef vector<String> StringArray;
+using String = std::string;
+using WString = std::wstring;
+using StringArray = vector<String>;
 
 } // namespace cc

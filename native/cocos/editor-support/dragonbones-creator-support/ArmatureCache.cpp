@@ -24,6 +24,7 @@
 #include "ArmatureCache.h"
 #include "CCFactory.h"
 #include "base/TypeDef.h"
+#include "base/memory/Memory.h"
 
 USING_NS_MW; // NOLINT(google-build-using-namespace)
 
