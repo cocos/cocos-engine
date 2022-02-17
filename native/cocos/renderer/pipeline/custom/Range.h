@@ -31,7 +31,7 @@ namespace cc {
 
 template <class IteratorT>
 inline boost::iterator_range<IteratorT>
-make_range(const std::pair<IteratorT, IteratorT> &p) noexcept { // NOLINT
+makeRange(const std::pair<IteratorT, IteratorT> &p) noexcept { // NOLINT
     return boost::make_iterator_range(p.first, p.second);
 }
 

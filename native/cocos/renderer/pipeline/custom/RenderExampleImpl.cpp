@@ -51,7 +51,7 @@ int RenderCompiler::validate() const {
     const auto& rg = graph;
     const auto& lg = layoutGraph;
     try {
-        for (const auto& vertID : make_range(vertices(rg))) {
+        for (const auto& vertID : makeRange(vertices(rg))) {
             visitVertex(
                 vertID, rg,
                 [&](const RasterPassData& pass) {
@@ -144,7 +144,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
         return type;
     };
 
-    for (const auto passID : make_range(vertices(rg))) {
+    for (const auto passID : makeRange(vertices(rg))) {
         visitVertex(
             passID, rg,
             [&](const RasterPassData& pass) {
@@ -224,7 +224,7 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
     }
     rvg.reserve(numValues);
 
-    for (const auto passID : make_range(vertices(rdg))) {
+    for (const auto passID : makeRange(vertices(rdg))) {
         const auto& valueIDs = get(RDG::ValueID, rdg, passID);
         for (const auto& valueID : valueIDs) {
             CC_EXPECTS(!contains(RenderValueNode(passID, valueID), rvg));
