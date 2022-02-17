@@ -27,16 +27,16 @@ struct VectorVertexBundlePropertyMap
     using category   = Category;
 
     VectorVertexBundlePropertyMap(Graph &g) noexcept // NOLINT(google-explicit-constructor)
-    : mGraph(&g) {}
+    : graph(&g) {}
 
     inline reference operator[](const key_type &v) const noexcept {
-        return mGraph->mVertices[v].mProperty;
+        return graph->mVertices[v].property;
     }
     inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    Graph *mGraph = nullptr;
+    Graph *graph = nullptr;
 };
 
 template <class Category, class Graph, class Value, class Reference>
@@ -49,17 +49,17 @@ struct PointerVertexBundlePropertyMap
     using category   = Category;
 
     PointerVertexBundlePropertyMap(Graph &g) noexcept // NOLINT(google-explicit-constructor)
-    : mGraph(&g) {}
+    : graph(&g) {}
 
     inline reference operator[](const key_type &v) const noexcept {
         auto *sv = static_cast<typename Graph::vertex_type *>(v);
-        return sv->mProperty;
+        return sv->property;
     }
     inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    Graph *mGraph = nullptr;
+    Graph *graph = nullptr;
 };
 
 template <class Category, class Graph, class Value, class Reference, class MemberPointer>
@@ -72,17 +72,17 @@ struct VectorVertexBundleMemberPropertyMap
     using category   = Category;
 
     VectorVertexBundleMemberPropertyMap(Graph &g, MemberPointer ptr) noexcept
-    : mGraph(&g), mMemberPointer(ptr) {}
+    : graph(&g), memberPointer(ptr) {}
 
     inline reference operator[](const key_type &v) const noexcept {
-        return mGraph->mVertices[v].mProperty.*mMemberPointer;
+        return graph->mVertices[v].property.*memberPointer;
     }
     inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    Graph        *mGraph         = nullptr;
-    MemberPointer mMemberPointer = {};
+    Graph        *graph         = nullptr;
+    MemberPointer memberPointer = {};
 };
 
 template <class Category, class Graph, class Value, class Reference, class MemberPointer>
@@ -95,18 +95,18 @@ struct PointerVertexBundleMemberPropertyMap
     using category   = Category;
 
     PointerVertexBundleMemberPropertyMap(Graph &g, MemberPointer ptr) noexcept
-    : mGraph(&g), mMemberPointer(ptr) {}
+    : graph(&g), memberPointer(ptr) {}
 
     inline reference operator[](const key_type &v) const noexcept {
         auto *sv = static_cast<typename Graph::vertex_type *>(v);
-        return sv->mProperty.*mMemberPointer;
+        return sv->property.*memberPointer;
     }
     inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    Graph        *mGraph         = nullptr;
-    MemberPointer mMemberPointer = {};
+    Graph        *graph         = nullptr;
+    MemberPointer memberPointer = {};
 };
 
 template <class Category, class Graph, class Container, class Value, class Reference>
@@ -119,16 +119,16 @@ struct VectorVertexComponentPropertyMap
     using category   = Category;
 
     VectorVertexComponentPropertyMap(Container &c) noexcept // NOLINT(google-explicit-constructor)
-    : mContainer(&c) {}
+    : container(&c) {}
 
     inline reference operator[](const key_type &v) const noexcept {
-        return (*mContainer)[v];
+        return (*container)[v];
     }
     inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    Container *mContainer = nullptr;
+    Container *container = nullptr;
 };
 
 template <class Category, class Graph, class Container, class Value, class Reference, class MemberPointer>
@@ -141,17 +141,17 @@ struct VectorVertexComponentMemberPropertyMap
     using category   = Category;
 
     VectorVertexComponentMemberPropertyMap(Container &c, MemberPointer ptr) noexcept
-    : mContainer(&c), mMemberPointer(ptr) {}
+    : container(&c), memberPointer(ptr) {}
 
     inline reference operator[](const key_type &v) const noexcept {
-        return (*mContainer)[v].*mMemberPointer;
+        return (*container)[v].*memberPointer;
     }
     inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    Container    *mContainer     = nullptr;
-    MemberPointer mMemberPointer = {};
+    Container    *container     = nullptr;
+    MemberPointer memberPointer = {};
 };
 
 template <class Category, class Graph, class ComponentPointer, class Value, class Reference>
@@ -164,17 +164,17 @@ struct VectorVertexIteratorComponentPropertyMap
     using category   = Category;
 
     VectorVertexIteratorComponentPropertyMap(Graph &g, ComponentPointer component) noexcept
-    : mGraph(&g), mComponentPointer(component) {}
+    : graph(&g), componentPointer(component) {}
 
     inline reference operator[](const key_type &v) const noexcept {
-        return *(mGraph->mVertices[v].*mComponentPointer);
+        return *(graph->mVertices[v].*componentPointer);
     }
     inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    Graph           *mGraph            = nullptr;
-    ComponentPointer mComponentPointer = {};
+    Graph           *graph            = nullptr;
+    ComponentPointer componentPointer = {};
 };
 
 template <class Category, class Graph, class ComponentPointer, class Value, class Reference, class MemberPointer>
@@ -187,18 +187,18 @@ struct VectorVertexIteratorComponentMemberPropertyMap
     using category   = Category;
 
     VectorVertexIteratorComponentMemberPropertyMap(Graph &g, ComponentPointer component, MemberPointer ptr) noexcept
-    : mGraph(&g), mComponentPointer(component), mMemberPointer(ptr) {}
+    : graph(&g), componentPointer(component), memberPointer(ptr) {}
 
     inline reference operator[](const key_type &v) const noexcept {
-        return (*(mGraph->mVertices[v].*mComponentPointer)).*mMemberPointer;
+        return (*(graph->mVertices[v].*componentPointer)).*memberPointer;
     }
     inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    Graph           *mGraph            = nullptr;
-    ComponentPointer mComponentPointer = {};
-    MemberPointer    mMemberPointer    = {};
+    Graph           *graph            = nullptr;
+    ComponentPointer componentPointer = {};
+    MemberPointer    memberPointer    = {};
 };
 
 template <class Category, class VertexDescriptor, class Container, class Value, class Reference>
@@ -211,16 +211,16 @@ struct VectorPathPropertyMap
     using category   = Category;
 
     VectorPathPropertyMap(Container &c) noexcept // NOLINT(google-explicit-constructor)
-    : mContainer(&c) {}
+    : container(&c) {}
 
     inline reference operator[](const key_type &v) const noexcept {
-        return (*mContainer)[v].mPathIterator->first;
+        return (*container)[v].mPathIterator->first;
     }
     inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    Container *mContainer = nullptr;
+    Container *container = nullptr;
 };
 
 template <class Category, class Graph, class Value, class Reference>
@@ -233,7 +233,7 @@ struct EdgeBundlePropertyMap
     using category   = Category;
 
     EdgeBundlePropertyMap(Graph &g) noexcept // NOLINT(google-explicit-constructor)
-    : mGraph(&g) {}
+    : graph(&g) {}
 
     inline reference operator[](const key_type &e) const noexcept {
         return *static_cast<typename Graph::edge_property_type *>(e.get_property());
@@ -242,7 +242,7 @@ struct EdgeBundlePropertyMap
         return this->operator[](e);
     }
 
-    Graph *mGraph = nullptr;
+    Graph *graph = nullptr;
 };
 
 template <class Category, class Graph, class Value, class Reference, class MemberPointer>
@@ -255,18 +255,18 @@ struct EdgeBundleMemberPropertyMap
     using category   = Category;
 
     EdgeBundleMemberPropertyMap(Graph &g, MemberPointer ptr) noexcept
-    : mGraph(&g), mMemberPointer(ptr) {}
+    : graph(&g), memberPointer(ptr) {}
 
     inline reference operator[](const key_type &e) const noexcept {
         auto &p = *static_cast<typename Graph::edge_property_type *>(e.get_property());
-        return p.*mMemberPointer;
+        return p.*memberPointer;
     }
     inline reference operator()(const key_type &e) const noexcept {
         return this->operator[](e);
     }
 
-    Graph        *mGraph         = nullptr;
-    MemberPointer mMemberPointer = {};
+    Graph        *graph         = nullptr;
+    MemberPointer memberPointer = {};
 };
 
 template <class Sequence, class Predicate>
@@ -624,16 +624,16 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
     using category   = boost::lvalue_property_map_tag;
 
     ColorMap(boost::container::pmr::vector<boost::default_color_type> &vec) noexcept // NOLINT(google-explicit-constructor)
-    : mContainer{&vec} {}
+    : container{&vec} {}
 
     [[nodiscard]] inline reference operator[](const key_type &v) const noexcept {
-        return (*mContainer)[v];
+        return (*container)[v];
     }
     [[nodiscard]] inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
-    boost::container::pmr::vector<boost::default_color_type> *mContainer = nullptr;
+    boost::container::pmr::vector<boost::default_color_type> *container = nullptr;
 };
 
 } // namespace impl
