@@ -29,7 +29,6 @@ THE SOFTWARE.
 
 #include "AllocatedObj.h"
 #include "JeAlloc.h"
-#include "NedPooling.h"
 #include "StdAlloc.h"
 
 namespace cc {

@@ -621,8 +621,6 @@ cocos_source_files(
                  cocos/base/memory/Memory.h
                  cocos/base/memory/MemTracker.cpp
                  cocos/base/memory/MemTracker.h
-                 cocos/base/memory/NedPooling.cpp
-                 cocos/base/memory/NedPooling.h
                  cocos/base/memory/StdAlloc.h
                  cocos/base/memory/StlAlloc.h
                  cocos/base/memory/MemoryHook.cpp
