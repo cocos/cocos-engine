@@ -547,106 +547,125 @@ export class RichText extends UIComponent {
         }
     }
 
-    protected SplitLongStringApproximatelyInThresholdWithInError (text: string, styleIndex: number) {
+    protected SplitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
         const labelSize = this._calculateSize(styleIndex, text);
         const partStringArr: string[] = [];
         if (labelSize.x < 2048) {
             partStringArr.push(text);
-            return partStringArr;
         } else {
-            const longStr = text;
-
-            let curStart = 0;
-            let curEnd = longStr.length / 2;
-            let curString = longStr.substring(curStart, curEnd);
-            let leftString = longStr.substring(curEnd);
-            let curStringSize = this._calculateSize(styleIndex, curString);
-
-            // a line should be an unit to split long string
-            const lineCountForOnePart = 1;
-            const sizeForOnePart = lineCountForOnePart * this.maxWidth;
-
-            // divide text into some pieces of which the size is less than sizeForOnePart
-            while (curStringSize.x > sizeForOnePart) {
-                curEnd /= 2;
-                // at least one char can be an entity, step back.
-                if (curEnd < 1) {
-                    curEnd *= 2;
-                    break;
+            const multilineTexts = text.split('\n');
+            for (let i = 0; i < multilineTexts.length; i++) {
+                const thisPartSize = this._calculateSize(styleIndex, multilineTexts[i]);
+                if (thisPartSize.x < 2048) {
+                    partStringArr.push(multilineTexts[i]);
+                } else {
+                    const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
+                    partStringArr.push(...thisPartSplitResultArr);
                 }
+            }
+        }
+        return partStringArr;
+    }
 
-                curString = curString.substring(curStart, curEnd);
-                leftString = longStr.substring(curEnd);
-                curStringSize = this._calculateSize(styleIndex, curString);
+    protected splitLongStringOver2048 (text: string, styleIndex: number) {
+        const partStringArr: string[] = [];
+        const longStr = text;
+
+        let curStart = 0;
+        let curEnd = longStr.length / 2;
+        let curString = longStr.substring(curStart, curEnd);
+        let leftString = longStr.substring(curEnd);
+        let curStringSize = this._calculateSize(styleIndex, curString);
+        let leftStringSize = this._calculateSize(styleIndex, leftString);
+
+        // a line should be an unit to split long string
+        const lineCountForOnePart = 1;
+        const sizeForOnePart = lineCountForOnePart * this.maxWidth;
+
+        // divide text into some pieces of which the size is less than sizeForOnePart
+        while (curStringSize.x > sizeForOnePart) {
+            curEnd /= 2;
+            // at least one char can be an entity, step back.
+            if (curEnd < 1) {
+                curEnd *= 2;
+                break;
             }
 
-            // avoid too many loops
-            let leftTryTimes = 1000;
-            // the minimum step of expansion or reduction
-            let curWordStep = 1;
-            while (leftTryTimes && curStart < text.length) {
-                while (leftTryTimes && curStringSize.x < sizeForOnePart) {
-                    const nextPartExec = getEnglishWordPartAtFirst(leftString);
-                    // add a character, unless there is a complete word at the beginning of the next line
-                    if (nextPartExec && nextPartExec.length > 0) {
-                        curWordStep = nextPartExec[0].length;
-                    }
-                    curEnd += curWordStep;
+            curString = curString.substring(curStart, curEnd);
+            leftString = longStr.substring(curEnd);
+            curStringSize = this._calculateSize(styleIndex, curString);
+        }
 
-                    curString = longStr.substring(curStart, curEnd);
-                    leftString = longStr.substring(curEnd);
-                    curStringSize = this._calculateSize(styleIndex, curString);
-
-                    leftTryTimes--;
+        // avoid too many loops
+        let leftTryTimes = 1000;
+        // the minimum step of expansion or reduction
+        let curWordStep = 1;
+        while (leftTryTimes && curStart < text.length) {
+            while (leftTryTimes && curStringSize.x < sizeForOnePart) {
+                const nextPartExec = getEnglishWordPartAtFirst(leftString);
+                // add a character, unless there is a complete word at the beginning of the next line
+                if (nextPartExec && nextPartExec.length > 0) {
+                    curWordStep = nextPartExec[0].length;
                 }
-
-                // reduce condition：size > maxwidth && curString.length >= 2
-                while (leftTryTimes && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
-                    curEnd -= curWordStep;
-                    curString = longStr.substring(curStart, curEnd);
-                    curStringSize = this._calculateSize(styleIndex, curString);
-                    // after the first reduction, the step should be 1.
-                    curWordStep = 1;
-
-                    leftTryTimes--;
-                }
-
-                // consider there is a part of a word at the end of this line, it should be moved to the next line
-                if (curString.length >= 2) {
-                    const lastWordExec = getEnglishWordPartAtLast(curString);
-                    if (lastWordExec && lastWordExec.length > 0
-                    // to avoid endless loop when there is only one word in this line
-                    && curString !== lastWordExec[0]) {
-                        curEnd -= lastWordExec[0].length;
-                        curString = longStr.substring(curStart, curEnd);
-                    }
-                }
-
-                // curStart and curEnd can be float since they are like positions of pointer,
-                // but step must be integer because we split the complete characters of which the unit is integer.
-                // it is reasonable that using the length of this result to estimate the next result.
-                partStringArr.push(curString);
-                const partStep = curString.length;
-                curStart = curEnd;
-                curEnd += partStep;
+                curEnd += curWordStep;
 
                 curString = longStr.substring(curStart, curEnd);
                 leftString = longStr.substring(curEnd);
                 curStringSize = this._calculateSize(styleIndex, curString);
 
                 leftTryTimes--;
+            }
 
-                // Exit: the last part of long string, the end of the method
-                if (curEnd >= text.length) {
-                    curEnd = text.length;
+            // reduce condition：size > maxwidth && curString.length >= 2
+            while (leftTryTimes && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
+                curEnd -= curWordStep;
+                curString = longStr.substring(curStart, curEnd);
+                curStringSize = this._calculateSize(styleIndex, curString);
+                // after the first reduction, the step should be 1.
+                curWordStep = 1;
+
+                leftTryTimes--;
+            }
+
+            // consider there is a part of a word at the end of this line, it should be moved to the next line
+            if (curString.length >= 2) {
+                const lastWordExec = getEnglishWordPartAtLast(curString);
+                if (lastWordExec && lastWordExec.length > 0
+                    // to avoid endless loop when there is only one word in this line
+                    && curString !== lastWordExec[0]) {
+                    curEnd -= lastWordExec[0].length;
                     curString = longStr.substring(curStart, curEnd);
-                    partStringArr.push(curString);
-                    break;
                 }
             }
 
-            return partStringArr;
+            // curStart and curEnd can be float since they are like positions of pointer,
+            // but step must be integer because we split the complete characters of which the unit is integer.
+            // it is reasonable that using the length of this result to estimate the next result.
+            partStringArr.push(curString);
+            const partStep = curString.length;
+            curStart = curEnd;
+            curEnd += partStep;
+
+            curString = longStr.substring(curStart, curEnd);
+            leftString = longStr.substring(curEnd);
+            leftStringSize = this._calculateSize(styleIndex, leftString);
+
+            leftTryTimes--;
+
+            // Exit: If the left part string size is less than 2048, the method will finish.
+            if (leftStringSize.x < 2048) {
+                curStart = text.length;
+                curEnd = text.length;
+                curString = leftString;
+                partStringArr.push(curString);
+                break;
+            } else {
+                curStringSize = this._calculateSize(styleIndex, curString);
+            }
         }
+
+        console.error(`try times = ${1000 - leftTryTimes}`);
+        return partStringArr;
     }
 
     protected _measureText (styleIndex: number, string?: string) {
@@ -997,7 +1016,7 @@ export class RichText extends UIComponent {
                 }
             }
 
-            const splitArr: string[] = this.SplitLongStringApproximatelyInThresholdWithInError(text, i);
+            const splitArr: string[] = this.SplitLongStringApproximatelyIn2048(text, i);
             text = splitArr.join('\n');
 
             const multilineTexts = text.split('\n');
