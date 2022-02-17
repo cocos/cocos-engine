@@ -4477,59 +4477,32 @@ static bool js_scene_ShadowsInfo_setType(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_ShadowsInfo_setType)
 
-static bool js_scene_ShadowsInfo_get__distance(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_ShadowsInfo_get__enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__distance : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__enabled : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_distance, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->_enabled, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_distance, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->_enabled, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_scene_ShadowsInfo_get__distance)
+SE_BIND_PROP_GET(js_scene_ShadowsInfo_get__enabled)
 
-static bool js_scene_ShadowsInfo_set__distance(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_ShadowsInfo_set__enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__distance : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__enabled : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_distance, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__distance : Error processing new value");
+    ok &= sevalue_to_native(args[0], &cobj->_enabled, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__enabled : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__distance)
-
-static bool js_scene_ShadowsInfo_get__maxReceived(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__maxReceived : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_maxReceived, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_maxReceived, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_ShadowsInfo_get__maxReceived)
-
-static bool js_scene_ShadowsInfo_set__maxReceived(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__maxReceived : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_maxReceived, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__maxReceived : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__maxReceived)
+SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__enabled)
 
 static bool js_scene_ShadowsInfo_get__type(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4558,6 +4531,60 @@ static bool js_scene_ShadowsInfo_set__type(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__type)
 
+static bool js_scene_ShadowsInfo_get__normal(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__normal : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_normal, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_normal, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_ShadowsInfo_get__normal)
+
+static bool js_scene_ShadowsInfo_set__normal(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__normal : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_normal, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__normal : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__normal)
+
+static bool js_scene_ShadowsInfo_get__distance(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__distance : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_distance, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_distance, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_ShadowsInfo_get__distance)
+
+static bool js_scene_ShadowsInfo_set__distance(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__distance : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_distance, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__distance : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__distance)
+
 static bool js_scene_ShadowsInfo_get__shadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
@@ -4585,32 +4612,32 @@ static bool js_scene_ShadowsInfo_set__shadowColor(se::State& s) // NOLINT(readab
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__shadowColor)
 
-static bool js_scene_ShadowsInfo_get__normal(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_ShadowsInfo_get__maxReceived(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__normal : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__maxReceived : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_normal, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->_maxReceived, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_normal, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->_maxReceived, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_scene_ShadowsInfo_get__normal)
+SE_BIND_PROP_GET(js_scene_ShadowsInfo_get__maxReceived)
 
-static bool js_scene_ShadowsInfo_set__normal(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_ShadowsInfo_set__maxReceived(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__normal : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__maxReceived : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_normal, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__normal : Error processing new value");
+    ok &= sevalue_to_native(args[0], &cobj->_maxReceived, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__maxReceived : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__normal)
+SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__maxReceived)
 
 static bool js_scene_ShadowsInfo_get__size(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4639,33 +4666,6 @@ static bool js_scene_ShadowsInfo_set__size(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__size)
 
-static bool js_scene_ShadowsInfo_get__enabled(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_get__enabled : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->_enabled, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->_enabled, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_ShadowsInfo_get__enabled)
-
-static bool js_scene_ShadowsInfo_set__enabled(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::ShadowsInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_ShadowsInfo_set__enabled : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->_enabled, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_ShadowsInfo_set__enabled : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_ShadowsInfo_set__enabled)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_ShadowsInfo_finalize)
 
 static bool js_scene_ShadowsInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -4686,15 +4686,15 @@ bool js_register_scene_ShadowsInfo(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("ShadowsInfo", obj, nullptr, _SE(js_scene_ShadowsInfo_constructor));
 
-    cls->defineProperty("_distance", _SE(js_scene_ShadowsInfo_get__distance), _SE(js_scene_ShadowsInfo_set__distance));
-    cls->defineProperty("_maxReceived", _SE(js_scene_ShadowsInfo_get__maxReceived), _SE(js_scene_ShadowsInfo_set__maxReceived));
-    cls->defineProperty("_type", _SE(js_scene_ShadowsInfo_get__type), _SE(js_scene_ShadowsInfo_set__type));
-    cls->defineProperty("_shadowColor", _SE(js_scene_ShadowsInfo_get__shadowColor), _SE(js_scene_ShadowsInfo_set__shadowColor));
-    cls->defineProperty("_normal", _SE(js_scene_ShadowsInfo_get__normal), _SE(js_scene_ShadowsInfo_set__normal));
-    cls->defineProperty("_size", _SE(js_scene_ShadowsInfo_get__size), _SE(js_scene_ShadowsInfo_set__size));
     cls->defineProperty("_enabled", _SE(js_scene_ShadowsInfo_get__enabled), _SE(js_scene_ShadowsInfo_set__enabled));
-    cls->defineProperty("type", _SE(js_scene_ShadowsInfo_getType_asGetter), _SE(js_scene_ShadowsInfo_setType_asSetter));
+    cls->defineProperty("_type", _SE(js_scene_ShadowsInfo_get__type), _SE(js_scene_ShadowsInfo_set__type));
+    cls->defineProperty("_normal", _SE(js_scene_ShadowsInfo_get__normal), _SE(js_scene_ShadowsInfo_set__normal));
+    cls->defineProperty("_distance", _SE(js_scene_ShadowsInfo_get__distance), _SE(js_scene_ShadowsInfo_set__distance));
+    cls->defineProperty("_shadowColor", _SE(js_scene_ShadowsInfo_get__shadowColor), _SE(js_scene_ShadowsInfo_set__shadowColor));
+    cls->defineProperty("_maxReceived", _SE(js_scene_ShadowsInfo_get__maxReceived), _SE(js_scene_ShadowsInfo_set__maxReceived));
+    cls->defineProperty("_size", _SE(js_scene_ShadowsInfo_get__size), _SE(js_scene_ShadowsInfo_set__size));
     cls->defineProperty("enabled", _SE(js_scene_ShadowsInfo_isEnabled_asGetter), _SE(js_scene_ShadowsInfo_setEnabled_asSetter));
+    cls->defineProperty("type", _SE(js_scene_ShadowsInfo_getType_asGetter), _SE(js_scene_ShadowsInfo_setType_asSetter));
     cls->defineProperty("normal", _SE(js_scene_ShadowsInfo_getNormal_asGetter), _SE(js_scene_ShadowsInfo_setNormal_asSetter));
     cls->defineProperty("distance", _SE(js_scene_ShadowsInfo_getDistance_asGetter), _SE(js_scene_ShadowsInfo_setDistance_asSetter));
     cls->defineProperty("shadowColor", _SE(js_scene_ShadowsInfo_getShadowColor_asGetter), _SE(js_scene_ShadowsInfo_setShadowColor_asSetter));
@@ -4784,7 +4784,7 @@ static bool js_scene_Shadows_getInstancingMaterial(se::State& s) // NOLINT(reada
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getInstancingMaterial)
+SE_BIND_FUNC(js_scene_Shadows_getInstancingMaterial)
 
 static bool js_scene_Shadows_getMatLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4803,7 +4803,64 @@ static bool js_scene_Shadows_getMatLight(se::State& s) // NOLINT(readability-ide
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getMatLight)
+SE_BIND_FUNC(js_scene_Shadows_getMatLight)
+
+static bool js_scene_Shadows_getMatShadowProj(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getMatShadowProj : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::Mat4 result = cobj->getMatShadowProj();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getMatShadowProj : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Shadows_getMatShadowProj)
+
+static bool js_scene_Shadows_getMatShadowView(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getMatShadowView : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::Mat4 result = cobj->getMatShadowView();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getMatShadowView : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Shadows_getMatShadowView)
+
+static bool js_scene_Shadows_getMatShadowViewProj(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getMatShadowViewProj : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::Mat4 result = cobj->getMatShadowViewProj();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getMatShadowViewProj : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Shadows_getMatShadowViewProj)
 
 static bool js_scene_Shadows_getMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4841,7 +4898,7 @@ static bool js_scene_Shadows_getMaxReceived(se::State& s) // NOLINT(readability-
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_scene_Shadows_getMaxReceived)
+SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_getMaxReceived)
 
 static bool js_scene_Shadows_getNormal(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4905,6 +4962,25 @@ static bool js_scene_Shadows_getPlanarShader(se::State& s) // NOLINT(readability
     return false;
 }
 SE_BIND_FUNC(js_scene_Shadows_getPlanarShader)
+
+static bool js_scene_Shadows_getShadowCameraFar(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadows_getShadowCameraFar : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getShadowCameraFar();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Shadows_getShadowCameraFar : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Shadows_getShadowCameraFar)
 
 static bool js_scene_Shadows_getShadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -5056,7 +5132,7 @@ static bool js_scene_Shadows_isShadowMapDirty(se::State& s) // NOLINT(readabilit
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Shadows_isShadowMapDirty)
+SE_BIND_FUNC(js_scene_Shadows_isShadowMapDirty)
 
 static bool js_scene_Shadows_setDistance(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -5096,6 +5172,63 @@ static bool js_scene_Shadows_setEnabled(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setEnabled)
 
+static bool js_scene_Shadows_setMatShadowProj(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setMatShadowProj : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Mat4, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setMatShadowProj : Error processing arguments");
+        cobj->setMatShadowProj(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Shadows_setMatShadowProj)
+
+static bool js_scene_Shadows_setMatShadowView(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setMatShadowView : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Mat4, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setMatShadowView : Error processing arguments");
+        cobj->setMatShadowView(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Shadows_setMatShadowView)
+
+static bool js_scene_Shadows_setMatShadowViewProj(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setMatShadowViewProj : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Mat4, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setMatShadowViewProj : Error processing arguments");
+        cobj->setMatShadowViewProj(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Shadows_setMatShadowViewProj)
+
 static bool js_scene_Shadows_setMaxReceived(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
@@ -5113,7 +5246,7 @@ static bool js_scene_Shadows_setMaxReceived(se::State& s) // NOLINT(readability-
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_scene_Shadows_setMaxReceived)
+SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setMaxReceived)
 
 static bool js_scene_Shadows_setNormal(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -5133,6 +5266,25 @@ static bool js_scene_Shadows_setNormal(se::State& s) // NOLINT(readability-ident
     return false;
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setNormal)
+
+static bool js_scene_Shadows_setShadowCameraFar(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadows>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadows_setShadowCameraFar : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Shadows_setShadowCameraFar : Error processing arguments");
+        cobj->setShadowCameraFar(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Shadows_setShadowCameraFar)
 
 static bool js_scene_Shadows_setShadowColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -5170,7 +5322,7 @@ static bool js_scene_Shadows_setShadowMapDirty(se::State& s) // NOLINT(readabili
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_SET(js_scene_Shadows_setShadowMapDirty)
+SE_BIND_FUNC(js_scene_Shadows_setShadowMapDirty)
 
 static bool js_scene_Shadows_setShadowMapSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -5274,24 +5426,32 @@ bool js_register_scene_Shadows(se::Object* obj) // NOLINT(readability-identifier
     auto* cls = se::Class::create("Shadows", obj, nullptr, _SE(js_scene_Shadows_constructor));
 
     cls->defineProperty("enabled", _SE(js_scene_Shadows_isEnabled_asGetter), _SE(js_scene_Shadows_setEnabled_asSetter));
+    cls->defineProperty("type", _SE(js_scene_Shadows_getType_asGetter), _SE(js_scene_Shadows_setType_asSetter));
     cls->defineProperty("normal", _SE(js_scene_Shadows_getNormal_asGetter), _SE(js_scene_Shadows_setNormal_asSetter));
     cls->defineProperty("distance", _SE(js_scene_Shadows_getDistance_asGetter), _SE(js_scene_Shadows_setDistance_asSetter));
     cls->defineProperty("shadowColor", _SE(js_scene_Shadows_getShadowColor_asGetter), _SE(js_scene_Shadows_setShadowColor_asSetter));
-    cls->defineProperty("type", _SE(js_scene_Shadows_getType_asGetter), _SE(js_scene_Shadows_setType_asSetter));
+    cls->defineProperty("maxReceived", _SE(js_scene_Shadows_getMaxReceived_asGetter), _SE(js_scene_Shadows_setMaxReceived_asSetter));
     cls->defineProperty("size", _SE(js_scene_Shadows_getSize_asGetter), _SE(js_scene_Shadows_setSize_asSetter));
-    cls->defineProperty("shadowMapDirty", _SE(js_scene_Shadows_isShadowMapDirty_asGetter), _SE(js_scene_Shadows_setShadowMapDirty_asSetter));
-    cls->defineProperty("matLight", _SE(js_scene_Shadows_getMatLight_asGetter), nullptr);
-    cls->defineProperty("instancingMaterial", _SE(js_scene_Shadows_getInstancingMaterial_asGetter), nullptr);
     cls->defineFunction("activate", _SE(js_scene_Shadows_activate));
     cls->defineFunction("destroy", _SE(js_scene_Shadows_destroy));
+    cls->defineFunction("getInstancingMaterial", _SE(js_scene_Shadows_getInstancingMaterial));
+    cls->defineFunction("getMatLight", _SE(js_scene_Shadows_getMatLight));
+    cls->defineFunction("getMatShadowProj", _SE(js_scene_Shadows_getMatShadowProj));
+    cls->defineFunction("getMatShadowView", _SE(js_scene_Shadows_getMatShadowView));
+    cls->defineFunction("getMatShadowViewProj", _SE(js_scene_Shadows_getMatShadowViewProj));
     cls->defineFunction("getMaterial", _SE(js_scene_Shadows_getMaterial));
-    cls->defineFunction("getMaxReceived", _SE(js_scene_Shadows_getMaxReceived));
     cls->defineFunction("getPlanarInstanceShader", _SE(js_scene_Shadows_getPlanarInstanceShader));
     cls->defineFunction("getPlanarShader", _SE(js_scene_Shadows_getPlanarShader));
+    cls->defineFunction("getShadowCameraFar", _SE(js_scene_Shadows_getShadowCameraFar));
     cls->defineFunction("getShadowColor4f", _SE(js_scene_Shadows_getShadowColor4f));
     cls->defineFunction("getShadowMapSize", _SE(js_scene_Shadows_getShadowMapSize));
     cls->defineFunction("initialize", _SE(js_scene_Shadows_initialize));
-    cls->defineFunction("setMaxReceived", _SE(js_scene_Shadows_setMaxReceived));
+    cls->defineFunction("isShadowMapDirty", _SE(js_scene_Shadows_isShadowMapDirty));
+    cls->defineFunction("setMatShadowProj", _SE(js_scene_Shadows_setMatShadowProj));
+    cls->defineFunction("setMatShadowView", _SE(js_scene_Shadows_setMatShadowView));
+    cls->defineFunction("setMatShadowViewProj", _SE(js_scene_Shadows_setMatShadowViewProj));
+    cls->defineFunction("setShadowCameraFar", _SE(js_scene_Shadows_setShadowCameraFar));
+    cls->defineFunction("setShadowMapDirty", _SE(js_scene_Shadows_setShadowMapDirty));
     cls->defineFunction("setShadowMapSize", _SE(js_scene_Shadows_setShadowMapSize));
     // static fields
     cls->defineStaticProperty("MAX_FAR", _SE(js_scene_Shadows_get_MAX_FAR), nullptr);
@@ -11823,25 +11983,6 @@ static bool js_scene_DirectionalLight_getShadowDistance(se::State& s) // NOLINT(
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowDistance)
 
-static bool js_scene_DirectionalLight_getShadowEnabled(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->getShadowEnabled();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowEnabled : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowEnabled)
-
 static bool js_scene_DirectionalLight_getShadowFar(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
@@ -11860,25 +12001,6 @@ static bool js_scene_DirectionalLight_getShadowFar(se::State& s) // NOLINT(reada
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowFar)
-
-static bool js_scene_DirectionalLight_getShadowFixedArea(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_getShadowFixedArea : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->getShadowFixedArea();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_getShadowFixedArea : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowFixedArea)
 
 static bool js_scene_DirectionalLight_getShadowInvisibleOcclusionRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -11993,6 +12115,44 @@ static bool js_scene_DirectionalLight_getShadowSaturation(se::State& s) // NOLIN
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_getShadowSaturation)
+
+static bool js_scene_DirectionalLight_isShadowEnabled(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_isShadowEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isShadowEnabled();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_isShadowEnabled : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_isShadowEnabled)
+
+static bool js_scene_DirectionalLight_isShadowFixedArea(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_isShadowFixedArea : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isShadowFixedArea();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_DirectionalLight_isShadowFixedArea : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_DirectionalLight_isShadowFixedArea)
 
 static bool js_scene_DirectionalLight_setDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12303,17 +12463,17 @@ bool js_register_scene_DirectionalLight(se::Object* obj) // NOLINT(readability-i
     cls->defineProperty("illuminance", _SE(js_scene_DirectionalLight_getIlluminance_asGetter), _SE(js_scene_DirectionalLight_setIlluminance_asSetter));
     cls->defineProperty("illuminanceHDR", _SE(js_scene_DirectionalLight_getIlluminanceHDR_asGetter), _SE(js_scene_DirectionalLight_setIlluminanceHDR_asSetter));
     cls->defineProperty("illuminanceLDR", _SE(js_scene_DirectionalLight_getIlluminanceLDR_asGetter), _SE(js_scene_DirectionalLight_setIlluminanceLDR_asSetter));
-    cls->defineProperty("fixedArea", _SE(js_scene_DirectionalLight_getShadowFixedArea_asGetter), _SE(js_scene_DirectionalLight_setShadowFixedArea_asSetter));
-    cls->defineProperty("fixedNear", _SE(js_scene_DirectionalLight_getShadowNear_asGetter), _SE(js_scene_DirectionalLight_setShadowNear_asSetter));
-    cls->defineProperty("fixedFar", _SE(js_scene_DirectionalLight_getShadowFar_asGetter), _SE(js_scene_DirectionalLight_setShadowFar_asSetter));
-    cls->defineProperty("fixedOrthoSize", _SE(js_scene_DirectionalLight_getShadowOrthoSize_asGetter), _SE(js_scene_DirectionalLight_setShadowOrthoSize_asSetter));
-    cls->defineProperty("shadowEnabled", _SE(js_scene_DirectionalLight_getShadowEnabled_asGetter), _SE(js_scene_DirectionalLight_setShadowEnabled_asSetter));
+    cls->defineProperty("shadowEnabled", _SE(js_scene_DirectionalLight_isShadowEnabled_asGetter), _SE(js_scene_DirectionalLight_setShadowEnabled_asSetter));
     cls->defineProperty("shadowPcf", _SE(js_scene_DirectionalLight_getShadowPcf_asGetter), _SE(js_scene_DirectionalLight_setShadowPcf_asSetter));
     cls->defineProperty("shadowBias", _SE(js_scene_DirectionalLight_getShadowBias_asGetter), _SE(js_scene_DirectionalLight_setShadowBias_asSetter));
     cls->defineProperty("shadowNormalBias", _SE(js_scene_DirectionalLight_getShadowNormalBias_asGetter), _SE(js_scene_DirectionalLight_setShadowNormalBias_asSetter));
     cls->defineProperty("shadowSaturation", _SE(js_scene_DirectionalLight_getShadowSaturation_asGetter), _SE(js_scene_DirectionalLight_setShadowSaturation_asSetter));
     cls->defineProperty("shadowDistance", _SE(js_scene_DirectionalLight_getShadowDistance_asGetter), _SE(js_scene_DirectionalLight_setShadowDistance_asSetter));
     cls->defineProperty("shadowInvisibleOcclusionRange", _SE(js_scene_DirectionalLight_getShadowInvisibleOcclusionRange_asGetter), _SE(js_scene_DirectionalLight_setShadowInvisibleOcclusionRange_asSetter));
+    cls->defineProperty("shadowFixedArea", _SE(js_scene_DirectionalLight_isShadowFixedArea_asGetter), _SE(js_scene_DirectionalLight_setShadowFixedArea_asSetter));
+    cls->defineProperty("shadowNear", _SE(js_scene_DirectionalLight_getShadowNear_asGetter), _SE(js_scene_DirectionalLight_setShadowNear_asSetter));
+    cls->defineProperty("shadowFar", _SE(js_scene_DirectionalLight_getShadowFar_asGetter), _SE(js_scene_DirectionalLight_setShadowFar_asSetter));
+    cls->defineProperty("shadowOrthoSize", _SE(js_scene_DirectionalLight_getShadowOrthoSize_asGetter), _SE(js_scene_DirectionalLight_setShadowOrthoSize_asSetter));
     cls->defineFinalizeFunction(_SE(js_cc_scene_DirectionalLight_finalize));
     cls->install();
     JSBClassType::registerClass<cc::scene::DirectionalLight>(cls);
@@ -12537,25 +12697,6 @@ static bool js_scene_SpotLight_getShadowBias(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getShadowBias)
 
-static bool js_scene_SpotLight_getShadowEnabled(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_getShadowEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->getShadowEnabled();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_getShadowEnabled : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getShadowEnabled)
-
 static bool js_scene_SpotLight_getShadowNormalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
@@ -12631,6 +12772,25 @@ static bool js_scene_SpotLight_getSpotAngle(se::State& s) // NOLINT(readability-
     return false;
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_getSpotAngle)
+
+static bool js_scene_SpotLight_isShadowEnabled(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_isShadowEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isShadowEnabled();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_SpotLight_isShadowEnabled : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_scene_SpotLight_isShadowEnabled)
 
 static bool js_scene_SpotLight_setAspect(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12892,7 +13052,7 @@ bool js_register_scene_SpotLight(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("aspect", _SE(js_scene_SpotLight_getAspect_asGetter), _SE(js_scene_SpotLight_setAspect_asSetter));
     cls->defineProperty("aabb", _SE(js_scene_SpotLight_getAABB_asGetter), nullptr);
     cls->defineProperty("frustum", _SE(js_scene_SpotLight_getFrustum_asGetter), _SE(js_scene_SpotLight_setFrustum_asSetter));
-    cls->defineProperty("shadowEnabled", _SE(js_scene_SpotLight_getShadowEnabled_asGetter), _SE(js_scene_SpotLight_setShadowEnabled_asSetter));
+    cls->defineProperty("shadowEnabled", _SE(js_scene_SpotLight_isShadowEnabled_asGetter), _SE(js_scene_SpotLight_setShadowEnabled_asSetter));
     cls->defineProperty("shadowPcf", _SE(js_scene_SpotLight_getShadowPcf_asGetter), _SE(js_scene_SpotLight_setShadowPcf_asSetter));
     cls->defineProperty("shadowBias", _SE(js_scene_SpotLight_getShadowBias_asGetter), _SE(js_scene_SpotLight_setShadowBias_asSetter));
     cls->defineProperty("shadowNormalBias", _SE(js_scene_SpotLight_getShadowNormalBias_asGetter), _SE(js_scene_SpotLight_setShadowNormalBias_asSetter));
