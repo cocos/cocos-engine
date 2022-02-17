@@ -174,8 +174,8 @@ struct ShaderProgramData {
 
 struct GroupNodeData {
     GroupNodeData() = default;
-    GroupNodeData(NodeType nodeType) noexcept // NOLINT
-    : mNodeType(nodeType) {}
+    GroupNodeData(NodeType nodeTypeIn) noexcept // NOLINT
+    : mNodeType(nodeTypeIn) {}
 
     NodeType mNodeType = NodeType::INTERNAL;
 };

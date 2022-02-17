@@ -201,9 +201,9 @@ struct RenderDependencyGraph {
 
 struct RenderValueNode {
     RenderValueNode() = default;
-    RenderValueNode(uint32_t passID, uint32_t valueID) noexcept // NOLINT
-    : mPassID(passID),
-      mValueID(valueID) {}
+    RenderValueNode(uint32_t passIDIn, uint32_t valueIDIn) noexcept // NOLINT
+    : mPassID(passIDIn),
+      mValueID(valueIDIn) {}
 
     uint32_t mPassID  = 0xFFFFFFFF;
     uint32_t mValueID = 0xFFFFFFFF;
@@ -337,11 +337,11 @@ struct RenderValueGraph {
 };
 
 struct RenderCompiler {
-    RenderCompiler(ResourceGraph& resourceGraph, RenderGraph& graph, LayoutGraph& layoutGraph, boost::container::pmr::memory_resource* scratch) noexcept
-    : mResourceGraph(resourceGraph),
-      mGraph(graph),
-      mLayoutGraph(layoutGraph),
-      mScratch(scratch) {}
+    RenderCompiler(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraph& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn) noexcept
+    : mResourceGraph(resourceGraphIn),
+      mGraph(graphIn),
+      mLayoutGraph(layoutGraphIn),
+      mScratch(scratchIn) {}
     RenderCompiler(RenderCompiler&& rhs)      = delete;
     RenderCompiler(RenderCompiler const& rhs) = delete;
     RenderCompiler& operator=(RenderCompiler&& rhs) = delete;

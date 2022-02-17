@@ -78,8 +78,8 @@ struct ResourceDesc {
 
 struct ResourceTraits {
     ResourceTraits() = default;
-    ResourceTraits(ResourceResidency residency) noexcept // NOLINT
-    : mResidency(residency) {}
+    ResourceTraits(ResourceResidency residencyIn) noexcept // NOLINT
+    : mResidency(residencyIn) {}
 
     bool hasSideEffects() const noexcept {
         return boost::variant2::holds_alternative<Persistent_>(mResidency) ||
@@ -234,7 +234,7 @@ struct RasterView {
     }
 
     RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    RasterView(PmrString slotName, AccessType accessType, AttachmentType attachmentType, gfx::LoadOp loadOp, gfx::StoreOp storeOp, gfx::ClearFlagBit clearFlags, gfx::Color clearColor, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(PmrString slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     RasterView(RasterView&& rhs, const allocator_type& alloc);
     RasterView(RasterView const& rhs, const allocator_type& alloc);
 
@@ -472,7 +472,7 @@ struct CopyPair {
     }
 
     CopyPair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    CopyPair(PmrString source, PmrString target, uint32_t mipLevels, uint32_t numSlices, uint32_t sourceMostDetailedMip, uint32_t sourceFirstSlice, uint32_t sourcePlaneSlice, uint32_t targetMostDetailedMip, uint32_t targetFirstSlice, uint32_t targetPlaneSlice, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    CopyPair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     CopyPair(CopyPair&& rhs, const allocator_type& alloc);
     CopyPair(CopyPair const& rhs, const allocator_type& alloc);
 
@@ -518,7 +518,7 @@ struct MovePair {
     }
 
     MovePair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    MovePair(PmrString source, PmrString target, uint32_t mipLevels, uint32_t numSlices, uint32_t targetMostDetailedMip, uint32_t targetFirstSlice, uint32_t targetPlaneSlice, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    MovePair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     MovePair(MovePair&& rhs, const allocator_type& alloc);
     MovePair(MovePair const& rhs, const allocator_type& alloc);
 
@@ -580,8 +580,8 @@ struct Present_ {};
 
 struct RenderQueueData {
     RenderQueueData() = default;
-    RenderQueueData(QueueHint hint) noexcept // NOLINT
-    : mHint(hint) {}
+    RenderQueueData(QueueHint hintIn) noexcept // NOLINT
+    : mHint(hintIn) {}
 
     QueueHint mHint = QueueHint::RENDER_OPAQUE;
 };
@@ -593,7 +593,7 @@ struct SceneData {
     }
 
     SceneData(const allocator_type& alloc) noexcept; // NOLINT
-    SceneData(PmrString name, const allocator_type& alloc) noexcept;
+    SceneData(PmrString nameIn, const allocator_type& alloc) noexcept;
     SceneData(SceneData&& rhs, const allocator_type& alloc);
     SceneData(SceneData const& rhs, const allocator_type& alloc);
 
@@ -614,7 +614,7 @@ struct Dispatch {
     }
 
     Dispatch(const allocator_type& alloc) noexcept; // NOLINT
-    Dispatch(PmrString shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const allocator_type& alloc) noexcept;
+    Dispatch(PmrString shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept;
     Dispatch(Dispatch&& rhs, const allocator_type& alloc);
     Dispatch(Dispatch const& rhs, const allocator_type& alloc);
 
@@ -636,7 +636,7 @@ struct Blit {
     }
 
     Blit(const allocator_type& alloc) noexcept; // NOLINT
-    Blit(PmrString shader, const allocator_type& alloc) noexcept;
+    Blit(PmrString shaderIn, const allocator_type& alloc) noexcept;
     Blit(Blit&& rhs, const allocator_type& alloc);
     Blit(Blit const& rhs, const allocator_type& alloc);
 
@@ -655,7 +655,7 @@ struct PresentPassData {
     }
 
     PresentPassData(const allocator_type& alloc) noexcept; // NOLINT
-    PresentPassData(PmrString resourceName, uint32_t syncInterval, uint32_t flags, const allocator_type& alloc) noexcept;
+    PresentPassData(PmrString resourceNameIn, uint32_t syncIntervalIn, uint32_t flagsIn, const allocator_type& alloc) noexcept;
     PresentPassData(PresentPassData&& rhs, const allocator_type& alloc);
     PresentPassData(PresentPassData const& rhs, const allocator_type& alloc);
 

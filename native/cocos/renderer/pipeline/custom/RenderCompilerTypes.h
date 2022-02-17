@@ -10,11 +10,11 @@ namespace cc {
 namespace render {
 
 struct RenderCompiler {
-    RenderCompiler(ResourceGraph& resourceGraph, RenderGraph& graph, LayoutGraph& layoutGraph, boost::container::pmr::memory_resource* scratch) noexcept
-    : mResourceGraph(resourceGraph),
-      mGraph(graph),
-      mLayoutGraph(layoutGraph),
-      mScratch(scratch) {}
+    RenderCompiler(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraph& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn) noexcept
+    : mResourceGraph(resourceGraphIn),
+      mGraph(graphIn),
+      mLayoutGraph(layoutGraphIn),
+      mScratch(scratchIn) {}
     RenderCompiler(RenderCompiler&& rhs)      = delete;
     RenderCompiler(RenderCompiler const& rhs) = delete;
     RenderCompiler& operator=(RenderCompiler&& rhs) = delete;

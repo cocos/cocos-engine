@@ -49,14 +49,14 @@ ResourceGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_
 RasterView::RasterView(const allocator_type& alloc) noexcept
 : mSlotName(alloc) {}
 
-RasterView::RasterView(PmrString slotName, AccessType accessType, AttachmentType attachmentType, gfx::LoadOp loadOp, gfx::StoreOp storeOp, gfx::ClearFlagBit clearFlags, gfx::Color clearColor, const allocator_type& alloc) noexcept
-: mSlotName(std::move(slotName), alloc),
-  mAccessType(accessType),
-  mAttachmentType(attachmentType),
-  mLoadOp(loadOp),
-  mStoreOp(storeOp),
-  mClearFlags(clearFlags),
-  mClearColor(clearColor) {}
+RasterView::RasterView(PmrString slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
+: mSlotName(std::move(slotNameIn), alloc),
+  mAccessType(accessTypeIn),
+  mAttachmentType(attachmentTypeIn),
+  mLoadOp(loadOpIn),
+  mStoreOp(storeOpIn),
+  mClearFlags(clearFlagsIn),
+  mClearColor(clearColorIn) {}
 
 RasterView::RasterView(RasterView&& rhs, const allocator_type& alloc)
 : mSlotName(std::move(rhs.mSlotName), alloc),
@@ -167,17 +167,17 @@ CopyPair::CopyPair(const allocator_type& alloc) noexcept
 : mSource(alloc),
   mTarget(alloc) {}
 
-CopyPair::CopyPair(PmrString source, PmrString target, uint32_t mipLevels, uint32_t numSlices, uint32_t sourceMostDetailedMip, uint32_t sourceFirstSlice, uint32_t sourcePlaneSlice, uint32_t targetMostDetailedMip, uint32_t targetFirstSlice, uint32_t targetPlaneSlice, const allocator_type& alloc) noexcept // NOLINT
-: mSource(std::move(source), alloc),
-  mTarget(std::move(target), alloc),
-  mMipLevels(mipLevels),
-  mNumSlices(numSlices),
-  mSourceMostDetailedMip(sourceMostDetailedMip),
-  mSourceFirstSlice(sourceFirstSlice),
-  mSourcePlaneSlice(sourcePlaneSlice),
-  mTargetMostDetailedMip(targetMostDetailedMip),
-  mTargetFirstSlice(targetFirstSlice),
-  mTargetPlaneSlice(targetPlaneSlice) {}
+CopyPair::CopyPair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
+: mSource(std::move(sourceIn), alloc),
+  mTarget(std::move(targetIn), alloc),
+  mMipLevels(mipLevelsIn),
+  mNumSlices(numSlicesIn),
+  mSourceMostDetailedMip(sourceMostDetailedMipIn),
+  mSourceFirstSlice(sourceFirstSliceIn),
+  mSourcePlaneSlice(sourcePlaneSliceIn),
+  mTargetMostDetailedMip(targetMostDetailedMipIn),
+  mTargetFirstSlice(targetFirstSliceIn),
+  mTargetPlaneSlice(targetPlaneSliceIn) {}
 
 CopyPair::CopyPair(CopyPair&& rhs, const allocator_type& alloc)
 : mSource(std::move(rhs.mSource), alloc),
@@ -216,14 +216,14 @@ MovePair::MovePair(const allocator_type& alloc) noexcept
 : mSource(alloc),
   mTarget(alloc) {}
 
-MovePair::MovePair(PmrString source, PmrString target, uint32_t mipLevels, uint32_t numSlices, uint32_t targetMostDetailedMip, uint32_t targetFirstSlice, uint32_t targetPlaneSlice, const allocator_type& alloc) noexcept // NOLINT
-: mSource(std::move(source), alloc),
-  mTarget(std::move(target), alloc),
-  mMipLevels(mipLevels),
-  mNumSlices(numSlices),
-  mTargetMostDetailedMip(targetMostDetailedMip),
-  mTargetFirstSlice(targetFirstSlice),
-  mTargetPlaneSlice(targetPlaneSlice) {}
+MovePair::MovePair(PmrString sourceIn, PmrString targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
+: mSource(std::move(sourceIn), alloc),
+  mTarget(std::move(targetIn), alloc),
+  mMipLevels(mipLevelsIn),
+  mNumSlices(numSlicesIn),
+  mTargetMostDetailedMip(targetMostDetailedMipIn),
+  mTargetFirstSlice(targetFirstSliceIn),
+  mTargetPlaneSlice(targetPlaneSliceIn) {}
 
 MovePair::MovePair(MovePair&& rhs, const allocator_type& alloc)
 : mSource(std::move(rhs.mSource), alloc),
@@ -265,8 +265,8 @@ SceneData::SceneData(const allocator_type& alloc) noexcept
 : mName(alloc),
   mScenes(alloc) {}
 
-SceneData::SceneData(PmrString name, const allocator_type& alloc) noexcept
-: mName(std::move(name), alloc),
+SceneData::SceneData(PmrString nameIn, const allocator_type& alloc) noexcept
+: mName(std::move(nameIn), alloc),
   mScenes(alloc) {}
 
 SceneData::SceneData(SceneData&& rhs, const allocator_type& alloc)
@@ -282,11 +282,11 @@ SceneData::SceneData(SceneData const& rhs, const allocator_type& alloc)
 Dispatch::Dispatch(const allocator_type& alloc) noexcept
 : mShader(alloc) {}
 
-Dispatch::Dispatch(PmrString shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const allocator_type& alloc) noexcept // NOLINT
-: mShader(std::move(shader), alloc),
-  mThreadGroupCountX(threadGroupCountX),
-  mThreadGroupCountY(threadGroupCountY),
-  mThreadGroupCountZ(threadGroupCountZ) {}
+Dispatch::Dispatch(PmrString shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept // NOLINT
+: mShader(std::move(shaderIn), alloc),
+  mThreadGroupCountX(threadGroupCountXIn),
+  mThreadGroupCountY(threadGroupCountYIn),
+  mThreadGroupCountZ(threadGroupCountZIn) {}
 
 Dispatch::Dispatch(Dispatch&& rhs, const allocator_type& alloc)
 : mShader(std::move(rhs.mShader), alloc),
@@ -303,8 +303,8 @@ Dispatch::Dispatch(Dispatch const& rhs, const allocator_type& alloc)
 Blit::Blit(const allocator_type& alloc) noexcept
 : mShader(alloc) {}
 
-Blit::Blit(PmrString shader, const allocator_type& alloc) noexcept
-: mShader(std::move(shader), alloc) {}
+Blit::Blit(PmrString shaderIn, const allocator_type& alloc) noexcept
+: mShader(std::move(shaderIn), alloc) {}
 
 Blit::Blit(Blit&& rhs, const allocator_type& alloc)
 : mShader(std::move(rhs.mShader), alloc) {}
@@ -315,10 +315,10 @@ Blit::Blit(Blit const& rhs, const allocator_type& alloc)
 PresentPassData::PresentPassData(const allocator_type& alloc) noexcept
 : mResourceName(alloc) {}
 
-PresentPassData::PresentPassData(PmrString resourceName, uint32_t syncInterval, uint32_t flags, const allocator_type& alloc) noexcept // NOLINT
-: mResourceName(std::move(resourceName), alloc),
-  mSyncInterval(syncInterval),
-  mFlags(flags) {}
+PresentPassData::PresentPassData(PmrString resourceNameIn, uint32_t syncIntervalIn, uint32_t flagsIn, const allocator_type& alloc) noexcept // NOLINT
+: mResourceName(std::move(resourceNameIn), alloc),
+  mSyncInterval(syncIntervalIn),
+  mFlags(flagsIn) {}
 
 PresentPassData::PresentPassData(PresentPassData&& rhs, const allocator_type& alloc)
 : mResourceName(std::move(rhs.mResourceName), alloc),
