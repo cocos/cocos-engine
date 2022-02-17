@@ -128,7 +128,16 @@
                 originX: rect.x,
                 originY: rect.y,
                 width: rect.width,
-                height: rect.height
+                height: rect.height,
+                isBold: true,
+                isItalic: true,
+                isUnderline: true,
+                underlineColor: 0x00ffffff,
+                fontSize: /**number */20,
+                fontColor: /**number */0x00ff0000,
+                backColor: /*number*/0x000000ff,
+                backgroundColor: 0x0000ff00,
+                textAlignment: /*left = 0, center = 1, right = 2*/0,
             });
             this._editing = true;
             delegate._editBoxEditingDidBegan();

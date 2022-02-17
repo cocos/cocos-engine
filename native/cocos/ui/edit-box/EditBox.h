@@ -51,7 +51,8 @@ public:
         //NEW PROPERTIES
         uint32_t fontSize = 20;
         uint32_t fontColor = 0x00000000;
-        uint32_t backGroundColor = 0x00000000;
+        uint32_t backColor = 0x00000000;//font back color
+        uint32_t backgroundColor = 0x00000000;
         bool isBold = true;
         bool isItalic = false;
         bool isUnderline = false;
