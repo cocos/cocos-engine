@@ -1,3 +1,28 @@
+/****************************************************************************
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 // clang-format off
 #pragma once
 #include "base/Config.h"
@@ -48,7 +73,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::DepthStencilAttachment);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::SubpassInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::SubpassDependency);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPassInfo);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::GlobalBarrierInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::GeneralBarrierInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureBarrierInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::FramebufferInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DescriptorSetLayoutBinding);
@@ -80,7 +105,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPass);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Shader);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Texture);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Swapchain);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::GlobalBarrier);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::GeneralBarrier);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Sampler);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureBarrier);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Device);
@@ -407,13 +432,13 @@ bool js_register_cc_gfx_RenderPassInfo(se::Object *obj); // NOLINT
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::RenderPassInfo *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_gfx_GlobalBarrierInfo_proto; // NOLINT
-extern se::Class * __jsb_cc_gfx_GlobalBarrierInfo_class; // NOLINT
+extern se::Object *__jsb_cc_gfx_GeneralBarrierInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_gfx_GeneralBarrierInfo_class; // NOLINT
 
-bool js_register_cc_gfx_GlobalBarrierInfo(se::Object *obj); // NOLINT
+bool js_register_cc_gfx_GeneralBarrierInfo(se::Object *obj); // NOLINT
 
 template <>
-bool sevalue_to_native(const se::Value &, cc::gfx::GlobalBarrierInfo *, se::Object *ctx); //NOLINT
+bool sevalue_to_native(const se::Value &, cc::gfx::GeneralBarrierInfo *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_gfx_TextureBarrierInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_TextureBarrierInfo_class; // NOLINT
@@ -751,15 +776,15 @@ SE_DECLARE_FUNC(js_gfx_Swapchain_initialize);
 SE_DECLARE_FUNC(js_gfx_Swapchain_resize);
 SE_DECLARE_FUNC(js_gfx_Swapchain_Swapchain);
 
-extern se::Object *__jsb_cc_gfx_GlobalBarrier_proto; // NOLINT
-extern se::Class * __jsb_cc_gfx_GlobalBarrier_class; // NOLINT
+extern se::Object *__jsb_cc_gfx_GeneralBarrier_proto; // NOLINT
+extern se::Class * __jsb_cc_gfx_GeneralBarrier_class; // NOLINT
 
-bool js_register_cc_gfx_GlobalBarrier(se::Object *obj); // NOLINT
+bool js_register_cc_gfx_GeneralBarrier(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_gfx_GlobalBarrier_getHash);
-SE_DECLARE_FUNC(js_gfx_GlobalBarrier_getInfo);
-SE_DECLARE_FUNC(js_gfx_GlobalBarrier_computeHash);
-SE_DECLARE_FUNC(js_gfx_GlobalBarrier_GlobalBarrier);
+SE_DECLARE_FUNC(js_gfx_GeneralBarrier_getHash);
+SE_DECLARE_FUNC(js_gfx_GeneralBarrier_getInfo);
+SE_DECLARE_FUNC(js_gfx_GeneralBarrier_computeHash);
+SE_DECLARE_FUNC(js_gfx_GeneralBarrier_GeneralBarrier);
 
 extern se::Object *__jsb_cc_gfx_Sampler_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_Sampler_class; // NOLINT
@@ -803,7 +828,7 @@ SE_DECLARE_FUNC(js_gfx_Device_createSwapchain);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
 SE_DECLARE_FUNC(js_gfx_Device_flushCommands);
 SE_DECLARE_FUNC(js_gfx_Device_getFormatFeatures);
-SE_DECLARE_FUNC(js_gfx_Device_getGlobalBarrier);
+SE_DECLARE_FUNC(js_gfx_Device_getGeneralBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPool);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPoolResults);
 SE_DECLARE_FUNC(js_gfx_Device_getSampler);

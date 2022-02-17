@@ -108,13 +108,13 @@ void ShadowsInfo::activate(Shadows *resource) {
 const float Shadows::COEFFICIENT_OF_EXPANSION{2.0F * std::sqrt(3.0F)};
 
 void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
-    _size      = shadowsInfo.getSize();
-    _normal    = shadowsInfo.getNormal();
-    _distance  = shadowsInfo.getDistance();
-    setShadowColor(shadowsInfo.getShadowColor());
-    _maxReceived = shadowsInfo.getMaxReceived();
     setEnabled(shadowsInfo.isEnabled());
-    _type       = shadowsInfo.getType();
+    setType(shadowsInfo.getType());
+    setNormal(shadowsInfo.getNormal());
+    setDistance(shadowsInfo.getDistance());
+    setMaxReceived(shadowsInfo.getMaxReceived());
+    setSize(shadowsInfo.getSize());
+    setShadowColor(shadowsInfo.getShadowColor());
 }
 
 void Shadows::destroy() {

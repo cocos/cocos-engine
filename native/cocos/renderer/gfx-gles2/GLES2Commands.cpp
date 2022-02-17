@@ -994,7 +994,7 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
                 gpuUniform.binding = INVALID_BINDING;
                 gpuUniform.name    = uniform.name;
                 gpuUniform.type    = uniform.type;
-                gpuUniform.stride  = GFX_TYPE_SIZES[static_cast<int>(uniform.type)];
+                gpuUniform.stride  = getTypeSize(uniform.type);
                 gpuUniform.count   = uniform.count;
                 gpuUniform.size    = gpuUniform.stride * gpuUniform.count;
                 gpuUniform.glType  = mapGLType(gpuUniform.type);

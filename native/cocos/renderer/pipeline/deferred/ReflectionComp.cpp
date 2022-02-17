@@ -81,39 +81,27 @@ void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
     gfx::DescriptorSetLayoutInfo layoutInfo = {pipeline::localDescriptorSetLayout.bindings};
     _localDescriptorSetLayout               = _device->createDescriptorSetLayout(layoutInfo);
 
-    gfx::GlobalBarrierInfo infoPre = {
-        {
-            gfx::AccessType::COLOR_ATTACHMENT_WRITE,
-        },
-        {
-            gfx::AccessType::COMPUTE_SHADER_READ_TEXTURE,
-        }};
+    gfx::GeneralBarrierInfo infoPre = {
+        gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE,
+        gfx::AccessFlagBit::COMPUTE_SHADER_READ_TEXTURE,
+    };
 
     gfx::TextureBarrierInfo infoBeforeDenoise = {
-        {
-            gfx::AccessType::COMPUTE_SHADER_WRITE,
-        },
-        {
-            gfx::AccessType::COMPUTE_SHADER_READ_TEXTURE,
-        }};
+        gfx::AccessFlagBit::COMPUTE_SHADER_WRITE,
+        gfx::AccessFlagBit::COMPUTE_SHADER_READ_TEXTURE,
+    };
 
     gfx::TextureBarrierInfo infoBeforeDenoise2 = {
-        {
-            gfx::AccessType::NONE,
-        },
-        {
-            gfx::AccessType::COMPUTE_SHADER_WRITE,
-        }};
+        gfx::AccessFlagBit::NONE,
+        gfx::AccessFlagBit::COMPUTE_SHADER_WRITE,
+    };
 
     gfx::TextureBarrierInfo infoAfterDenoise = {
-        {
-            gfx::AccessType::COMPUTE_SHADER_WRITE,
-        },
-        {
-            gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE,
-        }};
+        gfx::AccessFlagBit::COMPUTE_SHADER_WRITE,
+        gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE,
+    };
 
-    _barrierPre = _device->getGlobalBarrier(infoPre);
+    _barrierPre = _device->getGeneralBarrier(infoPre);
     _barrierBeforeDenoise.push_back(_device->getTextureBarrier(infoBeforeDenoise));
     _barrierBeforeDenoise.push_back(_device->getTextureBarrier(infoBeforeDenoise2));
     _barrierAfterDenoise.push_back(_device->getTextureBarrier(infoAfterDenoise));

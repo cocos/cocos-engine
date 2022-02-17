@@ -63,8 +63,8 @@ void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 }
 
 void ShadowStage::render(scene::Camera *camera) {
-    const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto *shadows   = sceneData->getShadows();
+    const auto *sceneData  = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo = sceneData->getShadows();
 
     if (!_light || !_framebuffer) {
         return;
@@ -74,7 +74,7 @@ void ShadowStage::render(scene::Camera *camera) {
     _pipeline->getPipelineUBO()->updateShadowUBOLight(_globalDS, _light);
     _additiveShadowQueue->gatherLightPasses(camera, _light, cmdBuffer);
 
-    const auto &shadowMapSize = shadows->getSize();
+    const auto &shadowMapSize = shadowInfo->getSize();
     const auto &viewport      = camera->getViewport();
     _renderArea.x             = static_cast<int>(viewport.x * shadowMapSize.x);
     _renderArea.y             = static_cast<int>(viewport.y * shadowMapSize.y);

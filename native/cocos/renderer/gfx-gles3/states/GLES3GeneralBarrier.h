@@ -26,22 +26,22 @@
 #pragma once
 
 #include "../GLES3Std.h"
-#include "gfx-base/states/GFXGlobalBarrier.h"
+#include "gfx-base/states/GFXGeneralBarrier.h"
 
 namespace cc {
 namespace gfx {
 
-class GLES3GPUGlobalBarrier;
+class GLES3GPUGeneralBarrier;
 
-class CC_GLES3_API GLES3GlobalBarrier : public GlobalBarrier {
+class CC_GLES3_API GLES3GeneralBarrier : public GeneralBarrier {
 public:
-    explicit GLES3GlobalBarrier(const GlobalBarrierInfo &info);
-    ~GLES3GlobalBarrier() override;
+    explicit GLES3GeneralBarrier(const GeneralBarrierInfo &info);
+    ~GLES3GeneralBarrier() override;
 
-    inline const GLES3GPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }
+    inline const GLES3GPUGeneralBarrier *gpuBarrier() const { return _gpuBarrier; }
 
 protected:
-    GLES3GPUGlobalBarrier *_gpuBarrier = nullptr;
+    GLES3GPUGeneralBarrier *_gpuBarrier = nullptr;
 };
 
 } // namespace gfx

@@ -427,8 +427,8 @@ export class RenderAdditiveLightQueue {
 
                 _vec4Array[0] = (light as SphereLight).size;
                 _vec4Array[1] = (light as SphereLight).range;
-                _vec4Array[2] = 0.0;
-                _vec4Array[3] = (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
+                _vec4Array[2] = 0;
+                _vec4Array[3] = 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, light.color);
@@ -454,7 +454,7 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[0] = (light as SpotLight).size;
                 _vec4Array[1] = (light as SpotLight).range;
                 _vec4Array[2] = (light as SpotLight).spotAngle;
-                _vec4Array[3] = (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
+                _vec4Array[3] = ((light as SpotLight).shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as SpotLight).direction);

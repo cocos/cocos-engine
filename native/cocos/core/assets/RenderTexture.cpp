@@ -33,25 +33,21 @@
 namespace cc {
 
 namespace {
-
-gfx::ColorAttachment colorAttachment = {
-    gfx::Format::RGBA8,
-    gfx::SampleCount::ONE,
-    gfx::LoadOp::CLEAR,
-    gfx::StoreOp::STORE,
-    {cc::gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE},
-    {cc::gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE}};
-
-gfx::RenderPassInfo passInfo{
-    std::vector<gfx::ColorAttachment>{colorAttachment},
-    gfx::DepthStencilAttachment{gfx::Format::DEPTH_STENCIL}};
-
-cc::scene::IRenderWindowInfo windowInfo{
-    cc::nullopt,
-    1,
-    1,
-    passInfo};
-
+gfx::RenderPassInfo getDefaultRenderPassInfo(gfx::Device *device) {
+    gfx::RenderPassInfo info;
+    info.colorAttachments.push_back({
+        gfx::Format::RGBA8,
+        gfx::SampleCount::ONE,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::STORE,
+        device->getGeneralBarrier({
+            gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE,
+            gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE,
+        }),
+    });
+    info.depthStencilAttachment.format = gfx::Format::DEPTH_STENCIL;
+    return info;
+}
 } // namespace
 
 RenderTexture::RenderTexture()  = default;
@@ -94,31 +90,38 @@ void RenderTexture::onLoaded() {
 }
 
 void RenderTexture::initWindow() {
-    windowInfo.title          = _name;
-    windowInfo.width          = _width;
-    windowInfo.height         = _height;
-    windowInfo.renderPassInfo = passInfo;
+    auto *device{Root::getInstance()->getDevice()};
+
+    cc::scene::IRenderWindowInfo windowInfo;
+    windowInfo.title  = _name;
+    windowInfo.width  = _width;
+    windowInfo.height = _height;
+    windowInfo.renderPassInfo = getDefaultRenderPassInfo(device);
 
     if (_window != nullptr) {
         _window->destroy();
-        _window->initialize(Root::getInstance()->getDevice(), windowInfo);
+        _window->initialize(device, windowInfo);
     } else {
         _window = Root::getInstance()->createWindow(windowInfo);
     }
 }
 
 void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
+    auto *device{Root::getInstance()->getDevice()};
+
+    cc::scene::IRenderWindowInfo windowInfo;
     windowInfo.title  = _name;
     windowInfo.width  = _width;
     windowInfo.height = _height;
     if (info.passInfo.has_value()) {
         windowInfo.renderPassInfo = info.passInfo.value();
     } else {
-        windowInfo.renderPassInfo = passInfo;
+        windowInfo.renderPassInfo = getDefaultRenderPassInfo(device);
     }
+
     if (_window != nullptr) {
         _window->destroy();
-        _window->initialize(Root::getInstance()->getDevice(), windowInfo);
+        _window->initialize(device, windowInfo);
     } else {
         _window = Root::getInstance()->createWindow(windowInfo);
     }

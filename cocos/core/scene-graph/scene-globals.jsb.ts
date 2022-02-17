@@ -29,6 +29,7 @@ import {
     tooltip,
     type,
     visible
+// @ts-ignore
 } from 'cc.decorator';
 import {
     _applyDecoratedDescriptor,
@@ -144,38 +145,10 @@ export const ShadowType = Enum({
 });
 
 /**
- * @zh pcf阴影等级。
- * @en The pcf type
- * @static
- * @enum Shadows.PCFType
- */
-export const PCFType = Enum({
-    /**
-     * @zh x1 次采样
-     * @en x1 times
-     * @readonly
-     */
-    HARD: 0,
-
-    /**
-     * @zh 软阴影
-     * @en soft shadow
-     * @readonly
-     */
-    SOFT: 1,
-
-    /**
-     * @zh 软阴影
-     * @en soft shadow
-     * @readonly
-     */
-    SOFT_2X: 2,
-});
-
-/**
  * @en Environment lighting information in the Scene
  * @zh 场景的环境光照相关信息
  */
+// @ts-ignore
 export const AmbientInfo = jsb.AmbientInfo;
 legacyCC.AmbientInfo = AmbientInfo;
 
@@ -230,6 +203,7 @@ legacyCC.AmbientInfo = AmbientInfo;
  * @en Skybox related information
  * @zh 天空盒相关信息
  */
+// @ts-ignore
 export const SkyboxInfo = jsb.SkyboxInfo;
 legacyCC.SkyboxInfo = SkyboxInfo;
 
@@ -357,6 +331,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
  * @zh 全局雾相关信息
  * @en Global fog info
  */
+// @ts-ignore
 export const FogInfo = jsb.FogInfo;
 legacyCC.FogInfo = FogInfo;
 
@@ -457,33 +432,12 @@ legacyCC.FogInfo = FogInfo;
  * @en Scene level planar shadow related information
  * @zh 平面阴影相关信息
  */
+// @ts-ignore
 export const ShadowsInfo = jsb.ShadowsInfo;
 legacyCC.ShadowsInfo = ShadowsInfo;
 
 (function () {
     const shadowInfoDecorator = ccclass('cc.ShadowsInfo');
-
-    // Object.defineProperty(ShadowsInfo.prototype, '_shadowColor', {
-    //     configurable: true,
-    //     enumerable: true,
-    //     get ()  {
-    //         return new Color(this._shadowColorInternal.r, this._shadowColorInternal.g, this._shadowColorInternal.b, this._shadowColorInternal.a);
-    //     },
-    //     set (val) {
-    //         this._shadowColorInternal = val;
-    //     },
-    // });
-
-    // Object.defineProperty(ShadowsInfo.prototype, 'shadowColor', {
-    //     configurable: true,
-    //     enumerable: true,
-    //     get () {
-    //         return new Color(this.shadowColorInternal.r, this.shadowColorInternal.g, this.shadowColorInternal.b, this.shadowColorInternal.a);
-    //     },
-    //     set (val) {
-    //         this.shadowColorInternal = val;
-    //     },
-    // });
 
     const _class11$1 = ShadowsInfo;
     const _descriptor17$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_type', [serializable], {
@@ -530,90 +484,6 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         },
     });
 
-    const _descriptor30$1 = _applyDecoratedDescriptor(_class11$1.prototype, "_firstSetCSM", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return false;
-        }
-    })
-
-    const _descriptor22$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_fixedArea', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return false;
-        },
-    });
-    const _descriptor23$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_pcf', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return PCFType.HARD;
-        },
-    });
-    const _descriptor24$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_bias', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 0.00001;
-        },
-    });
-    const _descriptor25$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_normalBias', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 0.0;
-        },
-    });
-    const _descriptor26$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_near', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 0.1;
-        },
-    });
-    const _descriptor27$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_far', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 10;
-        },
-    });
-
-    const _descriptor37 = _applyDecoratedDescriptor(_class11$1.prototype, "_shadowDistance", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 100;
-        }
-    });
-
-    const _descriptor38 = _applyDecoratedDescriptor(_class11$1.prototype, "_invisibleOcclusionRange", [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 200;
-        }
-    });
-
-    const _descriptor28$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_orthoSize', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 5;
-        },
-    });
     const _descriptor29$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_maxReceived', [serializable], {
         configurable: true,
         enumerable: true,
@@ -622,6 +492,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
             return 4;
         },
     });
+
     const _descriptor30$11 = _applyDecoratedDescriptor(_class11$1.prototype, '_size', [serializable], {
         configurable: true,
         enumerable: true,
@@ -630,35 +501,13 @@ legacyCC.ShadowsInfo = ShadowsInfo;
             return new Vec2(512, 512);
         },
     });
-    const _descriptor31$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_saturation', [serializable], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: function initializer () {
-            return 0.75;
-        },
-    });
-    // _applyDecoratedDescriptor(_class11$1.prototype, "enabled", [editable], Object.getOwnPropertyDescriptor(_class11$1.prototype, "enabled"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "type", [editable, _dec35], Object.getOwnPropertyDescriptor(_class11$1.prototype, "type"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "shadowColor", [_dec36], Object.getOwnPropertyDescriptor(_class11$1.prototype, "shadowColor"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "normal", [_dec37], Object.getOwnPropertyDescriptor(_class11$1.prototype, "normal"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "distance", [_dec38, _dec39], Object.getOwnPropertyDescriptor(_class11$1.prototype, "distance"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "saturation", [editable, _dec40, slide, _dec41, _dec42], Object.getOwnPropertyDescriptor(_class11$1.prototype, "saturation"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "pcf", [_dec43, _dec44], Object.getOwnPropertyDescriptor(_class11$1.prototype, "pcf"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "maxReceived", [_dec45, _dec46], Object.getOwnPropertyDescriptor(_class11$1.prototype, "maxReceived"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "bias", [_dec47, _dec48], Object.getOwnPropertyDescriptor(_class11$1.prototype, "bias"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "normalBias", [_dec49, _dec50], Object.getOwnPropertyDescriptor(_class11$1.prototype, "normalBias"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "shadowMapSize", [_dec51, _dec52], Object.getOwnPropertyDescriptor(_class11$1.prototype, "shadowMapSize"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "autoAdapt", [_dec53, _dec54], Object.getOwnPropertyDescriptor(_class11$1.prototype, "autoAdapt"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "near", [_dec55, _dec56], Object.getOwnPropertyDescriptor(_class11$1.prototype, "near"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "far", [_dec57, _dec58], Object.getOwnPropertyDescriptor(_class11$1.prototype, "far"), _class11$1.prototype);
-    // _applyDecoratedDescriptor(_class11$1.prototype, "orthoSize", [_dec59, _dec60], Object.getOwnPropertyDescriptor(_class11$1.prototype, "orthoSize"), _class11$1.prototype);
 
     shadowInfoDecorator(ShadowsInfo);
 
 })();
 
 // OctreeInfo
+// @ts-ignore
 export const OctreeInfo = jsb.OctreeInfo;
 legacyCC.OctreeInfo = OctreeInfo;
 
@@ -727,6 +576,7 @@ legacyCC.OctreeInfo = OctreeInfo;
  * @en All scene related global parameters, it affects all content in the corresponding scene
  * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
  */
+// @ts-ignore
 export const SceneGlobals = jsb.SceneGlobals;
 legacyCC.SceneGlobals = SceneGlobals;
 
