@@ -31,6 +31,7 @@
 #include <sstream>
 #include <utility>
 #include "application/ApplicationManager.h"
+#include "base/memory/Memory.h"
 #include "base/Log.h"
 #include "base/UTF8.h"
 #include "network/HttpClient.h"

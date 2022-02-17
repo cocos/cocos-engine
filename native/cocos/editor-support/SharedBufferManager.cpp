@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "SharedBufferManager.h"
-#include "base/Macros.h"
+#include "base/memory/Memory.h"
 
 MIDDLEWARE_BEGIN
 

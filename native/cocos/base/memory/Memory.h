@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "AllocatedObj.h"
 #include "MemDef.h"
 #include "MemTracker.h"
 #include "StlAlloc.h"
@@ -88,6 +87,22 @@
         (ptr)->destroy();         \
         (ptr) = nullptr;          \
     }
+
+#define CC_SAFE_RELEASE(p)  \
+       if (p) {            \
+           (p)->release(); \
+       }                   
+
+#define CC_SAFE_RELEASE_NULL(p) \
+       if (p) {                \
+           (p)->release();     \
+           (p) = nullptr;      \
+       } 
+                             
+#define CC_SAFE_ADD_REF(p) \
+       if (p) {           \
+           (p)->addRef(); \
+       }                  
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0)
     #define ALIGNAS(x)

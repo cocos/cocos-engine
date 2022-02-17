@@ -156,7 +156,7 @@ public:
 
 private:
     std::vector<OSInterface::Ptr> _osInterfaces;
-    CC_DISABLE_COPY_AND_MOVE_SEMANTICS(BasePlatform);
+    CC_DISALLOW_COPY_MOVE_ASSIGN(BasePlatform);
 };
 } // namespace cc
 

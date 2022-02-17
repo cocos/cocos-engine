@@ -133,44 +133,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 // Generic macros
 
-#define CC_SAFE_DELETE(p) \
-    do {                  \
-        delete (p);       \
-        (p) = nullptr;    \
-    } while (0)
-#define CC_SAFE_DELETE_ARRAY(p) \
-    do {                        \
-        if (p) {                \
-            delete[](p);        \
-            (p) = nullptr;      \
-        }                       \
-    } while (0)
-#define CC_SAFE_FREE(p)    \
-    do {                   \
-        if (p) {           \
-            free(p);       \
-            (p) = nullptr; \
-        }                  \
-    } while (0)
-#define CC_SAFE_RELEASE(p)  \
-    do {                    \
-        if (p) {            \
-            (p)->release(); \
-        }                   \
-    } while (0)
-#define CC_SAFE_RELEASE_NULL(p) \
-    do {                        \
-        if (p) {                \
-            (p)->release();     \
-            (p) = nullptr;      \
-        }                       \
-    } while (0)
-#define CC_SAFE_ADD_REF(p) \
-    do {                   \
-        if (p) {           \
-            (p)->addRef(); \
-        }                  \
-    } while (0)
 #define CC_BREAK_IF(cond) \
     if (cond) break
 
@@ -245,15 +207,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 // Mode
 #define CC_MODE_DEBUG   1
 #define CC_MODE_RELEASE 2
-
-// Memory Allocator
-#define CC_MEMORY_ALLOCATOR_STD        0
-#define CC_MEMORY_ALLOCATOR_NEDPOOLING 1
-#define CC_MEMORY_ALLOCATOR_JEMALLOC   2
-
-// STL Memory Allocator
-#define CC_STL_MEMORY_ALLOCATOR_STANDARD 1
-#define CC_STL_MEMORY_ALLOCATOR_CUSTOM   2
 
 // Compiler type and version recognition
 #if defined(_MSC_VER)
@@ -350,32 +303,12 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 #define CC_DISALLOW_ASSIGN(TypeName)                \
     TypeName &operator=(const TypeName &) = delete; \
-    TypeName &operator=(TypeName &&) = delete
+TypeName &operator=(TypeName &&) = delete;
 
 #define CC_DISALLOW_COPY_MOVE_ASSIGN(TypeName) \
     TypeName(const TypeName &) = delete;       \
     TypeName(TypeName &&)      = delete;       \
     CC_DISALLOW_ASSIGN(TypeName)
-
-#define CC_ENABLE_COPY_SEMANTICS(cls) \
-    cls(const cls &) = default;       \
-    cls &operator=(const cls &) = default;
-
-#define CC_DISABLE_COPY_SEMANTICS(cls) \
-    cls(const cls &) = delete;         \
-    cls &operator=(const cls &) = delete;
-
-#define CC_ENABLE_MOVE_SEMANTICS(cls) \
-    cls(cls &&) noexcept = default;   \
-    cls &operator=(cls &&) noexcept = default;
-
-#define CC_DISABLE_MOVE_SEMANTICS(cls) \
-    cls(cls &&) noexcept = delete;     \
-    cls &operator=(cls &&) noexcept = delete;
-
-#define CC_DISABLE_COPY_AND_MOVE_SEMANTICS(cls) \
-    CC_DISABLE_COPY_SEMANTICS(cls)              \
-    CC_DISABLE_MOVE_SEMANTICS(cls)
 
 #if (CC_COMPILER == CC_COMPILER_MSVC)
     #define CC_ALIGN(N)        __declspec(align(N))

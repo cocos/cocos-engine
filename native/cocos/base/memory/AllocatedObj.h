@@ -30,15 +30,6 @@ THE SOFTWARE.
 #include "../Macros.h"
 #include "base/RefCounted.h"
 
-// Anything that has done a #define new <blah> will screw operator new definitions up
-// so undefine
-#ifdef new
-    #undef new
-#endif
-#ifdef delete
-    #undef delete
-#endif
-
 namespace cc {
 
 class CC_DLL AllocatedObject : public RefCounted {
