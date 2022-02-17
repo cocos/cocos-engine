@@ -27,6 +27,8 @@ using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
 template <class T>
 using PmrList = std::list<T, boost::container::pmr::polymorphic_allocator<T>>;
 
+namespace render {
+
 namespace impl {
 
 struct path_t { // NOLINT
@@ -582,5 +584,7 @@ protected:
 };
 
 } // namespace impl
+
+} // namespace render
 
 } // namespace cc

@@ -5,6 +5,8 @@
 
 namespace cc {
 
+namespace render {
+
 namespace impl {
 
 template <class CharT, class Allocator>
@@ -56,5 +58,7 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
 }
 
 } // namespace impl
+
+} // namespace render
 
 } // namespace cc

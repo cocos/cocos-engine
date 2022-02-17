@@ -848,13 +848,13 @@ struct property_map<cc::render::ResourceGraph, vertex_index_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::name_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
         const container::pmr::vector<cc::PmrString>,
         boost::string_view,
         const cc::PmrString&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
         container::pmr::vector<cc::PmrString>,
@@ -865,13 +865,13 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::name_>
 // Vertex Name
 template <>
 struct property_map<cc::render::ResourceGraph, vertex_name_t> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
         const container::pmr::vector<cc::PmrString>,
         boost::string_view,
         const cc::PmrString&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
         container::pmr::vector<cc::PmrString>,
@@ -882,13 +882,13 @@ struct property_map<cc::render::ResourceGraph, vertex_name_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::desc_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
         const container::pmr::vector<cc::render::ResourceDesc>,
         cc::render::ResourceDesc,
         const cc::render::ResourceDesc&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
         container::pmr::vector<cc::render::ResourceDesc>,
@@ -899,14 +899,14 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::desc_>
 // Vertex ComponentMember
 template <class T>
 struct property_map<cc::render::ResourceGraph, T cc::render::ResourceDesc::*> {
-    using const_type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
         const container::pmr::vector<cc::render::ResourceDesc>,
         T,
         const T&,
         T cc::render::ResourceDesc::*>;
-    using type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
         container::pmr::vector<cc::render::ResourceDesc>,
@@ -918,13 +918,13 @@ struct property_map<cc::render::ResourceGraph, T cc::render::ResourceDesc::*> {
 // Vertex Component
 template <>
 struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::traits_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
         const container::pmr::vector<cc::render::ResourceTraits>,
         cc::render::ResourceTraits,
         const cc::render::ResourceTraits&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
         container::pmr::vector<cc::render::ResourceTraits>,
@@ -935,14 +935,14 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::traits
 // Vertex ComponentMember
 template <class T>
 struct property_map<cc::render::ResourceGraph, T cc::render::ResourceTraits::*> {
-    using const_type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceGraph,
         const container::pmr::vector<cc::render::ResourceTraits>,
         T,
         const T&,
         T cc::render::ResourceTraits::*>;
-    using type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::ResourceGraph,
         container::pmr::vector<cc::render::ResourceTraits>,
@@ -961,13 +961,13 @@ struct property_map<cc::render::SubpassGraph, vertex_index_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::name_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
         const container::pmr::vector<cc::PmrString>,
         boost::string_view,
         const cc::PmrString&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
         container::pmr::vector<cc::PmrString>,
@@ -978,13 +978,13 @@ struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::name_> {
 // Vertex Name
 template <>
 struct property_map<cc::render::SubpassGraph, vertex_name_t> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
         const container::pmr::vector<cc::PmrString>,
         boost::string_view,
         const cc::PmrString&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
         container::pmr::vector<cc::PmrString>,
@@ -995,13 +995,13 @@ struct property_map<cc::render::SubpassGraph, vertex_name_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::subpass_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::SubpassGraph,
         const container::pmr::vector<cc::render::RasterSubpass>,
         cc::render::RasterSubpass,
         const cc::render::RasterSubpass&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::SubpassGraph,
         container::pmr::vector<cc::render::RasterSubpass>,
@@ -1012,14 +1012,14 @@ struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::subpass_
 // Vertex ComponentMember
 template <class T>
 struct property_map<cc::render::SubpassGraph, T cc::render::RasterSubpass::*> {
-    using const_type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::SubpassGraph,
         const container::pmr::vector<cc::render::RasterSubpass>,
         T,
         const T&,
         T cc::render::RasterSubpass::*>;
-    using type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::SubpassGraph,
         container::pmr::vector<cc::render::RasterSubpass>,
@@ -1038,13 +1038,13 @@ struct property_map<cc::render::RenderGraph, vertex_index_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::name_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::RenderGraph,
         const container::pmr::vector<cc::PmrString>,
         boost::string_view,
         const cc::PmrString&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         container::pmr::vector<cc::PmrString>,
@@ -1055,13 +1055,13 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::name_> {
 // Vertex Name
 template <>
 struct property_map<cc::render::RenderGraph, vertex_name_t> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::RenderGraph,
         const container::pmr::vector<cc::PmrString>,
         boost::string_view,
         const cc::PmrString&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         container::pmr::vector<cc::PmrString>,
@@ -1072,13 +1072,13 @@ struct property_map<cc::render::RenderGraph, vertex_name_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::layout_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::RenderGraph,
         const container::pmr::vector<cc::PmrString>,
         boost::string_view,
         const cc::PmrString&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         container::pmr::vector<cc::PmrString>,
@@ -1089,13 +1089,13 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::layout_> {
 // Vertex Component
 template <>
 struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::data_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::RenderGraph,
         const container::pmr::vector<cc::render::RenderData>,
         cc::render::RenderData,
         const cc::render::RenderData&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::RenderGraph,
         container::pmr::vector<cc::render::RenderData>,
@@ -1106,14 +1106,14 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::data_> {
 // Vertex ComponentMember
 template <class T>
 struct property_map<cc::render::RenderGraph, T cc::render::RenderData::*> {
-    using const_type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::RenderGraph,
         const container::pmr::vector<cc::render::RenderData>,
         T,
         const T&,
         T cc::render::RenderData::*>;
-    using type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::RenderGraph,
         container::pmr::vector<cc::render::RenderData>,

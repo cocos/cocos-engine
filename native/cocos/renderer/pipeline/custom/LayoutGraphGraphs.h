@@ -296,13 +296,13 @@ struct property_map<cc::render::LayoutGraph, vertex_index_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::name_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::LayoutGraph,
         const container::pmr::vector<std::string>,
         boost::string_view,
         const std::string&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraph,
         container::pmr::vector<std::string>,
@@ -313,13 +313,13 @@ struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::name_> {
 // Vertex Name
 template <>
 struct property_map<cc::render::LayoutGraph, vertex_name_t> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::LayoutGraph,
         const container::pmr::vector<std::string>,
         boost::string_view,
         const std::string&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraph,
         container::pmr::vector<std::string>,
@@ -330,13 +330,13 @@ struct property_map<cc::render::LayoutGraph, vertex_name_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::update_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraph,
         const container::pmr::vector<cc::render::UpdateFrequency>,
         cc::render::UpdateFrequency,
         const cc::render::UpdateFrequency&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::LayoutGraph,
         container::pmr::vector<cc::render::UpdateFrequency>,
@@ -347,13 +347,13 @@ struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::update_> {
 // Vertex Component
 template <>
 struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::layout_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraph,
         const container::pmr::vector<cc::render::LayoutData>,
         cc::render::LayoutData,
         const cc::render::LayoutData&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::LayoutGraph,
         container::pmr::vector<cc::render::LayoutData>,
@@ -364,14 +364,14 @@ struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::layout_> {
 // Vertex ComponentMember
 template <class T>
 struct property_map<cc::render::LayoutGraph, T cc::render::LayoutData::*> {
-    using const_type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraph,
         const container::pmr::vector<cc::render::LayoutData>,
         T,
         const T&,
         T cc::render::LayoutData::*>;
-    using type = cc::impl::VectorVertexComponentMemberPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::LayoutGraph,
         container::pmr::vector<cc::render::LayoutData>,

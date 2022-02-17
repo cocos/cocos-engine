@@ -361,13 +361,13 @@ struct property_map<cc::render::DeviceResourceGraph, vertex_index_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::DeviceResourceGraph, cc::render::DeviceResourceGraph::name_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::DeviceResourceGraph,
         const container::pmr::vector<std::string>,
         boost::string_view,
         const std::string&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::DeviceResourceGraph,
         container::pmr::vector<std::string>,
@@ -378,13 +378,13 @@ struct property_map<cc::render::DeviceResourceGraph, cc::render::DeviceResourceG
 // Vertex Name
 template <>
 struct property_map<cc::render::DeviceResourceGraph, vertex_name_t> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::DeviceResourceGraph,
         const container::pmr::vector<std::string>,
         boost::string_view,
         const std::string&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::DeviceResourceGraph,
         container::pmr::vector<std::string>,
@@ -395,13 +395,13 @@ struct property_map<cc::render::DeviceResourceGraph, vertex_name_t> {
 // Vertex Component
 template <>
 struct property_map<cc::render::DeviceResourceGraph, cc::render::DeviceResourceGraph::refCount_> {
-    using const_type = cc::impl::VectorVertexComponentPropertyMap<
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::DeviceResourceGraph,
         const container::pmr::vector<int32_t>,
         int32_t,
         const int32_t&>;
-    using type = cc::impl::VectorVertexComponentPropertyMap<
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::DeviceResourceGraph,
         container::pmr::vector<int32_t>,

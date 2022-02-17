@@ -32,8 +32,8 @@ overloaded_t<Ts...> overload(Ts... ts) {
 }
 
 template <class... Ts>
-struct vertex_overloaded : overloaded_t<Ts...> { // NOLINT
-    vertex_overloaded(Ts... ts)                  // NOLINT
+struct vertex_overloaded_t : overloaded_t<Ts...> { // NOLINT
+    vertex_overloaded_t(Ts... ts)                  // NOLINT
     : overloaded_t<Ts...>(std::move(ts)...) {}
     template <class T>
     auto operator()(T *ptr) {
@@ -43,7 +43,7 @@ struct vertex_overloaded : overloaded_t<Ts...> { // NOLINT
 
 template <class GraphT, class... Ts>
 auto visit_vertex(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) { // NOLINT
-    return cc::visit(vertex_overloaded<Ts...>{std::move(args)...}, value(v, g));
+    return cc::visit(vertex_overloaded_t<Ts...>{std::move(args)...}, value(v, g));
 }
 
 template <typename V>

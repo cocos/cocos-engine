@@ -10,6 +10,8 @@
 
 namespace cc {
 
+namespace render {
+
 namespace impl {
 
 //--------------------------------------------------------------------
@@ -636,13 +638,15 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
 
 } // namespace impl
 
+} // namespace render
+
 } // namespace cc
 
 namespace std {
 
 template <class DirectedCategory, class VertexDescriptor>
-struct hash<cc::impl::EdgeDescriptor<DirectedCategory, VertexDescriptor>> {
-    size_t operator()(const cc::impl::EdgeDescriptor<DirectedCategory, VertexDescriptor> &e) const noexcept {
+struct hash<cc::render::impl::EdgeDescriptor<DirectedCategory, VertexDescriptor>> {
+    size_t operator()(const cc::render::impl::EdgeDescriptor<DirectedCategory, VertexDescriptor> &e) const noexcept {
         return boost::hash_value(e.get_property());
     }
 };
