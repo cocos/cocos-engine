@@ -26,6 +26,7 @@
 #pragma once
 
 #include "math/Vec3.h"
+#include "math/Vec2.h"
 #include "scene/Light.h"
 
 namespace cc {
@@ -56,21 +57,33 @@ public:
     inline void setShadowNear(float nearValue) { _shadowNear = nearValue; }
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
     inline void setShadowOrthoSize(float orthoSize) { _shadowOrthoSize = orthoSize; }
+    inline void setShadowCSMLevel(float level) { _shadowCSMLevel = level; }
+    inline void setShadowCSMLambda(float lambda) { _shadowCSMLambda = lambda; }
+    inline void setShadowFrustumItem(Vec2 *shadowFrustumItem) { memcpy(_shadowFrustumItem, shadowFrustumItem, sizeof(Vec2) * 4); }
+    inline void setShadowFrustumItem(const Vec2 &val, const Vec2 &val1, const Vec2 &val2, const Vec2 &val3) {
+        _shadowFrustumItem[0].set(val);
+        _shadowFrustumItem[1].set(val);
+        _shadowFrustumItem[2].set(val);
+        _shadowFrustumItem[3].set(val);
+    }
 
-    inline const Vec3 &getDirection() const { return _dir; }
-    inline float       getIlluminanceHDR() const { return _illuminanceHDR; }
-    inline float       getIlluminanceLDR() const { return _illuminanceLDR; }
-    inline bool        getShadowEnabled() const { return _shadowEnabled; }
-    inline float       getShadowPcf() const { return _shadowPcf; }
-    inline float       getShadowBias() const { return _shadowBias; }
-    inline float       getShadowNormalBias() const { return _shadowNormalBias; }
-    inline float       getShadowSaturation() const { return _shadowSaturation; }
-    inline float       getShadowDistance() const { return _shadowDistance; }
-    inline float       getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
-    inline bool        getShadowFixedArea() const { return _shadowFixedArea; }
-    inline float       getShadowNear() const { return _shadowNear; }
-    inline float       getShadowFar() const { return _shadowFar; }
-    inline float       getShadowOrthoSize() const { return _shadowOrthoSize; }
+    inline const Vec3 & getDirection() const { return _dir; }
+    inline float        getIlluminanceHDR() const { return _illuminanceHDR; }
+    inline float        getIlluminanceLDR() const { return _illuminanceLDR; }
+    inline bool         getShadowEnabled() const { return _shadowEnabled; }
+    inline float        getShadowPcf() const { return _shadowPcf; }
+    inline float        getShadowBias() const { return _shadowBias; }
+    inline float        getShadowNormalBias() const { return _shadowNormalBias; }
+    inline float        getShadowSaturation() const { return _shadowSaturation; }
+    inline float        getShadowDistance() const { return _shadowDistance; }
+    inline float        getShadowInvisibleOcclusionRange() const { return _shadowInvisibleOcclusionRange; }
+    inline bool         getShadowFixedArea() const { return _shadowFixedArea; }
+    inline float        getShadowNear() const { return _shadowNear; }
+    inline float        getShadowFar() const { return _shadowFar; }
+    inline float        getShadowOrthoSize() const { return _shadowOrthoSize; }
+    inline float        getShadowCSMLevel() const { return _shadowCSMLevel; }
+    inline float        getShadowCSMLambda() const { return _shadowCSMLambda; }
+    inline const Vec2*  getShadowFrustumItem() const { return _shadowFrustumItem; }
 
 private:
     float _illuminanceHDR{0.F};
@@ -89,6 +102,9 @@ private:
     float _shadowNear{0.1F};
     float _shadowFar{10.0F};
     float _shadowOrthoSize{1.0F};
+    float _shadowCSMLevel{3.0F};
+    float _shadowCSMLambda{0.75};
+    Vec2  _shadowFrustumItem[4];
 };
 
 } // namespace scene
