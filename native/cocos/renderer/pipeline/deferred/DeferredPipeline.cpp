@@ -194,7 +194,7 @@ bool DeferredPipeline::destroy() {
     destroyQuadInputAssembler();
 
     for (auto &it : _renderPasses) {
-        CC_DESTROY(it.second);
+        it.second->destroy();
     }
     _renderPasses.clear();
 

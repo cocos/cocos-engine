@@ -515,45 +515,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_MODE CC_MODE_RELEASE
 #endif
 
-// Engine Memory Management
-// #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-//     #if (CC_MODE == CC_MODE_DEBUG)
-//         #define CC_MEMORY_TRACKER
-//     #endif
-// #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
-// //#    define CC_MEMORY_TRACKER
-// #else
-// #endif
-
-// use simd
-//#define CC_USE_SIMD
-
-// Memory Allocator
-// #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-//     #define CC_MEMORY_ALLOCATOR CC_MEMORY_ALLOCATOR_STD
-//     #undef CC_MEMORY_TRACKER
-// //#if defined(CC_MEMORY_TRACKER)
-// //#    define CC_MEMORY_ALLOCATOR  CC_MEMORY_ALLOCATOR_JEMALLOC
-// //#else
-// //#    define CC_MEMORY_ALLOCATOR  CC_MEMORY_ALLOCATOR_STD
-// //#endif
-// #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
-//     #if defined(CC_MEMORY_TRACKER)
-//         #define CC_MEMORY_ALLOCATOR CC_MEMORY_ALLOCATOR_JEMALLOC
-//     #else
-//         #define CC_MEMORY_ALLOCATOR CC_MEMORY_ALLOCATOR_STD
-//     #endif
-// #else
-//     #define CC_MEMORY_ALLOCATOR CC_MEMORY_ALLOCATOR_STD
-// #endif
-
-// // STL memory allocator
-// #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_STD)
-//     #define CC_STL_MEMORY_ALLOCATOR CC_STL_MEMORY_ALLOCATOR_STANDARD
-// #else
-//     #define CC_STL_MEMORY_ALLOCATOR CC_STL_MEMORY_ALLOCATOR_CUSTOM
-// #endif
-
 #define CC_TOSTR(s) #s
 
 #if defined(__GNUC__) && __GNUC__ >= 4

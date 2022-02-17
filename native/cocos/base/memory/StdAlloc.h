@@ -24,10 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_STD_ALLOC_H_
-#define CC_CORE_STD_ALLOC_H_
-
-#if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_STD)
+#pragma once
 
     #include "base/Macros.h"
     #include <limits>
@@ -44,77 +41,8 @@ namespace cc {
 */
 class CC_DLL StdAllocPolicy {
 public:
-    static inline CC_DECL_MALLOC void *AllocateBytes(size_t count,
-    #ifdef CC_MEMORY_TRACKER
-                                                        const char *file = nullptr, int line = 0, const char *func = nullptr
-    #else
-                                                        const char * = nullptr, int = 0, const char * = nullptr
-    #endif
-    ) {
-        void *ptr = malloc(count);
-    #ifdef CC_MEMORY_TRACKER
-        MemTracker::Instance()->RecordAlloc(ptr, count, file, line, func);
-    #endif
-        return ptr;
-    }
-
-    static inline CC_DECL_MALLOC void *ReallocateBytes(void *ptr, size_t count,
-    #ifdef CC_MEMORY_TRACKER
-                                                          const char *file = nullptr, int line = 0, const char *func = nullptr
-    #else
-                                                          const char * = nullptr, int = 0, const char * = nullptr
-    #endif
-    ) {
-    #ifdef CC_MEMORY_TRACKER
-        if (ptr) {
-            if (count == 0) {
-                MemTracker::Instance()->RecordFree(ptr);
-                free(ptr);
-                return NULL;
-            } else {
-                int oldsz = MemTracker::Instance()->GetAllocSize(ptr);
-                if (oldsz < 0) {
-                    printf("realloc: get old size of ptr fail!\n");
-                    assert(0);
-                    return realloc(ptr, count);
-                } else {
-                    if (oldsz > (int)count) oldsz = (int)count;
-                }
-
-                void *nptr = malloc(count);
-                memcpy(nptr, ptr, oldsz);
-                MemTracker::Instance()->RecordAlloc(nptr, count, file, line, func);
-                MemTracker::Instance()->RecordFree(ptr);
-                free(ptr);
-                return nptr;
-            }
-        } else {
-            if (count) {
-                ptr = malloc(count);
-                MemTracker::Instance()->RecordAlloc(ptr, count, file, line, func);
-                return ptr;
-            } else {
-                return nullptr;
-            }
-        }
-    #else
-        return realloc(ptr, count);
-    #endif
-    }
-
-    static inline void DeallocateBytes(void *ptr) {
-    #ifdef CC_MEMORY_TRACKER
-        MemTracker::Instance()->RecordFree(ptr);
-    #endif
-        free(ptr);
-    }
-
     static inline CC_DECL_MALLOC void *AllocateBytesAligned(size_t alignment, size_t count,
-    #ifdef CC_MEMORY_TRACKER
-                                                               const char *file = NULL, int line = 0, const char *func = NULL
-    #else
                                                                const char * = NULL, int = 0, const char * = NULL
-    #endif
     ) {
     #ifdef _MSC_VER
         void *ptr = _aligned_malloc(count, alignment);
@@ -129,17 +57,10 @@ public:
         void *ptr = NULL;
         posix_memalign(&ptr, alignment, count);
     #endif
-
-    #ifdef CC_MEMORY_TRACKER
-        MemTracker::Instance()->RecordAlloc(ptr, count, file, line, func);
-    #endif
         return ptr;
     }
 
     static inline void DeallocateBytesAligned(void *ptr) {
-    #ifdef CC_MEMORY_TRACKER
-        MemTracker::Instance()->RecordFree(ptr);
-    #endif
 
     #ifdef _MSC_VER
         _aligned_free(ptr);
@@ -154,18 +75,9 @@ public:
     #endif
     }
 
-    // Get the maximum size of a single allocation
-    static inline size_t getMaxAllocationSize() {
-        return (std::numeric_limits<size_t>::max)();
-    }
-
 private:
     // No instantiation
     StdAllocPolicy() {}
 };
 
 } // namespace cc
-
-#endif
-
-#endif // CC_CORE_STD_ALLOC_H_
