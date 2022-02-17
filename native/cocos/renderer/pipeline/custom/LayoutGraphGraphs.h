@@ -810,7 +810,7 @@ locate(LayoutGraph::vertex_descriptor u, boost::string_view relative, const Layo
     Expects(!relative.starts_with('/'));
     Expects(!relative.ends_with('/'));
     auto key = get_path(u, relative, g);
-    cleanPath(key);
+    impl::cleanPath(key);
     return locate(key, g);
 };
 

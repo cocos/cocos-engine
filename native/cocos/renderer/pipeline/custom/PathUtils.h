@@ -5,6 +5,8 @@
 
 namespace cc {
 
+namespace impl {
+
 template <class CharT, class Allocator>
 inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocator> &str) noexcept {
     using string_t                = std::basic_string<CharT, std::char_traits<CharT>, Allocator>;
@@ -52,5 +54,7 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
         str.erase(beg, pos - beg + previous.size() - 1);
     }
 }
+
+} // namespace impl
 
 } // namespace cc
