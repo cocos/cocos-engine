@@ -614,8 +614,6 @@ cocos_source_files(MODULE ccunzip
 cocos_source_files(
                  cocos/base/memory/AllocatedObj.cpp
                  cocos/base/memory/AllocatedObj.h
-                 cocos/base/memory/JeAlloc.cpp
-                 cocos/base/memory/JeAlloc.h
                  cocos/base/memory/MemDef.h
                  cocos/base/memory/Memory.cpp
                  cocos/base/memory/Memory.h

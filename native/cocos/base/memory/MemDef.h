@@ -28,7 +28,6 @@ THE SOFTWARE.
 #define CC_MEM_DEF_H_
 
 #include "AllocatedObj.h"
-#include "JeAlloc.h"
 #include "StdAlloc.h"
 
 namespace cc {
