@@ -26,18 +26,18 @@ target(const DeviceResourceGraph::edge_descriptor& e, const DeviceResourceGraph&
 inline std::pair<DeviceResourceGraph::out_edge_iterator, DeviceResourceGraph::out_edge_iterator>
 out_edges(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) noexcept { // NOLINT
     return std::make_pair(
-        DeviceResourceGraph::out_edge_iterator(const_cast<DeviceResourceGraph&>(g).out_edge_list(u).begin(), u),
-        DeviceResourceGraph::out_edge_iterator(const_cast<DeviceResourceGraph&>(g).out_edge_list(u).end(), u));
+        DeviceResourceGraph::out_edge_iterator(const_cast<DeviceResourceGraph&>(g).getOutEdgeList(u).begin(), u),
+        DeviceResourceGraph::out_edge_iterator(const_cast<DeviceResourceGraph&>(g).getOutEdgeList(u).end(), u));
 }
 
 inline DeviceResourceGraph::degree_size_type
 out_degree(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<DeviceResourceGraph::degree_size_type>(g.out_edge_list(u).size());
+    return gsl::narrow_cast<DeviceResourceGraph::degree_size_type>(g.getOutEdgeList(u).size());
 }
 
 inline std::pair<DeviceResourceGraph::edge_descriptor, bool>
 edge(DeviceResourceGraph::vertex_descriptor u, DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept {
-    const auto& outEdgeList = g.out_edge_list(u);
+    const auto& outEdgeList = g.getOutEdgeList(u);
     auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), DeviceResourceGraph::out_edge_type(v));
     bool  hasEdge     = (iter != outEdgeList.end());
     return {DeviceResourceGraph::edge_descriptor(u, v), hasEdge};
@@ -47,13 +47,13 @@ edge(DeviceResourceGraph::vertex_descriptor u, DeviceResourceGraph::vertex_descr
 inline std::pair<DeviceResourceGraph::in_edge_iterator, DeviceResourceGraph::in_edge_iterator>
 in_edges(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) noexcept { // NOLINT
     return std::make_pair(
-        DeviceResourceGraph::in_edge_iterator(const_cast<DeviceResourceGraph&>(g).in_edge_list(u).begin(), u),
-        DeviceResourceGraph::in_edge_iterator(const_cast<DeviceResourceGraph&>(g).in_edge_list(u).end(), u));
+        DeviceResourceGraph::in_edge_iterator(const_cast<DeviceResourceGraph&>(g).getInEdgeList(u).begin(), u),
+        DeviceResourceGraph::in_edge_iterator(const_cast<DeviceResourceGraph&>(g).getInEdgeList(u).end(), u));
 }
 
 inline DeviceResourceGraph::degree_size_type
 in_degree(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<DeviceResourceGraph::degree_size_type>(g.in_edge_list(u).size());
+    return gsl::narrow_cast<DeviceResourceGraph::degree_size_type>(g.getInEdgeList(u).size());
 }
 
 inline DeviceResourceGraph::degree_size_type
@@ -71,12 +71,12 @@ adjacent_vertices(DeviceResourceGraph::vertex_descriptor u, const DeviceResource
 // VertexListGraph
 inline std::pair<DeviceResourceGraph::vertex_iterator, DeviceResourceGraph::vertex_iterator>
 vertices(const DeviceResourceGraph& g) noexcept {
-    return std::make_pair(const_cast<DeviceResourceGraph&>(g).vertex_set().begin(), const_cast<DeviceResourceGraph&>(g).vertex_set().end());
+    return std::make_pair(const_cast<DeviceResourceGraph&>(g).getVertexList().begin(), const_cast<DeviceResourceGraph&>(g).getVertexList().end());
 }
 
 inline DeviceResourceGraph::vertices_size_type
 num_vertices(const DeviceResourceGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<DeviceResourceGraph::vertices_size_type>(g.vertex_set().size());
+    return gsl::narrow_cast<DeviceResourceGraph::vertices_size_type>(g.getVertexList().size());
 }
 
 // EdgeListGraph
@@ -84,8 +84,8 @@ inline std::pair<DeviceResourceGraph::edge_iterator, DeviceResourceGraph::edge_i
 edges(const DeviceResourceGraph& g0) noexcept {
     auto& g = const_cast<DeviceResourceGraph&>(g0);
     return std::make_pair(
-        DeviceResourceGraph::edge_iterator(g.vertex_set().begin(), g.vertex_set().begin(), g.vertex_set().end(), g),
-        DeviceResourceGraph::edge_iterator(g.vertex_set().begin(), g.vertex_set().end(), g.vertex_set().end(), g));
+        DeviceResourceGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().begin(), g.getVertexList().end(), g),
+        DeviceResourceGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().end(), g.getVertexList().end(), g));
 }
 
 inline DeviceResourceGraph::edges_size_type
@@ -104,10 +104,10 @@ inline std::pair<DeviceResourceGraph::edge_descriptor, bool>
 add_edge( // NOLINT
     DeviceResourceGraph::vertex_descriptor u,
     DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
-    auto& outEdgeList = g.out_edge_list(u);
+    auto& outEdgeList = g.getOutEdgeList(u);
     outEdgeList.emplace_back(v);
 
-    auto& inEdgeList = g.in_edge_list(v);
+    auto& inEdgeList = g.getInEdgeList(v);
     inEdgeList.emplace_back(u);
 
     return std::make_pair(DeviceResourceGraph::edge_descriptor(u, v), true);
@@ -115,14 +115,14 @@ add_edge( // NOLINT
 
 inline void remove_edge(DeviceResourceGraph::vertex_descriptor u, DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) noexcept { // NOLINT
     // remove out-edges
-    auto& outEdgeList = g.out_edge_list(u);
+    auto& outEdgeList = g.getOutEdgeList(u);
     // eraseFromIncidenceList
     impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
         return e.get_target() == v;
     });
 
     // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.in_edge_list(v);
+    auto& inEdgeList = g.getInEdgeList(v);
     // eraseFromIncidenceList
     impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
         return e.get_target() == u;
@@ -131,16 +131,16 @@ inline void remove_edge(DeviceResourceGraph::vertex_descriptor u, DeviceResource
 
 inline void remove_edge(DeviceResourceGraph::edge_descriptor e, DeviceResourceGraph& g) noexcept { // NOLINT
     // remove_edge need rewrite
-    auto& outEdgeList = g.out_edge_list(source(e, g));
+    auto& outEdgeList = g.getOutEdgeList(source(e, g));
     impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.in_edge_list(target(e, g));
+    auto& inEdgeList = g.getInEdgeList(target(e, g));
     impl::removeIncidenceEdge(e, inEdgeList);
 }
 
 inline void remove_edge(DeviceResourceGraph::out_edge_iterator iter, DeviceResourceGraph& g) noexcept { // NOLINT
     auto  e           = *iter;
-    auto& outEdgeList = g.out_edge_list(source(e, g));
-    auto& inEdgeList  = g.in_edge_list(target(e, g));
+    auto& outEdgeList = g.getOutEdgeList(source(e, g));
+    auto& inEdgeList  = g.getInEdgeList(target(e, g));
     impl::removeIncidenceEdge(e, inEdgeList);
     outEdgeList.erase(iter.base());
 }
@@ -151,7 +151,7 @@ inline void remove_out_edge_if(DeviceResourceGraph::vertex_descriptor u, Predica
         auto& outIter = pair.first;
         auto& outEnd = pair.second;
         if (pred(*outIter)) {
-            auto& inEdgeList = g.in_edge_list(target(*outIter, g));
+            auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
             impl::removeIncidenceEdge(e, inEdgeList);
         }
@@ -159,7 +159,7 @@ inline void remove_out_edge_if(DeviceResourceGraph::vertex_descriptor u, Predica
     auto pair = out_edges(u, g);
     auto& first = pair.first;
     auto& last = pair.second;
-    auto& outEdgeList  = g.out_edge_list(u);
+    auto& outEdgeList  = g.getOutEdgeList(u);
     impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
 }
 
@@ -169,7 +169,7 @@ inline void remove_in_edge_if(DeviceResourceGraph::vertex_descriptor v, Predicat
         auto& inIter = pair.first;
         auto& inEnd = pair.second;
         if (pred(*inIter)) {
-            auto& outEdgeList = g.out_edge_list(source(*inIter, g));
+            auto& outEdgeList = g.getOutEdgeList(source(*inIter, g));
             auto  e           = *inIter;
             impl::removeIncidenceEdge(e, outEdgeList);
         }
@@ -177,7 +177,7 @@ inline void remove_in_edge_if(DeviceResourceGraph::vertex_descriptor v, Predicat
     auto pair = in_edges(v, g);
     auto& first = pair.first;
     auto& last = pair.second;
-    auto& inEdgeList   = g.in_edge_list(v);
+    auto& inEdgeList   = g.getInEdgeList(v);
     impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
 }
 
@@ -197,10 +197,10 @@ inline void remove_edge_if(Predicate&& pred, DeviceResourceGraph& g) noexcept { 
 // MutableGraph(Vertex)
 inline void clear_out_edges(DeviceResourceGraph::vertex_descriptor u, DeviceResourceGraph& g) noexcept { // NOLINT
     // Bidirectional (OutEdges)
-    auto& outEdgeList = g.out_edge_list(u);
+    auto& outEdgeList = g.getOutEdgeList(u);
     auto  outEnd      = outEdgeList.end();
     for (auto iter = outEdgeList.begin(); iter != outEnd; ++iter) {
-        auto& inEdgeList = g.in_edge_list((*iter).get_target());
+        auto& inEdgeList = g.getInEdgeList((*iter).get_target());
         // eraseFromIncidenceList
         impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
             return e.get_target() == u;
@@ -211,10 +211,10 @@ inline void clear_out_edges(DeviceResourceGraph::vertex_descriptor u, DeviceReso
 
 inline void clear_in_edges(DeviceResourceGraph::vertex_descriptor u, DeviceResourceGraph& g) noexcept { // NOLINT
     // Bidirectional (InEdges)
-    auto& inEdgeList = g.in_edge_list(u);
+    auto& inEdgeList = g.getInEdgeList(u);
     auto  inEnd      = inEdgeList.end();
     for (auto iter = inEdgeList.begin(); iter != inEnd; ++iter) {
-        auto& outEdgeList = g.out_edge_list((*iter).get_target());
+        auto& outEdgeList = g.getOutEdgeList((*iter).get_target());
         // eraseFromIncidenceList
         impl::sequenceEraseIf(outEdgeList, [u](const auto& e) {
             return e.get_target() == u;

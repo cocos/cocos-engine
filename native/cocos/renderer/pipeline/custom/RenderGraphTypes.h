@@ -146,25 +146,25 @@ struct ResourceGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
+    inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
         return this->vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
+    inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return this->vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
+    inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
         return this->vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
+    inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
         return this->vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
+    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
-    inline vertex_descriptor current_id() const noexcept { // NOLINT
+    inline vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
@@ -362,25 +362,25 @@ struct SubpassGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
+    inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
         return this->vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
+    inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return this->vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
+    inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
         return this->vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
+    inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
         return this->vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
+    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
-    inline vertex_descriptor current_id() const noexcept { // NOLINT
+    inline vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
@@ -745,25 +745,25 @@ struct RenderGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) noexcept { // NOLINT
+    inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
         return this->vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<out_edge_type>& out_edge_list(vertex_descriptor v) const noexcept { // NOLINT
+    inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return this->vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) noexcept { // NOLINT
+    inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
         return this->vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<in_edge_type>& in_edge_list(vertex_descriptor v) const noexcept { // NOLINT
+    inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
         return this->vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> vertex_set() const noexcept { // NOLINT
+    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(this->vertices.size())};
     }
 
-    inline vertex_descriptor current_id() const noexcept { // NOLINT
+    inline vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(this->vertices.size());
     }
 
@@ -793,17 +793,17 @@ struct RenderGraph {
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline boost::container::pmr::vector<children_edge_type>& children_list(vertex_descriptor v) noexcept { // NOLINT
+    inline boost::container::pmr::vector<children_edge_type>& getChildrenList(vertex_descriptor v) noexcept {
         return this->objects[v].children;
     }
-    inline const boost::container::pmr::vector<children_edge_type>& children_list(vertex_descriptor v) const noexcept { // NOLINT
+    inline const boost::container::pmr::vector<children_edge_type>& getChildrenList(vertex_descriptor v) const noexcept {
         return this->objects[v].children;
     }
 
-    inline boost::container::pmr::vector<parent_edge_type>& parents_list(vertex_descriptor v) noexcept { // NOLINT
+    inline boost::container::pmr::vector<parent_edge_type>& getParentsList(vertex_descriptor v) noexcept {
         return this->objects[v].parents;
     }
-    inline const boost::container::pmr::vector<parent_edge_type>& parents_list(vertex_descriptor v) const noexcept { // NOLINT
+    inline const boost::container::pmr::vector<parent_edge_type>& getParentsList(vertex_descriptor v) const noexcept {
         return this->objects[v].parents;
     }
 

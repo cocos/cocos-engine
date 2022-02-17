@@ -378,7 +378,7 @@ inline void associativeRemoveIncidenceEdgeIf(IncidenceIterator first, IncidenceI
 
 template <class Graph, class EdgeDescriptor, class EdgeProperty>
 inline void removeUndirectedEdge(Graph &g, EdgeDescriptor e, EdgeProperty &p) noexcept {
-    auto                               &outEdgeList = g.out_edge_list(source(e, g));
+    auto                               &outEdgeList = g.getOutEdgeList(source(e, g));
     auto                                outEdgeIter = outEdgeList.begin();
     decltype((*outEdgeIter).get_iter()) edgeIterToErase;
     for (; outEdgeIter != outEdgeList.end(); ++outEdgeIter) {
@@ -388,7 +388,7 @@ inline void removeUndirectedEdge(Graph &g, EdgeDescriptor e, EdgeProperty &p) no
             break;
         }
     }
-    auto &inEdgeList = g.out_edge_list(target(e, g));
+    auto &inEdgeList = g.getOutEdgeList(target(e, g));
     auto  inEdgeIter = inEdgeList.begin();
     for (; inEdgeIter != inEdgeList.end(); ++inEdgeIter) {
         if (&(*inEdgeIter).get_property() == &p) {
@@ -425,7 +425,7 @@ inline void sequenceRemoveUndirectedOutEdgeIf(Graph            &g,
                     selfLoopRemoved = true;
                 } else {
                     // Remove the edge from the target
-                    removeIncidenceEdge(*i, g.out_edge_list(target(*i, g)));
+                    removeIncidenceEdge(*i, g.getOutEdgeList(target(*i, g)));
                 }
 
                 // Erase the edge property
@@ -445,7 +445,7 @@ inline void associativeRemoveUndirectedOutEdgeIf(Graph            &g,
         if (pred(*first)) {
             if (source(*first, g) != target(*first, g)) {
                 // Remove the edge from the target
-                removeIncidenceEdge(*first, g.out_edge_list(target(*first, g)));
+                removeIncidenceEdge(*first, g.getOutEdgeList(target(*first, g)));
             }
 
             // Erase the edge property
@@ -490,7 +490,7 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::directed_tag
     auto numV = num_vertices(g);
     if (u != numV) {
         for (VertexDescriptor v = 0; v < numV; ++v) {
-            reindexEdgeList(g.out_edge_list(v), u);
+            reindexEdgeList(g.getOutEdgeList(v), u);
         }
     }
 }
@@ -500,7 +500,7 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::undirected_t
     g.vertices.erase(g.vertices.begin() + u);
     VertexDescriptor numV = num_vertices(g);
     for (VertexDescriptor v = 0; v < numV; ++v) {
-        reindexEdgeList(g.out_edge_list(v), u);
+        reindexEdgeList(g.getOutEdgeList(v), u);
     }
 
     auto ei    = g.edges.begin();
@@ -522,11 +522,11 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::bidirectiona
     VertexDescriptor v;
     if (u != numV) {
         for (v = 0; v < numV; ++v) {
-            reindexEdgeList(g.out_edge_list(v), u);
+            reindexEdgeList(g.getOutEdgeList(v), u);
         }
 
         for (v = 0; v < numV; ++v) {
-            reindexEdgeList(g.in_edge_list(v), u);
+            reindexEdgeList(g.getInEdgeList(v), u);
         }
     }
 }
@@ -539,11 +539,11 @@ inline void removeVectorVertex(Graph           &g, EdgeList           &/*edges*/
     VertexDescriptor v;
     if (u != numV) {
         for (v = 0; v < numV; ++v) {
-            reindexEdgeList(g.out_edge_list(v), u);
+            reindexEdgeList(g.getOutEdgeList(v), u);
         }
 
         for (v = 0; v < numV; ++v) {
-            reindexEdgeList(g.in_edge_list(v), u);
+            reindexEdgeList(g.getInEdgeList(v), u);
         }
 
         auto ei    = g.edges.begin();
@@ -566,11 +566,11 @@ inline void removeVectorOwner(Graph &g, typename Graph::vertex_descriptor u) {
     auto numV = num_vertices(g);
     if (u != numV) {
         for (typename Graph::vertex_descriptor v = 0; v < numV; ++v) {
-            reindexEdgeList(g.children_list(v), u);
+            reindexEdgeList(g.getChildrenList(v), u);
         }
 
         for (typename Graph::vertex_descriptor v = 0; v < numV; ++v) {
-            reindexEdgeList(g.parents_list(v), u);
+            reindexEdgeList(g.getParentsList(v), u);
         }
     }
 }

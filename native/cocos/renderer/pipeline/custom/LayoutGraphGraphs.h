@@ -26,18 +26,18 @@ target(const LayoutGraph::edge_descriptor& e, const LayoutGraph& /*g*/) noexcept
 inline std::pair<LayoutGraph::out_edge_iterator, LayoutGraph::out_edge_iterator>
 out_edges(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // NOLINT
     return std::make_pair(
-        LayoutGraph::out_edge_iterator(const_cast<LayoutGraph&>(g).out_edge_list(u).begin(), u),
-        LayoutGraph::out_edge_iterator(const_cast<LayoutGraph&>(g).out_edge_list(u).end(), u));
+        LayoutGraph::out_edge_iterator(const_cast<LayoutGraph&>(g).getOutEdgeList(u).begin(), u),
+        LayoutGraph::out_edge_iterator(const_cast<LayoutGraph&>(g).getOutEdgeList(u).end(), u));
 }
 
 inline LayoutGraph::degree_size_type
 out_degree(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<LayoutGraph::degree_size_type>(g.out_edge_list(u).size());
+    return gsl::narrow_cast<LayoutGraph::degree_size_type>(g.getOutEdgeList(u).size());
 }
 
 inline std::pair<LayoutGraph::edge_descriptor, bool>
 edge(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept {
-    const auto& outEdgeList = g.out_edge_list(u);
+    const auto& outEdgeList = g.getOutEdgeList(u);
     auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), LayoutGraph::out_edge_type(v));
     bool  hasEdge     = (iter != outEdgeList.end());
     return {LayoutGraph::edge_descriptor(u, v), hasEdge};
@@ -47,13 +47,13 @@ edge(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, const L
 inline std::pair<LayoutGraph::in_edge_iterator, LayoutGraph::in_edge_iterator>
 in_edges(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // NOLINT
     return std::make_pair(
-        LayoutGraph::in_edge_iterator(const_cast<LayoutGraph&>(g).in_edge_list(u).begin(), u),
-        LayoutGraph::in_edge_iterator(const_cast<LayoutGraph&>(g).in_edge_list(u).end(), u));
+        LayoutGraph::in_edge_iterator(const_cast<LayoutGraph&>(g).getInEdgeList(u).begin(), u),
+        LayoutGraph::in_edge_iterator(const_cast<LayoutGraph&>(g).getInEdgeList(u).end(), u));
 }
 
 inline LayoutGraph::degree_size_type
 in_degree(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<LayoutGraph::degree_size_type>(g.in_edge_list(u).size());
+    return gsl::narrow_cast<LayoutGraph::degree_size_type>(g.getInEdgeList(u).size());
 }
 
 inline LayoutGraph::degree_size_type
@@ -71,12 +71,12 @@ adjacent_vertices(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexce
 // VertexListGraph
 inline std::pair<LayoutGraph::vertex_iterator, LayoutGraph::vertex_iterator>
 vertices(const LayoutGraph& g) noexcept {
-    return std::make_pair(const_cast<LayoutGraph&>(g).vertex_set().begin(), const_cast<LayoutGraph&>(g).vertex_set().end());
+    return std::make_pair(const_cast<LayoutGraph&>(g).getVertexList().begin(), const_cast<LayoutGraph&>(g).getVertexList().end());
 }
 
 inline LayoutGraph::vertices_size_type
 num_vertices(const LayoutGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<LayoutGraph::vertices_size_type>(g.vertex_set().size());
+    return gsl::narrow_cast<LayoutGraph::vertices_size_type>(g.getVertexList().size());
 }
 
 // EdgeListGraph
@@ -84,8 +84,8 @@ inline std::pair<LayoutGraph::edge_iterator, LayoutGraph::edge_iterator>
 edges(const LayoutGraph& g0) noexcept {
     auto& g = const_cast<LayoutGraph&>(g0);
     return std::make_pair(
-        LayoutGraph::edge_iterator(g.vertex_set().begin(), g.vertex_set().begin(), g.vertex_set().end(), g),
-        LayoutGraph::edge_iterator(g.vertex_set().begin(), g.vertex_set().end(), g.vertex_set().end(), g));
+        LayoutGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().begin(), g.getVertexList().end(), g),
+        LayoutGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().end(), g.getVertexList().end(), g));
 }
 
 inline LayoutGraph::edges_size_type
@@ -104,10 +104,10 @@ inline std::pair<LayoutGraph::edge_descriptor, bool>
 add_edge( // NOLINT
     LayoutGraph::vertex_descriptor u,
     LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
-    auto& outEdgeList = g.out_edge_list(u);
+    auto& outEdgeList = g.getOutEdgeList(u);
     outEdgeList.emplace_back(v);
 
-    auto& inEdgeList = g.in_edge_list(v);
+    auto& inEdgeList = g.getInEdgeList(v);
     inEdgeList.emplace_back(u);
 
     return std::make_pair(LayoutGraph::edge_descriptor(u, v), true);
@@ -115,14 +115,14 @@ add_edge( // NOLINT
 
 inline void remove_edge(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, LayoutGraph& g) noexcept { // NOLINT
     // remove out-edges
-    auto& outEdgeList = g.out_edge_list(u);
+    auto& outEdgeList = g.getOutEdgeList(u);
     // eraseFromIncidenceList
     impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
         return e.get_target() == v;
     });
 
     // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.in_edge_list(v);
+    auto& inEdgeList = g.getInEdgeList(v);
     // eraseFromIncidenceList
     impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
         return e.get_target() == u;
@@ -131,16 +131,16 @@ inline void remove_edge(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_de
 
 inline void remove_edge(LayoutGraph::edge_descriptor e, LayoutGraph& g) noexcept { // NOLINT
     // remove_edge need rewrite
-    auto& outEdgeList = g.out_edge_list(source(e, g));
+    auto& outEdgeList = g.getOutEdgeList(source(e, g));
     impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.in_edge_list(target(e, g));
+    auto& inEdgeList = g.getInEdgeList(target(e, g));
     impl::removeIncidenceEdge(e, inEdgeList);
 }
 
 inline void remove_edge(LayoutGraph::out_edge_iterator iter, LayoutGraph& g) noexcept { // NOLINT
     auto  e           = *iter;
-    auto& outEdgeList = g.out_edge_list(source(e, g));
-    auto& inEdgeList  = g.in_edge_list(target(e, g));
+    auto& outEdgeList = g.getOutEdgeList(source(e, g));
+    auto& inEdgeList  = g.getInEdgeList(target(e, g));
     impl::removeIncidenceEdge(e, inEdgeList);
     outEdgeList.erase(iter.base());
 }
@@ -151,7 +151,7 @@ inline void remove_out_edge_if(LayoutGraph::vertex_descriptor u, Predicate&& pre
         auto& outIter = pair.first;
         auto& outEnd = pair.second;
         if (pred(*outIter)) {
-            auto& inEdgeList = g.in_edge_list(target(*outIter, g));
+            auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
             auto  e          = *outIter;
             impl::removeIncidenceEdge(e, inEdgeList);
         }
@@ -159,7 +159,7 @@ inline void remove_out_edge_if(LayoutGraph::vertex_descriptor u, Predicate&& pre
     auto pair = out_edges(u, g);
     auto& first = pair.first;
     auto& last = pair.second;
-    auto& outEdgeList  = g.out_edge_list(u);
+    auto& outEdgeList  = g.getOutEdgeList(u);
     impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
 }
 
@@ -169,7 +169,7 @@ inline void remove_in_edge_if(LayoutGraph::vertex_descriptor v, Predicate&& pred
         auto& inIter = pair.first;
         auto& inEnd = pair.second;
         if (pred(*inIter)) {
-            auto& outEdgeList = g.out_edge_list(source(*inIter, g));
+            auto& outEdgeList = g.getOutEdgeList(source(*inIter, g));
             auto  e           = *inIter;
             impl::removeIncidenceEdge(e, outEdgeList);
         }
@@ -177,7 +177,7 @@ inline void remove_in_edge_if(LayoutGraph::vertex_descriptor v, Predicate&& pred
     auto pair = in_edges(v, g);
     auto& first = pair.first;
     auto& last = pair.second;
-    auto& inEdgeList   = g.in_edge_list(v);
+    auto& inEdgeList   = g.getInEdgeList(v);
     impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
 }
 
@@ -208,18 +208,18 @@ child(const LayoutGraph::ownership_descriptor& e, const LayoutGraph& /*g*/) noex
 inline std::pair<LayoutGraph::children_iterator, LayoutGraph::children_iterator>
 children(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     return std::make_pair(
-        LayoutGraph::children_iterator(const_cast<LayoutGraph&>(g).children_list(u).begin(), u),
-        LayoutGraph::children_iterator(const_cast<LayoutGraph&>(g).children_list(u).end(), u));
+        LayoutGraph::children_iterator(const_cast<LayoutGraph&>(g).getChildrenList(u).begin(), u),
+        LayoutGraph::children_iterator(const_cast<LayoutGraph&>(g).getChildrenList(u).end(), u));
 }
 
 inline LayoutGraph::children_size_type
 num_children(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<LayoutGraph::children_size_type>(g.children_list(u).size());
+    return gsl::narrow_cast<LayoutGraph::children_size_type>(g.getChildrenList(u).size());
 }
 
 inline std::pair<LayoutGraph::ownership_descriptor, bool>
 ownership(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, LayoutGraph& g) noexcept {
-    auto& outEdgeList = g.children_list(u);
+    auto& outEdgeList = g.getChildrenList(u);
     auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), LayoutGraph::out_edge_type(v));
     bool  hasEdge     = (iter != outEdgeList.end());
     return {LayoutGraph::ownership_descriptor(u, v), hasEdge};
@@ -228,13 +228,13 @@ ownership(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, La
 inline std::pair<LayoutGraph::parent_iterator, LayoutGraph::parent_iterator>
 parents(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     return std::make_pair(
-        LayoutGraph::parent_iterator(const_cast<LayoutGraph&>(g).parents_list(u).begin(), u),
-        LayoutGraph::parent_iterator(const_cast<LayoutGraph&>(g).parents_list(u).end(), u));
+        LayoutGraph::parent_iterator(const_cast<LayoutGraph&>(g).getParentsList(u).begin(), u),
+        LayoutGraph::parent_iterator(const_cast<LayoutGraph&>(g).getParentsList(u).end(), u));
 }
 
 inline LayoutGraph::children_size_type
 num_parents(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<LayoutGraph::children_size_type>(g.parents_list(u).size());
+    return gsl::narrow_cast<LayoutGraph::children_size_type>(g.getParentsList(u).size());
 }
 
 inline LayoutGraph::vertex_descriptor
@@ -266,8 +266,8 @@ inline std::pair<LayoutGraph::ownership_iterator, LayoutGraph::ownership_iterato
 ownerships(const LayoutGraph& g0) noexcept {
     auto& g = const_cast<LayoutGraph&>(g0);
     return std::make_pair(
-        LayoutGraph::ownership_iterator(g.vertex_set().begin(), g.vertex_set().begin(), g.vertex_set().end(), g),
-        LayoutGraph::ownership_iterator(g.vertex_set().begin(), g.vertex_set().end(), g.vertex_set().end(), g));
+        LayoutGraph::ownership_iterator(g.getVertexList().begin(), g.getVertexList().begin(), g.getVertexList().end(), g),
+        LayoutGraph::ownership_iterator(g.getVertexList().begin(), g.getVertexList().end(), g.getVertexList().end(), g));
 }
 
 inline LayoutGraph::ownerships_size_type
@@ -867,10 +867,10 @@ get_if(boost::string_view pt, const LayoutGraph* pGraph) noexcept { // NOLINT
 inline void add_path_impl(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, LayoutGraph& g) { // NOLINT
     // add to parent
     if (u != LayoutGraph::null_vertex()) {
-        auto& outEdgeList = g.children_list(u);
+        auto& outEdgeList = g.getChildrenList(u);
         outEdgeList.emplace_back(v);
 
-        auto& inEdgeList = g.parents_list(v);
+        auto& inEdgeList = g.getParentsList(v);
         inEdgeList.emplace_back(u);
     }
 
@@ -902,10 +902,10 @@ inline void clear_out_edges(LayoutGraph::vertex_descriptor u, LayoutGraph& g) no
     CC_EXPECTS(out_degree(u, g) == 0);
 
     // Bidirectional (OutEdges)
-    auto& outEdgeList = g.out_edge_list(u);
+    auto& outEdgeList = g.getOutEdgeList(u);
     auto  outEnd      = outEdgeList.end();
     for (auto iter = outEdgeList.begin(); iter != outEnd; ++iter) {
-        auto& inEdgeList = g.in_edge_list((*iter).get_target());
+        auto& inEdgeList = g.getInEdgeList((*iter).get_target());
         // eraseFromIncidenceList
         impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
             return e.get_target() == u;
@@ -920,10 +920,10 @@ inline void clear_in_edges(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noe
     remove_path_impl(u, g);
 
     // Bidirectional (InEdges)
-    auto& inEdgeList = g.in_edge_list(u);
+    auto& inEdgeList = g.getInEdgeList(u);
     auto  inEnd      = inEdgeList.end();
     for (auto iter = inEdgeList.begin(); iter != inEnd; ++iter) {
-        auto& outEdgeList = g.out_edge_list((*iter).get_target());
+        auto& outEdgeList = g.getOutEdgeList((*iter).get_target());
         // eraseFromIncidenceList
         impl::sequenceEraseIf(outEdgeList, [u](const auto& e) {
             return e.get_target() == u;
