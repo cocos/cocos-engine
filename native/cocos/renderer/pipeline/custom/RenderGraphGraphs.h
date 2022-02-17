@@ -232,7 +232,7 @@ inline void remove_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) 
     { // UuidGraph
         const auto& key = g.mNames[u];
         auto num = g.mValueIndex.erase(key);
-        Ensures(num == 1);
+        CC_ENSURES(num == 1);
         for (auto&& pair : g.mValueIndex) {
             auto& v = pair.second;
             if (v > u) {
@@ -259,7 +259,7 @@ add_vertex(Component0&& c0, Component1&& c1, Component2&& c2, ResourceGraph& g) 
     { // UuidGraph
         const auto& uuid = c0;
         auto res = g.mValueIndex.emplace(uuid, v);
-        Ensures(res.second);
+        CC_ENSURES(res.second);
     }
     g.mNames.emplace_back(std::forward<Component0>(c0));
     g.mDescs.emplace_back(std::forward<Component1>(c1));
@@ -279,7 +279,7 @@ add_vertex(std::piecewise_construct_t, Component0&& c0, Component1&& c1, Compone
         invoke_hpp::apply(
             [&](const auto&... args) {
                 auto res = g.mValueIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
-                Ensures(res.second);
+                CC_ENSURES(res.second);
             },
             c0);
     }
@@ -800,7 +800,7 @@ parent(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
 
 inline bool
 ancestor(RenderGraph::vertex_descriptor u, RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
-    Expects(u != v);
+    CC_EXPECTS(u != v);
     bool isAncestor = false;
     auto r          = parents(v, g);
     while (r.first != r.second) {

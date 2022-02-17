@@ -603,17 +603,17 @@ inline void pathComposite(
     const auto &pmap = get(boost::vertex_name, g);
 
     while (u != parentID) {
-        Expects(sz <= static_cast<std::ptrdiff_t>(str.size()));
+        CC_EXPECTS(sz <= static_cast<std::ptrdiff_t>(str.size()));
 
         const auto &name = get(pmap, u);
         sz -= static_cast<std::ptrdiff_t>(name.size()) + 1;
-        Ensures(sz >= 0);
+        CC_ENSURES(sz >= 0);
         str[sz] = '/';
         std::copy(name.begin(), name.end(), str.begin() + sz + 1);
 
         u = parent(u, g);
     }
-    Ensures(sz == 0);
+    CC_ENSURES(sz == 0);
 }
 
 template <class Key>

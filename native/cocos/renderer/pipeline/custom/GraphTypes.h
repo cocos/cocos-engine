@@ -41,7 +41,7 @@ struct EdgeDescriptor {
     : m_source(s), m_target(t) {}
 
     void expectsNoProperty() const noexcept {
-        // Expects(false);
+        // CC_EXPECTS(false);
     }
     VertexDescriptor m_source = static_cast<VertexDescriptor>(-1);
     VertexDescriptor m_target = static_cast<VertexDescriptor>(-1);
@@ -167,11 +167,11 @@ public:
     StoredEdgeWithProperty &operator=(StoredEdgeWithProperty &&) noexcept = default;
 
     EdgeProperty &get_property() noexcept { // NOLINT
-        Expects(mProperty);
+        CC_EXPECTS(mProperty);
         return *mProperty;
     }
     const EdgeProperty &get_property() const noexcept { // NOLINT
-        Expects(mProperty);
+        CC_EXPECTS(mProperty);
         return *mProperty;
     }
     std::unique_ptr<EdgeProperty> mProperty;
@@ -207,15 +207,15 @@ public:
     : StoredEdge<VertexDescriptor>(v), _id(i - edgeVec->begin()), _vector(edgeVec) {}
 
     typename EdgeVec::iterator get_iter() const noexcept { // NOLINT
-        Expects(_vector);
+        CC_EXPECTS(_vector);
         return _vector->begin() + _id;
     }
     EdgeProperty &get_property() noexcept { // NOLINT
-        Expects(this->_vector);
+        CC_EXPECTS(this->_vector);
         return (*this->_vector)[this->_id].get_property();
     }
     const EdgeProperty &get_property() const noexcept { // NOLINT
-        Expects(this->_vector);
+        CC_EXPECTS(this->_vector);
         return (*this->_vector)[this->_id].get_property();
     }
 

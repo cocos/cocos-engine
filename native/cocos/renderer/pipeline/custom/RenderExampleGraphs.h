@@ -134,7 +134,7 @@ inline void remove_edge(RenderDependencyGraph::edge_descriptor e, RenderDependen
     // remove_edge need rewrite
     auto range = out_edges(source(e, g), g);
     range.first = std::find(range.first, range.second, e);
-    Ensures(range.first != range.second);
+    CC_ENSURES(range.first != range.second);
     remove_edge(range.first, g);
 }
 
@@ -246,7 +246,7 @@ inline void remove_vertex(RenderDependencyGraph::vertex_descriptor u, RenderDepe
     { // UuidGraph
         const auto& key = g.mPassIDs[u];
         auto num = g.mPassIndex.erase(key);
-        Ensures(num == 1);
+        CC_ENSURES(num == 1);
         for (auto&& pair : g.mPassIndex) {
             auto& v = pair.second;
             if (v > u) {
@@ -307,7 +307,7 @@ add_vertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, R
     { // UuidGraph
         const auto& uuid = c2;
         auto res = g.mPassIndex.emplace(uuid, v);
-        Ensures(res.second);
+        CC_ENSURES(res.second);
     }
     g.mPasses.emplace_back(std::forward<Component0>(c0));
     g.mValueIDs.emplace_back(std::forward<Component1>(c1));
@@ -328,7 +328,7 @@ add_vertex(std::piecewise_construct_t, Component0&& c0, Component1&& c1, Compone
         invoke_hpp::apply(
             [&](const auto&... args) {
                 auto res = g.mPassIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
-                Ensures(res.second);
+                CC_ENSURES(res.second);
             },
             c2);
     }
@@ -580,7 +580,7 @@ inline void remove_vertex(RenderValueGraph::vertex_descriptor u, RenderValueGrap
     { // UuidGraph
         const auto& key = g.mNodes[u];
         auto num = g.mIndex.erase(key);
-        Ensures(num == 1);
+        CC_ENSURES(num == 1);
         for (auto&& pair : g.mIndex) {
             auto& v = pair.second;
             if (v > u) {
@@ -605,7 +605,7 @@ add_vertex(Component0&& c0, RenderValueGraph& g) { // NOLINT
     { // UuidGraph
         const auto& uuid = c0;
         auto res = g.mIndex.emplace(uuid, v);
-        Ensures(res.second);
+        CC_ENSURES(res.second);
     }
     g.mNodes.emplace_back(std::forward<Component0>(c0));
 
@@ -623,7 +623,7 @@ add_vertex(std::piecewise_construct_t, Component0&& c0, RenderValueGraph& g) { /
         invoke_hpp::apply(
             [&](const auto&... args) {
                 auto res = g.mIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
-                Ensures(res.second);
+                CC_ENSURES(res.second);
             },
             c0);
     }

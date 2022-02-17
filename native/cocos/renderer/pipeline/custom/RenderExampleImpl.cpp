@@ -105,7 +105,7 @@ void addPassNodeValue(RenderDependencyGraph& rdg,
     if (iter == rdg.mValueIndex.end()) {
         rdg.mValueIndex.emplace(valueName, uint32_t(rdg.mValueNames.size()));
         rdg.mValueNames.emplace_back(valueName);
-        Ensures(rdg.mValueIndex.size() == rdg.mValueNames.size());
+        CC_ENSURES(rdg.mValueIndex.size() == rdg.mValueNames.size());
     }
     addPassNodeValue(node, values, iter->second, type);
 }
@@ -123,10 +123,10 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
 
     // add initial pass, whose id must be 0
     auto startID = add_vertex(rdg, 0xFFFFFFFF);
-    Expects(startID == 0);
+    CC_EXPECTS(startID == 0);
 
     auto makeAccessType = [](const boost::container::pmr::vector<ComputeView>& values) {
-        Expects(!values.empty());
+        CC_EXPECTS(!values.empty());
         AccessType type = values[0].mAccessType;
         for (uint32_t i = 1; i != values.size(); ++i) {
             const auto& value = values[i];
@@ -213,7 +213,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                 // do nothing
             });
     }
-    Ensures(num_vertices(rdg) == numPasses);
+    CC_ENSURES(num_vertices(rdg) == numPasses);
 }
 
 void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValueGraph& rvg) {
@@ -227,7 +227,7 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
     for (const auto passID : make_range(vertices(rdg))) {
         const auto& valueIDs = get(RDG::valueID, rdg, passID);
         for (const auto& valueID : valueIDs) {
-            Expects(!contains(RenderValueNode(passID, valueID), rvg));
+            CC_EXPECTS(!contains(RenderValueNode(passID, valueID), rvg));
             add_vertex(std::piecewise_construct,
                        std::forward_as_tuple(passID, valueID), rvg);
         }
@@ -235,7 +235,7 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
 
     // build value graph edges
     auto initPassID = vertex(0xFFFFFFFF, rdg);
-    Expects(initPassID == 0);
+    CC_EXPECTS(initPassID == 0);
     auto& initPass     = get(RDG::pass, rdg, initPassID);
     auto& initValueIDs = get(RDG::valueID, rdg, initPassID);
 
@@ -243,17 +243,17 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
         auto& dstPass = get(RDG::pass, rdg, dstPassID);
         for (const auto valueID : dstPass.mInputs) {
             auto dstVertID = vertex(RenderValueNode(dstPassID, valueID), rvg);
-            Expects(in_degree(dstVertID, rvg) == 0);
+            CC_EXPECTS(in_degree(dstVertID, rvg) == 0);
             // add value edge func
             auto addValueEdge = [&rdg, &rvg, dstVertID, valueID](
                                     RenderDependencyGraph::vertex_descriptor srcPassID,
                                     RenderDependencyGraph::vertex_descriptor dstPassID) {
                 // get value node in value graph
                 auto srcVertID = vertex(RenderValueNode(srcPassID, valueID), rvg);
-                Expects(!edge(srcVertID, dstVertID, rvg).second); // edge shouldn't have been added
+                CC_EXPECTS(!edge(srcVertID, dstVertID, rvg).second); // edge shouldn't have been added
                 // add value edge
                 auto res = add_edge(srcVertID, dstVertID, rvg);
-                Ensures(res.second); // edge must have been added
+                CC_ENSURES(res.second); // edge must have been added
                 // try get pass dependency edge
                 auto e = edge(srcPassID, dstPassID, rdg);
                 if (!e.second) { // no pass dependency edge, add one
@@ -287,7 +287,7 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
 }
 
 void buildRenderDependencyGraphResourceIndex(const ResourceGraph& resg, RenderDependencyGraph& rdg) {
-    Expects(rdg.mValueNames.size() == rdg.mValueIndex.size());
+    CC_EXPECTS(rdg.mValueNames.size() == rdg.mValueIndex.size());
 
     rdg.mResourceHandles.resize(rdg.mValueNames.size());
 

@@ -15,10 +15,10 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
     constexpr CharT slash[]       = {'/', '\0'};
     constexpr CharT doubleSlash[] = {'/', '/', '\0'};
 
-    Expects(!str.empty());
-    Expects(boost::algorithm::starts_with(str, boost::string_view(slash)));
-    Expects(str.find(doubleSlash) == string_t::npos);
-    Expects([&]() { // NOLINT
+    CC_EXPECTS(!str.empty());
+    CC_EXPECTS(boost::algorithm::starts_with(str, boost::string_view(slash)));
+    CC_EXPECTS(str.find(doubleSlash) == string_t::npos);
+    CC_EXPECTS([&]() { // NOLINT
         bool valid = true;
         for (uint8_t c : str) {
             if (c < uint8_t('.'))
@@ -52,7 +52,7 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
             return;
         }
         auto beg = str.rfind(slash, pos - 1);
-        Expects(beg != string_t::npos);
+        CC_EXPECTS(beg != string_t::npos);
         str.erase(beg, pos - beg + previous.size() - 1);
     }
 }

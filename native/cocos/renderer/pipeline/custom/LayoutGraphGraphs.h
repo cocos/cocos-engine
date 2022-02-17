@@ -248,7 +248,7 @@ parent(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
 
 inline bool
 ancestor(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept {
-    Expects(u != v);
+    CC_EXPECTS(u != v);
     bool isAncestor = false;
     auto r          = parents(v, g);
     while (r.first != r.second) {
@@ -757,9 +757,9 @@ get_path( // NOLINT
     output.resize(sz);
 
     impl::pathComposite(output, sz, u0, layoutGraph, parent);
-    Ensures(sz >= sz0);
+    CC_ENSURES(sz >= sz0);
 
-    Ensures(sz == sz0);
+    CC_ENSURES(sz == sz0);
     std::copy(prefix.begin(), prefix.end(), output.begin());
 
     return output;
@@ -785,7 +785,7 @@ get_path( // NOLINT
     output[sz] = '/';
     std::copy(name.begin(), name.end(), output.begin() + sz + 1);
     path_composite(output, sz, parent, g);
-    Ensures(sz == 0);
+    CC_ENSURES(sz == 0);
     return output;
 }
 
@@ -807,8 +807,8 @@ locate(boost::string_view absolute, const LayoutGraph& g) noexcept {
 
 [[nodiscard]] inline LayoutGraph::vertex_descriptor
 locate(LayoutGraph::vertex_descriptor u, boost::string_view relative, const LayoutGraph& g) {
-    Expects(!relative.starts_with('/'));
-    Expects(!relative.ends_with('/'));
+    CC_EXPECTS(!relative.starts_with('/'));
+    CC_EXPECTS(!relative.ends_with('/'));
     auto key = get_path(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);
@@ -877,7 +877,7 @@ inline void add_path_impl(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_
     // add to external path index
     auto pathName = get_path(v, g);
     auto res      = g.mPathIndex.emplace(std::move(pathName), v);
-    Ensures(res.second);
+    CC_ENSURES(res.second);
 }
 
 inline void remove_path_impl(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept { // NOLINT
@@ -885,7 +885,7 @@ inline void remove_path_impl(LayoutGraph::vertex_descriptor u, LayoutGraph& g) n
     // we do not want to increase the memory of g
     auto pathName = get_path(u, g);
     auto iter     = g.mPathIndex.find(boost::string_view(pathName));
-    Expects(iter != g.mPathIndex.end());
+    CC_EXPECTS(iter != g.mPathIndex.end());
     g.mPathIndex.erase(iter);
     for (auto&& nvp : g.mPathIndex) {
         auto& v = nvp.second;
@@ -899,7 +899,7 @@ inline void clear_out_edges(LayoutGraph::vertex_descriptor u, LayoutGraph& g) no
     // AddressableGraph (Alias)
     // only leaf node can be cleared.
     // clear internal node will broke tree structure.
-    Expects(out_degree(u, g) == 0);
+    CC_EXPECTS(out_degree(u, g) == 0);
 
     // Bidirectional (OutEdges)
     auto& outEdgeList = g.out_edge_list(u);
@@ -916,7 +916,7 @@ inline void clear_out_edges(LayoutGraph::vertex_descriptor u, LayoutGraph& g) no
 
 inline void clear_in_edges(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept { // NOLINT
     // AddressableGraph (Alias)
-    Expects(out_degree(u, g) == 0);
+    CC_EXPECTS(out_degree(u, g) == 0);
     remove_path_impl(u, g);
 
     // Bidirectional (InEdges)

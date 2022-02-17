@@ -13,8 +13,6 @@ class Color;
 class Vec4;
 class Vec3;
 class Vec2;
-class Size;
-class Rect;
 
 } // namespace cc
 
