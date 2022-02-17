@@ -22,9 +22,6 @@ struct no_property;
 namespace cc {
 
 template <class T>
-using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
-
-template <class T>
 using PmrList = std::list<T, boost::container::pmr::polymorphic_allocator<T>>;
 
 namespace render {
