@@ -13,3 +13,5 @@ inline const char* getName(const RenderCompiler& /*v*/) noexcept { return "Rende
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

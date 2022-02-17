@@ -7,3 +7,5 @@
 #include "cocos/renderer/pipeline/custom/PathUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderCompilerTypes.h"
 #include "cocos/renderer/pipeline/custom/invoke.hpp"
+
+// clang-format on

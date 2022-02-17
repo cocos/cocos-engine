@@ -186,3 +186,5 @@ inline Pipeline::~Pipeline() noexcept = default;
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

@@ -31,3 +31,5 @@ struct RenderCompiler {
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

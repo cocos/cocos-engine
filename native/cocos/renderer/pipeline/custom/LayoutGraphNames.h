@@ -25,3 +25,5 @@ inline const char* getName(const LayoutGraph& /*v*/) noexcept { return "LayoutGr
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

@@ -757,3 +757,5 @@ add_vertex(DeviceResourceGraph& g, Tag t, const char* name) { // NOLINT
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

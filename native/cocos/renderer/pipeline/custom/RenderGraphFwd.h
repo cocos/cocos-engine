@@ -50,3 +50,5 @@ struct RenderGraph;
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

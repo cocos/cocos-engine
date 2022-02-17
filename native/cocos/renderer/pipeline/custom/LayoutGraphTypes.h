@@ -377,3 +377,5 @@ struct LayoutGraph {
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

@@ -12,3 +12,5 @@ inline const char* getName(const DeviceResourceGraph& /*v*/) noexcept { return "
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

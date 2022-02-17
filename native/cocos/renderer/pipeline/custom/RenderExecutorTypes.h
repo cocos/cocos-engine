@@ -150,3 +150,5 @@ struct DeviceResourceGraph {
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

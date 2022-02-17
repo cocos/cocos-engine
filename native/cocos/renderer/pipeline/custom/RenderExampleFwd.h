@@ -34,3 +34,5 @@ struct hash<cc::render::example::RenderValueNode> {
 };
 
 }
+
+// clang-format on

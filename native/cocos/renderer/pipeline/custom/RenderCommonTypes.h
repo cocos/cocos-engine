@@ -145,3 +145,5 @@ enum class NodeType {
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

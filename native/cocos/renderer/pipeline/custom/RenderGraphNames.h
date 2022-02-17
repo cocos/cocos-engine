@@ -68,3 +68,5 @@ inline const char* getName(const RenderGraph& /*v*/) noexcept { return "RenderGr
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

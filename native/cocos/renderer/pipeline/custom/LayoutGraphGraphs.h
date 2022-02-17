@@ -1096,3 +1096,5 @@ add_vertex(LayoutGraph& g, Tag t, const char* name, LayoutGraph::vertex_descript
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

@@ -274,3 +274,5 @@ bool sevalue_to_native(const se::Value &from, cc::render::MovePair *to, se::Obje
     }
     return ok;
 }
+
+// clang-format on

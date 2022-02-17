@@ -36,3 +36,5 @@ DeviceResourceGraph::vertex_type::vertex_type(vertex_type const& rhs, const allo
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

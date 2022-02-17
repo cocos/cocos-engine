@@ -373,3 +373,5 @@ inline size_t hash<cc::render::example::RenderValueNode>::operator()(const cc::r
 }
 
 } // namespace std
+
+// clang-format on

@@ -152,3 +152,5 @@ LayoutGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_ty
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

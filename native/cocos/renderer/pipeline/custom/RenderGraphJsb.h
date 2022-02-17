@@ -19,3 +19,5 @@ bool sevalue_to_native(const se::Value &from, cc::render::ComputeView *to, se::O
 bool sevalue_to_native(const se::Value &from, cc::render::CopyPair *to, se::Object *ctx); // NOLINT
 
 bool sevalue_to_native(const se::Value &from, cc::render::MovePair *to, se::Object *ctx); // NOLINT
+
+// clang-format on

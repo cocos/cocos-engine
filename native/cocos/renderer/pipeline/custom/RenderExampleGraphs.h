@@ -1164,3 +1164,5 @@ add_vertex(RenderValueGraph& g, const RenderValueNode& key) { // NOLINT
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

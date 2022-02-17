@@ -80,3 +80,5 @@ RenderValueGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocat
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

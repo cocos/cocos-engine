@@ -2529,3 +2529,5 @@ add_vertex(RenderGraph& g, Tag t, const char* name) { // NOLINT
 } // namespace render
 
 } // namespace cc
+
+// clang-format on

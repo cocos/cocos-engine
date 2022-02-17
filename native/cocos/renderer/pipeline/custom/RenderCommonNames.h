@@ -111,3 +111,5 @@ inline const char* getName(NodeType e) noexcept {
 } // namespace render
 
 } // namespace cc
+
+// clang-format on
