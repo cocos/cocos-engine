@@ -74,22 +74,24 @@ class PointerEventDispatcher implements IEventDispatcher {
 
     public addPointerEventProcessor (pointerEventProcessor: NodeEventProcessor) {
         if (this._inDispatchCount === 0) {
-            this._pointerEventProcessorList.push(pointerEventProcessor);
-            this._isListDirty = true;
-        } else {
-            js.array.remove(this._processorListToRemove, pointerEventProcessor);
+            if (!this._pointerEventProcessorList.includes(pointerEventProcessor)) {
+                this._pointerEventProcessorList.push(pointerEventProcessor);
+                this._isListDirty = true;
+            }
+        } else if (!this._processorListToAdd.includes(pointerEventProcessor)) {
             this._processorListToAdd.push(pointerEventProcessor);
         }
+        js.array.remove(this._processorListToRemove, pointerEventProcessor);
     }
 
     public removePointerEventProcessor (pointerEventProcessor: NodeEventProcessor) {
         if (this._inDispatchCount === 0) {
             js.array.remove(this._pointerEventProcessorList, pointerEventProcessor);
             this._isListDirty = true;
-        } else {
-            js.array.remove(this._processorListToAdd, pointerEventProcessor);
+        } else if (!this._processorListToRemove.includes(pointerEventProcessor)) {
             this._processorListToRemove.push(pointerEventProcessor);
         }
+        js.array.remove(this._processorListToAdd, pointerEventProcessor);
     }
 
     public dispatchEventMouse (eventMouse: EventMouse) {
