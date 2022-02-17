@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.22",
+  "ver": "1.0.23",
   "importer": "image",
   "imported": true,
   "uuid": "86eb75aa-3b2f-4c7b-b59e-bdc2e3984665",
@@ -9,7 +9,7 @@
   ],
   "subMetas": {
     "6c48a": {
-      "ver": "1.0.21",
+      "ver": "1.0.22",
       "importer": "texture",
       "uuid": "86eb75aa-3b2f-4c7b-b59e-bdc2e3984665@6c48a",
       "imported": true,

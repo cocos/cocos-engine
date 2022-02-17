@@ -32,7 +32,7 @@ import {
     API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
-    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo, SwapchainInfo,
+    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, SwapchainInfo,
     BindingMappingInfo, Format, FormatFeature,
 } from './define';
 import { Buffer } from './buffer';
@@ -48,7 +48,7 @@ import { RenderPass } from './render-pass';
 import { Sampler } from './states/sampler';
 import { Shader } from './shader';
 import { Texture } from './texture';
-import { GlobalBarrier } from './states/global-barrier';
+import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
 import { Swapchain } from './swapchain';
 
@@ -159,7 +159,7 @@ export abstract class Device {
     protected _caps = new DeviceCaps();
     protected _bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo();
     protected _samplers = new Map<number, Sampler>();
-    protected _globalBarriers = new Map<number, GlobalBarrier>();
+    protected _generalBarrierss = new Map<number, GeneralBarrier>();
     protected _textureBarriers = new Map<number, TextureBarrier>();
 
     public static canvas: HTMLCanvasElement; // Hack for WebGL device initialization process
@@ -289,7 +289,7 @@ export abstract class Device {
      * @zh 创建全局内存屏障。
      * @param info GFX global barrier description info.
      */
-    public abstract getGlobalBarrier (info: Readonly<GlobalBarrierInfo>): GlobalBarrier;
+    public abstract getGeneralBarrier (info: Readonly<GeneralBarrierInfo>): GeneralBarrier;
 
     /**
      * @en Create texture barrier.

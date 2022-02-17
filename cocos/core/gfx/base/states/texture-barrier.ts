@@ -49,14 +49,7 @@ export class TextureBarrier extends GFXObject {
     }
 
     static computeHash (info: TextureBarrierInfo) {
-        let res = 'prev:';
-        for (let i = 0; i < info.prevAccesses.length; ++i) {
-            res += ` ${info.prevAccesses[i]}`;
-        }
-        res += 'next:';
-        for (let i = 0; i < info.nextAccesses.length; ++i) {
-            res += ` ${info.nextAccesses[i]}`;
-        }
+        let res = `${info.prevAccesses} ${info.nextAccesses}`;
         res += info.discardContents;
         res += info.srcQueue ? info.srcQueue.type : 0;
         res += info.dstQueue ? info.dstQueue.type : 0;

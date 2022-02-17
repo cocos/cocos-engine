@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.22",
+  "ver": "1.0.23",
   "importer": "image",
   "imported": true,
   "uuid": "ffb88a8f-af62-48f4-8f1d-3cb606443a43",
@@ -9,7 +9,7 @@
   ],
   "subMetas": {
     "6c48a": {
-      "ver": "1.0.21",
+      "ver": "1.0.22",
       "importer": "texture",
       "uuid": "ffb88a8f-af62-48f4-8f1d-3cb606443a43@6c48a",
       "imported": true,
@@ -33,7 +33,7 @@
       "name": "texture"
     },
     "f9941": {
-      "ver": "1.0.9",
+      "ver": "1.0.10",
       "importer": "sprite-frame",
       "uuid": "ffb88a8f-af62-48f4-8f1d-3cb606443a43@f9941",
       "imported": true,

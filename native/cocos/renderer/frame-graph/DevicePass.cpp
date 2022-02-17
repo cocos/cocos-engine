@@ -57,7 +57,7 @@ DevicePass::DevicePass(const FrameGraph &graph, std::vector<PassNode *> const &s
         CC_ASSERT(resource);
 
         _attachments.emplace_back();
-        _attachments.back().attachment   = std::move(attachment);
+        _attachments.back().attachment   = attachment;
         _attachments.back().renderTarget = resource;
         renderTargets.emplace_back(resource);
     }
@@ -241,8 +241,7 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             attachmentInfo.format          = attachment->getFormat();
             attachmentInfo.loadOp          = attachElem.attachment.desc.loadOp;
             attachmentInfo.storeOp         = attachElem.attachment.storeOp;
-            attachmentInfo.beginAccesses   = attachElem.attachment.desc.beginAccesses;
-            attachmentInfo.endAccesses     = attachElem.attachment.desc.endAccesses;
+            attachmentInfo.barrier         = gfx::Device::getInstance()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
             attachmentInfo.isGeneralLayout = attachElem.attachment.isGeneralLayout;
             fboInfo.colorTextures.push_back(attachElem.renderTarget);
             clearColors.emplace_back(attachElem.attachment.desc.clearColor);
@@ -253,8 +252,7 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             attachmentInfo.stencilLoadOp   = attachElem.attachment.desc.loadOp;
             attachmentInfo.depthStoreOp    = attachElem.attachment.storeOp;
             attachmentInfo.stencilStoreOp  = attachElem.attachment.storeOp;
-            attachmentInfo.beginAccesses   = attachElem.attachment.desc.beginAccesses;
-            attachmentInfo.endAccesses     = attachElem.attachment.desc.endAccesses;
+            attachmentInfo.barrier         = gfx::Device::getInstance()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
             attachmentInfo.isGeneralLayout = attachElem.attachment.isGeneralLayout;
             fboInfo.depthStencilTexture    = attachElem.renderTarget;
             clearDepth                     = attachElem.attachment.desc.clearDepth;
