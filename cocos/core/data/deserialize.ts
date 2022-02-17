@@ -754,7 +754,7 @@ function parseValueTypeCreated (data: IFileData, owner: any, key: string, value:
        The native layer type corresponding to the BuiltinValueTypes has not been exported exclude Color,
        so we need to set to native after value changed
      * */
-    if (JSB && value[VALUETYPE_SETTER] !== 4) { // exclude Color, Color has been exported by JSB
+    if (JSB) {
         const tmp = owner[key];
         BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](tmp, value);
         owner[key] = tmp;
