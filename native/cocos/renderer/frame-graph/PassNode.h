@@ -52,7 +52,7 @@ public:
     void        createRenderTargetAttachment(RenderTargetAttachment &&attachment);
     inline void sideEffect();
     inline void subpass(bool end, bool clearActionIgnorable);
-    inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor);
+    inline void setViewport(const gfx::Rect &viewport, const gfx::Rect &scissor);
 
 private:
     bool                    canMerge(const FrameGraph &graph, const PassNode &passNode) const;
@@ -85,7 +85,7 @@ private:
     bool                                _clearActionIgnorable{false};
 
     bool          _customViewport{false};
-    gfx::Viewport _viewport;
+    gfx::Rect _viewport;
     gfx::Rect     _scissor;
 
     friend class FrameGraph;
@@ -105,7 +105,7 @@ void PassNode::subpass(bool end, bool clearActionIgnorable) {
     _clearActionIgnorable = clearActionIgnorable;
 }
 
-void PassNode::setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) {
+void PassNode::setViewport(const gfx::Rect &viewport, const gfx::Rect &scissor) {
     _customViewport = true;
     _viewport       = viewport;
     _scissor        = scissor;

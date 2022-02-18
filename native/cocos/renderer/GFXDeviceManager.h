@@ -31,11 +31,11 @@
 #include "gfx-agent/DeviceAgent.h"
 #include "gfx-validator/DeviceValidator.h"
 
-//#undef CC_USE_NVN
+#undef CC_USE_NVN
 //#undef CC_USE_VULKAN
-//#undef CC_USE_METAL
-//#undef CC_USE_GLES3
-//#undef CC_USE_GLES2
+#undef CC_USE_METAL
+#undef CC_USE_GLES3
+#undef CC_USE_GLES2
 
 #ifdef CC_USE_NVN
     #include "gfx-nvn/NVNDevice.h"
@@ -85,15 +85,15 @@ public:
         if (tryCreate<CCMTLDevice>(info, &device)) return device;
 #endif
 
-#ifdef CC_USE_GLES3
-        if (tryCreate<GLES3Device>(info, &device)) return device;
-#endif
+        // #ifdef CC_USE_GLES3
+        //         if (tryCreate<GLES3Device>(info, &device)) return device;
+        // #endif
 
-#ifdef CC_USE_GLES2
-        if (tryCreate<GLES2Device>(info, &device)) return device;
-#endif
+        // #ifdef CC_USE_GLES2
+        //         if (tryCreate<GLES2Device>(info, &device)) return device;
+        // #endif
 
-        if (tryCreate<EmptyDevice>(info, &device)) return device;
+        // if (tryCreate<EmptyDevice>(info, &device)) return device;
 
         return nullptr;
     }
@@ -118,13 +118,13 @@ private:
     static bool tryCreate(const DeviceInfo &info, Device **pDevice) {
         Device *device = CC_NEW(DeviceCtor);
 
-        if (DETACH_DEVICE_THREAD) {
-            device = CC_NEW(gfx::DeviceAgent(device));
-        }
+        // if (DETACH_DEVICE_THREAD) {
+        //     device = CC_NEW(gfx::DeviceAgent(device));
+        // }
 
-        if (CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION) {
-            device = CC_NEW(gfx::DeviceValidator(device));
-        }
+        // if (CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION) {
+        //     device = CC_NEW(gfx::DeviceValidator(device));
+        // }
 
         if (!device->initialize(info)) {
             CC_SAFE_DELETE(device);

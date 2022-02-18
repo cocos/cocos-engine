@@ -152,6 +152,9 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
             _layers.push_back(layer);
         }
     }
+
+    requestedExtensions.push_back("VK_KHR_multiview");
+
     for (const char *extension : requestedExtensions) {
         if (isExtensionSupported(extension, _gpuDevice->extensions)) {
             _extensions.push_back(extension);

@@ -77,16 +77,12 @@ void DevicePass::execute() {
         _resourceTable._subpassIndex = i;
 
         for (LogicPass &pass : subpass.logicPasses) {
-            gfx::Viewport &viewport = pass.customViewport ? pass.viewport : _viewport;
+            gfx::Rect &viewport = pass.customViewport ? pass.viewport : _viewport;
             gfx::Rect &    scissor  = pass.customViewport ? pass.scissor : _scissor;
 
             if (viewport != _curViewport) {
                 cmdBuff->setViewport(viewport);
                 _curViewport = viewport;
-            }
-            if (scissor != _curScissor) {
-                cmdBuff->setScissor(scissor);
-                _curScissor = scissor;
             }
 
             pass.pass->execute(_resourceTable);
@@ -225,10 +221,10 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
         for (auto &subpass : _subpasses) {
             for (auto &pass : subpass.logicPasses) {
                 // calculate the union of all viewports as render area
-                _viewport.left = _scissor.x = std::min(_scissor.x, pass.viewport.left);
-                _viewport.top = _scissor.y = std::min(_scissor.y, pass.viewport.top);
-                _viewport.width = _scissor.width = std::max(_scissor.width, pass.viewport.width + pass.viewport.left - _scissor.x);
-                _viewport.height = _scissor.height = std::max(_scissor.height, pass.viewport.height + pass.viewport.top - _scissor.y);
+                _viewport.x = _scissor.x = std::min(_scissor.x, pass.viewport.x);
+                _viewport.y = _scissor.y = std::min(_scissor.y, pass.viewport.y);
+                _viewport.width = _scissor.width = std::max(_scissor.width, pass.viewport.width + pass.viewport.x - _scissor.x);
+                _viewport.height = _scissor.height = std::max(_scissor.height, pass.viewport.height + pass.viewport.y - _scissor.y);
             }
         }
     }

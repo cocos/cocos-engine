@@ -130,16 +130,6 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::BufferTextureCopy *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::BufferTextureCopy);
 
-extern se::Object* __jsb_cc_gfx_Viewport_proto;
-extern se::Class* __jsb_cc_gfx_Viewport_class;
-
-bool js_register_cc_gfx_Viewport(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-template<>
-bool sevalue_to_native(const se::Value &, cc::gfx::Viewport *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::Viewport);
-
 extern se::Object* __jsb_cc_gfx_Color_proto;
 extern se::Class* __jsb_cc_gfx_Color_class;
 
@@ -667,10 +657,10 @@ SE_DECLARE_FUNC(js_gfx_CommandBuffer_setBlendConstants);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBias);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBound);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setLineWidth);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_setScissor);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilCompareMask);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilWriteMask);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setViewport);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setViewports);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_CommandBuffer);
 
 extern se::Object* __jsb_cc_gfx_DescriptorSet_proto;
@@ -911,3 +901,4 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceManager);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_addSurfaceEventListener);
+

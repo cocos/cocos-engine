@@ -48,10 +48,10 @@ public:
 
 private:
     struct LogicPass final {
-        Executable *  pass{nullptr};
-        bool          customViewport{false};
-        gfx::Viewport viewport;
-        gfx::Rect     scissor;
+        Executable *pass{nullptr};
+        bool        customViewport{false};
+        gfx::Rect   viewport;
+        gfx::Rect   scissor;
     };
 
     struct Subpass final {
@@ -76,12 +76,12 @@ private:
     uint16_t                _usedRenderTargetSlotMask{0};
     DevicePassResourceTable _resourceTable;
 
-    gfx::Viewport _viewport;
-    gfx::Rect     _scissor;
-    gfx::Viewport _curViewport;
-    gfx::Rect     _curScissor;
-    RenderPass    _renderPass;
-    Framebuffer   _fbo;
+    gfx::Rect   _viewport;
+    gfx::Rect   _scissor;
+    gfx::Rect   _curViewport;
+    gfx::Rect   _curScissor;
+    RenderPass  _renderPass;
+    Framebuffer _fbo;
 };
 
 } // namespace framegraph

@@ -192,10 +192,6 @@ bool operator==(const TextureBarrierInfo& lhs, const TextureBarrierInfo& rhs) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool operator==(const Viewport& lhs, const Viewport& rhs) {
-    return !memcmp(&lhs, &rhs, sizeof(Viewport));
-}
-
 bool operator==(const Rect& lhs, const Rect& rhs) {
     return !memcmp(&lhs, &rhs, sizeof(Rect));
 }
