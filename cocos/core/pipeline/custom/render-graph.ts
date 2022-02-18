@@ -1,11 +1,13 @@
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
 /* eslint-disable max-len */
 import * as impl from './graph';
 import { Camera } from '../../renderer/scene/camera';
 import { Buffer, ClearFlagBit, Color, Format, LoadOp, SampleCount, Sampler, StoreOp, Texture } from '../../gfx/index';
 import { QueueHint, ResourceDimension, ResourceResidency } from './types';
-import { Mat4 } from '../../math';
-import { legacyCC } from '../../global-exports';
-import { RenderScene } from '../../renderer/scene';
 
 export const enum ResourceFlags {
     NONE = 0,

@@ -1,3 +1,8 @@
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
 // clang-format off
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/renderer/pipeline/custom/JsbConversion.h"

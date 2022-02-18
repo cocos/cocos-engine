@@ -1,3 +1,8 @@
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
 /* eslint-disable max-len */
 export const enum UpdateFrequency {
     PER_INSTANCE,
