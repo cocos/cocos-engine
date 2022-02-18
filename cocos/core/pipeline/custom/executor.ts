@@ -7,13 +7,13 @@ import { Buffer, Texture } from '../../gfx/index';
 //=================================================================
 // PolymorphicGraph Concept
 export const enum DeviceResourceGraphValue {
-    buffer,
-    texture,
+    Buffer,
+    Texture,
 }
 
 interface DeviceResourceGraphValueType {
-    [DeviceResourceGraphValue.buffer]: Buffer
-    [DeviceResourceGraphValue.texture]: Texture
+    [DeviceResourceGraphValue.Buffer]: Buffer
+    [DeviceResourceGraphValue.Texture]: Texture
 }
 
 export interface DeviceResourceGraphVisitor {
@@ -333,37 +333,37 @@ export class DeviceResourceGraph implements impl.BidirectionalGraph
     visitVertex (visitor: DeviceResourceGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
-        case DeviceResourceGraphValue.buffer:
+        case DeviceResourceGraphValue.Buffer:
             return visitor.buffer(vert._object as Buffer);
-        case DeviceResourceGraphValue.texture:
+        case DeviceResourceGraphValue.Texture:
             return visitor.texture(vert._object as Texture);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getBuffer (v: number): Buffer {
-        if (this._vertices[v]._id === DeviceResourceGraphValue.buffer) {
+        if (this._vertices[v]._id === DeviceResourceGraphValue.Buffer) {
             return this._vertices[v]._object as Buffer;
         } else {
             throw Error('value id not match');
         }
     }
     getTexture (v: number): Texture {
-        if (this._vertices[v]._id === DeviceResourceGraphValue.texture) {
+        if (this._vertices[v]._id === DeviceResourceGraphValue.Texture) {
             return this._vertices[v]._object as Texture;
         } else {
             throw Error('value id not match');
         }
     }
     tryGetBuffer (v: number): Buffer | null {
-        if (this._vertices[v]._id === DeviceResourceGraphValue.buffer) {
+        if (this._vertices[v]._id === DeviceResourceGraphValue.Buffer) {
             return this._vertices[v]._object as Buffer;
         } else {
             return null;
         }
     }
     tryGetTexture (v: number): Texture | null {
-        if (this._vertices[v]._id === DeviceResourceGraphValue.texture) {
+        if (this._vertices[v]._id === DeviceResourceGraphValue.Texture) {
             return this._vertices[v]._object as Texture;
         } else {
             return null;

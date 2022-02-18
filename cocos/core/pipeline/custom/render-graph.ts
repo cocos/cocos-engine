@@ -833,29 +833,29 @@ export class RenderData {
 //=================================================================
 // PolymorphicGraph Concept
 export const enum RenderGraphValue {
-    raster,
-    compute,
-    copy,
-    move,
-    present,
-    raytrace,
-    queue,
-    scene,
-    blit,
-    dispatch,
+    Raster,
+    Compute,
+    Copy,
+    Move,
+    Present,
+    Raytrace,
+    Queue,
+    Scene,
+    Blit,
+    Dispatch,
 }
 
 interface RenderGraphValueType {
-    [RenderGraphValue.raster]: RasterPassData
-    [RenderGraphValue.compute]: ComputePassData
-    [RenderGraphValue.copy]: CopyPassData
-    [RenderGraphValue.move]: MovePassData
-    [RenderGraphValue.present]: PresentPassData
-    [RenderGraphValue.raytrace]: RaytracePassData
-    [RenderGraphValue.queue]: RenderQueueData
-    [RenderGraphValue.scene]: SceneData
-    [RenderGraphValue.blit]: Blit
-    [RenderGraphValue.dispatch]: Dispatch
+    [RenderGraphValue.Raster]: RasterPassData
+    [RenderGraphValue.Compute]: ComputePassData
+    [RenderGraphValue.Copy]: CopyPassData
+    [RenderGraphValue.Move]: MovePassData
+    [RenderGraphValue.Present]: PresentPassData
+    [RenderGraphValue.Raytrace]: RaytracePassData
+    [RenderGraphValue.Queue]: RenderQueueData
+    [RenderGraphValue.Scene]: SceneData
+    [RenderGraphValue.Blit]: Blit
+    [RenderGraphValue.Dispatch]: Dispatch
 }
 
 export interface RenderGraphVisitor {
@@ -1259,165 +1259,165 @@ export class RenderGraph implements impl.BidirectionalGraph
     visitVertex (visitor: RenderGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
-        case RenderGraphValue.raster:
+        case RenderGraphValue.Raster:
             return visitor.raster(vert._object as RasterPassData);
-        case RenderGraphValue.compute:
+        case RenderGraphValue.Compute:
             return visitor.compute(vert._object as ComputePassData);
-        case RenderGraphValue.copy:
+        case RenderGraphValue.Copy:
             return visitor.copy(vert._object as CopyPassData);
-        case RenderGraphValue.move:
+        case RenderGraphValue.Move:
             return visitor.move(vert._object as MovePassData);
-        case RenderGraphValue.present:
+        case RenderGraphValue.Present:
             return visitor.present(vert._object as PresentPassData);
-        case RenderGraphValue.raytrace:
+        case RenderGraphValue.Raytrace:
             return visitor.raytrace(vert._object as RaytracePassData);
-        case RenderGraphValue.queue:
+        case RenderGraphValue.Queue:
             return visitor.queue(vert._object as RenderQueueData);
-        case RenderGraphValue.scene:
+        case RenderGraphValue.Scene:
             return visitor.scene(vert._object as SceneData);
-        case RenderGraphValue.blit:
+        case RenderGraphValue.Blit:
             return visitor.blit(vert._object as Blit);
-        case RenderGraphValue.dispatch:
+        case RenderGraphValue.Dispatch:
             return visitor.dispatch(vert._object as Dispatch);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getRaster (v: number): RasterPassData {
-        if (this._vertices[v]._id === RenderGraphValue.raster) {
+        if (this._vertices[v]._id === RenderGraphValue.Raster) {
             return this._vertices[v]._object as RasterPassData;
         } else {
             throw Error('value id not match');
         }
     }
     getCompute (v: number): ComputePassData {
-        if (this._vertices[v]._id === RenderGraphValue.compute) {
+        if (this._vertices[v]._id === RenderGraphValue.Compute) {
             return this._vertices[v]._object as ComputePassData;
         } else {
             throw Error('value id not match');
         }
     }
     getCopy (v: number): CopyPassData {
-        if (this._vertices[v]._id === RenderGraphValue.copy) {
+        if (this._vertices[v]._id === RenderGraphValue.Copy) {
             return this._vertices[v]._object as CopyPassData;
         } else {
             throw Error('value id not match');
         }
     }
     getMove (v: number): MovePassData {
-        if (this._vertices[v]._id === RenderGraphValue.move) {
+        if (this._vertices[v]._id === RenderGraphValue.Move) {
             return this._vertices[v]._object as MovePassData;
         } else {
             throw Error('value id not match');
         }
     }
     getPresent (v: number): PresentPassData {
-        if (this._vertices[v]._id === RenderGraphValue.present) {
+        if (this._vertices[v]._id === RenderGraphValue.Present) {
             return this._vertices[v]._object as PresentPassData;
         } else {
             throw Error('value id not match');
         }
     }
     getRaytrace (v: number): RaytracePassData {
-        if (this._vertices[v]._id === RenderGraphValue.raytrace) {
+        if (this._vertices[v]._id === RenderGraphValue.Raytrace) {
             return this._vertices[v]._object as RaytracePassData;
         } else {
             throw Error('value id not match');
         }
     }
     getQueue (v: number): RenderQueueData {
-        if (this._vertices[v]._id === RenderGraphValue.queue) {
+        if (this._vertices[v]._id === RenderGraphValue.Queue) {
             return this._vertices[v]._object as RenderQueueData;
         } else {
             throw Error('value id not match');
         }
     }
     getScene (v: number): SceneData {
-        if (this._vertices[v]._id === RenderGraphValue.scene) {
+        if (this._vertices[v]._id === RenderGraphValue.Scene) {
             return this._vertices[v]._object as SceneData;
         } else {
             throw Error('value id not match');
         }
     }
     getBlit (v: number): Blit {
-        if (this._vertices[v]._id === RenderGraphValue.blit) {
+        if (this._vertices[v]._id === RenderGraphValue.Blit) {
             return this._vertices[v]._object as Blit;
         } else {
             throw Error('value id not match');
         }
     }
     getDispatch (v: number): Dispatch {
-        if (this._vertices[v]._id === RenderGraphValue.dispatch) {
+        if (this._vertices[v]._id === RenderGraphValue.Dispatch) {
             return this._vertices[v]._object as Dispatch;
         } else {
             throw Error('value id not match');
         }
     }
     tryGetRaster (v: number): RasterPassData | null {
-        if (this._vertices[v]._id === RenderGraphValue.raster) {
+        if (this._vertices[v]._id === RenderGraphValue.Raster) {
             return this._vertices[v]._object as RasterPassData;
         } else {
             return null;
         }
     }
     tryGetCompute (v: number): ComputePassData | null {
-        if (this._vertices[v]._id === RenderGraphValue.compute) {
+        if (this._vertices[v]._id === RenderGraphValue.Compute) {
             return this._vertices[v]._object as ComputePassData;
         } else {
             return null;
         }
     }
     tryGetCopy (v: number): CopyPassData | null {
-        if (this._vertices[v]._id === RenderGraphValue.copy) {
+        if (this._vertices[v]._id === RenderGraphValue.Copy) {
             return this._vertices[v]._object as CopyPassData;
         } else {
             return null;
         }
     }
     tryGetMove (v: number): MovePassData | null {
-        if (this._vertices[v]._id === RenderGraphValue.move) {
+        if (this._vertices[v]._id === RenderGraphValue.Move) {
             return this._vertices[v]._object as MovePassData;
         } else {
             return null;
         }
     }
     tryGetPresent (v: number): PresentPassData | null {
-        if (this._vertices[v]._id === RenderGraphValue.present) {
+        if (this._vertices[v]._id === RenderGraphValue.Present) {
             return this._vertices[v]._object as PresentPassData;
         } else {
             return null;
         }
     }
     tryGetRaytrace (v: number): RaytracePassData | null {
-        if (this._vertices[v]._id === RenderGraphValue.raytrace) {
+        if (this._vertices[v]._id === RenderGraphValue.Raytrace) {
             return this._vertices[v]._object as RaytracePassData;
         } else {
             return null;
         }
     }
     tryGetQueue (v: number): RenderQueueData | null {
-        if (this._vertices[v]._id === RenderGraphValue.queue) {
+        if (this._vertices[v]._id === RenderGraphValue.Queue) {
             return this._vertices[v]._object as RenderQueueData;
         } else {
             return null;
         }
     }
     tryGetScene (v: number): SceneData | null {
-        if (this._vertices[v]._id === RenderGraphValue.scene) {
+        if (this._vertices[v]._id === RenderGraphValue.Scene) {
             return this._vertices[v]._object as SceneData;
         } else {
             return null;
         }
     }
     tryGetBlit (v: number): Blit | null {
-        if (this._vertices[v]._id === RenderGraphValue.blit) {
+        if (this._vertices[v]._id === RenderGraphValue.Blit) {
             return this._vertices[v]._object as Blit;
         } else {
             return null;
         }
     }
     tryGetDispatch (v: number): Dispatch | null {
-        if (this._vertices[v]._id === RenderGraphValue.dispatch) {
+        if (this._vertices[v]._id === RenderGraphValue.Dispatch) {
             return this._vertices[v]._object as Dispatch;
         } else {
             return null;

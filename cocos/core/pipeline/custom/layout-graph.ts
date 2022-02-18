@@ -75,13 +75,13 @@ export class ShaderNodeData {
 //=================================================================
 // PolymorphicGraph Concept
 export const enum LayoutGraphValue {
-    group,
-    shader,
+    Group,
+    Shader,
 }
 
 interface LayoutGraphValueType {
-    [LayoutGraphValue.group]: GroupNodeData
-    [LayoutGraphValue.shader]: ShaderNodeData
+    [LayoutGraphValue.Group]: GroupNodeData
+    [LayoutGraphValue.Shader]: ShaderNodeData
 }
 
 export interface LayoutGraphVisitor {
@@ -437,37 +437,37 @@ export class LayoutGraph implements impl.BidirectionalGraph
     visitVertex (visitor: LayoutGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
-        case LayoutGraphValue.group:
+        case LayoutGraphValue.Group:
             return visitor.group(vert._object as GroupNodeData);
-        case LayoutGraphValue.shader:
+        case LayoutGraphValue.Shader:
             return visitor.shader(vert._object as ShaderNodeData);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getGroup (v: number): GroupNodeData {
-        if (this._vertices[v]._id === LayoutGraphValue.group) {
+        if (this._vertices[v]._id === LayoutGraphValue.Group) {
             return this._vertices[v]._object as GroupNodeData;
         } else {
             throw Error('value id not match');
         }
     }
     getShader (v: number): ShaderNodeData {
-        if (this._vertices[v]._id === LayoutGraphValue.shader) {
+        if (this._vertices[v]._id === LayoutGraphValue.Shader) {
             return this._vertices[v]._object as ShaderNodeData;
         } else {
             throw Error('value id not match');
         }
     }
     tryGetGroup (v: number): GroupNodeData | null {
-        if (this._vertices[v]._id === LayoutGraphValue.group) {
+        if (this._vertices[v]._id === LayoutGraphValue.Group) {
             return this._vertices[v]._object as GroupNodeData;
         } else {
             return null;
         }
     }
     tryGetShader (v: number): ShaderNodeData | null {
-        if (this._vertices[v]._id === LayoutGraphValue.shader) {
+        if (this._vertices[v]._id === LayoutGraphValue.Shader) {
             return this._vertices[v]._object as ShaderNodeData;
         } else {
             return null;
