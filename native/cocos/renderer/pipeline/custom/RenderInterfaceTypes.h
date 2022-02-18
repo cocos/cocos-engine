@@ -46,15 +46,15 @@ public:
 
 inline Setter::~Setter() noexcept = default;
 
-class RasterQueue {
+class RasterQueueBuilder {
 public:
-    RasterQueue() noexcept = default;
-    RasterQueue(RasterQueue&& rhs)      = delete;
-    RasterQueue(RasterQueue const& rhs) = delete;
-    RasterQueue& operator=(RasterQueue&& rhs) = delete;
-    RasterQueue& operator=(RasterQueue const& rhs) = delete;
+    RasterQueueBuilder() noexcept = default;
+    RasterQueueBuilder(RasterQueueBuilder&& rhs)      = delete;
+    RasterQueueBuilder(RasterQueueBuilder const& rhs) = delete;
+    RasterQueueBuilder& operator=(RasterQueueBuilder&& rhs) = delete;
+    RasterQueueBuilder& operator=(RasterQueueBuilder const& rhs) = delete;
 
-    virtual ~RasterQueue() noexcept = 0;
+    virtual ~RasterQueueBuilder() noexcept = 0;
 
     virtual void addSceneOfCamera(scene::Camera* camera, const std::string& name) = 0;
     virtual void addSceneOfCamera(scene::Camera* camera) = 0;
@@ -64,99 +64,99 @@ public:
     virtual void addFullscreenQuad(const std::string& shader) = 0;
 };
 
-inline RasterQueue::~RasterQueue() noexcept = default;
+inline RasterQueueBuilder::~RasterQueueBuilder() noexcept = default;
 
-class RasterPass {
+class RasterPassBuilder {
 public:
-    RasterPass() noexcept = default;
-    RasterPass(RasterPass&& rhs)      = delete;
-    RasterPass(RasterPass const& rhs) = delete;
-    RasterPass& operator=(RasterPass&& rhs) = delete;
-    RasterPass& operator=(RasterPass const& rhs) = delete;
+    RasterPassBuilder() noexcept = default;
+    RasterPassBuilder(RasterPassBuilder&& rhs)      = delete;
+    RasterPassBuilder(RasterPassBuilder const& rhs) = delete;
+    RasterPassBuilder& operator=(RasterPassBuilder&& rhs) = delete;
+    RasterPassBuilder& operator=(RasterPassBuilder const& rhs) = delete;
 
-    virtual ~RasterPass() noexcept = 0;
+    virtual ~RasterPassBuilder() noexcept = 0;
 
     virtual void addRasterView(const std::string& name, const RasterView& view) = 0;
     virtual void addComputeView(const std::string& name, const ComputeView& view) = 0;
-    virtual RasterQueue* addQueue(QueueHint hint, const std::string& layoutName, const std::string& name) = 0;
-    virtual RasterQueue* addQueue(QueueHint hint, const std::string& layoutName) = 0;
-    virtual RasterQueue* addQueue(QueueHint hint) = 0;
+    virtual RasterQueueBuilder* addQueue(QueueHint hint, const std::string& layoutName, const std::string& name) = 0;
+    virtual RasterQueueBuilder* addQueue(QueueHint hint, const std::string& layoutName) = 0;
+    virtual RasterQueueBuilder* addQueue(QueueHint hint) = 0;
     virtual void addFullscreenQuad(const std::string& shader, const std::string& layoutName, const std::string& name) = 0;
     virtual void addFullscreenQuad(const std::string& shader, const std::string& layoutName) = 0;
     virtual void addFullscreenQuad(const std::string& shader) = 0;
 };
 
-inline RasterPass::~RasterPass() noexcept = default;
+inline RasterPassBuilder::~RasterPassBuilder() noexcept = default;
 
-class ComputeQueue {
+class ComputeQueueBuilder {
 public:
-    ComputeQueue() noexcept = default;
-    ComputeQueue(ComputeQueue&& rhs)      = delete;
-    ComputeQueue(ComputeQueue const& rhs) = delete;
-    ComputeQueue& operator=(ComputeQueue&& rhs) = delete;
-    ComputeQueue& operator=(ComputeQueue const& rhs) = delete;
+    ComputeQueueBuilder() noexcept = default;
+    ComputeQueueBuilder(ComputeQueueBuilder&& rhs)      = delete;
+    ComputeQueueBuilder(ComputeQueueBuilder const& rhs) = delete;
+    ComputeQueueBuilder& operator=(ComputeQueueBuilder&& rhs) = delete;
+    ComputeQueueBuilder& operator=(ComputeQueueBuilder const& rhs) = delete;
 
-    virtual ~ComputeQueue() noexcept = 0;
+    virtual ~ComputeQueueBuilder() noexcept = 0;
 
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const std::string& layoutName, const std::string& name) = 0;
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const std::string& layoutName) = 0;
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 };
 
-inline ComputeQueue::~ComputeQueue() noexcept = default;
+inline ComputeQueueBuilder::~ComputeQueueBuilder() noexcept = default;
 
-class ComputePass {
+class ComputePassBuilder {
 public:
-    ComputePass() noexcept = default;
-    ComputePass(ComputePass&& rhs)      = delete;
-    ComputePass(ComputePass const& rhs) = delete;
-    ComputePass& operator=(ComputePass&& rhs) = delete;
-    ComputePass& operator=(ComputePass const& rhs) = delete;
+    ComputePassBuilder() noexcept = default;
+    ComputePassBuilder(ComputePassBuilder&& rhs)      = delete;
+    ComputePassBuilder(ComputePassBuilder const& rhs) = delete;
+    ComputePassBuilder& operator=(ComputePassBuilder&& rhs) = delete;
+    ComputePassBuilder& operator=(ComputePassBuilder const& rhs) = delete;
 
-    virtual ~ComputePass() noexcept = 0;
+    virtual ~ComputePassBuilder() noexcept = 0;
 
     virtual void addComputeView(const std::string& name, const ComputeView& view) = 0;
 
-    virtual ComputeQueue* addQueue(const std::string& layoutName, const std::string& name) = 0;
-    virtual ComputeQueue* addQueue(const std::string& layoutName) = 0;
-    virtual ComputeQueue* addQueue() = 0;
+    virtual ComputeQueueBuilder* addQueue(const std::string& layoutName, const std::string& name) = 0;
+    virtual ComputeQueueBuilder* addQueue(const std::string& layoutName) = 0;
+    virtual ComputeQueueBuilder* addQueue() = 0;
 
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const std::string& layoutName, const std::string& name) = 0;
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const std::string& layoutName) = 0;
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 };
 
-inline ComputePass::~ComputePass() noexcept = default;
+inline ComputePassBuilder::~ComputePassBuilder() noexcept = default;
 
-class MovePass {
+class MovePassBuilder {
 public:
-    MovePass() noexcept = default;
-    MovePass(MovePass&& rhs)      = delete;
-    MovePass(MovePass const& rhs) = delete;
-    MovePass& operator=(MovePass&& rhs) = delete;
-    MovePass& operator=(MovePass const& rhs) = delete;
+    MovePassBuilder() noexcept = default;
+    MovePassBuilder(MovePassBuilder&& rhs)      = delete;
+    MovePassBuilder(MovePassBuilder const& rhs) = delete;
+    MovePassBuilder& operator=(MovePassBuilder&& rhs) = delete;
+    MovePassBuilder& operator=(MovePassBuilder const& rhs) = delete;
 
-    virtual ~MovePass() noexcept = 0;
+    virtual ~MovePassBuilder() noexcept = 0;
 
     virtual void addPair(const MovePair& pair) = 0;
 };
 
-inline MovePass::~MovePass() noexcept = default;
+inline MovePassBuilder::~MovePassBuilder() noexcept = default;
 
-class CopyPass {
+class CopyPassBuilder {
 public:
-    CopyPass() noexcept = default;
-    CopyPass(CopyPass&& rhs)      = delete;
-    CopyPass(CopyPass const& rhs) = delete;
-    CopyPass& operator=(CopyPass&& rhs) = delete;
-    CopyPass& operator=(CopyPass const& rhs) = delete;
+    CopyPassBuilder() noexcept = default;
+    CopyPassBuilder(CopyPassBuilder&& rhs)      = delete;
+    CopyPassBuilder(CopyPassBuilder const& rhs) = delete;
+    CopyPassBuilder& operator=(CopyPassBuilder&& rhs) = delete;
+    CopyPassBuilder& operator=(CopyPassBuilder const& rhs) = delete;
 
-    virtual ~CopyPass() noexcept = 0;
+    virtual ~CopyPassBuilder() noexcept = 0;
 
     virtual void addPair(const CopyPair& pair) = 0;
 };
 
-inline CopyPass::~CopyPass() noexcept = default;
+inline CopyPassBuilder::~CopyPassBuilder() noexcept = default;
 
 class Pipeline {
 public:
@@ -173,12 +173,12 @@ public:
     virtual uint32_t addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) = 0;
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
-    virtual RasterPass* addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) = 0;
-    virtual RasterPass* addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) = 0;
-    virtual ComputePass* addComputePass(const std::string& layoutName, const std::string& name) = 0;
-    virtual ComputePass* addComputePass(const std::string& layoutName) = 0;
-    virtual MovePass* addMovePass(const std::string& name) = 0;
-    virtual CopyPass* addCopyPass(const std::string& name) = 0;
+    virtual RasterPassBuilder* addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) = 0;
+    virtual RasterPassBuilder* addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) = 0;
+    virtual ComputePassBuilder* addComputePass(const std::string& layoutName, const std::string& name) = 0;
+    virtual ComputePassBuilder* addComputePass(const std::string& layoutName) = 0;
+    virtual MovePassBuilder* addMovePass(const std::string& name) = 0;
+    virtual CopyPassBuilder* addCopyPass(const std::string& name) = 0;
 };
 
 inline Pipeline::~Pipeline() noexcept = default;

@@ -19,7 +19,7 @@ export abstract class Setter {
     public abstract setSampler(name: string, sampler: Sampler): void;
 }
 
-export abstract class RasterQueue {
+export abstract class RasterQueueBuilder {
     public abstract addSceneOfCamera(camera: Camera, name: string): void;
     public abstract addSceneOfCamera(camera: Camera): void;
     public abstract addScene(name: string): void;
@@ -28,38 +28,38 @@ export abstract class RasterQueue {
     public abstract addFullscreenQuad(shader: string): void;
 }
 
-export abstract class RasterPass {
+export abstract class RasterPassBuilder {
     public abstract addRasterView(name: string, view: RasterView): void;
     public abstract addComputeView(name: string, view: ComputeView): void;
-    public abstract addQueue(hint: QueueHint, layoutName: string, name: string): RasterQueue;
-    public abstract addQueue(hint: QueueHint, layoutName: string): RasterQueue;
-    public abstract addQueue(hint: QueueHint): RasterQueue;
+    public abstract addQueue(hint: QueueHint, layoutName: string, name: string): RasterQueueBuilder;
+    public abstract addQueue(hint: QueueHint, layoutName: string): RasterQueueBuilder;
+    public abstract addQueue(hint: QueueHint): RasterQueueBuilder;
     public abstract addFullscreenQuad(shader: string, layoutName: string, name: string): void;
     public abstract addFullscreenQuad(shader: string, layoutName: string): void;
     public abstract addFullscreenQuad(shader: string): void;
 }
 
-export abstract class ComputeQueue {
+export abstract class ComputeQueueBuilder {
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string, name: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
-export abstract class ComputePass {
+export abstract class ComputePassBuilder {
     public abstract addComputeView(name: string, view: ComputeView): void;
-    public abstract addQueue(layoutName: string, name: string): ComputeQueue;
-    public abstract addQueue(layoutName: string): ComputeQueue;
-    public abstract addQueue(): ComputeQueue;
+    public abstract addQueue(layoutName: string, name: string): ComputeQueueBuilder;
+    public abstract addQueue(layoutName: string): ComputeQueueBuilder;
+    public abstract addQueue(): ComputeQueueBuilder;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string, name: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
-export abstract class MovePass {
+export abstract class MovePassBuilder {
     public abstract addPair(pair: MovePair): void;
 }
 
-export abstract class CopyPass {
+export abstract class CopyPassBuilder {
     public abstract addPair(pair: CopyPair): void;
 }
 
@@ -69,10 +69,10 @@ export abstract class Pipeline {
     public abstract addDepthStencil(name: string, format: Format, width: number, height: number): number;
     public abstract beginFrame(): void;
     public abstract endFrame(): void;
-    public abstract addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPass;
-    public abstract addRasterPass(width: number, height: number, layoutName: string): RasterPass;
-    public abstract addComputePass(layoutName: string, name: string): ComputePass;
-    public abstract addComputePass(layoutName: string): ComputePass;
-    public abstract addMovePass(name: string): MovePass;
-    public abstract addCopyPass(name: string): CopyPass;
+    public abstract addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
+    public abstract addRasterPass(width: number, height: number, layoutName: string): RasterPassBuilder;
+    public abstract addComputePass(layoutName: string, name: string): ComputePassBuilder;
+    public abstract addComputePass(layoutName: string): ComputePassBuilder;
+    public abstract addMovePass(name: string): MovePassBuilder;
+    public abstract addCopyPass(name: string): CopyPassBuilder;
 }

@@ -9,12 +9,12 @@
 bool register_all_render(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::render::Setter);
-JSB_REGISTER_OBJECT_TYPE(cc::render::RasterQueue);
-JSB_REGISTER_OBJECT_TYPE(cc::render::RasterPass);
-JSB_REGISTER_OBJECT_TYPE(cc::render::ComputeQueue);
-JSB_REGISTER_OBJECT_TYPE(cc::render::ComputePass);
-JSB_REGISTER_OBJECT_TYPE(cc::render::MovePass);
-JSB_REGISTER_OBJECT_TYPE(cc::render::CopyPass);
+JSB_REGISTER_OBJECT_TYPE(cc::render::RasterQueueBuilder);
+JSB_REGISTER_OBJECT_TYPE(cc::render::RasterPassBuilder);
+JSB_REGISTER_OBJECT_TYPE(cc::render::ComputeQueueBuilder);
+JSB_REGISTER_OBJECT_TYPE(cc::render::ComputePassBuilder);
+JSB_REGISTER_OBJECT_TYPE(cc::render::MovePassBuilder);
+JSB_REGISTER_OBJECT_TYPE(cc::render::CopyPassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);
 
 
@@ -35,54 +35,54 @@ SE_DECLARE_FUNC(js_render_Setter_setTexture);
 SE_DECLARE_FUNC(js_render_Setter_setVec2);
 SE_DECLARE_FUNC(js_render_Setter_setVec4);
 
-extern se::Object *__jsb_cc_render_RasterQueue_proto; // NOLINT
-extern se::Class * __jsb_cc_render_RasterQueue_class; // NOLINT
+extern se::Object *__jsb_cc_render_RasterQueueBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_RasterQueueBuilder_class; // NOLINT
 
-bool js_register_cc_render_RasterQueue(se::Object *obj); // NOLINT
+bool js_register_cc_render_RasterQueueBuilder(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_render_RasterQueue_addFullscreenQuad);
-SE_DECLARE_FUNC(js_render_RasterQueue_addScene);
-SE_DECLARE_FUNC(js_render_RasterQueue_addSceneOfCamera);
+SE_DECLARE_FUNC(js_render_RasterQueueBuilder_addFullscreenQuad);
+SE_DECLARE_FUNC(js_render_RasterQueueBuilder_addScene);
+SE_DECLARE_FUNC(js_render_RasterQueueBuilder_addSceneOfCamera);
 
-extern se::Object *__jsb_cc_render_RasterPass_proto; // NOLINT
-extern se::Class * __jsb_cc_render_RasterPass_class; // NOLINT
+extern se::Object *__jsb_cc_render_RasterPassBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_RasterPassBuilder_class; // NOLINT
 
-bool js_register_cc_render_RasterPass(se::Object *obj); // NOLINT
+bool js_register_cc_render_RasterPassBuilder(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_render_RasterPass_addComputeView);
-SE_DECLARE_FUNC(js_render_RasterPass_addFullscreenQuad);
-SE_DECLARE_FUNC(js_render_RasterPass_addQueue);
-SE_DECLARE_FUNC(js_render_RasterPass_addRasterView);
+SE_DECLARE_FUNC(js_render_RasterPassBuilder_addComputeView);
+SE_DECLARE_FUNC(js_render_RasterPassBuilder_addFullscreenQuad);
+SE_DECLARE_FUNC(js_render_RasterPassBuilder_addQueue);
+SE_DECLARE_FUNC(js_render_RasterPassBuilder_addRasterView);
 
-extern se::Object *__jsb_cc_render_ComputeQueue_proto; // NOLINT
-extern se::Class * __jsb_cc_render_ComputeQueue_class; // NOLINT
+extern se::Object *__jsb_cc_render_ComputeQueueBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_ComputeQueueBuilder_class; // NOLINT
 
-bool js_register_cc_render_ComputeQueue(se::Object *obj); // NOLINT
+bool js_register_cc_render_ComputeQueueBuilder(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_render_ComputeQueue_addDispatch);
+SE_DECLARE_FUNC(js_render_ComputeQueueBuilder_addDispatch);
 
-extern se::Object *__jsb_cc_render_ComputePass_proto; // NOLINT
-extern se::Class * __jsb_cc_render_ComputePass_class; // NOLINT
+extern se::Object *__jsb_cc_render_ComputePassBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_ComputePassBuilder_class; // NOLINT
 
-bool js_register_cc_render_ComputePass(se::Object *obj); // NOLINT
+bool js_register_cc_render_ComputePassBuilder(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_render_ComputePass_addComputeView);
-SE_DECLARE_FUNC(js_render_ComputePass_addDispatch);
-SE_DECLARE_FUNC(js_render_ComputePass_addQueue);
+SE_DECLARE_FUNC(js_render_ComputePassBuilder_addComputeView);
+SE_DECLARE_FUNC(js_render_ComputePassBuilder_addDispatch);
+SE_DECLARE_FUNC(js_render_ComputePassBuilder_addQueue);
 
-extern se::Object *__jsb_cc_render_MovePass_proto; // NOLINT
-extern se::Class * __jsb_cc_render_MovePass_class; // NOLINT
+extern se::Object *__jsb_cc_render_MovePassBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_MovePassBuilder_class; // NOLINT
 
-bool js_register_cc_render_MovePass(se::Object *obj); // NOLINT
+bool js_register_cc_render_MovePassBuilder(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_render_MovePass_addPair);
+SE_DECLARE_FUNC(js_render_MovePassBuilder_addPair);
 
-extern se::Object *__jsb_cc_render_CopyPass_proto; // NOLINT
-extern se::Class * __jsb_cc_render_CopyPass_class; // NOLINT
+extern se::Object *__jsb_cc_render_CopyPassBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_CopyPassBuilder_class; // NOLINT
 
-bool js_register_cc_render_CopyPass(se::Object *obj); // NOLINT
+bool js_register_cc_render_CopyPassBuilder(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_render_CopyPass_addPair);
+SE_DECLARE_FUNC(js_render_CopyPassBuilder_addPair);
 
 extern se::Object *__jsb_cc_render_Pipeline_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Pipeline_class; // NOLINT

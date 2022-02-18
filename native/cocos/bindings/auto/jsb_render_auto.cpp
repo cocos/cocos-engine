@@ -275,14 +275,14 @@ bool js_register_render_Setter(se::Object* obj) // NOLINT(readability-identifier
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_render_RasterQueue_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_render_RasterQueue_class = nullptr;  // NOLINT
+se::Object* __jsb_cc_render_RasterQueueBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_RasterQueueBuilder_class = nullptr;  // NOLINT
 
-static bool js_render_RasterQueue_addFullscreenQuad(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_RasterQueueBuilder_addFullscreenQuad(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueue>(s);
-    SE_PRECONDITION2( cobj, false, "js_render_RasterQueue_addFullscreenQuad : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    SE_PRECONDITION2( cobj, false, "js_render_RasterQueueBuilder_addFullscreenQuad : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -330,32 +330,32 @@ static bool js_render_RasterQueue_addFullscreenQuad(se::State& s) // NOLINT(read
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_render_RasterQueue_addFullscreenQuad)
+SE_BIND_FUNC(js_render_RasterQueueBuilder_addFullscreenQuad)
 
-static bool js_render_RasterQueue_addScene(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_RasterQueueBuilder_addScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueue>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_RasterQueue_addScene : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_RasterQueueBuilder_addScene : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_RasterQueue_addScene : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_render_RasterQueueBuilder_addScene : Error processing arguments");
         cobj->addScene(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_render_RasterQueue_addScene)
+SE_BIND_FUNC(js_render_RasterQueueBuilder_addScene)
 
-static bool js_render_RasterQueue_addSceneOfCamera(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_RasterQueueBuilder_addSceneOfCamera(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueue>(s);
-    SE_PRECONDITION2( cobj, false, "js_render_RasterQueue_addSceneOfCamera : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    SE_PRECONDITION2( cobj, false, "js_render_RasterQueueBuilder_addSceneOfCamera : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -386,32 +386,32 @@ static bool js_render_RasterQueue_addSceneOfCamera(se::State& s) // NOLINT(reada
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_render_RasterQueue_addSceneOfCamera)
+SE_BIND_FUNC(js_render_RasterQueueBuilder_addSceneOfCamera)
 
-bool js_register_render_RasterQueue(se::Object* obj) // NOLINT(readability-identifier-naming)
+bool js_register_render_RasterQueueBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("RasterQueue", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("RasterQueueBuilder", obj, nullptr, nullptr);
 
-    cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterQueue_addFullscreenQuad));
-    cls->defineFunction("addScene", _SE(js_render_RasterQueue_addScene));
-    cls->defineFunction("addSceneOfCamera", _SE(js_render_RasterQueue_addSceneOfCamera));
+    cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterQueueBuilder_addFullscreenQuad));
+    cls->defineFunction("addScene", _SE(js_render_RasterQueueBuilder_addScene));
+    cls->defineFunction("addSceneOfCamera", _SE(js_render_RasterQueueBuilder_addSceneOfCamera));
     cls->install();
-    JSBClassType::registerClass<cc::render::RasterQueue>(cls);
+    JSBClassType::registerClass<cc::render::RasterQueueBuilder>(cls);
 
-    __jsb_cc_render_RasterQueue_proto = cls->getProto();
-    __jsb_cc_render_RasterQueue_class = cls;
+    __jsb_cc_render_RasterQueueBuilder_proto = cls->getProto();
+    __jsb_cc_render_RasterQueueBuilder_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_render_RasterPass_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_render_RasterPass_class = nullptr;  // NOLINT
+se::Object* __jsb_cc_render_RasterPassBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_RasterPassBuilder_class = nullptr;  // NOLINT
 
-static bool js_render_RasterPass_addComputeView(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_RasterPassBuilder_addComputeView(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPass>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_RasterPass_addComputeView : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_RasterPassBuilder_addComputeView : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -420,20 +420,20 @@ static bool js_render_RasterPass_addComputeView(se::State& s) // NOLINT(readabil
         HolderType<cc::render::ComputeView, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_RasterPass_addComputeView : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_render_RasterPassBuilder_addComputeView : Error processing arguments");
         cobj->addComputeView(arg0.value(), arg1.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_render_RasterPass_addComputeView)
+SE_BIND_FUNC(js_render_RasterPassBuilder_addComputeView)
 
-static bool js_render_RasterPass_addFullscreenQuad(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_RasterPassBuilder_addFullscreenQuad(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPass>(s);
-    SE_PRECONDITION2( cobj, false, "js_render_RasterPass_addFullscreenQuad : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    SE_PRECONDITION2( cobj, false, "js_render_RasterPassBuilder_addFullscreenQuad : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -481,13 +481,13 @@ static bool js_render_RasterPass_addFullscreenQuad(se::State& s) // NOLINT(reada
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_render_RasterPass_addFullscreenQuad)
+SE_BIND_FUNC(js_render_RasterPassBuilder_addFullscreenQuad)
 
-static bool js_render_RasterPass_addQueue(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_RasterPassBuilder_addQueue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPass>(s);
-    SE_PRECONDITION2( cobj, false, "js_render_RasterPass_addQueue : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    SE_PRECONDITION2( cobj, false, "js_render_RasterPassBuilder_addQueue : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -499,9 +499,9 @@ static bool js_render_RasterPass_addQueue(se::State& s) // NOLINT(readability-id
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::render::RasterQueue* result = cobj->addQueue(arg0.value(), arg1.value());
+            cc::render::RasterQueueBuilder* result = cobj->addQueue(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_render_RasterPass_addQueue : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_render_RasterPassBuilder_addQueue : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -519,9 +519,9 @@ static bool js_render_RasterPass_addQueue(se::State& s) // NOLINT(readability-id
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::render::RasterQueue* result = cobj->addQueue(arg0.value(), arg1.value(), arg2.value());
+            cc::render::RasterQueueBuilder* result = cobj->addQueue(arg0.value(), arg1.value(), arg2.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_render_RasterPass_addQueue : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_render_RasterPassBuilder_addQueue : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -533,9 +533,9 @@ static bool js_render_RasterPass_addQueue(se::State& s) // NOLINT(readability-id
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::render::RasterQueue* result = cobj->addQueue(arg0.value());
+            cc::render::RasterQueueBuilder* result = cobj->addQueue(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_render_RasterPass_addQueue : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_render_RasterPassBuilder_addQueue : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -544,12 +544,12 @@ static bool js_render_RasterPass_addQueue(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_render_RasterPass_addQueue)
+SE_BIND_FUNC(js_render_RasterPassBuilder_addQueue)
 
-static bool js_render_RasterPass_addRasterView(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_RasterPassBuilder_addRasterView(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPass>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_RasterPass_addRasterView : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_RasterPassBuilder_addRasterView : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -558,41 +558,41 @@ static bool js_render_RasterPass_addRasterView(se::State& s) // NOLINT(readabili
         HolderType<cc::render::RasterView, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_RasterPass_addRasterView : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_render_RasterPassBuilder_addRasterView : Error processing arguments");
         cobj->addRasterView(arg0.value(), arg1.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_render_RasterPass_addRasterView)
+SE_BIND_FUNC(js_render_RasterPassBuilder_addRasterView)
 
-bool js_register_render_RasterPass(se::Object* obj) // NOLINT(readability-identifier-naming)
+bool js_register_render_RasterPassBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("RasterPass", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("RasterPassBuilder", obj, nullptr, nullptr);
 
-    cls->defineFunction("addComputeView", _SE(js_render_RasterPass_addComputeView));
-    cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterPass_addFullscreenQuad));
-    cls->defineFunction("addQueue", _SE(js_render_RasterPass_addQueue));
-    cls->defineFunction("addRasterView", _SE(js_render_RasterPass_addRasterView));
+    cls->defineFunction("addComputeView", _SE(js_render_RasterPassBuilder_addComputeView));
+    cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterPassBuilder_addFullscreenQuad));
+    cls->defineFunction("addQueue", _SE(js_render_RasterPassBuilder_addQueue));
+    cls->defineFunction("addRasterView", _SE(js_render_RasterPassBuilder_addRasterView));
     cls->install();
-    JSBClassType::registerClass<cc::render::RasterPass>(cls);
+    JSBClassType::registerClass<cc::render::RasterPassBuilder>(cls);
 
-    __jsb_cc_render_RasterPass_proto = cls->getProto();
-    __jsb_cc_render_RasterPass_class = cls;
+    __jsb_cc_render_RasterPassBuilder_proto = cls->getProto();
+    __jsb_cc_render_RasterPassBuilder_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_render_ComputeQueue_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_render_ComputeQueue_class = nullptr;  // NOLINT
+se::Object* __jsb_cc_render_ComputeQueueBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_ComputeQueueBuilder_class = nullptr;  // NOLINT
 
-static bool js_render_ComputeQueue_addDispatch(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_ComputeQueueBuilder_addDispatch(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::render::ComputeQueue>(s);
-    SE_PRECONDITION2( cobj, false, "js_render_ComputeQueue_addDispatch : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::ComputeQueueBuilder>(s);
+    SE_PRECONDITION2( cobj, false, "js_render_ComputeQueueBuilder_addDispatch : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -667,30 +667,30 @@ static bool js_render_ComputeQueue_addDispatch(se::State& s) // NOLINT(readabili
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_render_ComputeQueue_addDispatch)
+SE_BIND_FUNC(js_render_ComputeQueueBuilder_addDispatch)
 
-bool js_register_render_ComputeQueue(se::Object* obj) // NOLINT(readability-identifier-naming)
+bool js_register_render_ComputeQueueBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("ComputeQueue", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("ComputeQueueBuilder", obj, nullptr, nullptr);
 
-    cls->defineFunction("addDispatch", _SE(js_render_ComputeQueue_addDispatch));
+    cls->defineFunction("addDispatch", _SE(js_render_ComputeQueueBuilder_addDispatch));
     cls->install();
-    JSBClassType::registerClass<cc::render::ComputeQueue>(cls);
+    JSBClassType::registerClass<cc::render::ComputeQueueBuilder>(cls);
 
-    __jsb_cc_render_ComputeQueue_proto = cls->getProto();
-    __jsb_cc_render_ComputeQueue_class = cls;
+    __jsb_cc_render_ComputeQueueBuilder_proto = cls->getProto();
+    __jsb_cc_render_ComputeQueueBuilder_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_render_ComputePass_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_render_ComputePass_class = nullptr;  // NOLINT
+se::Object* __jsb_cc_render_ComputePassBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_ComputePassBuilder_class = nullptr;  // NOLINT
 
-static bool js_render_ComputePass_addComputeView(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_ComputePassBuilder_addComputeView(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::render::ComputePass>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_ComputePass_addComputeView : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::ComputePassBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_ComputePassBuilder_addComputeView : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -699,20 +699,20 @@ static bool js_render_ComputePass_addComputeView(se::State& s) // NOLINT(readabi
         HolderType<cc::render::ComputeView, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_ComputePass_addComputeView : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_render_ComputePassBuilder_addComputeView : Error processing arguments");
         cobj->addComputeView(arg0.value(), arg1.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_render_ComputePass_addComputeView)
+SE_BIND_FUNC(js_render_ComputePassBuilder_addComputeView)
 
-static bool js_render_ComputePass_addDispatch(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_ComputePassBuilder_addDispatch(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::render::ComputePass>(s);
-    SE_PRECONDITION2( cobj, false, "js_render_ComputePass_addDispatch : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::ComputePassBuilder>(s);
+    SE_PRECONDITION2( cobj, false, "js_render_ComputePassBuilder_addDispatch : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -787,13 +787,13 @@ static bool js_render_ComputePass_addDispatch(se::State& s) // NOLINT(readabilit
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_render_ComputePass_addDispatch)
+SE_BIND_FUNC(js_render_ComputePassBuilder_addDispatch)
 
-static bool js_render_ComputePass_addQueue(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_ComputePassBuilder_addQueue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
-    auto* cobj = SE_THIS_OBJECT<cc::render::ComputePass>(s);
-    SE_PRECONDITION2( cobj, false, "js_render_ComputePass_addQueue : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::ComputePassBuilder>(s);
+    SE_PRECONDITION2( cobj, false, "js_render_ComputePassBuilder_addQueue : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -802,9 +802,9 @@ static bool js_render_ComputePass_addQueue(se::State& s) // NOLINT(readability-i
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::render::ComputeQueue* result = cobj->addQueue(arg0.value());
+            cc::render::ComputeQueueBuilder* result = cobj->addQueue(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_render_ComputePass_addQueue : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_render_ComputePassBuilder_addQueue : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -819,9 +819,9 @@ static bool js_render_ComputePass_addQueue(se::State& s) // NOLINT(readability-i
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::render::ComputeQueue* result = cobj->addQueue(arg0.value(), arg1.value());
+            cc::render::ComputeQueueBuilder* result = cobj->addQueue(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_render_ComputePass_addQueue : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_render_ComputePassBuilder_addQueue : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -830,9 +830,9 @@ static bool js_render_ComputePass_addQueue(se::State& s) // NOLINT(readability-i
     do {
         if (argc == 0) {
 
-            cc::render::ComputeQueue* result = cobj->addQueue();
+            cc::render::ComputeQueueBuilder* result = cobj->addQueue();
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_render_ComputePass_addQueue : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_render_ComputePassBuilder_addQueue : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -841,94 +841,94 @@ static bool js_render_ComputePass_addQueue(se::State& s) // NOLINT(readability-i
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_render_ComputePass_addQueue)
+SE_BIND_FUNC(js_render_ComputePassBuilder_addQueue)
 
-bool js_register_render_ComputePass(se::Object* obj) // NOLINT(readability-identifier-naming)
+bool js_register_render_ComputePassBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("ComputePass", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("ComputePassBuilder", obj, nullptr, nullptr);
 
-    cls->defineFunction("addComputeView", _SE(js_render_ComputePass_addComputeView));
-    cls->defineFunction("addDispatch", _SE(js_render_ComputePass_addDispatch));
-    cls->defineFunction("addQueue", _SE(js_render_ComputePass_addQueue));
+    cls->defineFunction("addComputeView", _SE(js_render_ComputePassBuilder_addComputeView));
+    cls->defineFunction("addDispatch", _SE(js_render_ComputePassBuilder_addDispatch));
+    cls->defineFunction("addQueue", _SE(js_render_ComputePassBuilder_addQueue));
     cls->install();
-    JSBClassType::registerClass<cc::render::ComputePass>(cls);
+    JSBClassType::registerClass<cc::render::ComputePassBuilder>(cls);
 
-    __jsb_cc_render_ComputePass_proto = cls->getProto();
-    __jsb_cc_render_ComputePass_class = cls;
+    __jsb_cc_render_ComputePassBuilder_proto = cls->getProto();
+    __jsb_cc_render_ComputePassBuilder_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_render_MovePass_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_render_MovePass_class = nullptr;  // NOLINT
+se::Object* __jsb_cc_render_MovePassBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_MovePassBuilder_class = nullptr;  // NOLINT
 
-static bool js_render_MovePass_addPair(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_MovePassBuilder_addPair(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::render::MovePass>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_MovePass_addPair : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::MovePassBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_MovePassBuilder_addPair : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<cc::render::MovePair, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_MovePass_addPair : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_render_MovePassBuilder_addPair : Error processing arguments");
         cobj->addPair(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_render_MovePass_addPair)
+SE_BIND_FUNC(js_render_MovePassBuilder_addPair)
 
-bool js_register_render_MovePass(se::Object* obj) // NOLINT(readability-identifier-naming)
+bool js_register_render_MovePassBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("MovePass", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("MovePassBuilder", obj, nullptr, nullptr);
 
-    cls->defineFunction("addPair", _SE(js_render_MovePass_addPair));
+    cls->defineFunction("addPair", _SE(js_render_MovePassBuilder_addPair));
     cls->install();
-    JSBClassType::registerClass<cc::render::MovePass>(cls);
+    JSBClassType::registerClass<cc::render::MovePassBuilder>(cls);
 
-    __jsb_cc_render_MovePass_proto = cls->getProto();
-    __jsb_cc_render_MovePass_class = cls;
+    __jsb_cc_render_MovePassBuilder_proto = cls->getProto();
+    __jsb_cc_render_MovePassBuilder_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-se::Object* __jsb_cc_render_CopyPass_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_render_CopyPass_class = nullptr;  // NOLINT
+se::Object* __jsb_cc_render_CopyPassBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_CopyPassBuilder_class = nullptr;  // NOLINT
 
-static bool js_render_CopyPass_addPair(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_render_CopyPassBuilder_addPair(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::render::CopyPass>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_CopyPass_addPair : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::render::CopyPassBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_CopyPassBuilder_addPair : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<cc::render::CopyPair, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_CopyPass_addPair : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_render_CopyPassBuilder_addPair : Error processing arguments");
         cobj->addPair(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_render_CopyPass_addPair)
+SE_BIND_FUNC(js_render_CopyPassBuilder_addPair)
 
-bool js_register_render_CopyPass(se::Object* obj) // NOLINT(readability-identifier-naming)
+bool js_register_render_CopyPassBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("CopyPass", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("CopyPassBuilder", obj, nullptr, nullptr);
 
-    cls->defineFunction("addPair", _SE(js_render_CopyPass_addPair));
+    cls->defineFunction("addPair", _SE(js_render_CopyPassBuilder_addPair));
     cls->install();
-    JSBClassType::registerClass<cc::render::CopyPass>(cls);
+    JSBClassType::registerClass<cc::render::CopyPassBuilder>(cls);
 
-    __jsb_cc_render_CopyPass_proto = cls->getProto();
-    __jsb_cc_render_CopyPass_class = cls;
+    __jsb_cc_render_CopyPassBuilder_proto = cls->getProto();
+    __jsb_cc_render_CopyPassBuilder_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -950,7 +950,7 @@ static bool js_render_Pipeline_addComputePass(se::State& s) // NOLINT(readabilit
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::render::ComputePass* result = cobj->addComputePass(arg0.value());
+            cc::render::ComputePassBuilder* result = cobj->addComputePass(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_render_Pipeline_addComputePass : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -967,7 +967,7 @@ static bool js_render_Pipeline_addComputePass(se::State& s) // NOLINT(readabilit
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::render::ComputePass* result = cobj->addComputePass(arg0.value(), arg1.value());
+            cc::render::ComputePassBuilder* result = cobj->addComputePass(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_render_Pipeline_addComputePass : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -991,7 +991,7 @@ static bool js_render_Pipeline_addCopyPass(se::State& s) // NOLINT(readability-i
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_render_Pipeline_addCopyPass : Error processing arguments");
-        cc::render::CopyPass* result = cobj->addCopyPass(arg0.value());
+        cc::render::CopyPassBuilder* result = cobj->addCopyPass(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_render_Pipeline_addCopyPass : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1041,7 +1041,7 @@ static bool js_render_Pipeline_addMovePass(se::State& s) // NOLINT(readability-i
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_render_Pipeline_addMovePass : Error processing arguments");
-        cc::render::MovePass* result = cobj->addMovePass(arg0.value());
+        cc::render::MovePassBuilder* result = cobj->addMovePass(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_render_Pipeline_addMovePass : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1071,7 +1071,7 @@ static bool js_render_Pipeline_addRasterPass(se::State& s) // NOLINT(readability
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::render::RasterPass* result = cobj->addRasterPass(arg0.value(), arg1.value(), arg2.value());
+            cc::render::RasterPassBuilder* result = cobj->addRasterPass(arg0.value(), arg1.value(), arg2.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_render_Pipeline_addRasterPass : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1094,7 +1094,7 @@ static bool js_render_Pipeline_addRasterPass(se::State& s) // NOLINT(readability
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
             if (!ok) { ok = true; break; }
-            cc::render::RasterPass* result = cobj->addRasterPass(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+            cc::render::RasterPassBuilder* result = cobj->addRasterPass(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_render_Pipeline_addRasterPass : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1228,13 +1228,13 @@ bool register_all_render(se::Object* obj)    // NOLINT
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_render_ComputePass(ns);
-    js_register_render_ComputeQueue(ns);
-    js_register_render_CopyPass(ns);
-    js_register_render_MovePass(ns);
+    js_register_render_ComputePassBuilder(ns);
+    js_register_render_ComputeQueueBuilder(ns);
+    js_register_render_CopyPassBuilder(ns);
+    js_register_render_MovePassBuilder(ns);
     js_register_render_Pipeline(ns);
-    js_register_render_RasterPass(ns);
-    js_register_render_RasterQueue(ns);
+    js_register_render_RasterPassBuilder(ns);
+    js_register_render_RasterQueueBuilder(ns);
     js_register_render_Setter(ns);
     return true;
 }

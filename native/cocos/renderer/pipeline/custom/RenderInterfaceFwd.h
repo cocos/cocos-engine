@@ -8,12 +8,12 @@ namespace cc {
 namespace render {
 
 class Setter;
-class RasterQueue;
-class RasterPass;
-class ComputeQueue;
-class ComputePass;
-class MovePass;
-class CopyPass;
+class RasterQueueBuilder;
+class RasterPassBuilder;
+class ComputeQueueBuilder;
+class ComputePassBuilder;
+class MovePassBuilder;
+class CopyPassBuilder;
 class Pipeline;
 
 } // namespace render
