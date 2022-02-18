@@ -669,17 +669,6 @@ export class RichText extends Component {
 
     protected _measureText (styleIndex: number, string?: string) {
         const func = (s: string) => {
-            // let label: ISegment;
-            // if (this._labelSegmentsCache.length === 0) {
-            //     label = this._createFontLabel(s);
-            //     this._labelSegmentsCache.push(label);
-            // } else {
-            //     label = this._labelSegmentsCache[0];
-            //     label.node.getComponent(Label)!.string = s;
-            // }
-            // label.styleIndex = styleIndex;
-            // this._applyTextAttribute(label);
-            // const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
             const labelSize = this._calculateSize(styleIndex, s);
             return labelSize.width;
         };
