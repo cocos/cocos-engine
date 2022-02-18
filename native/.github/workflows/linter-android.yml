@@ -1,0 +1,92 @@
+name: 📝 Linter
+
+on: pull_request
+
+jobs:
+  # Set the job key. The key is displayed as the job name
+  # when a job name is not provided
+  super-lint:
+    # Name the Job
+    name: ClangTidy Android
+    # Set the type of machine to run on
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Python3
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Install python deps
+        run: |
+          python -m pip install PyYAML==5.4.1 Cheetah3
+      - name: Download external
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+
+      - name: Generate bindings
+        shell: bash
+        run: |
+          python -V
+          cd ./tools/tojs
+          python ./genbindings.py
+          rm userconf.ini
+      - name: Get changed files
+        uses: PatriceJiang/paths-filter@master
+        id: listchanged
+        with:
+          list-files: shell
+          filters: |
+            source:
+              - added|modified: '**/*.cpp'
+              - added|modified: '**/*.h'
+              - added|modified: '**/*.hpp'
+              - added|modified: '**/*.m'
+              - added|modified: '**/*.mm'
+              - added|modified: '**/*.c'
+              - exclude: 'cocos/editor-support/**'
+              - exclude: 'cocos/base/etc1.*'
+              - exclude: 'cocos/base/etc2.*'
+              - exclude: 'cocos/bindings/manual/jsb_global.cpp'
+              - exclude: 'cocos/bindings/manual/jsb_conversions.*'
+              - exclude: 'cocos/bindings/jswrapper/v8/debugger/**'
+              - exclude: 'cocos/audio/android/audio_utils/**'
+            allChanges:
+              - added|modified|deleted: '**'
+            skipedDebug:
+              - added|modified|deleted: '**'
+              - exclude: 'cocos/editor-support/**'
+      - name: Install CMake & Clang Tidy
+        run: |
+          sudo apt install -y cmake llvm clang-tidy-11
+
+      - name: Generate Compile database
+        shell: bash
+        run: |
+          utils/generate_compile_commands_android.sh
+
+      - name: Generate clang-fix.yaml
+        shell: bash
+        if: ${{ steps.listchanged.outputs.source == 'true' }}
+        run: |
+          CPP="${{ steps.listchanged.outputs.source_files }}"
+          FILTERED=`node .github/workflows/filter_by_cdb.js $CPP`
+          if [[ "$FILTERED-xxx" == "-xxx" ]]; then
+            echo "no source files match"
+          else
+            clang-tidy-11 --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
+          fi
+      - name: clang-tidy-action
+        uses: PatriceJiang/clang-tidy-action@master
+        if: hashFiles('clang-fixes.yaml') != ''
+        with:
+          fixesFile: clang-fixes.yaml
+          noFailOnIssue: false
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          error-limit: 200

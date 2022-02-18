@@ -1,0 +1,241 @@
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: line-vs:vert
+      frag: line-fs:front
+      priority: max - 10
+      primitive: LINE_LIST
+      depthStencilState: &disable_depth
+        depthTest: false
+        depthWrite: false
+      blendState: &enable_blend
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+
+  - passes:
+    - vert: line-vs:vert
+      frag: line-fs:front
+      priority: max - 10
+      primitive: LINE_LIST
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState: *enable_blend
+    - vert: line-vs:vert
+      frag: line-fs:back
+      priority: max - 10
+      primitive: LINE_LIST
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        depthFunc: greater
+      blendState: *enable_blend
+
+  - passes:
+    - vert: dashed-line-vs:vert
+      frag: dashed-line-fs:front
+      priority: max - 10
+      primitive: LINE_LIST
+      depthStencilState: &disable_depth
+        depthTest: false
+        depthWrite: false
+      blendState: &enable_blend
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+
+  - passes:
+    - vert: dashed-line-vs:vert
+      frag: dashed-line-fs:front
+      priority: max - 10
+      primitive: LINE_LIST
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState: *enable_blend
+    - vert: dashed-line-vs:vert
+      frag: dashed-line-fs:back
+      priority: max - 10
+      primitive: LINE_LIST
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        depthFunc: greater
+      blendState: *enable_blend
+
+  - passes:
+    - vert: triangle-vs:vert
+      frag: triangle-fs:front
+      priority: max - 10
+      rasterizerState:
+        cullMode: back
+      depthStencilState: *disable_depth
+      blendState: *enable_blend
+
+  - passes:
+    - vert: triangle-vs:vert
+      frag: triangle-fs:front
+      priority: max - 10
+      rasterizerState:
+        cullMode: back
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState: *enable_blend
+    - vert: triangle-vs:vert
+      frag: triangle-fs:back
+      priority: max - 10
+      rasterizerState:
+        cullMode: back
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        depthFunc: greater
+      blendState: *enable_blend
+}%
+
+CCProgram line-vs %{
+  precision mediump float;
+  #include <cc-global>
+
+  in highp vec3 a_position;
+  in vec4 a_color;
+
+  out vec4 v_color;
+
+  vec4 vert () {
+    vec4 pos = cc_matViewProj * vec4(a_position, 1);
+    pos.z -= 0.000001;
+
+    v_color = a_color;
+
+    return pos;
+  }
+}%
+
+CCProgram line-fs %{
+  precision mediump float;
+  #include <output>
+
+  in vec4 v_color;
+
+  vec4 front() {
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(v_color);
+    #else
+      return v_color;
+    #endif
+  }
+
+  vec4 back() {
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(vec4(v_color.rgb, v_color.a * 0.2));
+    #else
+      return vec4(v_color.rgb, v_color.a * 0.2);
+    #endif
+  }
+}%
+
+CCProgram dashed-line-vs %{
+  precision mediump float;
+  #include <cc-global>
+
+  in highp vec3 a_position;
+  in vec4 a_color;
+
+  out vec4 v_color;
+  out float v_distance;
+
+  vec4 vert () {
+    vec4 pos = cc_matViewProj * vec4(a_position, 1);
+    pos.z -= 0.000001;
+
+    v_color = a_color;
+    v_distance = dot(a_position, vec3(1.0, 1.0, 1.0));
+
+    return pos;
+  }
+}%
+
+CCProgram dashed-line-fs %{
+  precision mediump float;
+  #include <output>
+
+  in vec4 v_color;
+  in float v_distance;
+
+  vec4 front() {
+    if (fract(v_distance) > 0.5) {
+      discard;
+    }
+
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(v_color);
+    #else
+      return v_color;
+    #endif
+  }
+
+  vec4 back() {
+    if (fract(v_distance) > 0.5) {
+      discard;
+    }
+
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(vec4(v_color.rgb, v_color.a * 0.2));
+    #else
+      return vec4(v_color.rgb, v_color.a * 0.2);
+    #endif
+  }
+}%
+
+CCProgram triangle-vs %{
+  precision mediump float;
+  #include <cc-global>
+
+  in highp vec3 a_position;
+  in vec4 a_normal;
+  in vec4 a_color;
+
+  out vec4 v_color;
+
+  vec4 vert () {
+    vec4 pos = cc_matViewProj * vec4(a_position, 1);
+
+    v_color = a_color;
+
+    // fake lighting: a_normal.w is 1 for lit, 0 for unlit
+    float intensity = dot(vec3(1, 2, 4), a_normal.xyz);
+    v_color.rgb -= a_normal.w * intensity * 0.1;
+
+    return pos;
+  }
+}%
+
+CCProgram triangle-fs %{
+  precision mediump float;
+  #include <output>
+
+  in vec4 v_color;
+
+  vec4 front() {
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(v_color);
+    #else
+      return v_color;
+    #endif
+  }
+
+  vec4 back() {
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(vec4(v_color.rgb, v_color.a * 0.2));
+    #else
+      return vec4(v_color.rgb, v_color.a * 0.2);
+    #endif
+  }
+}%

@@ -60,7 +60,7 @@ export class WebGL2IndirectDrawInfos {
     public setDrawInfo (idx: number, info: DrawInfo) {
         this._ensureCapacity(idx);
         this.drawByIndex = info.indexCount > 0;
-        this.instancedDraw = info.instanceCount > 1;
+        this.instancedDraw = !!info.instanceCount;
         this.drawCount = Math.max(idx + 1, this.drawCount);
 
         if (this.drawByIndex) {
@@ -90,6 +90,12 @@ export class WebGL2IndirectDrawInfos {
         this.offsets = offsets;
         this.instances = instances;
     }
+}
+
+export interface IWebGL2BindingMapping {
+    blockOffsets: number[];
+    samplerTextureOffsets: number[];
+    flexibleSet: number;
 }
 
 export interface IWebGL2GPUUniformInfo {

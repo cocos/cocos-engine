@@ -75,13 +75,15 @@ export class Scene extends BaseNode {
     /**
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
+     *
+     * @legacyPublic
      */
     @serializable
     public _globals = new SceneGlobals();
 
-    public _renderScene: RenderScene | null = null;
-
     public dependAssets = null; // cache all depend assets for auto release
+
+    protected _renderScene: RenderScene | null = null;
 
     protected _inited: boolean;
 
@@ -162,8 +164,14 @@ export class Scene extends BaseNode {
         throw new Error(getError(3822));
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onHierarchyChanged () { }
 
+    /**
+     * @legacyPublic
+     */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
         const len = this._children.length;
@@ -292,7 +300,12 @@ export class Scene extends BaseNode {
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
         // The test environment does not currently support the renderer
-        if (!TEST) this._globals.activate();
+        if (!TEST) {
+            this._globals.activate();
+            if (this._renderScene) {
+                this._renderScene.activate();
+            }
+        }
     }
 }
 

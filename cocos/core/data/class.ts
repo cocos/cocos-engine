@@ -41,6 +41,7 @@ import { preprocessAttrs } from './utils/preprocess-class';
 import * as RF from './utils/requiring-frame';
 
 import { legacyCC } from '../global-exports';
+import { PropertyStash, PropertyStashInternalFlag } from './class-stash';
 
 const DELIMETER = attributeUtils.DELIMETER;
 
@@ -486,7 +487,7 @@ interface AttributesRecord {
     default?: unknown;
 }
 
-function parseAttributes (constructor: Function, attributes: IAcceptableAttributes & AttributesRecord, className: string, propertyName: string, usedInGetter) {
+function parseAttributes (constructor: Function, attributes: PropertyStash, className: string, propertyName: string, usedInGetter) {
     const ERR_Type = DEV ? 'The %s of %s must be type %s' : '';
 
     let attrs: IParsedAttribute | null = null;
@@ -587,41 +588,53 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         parseSimpleAttribute('unit', 'string');
     }
 
-    if (attributes.__noImplicit) {
-        (attrs || initAttrs())[`${propertyNamePrefix}serializable`] = attributes.serializable ?? false;
+    const isStandaloneMode = attributes.__internalFlags & PropertyStashInternalFlag.STANDALONE;
+
+    let normalizedSerializable: undefined | boolean;
+    if (isStandaloneMode) {
+        normalizedSerializable = attributes.serializable === true
+            || (attributes.__internalFlags & PropertyStashInternalFlag.IMPLICIT_SERIALIZABLE) !== 0;
     } else if (attributes.serializable === false) {
+        normalizedSerializable = false;
         if (DEV && usedInGetter) {
             errorID(3613, 'serializable', className, propertyName);
-        } else {
-            (attrs || initAttrs())[`${propertyNamePrefix}serializable`] = false;
         }
+    }
+    if (typeof normalizedSerializable !== 'undefined') {
+        (attrs || initAttrs())[`${propertyNamePrefix}serializable`] = normalizedSerializable;
     }
 
     parseSimpleAttribute('formerlySerializedAs', 'string');
 
-    if (EDITOR) {
+    if (DEV) {
         if ('animatable' in attributes) {
             (attrs || initAttrs())[`${propertyNamePrefix}animatable`] = attributes.animatable;
         }
     }
 
     if (DEV) {
-        if (attributes.__noImplicit) {
-            (attrs || initAttrs())[`${propertyNamePrefix}visible`] = attributes.visible ?? false;
-        } else {
-            const visible = attributes.visible;
-            if (typeof visible !== 'undefined') {
-                if (!visible) {
-                    (attrs || initAttrs())[`${propertyNamePrefix}visible`] = false;
-                } else if (typeof visible === 'function') {
-                    (attrs || initAttrs())[`${propertyNamePrefix}visible`] = visible;
-                }
+        const visible = attributes.visible;
+
+        let normalizedVisible: undefined | boolean | (() => boolean);
+        switch (typeof visible) {
+        case 'boolean':
+        case 'function':
+            normalizedVisible = visible;
+            break;
+        default: {
+            if (isStandaloneMode) {
+                normalizedVisible = (attributes.__internalFlags & PropertyStashInternalFlag.IMPLICIT_VISIBLE) !== 0;
             } else {
                 const startsWithUS = (propertyName.charCodeAt(0) === 95);
                 if (startsWithUS) {
-                    (attrs || initAttrs())[`${propertyNamePrefix}visible`] = false;
+                    normalizedVisible = false;
                 }
             }
+        }
+        }
+
+        if (typeof normalizedVisible !== 'undefined') {
+            (attrs || initAttrs())[`${propertyNamePrefix}visible`] = normalizedVisible;
         }
     }
 

@@ -33,6 +33,7 @@ import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';
 import { IBatcher } from '../2d/renderer/i-batcher';
+import { RenderData } from '../2d/renderer/render-data';
 
 const _tangent = new Vec2();
 // const _miter = new Vec2();
@@ -69,8 +70,7 @@ export const MotionStreakAssembler: IAssembler = {
     createData (comp: MotionStreak) {
         const renderData = comp.requestRenderData();
         renderData.dataLength = 4;
-        renderData.vertexCount = 16;
-        renderData.indicesCount = (16 - 2) * 3;
+        renderData.resize(16, (16 - 2) * 3);
         return renderData;
     },
 
@@ -102,15 +102,15 @@ export const MotionStreakAssembler: IAssembler = {
         cur.setPoint(tx, ty);
         cur.time = comp.fadeTime + dt;
 
-        let verticesCount = 0;
-        let indicesCount = 0;
+        let vertexCount = 0;
+        let indexCount = 0;
 
         if (points.length < 2) {
             return;
         }
 
         const renderData = comp.renderData!;
-
+        this.updateRenderDataCache(comp, renderData);
         const color = comp.color;
         const cr = color.r;
         const cg = color.g;
@@ -158,7 +158,7 @@ export const MotionStreakAssembler: IAssembler = {
             const da = progress * ca;
             const c = ((da << 24) >>> 0) + (cb << 16) + (cg << 8) + cr;
 
-            let offset = verticesCount;
+            let offset = vertexCount;
 
             data[offset].x = point.x + _normal.x * stroke;
             data[offset].y = point.y + _normal.y * stroke;
@@ -174,13 +174,28 @@ export const MotionStreakAssembler: IAssembler = {
             data[offset].v = progress;
             data[offset].color._val = c;
 
-            verticesCount += 2;
+            vertexCount += 2;
         }
 
-        indicesCount = verticesCount <= 2 ? 0 : (verticesCount - 2) * 3;
+        indexCount = vertexCount <= 2 ? 0 : (vertexCount - 2) * 3;
 
-        renderData.vertexCount = verticesCount;
-        renderData.indicesCount = indicesCount;
+        renderData.resize(vertexCount, indexCount);
+    },
+
+    updateRenderDataCache (comp: MotionStreak, renderData: RenderData) {
+        if (renderData.passDirty) {
+            renderData.updatePass(comp);
+        }
+        if (renderData.nodeDirty) {
+            renderData.updateNode(comp);
+        }
+        if (renderData.textureDirty && comp.texture) {
+            renderData.updateTexture(comp.texture);
+            renderData.material = comp.getRenderMaterial(0);
+        }
+        if (renderData.hashDirty) {
+            renderData.updateHash();
+        }
     },
 
     updateRenderData (comp: MotionStreak) {
@@ -188,47 +203,43 @@ export const MotionStreakAssembler: IAssembler = {
 
     fillBuffers (comp: MotionStreak, renderer: IBatcher) {
         const renderData = comp.renderData!;
+        const chunk = renderData.chunk;
         const dataList = renderData.data;
-        const node = comp.node;
 
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
-
-        // buffer data may be reallocated, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
         const vertexCount = renderData.vertexCount;
-        const indicesCount = renderData.indicesCount;
+        const indexCount = renderData.indexCount;
 
+        const vData = chunk.vb;
+        let vertexOffset = 0;
         for (let i = 0; i < vertexCount; i++) {
             const vert = dataList[i];
-            vBuf[vertexOffset++] = vert.x;
-            vBuf[vertexOffset++] = vert.y;
-            vBuf[vertexOffset++] = vert.z;
-            vBuf[vertexOffset++] = vert.u;
-            vBuf[vertexOffset++] = vert.v;
-            Color.toArray(vBuf, vert.color, vertexOffset);
+            vData[vertexOffset++] = vert.x;
+            vData[vertexOffset++] = vert.y;
+            vData[vertexOffset++] = vert.z;
+            vData[vertexOffset++] = vert.u;
+            vData[vertexOffset++] = vert.v;
+            Color.toArray(vData, vert.color, vertexOffset);
             vertexOffset += 4;
         }
 
         // fill index data
-        for (let i = 0, l = indicesCount; i < l; i += 2) {
-            const start = vertexId + i;
-            iBuf[indicesOffset++] = start;
-            iBuf[indicesOffset++] = start + 2;
-            iBuf[indicesOffset++] = start + 1;
-            iBuf[indicesOffset++] = start + 1;
-            iBuf[indicesOffset++] = start + 2;
-            iBuf[indicesOffset++] = start + 3;
+        const bid = chunk.bufferId;
+        const vid = chunk.vertexOffset;
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        let indexOffset = meshBuffer.indexOffset;
+        for (let i = 0, l = indexCount; i < l; i += 2) {
+            const start = vid + i;
+            ib[indexOffset++] = start;
+            ib[indexOffset++] = start + 2;
+            ib[indexOffset++] = start + 1;
+            ib[indexOffset++] = start + 1;
+            ib[indexOffset++] = start + 2;
+            ib[indexOffset++] = start + 3;
         }
+
+        meshBuffer.indexOffset += renderData.indexCount;
+        meshBuffer.setDirty();
     },
 };
 

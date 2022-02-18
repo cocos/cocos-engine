@@ -1,6 +1,6 @@
-import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED, VIVO } from 'internal:constants';
+import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
-import { SafeAreaEdge } from 'pal/screen-adapter';
+import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
@@ -22,11 +22,6 @@ try {
             }).data).screenOrientation;
             rotateLandscape = (screenOrientation === 'landscape');
         }
-    } else if (COCOSPLAY) {
-        // @ts-expect-error TODO: use pal/fs
-        const fs = ral.getFileSystemManager();
-        const deviceOrientation = JSON.parse(fs.readFileSync('game.config.json', 'utf8')).deviceOrientation;
-        rotateLandscape = (deviceOrientation === 'landscape');
     }
 } catch (e) {
     console.error(e);
@@ -44,10 +39,6 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get devicePixelRatio () {
-        if (VIVO) {
-            // NOTE: wrong DPR on vivo platform
-            return 1;
-        }
         const sysInfo = minigame.getSystemInfoSync();
         return sysInfo.pixelRatio;
     }
@@ -59,7 +50,7 @@ class ScreenAdapter extends EventTarget {
         const dpr = ((ALIPAY && systemInfo.os === OS.ANDROID) || VIVO) ? 1 : this.devicePixelRatio;
         let screenWidth = sysInfo.screenWidth;
         let screenHeight = sysInfo.screenHeight;
-        if ((COCOSPLAY || ALIPAY) && rotateLandscape  && screenWidth < screenHeight) {
+        if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {
             const temp = screenWidth;
             screenWidth = screenHeight;
             screenHeight = temp;
@@ -71,7 +62,9 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get resolution () {
-        return this._resolution;
+        const windowSize = this.windowSize;
+        const resolutionScale = this.resolutionScale;
+        return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
     public get resolutionScale () {
         return this._resolutionScale;
@@ -81,7 +74,7 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._resolutionScale = value;
-        this._updateResolution();
+        this._cbToUpdateFrameBuffer?.();
     }
 
     public get orientation (): Orientation {
@@ -94,7 +87,9 @@ class ScreenAdapter extends EventTarget {
     public get safeAreaEdge (): SafeAreaEdge {
         const minigameSafeArea = minigame.getSafeArea();
         const windowSize = this.windowSize;
-        const dpr = this.devicePixelRatio;
+        // NOTE: safe area info on vivo platform is in physical pixel.
+        // No need to multiply with DPR.
+        const dpr = VIVO ? 1 : this.devicePixelRatio;
         let topEdge = minigameSafeArea.top * dpr;
         let bottomEdge = windowSize.height - minigameSafeArea.bottom * dpr;
         let leftEdge = minigameSafeArea.left * dpr;
@@ -120,18 +115,28 @@ class ScreenAdapter extends EventTarget {
         };
     }
 
+    public get isProportionalToFrame (): boolean {
+        return this._isProportionalToFrame;
+    }
+    public set isProportionalToFrame (v: boolean) { }
+
     private _cbToUpdateFrameBuffer?: () => void;
-    private _resolution: Size = new Size(0, 0);
     private _resolutionScale = 1;
+    private _isProportionalToFrame = false;
 
     constructor () {
         super();
         // TODO: onResize or onOrientationChange is not supported well
+        if (WECHAT || COCOSPLAY) {
+            minigame.onWindowResize?.(() => {
+                this.emit('window-resize');
+            });
+        }
     }
 
-    public init (cbToRebuildFrameBuffer: () => void) {
+    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this._updateResolution();
+        this._cbToUpdateFrameBuffer();
     }
 
     public requestFullScreen (): Promise<void> {
@@ -139,15 +144,6 @@ class ScreenAdapter extends EventTarget {
     }
     public exitFullScreen (): Promise<void> {
         return Promise.reject(new Error('exit fullscreen is not supported on this platform.'));
-    }
-
-    private _updateResolution () {
-        const windowSize = this.windowSize;
-        // update resolution
-        this._resolution.width = windowSize.width * this.resolutionScale;
-        this._resolution.height = windowSize.height * this.resolutionScale;
-        this._cbToUpdateFrameBuffer?.();
-        this.emit('resolution-change');
     }
 }
 

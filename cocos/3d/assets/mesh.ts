@@ -183,10 +183,12 @@ const globalEmptyMeshBuffer = new Uint8Array();
  */
 @ccclass('cc.Mesh')
 export class Mesh extends Asset {
+    /**
+     * @legacyPublic
+     */
     get _nativeAsset (): ArrayBuffer {
         return this._data.buffer;
     }
-
     set _nativeAsset (value: ArrayBuffer) {
         this._data = new Uint8Array(value);
     }
@@ -285,6 +287,10 @@ export class Mesh extends Asset {
 
     constructor () {
         super();
+    }
+
+    public onLoaded () {
+        this.initialize();
     }
 
     public initialize () {
@@ -1011,10 +1017,6 @@ export class Mesh extends Asset {
             },
             data: globalEmptyMeshBuffer,
         });
-    }
-
-    public validate () {
-        return this.renderingSubMeshes.length > 0 && this.data.byteLength > 0;
     }
 }
 legacyCC.Mesh = Mesh;

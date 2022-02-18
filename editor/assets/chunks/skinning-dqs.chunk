@@ -67,10 +67,10 @@ void CCSkin (inout vec4 position) {
   position.xyz = VectorTransformQuat(position.xyz * S, R) + T;
 }
 
-void CCSkin (inout StandardVertInput attr) {
+void CCSkin (inout vec4 position, inout vec3 normal, inout vec4 tangent) {
   vec4 R; vec3 T, S;
   skinRTS(R, T, S);
-  attr.position.xyz = VectorTransformQuat(attr.position.xyz * S, R) + T;
-  attr.normal = VectorTransformQuat(attr.normal, R);
-  attr.tangent.xyz = VectorTransformQuat(attr.tangent.xyz, R);
+  position.xyz = VectorTransformQuat(position.xyz * S, R) + T;
+  normal = VectorTransformQuat(normal, R);
+  tangent.xyz = VectorTransformQuat(tangent.xyz, R);
 }

@@ -297,6 +297,12 @@ module.exports = {
                     'the single root node is used as the root of prefab when converting the FBX scene to Cocos Creator prefab. <br>' +
                     "Otherwise, the FBX scene become prefab's root.",
             },
+            preferLocalTimeSpan: {
+                name: 'Prefer Local Time Span',
+                title: 'When exporting FBX animations, whether prefer to use the time range recorded in FBX file. ' +
+                    'If one is not preferred, or one is invalid for use, the time range is robustly calculated. ' +
+                    'Some FBX generators may not export this information.',
+            },
         },
         textureCube: {
             anisotropy: 'Anisotropy',
@@ -319,7 +325,7 @@ module.exports = {
             'illegal-inspector-url': "Inspector's URL is not valid",
         },
         animationGraph: {
-            edit: 'Edit in the Animation Graph panel',
+            edit: 'Edit',
         },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
     },

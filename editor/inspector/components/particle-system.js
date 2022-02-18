@@ -37,16 +37,16 @@ exports.template = /* html*/`
         <!-- Render other data that has not taken over -->
         <div id="customProps">
         </div>
-        <ui-section key="enableCulling" cache-expand="particle-system-cullingMode">
-            <ui-prop slot="header" class="header" empty="true" labelflag="enableCulling" key="enableCulling">
+        <ui-section key="renderCulling" autoExpand cache-expand="particle-system-cullingMode">
+            <ui-prop slot="header" class="header" empty="true" labelflag="renderCulling" key="renderCulling">
                 <ui-label></ui-label>
                 <ui-checkbox></ui-checkbox>
             </ui-prop>
-            <ui-prop type="dump" key="cullingMode" disableflag="!enableCulling"></ui-prop>
-            <ui-prop type="dump" key="aabbHalfX" disableflag="!enableCulling"></ui-prop>
-            <ui-prop type="dump" key="aabbHalfY" disableflag="!enableCulling"></ui-prop>
-            <ui-prop type="dump" key="aabbHalfZ" disableflag="!enableCulling"></ui-prop>
-            <ui-prop empty="true" disableflag="!enableCulling">
+            <ui-prop type="dump" key="cullingMode" disableflag="!renderCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfX" disableflag="!renderCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfY" disableflag="!renderCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfZ" disableflag="!renderCulling"></ui-prop>
+            <ui-prop empty="true" disableflag="!renderCulling">
                 <ui-label slot="label">Show Bounds</ui-label>
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
             </ui-prop>  
@@ -194,7 +194,7 @@ const excludeList = [
     'rateOverDistance', 'bursts', 'shapeModule',
     'velocityOvertimeModule', 'forceOvertimeModule', 'sizeOvertimeModule',
     'rotationOvertimeModule', 'colorOverLifetimeModule', 'textureAnimationModule',
-    'trailModule', 'renderer', 'enableCulling', 'limitVelocityOvertimeModule', 'cullingMode',
+    'trailModule', 'renderer', 'renderCulling', 'limitVelocityOvertimeModule', 'cullingMode',
     'aabbHalfX', 'aabbHalfY', 'aabbHalfZ',
 ];
 
@@ -303,31 +303,48 @@ exports.methods = {
 };
 
 const uiElements = {
-    resetBounds:{
+    resetBounds: {
         async ready() {
             this.$.resetBounds.addEventListener('confirm', async () => {
                 const nodeDumps = this.dump.value.node.values || [this.dump.value.node.value];
                 const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
-                await Promise.all(componentUUIDs.map(uuid =>
-                    Editor.Message.request('scene', 'execute-component-method', {
-                        uuid,
-                        name: '_calculateBounding',
-                        args: [true],
-                    }))
-                );
+                await Promise.all(componentUUIDs.map(uuid => {
+                    return new Promise((res) => {
+                        Editor.Message.request('scene', 'execute-component-method', {
+                            uuid,
+                            name: '_calculateBounding',
+                            args: [true],
+                        }).then(() => {
+                            Editor.Message.request('scene', 'execute-component-method', {
+                                uuid,
+                                name: 'gizmo.onNodeChanged',
+                                args: [],
+                            });
+                            res();
+                        });
+                    });
+                }));
                 nodeDumps.forEach(dump => {
                     Editor.Message.broadcast('scene:change-node', dump.uuid);
                 });
             });
         },
         update() {
-            const isInvalid = propUtils.isMultipleInvalid(this.dump.value.enableCulling);
-            this.$.resetBounds.setAttribute('disabled', isInvalid || !this.dump.value.enableCulling.value);
+            const isInvalid = propUtils.isMultipleInvalid(this.dump.value.renderCulling);
+            this.$.resetBounds.setAttribute('disabled', isInvalid || !this.dump.value.renderCulling.value);
         },
     },
     uiSections: {
         ready() {
             this.$.uiSections = this.$this.shadowRoot.querySelectorAll('ui-section');
+            this.$.uiSections.forEach((element) => {
+                // expand when checkbox enable
+                if (element.hasAttribute('autoExpand')) {
+                    element.addEventListener('checkbox-enable', () => {
+                        element.setAttribute('expand', 'expand');
+                    });
+                }
+            });
         },
         update() {
             this.$.uiSections.forEach((element) => {
@@ -413,7 +430,7 @@ const uiElements = {
             });
         },
     },
-    showBounds:{
+    showBounds: {
         ready() {
             this.$.showBounds.addEventListener('change', (event) => {
                 const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
@@ -427,7 +444,7 @@ const uiElements = {
             });
         },
         async update() {
-            this.$.showBounds.disabled = !this.dump.value.enableCulling.value;
+            this.$.showBounds.disabled = !this.dump.value.renderCulling.value;
             const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
             const values = await Promise.all(
                 componentUUIDs.map(
@@ -472,6 +489,9 @@ const uiElements = {
                 });
                 if (isEmpty) {
                     if (isHeader) {
+                        /**
+                         * @type {HTMLInputElement}
+                         */
                         const checkbox = element.querySelector('ui-checkbox');
                         if (checkbox) {
                             checkbox.addEventListener('change', (event) => {
@@ -482,6 +502,11 @@ const uiElements = {
                                 }
                                 dump.value = value;
                                 element.dispatch('change-dump');
+                                if (value) {
+                                    // bubbles the event when value is true
+                                    const event = new Event('checkbox-enable', { bubbles: true, cancelable: true });
+                                    checkbox.dispatchEvent(event);
+                                }
                             });
                         }
                     }

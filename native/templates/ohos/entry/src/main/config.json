@@ -1,0 +1,147 @@
+{
+  "app": {
+    "bundleName": "com.cocos.ohos.demo1",
+    "vendor": "example",
+    "version": {
+      "code": 1000000,
+      "name": "1.0"
+    }
+  },
+  "deviceConfig": {
+    "default": {
+      "network": {
+        "cleartextTraffic": true
+      }
+    }
+  },
+  "module": {
+    "package": "com.example.cocosdemo",
+    "name": ".MyApplication",
+    "deviceType": [
+      "phone"
+    ],
+    "distro": {
+      "deliveryWithInstall": true,
+      "moduleName": "entry",
+      "moduleType": "entry",
+      "installationFree": false
+    },
+    "abilities": [
+      {
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "action.system.home"
+            ]
+          }
+        ],
+        "metaData": {
+          "customizeData": [
+            {
+              "extra": "",
+              "name": "hwc-theme",
+              "value": "androidhwext:style/Theme.Emui.Light.NoTitleBar.Fullscreen"
+            }
+          ]
+        },
+        "orientation": "landscape",
+        "name": "com.example.cocosdemo.MainAbility",
+        "icon": "$media:icon",
+        "description": "$string:mainability_description",
+        "label": "$string:app_name",
+        "type": "page",
+        "launchType": "standard",
+        "configChanges": [
+          "layout",
+          "orientation",
+          "density"
+        ]
+      }
+    ],
+    "reqPermissions": [
+      {
+        "name": "ohos.permission.VIBRATE",
+        "reason": "",
+        "usedScene": {
+          "ability": [
+            "com.example.cocosdemo.MainAbility"
+          ],
+          "when": "inuse"
+        }
+      },
+      {
+        "name": "ohos.permission.GET_WIFI_INFO",
+        "reason": "",
+        "usedScene": {
+          "when": "inuse",
+          "ability": [
+            "com.example.cocosdemo.MainAbility"
+          ]
+        }
+      },
+      {
+        "name": "ohos.permission.GET_NETWORK_INFO",
+        "reason": "",
+        "usedScene": {
+          "when": "inuse",
+          "ability": [
+            "com.example.cocosdemo.MainAbility"
+          ]
+        }
+      },
+      {
+        "name": "ohos.permission.INTERNET",
+        "reason": "",
+        "usedScene": {
+          "when": "inuse",
+          "ability": [
+            "com.example.cocosdemo.MainAbility"
+          ]
+        }
+      },
+      {
+        "name": "ohos.permission.READ_MEDIA",
+        "reason": "",
+        "usedScene": {
+          "when": "inuse",
+          "ability": [
+            "com.example.cocosdemo.MainAbility"
+          ]
+        }
+      },
+      {
+        "name": "ohos.permission.WRITE_MEDIA",
+        "reason": "",
+        "usedScene": {
+          "when": "inuse",
+          "ability": [
+            "com.example.cocosdemo.MainAbility"
+          ]
+        }
+      },
+      {
+        "name": "ohos.permission.ACCELEROMETER",
+        "reason": "",
+        "usedScene": {
+          "when": "inuse",
+          "ability": [
+            "com.example.cocosdemo.MainAbility"
+          ]
+        }
+      },
+      {
+        "name": "ohos.permission.GYROSCOPE",
+        "reason": "",
+        "usedScene": {
+          "when": "inuse",
+          "ability": [
+            "com.example.cocosdemo.MainAbility"
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -55,7 +55,7 @@ class TrackPath {
     }
 
     /**
-     * @internal Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
+     * @legacyPublic Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
      */
     public toCustomized (resolver: CustomizedTrackPathResolver) {
         this._paths.push(resolver);
@@ -270,7 +270,7 @@ export { TrackPath };
  * It's the basic unit of animation clip.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}Track`)
-export class Track {
+export abstract class Track {
     get path () {
         return this._binding.path;
     }
@@ -304,9 +304,7 @@ export class Track {
         return range;
     }
 
-    public [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval {
-        throw new Error(`No Impl`);
-    }
+    public abstract [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval;
 
     @serializable
     private _binding = new TrackBinding();

@@ -3,23 +3,7 @@
 #pragma define USE_INSTANCING editor(elevated: true)
 #pragma define USE_BATCHING editor(elevated: true)
 
-#if USE_INSTANCING
-  in vec4 a_matWorld0;
-  in vec4 a_matWorld1;
-  in vec4 a_matWorld2;
-  #if USE_LIGHTMAP
-    in vec4 a_lightingMapUVParam;
-  #endif
-#elif USE_BATCHING
-  in float a_dyn_batch_id;
-  #define BATCHING_COUNT 10
-  #pragma builtin(local)
-  layout(set = 2, binding = 0) uniform CCLocalBatched {
-    highp mat4 cc_matWorlds[BATCHING_COUNT];
-  };
-#else
-  #include <cc-local>
-#endif
+#include <cc-local>
 
 void CCGetWorldMatrix(out mat4 matWorld)
 {

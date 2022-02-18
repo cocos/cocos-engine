@@ -23,6 +23,10 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
         <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.name" tooltip="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.title"></ui-label>
+        <ui-checkbox slot="content" class="preferLocalTimeSpan-checkbox"></ui-checkbox>
+    </ui-prop>
 </div>
 `;
 
@@ -44,6 +48,7 @@ exports.$ = {
     legacyFbxImporterCheckbox: '.legacyFbxImporter-checkbox',
     animationBakeRateSelect: '.animationBakeRate-select',
     promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
+    preferLocalTimeSpanCheckbox: '.preferLocalTimeSpan-checkbox',
 };
 
 /**
@@ -105,6 +110,26 @@ const Elements = {
 
             panel.updateInvalid(panel.$.promoteSingleRootNodeCheckbox, 'fbx.promoteSingleRootNode');
             panel.updateReadonly(panel.$.promoteSingleRootNodeCheckbox);
+        },
+    },
+    preferLocalTimeSpan: {
+        ready() {
+            const panel = this;
+
+            panel.$.preferLocalTimeSpanCheckbox.addEventListener('change', panel.setProp.bind(panel, 'fbx.preferLocalTimeSpan', 'boolean'));
+        },
+        update() {
+            const panel = this;
+
+            let defaultValue = true;
+            if (panel.meta.userData.fbx) {
+                defaultValue = panel.getDefault(panel.meta.userData.fbx.preferLocalTimeSpan, defaultValue);
+            }
+
+            panel.$.preferLocalTimeSpanCheckbox.value = defaultValue;
+
+            panel.updateInvalid(panel.$.preferLocalTimeSpanCheckbox, 'fbx.preferLocalTimeSpan');
+            panel.updateReadonly(panel.$.preferLocalTimeSpanCheckbox);
         },
     },
 };

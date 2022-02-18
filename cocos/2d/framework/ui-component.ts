@@ -40,7 +40,7 @@ import { Stage } from '../renderer/stencil-manager';
  * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]
  * @zh 旧的 2D 渲染组件基类，请使用 [[Renderable2D]] 替代。
  * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
- * @deprecated
+ * @deprecated since v3.4.1
  */
 @ccclass('cc.UIComponent')
 @requireComponent(UITransform)
@@ -51,6 +51,7 @@ export class UIComponent extends Component {
     protected _lastParent: Node | null = null;
 
     public __preload () {
+        // @ts-expect-error temporary, UIComponent should be removed
         this.node._uiProps.uiComp = this;
     }
 
@@ -62,7 +63,9 @@ export class UIComponent extends Component {
     }
 
     public onDestroy () {
+        // @ts-expect-error temporary, UIComponent should be removed
         if (this.node._uiProps.uiComp === this) {
+            // @ts-expect-error temporary, UIComponent should be removed
             this.node._uiProps.uiComp = null;
         }
     }
@@ -93,4 +96,10 @@ export class UIComponent extends Component {
     }
 
     public stencilStage : Stage = Stage.DISABLED;
+
+    public setNodeDirty () {
+    }
+
+    public setTextureDirty () {
+    }
 }

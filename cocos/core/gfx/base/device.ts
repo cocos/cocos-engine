@@ -32,7 +32,8 @@ import {
     API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
-    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo, SwapchainInfo, BindingMappingInfo,
+    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, SwapchainInfo,
+    BindingMappingInfo, Format, FormatFeature,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -47,7 +48,7 @@ import { RenderPass } from './render-pass';
 import { Sampler } from './states/sampler';
 import { Shader } from './shader';
 import { Texture } from './texture';
-import { GlobalBarrier } from './states/global-barrier';
+import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
 import { Swapchain } from './swapchain';
 
@@ -148,6 +149,7 @@ export abstract class Device {
     protected _renderer = '';
     protected _vendor = '';
     protected _features = new Array<boolean>(Feature.COUNT);
+    protected _formatFeatures = new Array<FormatFeature>(Format.COUNT);
     protected _queue: Queue | null = null;
     protected _cmdBuff: CommandBuffer | null = null;
     protected _numDrawCalls = 0;
@@ -157,8 +159,10 @@ export abstract class Device {
     protected _caps = new DeviceCaps();
     protected _bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo();
     protected _samplers = new Map<number, Sampler>();
-    protected _globalBarriers = new Map<number, GlobalBarrier>();
+    protected _generalBarrierss = new Map<number, GeneralBarrier>();
     protected _textureBarriers = new Map<number, TextureBarrier>();
+
+    public static canvas: HTMLCanvasElement; // Hack for WebGL device initialization process
 
     public abstract initialize (info: Readonly<DeviceInfo>): boolean;
 
@@ -285,7 +289,7 @@ export abstract class Device {
      * @zh 创建全局内存屏障。
      * @param info GFX global barrier description info.
      */
-    public abstract getGlobalBarrier (info: Readonly<GlobalBarrierInfo>): GlobalBarrier;
+    public abstract getGeneralBarrier (info: Readonly<GeneralBarrierInfo>): GeneralBarrier;
 
     /**
      * @en Create texture barrier.
@@ -310,7 +314,7 @@ export abstract class Device {
      * @param buffers The buffer to copy to.
      * @param regions The region descriptions
      */
-    public abstract copyTextureToBuffers(texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void;
+    public abstract copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void;
 
     /**
      * @en Copy texture images to texture.
@@ -328,5 +332,14 @@ export abstract class Device {
      */
     public hasFeature (feature: Feature): boolean {
         return this._features[feature];
+    }
+
+    /**
+     * @en The extent a specific format is supported by the backend.
+     * @zh 后端对特定格式的支持程度。
+     * @param format The GFX format to be queried.
+     */
+    public getFormatFeatures (format: Format): FormatFeature {
+        return this._formatFeatures[format];
     }
 }

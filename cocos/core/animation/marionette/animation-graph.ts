@@ -44,9 +44,6 @@ class Transition extends EditorExtendable implements OwnedBy<StateMachine>, Tran
     @serializable
     public conditions: Condition[] = [];
 
-    /**
-     * @internal
-     */
     constructor (from: State, to: State, conditions?: Condition[]) {
         super();
         this.from = from;
@@ -130,7 +127,7 @@ export class StateMachine extends EditorExtendable {
 
     /**
      * // TODO: HACK
-     * @internal
+     * @legacyPublic
      */
     public __callOnAfterDeserializeRecursive () {
         this[onAfterDeserializedTag]();
@@ -143,9 +140,6 @@ export class StateMachine extends EditorExtendable {
         }
     }
 
-    /**
-     * @internal
-     */
     constructor () {
         super();
         this._entryState = this._addState(new State());
@@ -206,12 +200,12 @@ export class StateMachine extends EditorExtendable {
     }
 
     /**
-     * Gets the transition between specified states.
+     * Gets the transitions between specified states.
      * @param from Transition source.
      * @param to Transition target.
-     * @returns The transition, if one existed.
+     * @returns Iterator to the transitions
      */
-    public getTransition (from: State, to: State): Iterable<Transition> {
+    public getTransitionsBetween (from: State, to: State): Iterable<Transition> {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
         return from[outgoingsSymbol].filter((transition) => transition.to === to);
@@ -322,19 +316,25 @@ export class StateMachine extends EditorExtendable {
         assertsOwnedBy(to, this);
 
         const oTransitions = from[outgoingsSymbol];
-        for (let iOTransition = 0; iOTransition < oTransitions.length; ++iOTransition) {
-            const oTransition = oTransitions[iOTransition];
-            if (oTransition.to === to) {
-                assertIsTrue(
-                    remove(this._transitions, oTransition),
-                );
-                removeAt(oTransitions, iOTransition);
-                assertIsNonNullable(
-                    removeIf(to[incomingsSymbol], (transition) => transition === oTransition),
-                );
-                markAsDangling(oTransition);
-                break;
-            }
+        const iTransitions = to[incomingsSymbol];
+        const transitions = this._transitions;
+
+        const oTransitionsToRemove = oTransitions
+            .filter((oTransition) => oTransition.to === to);
+        const nOTransitionToRemove = oTransitionsToRemove.length;
+        for (let iOTransitionToRemove = 0;
+            iOTransitionToRemove < nOTransitionToRemove;
+            ++iOTransitionToRemove
+        ) {
+            const oTransition = oTransitionsToRemove[iOTransitionToRemove];
+            remove(oTransitions, oTransition);
+            assertIsTrue(
+                remove(transitions, oTransition),
+            );
+            assertIsNonNullable(
+                removeIf(iTransitions, (transition) => transition === oTransition),
+            );
+            markAsDangling(oTransition);
         }
     }
 
@@ -475,9 +475,6 @@ export class Layer implements OwnedBy<AnimationGraph> {
     @serializable
     public blending: LayerBlending = LayerBlending.additive;
 
-    /**
-     * @internal
-     */
     constructor () {
         this._stateMachine = new StateMachine();
     }

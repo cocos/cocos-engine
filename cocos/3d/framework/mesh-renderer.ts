@@ -300,6 +300,8 @@ export class MeshRenderer extends RenderableComponent {
         if (!this._model) {
             this._updateModels();
         }
+        this._updateCastShadow();
+        this._updateReceiveShadow();
         this._attachToScene();
     }
 
@@ -396,6 +398,9 @@ export class MeshRenderer extends RenderableComponent {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this.lightmapSettings.texture = lightmap;
         this.lightmapSettings.uvParam.x = uOff;

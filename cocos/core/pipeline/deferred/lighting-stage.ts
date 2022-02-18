@@ -34,7 +34,7 @@ import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
     DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from '../common/enum';
+import { DeferredStagePriority } from '../enum';
 import { MainFlow } from './main-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
@@ -45,7 +45,7 @@ import { Vec3, Vec4 } from '../../math';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { RenderQueueDesc } from '../pipeline-serialization';
-import { UIPhase } from '../common/ui-phase';
+import { UIPhase } from '../ui-phase';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -238,7 +238,7 @@ export class LightingStage extends RenderStage {
         const dynamicOffsets: number[] = [0];
         cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet, dynamicOffsets);
 
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;
@@ -264,10 +264,12 @@ export class LightingStage extends RenderStage {
         const pass = lightingMat.passes[0];
         const shader = pass.getShaderVariant();
 
-        for (let i = 0; i < 4; ++i) {
+        for (let i = 0; i < 3; ++i) {
             pass.descriptorSet.bindTexture(i, deferredData.gbufferRenderTargets[i]);
             pass.descriptorSet.bindSampler(i, deferredData.sampler);
         }
+        pass.descriptorSet.bindTexture(3, deferredData.outputDepth);
+        pass.descriptorSet.bindSampler(3, deferredData.sampler);
         pass.descriptorSet.update();
 
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
@@ -312,6 +314,7 @@ export class LightingStage extends RenderStage {
             // planarQueue
             this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         }
+        this._pipeline.geometryRenderer.render(renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);
         cmdBuff.endRenderPass();
     }

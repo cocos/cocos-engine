@@ -1,11 +1,9 @@
 {
-  "ver": "2.1.8",
+  "ver": "2.1.10",
   "importer": "fbx",
   "imported": true,
   "uuid": "1263d74c-8167-4928-91a6-4e2672411f47",
-  "files": [
-    "__original-animation-0.cconb"
-  ],
+  "files": [],
   "subMetas": {
     "17020": {
       "importer": "gltf-mesh",
@@ -143,29 +141,6 @@
         "gltfIndex": 7
       }
     },
-    "73b7f": {
-      "importer": "gltf-animation",
-      "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@73b7f",
-      "displayName": "",
-      "id": "73b7f",
-      "name": "Take 001.animation",
-      "userData": {
-        "gltfIndex": 0,
-        "wrapMode": 2,
-        "sample": 30,
-        "span": {
-          "from": 0,
-          "to": 3.3333332538604736
-        },
-        "events": []
-      },
-      "ver": "1.0.16",
-      "imported": true,
-      "files": [
-        ".cconb"
-      ],
-      "subMetas": {}
-    },
     "aae0f": {
       "importer": "gltf-scene",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@aae0f",
@@ -222,20 +197,8 @@
     "tangents": 2,
     "imageMetas": [],
     "legacyFbxImporter": false,
-    "animationImportSettings": [
-      {
-        "name": "Take 001",
-        "duration": 3.3333332538604736,
-        "fps": 30,
-        "splits": [
-          {
-            "name": "Take 001",
-            "from": 0,
-            "to": 3.3333332538604736,
-            "wrapMode": 2
-          }
-        ]
-      }
-    ]
+    "fbx": {
+      "preferLocalTimeSpan": false
+    }
   }
 }

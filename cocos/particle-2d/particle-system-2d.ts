@@ -46,6 +46,7 @@ import codec from '../../external/compression/ZipUtils';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
+import { builtinResMgr } from '../core';
 
 /**
  * Image formats
@@ -692,8 +693,14 @@ export class ParticleSystem2D extends Renderable2D {
         return this._assembler;
     }
     public aspectRatio = 1;
-    // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
+    /**
+     * The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
+     * @legacyPublic
+     */
     public declare _renderSpriteFrame: SpriteFrame | null;
+    /**
+     * @legacyPublic
+     */
     public declare _simulator: Simulator;
 
     /**
@@ -764,6 +771,10 @@ export class ParticleSystem2D extends Renderable2D {
 
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
         this._simulator.uvFilled = 0;
+
+        if (this._simulator.renderData && this._assembler) {
+            this._assembler.removeData(this._simulator.renderData);
+        }
     }
 
     private initProperties () {
@@ -830,7 +841,7 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = ParticleSystem2D.Assembler!.getAssembler(this);
+        const assembler = ParticleSystem2D.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;
@@ -892,7 +903,9 @@ export class ParticleSystem2D extends Renderable2D {
         return (this.particleCount >= this.totalParticles);
     }
 
-    // PRIVATE METHODS
+    /**
+     * @legacyPublic
+     */
     public _applyFile () {
         const file = this._file;
         if (file) {
@@ -922,6 +935,9 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _initTextureWithDictionary (dict: any) {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid = dict.spriteFrameUuid;
@@ -945,7 +961,12 @@ export class ParticleSystem2D extends Renderable2D {
                         this._initTextureWithDictionary(dict);
                         error(err);
                     } else {
-                        this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                        // eslint-disable-next-line no-lonely-if
+                        if (imageAsset) {
+                            this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                        } else {
+                            this.spriteFrame = SpriteFrame.createWithImage(builtinResMgr.get<ImageAsset>('white-texture'));
+                        }
                     }
                 });
             } else if (dict.textureImageData) {
@@ -985,7 +1006,11 @@ export class ParticleSystem2D extends Renderable2D {
                         warnID(6032, this._file!.name);
                     }
                     // TODO: Use cc.assetManager to load asynchronously the SpriteFrame object, avoid using textureUtil
-                    this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                    if (imageAsset) {
+                        this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                    } else {
+                        this.spriteFrame = SpriteFrame.createWithImage(builtinResMgr.get<ImageAsset>('white-texture'));
+                    }
                 } else {
                     return false;
                 }
@@ -994,7 +1019,9 @@ export class ParticleSystem2D extends Renderable2D {
         return true;
     }
 
-    // parsing process
+    /**
+     * @legacyPublic
+     */
     public _initWithDictionary (dict: any) {
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
@@ -1107,6 +1134,9 @@ export class ParticleSystem2D extends Renderable2D {
         return true;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _syncAspect () {
         if (this._renderSpriteFrame) {
             const frameRect = this._renderSpriteFrame.rect;
@@ -1114,6 +1144,9 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _applySpriteFrame () {
         this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (this._renderSpriteFrame) {
@@ -1129,15 +1162,24 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _getTexture () {
         return (this._renderSpriteFrame && this._renderSpriteFrame.texture);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _updateMaterial () {
         const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
     }
 
+    /**
+     * @legacyPublic
+     */
     public _finishedSimulation () {
         if (EDITOR) {
             if (this._preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {
@@ -1159,11 +1201,11 @@ export class ParticleSystem2D extends Renderable2D {
 
     protected _render (render: IBatcher) {
         if (this._positionType === PositionType.RELATIVE) {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, this.node.parent);
+            render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node.parent);
         } else if (this.positionType === PositionType.GROUPED) {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, this.node);
+            render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node);
         } else {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, null);
+            render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, null);
         }
     }
 }

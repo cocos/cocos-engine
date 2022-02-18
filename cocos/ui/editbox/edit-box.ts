@@ -96,6 +96,10 @@ export class EditBox extends Component {
             value = value.slice(0, this._maxLength);
         }
 
+        if (this._string === value) {
+            return;
+        }
+
         this._string = value;
         this._updateString(value);
     }
@@ -209,6 +213,10 @@ export class EditBox extends Component {
     }
 
     set inputFlag (value) {
+        if (this._inputFlag === value) {
+            return;
+        }
+
         this._inputFlag = value;
         this._updateString(this._string);
     }
@@ -355,7 +363,13 @@ export class EditBox extends Component {
     @tooltip('i18n:editbox.editing_return')
     public editingReturn: ComponentEventHandler[] = [];
 
+    /**
+     * @legacyPublic
+     */
     public _impl: EditBoxImplBase | null = null;
+    /**
+     * @legacyPublic
+     */
     public _background: Sprite | null = null;
 
     @serializable
@@ -457,16 +471,25 @@ export class EditBox extends Component {
         return false;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _editBoxEditingDidBegan () {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit(EventType.EDITING_DID_BEGAN, this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _editBoxEditingDidEnded () {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit(EventType.EDITING_DID_ENDED, this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _editBoxTextChanged (text: string) {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
@@ -474,16 +497,25 @@ export class EditBox extends Component {
         this.node.emit(EventType.TEXT_CHANGED, this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _editBoxEditingReturn () {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
         this.node.emit(EventType.EDITING_RETURN, this);
     }
 
+    /**
+     * @legacyPublic
+     */
     public _showLabels () {
         this._isLabelVisible = true;
         this._updateLabels();
     }
 
+    /**
+     * @legacyPublic
+     */
     public _hideLabels () {
         this._isLabelVisible = false;
         if (this._textLabel) {
@@ -545,6 +577,7 @@ export class EditBox extends Component {
             let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
                 node = new Node('TEXT_LABEL');
+                node.layer = this.node.layer;
             }
             textLabel = node.getComponent(Label);
             if (!textLabel) {
@@ -575,6 +608,7 @@ export class EditBox extends Component {
             let node = this.node.getChildByName('PLACEHOLDER_LABEL');
             if (!node) {
                 node = new Node('PLACEHOLDER_LABEL');
+                node.layer = this.node.layer;
             }
             placeholderLabel = node.getComponent(Label);
             if (!placeholderLabel) {
@@ -796,3 +830,5 @@ if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !
  * ```
  * @return {Boolean} whether it is the first time the destroy being called
  */
+
+legacyCC.internal.EditBox = EditBox;

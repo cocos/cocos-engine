@@ -102,7 +102,8 @@ export class Color extends ValueType {
         out.r = parseInt(hexString.substr(0, 2), 16) || 0;
         out.g = parseInt(hexString.substr(2, 2), 16) || 0;
         out.b = parseInt(hexString.substr(4, 2), 16) || 0;
-        out.a = parseInt(hexString.substr(6, 2), 16) || 255;
+        const a = parseInt(hexString.substr(6, 2), 16);
+        out.a = !Number.isNaN(a) ? a : 255;
         out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
         return out;
     }
@@ -299,6 +300,9 @@ export class Color extends ValueType {
     get w () { return this.a * toFloat; }
     set w (value) { this.a = value * 255; }
 
+    /**
+     * @legacyPublic
+     */
     public _val = 0;
 
     /**
@@ -435,7 +439,8 @@ export class Color extends ValueType {
         const r = parseInt(hexString.substr(0, 2), 16) || 0;
         const g = parseInt(hexString.substr(2, 2), 16) || 0;
         const b = parseInt(hexString.substr(4, 2), 16) || 0;
-        const a = parseInt(hexString.substr(6, 2), 16) || 255;
+        let a = parseInt(hexString.substr(6, 2), 16);
+        a = !Number.isNaN(a) ? a : 255;
         this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
         return this;
     }
@@ -451,8 +456,8 @@ export class Color extends ValueType {
      * ```
      * const color = new Color(255, 14, 0, 255);
      * color.toHEX("#rgb");      // "f00";
-     * color.toHEX("#rrggbbaa"); // "ff0e00"
-     * color.toHEX("#rrggbb");   // "ff0e00ff"
+     * color.toHEX("#rrggbbaa"); // "ff0e00ff"
+     * color.toHEX("#rrggbb");   // "ff0e00"
      * ```
      */
     public toHEX (fmt: '#rgb' | '#rrggbb' | '#rrggbbaa' = '#rrggbb') {
@@ -646,21 +651,33 @@ export class Color extends ValueType {
         return this;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _set_r_unsafe (red) {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
         return this;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _set_g_unsafe (green) {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
         return this;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _set_b_unsafe (blue) {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
         return this;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _set_a_unsafe (alpha) {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
         return this;

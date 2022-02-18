@@ -56,7 +56,7 @@ const USE_BYTEDANCE = BYTEDANCE && globalThis.nativePhysX;
 const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
 
 // Init physx libs when engine init.
-game.once(Game.EVENT_ENGINE_INITED, InitPhysXLibs);
+game.onEngineInitedAsync(InitPhysXLibs);
 
 function InitPhysXLibs () {
     if (USE_BYTEDANCE) {
@@ -68,7 +68,7 @@ function InitPhysXLibs () {
         initConfigAndCacheObject(PX);
     } else {
         if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
-        initPhysXWithJsModule();
+        return initPhysXWithJsModule();
     }
 }
 
@@ -76,7 +76,7 @@ function initPhysXWithJsModule () {
     // If external PHYSX not given, then try to use internal PhysX libs.
     globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : PhysX;
     if (globalThis.PhysX != null) {
-        globalThis.PhysX().then((Instance: any) => {
+        return globalThis.PhysX().then((Instance: any) => {
             if (!EDITOR && !TEST) console.info('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
@@ -593,7 +593,11 @@ export function initializeWorld (world: any) {
             const allocator = new PX.PxDefaultAllocator();
             const defaultErrorCallback = new PX.PxDefaultErrorCallback();
             const foundation = PhysXInstance.foundation = PX.PxCreateFoundation(version, allocator, defaultErrorCallback);
-            if (DEBUG) PhysXInstance.pvd = PX.PxCreatePvd(foundation);
+            if (DEBUG) {
+                PhysXInstance.pvd = PX.PxCreatePvd(foundation);
+            } else {
+                PhysXInstance.pvd = null;
+            }
             const scale = new PX.PxTolerancesScale();
             PhysXInstance.physics = PX.physics = PX.PxCreatePhysics(version, foundation, scale, false, PhysXInstance.pvd);
             PhysXInstance.cooking = PX.PxCreateCooking(version, foundation, new PX.PxCookingParams(scale));

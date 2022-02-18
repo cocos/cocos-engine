@@ -24,10 +24,10 @@
  ****************************************************************************/
 const cacheManager = require('./jsb-cache-manager');
 
-(function(){
+// @ts-expect-error jsb polyfills
+(function () {
     if (window.spine === undefined || window.middleware === undefined) return;
     if (cc.internal.SpineSkeletonData === undefined) return;
-    
 
     middleware.generateGetSet(spine);
 
@@ -42,29 +42,29 @@ const cacheManager = require('./jsb-cache-manager');
         },
         configurable: true,
     });
-    
-    let _slotColor = cc.color(0, 0, 255, 255);
-    let _boneColor = cc.color(255, 0, 0, 255);
-    let _meshColor = cc.color(255, 255, 0, 255);
-    let _originColor = cc.color(0, 255, 0, 255);
-    
-    let skeletonDataProto = cc.internal.SpineSkeletonData.prototype;
-    let _gTextureIdx = 1;
-    let _textureKeyMap = {};
-    let _textureMap = new WeakMap();
 
-    let skeletonDataMgr = spine.SkeletonDataMgr.getInstance();
+    const _slotColor = cc.color(0, 0, 255, 255);
+    const _boneColor = cc.color(255, 0, 0, 255);
+    const _meshColor = cc.color(255, 255, 0, 255);
+    const _originColor = cc.color(0, 255, 0, 255);
+
+    const skeletonDataProto = cc.internal.SpineSkeletonData.prototype;
+    let _gTextureIdx = 1;
+    const _textureKeyMap = {};
+    const _textureMap = new WeakMap();
+
+    const skeletonDataMgr = spine.SkeletonDataMgr.getInstance();
     spine.skeletonDataMgr = skeletonDataMgr;
-    skeletonDataMgr.setDestroyCallback(function (textureIndex) { 
+    skeletonDataMgr.setDestroyCallback((textureIndex) => {
         if (!textureIndex) return;
-        let texKey = _textureKeyMap[textureIndex];
+        const texKey = _textureKeyMap[textureIndex];
         if (texKey && _textureMap.has(texKey)) {
             _textureMap.delete(texKey);
             delete _textureKeyMap[textureIndex];
         }
     });
 
-    let skeletonCacheMgr = spine.SkeletonCacheMgr.getInstance();
+    const skeletonCacheMgr = spine.SkeletonCacheMgr.getInstance();
     spine.skeletonCacheMgr = skeletonCacheMgr;
     skeletonDataProto.destroy = function () {
         this.reset();
@@ -91,30 +91,30 @@ const cacheManager = require('./jsb-cache-manager');
     skeletonDataProto.init = function () {
         if (this._skeletonCache) return;
 
-        let uuid = this._uuid;
+        const uuid = this._uuid;
         if (!uuid) {
             cc.errorID(7504);
             return;
         }
 
-        let atlasText = this.atlasText;
+        const atlasText = this.atlasText;
         if (!atlasText) {
             cc.errorID(7508, this.name);
             return;
         }
 
-        let textures = this.textures;
-        let textureNames = this.textureNames;
+        const textures = this.textures;
+        const textureNames = this.textureNames;
         if (!(textures && textures.length > 0 && textureNames && textureNames.length > 0)) {
             cc.errorID(7507, this.name);
             return;
         }
 
-        let jsbTextures = {};
+        const jsbTextures = {};
         for (let i = 0; i < textures.length; ++i) {
-            let texture = textures[i];
-            let textureIdx = this.recordTexture(texture);
-            let spTex = new middleware.Texture2D();
+            const texture = textures[i];
+            const textureIdx = this.recordTexture(texture);
+            const spTex = new middleware.Texture2D();
             spTex.setRealTextureIndex(textureIdx);
             spTex.setPixelsWide(texture.width);
             spTex.setPixelsHigh(texture.height);
@@ -132,29 +132,29 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._skeletonCache) {
             this.width = this._skeletonCache.getWidth();
             this.height = this._skeletonCache.getHeight();
-        }        
+        }
     };
 
     skeletonDataProto.recordTexture = function (texture) {
-        let index = _gTextureIdx;
-        let texKey = _textureKeyMap[index] = {key:index};
+        const index = _gTextureIdx;
+        const texKey = _textureKeyMap[index] = { key: index };
         _textureMap.set(texKey, texture);
         _gTextureIdx++;
         return index;
     };
 
     skeletonDataProto.getTextureByIndex = function (textureIdx) {
-        let texKey = _textureKeyMap[textureIdx];
+        const texKey = _textureKeyMap[textureIdx];
         if (!texKey) return;
         return _textureMap.get(texKey);
     };
 
-    let animation = spine.SkeletonAnimation.prototype;
+    const animation = spine.SkeletonAnimation.prototype;
     // The methods are added to be compatibility with old versions.
     animation.setCompleteListener = function (listener) {
         this._compeleteListener = listener;
         this.setCompleteListenerNative(function (trackEntry) {
-            let loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+            const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
             this._compeleteListener && this._compeleteListener(trackEntry, loopCount);
         });
     };
@@ -163,7 +163,7 @@ const cacheManager = require('./jsb-cache-manager');
     animation.setTrackCompleteListener = function (trackEntry, listener) {
         this._trackCompeleteListener = listener;
         this.setTrackCompleteListenerNative(trackEntry, function (trackEntryNative) {
-            let loopCount = Math.floor(trackEntryNative.trackTime / trackEntryNative.animationEnd);
+            const loopCount = Math.floor(trackEntryNative.trackTime / trackEntryNative.animationEnd);
             this._trackCompeleteListener && this._trackCompeleteListener(trackEntryNative, loopCount);
         });
     };
@@ -173,8 +173,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._target = target;
         this._callback = callback;
 
-        
-        let AnimationEventType = legacyCC.internal.SpineAnimationEventType;
+        const AnimationEventType = legacyCC.internal.SpineAnimationEventType;
 
         this.setStartListener(function (trackEntry) {
             if (this._target && this._callback) {
@@ -213,7 +212,7 @@ const cacheManager = require('./jsb-cache-manager');
         });
     };
 
-    let skeleton = cc.internal.SpineSkeleton.prototype;
+    const skeleton = cc.internal.SpineSkeleton.prototype;
     const AnimationCacheMode = cc.internal.SpineSkeleton.AnimationCacheMode;
     Object.defineProperty(skeleton, 'paused', {
         get () {
@@ -224,12 +223,12 @@ const cacheManager = require('./jsb-cache-manager');
             if (this._nativeSkeleton) {
                 this._nativeSkeleton.paused(value);
             }
-        }
+        },
     });
 
-    Object.defineProperty(skeleton, "premultipliedAlpha", {
+    Object.defineProperty(skeleton, 'premultipliedAlpha', {
         get () {
-            if (this._premultipliedAlpha === undefined){
+            if (this._premultipliedAlpha === undefined) {
                 return true;
             }
             return this._premultipliedAlpha;
@@ -239,10 +238,10 @@ const cacheManager = require('./jsb-cache-manager');
             if (this._nativeSkeleton) {
                 this._nativeSkeleton.setOpacityModifyRGB(this._premultipliedAlpha);
             }
-        }
+        },
     });
 
-    Object.defineProperty(skeleton, "timeScale", {
+    Object.defineProperty(skeleton, 'timeScale', {
         get () {
             if (this._timeScale === undefined) return 1.0;
             return this._timeScale;
@@ -252,10 +251,10 @@ const cacheManager = require('./jsb-cache-manager');
             if (this._nativeSkeleton) {
                 this._nativeSkeleton.setTimeScale(this._timeScale);
             }
-        }
+        },
     });
 
-    let _updateDebugDraw = skeleton._updateDebugDraw;
+    const _updateDebugDraw = skeleton._updateDebugDraw;
     skeleton._updateDebugDraw = function () {
         _updateDebugDraw.call(this);
         if (this._nativeSkeleton && !this.isAnimationCached()) {
@@ -265,7 +264,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    let _updateUseTint = skeleton._updateUseTint;
+    const _updateUseTint = skeleton._updateUseTint;
     skeleton._updateUseTint = function () {
         _updateUseTint.call(this);
         if (this._nativeSkeleton) {
@@ -273,7 +272,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    let _updateBatch = skeleton._updateBatch;
+    const _updateBatch = skeleton._updateBatch;
     skeleton._updateBatch = function () {
         _updateBatch.call(this);
         if (this._nativeSkeleton) {
@@ -282,19 +281,19 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setSkeletonData = function (skeletonData) {
-        if (null != skeletonData.width && null != skeletonData.height) {
+        if (skeletonData.width != null && skeletonData.height != null) {
             const uiTrans = this.node._uiProps.uiTransformComp;
             uiTrans.setContentSize(skeletonData.width, skeletonData.height);
         }
 
-        let uuid = skeletonData._uuid;
+        const uuid = skeletonData._uuid;
         if (!uuid) {
             cc.errorID(7504);
             return;
         }
 
-        let texValues = skeletonData.textures;
-        let texKeys = skeletonData.textureNames;
+        const texValues = skeletonData.textures;
+        const texKeys = skeletonData.textureNames;
         if (!(texValues && texValues.length > 0 && texKeys && texKeys.length > 0)) {
             cc.errorID(7507, skeletonData.name);
             return;
@@ -329,7 +328,7 @@ const cacheManager = require('./jsb-cache-manager');
         nativeSkeleton.setOpacityModifyRGB(this.premultipliedAlpha);
         nativeSkeleton.setTimeScale(this.timeScale);
         nativeSkeleton.setBatchEnabled(this.enableBatch);
-        let compColor = this.color;
+        const compColor = this.color;
         nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
 
         this._skeleton = nativeSkeleton.getSkeleton();
@@ -356,7 +355,7 @@ const cacheManager = require('./jsb-cache-manager');
 
     skeleton._updateColor = function () {
         if (this._nativeSkeleton) {
-            let compColor = this.color;
+            const compColor = this.color;
             this._nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
         }
     };
@@ -368,7 +367,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    let _onEnable = skeleton.onEnable;
+    const _onEnable = skeleton.onEnable;
     skeleton.onEnable = function () {
         if (_onEnable) {
             _onEnable.call(this);
@@ -381,9 +380,9 @@ const cacheManager = require('./jsb-cache-manager');
         middleware.retain();
     };
 
-    let _onDisable = skeleton.onDisable;
+    const _onDisable = skeleton.onDisable;
     skeleton.onDisable = function () {
-        if(_onDisable) {
+        if (_onDisable) {
             _onDisable.call(this);
         }
 
@@ -400,16 +399,16 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.syncTransform = function (force) {
-        let node = this.node;
+        const node = this.node;
         if (!node) return;
 
-        let paramsBuffer = this._paramsBuffer;
+        const paramsBuffer = this._paramsBuffer;
         if (!paramsBuffer) return;
-        
+
         if (force || node.hasChangedFlags || node._dirtyFlags) {
             // sync node world matrix to native
             node.updateWorldTransform();
-            let worldMat = node._mat;
+            const worldMat = node._mat;
             paramsBuffer[1]  = worldMat.m00;
             paramsBuffer[2]  = worldMat.m01;
             paramsBuffer[3]  = worldMat.m02;
@@ -430,13 +429,13 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.updateAnimation = function (dt) {
-        let nativeSkeleton = this._nativeSkeleton;
+        const nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 
-        let node = this.node;
+        const node = this.node;
         if (!node) return;
-        
-        let paramsBuffer = this._paramsBuffer;
+
+        const paramsBuffer = this._paramsBuffer;
         if (this._renderOrder != middleware.renderOrder) {
             paramsBuffer[0] = middleware.renderOrder;
             this._renderOrder = middleware.renderOrder;
@@ -446,11 +445,11 @@ const cacheManager = require('./jsb-cache-manager');
         this.syncTransform();
 
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
-            let compColor = this.color;
+            const compColor = this.color;
             nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
             this.__preColor__ = compColor;
         }
-        
+
         const socketNodes = this.socketNodes;
         if (!this._useAttach && socketNodes.size > 0) {
             this._useAttach = true;
@@ -458,15 +457,14 @@ const cacheManager = require('./jsb-cache-manager');
         }
 
         if (!this.isAnimationCached() && (this.debugBones || this.debugSlots || this.debugMesh) && this._debugRenderer) {
-            
-            let graphics = this._debugRenderer;
+            const graphics = this._debugRenderer;
             graphics.clear();
             graphics.lineWidth = 5;
-            
-            let debugData = this._debugData || nativeSkeleton.getDebugData();
+
+            const debugData = this._debugData || nativeSkeleton.getDebugData();
             if (!debugData) return;
-            let debugIdx = 0, debugType = 0, debugLen = 0;
-    
+            let debugIdx = 0; let debugType = 0; let debugLen = 0;
+
             while (true) {
                 debugType = debugData[debugIdx++];
                 if (debugType == 0) break;
@@ -475,7 +473,7 @@ const cacheManager = require('./jsb-cache-manager');
                 switch (debugType) {
                     case 1: // slots
                         graphics.strokeColor = _slotColor;
-                        for(let i = 0; i < debugLen; i += 8){
+                        for (let i = 0; i < debugLen; i += 8) {
                             graphics.moveTo(debugData[debugIdx++], debugData[debugIdx++]);
                             graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
                             graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
@@ -486,7 +484,7 @@ const cacheManager = require('./jsb-cache-manager');
                     break;
                     case 2: // mesh
                         graphics.strokeColor = _meshColor;
-                        for(let i = 0; i < debugLen; i += 6) {
+                        for (let i = 0; i < debugLen; i += 6) {
                             graphics.moveTo(debugData[debugIdx++], debugData[debugIdx++]);
                             graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
                             graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
@@ -498,16 +496,16 @@ const cacheManager = require('./jsb-cache-manager');
                         graphics.strokeColor = _boneColor;
                         graphics.fillColor = _slotColor; // Root bone color is same as slot color.
                         for (let i = 0; i < debugLen; i += 4) {
-                            let bx = debugData[debugIdx++];
-                            let by = debugData[debugIdx++];
-                            let x = debugData[debugIdx++];
-                            let y = debugData[debugIdx++];
-            
+                            const bx = debugData[debugIdx++];
+                            const by = debugData[debugIdx++];
+                            const x = debugData[debugIdx++];
+                            const y = debugData[debugIdx++];
+
                             // Bone lengths.
                             graphics.moveTo(bx, by);
                             graphics.lineTo(x, y);
                             graphics.stroke();
-            
+
                             // Bone origins.
                             graphics.circle(bx, by, Math.PI * 1.5);
                             graphics.fill();
@@ -596,7 +594,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.getTextureAtlas = function (regionAttachment) {
-        cc.warn("Spine Skeleton getTextureAtlas not support in native");
+        cc.warn('Spine Skeleton getTextureAtlas not support in native');
         return null;
     };
 
@@ -607,7 +605,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setAnimation = function (trackIndex, name, loop) {
-        let strName = name.toString();
+        const strName = name.toString();
         if (this._nativeSkeleton) {
             if (this.isAnimationCached()) {
                 return this._nativeSkeleton.setAnimation(strName, loop);
@@ -659,7 +657,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._nativeSkeleton) {
             if (this.isAnimationCached()) {
                 this._nativeSkeleton.setStartListener(function (animationName) {
-                    let self = this._comp;
+                    const self = this._comp;
                     self._startEntry.animation.name = animationName;
                     self._startListener && self._startListener(self._startEntry);
                 });
@@ -681,7 +679,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._nativeSkeleton) {
             if (this.isAnimationCached()) {
                 this._nativeSkeleton.setEndListener(function (animationName) {
-                    let self = this._comp;
+                    const self = this._comp;
                     self._endEntry.animation.name = animationName;
                     self._endListener && self._endListener(self._endEntry);
                 });
@@ -703,7 +701,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._nativeSkeleton) {
             if (this.isAnimationCached()) {
                 this._nativeSkeleton.setCompleteListener(function (animationName) {
-                    let self = this._comp;
+                    const self = this._comp;
                     self._endEntry.animation.name = animationName;
                     self._completeListener && self._completeListener(self._endEntry);
                 });
@@ -760,10 +758,11 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._nativeSkeleton && !this.isAnimationCached()) {
             return this._nativeSkeleton.getState();
         }
+        return null;
     };
 
     skeleton._ensureListener = function () {
-        cc.warn("Spine Skeleton _ensureListener not need in native");
+        cc.warn('Spine Skeleton _ensureListener not need in native');
     };
 
     skeleton._updateSkeletonData = function () {
@@ -776,17 +775,15 @@ const cacheManager = require('./jsb-cache-manager');
 
             this.defaultSkin && this._nativeSkeleton.setSkin(this.defaultSkin);
             this.animation = this.defaultAnimation;
-        } else {
-            if (this._nativeSkeleton) {
+        } else if (this._nativeSkeleton) {
                 this._nativeSkeleton.stopSchedule();
                 this._nativeSkeleton._comp = null;
                 this._nativeSkeleton = null;
             }
-        }
     };
 
-    let _onDestroy = skeleton.onDestroy;
-    skeleton.onDestroy = function(){
+    const _onDestroy = skeleton.onDestroy;
+    skeleton.onDestroy = function () {
         _onDestroy.call(this);
         if (this._nativeSkeleton) {
             this._nativeSkeleton.stopSchedule();
@@ -796,29 +793,30 @@ const cacheManager = require('./jsb-cache-manager');
         this._stateData = null;
     };
 
-    let _tempAttachMat4 = new cc.mat4();
-    let _tempVfmt, _tempBufferIndex, _tempIndicesOffset, _tempIndicesCount;
+    const _tempAttachMat4 = cc.mat4();
+    const _identityTrans = new cc.Node();
+    let _tempVfmt; let _tempBufferIndex; let _tempIndicesOffset; let _tempIndicesCount;
 
     skeleton._render = function (ui) {
-        let nativeSkeleton = this._nativeSkeleton;
+        const nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 
-        let node = this.node;
+        const node = this.node;
         if (!node) return;
 
-        let sharedBufferOffset = this._sharedBufferOffset;
+        const sharedBufferOffset = this._sharedBufferOffset;
         if (!sharedBufferOffset) return;
 
-        let renderInfoOffset = sharedBufferOffset[0];
+        const renderInfoOffset = sharedBufferOffset[0];
         // reset render info offset
         sharedBufferOffset[0] = 0;
-        
+
         const socketNodes = this.socketNodes;
         if (socketNodes.size > 0) {
-            let attachInfoMgr = middleware.attachInfoMgr;
-            let attachInfo = attachInfoMgr.attachInfo;
+            const attachInfoMgr = middleware.attachInfoMgr;
+            const attachInfo = attachInfoMgr.attachInfo;
 
-            let attachInfoOffset = sharedBufferOffset[1];
+            const attachInfoOffset = sharedBufferOffset[1];
             // reset attach info offset
             sharedBufferOffset[1] = 0;
             for (const boneIdx of socketNodes.keys()) {
@@ -829,8 +827,8 @@ const cacheManager = require('./jsb-cache-manager');
                     continue;
                 }
 
-                let tm = _tempAttachMat4;
-                let matOffset = attachInfoOffset + boneIdx * 16;
+                const tm = _tempAttachMat4;
+                const matOffset = attachInfoOffset + boneIdx * 16;
                 tm.m00 = attachInfo[matOffset];
                 tm.m01 = attachInfo[matOffset + 1];
                 tm.m04 = attachInfo[matOffset + 4];
@@ -838,22 +836,22 @@ const cacheManager = require('./jsb-cache-manager');
                 tm.m12 = attachInfo[matOffset + 12];
                 tm.m13 = attachInfo[matOffset + 13];
                 boneNode.matrix = tm;
-                boneNode.scale = this.node.scale;
+                boneNode.scale = node.scale;
             }
         }
 
-        let renderInfoMgr = middleware.renderInfoMgr;
-        let renderInfo = renderInfoMgr.renderInfo;
+        const renderInfoMgr = middleware.renderInfoMgr;
+        const renderInfo = renderInfoMgr.renderInfo;
 
-        let materialIdx = 0, realTextureIndex, realTexture;
+        let materialIdx = 0; let realTextureIndex; let realTexture;
         // verify render border
-        let border = renderInfo[renderInfoOffset + materialIdx++];
+        const border = renderInfo[renderInfoOffset + materialIdx++];
         if (border !== 0xffffffff) return;
 
-        let matLen = renderInfo[renderInfoOffset + materialIdx++];
-        let useTint = this.useTint || this.isAnimationCached();
-        let vfmt = useTint ? middleware.vfmtPosUvTwoColor : middleware.vfmtPosUvColor;
-        
+        const matLen = renderInfo[renderInfoOffset + materialIdx++];
+        const useTint = this.useTint || this.isAnimationCached();
+        const vfmt = useTint ? middleware.vfmtPosUvTwoColor : middleware.vfmtPosUvColor;
+
         _tempVfmt = vfmt;
 
         if (matLen == 0) return;
@@ -869,54 +867,29 @@ const cacheManager = require('./jsb-cache-manager');
             const mat = this.material;
             // cache material
             this.material = this.getMaterialForBlendAndTint(
-                renderInfo[renderInfoOffset + materialIdx++], 
-                renderInfo[renderInfoOffset + materialIdx++], 
-                useTint ? 1 : 0);
+                renderInfo[renderInfoOffset + materialIdx++],
+                renderInfo[renderInfoOffset + materialIdx++],
+                useTint ? 1 : 0,
+            );
 
             _tempBufferIndex = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesOffset = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
-            if (middleware.indicesStart != _tempIndicesOffset ||
-                middleware.preRenderBufferIndex != _tempBufferIndex ||
-                middleware.preRenderBufferType != _tempVfmt) {
-                ui.autoMergeBatches(middleware.preRenderComponent);
-                middleware.resetIndicesStart = true;
-            } else {
-                middleware.resetIndicesStart = false;
-            }
-
-            ui.commitComp(this, realTexture, this._assembler, null);
+            const renderData = middleware.RenderInfoLookup[_tempVfmt][_tempBufferIndex];
+            ui.commitComp(this, renderData, realTexture, this._assembler, _identityTrans);
+            renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
             this.material = mat;
         }
-    }
+    };
 
     //////////////////////////////////////////
     // assembler
     const assembler = cc.internal.SpineAssembler;
-    
+
     assembler.updateRenderData = function () {
     };
-    
+
     assembler.fillBuffers = function (comp, renderer) {
-        let nativeSkeleton = comp._skeleton;
-        if (!nativeSkeleton) return;
-
-        let node = comp.node;
-        if (!node) return;
-
-        let renderInfoLookup = middleware.RenderInfoLookup
-        let buffer = renderInfoLookup[_tempVfmt][_tempBufferIndex];
-        renderer.currBufferBatch = buffer;
-
-        if (middleware.resetIndicesStart) {
-            buffer.indicesStart = _tempIndicesOffset;
-        }
-        buffer.indicesOffset = _tempIndicesOffset + _tempIndicesCount;
-
-        middleware.indicesStart = buffer.indicesOffset;
-        middleware.preRenderComponent = comp;
-        middleware.preRenderBufferIndex = _tempBufferIndex;
-        middleware.preRenderBufferType = _tempVfmt;
     };
-})();
+}());

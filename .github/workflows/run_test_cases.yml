@@ -1,0 +1,65 @@
+name: run test cases
+
+on: 
+  issue_comment:
+    types: [created, edited]
+  pull_request_review_comment:
+    types: [created, edited]
+
+jobs:
+  run-test-cases:
+    if: |
+      github.event.issue.pull_request && contains(github.event.comment.body, '@cocos-robot run test cases')
+    runs-on: run-test-win01
+
+    steps:
+      - uses: octokit/request-action@v2.x
+        id: find_pull_request
+        with:
+          route: GET /repos/cocos-creator/engine/pulls/${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Parse Pull Request
+        id: parse_pull_request
+        shell: pwsh
+        run: |
+          $pull_request = @"
+          ${{ steps.find_pull_request.outputs.data }}
+          "@ | ConvertFrom-Json
+          Write-Host $pull_request
+          Write-Host "::set-output name=pr_html_url::$($pull_request.html_url)"
+          Write-Host "::set-output name=pr_number::$($pull_request.number)"
+          Write-Host "::set-output name=pr_author::$($pull_request.user.login)"
+          Write-Host "::set-output name=pr_head_ref::$($pull_request.head.ref)"
+          Write-Host "::set-output name=pr_head_sha::$($pull_request.head.sha)"
+          Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
+          Write-Host "::set-output name=pr_base_sha::$($pull_request.base.sha)"
+      - name: Echo pull request
+        run: |
+          echo "${{ steps.parse_pull_request.outputs.pr_head_ref }}"
+          echo "${{ steps.parse_pull_request.outputs.pr_head_sha }}"
+          echo "${{ steps.parse_pull_request.outputs.pr_base_ref }}"
+          echo "${{ steps.parse_pull_request.outputs.pr_base_sha }}"
+          
+      - name: update comment 
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ steps.parse_pull_request.outputs.pr_number }}
+          body: |
+            @${{ steps.parse_pull_request.outputs.pr_author }}，请查阅任务（run test cases）执行结果：https://github.com/cocos-creator/engine/actions/runs/${{ github.run_id }}
+      - name: 'Checkout engine'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.parse_pull_request.outputs.pr_head_sha }}
+          path: engine
+
+      - name: 'npm install'
+        run: |
+          cd engine
+          npm -v
+          npm install --registry https://registry.npm.taobao.org
+
+      - name: 'Call run test cases job'
+        run: |
+          python3 -u ./pr-test/main.py ${{ steps.parse_pull_request.outputs.pr_base_ref }}

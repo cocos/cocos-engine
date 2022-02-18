@@ -105,48 +105,40 @@ export const ttfUtils =  {
     },
 
     updateRenderData (comp: Label) {
-        if (!comp.renderData || !comp.renderData.vertDirty) { return; }
+        if (!comp.renderData) { return; }
 
-        const trans = comp.node._uiProps.uiTransformComp!;
-        this._updateFontFamily(comp);
-        this._updateProperties(comp, trans);
-        this._calculateLabelFont();
-        this._updateLabelDimensions();
-        this._resetDynamicAtlas(comp);
-        this._updateTexture(comp);
-        this.updateOpacity(comp);
-        comp._setCacheAlpha(_alpha);
-        this._calDynamicAtlas(comp);
+        if (comp.renderData.vertDirty) {
+            const trans = comp.node._uiProps.uiTransformComp!;
+            this._updateFontFamily(comp);
+            this._updateProperties(comp, trans);
+            this._calculateLabelFont();
+            this._updateLabelDimensions();
+            this._updateTexture(comp);
+            this._calDynamicAtlas(comp);
 
-        comp.actualFontSize = _fontSize;
-        trans.setContentSize(_canvasSize);
+            comp.actualFontSize = _fontSize;
+            trans.setContentSize(_canvasSize);
 
-        this.updateVertexData(comp);
-        this.updateUvs(comp);
+            this.updateVertexData(comp);
+            this.updateUVs(comp);
 
-        comp.markForUpdateRenderData(false);
+            comp.markForUpdateRenderData(false);
 
-        _context = null;
-        _canvas = null;
-        _texture = null;
+            _context = null;
+            _canvas = null;
+            _texture = null;
+        }
+
+        if (comp.spriteFrame) {
+            const renderData = comp.renderData;
+            renderData.updateRenderData(comp, comp.spriteFrame);
+        }
     },
 
     updateVertexData (comp: Label) {
     },
 
-    updateUvs (comp: Label) {
-    },
-
-    updateOpacity (comp: Label) {
-        const vData = comp.renderData!.vData;
-
-        let colorOffset = 5;
-        const colorA = comp.node._uiProps.opacity;
-        for (let i = 0; i < 4; i++) {
-            vData![colorOffset + 3] = colorA;
-
-            colorOffset += 9;
-        }
+    updateUVs (comp: Label) {
     },
 
     _updateFontFamily (comp: Label) {
@@ -315,8 +307,18 @@ export const ttfUtils =  {
             _context.shadowColor = 'transparent';
         }
 
-        // _texture.handleLoadedTexture();
-        if (_texture) {
+        this._uploadTexture(comp);
+    },
+
+    _uploadTexture (comp: Label) {
+        // May better for JIT
+        if (comp.cacheMode === Label.CacheMode.BITMAP) {
+            const frame = comp.ttfSpriteFrame!;
+            dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
+            frame._resetDynamicAtlasFrame();
+        }
+
+        if (_texture && _canvas) {
             let tex: Texture2D;
             if (_texture instanceof SpriteFrame) {
                 tex = (_texture.texture as Texture2D);
@@ -337,6 +339,9 @@ export const ttfUtils =  {
                     _texture.rect = new Rect(0, 0, _canvas.width, _canvas.height);
                     _texture._calculateUV();
                 }
+                if (comp.renderData) {
+                    comp.renderData.textureDirty = true;
+                }
                 if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
                     legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
                 }
@@ -344,18 +349,11 @@ export const ttfUtils =  {
         }
     },
 
-    _resetDynamicAtlas (comp: Label) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
-        const frame = comp.ttfSpriteFrame!;
-        dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
-        frame._resetDynamicAtlasFrame();
-    },
-
     _calDynamicAtlas (comp: Label) {
         if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
-        comp.renderData!.uvDirty = true;
+        // TODO update material and uv
     },
 
     _setupOutline () {

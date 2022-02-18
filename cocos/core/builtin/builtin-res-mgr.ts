@@ -23,10 +23,9 @@
  THE SOFTWARE.
  */
 
-import { UI_GPU_DRIVEN } from 'internal:constants';
-import { TEST } from 'internal:constants';
+import { UI_GPU_DRIVEN, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { ImageAsset } from '../assets/image-asset';
+import { ImageAsset, ImageSource } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';
@@ -35,6 +34,7 @@ import { effects } from './effects';
 import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
+import { Color } from '../math';
 
 class BuiltinResMgr {
     protected _device: Device | null = null;
@@ -42,32 +42,150 @@ class BuiltinResMgr {
 
     // this should be called after renderer initialized
     public initBuiltinRes (device: Device): Promise<void> {
-        if (TEST) return Promise.resolve();
         this._device = device;
         const resources = this._resources;
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d')!;
-        const imgAsset = new ImageAsset(canvas);
-        const l = canvas.width = canvas.height = 2;
+
+        const len = 2;
+        const numChannels = 4;
+
+        const blackValueView   = new Uint8Array(len * len * numChannels);
+        const emptyValueView   = new Uint8Array(len * len * numChannels);
+        const greyValueView    = new Uint8Array(len * len * numChannels);
+        const whiteValueView   = new Uint8Array(len * len * numChannels);
+        const normalValueView  = new Uint8Array(len * len * numChannels);
+
+        let offset = 0;
+        for (let i = 0; i < len * len; i++) {
+            blackValueView[offset]     = 0;
+            blackValueView[offset + 1] = 0;
+            blackValueView[offset + 2] = 0;
+            blackValueView[offset + 3] = 255;
+
+            emptyValueView[offset]     = 0;
+            emptyValueView[offset + 1] = 0;
+            emptyValueView[offset + 2] = 0;
+            emptyValueView[offset + 3] = 0;
+
+            greyValueView[offset]     = 119;
+            greyValueView[offset + 1] = 119;
+            greyValueView[offset + 2] = 119;
+            greyValueView[offset + 3] = 255;
+
+            whiteValueView[offset]     = 255;
+            whiteValueView[offset + 1] = 255;
+            whiteValueView[offset + 2] = 255;
+            whiteValueView[offset + 3] = 255;
+
+            normalValueView[offset]     = 127;
+            normalValueView[offset + 1] = 127;
+            normalValueView[offset + 2] = 255;
+            normalValueView[offset + 3] = 255;
+
+            offset += numChannels;
+        }
+
+        const defaultSize = 16;
+        const halfDefaultSize = defaultSize / 2;
+        const defaultValueView = new Uint8Array(defaultSize * defaultSize * numChannels);
+
+        offset = 0;
+        for (let i = 0; i < defaultSize * defaultSize; i++) {
+            defaultValueView[offset]     = 221;
+            defaultValueView[offset + 1] = 221;
+            defaultValueView[offset + 2] = 221;
+            defaultValueView[offset + 3] = 255;
+
+            offset += numChannels;
+        }
+        offset = 0;
+        for (let i = 0; i < halfDefaultSize; i++) {
+            for (let j = 0; j < halfDefaultSize; j++) {
+                defaultValueView[offset]     = 85;
+                defaultValueView[offset + 1] = 85;
+                defaultValueView[offset + 2] = 85;
+                defaultValueView[offset + 3] = 255;
+
+                offset += numChannels;
+            }
+            offset += halfDefaultSize * numChannels;
+        }
+        offset += halfDefaultSize * numChannels;
+        for (let i = 0; i < halfDefaultSize; i++) {
+            for (let j = 0; j < halfDefaultSize; j++) {
+                defaultValueView[offset]     = 85;
+                defaultValueView[offset + 1] = 85;
+                defaultValueView[offset + 2] = 85;
+                defaultValueView[offset + 3] = 255;
+
+                offset += numChannels;
+            }
+            offset += halfDefaultSize * numChannels;
+        }
+
+        const blackMemImageSource: ImageSource = {
+            width: len,
+            height: len,
+            _data: blackValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA8888,
+        };
+
+        const emptyMemImageSource: ImageSource = {
+            width: len,
+            height: len,
+            _data: emptyValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA8888,
+        };
+
+        const greyMemImageSource: ImageSource = {
+            width: len,
+            height: len,
+            _data: greyValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA8888,
+        };
+
+        const whiteMemImageSource: ImageSource = {
+            width: len,
+            height: len,
+            _data: whiteValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA8888,
+        };
+
+        const normalMemImageSource: ImageSource = {
+            width: len,
+            height: len,
+            _data: normalValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA8888,
+        };
+
+        const defaultMemImageSource: ImageSource = {
+            width: defaultSize,
+            height: defaultSize,
+            _data: defaultValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA8888,
+        };
 
         // ============================
         // builtin textures
         // ============================
 
         // black texture
-        context.fillStyle = '#000';
-        context.fillRect(0, 0, l, l);
+        const imgAsset = new ImageAsset(blackMemImageSource);
         const blackTexture = new Texture2D();
         blackTexture._uuid = 'black-texture';
         blackTexture.image = imgAsset;
         resources[blackTexture._uuid] = blackTexture;
 
         // empty texture
-        context.fillStyle = 'rgba(0,0,0,0)';
-        context.fillRect(0, 0, l, l);
+        const emptyImgAsset = new ImageAsset(emptyMemImageSource);
         const emptyTexture = new Texture2D();
         emptyTexture._uuid = 'empty-texture';
-        emptyTexture.image = imgAsset;
+        emptyTexture.image = emptyImgAsset;
         resources[emptyTexture._uuid] = emptyTexture;
 
         // black texture
@@ -75,29 +193,27 @@ class BuiltinResMgr {
         blackCubeTexture._uuid = 'black-cube-texture';
         blackCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
         blackCubeTexture.image = {
-            front: new ImageAsset(canvas),
-            back: new ImageAsset(canvas),
-            left: new ImageAsset(canvas),
-            right: new ImageAsset(canvas),
-            top: new ImageAsset(canvas),
-            bottom: new ImageAsset(canvas),
+            front: new ImageAsset(blackMemImageSource),
+            back: new ImageAsset(blackMemImageSource),
+            left: new ImageAsset(blackMemImageSource),
+            right: new ImageAsset(blackMemImageSource),
+            top: new ImageAsset(blackMemImageSource),
+            bottom: new ImageAsset(blackMemImageSource),
         };
         resources[blackCubeTexture._uuid] = blackCubeTexture;
 
         // grey texture
-        context.fillStyle = '#777';
-        context.fillRect(0, 0, l, l);
+        const greyImgAsset = new ImageAsset(greyMemImageSource);
         const greyTexture = new Texture2D();
         greyTexture._uuid = 'grey-texture';
-        greyTexture.image = imgAsset;
+        greyTexture.image = greyImgAsset;
         resources[greyTexture._uuid] = greyTexture;
 
         // white texture
-        context.fillStyle = '#fff';
-        context.fillRect(0, 0, l, l);
+        const whiteImgAsset = new ImageAsset(whiteMemImageSource);
         const whiteTexture = new Texture2D();
         whiteTexture._uuid = 'white-texture';
-        whiteTexture.image = imgAsset;
+        whiteTexture.image = whiteImgAsset;
         resources[whiteTexture._uuid] = whiteTexture;
 
         // white cube texture
@@ -105,34 +221,27 @@ class BuiltinResMgr {
         whiteCubeTexture._uuid = 'white-cube-texture';
         whiteCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
         whiteCubeTexture.image = {
-            front: new ImageAsset(canvas),
-            back: new ImageAsset(canvas),
-            left: new ImageAsset(canvas),
-            right: new ImageAsset(canvas),
-            top: new ImageAsset(canvas),
-            bottom: new ImageAsset(canvas),
+            front: new ImageAsset(whiteMemImageSource),
+            back: new ImageAsset(whiteMemImageSource),
+            left: new ImageAsset(whiteMemImageSource),
+            right: new ImageAsset(whiteMemImageSource),
+            top: new ImageAsset(whiteMemImageSource),
+            bottom: new ImageAsset(whiteMemImageSource),
         };
         resources[whiteCubeTexture._uuid] = whiteCubeTexture;
 
         // normal texture
-        context.fillStyle = '#7f7fff';
-        context.fillRect(0, 0, l, l);
+        const normalImgAsset = new ImageAsset(normalMemImageSource);
         const normalTexture = new Texture2D();
         normalTexture._uuid = 'normal-texture';
-        normalTexture.image = imgAsset;
+        normalTexture.image = normalImgAsset;
         resources[normalTexture._uuid] = normalTexture;
 
         // default texture
-        canvas.width = canvas.height = 16;
-        context.fillStyle = '#ddd';
-        context.fillRect(0, 0, 16, 16);
-        context.fillStyle = '#555';
-        context.fillRect(0, 0, 8, 8);
-        context.fillStyle = '#555';
-        context.fillRect(8, 8, 8, 8);
+        const defaultImgAsset = new ImageAsset(defaultMemImageSource);
         const defaultTexture = new Texture2D();
         defaultTexture._uuid = 'default-texture';
-        defaultTexture.image = imgAsset;
+        defaultTexture.image = defaultImgAsset;
         resources[defaultTexture._uuid] = defaultTexture;
 
         // default cube texture
@@ -140,12 +249,12 @@ class BuiltinResMgr {
         defaultCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
         defaultCubeTexture._uuid = 'default-cube-texture';
         defaultCubeTexture.image = {
-            front: new ImageAsset(canvas),
-            back: new ImageAsset(canvas),
-            left: new ImageAsset(canvas),
-            right: new ImageAsset(canvas),
-            top: new ImageAsset(canvas),
-            bottom: new ImageAsset(canvas),
+            front: new ImageAsset(defaultMemImageSource),
+            back: new ImageAsset(defaultMemImageSource),
+            left: new ImageAsset(defaultMemImageSource),
+            right: new ImageAsset(defaultMemImageSource),
+            top: new ImageAsset(defaultMemImageSource),
+            bottom: new ImageAsset(defaultMemImageSource),
         };
         resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
@@ -229,21 +338,30 @@ class BuiltinResMgr {
 
         const clearStencilMtl = new legacyCC.Material();
         clearStencilMtl._uuid = 'default-clear-stencil';
-        clearStencilMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'clear-stencil' });
+        clearStencilMtl.initialize({
+            defines: { USE_TEXTURE: false },
+            effectName: 'clear-stencil',
+        });
         resources[clearStencilMtl._uuid] = clearStencilMtl;
         materialsToBeCompiled.push(clearStencilMtl);
 
         // sprite material
         const spriteMtl = new legacyCC.Material();
         spriteMtl._uuid = 'ui-base-material';
-        spriteMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'sprite' });
+        spriteMtl.initialize({
+            defines: { USE_TEXTURE: false },
+            effectName: 'sprite',
+        });
         resources[spriteMtl._uuid] = spriteMtl;
         materialsToBeCompiled.push(spriteMtl);
 
         // sprite material
         const spriteColorMtl = new legacyCC.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
-        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'sprite' });
+        spriteColorMtl.initialize({
+            defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false },
+            effectName: 'sprite',
+        });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
         materialsToBeCompiled.push(spriteColorMtl);
 
@@ -260,21 +378,30 @@ class BuiltinResMgr {
         // sprite gray material
         const spriteGrayMtl = new legacyCC.Material();
         spriteGrayMtl._uuid = 'ui-sprite-gray-material';
-        spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true }, effectName: 'sprite' });
+        spriteGrayMtl.initialize({
+            defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true },
+            effectName: 'sprite',
+        });
         resources[spriteGrayMtl._uuid] = spriteGrayMtl;
         materialsToBeCompiled.push(spriteGrayMtl);
 
         // sprite alpha material
         const spriteAlphaMtl = new legacyCC.Material();
         spriteAlphaMtl._uuid = 'ui-sprite-alpha-sep-material';
-        spriteAlphaMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false }, effectName: 'sprite' });
+        spriteAlphaMtl.initialize({
+            defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false },
+            effectName: 'sprite',
+        });
         resources[spriteAlphaMtl._uuid] = spriteAlphaMtl;
         materialsToBeCompiled.push(spriteAlphaMtl);
 
         // sprite alpha & gray material
         const spriteAlphaGrayMtl = new legacyCC.Material();
         spriteAlphaGrayMtl._uuid = 'ui-sprite-gray-alpha-sep-material';
-        spriteAlphaGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true }, effectName: 'sprite' });
+        spriteAlphaGrayMtl.initialize({
+            defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true },
+            effectName: 'sprite',
+        });
         resources[spriteAlphaGrayMtl._uuid] = spriteAlphaGrayMtl;
         materialsToBeCompiled.push(spriteAlphaGrayMtl);
 
@@ -296,28 +423,40 @@ class BuiltinResMgr {
             // sprite material
             const spriteColorGPUMtl = new legacyCC.Material();
             spriteColorGPUMtl._uuid = 'ui-sprite-gpu-material';
-            spriteColorGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'sprite-gpu' });
+            spriteColorGPUMtl.initialize({
+                defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false },
+                effectName: 'sprite-gpu',
+            });
             resources[spriteColorGPUMtl._uuid] = spriteColorGPUMtl;
             materialsToBeCompiled.push(spriteColorGPUMtl);
 
             // sprite gray material
             const spriteGrayGPUMtl = new legacyCC.Material();
             spriteGrayGPUMtl._uuid = 'ui-sprite-gray-gpu-material';
-            spriteGrayGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true }, effectName: 'sprite-gpu' });
+            spriteGrayGPUMtl.initialize({
+                defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true },
+                effectName: 'sprite-gpu',
+            });
             resources[spriteGrayGPUMtl._uuid] = spriteGrayGPUMtl;
             materialsToBeCompiled.push(spriteGrayGPUMtl);
 
             // sprite alpha material
             const spriteAlphaGPUMtl = new legacyCC.Material();
             spriteAlphaGPUMtl._uuid = 'ui-sprite-alpha-sep-gpu-material';
-            spriteAlphaGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false }, effectName: 'sprite-gpu' });
+            spriteAlphaGPUMtl.initialize({
+                defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false },
+                effectName: 'sprite-gpu',
+            });
             resources[spriteAlphaGPUMtl._uuid] = spriteAlphaGPUMtl;
             materialsToBeCompiled.push(spriteAlphaGPUMtl);
 
             // sprite alpha & gray material
             const spriteAlphaGrayGPUMtl = new legacyCC.Material();
             spriteAlphaGrayGPUMtl._uuid = 'ui-sprite-gray-alpha-sep-gpu-material';
-            spriteAlphaGrayGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true }, effectName: 'sprite-gpu' });
+            spriteAlphaGrayGPUMtl.initialize({
+                defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true },
+                effectName: 'sprite-gpu',
+            });
             resources[spriteAlphaGrayGPUMtl._uuid] = spriteAlphaGrayGPUMtl;
             materialsToBeCompiled.push(spriteAlphaGrayGPUMtl);
         }
@@ -330,11 +469,13 @@ class BuiltinResMgr {
         materialsToBeCompiled.push(defaultParticleMtl);
 
         // default particle gpu material
-        const defaultParticleGPUMtl = new legacyCC.Material();
-        defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
-        defaultParticleGPUMtl.initialize({ effectName: 'particle-gpu' });
-        resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
-        materialsToBeCompiled.push(defaultParticleGPUMtl);
+        if (!TEST) {
+            const defaultParticleGPUMtl = new legacyCC.Material();
+            defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
+            defaultParticleGPUMtl.initialize({ effectName: 'particle-gpu' });
+            resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
+            materialsToBeCompiled.push(defaultParticleGPUMtl);
+        }
 
         // default particle material
         const defaultTrailMtl = new legacyCC.Material();

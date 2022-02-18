@@ -31,7 +31,7 @@
 import { JSB } from 'internal:constants';
 import { MeshBuffer } from './mesh-buffer';
 import { Material } from '../../core/assets/material';
-import { Texture, Sampler, DrawInfo, Buffer, InputAssembler, DescriptorSet, Shader } from '../../core/gfx';
+import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../core/gfx';
 import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
@@ -39,93 +39,20 @@ import { Model } from '../../core/renderer/scene/model';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
-import { NativeDrawBatch2D, NativeDrawCall, NativePass } from '../../core/renderer/scene';
+import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
 import { IBatcher } from './i-batcher';
-import { Pool } from '../../core/memop';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
-
-export class DrawCall {
-    // UBO info
-    public bufferHash = 0;
-    public bufferUboIndex = 0;
-    public _bufferView: Buffer | null = null;
-
-    // actual draw call info
-    private _descriptorSet: DescriptorSet | null = null;
-    private _dynamicOffsets = [0, 0];// uboindex * _uniformBufferStride
-    private _drawInfo: DrawInfo| null = null;
-
-    private declare _nativeObj: NativeDrawCall | null;
-
-    public get native (): NativeDrawCall {
-        return this._nativeObj!;
-    }
-
-    public get bufferView () {
-        return this._bufferView;
-    }
-    public set bufferView (buffer: Buffer | null) {
-        this._bufferView = buffer;
-        if (JSB) {
-            this._nativeObj!.bufferView = buffer;
-        }
-    }
-
-    public get descriptorSet () {
-        return this._descriptorSet;
-    }
-    public set descriptorSet (ds: DescriptorSet | null) {
-        this._descriptorSet = ds;
-        if (JSB) {
-            this._nativeObj!.descriptorSet = ds;
-        }
-    }
-
-    public get drawInfo () {
-        return this._drawInfo;
-    }
-
-    public get dynamicOffsets () {
-        return this._dynamicOffsets;
-    }
-    public set dynamicOffsets (offsets: number[]) {
-        this._dynamicOffsets = offsets;
-        if (JSB) {
-            this._nativeObj!.dynamicOffsets = this._dynamicOffsets;
-        }
-    }
-
-    public setDynamicOffsets (value: number) {
-        this._dynamicOffsets[1] = value;
-        if (JSB) {
-            this._nativeObj!.setDynamicOffsets(value);
-        }
-    }
-
-    constructor () {
-        if (JSB) {
-            this._drawInfo = new gfx.DrawInfo();
-            this._nativeObj = new NativeDrawCall();
-            this._nativeObj.drawInfo = this.drawInfo;
-        } else {
-            this._drawInfo = new DrawInfo();
-        }
-    }
-}
-
 export class DrawBatch2D {
-    static drawcallPool = new Pool(() => new DrawCall(), 100);
-
     public get native (): NativeDrawBatch2D {
         return this._nativeObj!;
     }
 
     public get inputAssembler () {
-        return this._inputAssember;
+        return this._inputAssembler;
     }
     public set inputAssembler (ia: InputAssembler | null) {
-        this._inputAssember = ia;
+        this._inputAssembler = ia;
         if (JSB) {
             this._nativeObj!.inputAssembler = ia;
         }
@@ -171,13 +98,9 @@ export class DrawBatch2D {
     private _passes: Pass[] = [];
     private _shaders: Shader[] = [];
     private _visFlags: number = UI_VIS_FLAG;
-    private _inputAssember: InputAssembler | null = null;
+    private _inputAssembler: InputAssembler | null = null;
     private _descriptorSet: DescriptorSet | null = null;
     private declare _nativeObj: NativeDrawBatch2D | null;
-
-    protected _drawCalls: DrawCall[] = [];
-
-    get drawCalls () { return this._drawCalls; }
 
     constructor () {
         if (JSB) {
@@ -205,13 +128,6 @@ export class DrawBatch2D {
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
         this.renderScene = null;
-        this._drawCalls.length = 0;
-        if (JSB) { this._nativeObj!.clearDrawCalls(); }
-    }
-
-    protected _pushDrawCall (dc: DrawCall) {
-        this._drawCalls.push(dc);
-        if (JSB) { this._nativeObj!.pushDrawCall(dc.native); }
     }
 
     // object version
@@ -260,22 +176,6 @@ export class DrawBatch2D {
                     this._nativeObj!.shaders = this._shaders;
                 }
             }
-        }
-    }
-
-    public fillDrawCallAssembler () {
-        let dc = this._drawCalls[0];
-        const ia = this.inputAssembler;
-        if (!dc) {
-            dc = DrawBatch2D.drawcallPool.alloc();
-            dc.bufferHash = 0;
-            dc.bufferView = null;
-            dc.bufferUboIndex = 0;
-            this._pushDrawCall(dc);
-        }
-        if (ia) {
-            dc.drawInfo!.firstIndex = ia.drawInfo.firstIndex;
-            dc.drawInfo!.indexCount = ia.drawInfo.indexCount;
         }
     }
 }

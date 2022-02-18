@@ -19,7 +19,7 @@ import { IBatcher } from '../2d/renderer/i-batcher';
 import { Graphics } from '../2d/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
-import { BlendFactor, BlendOp } from '../core/gfx';
+import { Attribute, BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 
@@ -466,19 +466,47 @@ export class Skeleton extends Renderable2D {
     // private _enableBatch: boolean = true;
 
     public enableBatch = false;
-    // Frame cache
+    /**
+     * @legacyPublic
+     */
     public _frameCache: AnimationCache | null = null;
-    // Cur frame
+    /**
+     * @legacyPublic
+     */
     public _curFrame: AnimationFrame | null = null;
 
     // protected _materialCache = {};
+    /**
+     * @legacyPublic
+     */
     public _effectDelegate: VertexEffectDelegate | null | undefined = null;
+    /**
+     * @legacyPublic
+     */
     public _skeleton: spine.Skeleton | null;
+    /**
+     * @legacyPublic
+     */
     public _clipper?: spine.SkeletonClipping;
+    /**
+     * @legacyPublic
+     */
     public _debugRenderer: Graphics | null;
+    /**
+     * @legacyPublic
+     */
     public _startSlotIndex;
+    /**
+     * @legacyPublic
+     */
     public _endSlotIndex;
+    /**
+     * @legacyPublic
+     */
     public _startEntry;
+    /**
+     * @legacyPublic
+     */
     public _endEntry;
     public attachUtil: AttachUtil;
 
@@ -1262,12 +1290,12 @@ export class Skeleton extends Renderable2D {
         super.onDestroy();
     }
 
-    public requestMeshRenderData (vertexFloatCnt: number) {
+    public requestMeshRenderData (vertexFormat: Attribute[]) {
         if (this._meshRenderDataArray.length > 0 && this._meshRenderDataArray[this._meshRenderDataArray.length - 1].renderData.vertexCount === 0) {
             return this._meshRenderDataArray[this._meshRenderDataArray.length - 1];
         }
 
-        const renderData = new MeshRenderData(vertexFloatCnt);
+        const renderData = MeshRenderData.add(vertexFormat);
         const comb: SkeletonMeshData = { renderData };
         renderData.material = null;
         this._meshRenderDataArray.push(comb);
@@ -1276,7 +1304,7 @@ export class Skeleton extends Renderable2D {
 
     public destroyRenderData () {
         if (this._meshRenderDataArray.length > 0) {
-            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
+            this._meshRenderDataArray.forEach((rd) => { MeshRenderData.remove(rd.renderData); });
             this._meshRenderDataArray.length = 0;
         }
     }
@@ -1322,7 +1350,7 @@ export class Skeleton extends Renderable2D {
                 }],
             },
         });
-        inst.recompileShaders({ TWO_COLORED: useTwoColor });
+        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
         return inst;
     }
 
@@ -1360,6 +1388,9 @@ export class Skeleton extends Renderable2D {
         return [];
     }
 
+    /**
+     * @legacyPublic
+     */
     public _meshRenderDataArrayIdx = 0;
     protected _render (ui: IBatcher) {
         if (this._meshRenderDataArray) {
@@ -1372,7 +1403,7 @@ export class Skeleton extends Renderable2D {
                     this.material = m.renderData.material;
                 }
                 if (m.texture) {
-                    ui.commitComp(this, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.renderData, m.texture, this._assembler, this.node);
                 }
                 this.material = mat;
             }
@@ -1602,7 +1633,7 @@ export class Skeleton extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = Skeleton.Assembler!.getAssembler(this);
+        const assembler = Skeleton.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
@@ -1610,7 +1641,6 @@ export class Skeleton extends Renderable2D {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
-                this._colorDirty = true;
                 this._updateColor();
             }
         }

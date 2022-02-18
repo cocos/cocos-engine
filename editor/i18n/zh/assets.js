@@ -290,6 +290,10 @@ module.exports = {
                 name: '提升单一根结点',
                 title: '若开启并且 FBX 场景仅有一个根节点，那么当转换该 FBX 场景为 Cocos Creator 预制体时，<br>以该根节点作为预制体的根节点，否则以该 FBX 场景的根节点作为预制体的根节点。',
             },
+            preferLocalTimeSpan: {
+                name: '优先使用文件时间范围',
+                title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+            },
         },
         textureCube: {
             anisotropy: 'Anisotropy',
@@ -312,7 +316,7 @@ module.exports = {
             'illegal-inspector-url': "Inspector的路径不合法",
         },
         animationGraph: {
-            edit: '打开动画图面板进行编辑',
+            edit: '编辑',
         },
         multipleWarning: '不支持此类型资源的多选编辑',
     },

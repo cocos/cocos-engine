@@ -28,8 +28,6 @@
  * @hidden
  */
 
-/* eslint-disable no-restricted-globals */
-import { JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
@@ -73,6 +71,7 @@ export class SplashScreen {
     private callBack: (() => void) | null = null;
     private cancelAnimate = false;
     private startTime = -1;
+    private isPause = false;
     private _splashFinish = false;
     private _loadFinish = false;
     private _directCall = false;
@@ -96,6 +95,14 @@ export class SplashScreen {
 
     private watermarkMat!: Material;
     private watermarkTexture!: Texture;
+
+    public pauseRendering () {
+        this.isPause = true;
+    }
+
+    public resumeRendering () {
+        this.isPause = false;
+    }
 
     public main (root: Root) {
         if (root == null) {
@@ -244,7 +251,7 @@ export class SplashScreen {
             this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
             this.logoMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
             this.logoMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.5), 0);
-            this.logoMat.setProperty('precent', u_p);
+            this.logoMat.setProperty('percent', u_p);
             this.logoMat.setProperty('u_projection', this.projection);
             this.logoMat.passes[0].update();
 
@@ -262,13 +269,14 @@ export class SplashScreen {
                 this.watermarkMat.setProperty('resolution', v2_0.set(dw, dh), 0);
                 this.watermarkMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
                 this.watermarkMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.1), 0);
-                this.watermarkMat.setProperty('precent', u_p);
+                this.watermarkMat.setProperty('percent', u_p);
                 this.watermarkMat.setProperty('u_projection', this.projection);
                 this.watermarkMat.passes[0].update();
             }
-
-            this.frame();
-            if (elapsedTime > settings.totalTime) this.splashFinish = true;
+            if (!this.isPause) {
+                this.frame();
+                if (elapsedTime > settings.totalTime) this.splashFinish = true;
+            }
             requestAnimationFrame(animate);
         };
         legacyCC.game.pause();

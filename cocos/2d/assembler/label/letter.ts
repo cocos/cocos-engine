@@ -36,7 +36,7 @@ import { bmfont } from './bmfont';
 import { letterFont } from './letter-font';
 import { Color } from '../../../core/math/color';
 
-const WHITE = new Color(255, 255, 255, 255);
+const tempColor = new Color(255, 255, 255, 255);
 
 /**
  * letter 组装器
@@ -53,9 +53,13 @@ export const letter = {
         }
 
         const node = comp.node;
-        comp._setCacheAlpha(node._uiProps.opacity);
-        WHITE.a = node._uiProps.opacity * 255;
-        fillMeshVertices3D(node, renderer, comp.renderData, WHITE);
+        tempColor.a = node._uiProps.opacity * 255;
+        // Fill All
+        fillMeshVertices3D(node, renderer, comp.renderData, tempColor);
+    },
+
+    updateColor (comp: Label) {
+
     },
 
     appendQuad: bmfont.appendQuad,

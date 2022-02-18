@@ -44,7 +44,7 @@ import { BufferUsageBit, CommandBufferType, StencilFace, BufferSource,
     CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates } from '../base/define';
 import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
-import { GlobalBarrier } from '../base/states/global-barrier';
+import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { WebGLDeviceManager } from './webgl-define';
 
@@ -64,7 +64,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         this._type = info.type;
         this._queue = info.queue;
 
-        const setCount = WebGLDeviceManager.instance.bindingMappingInfo.bufferOffsets.length;
+        const setCount = WebGLDeviceManager.instance.bindingMappings.blockOffsets.length;
         for (let i = 0; i < setCount; i++) {
             this._curGPUDescriptorSets.push(null!);
         }
@@ -399,7 +399,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public pipelineBarrier (globalBarrier: GlobalBarrier | null, textureBarriers?: TextureBarrier[], textures?: Texture[]) {}
+    public pipelineBarrier (GeneralBarrier: GeneralBarrier | null, textureBarriers?: TextureBarrier[], textures?: Texture[]) {}
 
     protected bindStates () {
         const bindStatesCmd = this._cmdAllocator.bindStatesCmdPool.alloc(WebGLCmdBindStates);

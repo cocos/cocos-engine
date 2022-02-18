@@ -29,7 +29,7 @@
  * @module core
  */
 
-import { screenAdapter } from 'pal/screen-adapter';
+import { ConfigOrientation, IScreenOptions, screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
 import { Size, Vec2 } from '../math';
 import { warnID } from './debug';
@@ -39,8 +39,8 @@ import { warnID } from './debug';
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
  */
 class Screen {
-    private _init () {
-        screenAdapter.init(() => {
+    private _init (options: IScreenOptions) {
+        screenAdapter.init(options, () => {
             const director = legacyCC.director;
             if (!director.root?.pipeline) {
                 warnID(1220);
@@ -51,10 +51,26 @@ class Screen {
     }
 
     /**
+     * @en the ratio of the resolution in physical pixels to the resolution in CSS pixels for the current display device
+     * NOTE: For performance reasons, the engine will limit the maximum value of DPR on some platforms.
+     * This property returns the DPR after the engine limit.
+     * @zh 当前显示设备的物理像素分辨率与 CSS 像素分辨率之比
+     * 注意：出于性能考虑，引擎在一些平台会限制 DPR 的最高值，这个属性返回的是引擎限制后的 DPR。
+     */
+    public get devicePixelRatio () {
+        return screenAdapter.devicePixelRatio;
+    }
+
+    /**
      * @en Get and set the size of current window in physical pixels.
-     * NOTE: Setting window size is only supported on Web platform for now.
+     * NOTE:
+     * - Setting window size is only supported on Web platform for now.
+     * - On Web platform, if the ContainerStrategy is PROPORTIONAL_TO_FRAME, we set windowSize on game frame,
+     *    and get windowSize from the game container after adaptation.
      * @zh 获取和设置当前窗口的物理像素尺寸。
-     * 注意：设置窗口尺寸目前只在 Web 平台上支持。
+     * 注意
+     * - 设置窗口尺寸目前只在 Web 平台上支持。
+     * - Web 平台上，如果 ContainerStrategy 为 PROPORTIONAL_TO_FRAME, 则设置 windowSize 作用于 game frame, 而从适配之后 game container 尺寸获取 windowSize.
      */
     public get windowSize (): Size {
         return screenAdapter.windowSize;
@@ -65,9 +81,9 @@ class Screen {
 
     /**
      * @en Get the current resolution of game.
-     * This is a readonly property, you can change the value by setting screen.resolutionScale.
+     * This is a readonly property.
      * @zh 获取当前游戏的分辨率。
-     * 这是一个只读属性，你可以通过设置 screen.resolutionScale 来改变这个值。
+     * 这是一个只读属性。
      *
      * @readonly
      */
@@ -75,18 +91,18 @@ class Screen {
         return screenAdapter.resolution;
     }
 
-    /**
-     * @en Get and set the resolution scale of screen, which will affect the quality of the rendering.
-     * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 1 by default.
-     * @zh 获取和设置屏幕的分辨率缩放比，这将会影响最终渲染的质量。
-     * 注意：如果这个值设置的太高，会降低 GPU 的渲染性能，该值默认为 1。
-     */
-    public get resolutionScale () {
-        return screenAdapter.resolutionScale;
-    }
-    public set resolutionScale (v: number) {
-        screenAdapter.resolutionScale = v;
-    }
+    // /**
+    //  * @en Get and set the resolution scale of screen, which will affect the quality of the rendering.
+    //  * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 1 by default.
+    //  * @zh 获取和设置屏幕的分辨率缩放比，这将会影响最终渲染的质量。
+    //  * 注意：如果这个值设置的太高，会降低 GPU 的渲染性能，该值默认为 1。
+    //  */
+    // public get resolutionScale () {
+    //     return screenAdapter.resolutionScale;
+    // }
+    // public set resolutionScale (v: number) {
+    //     screenAdapter.resolutionScale = v;
+    // }
 
     /**
      * @en Whether it supports full screen？

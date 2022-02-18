@@ -59,9 +59,9 @@ void CCSkin (inout vec4 position) {
   position = m * position;
 }
 
-void CCSkin (inout StandardVertInput attr) {
+void CCSkin (inout vec4 position, inout vec3 normal, inout vec4 tangent) {
   mat4 m = skinMatrix();
-  attr.position = m * attr.position;
-  attr.normal = (m * vec4(attr.normal, 0.0)).xyz;
-  attr.tangent.xyz = (m * vec4(attr.tangent.xyz, 0.0)).xyz;
+  position = m * position;
+  normal = (m * vec4(normal, 0.0)).xyz;
+  tangent.xyz = (m * vec4(tangent.xyz, 0.0)).xyz;
 }

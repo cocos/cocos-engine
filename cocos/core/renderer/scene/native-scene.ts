@@ -1,8 +1,8 @@
-import { DrawCall } from '../../../2d/renderer/draw-batch';
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
-import { Frustum } from '../../geometry';
+import { AABB } from '../../geometry/aabb';
+import { Frustum } from '../../geometry/frustum';
 import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
-    DescriptorSet, DrawInfo, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
+    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Sampler, Shader, Swapchain, Texture } from '../../gfx';
 import { Color, Mat4, Rect, Vec2, Vec3, Vec4 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
@@ -37,6 +37,7 @@ export const NativeModel: Constructor<{
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
+    updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
 
@@ -58,6 +59,7 @@ export const NativeSkinningModel: Constructor<{
     setIndicesAndJoints(indices: number[], joints: NativeJointInfo[]): void;
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
+    updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
@@ -94,6 +96,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
     setAnimInfoIdx(idx: number): void;
     updateModelBounds(val: NativeAABB | null): void;
+    updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 
@@ -103,6 +106,7 @@ export const NativeLight: Constructor<{
     setUseColorTemperature (enable: boolean): void;
     setColorTemperatureRGB (color: Vec3): void;
     setNode (n: Node): void;
+    setBaked (baked: boolean): void;
 }> = null!;
 export type NativeLight = InstanceType<typeof NativeLight>;
 
@@ -110,6 +114,17 @@ export const NativeDirectionalLight: Constructor<{
     setDirection (dir: Vec3): void;
     setIlluminanceHDR (lum: number): void;
     setIlluminanceLDR(lum: number): void;
+    setShadowEnabled(val: boolean): void;
+    setShadowPcf(val: number): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
+    setShadowSaturation(val: number): void;
+    setShadowDistance(val: number): void;
+    setShadowInvisibleOcclusionRange(val: number): void;
+    setShadowFixedArea(val: boolean): void;
+    setShadowNear(val: number): void;
+    setShadowFar(val: number): void;
+    setShadowOrthoSize(val: number): void;
 } & NativeLight> = null!;
 export type NativeDirectionalLight = InstanceType<typeof NativeDirectionalLight>;
 
@@ -134,6 +149,10 @@ export const NativeSpotLight: Constructor<{
     setAngle (angle: number): void;
     setLuminanceHDR (lum: number): void;
     setLuminanceLDR(lum: number): void;
+    setShadowEnabled(val: boolean): void;
+    setShadowPcf(val: number): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
 } & NativeLight> = null!;
 export type NativeSpotLight = InstanceType<typeof NativeSpotLight>;
 
@@ -238,22 +257,11 @@ export const NativeDrawBatch2D: Constructor<{
     descriptorSet: DescriptorSet | null;
     passes: NativePass[];
     shaders: Shader[];
-    drawCalls: NativeDrawCall[];
-    pushDrawCall(dc: NativeDrawCall);
-    clearDrawCalls();
 }> = null!;
 export type NativeDrawBatch2D = InstanceType<typeof NativeDrawBatch2D>;
 
-export const NativeDrawCall: Constructor<{
-    bufferView: Buffer | null;
-    descriptorSet: DescriptorSet | null;
-    dynamicOffsets: number[];
-    drawInfo: DrawInfo | null;
-    setDynamicOffsets(value: number);
-}> = null!;
-export type NativeDrawCall = InstanceType<typeof NativeDrawCall>;
-
 export const NativeRenderScene: Constructor<{
+    activate (): void;
     update(stamp: number): void;
     setMainLight (l: NativeLight | null): void;
     addSphereLight (l: NativeLight | null): void;
@@ -274,6 +282,14 @@ export const NativeRenderScene: Constructor<{
 }> = null!;
 export type NativeRenderScene = InstanceType<typeof NativeRenderScene>;
 
+export const NativeOctree: Constructor<{
+    enabled: boolean;
+    minPos: Vec3;
+    maxPos: Vec3;
+    depth: number;
+}> = null!;
+export type NativeOctree = InstanceType<typeof NativeOctree>;
+
 export const NativeAmbient: Constructor<{
     enabled: boolean;
     skyColor: Vec4;
@@ -283,25 +299,15 @@ export const NativeAmbient: Constructor<{
 export type NativeAmbient = InstanceType<typeof NativeAmbient>;
 
 export const NativeShadow: Constructor<{
+    enabled: boolean;
+    shadowType: number;
     normal: Vec3;
     distance: number;
     color: Color;
-    nearValue: number;
-    farValue: number;
-    invisibleOcclusionRange: number;
-    shadowDistance: number;
-    orthoSize: number;
     size: Vec2;
-    pcfType: number;
     shadowMapDirty: boolean;
-    bias: number;
-    normalBias: number;
-    fixedArea: boolean;
     planarPass: NativePass;
     instancePass: NativePass;
-    enabled: boolean;
-    shadowType: number;
-    saturation: number;
 }> = null!;
 export type NativeShadow = InstanceType<typeof NativeShadow>;
 
@@ -337,6 +343,9 @@ export const NativePipelineSharedSceneData: Constructor<{
     ambient: NativeAmbient;
     skybox: NaitveSkybox;
     shadow: NativeShadow;
+    octree: NativeOctree;
+    geometryRendererPasses: NativePass[];
+    geometryRendererShaders: Shader[];
     occlusionQueryInputAssembler: InputAssembler | null;
     occlusionQueryPass: NativePass | null;
     occlusionQueryShader: Shader | null;
@@ -355,3 +364,9 @@ export const NativePipelineSharedSceneData: Constructor<{
 }> = null!;
 
 export type NativePipelineSharedSceneData = InstanceType<typeof NativePipelineSharedSceneData>;
+
+export const NativeGeometryRenderer: Constructor<{
+    flushFromJSB (type: number, index: number, buffer: BufferSource, vertexCount: number): void;
+}> = null!;
+
+export type NativeGeometryRenderer = InstanceType<typeof NativeGeometryRenderer>;

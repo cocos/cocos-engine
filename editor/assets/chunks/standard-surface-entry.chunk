@@ -9,7 +9,7 @@
 #define CC_STANDARD_SURFACE_ENTRY()                                \
 #if CC_FORWARD_ADD                                                 \
   #include <shading-standard-additive>                             \
-  #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                            \
+  #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                       \
   #include <shading-cluster-additive>                              \
   #endif                                                           \
                                                                    \
@@ -17,7 +17,7 @@
                                                                    \
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
-    #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                          \
+    #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                     \
     vec4 color = CCClusterShadingAdditive(s, CC_SHADOW_POSITION);  \
     #else                                                          \
     vec4 color = CCStandardShadingAdditive(s, CC_SHADOW_POSITION); \
@@ -38,17 +38,19 @@
   }                                                                \
                                                                    \
 #elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED                \
+  #include <octahedron-transform>                                  \
                                                                    \
   layout(location = 0) out vec4 fragColor0;                        \
   layout(location = 1) out vec4 fragColor1;                        \
   layout(location = 2) out vec4 fragColor2;                        \
-  layout(location = 3) out vec4 fragColor3;                        \
                                                                    \
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
     fragColor0 = s.albedo;                                         \
-    fragColor1 = vec4(s.position, s.roughness);                    \
-    fragColor2 = vec4(s.normal, s.metallic);                       \
+    vec3 position;                                                 \
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);         \
+    fragColor1 = vec4(position, s.roughness);                      \
+    fragColor1 = vec4(float32x3_to_oct(s.normal), s.roughness, s.metallic); \
     fragColor3 = vec4(s.emissive, s.occlusion);                    \
   }                                                                \
                                                                    \

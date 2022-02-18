@@ -48,6 +48,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, assertID, warnID } from './platform/debug';
+import { containerManager } from './memop/container-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -200,7 +201,13 @@ export class Director extends EventTarget {
 
     public static instance: Director;
 
+    /**
+     * @legacyPublic
+     */
     public _compScheduler: ComponentScheduler;
+    /**
+     * @legacyPublic
+     */
     public _nodeActivator: NodeActivator;
     private _invalid: boolean;
     private _paused: boolean;
@@ -470,11 +477,11 @@ export class Director extends EventTarget {
 
     /**
      * @en
-     * Pre-loads the scene to reduces loading time. You can call this method at any time you want.<br>
+     * Pre-loads the scene asset to reduces loading time. You can call this method at any time you want.<br>
      * After calling this method, you still need to launch the scene by `director.loadScene`.<br>
      * It will be totally fine to call `director.loadScene` at any time even if the preloading is not<br>
      * yet finished, the scene will be launched after loaded automatically.
-     * @zh 预加载场景，你可以在任何时候调用这个方法。
+     * @zh 预加载场景资源，你可以在任何时候调用这个方法。
      * 调用完后，你仍然需要通过 `director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `director.loadScene`，加载完成后场景就会启动。
      * @param sceneName 场景名称。
@@ -714,6 +721,7 @@ export class Director extends EventTarget {
 
             Node.resetHasChangedFlags();
             Node.clearNodeArray();
+            containerManager.update(dt);
             this.emit(Director.EVENT_END_FRAME);
             this._totalFrames++;
         }

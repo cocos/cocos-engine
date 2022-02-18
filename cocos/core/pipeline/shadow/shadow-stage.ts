@@ -31,7 +31,7 @@
 import { ccclass } from 'cc.decorator';
 import { Color, Rect, Framebuffer, DescriptorSet } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { ForwardStagePriority } from '../common/enum';
+import { ForwardStagePriority } from '../enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
@@ -104,6 +104,7 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
+        this._pipeline.pipelineUBO.updateShadowUBOLight(descriptorSet, this._light);
         this._additiveShadowQueue.gatherLightPasses(descriptorSet, camera, this._light, cmdBuff);
 
         const vp = camera.viewport;

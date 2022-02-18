@@ -3,17 +3,6 @@
 #include <common> // decode32
 #pragma define CC_MORPH_TARGET_COUNT range([2, 8])
 
-#if __VERSION__ < 450
-  in float a_vertexId;
-  int getVertexId() {
-    return int(a_vertexId);
-  }
-#else
-  int getVertexId() {
-    return gl_VertexIndex; // vulkan convension
-  }
-#endif
-
 #pragma builtin(local)
 layout(set = 2, binding = 4) uniform CCMorph {
   vec4 cc_displacementWeights[15];
@@ -116,19 +105,19 @@ vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
   }
 #endif
 
-void applyMorph (inout StandardVertInput attr) {
+void applyMorph (inout vec4 position, inout vec3 normal, inout vec4 tangent) {
   int vertexId = getVertexId();
 
 #if CC_MORPH_TARGET_HAS_POSITION
-  attr.position.xyz = attr.position.xyz + getPositionDisplacement(vertexId);
+  position.xyz = position.xyz + getPositionDisplacement(vertexId);
 #endif
 
 #if CC_MORPH_TARGET_HAS_NORMAL
-  attr.normal.xyz = attr.normal.xyz + getNormalDisplacement(vertexId);
+  normal.xyz = normal.xyz + getNormalDisplacement(vertexId);
 #endif
 
 #if CC_MORPH_TARGET_HAS_TANGENT
-  attr.tangent.xyz = attr.tangent.xyz + getTangentDisplacement(vertexId);
+  tangent.xyz = tangent.xyz + getTangentDisplacement(vertexId);
 #endif
 }
 

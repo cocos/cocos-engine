@@ -1,9 +1,11 @@
 import { Node, Scene } from "../../cocos/core/scene-graph"
 import { Vec3 } from "../../cocos/core/math"
-import { BaseNode, director } from "../../cocos/core";
+import { director } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/core/scene-graph/node-event";
+import { NodeUIProperties } from "../../cocos/core/scene-graph/node-ui-properties";
 
 describe(`Node`, () => {
+
     test('@inverseTransformPoint', () => {
         let scene = new Scene('temp');
         let parentNode = new Node();

@@ -35,6 +35,7 @@ import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
@@ -48,12 +49,8 @@ for (let i = 0; i < 4; i++) {
 export const simple: IAssembler = {
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indicesCount = 6;
-
-        renderData.vData = new Float32Array(4 * 9);
-
+        renderData.dataLength = 2;
+        renderData.resize(4, 6);
         return renderData;
     },
 
@@ -71,6 +68,7 @@ export const simple: IAssembler = {
         //     }
         // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+        this.updateUVs(sprite);
         // @ts-expect-error hack
         if (UI_GPU_DRIVEN && sprite._canDrawByFourVertex) {
             sprite._updateUVWithTrim();
@@ -82,20 +80,19 @@ export const simple: IAssembler = {
             if (renderData.vertDirty) {
                 this.updateVertexData(sprite);
             }
-            if (renderData.uvDirty) {
-                this.updateUvs(sprite);
-            }
+            renderData.updateRenderData(sprite, frame);
         }
     },
 
-    updateWorldVerts (sprite: Sprite, vData: Float32Array) {
-        const renderData = sprite.renderData;
+    updateWorldVerts (sprite: Sprite, chunk: StaticVBChunk) {
+        const renderData = sprite.renderData!;
+        const vData = chunk.vb;
 
-        const dataList: IRenderData[] = renderData!.data;
+        const dataList: IRenderData[] = renderData.data;
         const node = sprite.node;
 
         const data0 = dataList[0];
-        const data3 = dataList[3];
+        const data3 = dataList[1];
         const matrix = node.worldMatrix;
         const a = matrix.m00; const b = matrix.m01;
         const c = matrix.m04; const d = matrix.m05;
@@ -154,48 +151,30 @@ export const simple: IAssembler = {
         if (sprite === null) {
             return;
         }
-
-        const vData = sprite.renderData!.vData!;
-        if (sprite.node.hasChangedFlags) {
-            this.updateWorldVerts(sprite, vData);
+        const renderData = sprite.renderData!;
+        const chunk = renderData.chunk;
+        if (sprite.node.hasChangedFlags || renderData.vertDirty) {
+            // const vb = chunk.vertexAccessor.getVertexBuffer(chunk.bufferId);
+            this.updateWorldVerts(sprite, chunk);
+            renderData.vertDirty = false;
         }
 
-        // const buffer: MeshBuffer = renderer.createBuffer(
-        //     sprite.renderData!.vertexCount,
-        //     sprite.renderData!.indicesCount,
-        // );
-        // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+        // quick version
+        const bid = chunk.bufferId;
+        const vid = chunk.vertexOffset;
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        let indexOffset = meshBuffer.indexOffset;
+        ib[indexOffset++] = vid;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 3;
+        meshBuffer.indexOffset += 6;
 
-        let buffer = renderer.acquireBufferBatch()!;
-
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-
-        const bufferUnchanged = buffer.request();
-        if (!bufferUnchanged) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
-
-        // buffer data may be reallocated, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-
-        vBuf.set(vData, vertexOffset);
-
-        const index0 = vertexId; const index1 = vertexId + 1;
-        const index2 = vertexId + 2; const index3 = vertexId + 3;
-
-        // fill index data
-        iBuf[indicesOffset++] = index0;
-        iBuf[indicesOffset++] = index1;
-        iBuf[indicesOffset++] = index2;
-        iBuf[indicesOffset++] = index2;
-        iBuf[indicesOffset++] = index1;
-        iBuf[indicesOffset++] = index3;
+        // slow version
+        // renderer.switchBufferAccessor().appendIndices(chunk);
     },
 
     updateVertexData (sprite: Sprite) {
@@ -243,17 +222,17 @@ export const simple: IAssembler = {
         dataList[0].x = l;
         dataList[0].y = b;
 
-        dataList[3].x = r;
-        dataList[3].y = t;
+        dataList[1].x = r;
+        dataList[1].y = t;
 
-        renderData.vertDirty = false;
-        this.updateWorldVerts(sprite, renderData.vData);
+        renderData.vertDirty = true;
     },
 
-    updateUvs (sprite: Sprite) {
+    updateUVs (sprite: Sprite) {
+        if (!sprite.spriteFrame) return;
         const renderData = sprite.renderData!;
-        const vData = renderData.vData!;
-        const uv = sprite.spriteFrame!.uv;
+        const vData = renderData.chunk.vb;
+        const uv = sprite.spriteFrame.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
         vData[12] = uv[2];
@@ -262,26 +241,22 @@ export const simple: IAssembler = {
         vData[22] = uv[5];
         vData[30] = uv[6];
         vData[31] = uv[7];
-
-        renderData.uvDirty = false;
     },
 
     updateColor (sprite: Sprite) {
-        const vData = sprite.renderData!.vData;
-
+        const renderData = sprite.renderData!;
+        const vData = renderData.chunk.vb;
         let colorOffset = 5;
         const color = sprite.color;
         const colorR = color.r / 255;
         const colorG = color.g / 255;
         const colorB = color.b / 255;
-        const colorA = sprite.node._uiProps.opacity;
-        for (let i = 0; i < 4; i++) {
-            vData![colorOffset] = colorR;
-            vData![colorOffset + 1] = colorG;
-            vData![colorOffset + 2] = colorB;
-            vData![colorOffset + 3] = colorA;
-
-            colorOffset += 9;
+        const colorA = color.a / 255;
+        for (let i = 0; i < 4; i++, colorOffset += renderData.floatStride) {
+            vData[colorOffset] = colorR;
+            vData[colorOffset + 1] = colorG;
+            vData[colorOffset + 2] = colorB;
+            vData[colorOffset + 3] = colorA;
         }
     },
 };

@@ -101,7 +101,10 @@ export class SubModel {
         }
         this._passes = passes;
         this._flushPassInfo();
-        if (this._passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+        if (this._passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
+            this.subMesh.genFlatBuffers();
+            this._setSubMesh(this.subMesh);
+        }
 
         // DS layout might change too
         if (this._descriptorSet) {
@@ -120,10 +123,10 @@ export class SubModel {
     }
 
     set subMesh (subMesh) {
-        this._setSubMesh(subMesh);
         this._inputAssembler!.destroy();
         this._inputAssembler!.initialize(subMesh.iaInfo);
         if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+        this._setSubMesh(subMesh);
     }
 
     get subMesh (): RenderingSubMesh {
@@ -207,7 +210,10 @@ export class SubModel {
         this._passes = passes;
 
         this._flushPassInfo();
-        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
+            this.subMesh.genFlatBuffers();
+            this._setSubMesh(this.subMesh);
+        }
 
         this.priority = RenderPriority.DEFAULT;
 

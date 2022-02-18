@@ -24,13 +24,29 @@
 */
 
 import { Node } from '../../core/scene-graph/node';
-import { Input, input, pointerEvent2SystemEvent } from '../../input';
-import { EventMouse, EventTouch } from '../../input/types';
+import { Input, input } from '../../input';
+import { Event, EventMouse, EventTouch } from '../../input/types';
 import { DispatcherEventType, NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 import { js } from '../../core/utils/js';
 import { InputEventType } from '../../input/types/event-enum';
+import { EventDispatcherPriority, IEventDispatcher } from '../../input/input';
 
-class PointerEventDispatcher {
+const mouseEvents = [
+    Input.EventType.MOUSE_DOWN,
+    Input.EventType.MOUSE_MOVE,
+    Input.EventType.MOUSE_UP,
+    Input.EventType.MOUSE_WHEEL,
+];
+const touchEvents = [
+    Input.EventType.TOUCH_START,
+    Input.EventType.TOUCH_MOVE,
+    Input.EventType.TOUCH_END,
+    Input.EventType.TOUCH_CANCEL,
+];
+
+class PointerEventDispatcher implements IEventDispatcher {
+    public priority: EventDispatcherPriority = EventDispatcherPriority.UI;
+
     private _isListDirty = false;
     private _inDispatchCount = 0;
     private _pointerEventProcessorList: NodeEventProcessor[] = [];
@@ -38,18 +54,22 @@ class PointerEventDispatcher {
     private _processorListToRemove: NodeEventProcessor[] = [];
 
     constructor () {
-        input.on(Input.EventType.MOUSE_DOWN, this.dispatchEventMouse, this);
-        input.on(Input.EventType.MOUSE_MOVE, this.dispatchEventMouse, this);
-        input.on(Input.EventType.MOUSE_UP, this.dispatchEventMouse, this);
-        input.on(Input.EventType.MOUSE_WHEEL, this.dispatchEventMouse, this);
-
-        input.on(Input.EventType.TOUCH_START, this.dispatchEventTouch, this);
-        input.on(Input.EventType.TOUCH_MOVE, this.dispatchEventTouch, this);
-        input.on(Input.EventType.TOUCH_END, this.dispatchEventTouch, this);
-        input.on(Input.EventType.TOUCH_CANCEL, this.dispatchEventTouch, this);
+        // @ts-expect-error Property '_registerEventDispatcher' is private and only accessible within class 'Input'.
+        input._registerEventDispatcher(this);
 
         NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.ADD_POINTER_EVENT_PROCESSOR, this.addPointerEventProcessor, this);
         NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this.removePointerEventProcessor, this);
+        NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.MARK_LIST_DIRTY, this._markListDirty, this);
+    }
+
+    public dispatchEvent (event: Event): boolean {
+        const eventType = event.type as Input.EventType;
+        if (touchEvents.includes(eventType)) {
+            return this.dispatchEventTouch(event as EventTouch);
+        } else if (mouseEvents.includes(eventType)) {
+            return this.dispatchEventMouse(event as EventMouse);
+        }
+        return true;
     }
 
     public addPointerEventProcessor (pointerEventProcessor: NodeEventProcessor) {
@@ -57,6 +77,7 @@ class PointerEventDispatcher {
             this._pointerEventProcessorList.push(pointerEventProcessor);
             this._isListDirty = true;
         } else {
+            js.array.remove(this._processorListToRemove, pointerEventProcessor);
             this._processorListToAdd.push(pointerEventProcessor);
         }
     }
@@ -66,6 +87,7 @@ class PointerEventDispatcher {
             js.array.remove(this._pointerEventProcessorList, pointerEventProcessor);
             this._isListDirty = true;
         } else {
+            js.array.remove(this._processorListToAdd, pointerEventProcessor);
             this._processorListToRemove.push(pointerEventProcessor);
         }
     }
@@ -75,24 +97,24 @@ class PointerEventDispatcher {
         this._sortPointerEventProcessorList();
         const pointerEventProcessorList = this._pointerEventProcessorList;
         const length = pointerEventProcessorList.length;
-        let shouldDispatchToSystemEvent = true;
+        let dispatchToNextEventDispatcher = true;
         for (let i = 0; i < length; ++i) {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventMouse
                 // @ts-expect-error access private method
                 && pointerEventProcessor._handleEventMouse(eventMouse)) {
-                shouldDispatchToSystemEvent = false;
-                break;
+                dispatchToNextEventDispatcher = false;
+                if (!eventMouse.preventSwallow) {
+                    break;
+                } else {
+                    eventMouse.preventSwallow = false;  // reset swallow state
+                }
             }
-        }
-        const type = pointerEvent2SystemEvent[eventMouse.type];
-        if (shouldDispatchToSystemEvent && type) {
-            // @ts-expect-error _eventTarget is a private property
-            input._eventTarget.emit(type, eventMouse);
         }
         if (--this._inDispatchCount <= 0) {
             this._updatePointerEventProcessorList();
         }
+        return dispatchToNextEventDispatcher;
     }
 
     public dispatchEventTouch (eventTouch: EventTouch) {
@@ -101,7 +123,7 @@ class PointerEventDispatcher {
         const pointerEventProcessorList = this._pointerEventProcessorList;
         const length = pointerEventProcessorList.length;
         const touch = eventTouch.touch!;
-        let shouldDispatchToSystemEvent = true;
+        let dispatchToNextEventDispatcher = true;
         for (let i = 0; i < length; ++i) {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventTouch) {
@@ -109,8 +131,12 @@ class PointerEventDispatcher {
                     // @ts-expect-error access private method
                     if (pointerEventProcessor._handleEventTouch(eventTouch)) {
                         pointerEventProcessor.claimedTouchIdList.push(touch.getID());
-                        shouldDispatchToSystemEvent = false;
-                        break;
+                        dispatchToNextEventDispatcher = false;
+                        if (!eventTouch.preventSwallow) {
+                            break;
+                        } else {
+                            eventTouch.preventSwallow = false;  // reset swallow state
+                        }
                     }
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
                     const index = pointerEventProcessor.claimedTouchIdList.indexOf(touch.getID());
@@ -120,20 +146,20 @@ class PointerEventDispatcher {
                         if (eventTouch.type === InputEventType.TOUCH_END || eventTouch.type === InputEventType.TOUCH_CANCEL) {
                             js.array.removeAt(pointerEventProcessor.claimedTouchIdList, index);
                         }
-                        shouldDispatchToSystemEvent = false;
-                        break;
+                        dispatchToNextEventDispatcher = false;
+                        if (!eventTouch.preventSwallow) {
+                            break;
+                        } else {
+                            eventTouch.preventSwallow = false;  // reset swallow state
+                        }
                     }
                 }
             }
         }
-        const type = pointerEvent2SystemEvent[eventTouch.type];
-        if (shouldDispatchToSystemEvent && type) {
-            // @ts-expect-error _eventTarget is a private property
-            input._eventTarget.emit(type, eventTouch.touch, eventTouch);
-        }
         if (--this._inDispatchCount <= 0) {
             this._updatePointerEventProcessorList();
         }
+        return dispatchToNextEventDispatcher;
     }
 
     private _updatePointerEventProcessorList () {
@@ -203,6 +229,10 @@ class PointerEventDispatcher {
         const priority2 = n2 ? n2.getSiblingIndex() : 0;
 
         return ex ? priority1 - priority2 : priority2 - priority1;
+    }
+
+    private _markListDirty () {
+        this._isListDirty = true;
     }
 }
 

@@ -8,6 +8,10 @@ CCEffect %{
       frag: outline-fs:frag
       rasterizerState:
         cullMode: front
+      depthStencilState:
+        depthFunc: less_equal
+        depthTest: true
+        depthWrite: true
       properties:
         lineWidth:     { value: 10, target: outlineParams.x }
         depthBias:     { value: 0,  target: outlineParams.y }
@@ -17,17 +21,18 @@ CCEffect %{
       frag: toon-fs:frag
       properties: &props
         tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [0.6, 0.6, 0.6, 1.0], target: baseColor, editor: { displayName: BaseColor, type: color } }
+        mainColor:      { value: [0.6, 0.6, 0.6, 1.0], target: baseColor, linear: true, editor: { displayName: BaseColor, type: color } }
         colorScale:     { value: [1.0, 1.0, 1.0], target: colorScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: colorScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        shadeColor1:    { value: [0.4, 0.4, 0.4, 1.0], editor: { type: color } }
-        shadeColor2:    { value: [0.2, 0.2, 0.2, 1.0], editor: { type: color } }
-        specular:       { value: [1.0, 1.0, 1.0, 0.3], editor: { type: color } }
+        shadeColor1:    { value: [0.4, 0.4, 0.4, 1.0], linear: true, editor: { type: color } }
+        shadeColor2:    { value: [0.2, 0.2, 0.2, 1.0], linear: true, editor: { type: color } }
+        specular:       { value: [1.0, 1.0, 1.0, 0.3], linear: true, editor: { type: color } }
         baseStep:       { value: 0.8,   target: shadeParams.x }
         baseFeather:    { value: 0.001, target: shadeParams.y }
         shadeStep:      { value: 0.5,   target: shadeParams.z }
         shadeFeather:   { value: 0.001, target: shadeParams.w }
-        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
+        shadowCover:    { value: 0.5,   target: miscParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        emissive:       { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleAndStrenth.xyz }
         normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP } }
         normalMap:      { value: normal }
@@ -86,6 +91,7 @@ CCProgram shared-ubos %{
     vec4 shadeColor2;
     vec4 specular; // xyz: specular color, w: power
     vec4 shadeParams;
+    vec4 miscParams;
     vec4 emissive;
     vec4 emissiveScaleAndStrenth;
   };
@@ -210,7 +216,7 @@ CCProgram toon-fs %{
         nmmp.z * normalize(s.normal);
     #endif
 
-    s.position = v_position;
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     s.specular = specular;
     #if USE_SPECULAR_MAP
@@ -226,6 +232,7 @@ CCProgram toon-fs %{
     s.baseFeather = shadeParams.y;
     s.shadeStep = shadeParams.z;
     s.shadeFeather = shadeParams.w;
+    s.shadowCover = miscParams.x;
   }
 
   vec4 frag () {

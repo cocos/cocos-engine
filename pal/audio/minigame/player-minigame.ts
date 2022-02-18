@@ -55,8 +55,13 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _audioTimer: AudioTimer;
     private _readyToHandleOnShow = false;
 
-    // NOTE: the implemented interface properties need to be public access
+    /**
+     * @legacyPublic
+     */
     public _eventTarget: EventTarget = new EventTarget();
+    /**
+     * @legacyPublic
+     */
     public _operationQueue: OperationInfo[] = [];
 
     constructor (innerAudioContext: InnerAudioContext) {

@@ -25,10 +25,13 @@
 
 import { JSB } from 'internal:constants';
 import { Enum } from '../../value-types';
-import { Color } from '../../math';
+import { Color, Vec4 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { FogInfo } from '../../scene-graph/scene-globals';
 import { NativeFog } from './native-scene';
+import { SRGBToLinear } from '../../pipeline/pipeline-funcs';
+
+const _v4 = new Vec4();
 
 /**
  * @zh
@@ -82,8 +85,12 @@ export class Fog {
      */
     set enabled (val: boolean) {
         this._setEnable(val);
-        if (!val) this._type = FOG_TYPE_NONE;
-        val ? this.activate() : this._updatePipeline();
+        if (!val) {
+            this._type = FOG_TYPE_NONE;
+            this._updatePipeline();
+        } else {
+            this.activate();
+        }
     }
 
     get enabled (): boolean {
@@ -109,7 +116,8 @@ export class Fog {
      */
     set fogColor (val: Color) {
         this._fogColor.set(val);
-        Color.toArray(this._colorArray, this._fogColor);
+        _v4.set(val.x, val.y, val.z, val.w);
+        SRGBToLinear(this._colorArray, _v4);
         if (JSB) {
             this._nativeObj!.color = this._fogColor;
         }
@@ -226,11 +234,11 @@ export class Fog {
             this._nativeObj!.range = val;
         }
     }
-    get colorArray (): Float32Array {
+    get colorArray (): Readonly<Vec4> {
         return this._colorArray;
     }
     protected _fogColor = new Color('#C8C8C8');
-    protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
+    protected _colorArray: Vec4 = new Vec4(0.2, 0.2, 0.2, 1.0);
     protected _enabled = false;
     protected _accurate = false;
     protected _type = 0;

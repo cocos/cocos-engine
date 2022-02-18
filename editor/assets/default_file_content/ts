@@ -39,6 +39,6 @@ export class <%Name%> extends Component {
  * [4] Your update function goes here.
  *
  * Learn more about scripting: <%ManualUrl%>scripting/
- * Learn more about CCClass: <%ManualUrl%>scripting/ccclass.html
+ * Learn more about CCClass: <%ManualUrl%>scripting/decorator.html
  * Learn more about life-cycle callbacks: <%ManualUrl%>scripting/life-cycle-callbacks.html
  */
