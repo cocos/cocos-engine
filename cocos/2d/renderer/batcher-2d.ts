@@ -32,7 +32,7 @@ import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, Renderable2D } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
-    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../core/gfx';
+    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler } from '../../core/gfx';
 import { Pool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
@@ -43,7 +43,6 @@ import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
-import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
 import { IBatcher } from './i-batcher';
 import { StaticVBAccessor } from './static-vb-accessor';
@@ -84,7 +83,6 @@ export class Batcher2D implements IBatcher {
     private _screens: RenderRoot2D[] = [];
     private _staticVBBuffer: StaticVBAccessor | null = null;
     private _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
-    private _meshBufferUseCount: Map<number, number> = new Map();
 
     private _drawBatchPool: Pool<DrawBatch2D>;
     private _batches: CachedArray<DrawBatch2D>;
@@ -272,7 +270,6 @@ export class Batcher2D implements IBatcher {
         this._currSampler = null;
         this._currComponent = null;
         this._currTransform = null;
-        this._meshBufferUseCount.clear();
         this._batches.clear();
         StencilManager.sharedManager!.reset();
     }
@@ -297,6 +294,10 @@ export class Batcher2D implements IBatcher {
         return this._staticVBBuffer;
     }
 
+    public registerBufferAccessor (key: number, accessor: StaticVBAccessor) {
+        this._bufferAccessors.set(key, accessor);
+    }
+
     public updateBuffer (attributes: Attribute[], bid: number) {
         const accessor = this.switchBufferAccessor(attributes);
         // If accessor changed, then current bid will be reset to -1, this check will pass too
@@ -316,9 +317,11 @@ export class Batcher2D implements IBatcher {
      * UI 渲染组件数据提交流程（针对提交的顶点数据是世界坐标的提交流程，例如：除 Graphics 和 UIModel 的大部分 ui 组件）。
      * 此处的数据最终会生成需要提交渲染的 model 数据。
      *
-     * @param comp - 当前执行组件。
-     * @param frame - 当前执行组件贴图。
-     * @param assembler - 当前组件渲染数据组装器。
+     * @param comp - The committed renderable component
+     * @param renderData - The render data being committed
+     * @param frame - Texture or sprite frame related to the draw batch, could be null
+     * @param assembler - The assembler for the current component, could be null
+     * @param transform - Node type transform, if passed, then batcher will consider it's using model matrix, could be null
      */
     public commitComp (comp: Renderable2D, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null) {
         let dataHash = 0;
@@ -367,6 +370,53 @@ export class Batcher2D implements IBatcher {
 
     /**
      * @en
+     * Render component data submission process for individual [[InputAssembler]]
+     * @zh
+     * 渲染组件中针对独立 [[InputAssembler]] 的提交流程
+     * 例如：Spine 和 DragonBones 等包含动态数据和材质的组件在内部管理 IA 并提交批次
+     * @param comp - The committed renderable component
+     * @param ia - The committed [[InputAssembler]]
+     * @param tex - The texture used
+     * @param mat - The material used
+     * @param [transform] - The related node transform if the render data is based on node's local coordinates
+     */
+    public commitIA (renderComp: Renderable2D, ia: InputAssembler, tex?: TextureBase, mat?: Material, transform?: Node) {
+        // if the last comp is spriteComp, previous comps should be batched.
+        if (this._currMaterial !== this._emptyMaterial) {
+            this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
+        }
+        let blendState;
+        let depthStencil;
+        let dssHash = 0;
+        let bsHash = 0;
+        if (renderComp) {
+            blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
+            bsHash = renderComp.blendHash;
+            if (renderComp.customMaterial !== null) {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
+            } else {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+            }
+            dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
+        }
+
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        curDrawBatch.visFlags = renderComp.node.layer;
+        curDrawBatch.inputAssembler = ia;
+        curDrawBatch.useLocalData = transform || null;
+        if (tex) {
+            curDrawBatch.texture = tex.getGFXTexture();
+            curDrawBatch.sampler = tex.getGFXSampler();
+            curDrawBatch.textureHash = tex.getHash();
+            curDrawBatch.samplerHash = curDrawBatch.sampler.hash;
+        }
+        curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, blendState, bsHash, null, this);
+        this._batches.push(curDrawBatch);
+    }
+
+    /**
+     * @en
      * Render component data submission process of UI.
      * The submitted vertex data is the UI for local coordinates.
      * For example: The UI components of Graphics and UIModel.
@@ -374,14 +424,15 @@ export class Batcher2D implements IBatcher {
      * @zh
      * UI 渲染组件数据提交流程（针对例如： Graphics 和 UIModel 等数据量较为庞大的 ui 组件）。
      *
-     * @param comp - 当前执行组件。
-     * @param model - 提交渲染的 model 数据。
-     * @param mat - 提交渲染的材质。
+     * @param comp - The committed renderable component
+     * @param model - The committed model
+     * @param mat - The material used, could be null
      */
     public commitModel (comp: UIMeshRenderer | Renderable2D, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
         }
 
         let depthStencil;
@@ -416,16 +467,6 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.descriptorSet = subModel.descriptorSet;
             this._batches.push(curDrawBatch);
         }
-
-        // reset current render state to null
-        this._currMaterial = this._emptyMaterial;
-        this._currRenderData = null;
-        this._currComponent = null;
-        this._currTransform = null;
-        this._currTexture = null;
-        this._currSampler = null;
-        this._currTextureHash = 0;
-        this._currLayer = 0;
     }
 
     public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor) {
@@ -557,6 +598,16 @@ export class Batcher2D implements IBatcher {
         this.autoMergeBatches(renderComp);
     }
 
+    public resetRenderStates () {
+        this._currMaterial = this._emptyMaterial;
+        this._currTexture = null;
+        this._currComponent = null;
+        this._currTransform = null;
+        this._currTextureHash = 0;
+        this._currSamplerHash = 0;
+        this._currLayer = 0;
+    }
+
     /**
      * @en
      * Forced to merge the data of the previous batch to start a new batch.
@@ -566,13 +617,7 @@ export class Batcher2D implements IBatcher {
      */
     public finishMergeBatches () {
         this.autoMergeBatches();
-        this._currMaterial = this._emptyMaterial;
-        this._currTexture = null;
-        this._currComponent = null;
-        this._currTransform = null;
-        this._currTextureHash = 0;
-        this._currSamplerHash = 0;
-        this._currLayer = 0;
+        this.resetRenderStates();
     }
 
     /**
@@ -617,6 +662,10 @@ export class Batcher2D implements IBatcher {
         if (this._opacityDirty && render && render.renderData && render.renderData.vertexCount > 0) {
             // HARD COUPLING
             updateOpacity(render.renderData, opacity);
+            const buffer = render.renderData.getMeshBuffer();
+            if (buffer) {
+                buffer.setDirty();
+            }
         }
 
         if (children.length > 0 && !node._static) {

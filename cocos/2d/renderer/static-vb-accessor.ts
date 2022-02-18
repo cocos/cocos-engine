@@ -34,6 +34,7 @@ import { BufferAccessor } from './buffer-accessor';
 import { assertID, warnID } from '../../core/platform/debug';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pool } from '../../core/memop/pool';
+import { macro } from '../../core/platform/macro';
 
 interface IFreeEntry {
     offset: number;
@@ -69,10 +70,17 @@ export class StaticVBChunk {
 }
 
 export class StaticVBAccessor extends BufferAccessor {
-    private _freeLists: IFreeEntry[][] = [];
+    public static IB_SCALE = 4; // ib size scale based on vertex count
 
-    public constructor (device: Device, attributes: Attribute[]) {
+    private _freeLists: IFreeEntry[][] = [];
+    private _vCount = 0;
+    private _iCount = 0;
+
+    public constructor (device: Device, attributes: Attribute[], vCount?: number, iCount?: number) {
         super(device, attributes);
+        this._vCount = vCount || (macro.BATCHER2D_MEM_INCREMENT * 1024 / this._vertexFormatBytes);
+        this._iCount = iCount || (this._vCount * StaticVBAccessor.IB_SCALE);
+
         // Initialize first mesh buffer
         this._allocateBuffer();
     }
@@ -124,17 +132,14 @@ export class StaticVBAccessor extends BufferAccessor {
         }
     }
 
-    public appendIndices (vbChunk: StaticVBChunk) {
-        // const buf = this._buffers[vbChunk.bufferId];
-        // // Vertex format check
-        // // assertIsTrue(vbChunk.vb.byteLength / vbChunk.vertexCount === this.vertexFormatBytes);
-        // assertIsTrue(vbChunk.bufferId === this._currBID || this._currBID === -1);
-        // const vCount = vbChunk.ib.length;
-        // if (vCount) {
-        //     // Append index buffer
-        //     buf.iData.set(vbChunk.ib, buf.indexOffset);
-        //     buf.indexOffset += vbChunk.ib.length;
-        // }
+    public appendIndices (bufferId: number, indices: Uint16Array) {
+        const buf = this._buffers[bufferId];
+        const iCount = indices.length;
+        if (iCount) {
+            // Append index buffer
+            buf.iData.set(indices, buf.indexOffset);
+            buf.indexOffset += indices.length;
+        }
     }
 
     public allocateChunk (vertexCount: number, indexCount: number) {
@@ -271,7 +276,8 @@ export class StaticVBAccessor extends BufferAccessor {
         assertID(this._buffers.length === this._freeLists.length, 9003);
 
         const buffer = new MeshBuffer();
-        buffer.initialize(this._device, this._attributes);
+        const vFloatCount = this._vCount * this._floatsPerVertex;
+        buffer.initialize(this._device, this._attributes, vFloatCount, this._iCount);
         this._buffers.push(buffer);
         const entry = _entryPool.alloc();
         entry.offset = 0;

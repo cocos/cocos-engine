@@ -31,12 +31,8 @@
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
 import { Renderable2D } from '../framework/renderable-2d';
 import { IBatcher } from '../renderer/i-batcher';
-import { MeshBuffer } from '../renderer/mesh-buffer';
 import { DrawBatch2D } from '../renderer/draw-batch';
 import { director, Color, warnID } from '../../core';
-import { vfmtPosUvColor } from '../renderer/vertex-format';
-import { BlendFactor } from '../../core/gfx';
-import { LinearBufferAccessor } from '../renderer/linear-buffer-accessor';
 import { StaticVBAccessor } from '../renderer/static-vb-accessor';
 
 /**

@@ -156,7 +156,7 @@ export const simple: IAssembler = {
         // quick version
         const bid = chunk.bufferId;
         const vid = chunk.vertexOffset;
-        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(bid);
         const ib = chunk.vertexAccessor.getIndexBuffer(bid);
         let indexOffset = meshBuffer.indexOffset;
         ib[indexOffset++] = vid;

@@ -33,8 +33,10 @@ import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
 import { assertID } from '../../core/platform/debug';
 import { assertIsNonNullable } from '../../core/data/utils/asserts';
+import { macro } from '../../core/platform/macro';
 
 export class LinearBufferAccessor extends BufferAccessor {
+    public static IB_SCALE = 4; // ib size scale based on vertex count
     // Buffer cursors for the current mesh buffer
     public byteStart = 0;
     public indexStart = 0;
@@ -159,7 +161,9 @@ export class LinearBufferAccessor extends BufferAccessor {
         // Out of bound, new mesh buffer required
         if (id === l) {
             const buffer = new MeshBuffer();
-            buffer.initialize(this._device, this._attributes);
+            const vCount =  macro.BATCHER2D_MEM_INCREMENT * 1024 / this._vertexFormatBytes;
+            const iCount = vCount * LinearBufferAccessor.IB_SCALE;
+            buffer.initialize(this._device, this._attributes, vCount * this._floatsPerVertex, iCount);
             this._buffers.push(buffer);
         }
         this.byteStart = 0;

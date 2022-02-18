@@ -1,9 +1,9 @@
 import { MeshBuffer } from '../../cocos/2d/renderer/mesh-buffer';
 import { vfmtPosUvColor } from '../../cocos/2d/renderer/vertex-format';
-import { director, macro } from '../../cocos/core';
+import { director } from '../../cocos/core';
 
 const meshBuffer = new MeshBuffer();
-meshBuffer.initialize(director.root.device, vfmtPosUvColor);
+meshBuffer.initialize(director.root.device, vfmtPosUvColor, 1024, 2048);
 
 test('basic', () => {
     expect(meshBuffer.vertexOffset).toBe(0);
@@ -11,10 +11,8 @@ test('basic', () => {
     expect(meshBuffer.indexOffset).toBe(0);
     expect(meshBuffer.attributes).toBe(vfmtPosUvColor);
     // TODO. initialized vData.length should be 256 * 9
-    const vDataCount = macro.BATCHER2D_MEM_INCREMENT * 1024 / Float32Array.BYTES_PER_ELEMENT;
-    const iDataCount = vDataCount * MeshBuffer.IB_SCALE;
-    expect(meshBuffer.vData.length).toBe(vDataCount);
-    expect(meshBuffer.iData.length).toBe(iDataCount);
+    expect(meshBuffer.vData.length).toBe(1024);
+    expect(meshBuffer.iData.length).toBe(2048);
 
     meshBuffer.byteOffset = Float32Array.BYTES_PER_ELEMENT * 36;
     meshBuffer.vertexOffset = 4;

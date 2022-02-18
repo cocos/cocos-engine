@@ -4,21 +4,22 @@
  */
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
-import { Color, Mat4, Node, Texture2D, Vec3 } from '../../core';
+import { Color, Mat4, Node, Texture2D, Vec3, director } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { TextureBase } from '../../core/assets/texture-base';
+import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';
 import { IAssembler } from '../../2d/renderer/base';
-import { IBatcher } from '../../2d/renderer/i-batcher';
+import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { ArmatureFrame } from '../ArmatureCache';
-import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
+import { ArmatureDisplay, ArmatureDisplayDrawData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
 import { legacyCC } from '../../core/global-exports';
+import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
+import { RenderData } from '../../2d/renderer/render-data';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
-const STRIDE_FLOAT = 9;
-const STRIDE_BYTES = 9 * 4;
 
 const _boneColor = new Color(255, 0, 0, 255);
 const _slotColor = new Color(0, 0, 255, 255);
@@ -36,15 +37,23 @@ let _nodeA: number;
 let _premultipliedAlpha: boolean;
 let _multiply: number;
 let _mustFlush: boolean;
-let _buffer: ArmatureDisplayMeshData | undefined;
+let _renderData: RenderData | null;
+let _ibuf: Uint16Array;
+let _vbuf: Float32Array;
 let _node: Node | undefined;
-let _batcher: IBatcher | undefined;
 let _comp: ArmatureDisplay | undefined;
-let _vfOffset: number;
-let _indexOffset: number;
-let _vertexOffset: number;
-let _vertexCount: number;
-let _indexCount: number;
+let _vertexFloatCount = 0;
+let _vertexCount = 0;
+let _vertexOffset = 0;
+let _vertexFloatOffset = 0;
+let _indexCount = 0;
+let _indexOffset = 0;
+let _actualVCount = 0;
+let _actualICount = 0;
+let _prevDrawIndexOffset = 0;
+const LOCAL_FLOAT_PER_VERTEX  = 4; //xyuv
+const PER_VERTEX_SIZE = 3 + 2 + 4; //xyz-uv-rgba;
+
 let _x: number;
 let _y: number;
 const _c = new Float32Array(4);
@@ -55,7 +64,11 @@ let _m12: number;
 let _m01: number;
 let _m05: number;
 let _m13: number;
-const _vec3u_temp = new Vec3();
+const _slotMat = new Mat4();
+let _batcher: Batcher2D;
+
+let _currentMaterial: MaterialInstance | null = null;
+let _currentTexture: Texture2D | null = null;
 
 function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
     if (!tex) return null;
@@ -98,23 +111,55 @@ function _handleColor (color: {r:number, g:number, b:number, a:number}, parentOp
     _c[2] = _b;
     _c[3] = _premultipliedAlpha ? 1.0 : _a / 255.0;
 }
-function _intToColor (v:number) {
-    _c[0] = (0xFF & (v >>> 24)) / 255.0;
-    _c[1] = (0xFF & (v >>> 16)) / 255.0;
-    _c[2] = (0xFF & (v >>> 8)) / 255.0;
-    _c[3] = (0xFF & (v >>> 0)) / 255.0;
-}
+
+let _accessor: StaticVBAccessor = null!;
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
-    createData () {
+    accessor: _accessor,
+    vCount: 32767,
+    ensureAccessor () {
+        if (!_accessor) {
+            const device = director.root!.device;
+            const batcher = director.root!.batcher2D;
+            const attributes = vfmtPosUvColor;
+            this.accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount);
+            // Register to batcher so that batcher can upload buffers after batching process
+            batcher.registerBufferAccessor(Number.parseInt('DRAGONBONES', 36), _accessor);
+        }
+        return this.accessor as StaticVBAccessor;
     },
 
-    updateRenderData (comp: ArmatureDisplay, ui: IBatcher) {
+    createData (comp: ArmatureDisplay) {
+        let rd = comp.renderData;
+        if (!rd) {
+            this.ensureAccessor() as StaticVBAccessor;
+            const slots = comp._armature!._slots;
+            let vCount = 0;
+            let iCount = 0;
+            for (let i = 0; i < slots.length; ++i) {
+                const slot = slots[i] as CCSlot;
+                vCount += slot._localVertices.length / LOCAL_FLOAT_PER_VERTEX;
+                iCount += slot._indices.length;
+            }
+
+            rd = RenderData.add(vfmtPosUvColor, this.accessor);
+            rd.resize(vCount, iCount);
+            if (!rd.indices || iCount !== rd.indices.length) {
+                rd.indices = new Uint16Array(iCount);
+            }
+        }
+        return rd;
+    },
+
+    updateRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
         _comp = comp;
-        updateComponentRenderData(comp, ui);
+        const armature = comp._armature;
+        if (armature) {
+            updateComponentRenderData(comp, batcher);
+        }
     },
 
     updateColor (comp: ArmatureDisplay) {
@@ -122,21 +167,20 @@ export const simple: IAssembler = {
         _comp = comp;
         _comp.markForUpdateRenderData();
     },
-
-    fillBuffers (comp: ArmatureDisplay, renderer: IBatcher) {
-    },
 };
+function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?: Mat4) {
+    const rd = _renderData!;
+    _vbuf = rd.chunk.vb;
+    _ibuf = rd.indices!;
 
-function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parentOpacity: number) {
     const slots = armature._slots;
-    let vbuf: Float32Array;
-    let ibuf: Uint16Array;
     let material: MaterialInstance;
     let vertices: number[];
     let indices: number[];
     let slotColor: Color;
     let slot: CCSlot;
-    const slotMat = new Mat4();
+
+    let cumulatedCount = 0;
 
     for (let i = 0, l = slots.length; i < l; i++) {
         slot = slots[i] as CCSlot;
@@ -144,15 +188,15 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
 
         if (!slot._visible || !slot._displayData) continue;
 
-        if (parentMat) {
+        if (worldMat) {
             /* enable batch or recursive armature */
-            slot._mulMat(slot._worldMatrix, parentMat, slot._matrix);
+            slot._mulMat(slot._worldMatrix, worldMat, slot._matrix);
         } else {
             Mat4.copy(slot._worldMatrix, slot._matrix);
         }
 
         if (slot.childArmature) {
-            realTimeTraverse(slot.childArmature, slot._worldMatrix, parentOpacity * slotColor.a / 255);
+            realTimeTraverse(slot.childArmature, slotColor.a / 255, slot._worldMatrix);
             continue;
         }
 
@@ -160,68 +204,97 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
         if (!material) {
             continue;
         }
+        if (!_currentMaterial) _currentMaterial = material;
 
-        if (!_buffer!.renderData.material) {
-            _buffer!.renderData.material = material;
-        }
+        const texture = slot.getTexture();
 
-        if (!_buffer!.texture) {
-            _buffer!.texture = slot.getTexture();
-        }
-
-        if (_mustFlush || material !== _buffer!.renderData.material
-            || _buffer!.texture !== slot.getTexture()
-        ) {
+        if (_mustFlush || material.hash !== _currentMaterial.hash || (texture && _currentTexture !== texture)) {
             _mustFlush = false;
-            _buffer = _comp!.requestMeshRenderData();
-            _buffer.renderData.material = material;
-            _buffer.texture = slot.getTexture();
+            const cumulatedCount = _indexOffset - _prevDrawIndexOffset;
+            // Submit draw data
+            if (cumulatedCount > 0) {
+                _comp!._requestDrawData(_currentMaterial, _currentTexture!, _prevDrawIndexOffset, cumulatedCount);
+                _prevDrawIndexOffset = _indexOffset;
+            }
+            _currentTexture = texture;
+            _currentMaterial = material;
         }
 
         _handleColor(slotColor, parentOpacity);
-        slotMat.set(slot._worldMatrix);
+        _slotMat.set(slot._worldMatrix);
 
         vertices = slot._localVertices;
-        _vertexCount = vertices.length >> 2;
-
+        _vertexCount = vertices.length / LOCAL_FLOAT_PER_VERTEX;
+        _vertexFloatCount = _vertexCount * PER_VERTEX_SIZE;
         indices = slot._indices;
         _indexCount = indices.length;
 
-        const rd = _buffer!.renderData;
-        rd.reserve(_vertexCount, _indexCount);
+        // Slot and vertices in armature may be replaced in some cases
+        // (for example caused by CCFactory.replaceSlotDisplay)
+        let isResize = false;
+        if (_vertexOffset + _vertexCount > _actualVCount) {
+            _actualVCount = _vertexOffset + _vertexCount;
+            isResize = true;
+        }
+        if (_indexOffset + _indexCount > _actualICount) {
+            _actualICount = _indexOffset + _indexCount;
+            isResize = true;
+        }
+        if (isResize) {
+            const oldIndices = _ibuf;
+            const oldChunkOffset = rd.chunk.vertexOffset;
+            rd.resizeAndCopy(_actualVCount, _actualICount > rd.indexCount ? _actualICount : rd.indexCount);
+            _vbuf = rd.chunk.vb;
+            if (_actualICount > _ibuf.length) {
+                _ibuf = rd.indices = new Uint16Array(_actualICount);
+            }
+            const correction = rd.chunk.vertexOffset - oldChunkOffset;
+            for (let i = 0; i < _indexOffset; ++i) {
+                _ibuf[i] = oldIndices[i] + correction;
+            }
+        }
 
-        _indexOffset = rd.indexCount;
-        _vfOffset = rd.vDataOffset;
-        _vertexOffset = rd.vertexCount;
-        vbuf = _buffer!.renderData.vData;
-        ibuf = _buffer!.renderData.iData;
-
-        _m00 = slotMat.m00;
-        _m04 = slotMat.m04;
-        _m12 = slotMat.m12;
-        _m01 = slotMat.m01;
-        _m05 = slotMat.m05;
-        _m13 = slotMat.m13;
+        _m00 = _slotMat.m00;
+        _m04 = _slotMat.m04;
+        _m12 = _slotMat.m12;
+        _m01 = _slotMat.m01;
+        _m05 = _slotMat.m05;
+        _m13 = _slotMat.m13;
         // vertext format:
         //       x y z u v r g b a
-        for (let vi = 0, vl = vertices.length; vi < vl;) {
+        for (let vi = 0, vl = vertices.length, v = _vertexFloatOffset; vi < vl; v += PER_VERTEX_SIZE) {
             _x = vertices[vi++];
             _y = vertices[vi++];
 
-            vbuf[_vfOffset] = _x * _m00 + _y * _m04 + _m12; // x
-            vbuf[_vfOffset + 1] = _x * _m01 + _y * _m05 + _m13; // y
+            _vbuf[v] = _x * _m00 + _y * _m04 + _m12; // x
+            _vbuf[v + 1] = _x * _m01 + _y * _m05 + _m13; // y
 
-            vbuf[_vfOffset + 3] = vertices[vi++]; // u
-            vbuf[_vfOffset + 4] = vertices[vi++]; // v
+            _vbuf[v + 3] = vertices[vi++]; // u
+            _vbuf[v + 4] = vertices[vi++]; // v
 
-            vbuf.set(_c, _vfOffset + 5);// color
-            _vfOffset += STRIDE_FLOAT;
+            _vbuf.set(_c, v + 5);// color
         }
-
-        for (let ii = 0, il = indices.length; ii < il; ii++) {
-            ibuf[_indexOffset++] = _vertexOffset + indices[ii];
+        const chunkOffset = rd.chunk.vertexOffset;
+        for (let i = 0, il = indices.length, ii = _indexOffset; i < il; i++, ii++) {
+            _ibuf[ii] = _vertexOffset + indices[i] + chunkOffset;
         }
-        rd.resize(rd.vertexCount + _vertexCount, rd.indexCount + _indexCount);
+        _vertexFloatOffset += _vertexFloatCount;
+        _vertexOffset += _vertexCount;
+        _indexOffset += _indexCount;
+        _vertexCount = 0;
+        _indexCount = 0;
+    }
+
+    cumulatedCount = _indexOffset - _prevDrawIndexOffset;
+    if (_currentTexture && cumulatedCount > 0) {
+        _comp!._requestDrawData(_currentMaterial!, _currentTexture, _prevDrawIndexOffset, cumulatedCount);
+        _prevDrawIndexOffset = _indexOffset;
+    }
+    if (_comp!.maxIndexCount < _actualICount) {
+        _comp!.maxIndexCount = _actualICount;
+    }
+    if (_comp!.maxVertexCount < _actualVCount) {
+        _comp!.maxVertexCount = _actualVCount;
     }
 }
 
@@ -230,15 +303,15 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     const segments = frame.segments;
     if (segments.length === 0) return;
 
-    let vbuf: Float32Array;
-    let ibuf: Uint16Array;
-    let material: MaterialInstance;
+    let material: MaterialInstance | null = null;
     // let offsetInfo;
     const vertices = frame.vertices;
-    const colorArray = new Uint32Array(vertices.buffer);
     const indices = frame.indices;
 
-    let frameVFOffset = 0; let frameIndexOffset = 0; let segVFCount = 0;
+    let chunkOffset = 0;
+    let frameVFOffset = 0;
+    let frameIndexOffset = 0;
+    let segVFCount = 0;
     if (parentMat) {
         _m00 = parentMat.m00;
         _m01 = parentMat.m01;
@@ -248,105 +321,100 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
         _m13 = parentMat.m13;
     }
 
-    const justTranslate = _m00 === 1 && _m01 === 0 && _m04 === 0 && _m05 === 1;
-    const needBatch = (_handleVal & NEED_BATCH);
-    const calcTranslate = needBatch && justTranslate;
-
     let colorOffset = 0;
     const colors = frame.colors;
     let nowColor = colors[colorOffset++];
     let maxVFOffset = nowColor.vfOffset!;
     _handleColor(nowColor, 1.0);
 
+    const rd = _renderData!;
+    const vbuf = rd.chunk.vb;
+    const ibuf = rd.indices!;
+
     for (let i = 0, n = segments.length; i < n; i++) {
         const segInfo = segments[i];
         material = _getSlotMaterial(segInfo.tex, segInfo.blendMode)!;
-        if (!_buffer!.renderData.material) {
-            _buffer!.renderData.material = material;
-        }
-        if (!_buffer!.texture) {
-            _buffer!.texture = segInfo.tex as Texture2D;
-        }
-        if (_mustFlush || _buffer!.renderData.material !== material
-        || _buffer!.texture !== segInfo.tex) {
+        if (!material) continue;
+        if (!_currentMaterial) _currentMaterial = material;
+        if (_mustFlush || material.hash !== _currentMaterial.hash || (segInfo.tex && segInfo.tex !== _currentTexture)) {
             _mustFlush = false;
-            _buffer = _comp!.requestMeshRenderData();
-            _buffer.renderData.material = material;
-            _buffer.texture = segInfo.tex as Texture2D;
+            const cumulatedCount = _indexOffset - _prevDrawIndexOffset;
+            // Submit draw data
+            if (cumulatedCount > 0) {
+                _comp!._requestDrawData(_currentMaterial, _currentTexture!, _prevDrawIndexOffset, cumulatedCount);
+                _prevDrawIndexOffset = _indexOffset;
+            }
+            _currentMaterial = material;
+            _currentTexture = segInfo.tex!;
         }
 
         _vertexCount = segInfo.vertexCount;
         _indexCount = segInfo.indexCount;
 
-        const rd = _buffer!.renderData;
-        rd.reserve(_vertexCount, _indexCount);
-
-        _indexOffset = rd.indexCount;
-        _vfOffset = rd.vDataOffset;
-        _vertexOffset = rd.vertexCount;
-        vbuf = _buffer!.renderData.vData;
-        ibuf = _buffer!.renderData.iData;
-
+        // Fill indices
+        chunkOffset = rd.chunk.vertexOffset;
         for (let ii = _indexOffset, il = _indexOffset + _indexCount; ii < il; ii++) {
-            ibuf[ii] = _vertexOffset + indices[frameIndexOffset++];
+            ibuf[ii] = chunkOffset + _vertexOffset + indices[frameIndexOffset++];
         }
 
+        // Fill vertices
         segVFCount = segInfo.vfCount;
-        // vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset);
-        for (let ii = frameVFOffset, jj = _vfOffset; ii < frameVFOffset + segVFCount;) {
-            vbuf[jj] =  vertices[ii++];
-            vbuf[jj + 1] =  vertices[ii++];
-            vbuf[jj + 3] =  vertices[ii++];
-            vbuf[jj + 4] =  vertices[ii++];
-            _intToColor(colorArray[ii++]);
-            vbuf.set(_c, jj + 5);
-            jj += STRIDE_FLOAT;
-        }
-
-        frameVFOffset += segVFCount;
+        const subArray = vertices.subarray(frameVFOffset, segVFCount);
+        vbuf.set(subArray, frameVFOffset);
 
         let offset = 0;
-        for (let ii = 0, il = _vertexCount; ii < il; ii++) {
-            _x = vbuf[offset];
-            _y = vbuf[offset + 1];
-            vbuf[offset] = _x * _m00 + _y * _m04 + _m12;
-            vbuf[offset + 1] = _x * _m01 + _y * _m05 + _m13;
-            offset += STRIDE_FLOAT;
-        }
-        rd.resize(rd.vertexCount + _vertexCount, rd.indexCount + _indexCount);
-
-        if (!(_handleVal & NEED_COLOR)) continue;
-
-        // handle color
-        let frameColorOffset = frameVFOffset - segVFCount;
-        for (let ii = _vfOffset + 5, il = _vfOffset + 4 + segVFCount; ii < il; ii += STRIDE_FLOAT, frameColorOffset += STRIDE_FLOAT) {
-            if (frameColorOffset >= maxVFOffset) {
-                nowColor = colors[colorOffset++];
-                _handleColor(nowColor, 1.0);
-                maxVFOffset = nowColor.vfOffset!;
+        if (parentMat) {
+            for (let ii = 0, il = _vertexCount; ii < il; ii++) {
+                _x = vbuf[offset];
+                _y = vbuf[offset + 1];
+                vbuf[offset] = _x * _m00 + _y * _m04 + _m12;
+                vbuf[offset + 1] = _x * _m01 + _y * _m05 + _m13;
+                offset += PER_VERTEX_SIZE;
             }
-            vbuf.set(_c, ii);
         }
+        if ((_handleVal & NEED_COLOR)) {
+            // handle color
+            // tip: step of frameColorOffset should fix with vertex attributes, (xyzuvrgba--xyuvc)
+            let frameColorOffset = frameVFOffset / 9 * 5;
+            for (let ii = frameVFOffset, iEnd = frameVFOffset + segVFCount; ii < iEnd; ii += PER_VERTEX_SIZE, frameColorOffset += 5) {
+                if (frameColorOffset >= maxVFOffset) {
+                    nowColor = colors[colorOffset++];
+                    _handleColor(nowColor, 1.0);
+                    maxVFOffset = nowColor.vfOffset!;
+                }
+                vbuf.set(_c, ii + 5);
+            }
+        }
+        // Segment increment
+        frameVFOffset += segVFCount;
+        _vertexOffset += _vertexCount;
+        _indexOffset += _indexCount;
+        _vertexCount = 0;
+        _indexCount = 0;
+    }
+    const cumulatedCount = _indexOffset - _prevDrawIndexOffset;
+    if (_currentTexture && cumulatedCount > 0) {
+        _comp!._requestDrawData(_currentMaterial!, _currentTexture, _prevDrawIndexOffset, cumulatedCount);
     }
 }
 
-function updateComponentRenderData (comp: ArmatureDisplay, batcher: IBatcher) {
+function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     // comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
     const armature = comp._armature;
     if (!armature) return;
 
-    comp.markForUpdateRenderData();
-    comp.destroyRenderData();
-
     // Init temp var.
     _mustFlush = true;
     _premultipliedAlpha = comp.premultipliedAlpha;
+    // Reuse draw list
+    comp.drawList.reset();
+    _comp = comp;
     _node = comp.node;
-    _buffer = comp.requestMeshRenderData();
-    _batcher = batcher;
+    _renderData = comp.renderData!;
     _comp = comp;
     _handleVal = 0;
+    _currentMaterial = null;
 
     const nodeColor = comp.color;
     _nodeR = nodeColor.r / 255;
@@ -364,12 +432,22 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: IBatcher) {
         _handleVal |= NEED_BATCH;
     }
 
+    _vertexFloatCount = 0;
+    _vertexOffset = 0;
+    _vertexFloatOffset = 0;
+    _indexCount = 0;
+    _indexOffset = 0;
+    _prevDrawIndexOffset = 0;
+    _actualVCount = _comp.maxVertexCount;
+    _actualICount = _comp.maxIndexCount;
+
+    _batcher = batcher;
     if (comp.isAnimationCached()) {
         // Traverse input assembler.
         cacheTraverse(comp._curFrame, worldMat);
     } else {
         // Traverse all armature.
-        realTimeTraverse(armature, worldMat, 1.0);
+        realTimeTraverse(armature, 1.0, worldMat);
 
         const graphics = comp._debugDraw;
         if (comp.debugBones && graphics) {
@@ -401,6 +479,8 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: IBatcher) {
             }
         }
     }
+    // Ensure mesh buffer update
+    _accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
 
     // sync attached node matrix
     // renderer.worldMatDirty++;
@@ -408,8 +488,6 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: IBatcher) {
 
     // Clear temp var.
     _node = undefined;
-    _buffer = undefined;
-    _batcher = undefined;
     _comp = undefined;
 }
 

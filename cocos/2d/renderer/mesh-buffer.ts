@@ -30,7 +30,7 @@
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
 import { getComponentPerVertex } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
-import { macro, sys, nextPow2 } from '../../core';
+import { sys } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 
 interface IIARef {
@@ -40,7 +40,6 @@ interface IIARef {
 }
 
 export class MeshBuffer {
-    public static IB_SCALE = 4; // ib size scale based on vertex count
     get attributes () { return this._attributes; }
     get vertexFormatBytes () { return this._vertexFormatBytes; }
 
@@ -62,12 +61,12 @@ export class MeshBuffer {
     private _iaInfo: InputAssemblerInfo = null!;
     private _nextFreeIAHandle = 0;
 
-    public initialize (device: Device, attrs: Attribute[]) {
-        this._initVDataCount = macro.BATCHER2D_MEM_INCREMENT * 1024 / Float32Array.BYTES_PER_ELEMENT;
-        assertIsTrue(this._initVDataCount < 65536, getError(9005));
-        this._initIDataCount = this._initVDataCount * MeshBuffer.IB_SCALE;
+    public initialize (device: Device, attrs: Attribute[], vFloatCount: number, iCount: number) {
+        this._initVDataCount = vFloatCount;
+        this._initIDataCount = iCount;
         this._attributes = attrs;
         this._floatsPerVertex = getComponentPerVertex(attrs);
+        assertIsTrue(this._initVDataCount / this._floatsPerVertex < 65536, getError(9005));
 
         if (!this.vData || !this.iData) {
             this.vData = new Float32Array(this._initVDataCount);
