@@ -59,7 +59,6 @@ public:
     inline void setShadowOrthoSize(float orthoSize) { _shadowOrthoSize = orthoSize; }
     inline void setShadowCSMLevel(float level) { _shadowCSMLevel = level; }
     inline void setShadowCSMLambda(float lambda) { _shadowCSMLambda = lambda; }
-    inline void setShadowFrustumItem(Vec2 *shadowFrustumItem) { memcpy(_shadowFrustumItem, shadowFrustumItem, sizeof(Vec2) * 4); }
     inline void setShadowFrustumItem(const Vec2 &val, const Vec2 &val1, const Vec2 &val2, const Vec2 &val3) {
         _shadowFrustumItem[0].set(val);
         _shadowFrustumItem[1].set(val1);
