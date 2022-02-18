@@ -31,21 +31,6 @@ Overloaded<Ts...> overload(Ts... ts) {
     return {std::move(ts)...};
 }
 
-template <class... Ts>
-struct VertexOverloaded : Overloaded<Ts...> { // NOLINT
-    VertexOverloaded(Ts... ts)                  // NOLINT
-    : Overloaded<Ts...>(std::move(ts)...) {}
-    template <class T>
-    auto operator()(T *ptr) {
-        return this->Overloaded<Ts...>::operator()(*ptr);
-    }
-};
-
-template <class GraphT, class... Ts>
-auto visitVertex(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) { // NOLINT
-    return cc::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
-}
-
 template <typename V>
 auto variantFromIndex(size_t index) -> V { // NOLINT
     return boost::mp11::mp_with_index<boost::mp11::mp_size<V>>(index,

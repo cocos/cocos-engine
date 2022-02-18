@@ -1,5 +1,6 @@
 #pragma once
 #include <cocos/base/Variant.h>
+#include <cocos/renderer/pipeline/custom/Overload.h>
 #include <boost/container/pmr/polymorphic_allocator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/optional.hpp>
@@ -26,10 +27,22 @@ using PmrList = std::list<T, boost::container::pmr::polymorphic_allocator<T>>;
 
 namespace render {
 
-namespace impl {
+template <class... Ts>
+struct VertexOverloaded : Overloaded<Ts...> {
+    VertexOverloaded(Ts... ts) // NOLINT
+        : Overloaded<Ts...>(std::move(ts)...) {}
+    template <class T>
+    auto operator()(T* ptr) {
+        return this->Overloaded<Ts...>::operator()(*ptr);
+    }
+};
 
-struct path_t { // NOLINT
-} static constexpr path; // NOLINT
+template <class GraphT, class... Ts>
+auto visitObject(typename GraphT::vertex_descriptor v, GraphT& g, Ts... args) {
+    return cc::visit(VertexOverloaded<Ts...>{ std::move(args)... }, value(v, g));
+}
+
+namespace impl {
 
 //--------------------------------------------------------------------
 // EdgeDescriptor
