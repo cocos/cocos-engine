@@ -402,11 +402,7 @@ export class Sprite extends Renderable2D {
             return;
         }
         this._useGrayscale = value;
-        if (value === true) {
-            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
-        } else {
-            this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
-        }
+        this.changeMaterialForDefine();
         this.updateMaterial();
     }
 
