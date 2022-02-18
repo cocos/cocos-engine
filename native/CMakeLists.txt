@@ -328,6 +328,9 @@ cocos_source_files(
     cocos/application/CocosApplication.cpp
     cocos/application/ApplicationManager.h
     cocos/application/ApplicationManager.cpp
+    cocos/application/ApplicationObserver.h
+    cocos/application/ApplicationObserverManager.h
+    cocos/application/ApplicationObserverManager.cpp
 )
 
 ############ engine
@@ -336,6 +339,9 @@ cocos_source_files(
     cocos/engine/BaseEngine.h
     cocos/engine/Engine.cpp
     cocos/engine/Engine.h
+    cocos/engine/EngineObserver.h
+    cocos/engine/EngineObserverManager.cpp
+    cocos/engine/EngineObserverManager.h
 )
 
 ############ main

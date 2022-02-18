@@ -193,6 +193,8 @@ private:
     std::string _statusText;
     std::string _overrideMimeType;
 
+    using SchedulerWeakPtr = std::weak_ptr<Scheduler>;
+    SchedulerWeakPtr          _scheduler;
     cc::Data _responseData;
 
     cc::network::HttpRequest *_httpRequest;
@@ -228,7 +230,9 @@ XMLHttpRequest::XMLHttpRequest()
 }
 
 XMLHttpRequest::~XMLHttpRequest() {
-    CC_CURRENT_ENGINE()->getScheduler()->unscheduleAllForTarget(this);
+    if (!_scheduler.expired()) {
+        _scheduler.lock()->unscheduleAllForTarget(this);
+    }
     // Avoid HttpClient response call a released object!
     _httpRequest->setResponseCallback(nullptr);
     CC_SAFE_RELEASE(_httpRequest);
@@ -377,7 +381,10 @@ void XMLHttpRequest::getHeader(const std::string &header) {
 }
 
 void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response) {
-    CC_CURRENT_ENGINE()->getScheduler()->unscheduleAllForTarget(this);
+    if (!_scheduler.expired()) {
+        _scheduler.lock()->unscheduleAllForTarget(this);
+    }
+
     _isSending = false;
 
     if (_isTimeout) {
@@ -477,15 +484,21 @@ void XMLHttpRequest::sendRequest() {
     }
     _isSending = true;
     _isTimeout = false;
+    
+    _scheduler.reset();
+    _scheduler = CC_CURRENT_ENGINE()->getScheduler();
+
     if (_timeoutInMilliseconds > 0) {
-        CC_CURRENT_ENGINE()->getScheduler()->schedule([this](float /* dt */) {
-            if (ontimeout != nullptr) {
-                ontimeout();
-            }
-            _isTimeout  = true;
-            _readyState = ReadyState::UNSENT;
-        },
-                                                      this, static_cast<float>(_timeoutInMilliseconds) / 1000.0F, 0, 0.0F, false, "XMLHttpRequest");
+        if (!_scheduler.expired()) {
+            _scheduler.lock()->schedule([this](float /* dt */) {
+                if (ontimeout != nullptr) {
+                    ontimeout();
+                }
+                _isTimeout  = true;
+                _readyState = ReadyState::UNSENT;
+            },
+                                                          this, _timeoutInMilliseconds / 1000.0F, 0, 0.0F, false, "XMLHttpRequest");
+        }
     }
     setHttpRequestHeader();
 

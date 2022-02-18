@@ -36,7 +36,7 @@ public:
     Game();
     int init() override;
     //bool init() override;
-    void onPause() override;
-    void onResume() override;
-    void onClose() override;
+    void onEnginePause() override;
+    void onEngineResume() override;
+    void onEngineClose() override;
 };
