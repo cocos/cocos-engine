@@ -46,7 +46,7 @@ public:
     void onAppStart();
 
     /**
-     * @brief Application started.
+     * @brief Application Paused.
      */
     void onAppPause();
 
@@ -63,11 +63,11 @@ public:
     /**
      * @brief Register an observer
      */
-    void registrObserver(ApplicationObserver *observer);
+    void registerObserver(ApplicationObserver *observer);
     /**
      * @brief Unregister an observer
      */
-    void unregistrObserver(ApplicationObserver *observer);
+    void unregisterObserver(ApplicationObserver *observer);
 
 private:
     std::vector<ApplicationObserver *> _observers;

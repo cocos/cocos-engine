@@ -62,11 +62,11 @@ public:
     /**
      * @brief Register an app observer.
      */
-    virtual void registrObserver(ApplicationObserver *observer) = 0;
+    virtual void registerObserver(ApplicationObserver *observer) = 0;
     /**
      * @brief Unregister an app observer.
      */
-    virtual void unregistrObserver(ApplicationObserver *observer) = 0;
+    virtual void unregisterObserver(ApplicationObserver *observer) = 0;
 
     /**
      * @brief Get engine.

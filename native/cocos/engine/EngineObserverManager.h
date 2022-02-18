@@ -46,7 +46,7 @@ public:
     void onEngineStart();
 
     /**
-     * @brief Engine started.
+     * @brief Engine Paused.
      */
     void onEnginePause();
 
@@ -63,11 +63,11 @@ public:
     /**
      * @brief Register an observer
      */
-    void registrObserver(EngineObserver *observer);
+    void registerObserver(EngineObserver *observer);
     /**
      * @brief Unregister an observer
      */
-    void unregistrObserver(EngineObserver *observer);
+    void unregisterObserver(EngineObserver *observer);
 
 private:
     std::vector<EngineObserver *> _observers;

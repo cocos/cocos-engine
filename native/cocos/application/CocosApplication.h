@@ -72,11 +72,11 @@ public:
     /**
      * @brief Register an observer
      */
-    void registrObserver(ApplicationObserver *observer) override;
+    void registerObserver(ApplicationObserver *observer) override;
     /**
      * @brief Unregister an observer
      */
-    void unregistrObserver(ApplicationObserver *observer) override;
+    void unregisterObserver(ApplicationObserver *observer) override;
 
     // Engine life cycle Observer overrides:
     void onEngineStart() override;

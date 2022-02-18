@@ -202,12 +202,12 @@ void Engine::setPreferredFramesPerSecond(int fps) {
     _prefererredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); //NOLINT(google-runtime-int)
 }
 
-void Engine::registrObserver(EngineObserver *observer) {
-    _observers->registrObserver(observer);
+void Engine::registerObserver(EngineObserver *observer) {
+    _observers->registerObserver(observer);
 }
 
-void Engine::unregistrObserver(EngineObserver *observer) {
-    _observers->unregistrObserver(observer);
+void Engine::unregisterObserver(EngineObserver *observer) {
+    _observers->unregisterObserver(observer);
 }
 
 void Engine::addEventCallback(OSEventType evType, const EventCb &cb) {

@@ -86,11 +86,11 @@ public:
     /**
      * @brief Register an observer
      */
-    void registrObserver(EngineObserver *observer) override;
+    void registerObserver(EngineObserver *observer) override;
     /**
      * @brief Unregister an observer
      */
-    void unregistrObserver(EngineObserver *observer) override;
+    void unregisterObserver(EngineObserver *observer) override;
     /**
      @brief Add Event Listening.
      @param evtype:event type.

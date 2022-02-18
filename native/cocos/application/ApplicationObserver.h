@@ -42,7 +42,7 @@ public:
     virtual void onAppStart() {}
 
     /**
-     * @brief Application started.
+     * @brief Application Paused.
      */
     virtual void onAppPause() {}
 

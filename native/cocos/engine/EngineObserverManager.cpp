@@ -57,11 +57,11 @@ void EngineObserverManager::onEngineClose() {
     }
 }
 
-void EngineObserverManager::registrObserver(EngineObserver *observer) {
+void EngineObserverManager::registerObserver(EngineObserver *observer) {
     _observers.push_back(observer);
 }
 
-void EngineObserverManager::unregistrObserver(EngineObserver *observer) {
+void EngineObserverManager::unregisterObserver(EngineObserver *observer) {
     auto it = std::find(_observers.begin(), _observers.end(), observer);
     if (it != _observers.end()) {
         _observers.erase(it);

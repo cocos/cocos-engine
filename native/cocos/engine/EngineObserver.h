@@ -42,7 +42,7 @@ public:
     virtual void onEngineStart() {}
 
     /**
-     * @brief Engine started.
+     * @brief Engine Paused.
      */
     virtual void onEnginePause() {}
 

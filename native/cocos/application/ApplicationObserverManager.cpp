@@ -57,11 +57,11 @@ void ApplicationObserverManager::onAppClose() {
     }
 }
 
-void ApplicationObserverManager::registrObserver(ApplicationObserver *observer) {
+void ApplicationObserverManager::registerObserver(ApplicationObserver *observer) {
     _observers.push_back(observer);
 }
 
-void ApplicationObserverManager::unregistrObserver(ApplicationObserver *observer) {
+void ApplicationObserverManager::unregisterObserver(ApplicationObserver *observer) {
     auto it = std::find(_observers.begin(), _observers.end(), observer);
     if (it != _observers.end()) {
         _observers.erase(it);

@@ -87,11 +87,11 @@ public:
     /**
      * @brief Register an observer
      */
-    virtual void registrObserver(EngineObserver *observer) = 0;
+    virtual void registerObserver(EngineObserver *observer) = 0;
     /**
      * @brief Unregister an observer
      */
-    virtual void unregistrObserver(EngineObserver *observer) = 0;
+    virtual void unregisterObserver(EngineObserver *observer) = 0;
 
     using EventCb = std::function<void(const OSEvent &)>;
     /**

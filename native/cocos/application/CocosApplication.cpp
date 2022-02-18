@@ -39,7 +39,7 @@ namespace cc {
 
 CocosApplication::CocosApplication() {
     _engine = BaseEngine::createEngine();
-    _engine->registrObserver(this);
+    _engine->registerObserver(this);
 }
 
 CocosApplication::~CocosApplication() = default;
@@ -80,12 +80,12 @@ BaseEngine::Ptr CocosApplication::getEngine() const {
     return _engine;
 }
 
-void CocosApplication::registrObserver(ApplicationObserver *observer) {
-    _observers->registrObserver(observer);
+void CocosApplication::registerObserver(ApplicationObserver *observer) {
+    _observers->registerObserver(observer);
 }
 
-void CocosApplication::unregistrObserver(ApplicationObserver *observer) {
-    _observers->unregistrObserver(observer);
+void CocosApplication::unregisterObserver(ApplicationObserver *observer) {
+    _observers->unregisterObserver(observer);
 }
 
 void CocosApplication::onEngineStart() {
