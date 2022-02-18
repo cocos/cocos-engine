@@ -420,8 +420,8 @@ export class DirectionalLight extends Light {
 
     public shadowFrustumItemToString () {
         for (let i = 0; i < this._shadowCSMLevel; i++) {
-            console.warn('Direction-Light-Component._splitFrustumLevel ',
-                i, ': (', this._shadowFrustumItem[i].x, ', ', this._shadowFrustumItem[i].y, ')');
+            console.warn(this.name, '._splitFrustumLevel[',
+                i, '] = (', this._shadowFrustumItem[i].x, ', ', this._shadowFrustumItem[i].y, ')');
         }
     }
 
