@@ -1,7 +1,4 @@
-project(test)
 cmake_minimum_required(VERSION 3.8)
-
-
 
 set(APP_NAME "game" CACHE STRING "Project Name")
 project(${APP_NAME} CXX)
