@@ -23,33 +23,57 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "PipelineSceneData.h"
-#include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXFramebuffer.h"
+#pragma once
+
+#include "../base/TypeDef.h"
+#include "../math/Mat4.h"
+#include "scene/DirectionalLight.h"
 
 namespace cc {
 namespace pipeline {
 
-void PipelineSceneData::activate(gfx::Device *device, RenderPipeline *pipeline) {
-    _device   = device;
-    _pipeline = pipeline;
-    _csmLayers = new CSMLayers();
-}
+struct CSMLayerInfo {
+    uint  _level;
+    float _shadowCameraNear;
+    float _shadowCameraFar;
 
-void PipelineSceneData::setPipelineSharedSceneData(scene::PipelineSharedSceneData *data) {
-    _sharedSceneData = data;
-}
+    Mat4 _matShadowView;
+    Mat4 _matShadowProj;
+    Mat4 _matShadowViewProj;
 
-void PipelineSceneData::destroy() {
-    for (auto &pair : _shadowFrameBufferMap) {
-        pair.second->destroy();
-        delete pair.second;
+    CSMLayerInfo(uint level) {
+        _level            = level;
+        _shadowCameraNear = 0.0F;
+        _shadowCameraFar  = 0.0F;
+        _matShadowView.setZero();
+        _matShadowProj.setZero();
+        _matShadowViewProj.setZero();
     }
+};
 
-    _shadowFrameBufferMap.clear();
-    delete _csmLayers;
-    _csmLayers = nullptr;
-}
+class CSMLayers {
+public:
+    /**
+     * @en MAX_FAR. This is shadow camera max far.
+     * @zh 阴影相机的最远视距。
+     */
+    static constexpr float SHADOW_CSM_LAMBDA{0.75F};
 
+    CSMLayers() = default;
+    ~CSMLayers();
+
+    vector<CSMLayerInfo *> getShadowCSMLayers() const { return _shadowCSMLayers; }
+
+    void update(scene::DirectionalLight *dirLight);
+
+    void shadowFrustumItemToString();
+
+private:
+    void splitFrustumLevels();
+
+    uint                     _shadowCSMLevelCount{0};
+    scene::DirectionalLight *_dirLight{nullptr};
+    vector<CSMLayerInfo *>   _shadowCSMLayers;
+};
 } // namespace pipeline
 } // namespace cc

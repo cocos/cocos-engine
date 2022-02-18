@@ -204,6 +204,7 @@ export class PipelineSceneData {
         this.skybox.destroy();
         this.fog.destroy();
         this.shadows.destroy();
+        this.csmLayers.destroy();
         this.octree.destroy();
         this.validPunctualLights.length = 0;
         this._occlusionQueryInputAssembler?.destroy();

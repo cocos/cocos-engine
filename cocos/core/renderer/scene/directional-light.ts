@@ -215,7 +215,7 @@ export class DirectionalLight extends Light {
     set shadowCSMLevel (val) {
         this._shadowCSMLevel = val;
         if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowCSMLambda(val);
+            (this._nativeObj as NativeDirectionalLight).setShadowCSMLevel(val);
         }
     }
 
@@ -224,6 +224,9 @@ export class DirectionalLight extends Light {
     }
     set shadowCSMValueDirty (val) {
         this._shadowCSMValueDirty = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowCSMValueDirty(val);
+        }
     }
 
     /**

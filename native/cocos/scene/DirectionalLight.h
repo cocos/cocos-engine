@@ -58,13 +58,7 @@ public:
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
     inline void setShadowOrthoSize(float orthoSize) { _shadowOrthoSize = orthoSize; }
     inline void setShadowCSMLevel(float level) { _shadowCSMLevel = level; }
-    inline void setShadowCSMLambda(float lambda) { _shadowCSMLambda = lambda; }
-    inline void setShadowFrustumItem(const Vec2 &val, const Vec2 &val1, const Vec2 &val2, const Vec2 &val3) {
-        _shadowFrustumItem[0].set(val);
-        _shadowFrustumItem[1].set(val1);
-        _shadowFrustumItem[2].set(val2);
-        _shadowFrustumItem[3].set(val3);
-    }
+    inline void setShadowCSMValueDirty(bool dirty) { _shadowCSMValueDirty = dirty; }
 
     inline const Vec3 & getDirection() const { return _dir; }
     inline float        getIlluminanceHDR() const { return _illuminanceHDR; }
@@ -81,8 +75,7 @@ public:
     inline float        getShadowFar() const { return _shadowFar; }
     inline float        getShadowOrthoSize() const { return _shadowOrthoSize; }
     inline float        getShadowCSMLevel() const { return _shadowCSMLevel; }
-    inline float        getShadowCSMLambda() const { return _shadowCSMLambda; }
-    inline const Vec2*  getShadowFrustumItem() const { return _shadowFrustumItem; }
+    inline bool         getShadowCSMValueDirty() const { return _shadowCSMValueDirty; }
 
 private:
     float _illuminanceHDR{0.F};
@@ -102,8 +95,7 @@ private:
     float _shadowFar{10.0F};
     float _shadowOrthoSize{1.0F};
     float _shadowCSMLevel{3.0F};
-    float _shadowCSMLambda{0.75};
-    Vec2  _shadowFrustumItem[4];
+    bool  _shadowCSMValueDirty{false};
 };
 
 } // namespace scene

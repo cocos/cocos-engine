@@ -122,8 +122,7 @@ export const NativeDirectionalLight: Constructor<{
     setShadowDistance(val: number): void;
     setShadowInvisibleOcclusionRange(val: number): void;
     setShadowCSMLevel(val: number): void;
-    setShadowCSMLambda(val: number): void;
-    setShadowFrustumItem(val: Vec2, val1: Vec2, val2: Vec2, val3: Vec2): void;
+    setShadowCSMValueDirty(val: boolean): void;
     setShadowFixedArea(val: boolean): void;
     setShadowNear(val: number): void;
     setShadowFar(val: number): void;
