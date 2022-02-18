@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,53 +25,36 @@
 
 #pragma once
 
-#include <memory>
-#include "engine/BaseEngine.h"
-
 namespace cc {
-class ApplicationObserver;
-class BaseApplication {
+
+class ApplicationObserver {
 public:
-    virtual ~BaseApplication() = default;
+    ApplicationObserver()          = default;
+    virtual ~ApplicationObserver() = default;
     /**
-     * @brief Application initialization
+     * @brief Application initialized.
      */
-    virtual int32_t init() = 0;
-    /**
-     * @brief Application main business logic.
-     */
-    virtual int32_t run(int          argc,
-                        const char **argv) = 0;
-    /**
-     * @brief Pause the application.
-     */
-    virtual void pause() = 0;
-    /**
-     * @brief Resume the application.
-     */
-    virtual void resume() = 0;
-    /**
-     * @brief Restart the application.
-     */
-    virtual void restart() = 0;
-    /**
-     * @brief Close the application.
-     */
-    virtual void close() = 0;
+    virtual void onAppInit() {}
 
     /**
-     * @brief Register an app observer.
+     * @brief Application started.
      */
-    virtual void registrObserver(ApplicationObserver *observer) = 0;
-    /**
-     * @brief Unregister an app observer.
-     */
-    virtual void unregistrObserver(ApplicationObserver *observer) = 0;
+    virtual void onAppStart() {}
 
     /**
-     * @brief Get engine.
+     * @brief Application started.
      */
-    virtual BaseEngine::Ptr getEngine() const = 0;
+    virtual void onAppPause() {}
+
+    /**
+     * @brief Application resumed.
+     */
+    virtual void onAppResume() {}
+
+    /**
+     * @brief Application closed.
+     */
+    virtual void onAppClose() {}
 };
 
 } // namespace cc

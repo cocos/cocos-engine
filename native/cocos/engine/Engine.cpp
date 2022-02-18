@@ -29,6 +29,8 @@
 #include <sstream>
 #include "base/DeferredReleasePool.h"
 #include "base/Macros.h"
+#include "platform/BasePlatform.h"
+
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/core/builtin/BuiltinResMgr.h"
 #include "cocos/renderer/GFXDeviceManager.h"
@@ -48,8 +50,12 @@
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
+#include "cocos/bindings/manual/jsb_global.h"
+#include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/network/HttpClient.h"
+#include "engine/EngineObserverManager.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/IScreen.h"
 
 namespace {
 
@@ -86,6 +92,7 @@ Engine::Engine() {
     FileUtils::getInstance()->addSearchPath("Resources", true);
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
+    _observers = std::make_unique<EngineObserverManager>();
 }
 
 Engine::~Engine() {
@@ -109,13 +116,28 @@ int32_t Engine::init() {
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
 
-    se::ScriptEngine::getInstance()->cleanup();
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
+    se->cleanup();
 
     BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
-    se::ScriptEngine::getInstance()->addPermanentRegisterCallback(setCanvasCallback);
+    se->addPermanentRegisterCallback(setCanvasCallback);
+
+    jsb_init_file_operation_delegate();
+
+    jsb_register_all_modules();
+
+    se->start();
+
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    auto     logicSize  = _systemWidow->getViewSize();
+    IScreen *screen     = _engine->getInterface<IScreen>();
+    float    pixelRatio = screen->getDevicePixelRatio();
+    cc::EventDispatcher::dispatchResizeEvent(logicSize.x * pixelRatio, logicSize.y * pixelRatio);
+#endif
+    onEngineInit();
     return 0;
 }
 
@@ -124,6 +146,7 @@ int32_t Engine::run() {
     platform->runInPlatformThread([&]() {
         tick();
     });
+    onEngineStart();
     return 0;
 }
 
@@ -179,6 +202,14 @@ void Engine::setPreferredFramesPerSecond(int fps) {
     _prefererredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); //NOLINT(google-runtime-int)
 }
 
+void Engine::registrObserver(EngineObserver *observer) {
+    _observers->registrObserver(observer);
+}
+
+void Engine::unregistrObserver(EngineObserver *observer) {
+    _observers->unregistrObserver(observer);
+}
+
 void Engine::addEventCallback(OSEventType evType, const EventCb &cb) {
     _eventCallbacks.insert(std::make_pair(evType, cb));
 }
@@ -192,6 +223,26 @@ void Engine::removeEventCallback(OSEventType evType) {
 
     // For debugging.
     CCASSERT(false, "Interface does not exist");
+}
+
+void Engine::setJsDebugIpAndPort(const std::string &serverAddr, uint32_t port, bool isWaitForConnect) {
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
+    // Enable debugger here
+    jsb_enable_debugger(serverAddr, port, isWaitForConnect);
+#endif
+}
+
+void Engine::setExceptionCallback(const se::ScriptEngine::ExceptionCallback &cb) {
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
+    se->setExceptionCallback(_seExceptionCallback);
+}
+
+void Engine::runJsScript(const std::string &filePath) {
+    jsb_run_script(filePath);
+}
+
+void Engine::setXXTeaKey(const std::string &key) {
+    jsb_set_xxtea_key(key);
 }
 
 void Engine::tick() {
@@ -300,7 +351,7 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
     bool isHandled = false;
     if (ev.type == WindowEvent::Type::SHOW ||
         ev.type == WindowEvent::Type::RESTORED) {
-        onResume();
+        onEngineResume();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
@@ -308,13 +359,13 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {
-        onPause();
+        onEnginePause();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::CLOSE) {
-        onClose();
+        onEngineClose();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
-        // There is no need to process the quit message, 
+        // There is no need to process the quit message,
         // the quit message is a custom message for the application
         isHandled = true;
     }
@@ -330,27 +381,26 @@ bool Engine::dispatchEventToApp(OSEventType type, const OSEvent &ev) {
     return false;
 }
 
-void Engine::onPause() {
-    AppEvent appEv;
-    appEv.type = AppEvent::Type::PAUSE;
-    dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
+void Engine::onEngineInit() {
+    _observers->onEngineInit();
+}
 
+void Engine::onEngineStart() {
+    _observers->onEngineStart();
+}
+
+void Engine::onEnginePause() {
+    _observers->onEnginePause();
     cc::EventDispatcher::dispatchEnterBackgroundEvent();
 }
 
-void Engine::onResume() {
-    AppEvent appEv;
-    appEv.type = AppEvent::Type::RESUME;
-    dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-
+void Engine::onEngineResume() {
+    _observers->onEngineResume();
     cc::EventDispatcher::dispatchEnterForegroundEvent();
 }
 
-void Engine::onClose() {
-    AppEvent appEv;
-    appEv.type = AppEvent::Type::CLOSE;
-    dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-
+void Engine::onEngineClose() {
+    _observers->onEngineClose();
     cc::EventDispatcher::dispatchCloseEvent();
 }
 

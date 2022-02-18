@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,53 +25,52 @@
 
 #pragma once
 
-#include <memory>
-#include "engine/BaseEngine.h"
+#include <vector>
+#include "engine/EngineObserver.h"
 
 namespace cc {
-class ApplicationObserver;
-class BaseApplication {
+
+class EngineObserverManager {
 public:
-    virtual ~BaseApplication() = default;
-    /**
-     * @brief Application initialization
-     */
-    virtual int32_t init() = 0;
-    /**
-     * @brief Application main business logic.
-     */
-    virtual int32_t run(int          argc,
-                        const char **argv) = 0;
-    /**
-     * @brief Pause the application.
-     */
-    virtual void pause() = 0;
-    /**
-     * @brief Resume the application.
-     */
-    virtual void resume() = 0;
-    /**
-     * @brief Restart the application.
-     */
-    virtual void restart() = 0;
-    /**
-     * @brief Close the application.
-     */
-    virtual void close() = 0;
+    EngineObserverManager()          = default;
+    virtual ~EngineObserverManager() = default;
 
     /**
-     * @brief Register an app observer.
+     * @brief Engine initialized.
      */
-    virtual void registrObserver(ApplicationObserver *observer) = 0;
-    /**
-     * @brief Unregister an app observer.
-     */
-    virtual void unregistrObserver(ApplicationObserver *observer) = 0;
+    void onEngineInit();
 
     /**
-     * @brief Get engine.
+     * @brief Engine started.
      */
-    virtual BaseEngine::Ptr getEngine() const = 0;
+    void onEngineStart();
+
+    /**
+     * @brief Engine started.
+     */
+    void onEnginePause();
+
+    /**
+     * @brief Engine resumed.
+     */
+    void onEngineResume();
+
+    /**
+     * @brief Engine closed.
+     */
+    void onEngineClose();
+
+    /**
+     * @brief Register an observer
+     */
+    void registrObserver(EngineObserver *observer);
+    /**
+     * @brief Unregister an observer
+     */
+    void unregistrObserver(EngineObserver *observer);
+
+private:
+    std::vector<EngineObserver *> _observers;
 };
 
 } // namespace cc

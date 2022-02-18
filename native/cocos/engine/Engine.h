@@ -38,6 +38,7 @@ namespace cc {
 
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS      16666667L
+class EngineObserverManager;
 
 class Engine : public BaseEngine {
 public:
@@ -83,6 +84,14 @@ public:
      */
     uint getTotalFrames() const override;
     /**
+     * @brief Register an observer
+     */
+    void registrObserver(EngineObserver *observer) override;
+    /**
+     * @brief Unregister an observer
+     */
+    void unregistrObserver(EngineObserver *observer) override;
+    /**
      @brief Add Event Listening.
      @param evtype:event type.
      @param cb:event callback.
@@ -105,26 +114,46 @@ public:
      */
     SchedulerPtr getScheduler() const override;
 
+    void setXXTeaKey(const std::string &key) override;
+    /**
+     * @brief Run the js code file
+     * @param filePath:Js file path.
+     */
+    void runJsScript(const std::string &filePath) override;
+    /**
+     * @brief Run the js code file
+     * @param filePath:Js file path.
+     */
+    void setJsDebugIpAndPort(const std::string &serverAddr, uint32_t port, bool isWaitForConnect) override;
+    /**
+     @brief Set exception callback.
+     */
+    void setExceptionCallback(const se::ScriptEngine::ExceptionCallback &cb) override;
+
 private:
-    void    tick();
-    bool    dispatchWindowEvent(const WindowEvent &ev);
-    bool    dispatchDeviceEvent(const DeviceEvent &ev);
-    bool    dispatchEventToApp(OSEventType type, const OSEvent &ev);
-    void    onPause();
-    void    onResume();
-    void    onClose();
+    void tick();
+    bool dispatchWindowEvent(const WindowEvent &ev);
+    bool dispatchDeviceEvent(const DeviceEvent &ev);
+    bool dispatchEventToApp(OSEventType type, const OSEvent &ev);
+    void onEngineInit();
+    void onEngineStart();
+    void onEnginePause();
+    void onEngineResume();
+    void onEngineClose();
+
     int32_t restartVM();
 
-    bool                       _close{false};
-    bool                       _pause{false};
-    bool                       _resune{false};
-    std::shared_ptr<Scheduler> _scheduler{nullptr};
-    int64_t                    _prefererredNanosecondsPerFrame{NANOSECONDS_60FPS};
-    uint                       _totalFrames{0};
-    cc::Vec2                   _viewLogicalSize{0, 0};
-    bool                       _needRestart{false};
-
-    std::map<OSEventType, EventCb> _eventCallbacks;
+    bool                                   _close{false};
+    bool                                   _pause{false};
+    bool                                   _resune{false};
+    bool                                   _needRestart{false};
+    uint                                   _totalFrames{0};
+    int64_t                                _prefererredNanosecondsPerFrame{NANOSECONDS_60FPS};
+    cc::Vec2                               _viewLogicalSize{0, 0};
+    std::shared_ptr<Scheduler>             _scheduler{nullptr};
+    std::unique_ptr<EngineObserverManager> _observers{nullptr};
+    se::ScriptEngine::ExceptionCallback    _seExceptionCallback{nullptr};
+    std::map<OSEventType, EventCb>         _eventCallbacks;
     CC_DISABLE_COPY_AND_MOVE_SEMANTICS(Engine);
 };
 
