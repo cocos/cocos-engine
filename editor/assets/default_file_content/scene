@@ -174,7 +174,7 @@
     },
     "_depth": 1,
     "_stencil": 0,
-    "_clearFlags": 7,
+    "_clearFlags": 14,
     "_rect": {
       "__type__": "cc.Rect",
       "x": 0,
