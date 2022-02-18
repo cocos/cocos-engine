@@ -56,7 +56,7 @@ let recycleAudio = function (audio) {
 };
 
 let getAudioFromPath = function (path) {
-    var id = _instanceId++;
+    var id = ++_instanceId;
     var list = _url2id[path];
     if (!list) {
         list = _url2id[path] = [];
