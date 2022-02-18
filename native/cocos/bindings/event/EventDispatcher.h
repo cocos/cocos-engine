@@ -68,19 +68,6 @@ private:
 #define CONSTRUCT_EVENT(name, type) \
     name() : OSEvent(type) {}
 
-class AppEvent : public OSEvent {
-public:
-    CONSTRUCT_EVENT(AppEvent, OSEventType::APP_OSEVENT)
-    enum class Type {
-        RUN = 0,
-        PAUSE,
-        RESUME,
-        CLOSE,
-        UNKNOWN,
-    };
-    Type type = Type::UNKNOWN;
-};
-
 class WindowEvent : public OSEvent {
 public:
     CONSTRUCT_EVENT(WindowEvent, OSEventType::WINDOW_OSEVENT)
