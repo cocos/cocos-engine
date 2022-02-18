@@ -50,8 +50,7 @@ export class DirectionalLight extends Light {
     protected _shadowDistance = 100;
     protected _shadowInvisibleOcclusionRange = 200;
     protected _shadowCSMLevel = CSMLevel.level_3;
-    protected _shadowCSMLambda = 0.75;
-    protected _shadowFrustumItem: Vec2[] = [];
+    protected _shadowCSMValueDirty = false;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -207,20 +206,6 @@ export class DirectionalLight extends Light {
     }
 
     /**
-      * @en get or set shadow CSM weighted average coefficient
-      * @zh 获取或者设置级联阴影的加权平均系数
-     */
-    get shadowCSMLambda () {
-        return this._shadowCSMLambda;
-    }
-    set shadowCSMLambda (val) {
-        this._shadowCSMLambda = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowCSMLevel(val);
-        }
-    }
-
-    /**
       * @en get or set shadow CSM level
       * @zh 获取或者设置级联阴影层数
      */
@@ -234,23 +219,11 @@ export class DirectionalLight extends Light {
         }
     }
 
-    /**
-      * @en get or set shadow CSM level
-      * @zh 获取或者设置级联阴影层数
-     */
-    get shadowFrustumItem () {
-        return this._shadowFrustumItem;
+    get shadowCSMValueDirty () {
+        return this._shadowCSMValueDirty;
     }
-    set shadowFrustumItem (val) {
-        this._shadowFrustumItem = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowFrustumItem(
-                this._shadowFrustumItem[0],
-                this._shadowFrustumItem[1],
-                this._shadowFrustumItem[2],
-                this._shadowFrustumItem[3],
-            );
-        }
+    set shadowCSMValueDirty (val) {
+        this._shadowCSMValueDirty = val;
     }
 
     /**

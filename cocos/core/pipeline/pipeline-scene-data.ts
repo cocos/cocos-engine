@@ -34,6 +34,7 @@ import { Material } from '../assets';
 import { Pass } from '../renderer/core/pass';
 import { NativePass, NativePipelineSharedSceneData } from '../renderer/scene';
 import { PipelineEventType } from './pipeline-event';
+import { CSMLayers } from './shadow/csm-layers';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -86,6 +87,7 @@ export class PipelineSceneData {
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
+    public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
 
     /**
