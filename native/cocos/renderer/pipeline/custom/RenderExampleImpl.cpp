@@ -60,7 +60,7 @@ int RenderCompiler::validate() const {
                 [&](const ComputePassData& pass) {
                     checkComputeValue(pass.computeViews);
                 },
-                [&](const auto&) {
+                [&](const auto& /*pass*/) {
                 });
         }
     } catch (const std::invalid_argument&) {
@@ -209,7 +209,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
 
                 addPassNodeValue(rdg, node, valueIDs, pass.resourceName, AccessType::READ);
             },
-            [&](const auto&) {
+            [&](const auto& /*pass*/) {
                 // do nothing
             });
     }
@@ -452,7 +452,7 @@ int RenderCompiler::compile() {
                 visitor,
                 get(colors, rdg));
         }
-    } catch (const std::invalid_argument&) {
+    } catch (const std::invalid_argument& /*e*/) {
         return 1;
     }
 

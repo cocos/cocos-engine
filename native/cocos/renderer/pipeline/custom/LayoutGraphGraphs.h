@@ -397,7 +397,7 @@ get(boost::vertex_index_t /*tag*/, LayoutGraph& /*g*/) noexcept {
     return {};
 }
 
-[[nodiscard]] inline impl::ColorMap<LayoutGraph::vertex_descriptor>
+inline impl::ColorMap<LayoutGraph::vertex_descriptor>
 get(boost::container::pmr::vector<boost::default_color_type>& colors, const LayoutGraph& /*g*/) noexcept {
     return {colors};
 }
@@ -455,7 +455,7 @@ get(T LayoutData::*memberPointer, LayoutGraph& g) noexcept {
 }
 
 // PolymorphicGraph
-[[nodiscard]] inline LayoutGraph::vertices_size_type
+inline LayoutGraph::vertices_size_type
 value_id(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // NOLINT
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
     return cc::visit(
@@ -469,7 +469,7 @@ value_id(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // N
         g.vertices[u].handle);
 }
 
-[[nodiscard]] inline LayoutGraph::vertex_tag_type
+inline LayoutGraph::vertex_tag_type
 tag(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
     return cc::visit(
@@ -483,7 +483,7 @@ tag(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
         g.vertices[u].handle);
 }
 
-[[nodiscard]] inline LayoutGraph::vertex_value_type
+inline LayoutGraph::vertex_value_type
 value(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
     return cc::visit(
@@ -497,7 +497,7 @@ value(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
         g.vertices[u].handle);
 }
 
-[[nodiscard]] inline LayoutGraph::vertex_const_value_type
+inline LayoutGraph::vertex_const_value_type
 value(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
     return cc::visit(
@@ -512,11 +512,11 @@ value(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
 }
 
 template <class Tag>
-[[nodiscard]] inline bool
+inline bool
 holds_tag(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept; // NOLINT
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Group_>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
@@ -524,7 +524,7 @@ holds_tag<Group_>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexce
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Shader_>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
@@ -532,11 +532,11 @@ holds_tag<Shader_>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexc
 }
 
 template <class ValueT>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept; // NOLINT
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<GroupNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
@@ -544,7 +544,7 @@ holds_alternative<GroupNodeData>(LayoutGraph::vertex_descriptor v, const LayoutG
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<ShaderNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
@@ -552,11 +552,11 @@ holds_alternative<ShaderNodeData>(LayoutGraph::vertex_descriptor v, const Layout
 }
 
 template <class ValueT>
-[[nodiscard]] inline ValueT&
+inline ValueT&
 get(LayoutGraph::vertex_descriptor /*v*/, LayoutGraph& /*g*/);
 
 template <>
-[[nodiscard]] inline GroupNodeData&
+inline GroupNodeData&
 get<GroupNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
@@ -565,7 +565,7 @@ get<GroupNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline ShaderNodeData&
+inline ShaderNodeData&
 get<ShaderNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
@@ -574,11 +574,11 @@ get<ShaderNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
 }
 
 template <class ValueT>
-[[nodiscard]] inline const ValueT&
+inline const ValueT&
 get(LayoutGraph::vertex_descriptor /*v*/, const LayoutGraph& /*g*/);
 
 template <>
-[[nodiscard]] inline const GroupNodeData&
+inline const GroupNodeData&
 get<GroupNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
@@ -587,7 +587,7 @@ get<GroupNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const ShaderNodeData&
+inline const ShaderNodeData&
 get<ShaderNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
@@ -595,7 +595,7 @@ get<ShaderNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     return g.shaderNodes[handle.value];
 }
 
-[[nodiscard]] inline GroupNodeData&
+inline GroupNodeData&
 get(Group_ /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
@@ -603,7 +603,7 @@ get(Group_ /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     return g.groupNodes[handle.value];
 }
 
-[[nodiscard]] inline ShaderNodeData&
+inline ShaderNodeData&
 get(Shader_ /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
@@ -611,7 +611,7 @@ get(Shader_ /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     return g.shaderNodes[handle.value];
 }
 
-[[nodiscard]] inline const GroupNodeData&
+inline const GroupNodeData&
 get(Group_ /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Group_, LayoutGraph::vertex_descriptor>>(
@@ -619,7 +619,7 @@ get(Group_ /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     return g.groupNodes[handle.value];
 }
 
-[[nodiscard]] inline const ShaderNodeData&
+inline const ShaderNodeData&
 get(Shader_ /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Shader_, LayoutGraph::vertex_descriptor>>(
@@ -628,11 +628,11 @@ get(Shader_ /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
 }
 
 template <class ValueT>
-[[nodiscard]] inline ValueT*
+inline ValueT*
 get_if(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept; // NOLINT
 
 template <>
-[[nodiscard]] inline GroupNodeData*
+inline GroupNodeData*
 get_if<GroupNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept { // NOLINT
     GroupNodeData* ptr = nullptr;
     if (!pGraph) {
@@ -649,7 +649,7 @@ get_if<GroupNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noe
 }
 
 template <>
-[[nodiscard]] inline ShaderNodeData*
+inline ShaderNodeData*
 get_if<ShaderNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept { // NOLINT
     ShaderNodeData* ptr = nullptr;
     if (!pGraph) {
@@ -666,11 +666,11 @@ get_if<ShaderNodeData>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) no
 }
 
 template <class ValueT>
-[[nodiscard]] inline const ValueT*
+inline const ValueT*
 get_if(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) noexcept; // NOLINT
 
 template <>
-[[nodiscard]] inline const GroupNodeData*
+inline const GroupNodeData*
 get_if<GroupNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) noexcept { // NOLINT
     const GroupNodeData* ptr = nullptr;
     if (!pGraph) {
@@ -687,7 +687,7 @@ get_if<GroupNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGrap
 }
 
 template <>
-[[nodiscard]] inline const ShaderNodeData*
+inline const ShaderNodeData*
 get_if<ShaderNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) noexcept { // NOLINT
     const ShaderNodeData* ptr = nullptr;
     if (!pGraph) {
@@ -705,14 +705,14 @@ get_if<ShaderNodeData>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGra
 
 // Vertex Constant Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, const LayoutGraph& g, LayoutGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
 
 // Vertex Mutable Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, LayoutGraph& g, LayoutGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
@@ -727,7 +727,7 @@ inline void put(
 }
 
 // AddressableGraph
-[[nodiscard]] inline std::ptrdiff_t
+inline std::ptrdiff_t
 path_length(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept { // NOLINT
     return impl::pathLength(u, g);
 }
@@ -765,7 +765,7 @@ get_path( // NOLINT
     return output;
 }
 
-[[nodiscard]] inline std::string
+inline std::string
 get_path( // NOLINT
     LayoutGraph::vertex_descriptor u0, const LayoutGraph& g,
     boost::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
@@ -789,14 +789,14 @@ get_path( // NOLINT
     return output;
 }
 
-[[nodiscard]] inline std::string
+inline std::string
 get_path(LayoutGraph::vertex_descriptor parent, boost::string_view name, const LayoutGraph& g) { // NOLINT
     std::string output;
     get_path(output, parent, name, g);
     return output;
 }
 
-[[nodiscard]] inline LayoutGraph::vertex_descriptor
+inline LayoutGraph::vertex_descriptor
 locate(boost::string_view absolute, const LayoutGraph& g) noexcept {
     auto iter = g.pathIndex.find(absolute);
     if (iter != g.pathIndex.end()) {
@@ -805,7 +805,7 @@ locate(boost::string_view absolute, const LayoutGraph& g) noexcept {
     return LayoutGraph::null_vertex();
 };
 
-[[nodiscard]] inline LayoutGraph::vertex_descriptor
+inline LayoutGraph::vertex_descriptor
 locate(LayoutGraph::vertex_descriptor u, boost::string_view relative, const LayoutGraph& g) {
     CC_EXPECTS(!relative.starts_with('/'));
     CC_EXPECTS(!relative.ends_with('/'));
@@ -814,13 +814,13 @@ locate(LayoutGraph::vertex_descriptor u, boost::string_view relative, const Layo
     return locate(key, g);
 };
 
-[[nodiscard]] inline bool
+inline bool
 contains(boost::string_view absolute, const LayoutGraph& g) noexcept {
     return locate(absolute, g) != LayoutGraph::null_vertex();
 }
 
 template <class ValueT>
-[[nodiscard]] inline ValueT&
+inline ValueT&
 get(boost::string_view pt, LayoutGraph& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraph::null_vertex()) {
@@ -830,7 +830,7 @@ get(boost::string_view pt, LayoutGraph& g) {
 }
 
 template <class ValueT>
-[[nodiscard]] inline const ValueT&
+inline const ValueT&
 get(boost::string_view pt, const LayoutGraph& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraph::null_vertex()) {
@@ -840,7 +840,7 @@ get(boost::string_view pt, const LayoutGraph& g) {
 }
 
 template <class ValueT>
-[[nodiscard]] inline ValueT*
+inline ValueT*
 get_if(boost::string_view pt, LayoutGraph* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);
@@ -852,7 +852,7 @@ get_if(boost::string_view pt, LayoutGraph* pGraph) noexcept { // NOLINT
 }
 
 template <class ValueT>
-[[nodiscard]] inline const ValueT*
+inline const ValueT*
 get_if(boost::string_view pt, const LayoutGraph* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);

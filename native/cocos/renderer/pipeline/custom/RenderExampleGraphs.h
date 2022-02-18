@@ -850,7 +850,7 @@ get(boost::vertex_index_t /*tag*/, RenderDependencyGraph& /*g*/) noexcept {
     return {};
 }
 
-[[nodiscard]] inline impl::ColorMap<RenderDependencyGraph::vertex_descriptor>
+inline impl::ColorMap<RenderDependencyGraph::vertex_descriptor>
 get(boost::container::pmr::vector<boost::default_color_type>& colors, const RenderDependencyGraph& /*g*/) noexcept {
     return {colors};
 }
@@ -927,14 +927,14 @@ get(T RenderPassTraits::*memberPointer, RenderDependencyGraph& g) noexcept {
 
 // Vertex Constant Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, const RenderDependencyGraph& g, RenderDependencyGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
 
 // Vertex Mutable Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, RenderDependencyGraph& g, RenderDependencyGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
@@ -972,14 +972,14 @@ get(boost::edge_bundle_t /*tag*/, RenderDependencyGraph& g) noexcept {
 
 // Edge Constant Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, const RenderDependencyGraph& g, RenderDependencyGraph::edge_descriptor e) noexcept {
     return get(get(tag, g), e);
 }
 
 // Edge Mutable Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, RenderDependencyGraph& g, RenderDependencyGraph::edge_descriptor e) noexcept {
     return get(get(tag, g), e);
 }
@@ -994,13 +994,13 @@ inline void put(
 }
 
 // UuidGraph
-[[nodiscard]] inline RenderDependencyGraph::vertex_descriptor
+inline RenderDependencyGraph::vertex_descriptor
 vertex(const RenderGraph::vertex_descriptor& key, const RenderDependencyGraph& g) {
     return g.passIndex.at(key);
 }
 
 template <class KeyLike>
-[[nodiscard]] inline RenderDependencyGraph::vertex_descriptor
+inline RenderDependencyGraph::vertex_descriptor
 vertex(const KeyLike& key, const RenderDependencyGraph& g) {
     const auto& index = g.passIndex;
     auto iter = index.find(key);
@@ -1011,7 +1011,7 @@ vertex(const KeyLike& key, const RenderDependencyGraph& g) {
 }
 
 template <class KeyLike>
-[[nodiscard]] inline RenderDependencyGraph::vertex_descriptor
+inline RenderDependencyGraph::vertex_descriptor
 find_vertex(const KeyLike& key, const RenderDependencyGraph& g) noexcept { // NOLINT
     const auto& index = g.passIndex;
     auto iter = index.find(key);
@@ -1021,14 +1021,14 @@ find_vertex(const KeyLike& key, const RenderDependencyGraph& g) noexcept { // NO
     return iter->second;
 }
 
-[[nodiscard]] inline bool
+inline bool
 contains(const RenderGraph::vertex_descriptor& key, const RenderDependencyGraph& g) noexcept {
     auto iter = g.passIndex.find(key);
     return iter != g.passIndex.end();
 }
 
 template <class KeyLike>
-[[nodiscard]] inline bool
+inline bool
 contains(const KeyLike& key, const RenderDependencyGraph& g) noexcept {
     auto iter = g.passIndex.find(key);
     return iter != g.passIndex.end();
@@ -1057,7 +1057,7 @@ get(boost::vertex_index_t /*tag*/, RenderValueGraph& /*g*/) noexcept {
     return {};
 }
 
-[[nodiscard]] inline impl::ColorMap<RenderValueGraph::vertex_descriptor>
+inline impl::ColorMap<RenderValueGraph::vertex_descriptor>
 get(boost::container::pmr::vector<boost::default_color_type>& colors, const RenderValueGraph& /*g*/) noexcept {
     return {colors};
 }
@@ -1088,14 +1088,14 @@ get(T RenderValueNode::*memberPointer, RenderValueGraph& g) noexcept {
 
 // Vertex Constant Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, const RenderValueGraph& g, RenderValueGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
 
 // Vertex Mutable Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, RenderValueGraph& g, RenderValueGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
@@ -1110,13 +1110,13 @@ inline void put(
 }
 
 // UuidGraph
-[[nodiscard]] inline RenderValueGraph::vertex_descriptor
+inline RenderValueGraph::vertex_descriptor
 vertex(const RenderValueNode& key, const RenderValueGraph& g) {
     return g.index.at(key);
 }
 
 template <class KeyLike>
-[[nodiscard]] inline RenderValueGraph::vertex_descriptor
+inline RenderValueGraph::vertex_descriptor
 vertex(const KeyLike& key, const RenderValueGraph& g) {
     const auto& index = g.index;
     auto iter = index.find(key);
@@ -1127,7 +1127,7 @@ vertex(const KeyLike& key, const RenderValueGraph& g) {
 }
 
 template <class KeyLike>
-[[nodiscard]] inline RenderValueGraph::vertex_descriptor
+inline RenderValueGraph::vertex_descriptor
 find_vertex(const KeyLike& key, const RenderValueGraph& g) noexcept { // NOLINT
     const auto& index = g.index;
     auto iter = index.find(key);
@@ -1137,14 +1137,14 @@ find_vertex(const KeyLike& key, const RenderValueGraph& g) noexcept { // NOLINT
     return iter->second;
 }
 
-[[nodiscard]] inline bool
+inline bool
 contains(const RenderValueNode& key, const RenderValueGraph& g) noexcept {
     auto iter = g.index.find(key);
     return iter != g.index.end();
 }
 
 template <class KeyLike>
-[[nodiscard]] inline bool
+inline bool
 contains(const KeyLike& key, const RenderValueGraph& g) noexcept {
     auto iter = g.index.find(key);
     return iter != g.index.end();

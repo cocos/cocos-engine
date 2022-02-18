@@ -1139,7 +1139,7 @@ get(boost::vertex_index_t /*tag*/, ResourceGraph& /*g*/) noexcept {
     return {};
 }
 
-[[nodiscard]] inline impl::ColorMap<ResourceGraph::vertex_descriptor>
+inline impl::ColorMap<ResourceGraph::vertex_descriptor>
 get(boost::container::pmr::vector<boost::default_color_type>& colors, const ResourceGraph& /*g*/) noexcept {
     return {colors};
 }
@@ -1211,14 +1211,14 @@ get(T ResourceTraits::*memberPointer, ResourceGraph& g) noexcept {
 
 // Vertex Constant Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, const ResourceGraph& g, ResourceGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
 
 // Vertex Mutable Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, ResourceGraph& g, ResourceGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
@@ -1233,13 +1233,13 @@ inline void put(
 }
 
 // UuidGraph
-[[nodiscard]] inline ResourceGraph::vertex_descriptor
+inline ResourceGraph::vertex_descriptor
 vertex(const PmrString& key, const ResourceGraph& g) {
     return g.valueIndex.at(key);
 }
 
 template <class KeyLike>
-[[nodiscard]] inline ResourceGraph::vertex_descriptor
+inline ResourceGraph::vertex_descriptor
 vertex(const KeyLike& key, const ResourceGraph& g) {
     const auto& index = g.valueIndex;
     auto iter = index.find(key);
@@ -1250,7 +1250,7 @@ vertex(const KeyLike& key, const ResourceGraph& g) {
 }
 
 template <class KeyLike>
-[[nodiscard]] inline ResourceGraph::vertex_descriptor
+inline ResourceGraph::vertex_descriptor
 find_vertex(const KeyLike& key, const ResourceGraph& g) noexcept { // NOLINT
     const auto& index = g.valueIndex;
     auto iter = index.find(key);
@@ -1260,14 +1260,14 @@ find_vertex(const KeyLike& key, const ResourceGraph& g) noexcept { // NOLINT
     return iter->second;
 }
 
-[[nodiscard]] inline bool
+inline bool
 contains(const PmrString& key, const ResourceGraph& g) noexcept {
     auto iter = g.valueIndex.find(key);
     return iter != g.valueIndex.end();
 }
 
 template <class KeyLike>
-[[nodiscard]] inline bool
+inline bool
 contains(const KeyLike& key, const ResourceGraph& g) noexcept {
     auto iter = g.valueIndex.find(key);
     return iter != g.valueIndex.end();
@@ -1305,7 +1305,7 @@ get(boost::vertex_index_t /*tag*/, SubpassGraph& /*g*/) noexcept {
     return {};
 }
 
-[[nodiscard]] inline impl::ColorMap<SubpassGraph::vertex_descriptor>
+inline impl::ColorMap<SubpassGraph::vertex_descriptor>
 get(boost::container::pmr::vector<boost::default_color_type>& colors, const SubpassGraph& /*g*/) noexcept {
     return {colors};
 }
@@ -1353,14 +1353,14 @@ get(T RasterSubpass::*memberPointer, SubpassGraph& g) noexcept {
 
 // Vertex Constant Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, const SubpassGraph& g, SubpassGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
 
 // Vertex Mutable Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, SubpassGraph& g, SubpassGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
@@ -1404,7 +1404,7 @@ get(boost::vertex_index_t /*tag*/, RenderGraph& /*g*/) noexcept {
     return {};
 }
 
-[[nodiscard]] inline impl::ColorMap<RenderGraph::vertex_descriptor>
+inline impl::ColorMap<RenderGraph::vertex_descriptor>
 get(boost::container::pmr::vector<boost::default_color_type>& colors, const RenderGraph& /*g*/) noexcept {
     return {colors};
 }
@@ -1462,7 +1462,7 @@ get(T RenderData::*memberPointer, RenderGraph& g) noexcept {
 }
 
 // PolymorphicGraph
-[[nodiscard]] inline RenderGraph::vertices_size_type
+inline RenderGraph::vertices_size_type
 value_id(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept { // NOLINT
     using vertex_descriptor = RenderGraph::vertex_descriptor;
     return cc::visit(
@@ -1500,7 +1500,7 @@ value_id(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept { // N
         g.vertices[u].handle);
 }
 
-[[nodiscard]] inline RenderGraph::vertex_tag_type
+inline RenderGraph::vertex_tag_type
 tag(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
     using vertex_descriptor = RenderGraph::vertex_descriptor;
     return cc::visit(
@@ -1538,7 +1538,7 @@ tag(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
         g.vertices[u].handle);
 }
 
-[[nodiscard]] inline RenderGraph::vertex_value_type
+inline RenderGraph::vertex_value_type
 value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
     using vertex_descriptor = RenderGraph::vertex_descriptor;
     return cc::visit(
@@ -1576,7 +1576,7 @@ value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
         g.vertices[u].handle);
 }
 
-[[nodiscard]] inline RenderGraph::vertex_const_value_type
+inline RenderGraph::vertex_const_value_type
 value(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
     using vertex_descriptor = RenderGraph::vertex_descriptor;
     return cc::visit(
@@ -1615,11 +1615,11 @@ value(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
 }
 
 template <class Tag>
-[[nodiscard]] inline bool
+inline bool
 holds_tag(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept; // NOLINT
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Raster_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Raster_, RenderGraph::vertex_descriptor>>(
@@ -1627,7 +1627,7 @@ holds_tag<Raster_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexc
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Compute_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Compute_, RenderGraph::vertex_descriptor>>(
@@ -1635,7 +1635,7 @@ holds_tag<Compute_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noex
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Copy_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Copy_, RenderGraph::vertex_descriptor>>(
@@ -1643,7 +1643,7 @@ holds_tag<Copy_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcep
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Move_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Move_, RenderGraph::vertex_descriptor>>(
@@ -1651,7 +1651,7 @@ holds_tag<Move_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcep
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Present_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Present_, RenderGraph::vertex_descriptor>>(
@@ -1659,7 +1659,7 @@ holds_tag<Present_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noex
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Raytrace_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Raytrace_, RenderGraph::vertex_descriptor>>(
@@ -1667,7 +1667,7 @@ holds_tag<Raytrace_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noe
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Queue_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Queue_, RenderGraph::vertex_descriptor>>(
@@ -1675,7 +1675,7 @@ holds_tag<Queue_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexce
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Scene_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Scene_, RenderGraph::vertex_descriptor>>(
@@ -1683,7 +1683,7 @@ holds_tag<Scene_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexce
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Blit_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Blit_, RenderGraph::vertex_descriptor>>(
@@ -1691,7 +1691,7 @@ holds_tag<Blit_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcep
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_tag<Dispatch_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Dispatch_, RenderGraph::vertex_descriptor>>(
@@ -1699,11 +1699,11 @@ holds_tag<Dispatch_>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noe
 }
 
 template <class ValueT>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept; // NOLINT
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<RasterPassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Raster_, RenderGraph::vertex_descriptor>>(
@@ -1711,7 +1711,7 @@ holds_alternative<RasterPassData>(RenderGraph::vertex_descriptor v, const Render
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<ComputePassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Compute_, RenderGraph::vertex_descriptor>>(
@@ -1719,7 +1719,7 @@ holds_alternative<ComputePassData>(RenderGraph::vertex_descriptor v, const Rende
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<CopyPassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Copy_, RenderGraph::vertex_descriptor>>(
@@ -1727,7 +1727,7 @@ holds_alternative<CopyPassData>(RenderGraph::vertex_descriptor v, const RenderGr
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<MovePassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Move_, RenderGraph::vertex_descriptor>>(
@@ -1735,7 +1735,7 @@ holds_alternative<MovePassData>(RenderGraph::vertex_descriptor v, const RenderGr
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<PresentPassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Present_, RenderGraph::vertex_descriptor>>(
@@ -1743,7 +1743,7 @@ holds_alternative<PresentPassData>(RenderGraph::vertex_descriptor v, const Rende
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<RaytracePassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Raytrace_, RenderGraph::vertex_descriptor>>(
@@ -1751,7 +1751,7 @@ holds_alternative<RaytracePassData>(RenderGraph::vertex_descriptor v, const Rend
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<RenderQueueData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Queue_, RenderGraph::vertex_descriptor>>(
@@ -1759,7 +1759,7 @@ holds_alternative<RenderQueueData>(RenderGraph::vertex_descriptor v, const Rende
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<SceneData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Scene_, RenderGraph::vertex_descriptor>>(
@@ -1767,7 +1767,7 @@ holds_alternative<SceneData>(RenderGraph::vertex_descriptor v, const RenderGraph
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<Blit>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Blit_, RenderGraph::vertex_descriptor>>(
@@ -1775,7 +1775,7 @@ holds_alternative<Blit>(RenderGraph::vertex_descriptor v, const RenderGraph& g) 
 }
 
 template <>
-[[nodiscard]] inline bool
+inline bool
 holds_alternative<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<Dispatch_, RenderGraph::vertex_descriptor>>(
@@ -1783,11 +1783,11 @@ holds_alternative<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph&
 }
 
 template <class ValueT>
-[[nodiscard]] inline ValueT&
+inline ValueT&
 get(RenderGraph::vertex_descriptor /*v*/, RenderGraph& /*g*/);
 
 template <>
-[[nodiscard]] inline RasterPassData&
+inline RasterPassData&
 get<RasterPassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Raster_, RenderGraph::vertex_descriptor>>(
@@ -1796,7 +1796,7 @@ get<RasterPassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline ComputePassData&
+inline ComputePassData&
 get<ComputePassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Compute_, RenderGraph::vertex_descriptor>>(
@@ -1805,7 +1805,7 @@ get<ComputePassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline CopyPassData&
+inline CopyPassData&
 get<CopyPassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Copy_, RenderGraph::vertex_descriptor>>(
@@ -1814,7 +1814,7 @@ get<CopyPassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline MovePassData&
+inline MovePassData&
 get<MovePassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Move_, RenderGraph::vertex_descriptor>>(
@@ -1823,7 +1823,7 @@ get<MovePassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline PresentPassData&
+inline PresentPassData&
 get<PresentPassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Present_, RenderGraph::vertex_descriptor>>(
@@ -1832,7 +1832,7 @@ get<PresentPassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline RaytracePassData&
+inline RaytracePassData&
 get<RaytracePassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Raytrace_, RenderGraph::vertex_descriptor>>(
@@ -1841,7 +1841,7 @@ get<RaytracePassData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline RenderQueueData&
+inline RenderQueueData&
 get<RenderQueueData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Queue_, RenderGraph::vertex_descriptor>>(
@@ -1850,7 +1850,7 @@ get<RenderQueueData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline SceneData&
+inline SceneData&
 get<SceneData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Scene_, RenderGraph::vertex_descriptor>>(
@@ -1859,7 +1859,7 @@ get<SceneData>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline Blit&
+inline Blit&
 get<Blit>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Blit_, RenderGraph::vertex_descriptor>>(
@@ -1868,7 +1868,7 @@ get<Blit>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline Dispatch&
+inline Dispatch&
 get<Dispatch>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Dispatch_, RenderGraph::vertex_descriptor>>(
@@ -1877,11 +1877,11 @@ get<Dispatch>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
 }
 
 template <class ValueT>
-[[nodiscard]] inline const ValueT&
+inline const ValueT&
 get(RenderGraph::vertex_descriptor /*v*/, const RenderGraph& /*g*/);
 
 template <>
-[[nodiscard]] inline const RasterPassData&
+inline const RasterPassData&
 get<RasterPassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Raster_, RenderGraph::vertex_descriptor>>(
@@ -1890,7 +1890,7 @@ get<RasterPassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const ComputePassData&
+inline const ComputePassData&
 get<ComputePassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Compute_, RenderGraph::vertex_descriptor>>(
@@ -1899,7 +1899,7 @@ get<ComputePassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const CopyPassData&
+inline const CopyPassData&
 get<CopyPassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Copy_, RenderGraph::vertex_descriptor>>(
@@ -1908,7 +1908,7 @@ get<CopyPassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const MovePassData&
+inline const MovePassData&
 get<MovePassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Move_, RenderGraph::vertex_descriptor>>(
@@ -1917,7 +1917,7 @@ get<MovePassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const PresentPassData&
+inline const PresentPassData&
 get<PresentPassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Present_, RenderGraph::vertex_descriptor>>(
@@ -1926,7 +1926,7 @@ get<PresentPassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const RaytracePassData&
+inline const RaytracePassData&
 get<RaytracePassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Raytrace_, RenderGraph::vertex_descriptor>>(
@@ -1935,7 +1935,7 @@ get<RaytracePassData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const RenderQueueData&
+inline const RenderQueueData&
 get<RenderQueueData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Queue_, RenderGraph::vertex_descriptor>>(
@@ -1944,7 +1944,7 @@ get<RenderQueueData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const SceneData&
+inline const SceneData&
 get<SceneData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Scene_, RenderGraph::vertex_descriptor>>(
@@ -1953,7 +1953,7 @@ get<SceneData>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const Blit&
+inline const Blit&
 get<Blit>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Blit_, RenderGraph::vertex_descriptor>>(
@@ -1962,7 +1962,7 @@ get<Blit>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-[[nodiscard]] inline const Dispatch&
+inline const Dispatch&
 get<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Dispatch_, RenderGraph::vertex_descriptor>>(
@@ -1970,7 +1970,7 @@ get<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.dispatches[handle.value];
 }
 
-[[nodiscard]] inline RasterPassData&
+inline RasterPassData&
 get(Raster_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Raster_, RenderGraph::vertex_descriptor>>(
@@ -1978,7 +1978,7 @@ get(Raster_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.rasterPasses[handle.value];
 }
 
-[[nodiscard]] inline ComputePassData&
+inline ComputePassData&
 get(Compute_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Compute_, RenderGraph::vertex_descriptor>>(
@@ -1986,7 +1986,7 @@ get(Compute_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.computePasses[handle.value];
 }
 
-[[nodiscard]] inline CopyPassData&
+inline CopyPassData&
 get(Copy_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Copy_, RenderGraph::vertex_descriptor>>(
@@ -1994,7 +1994,7 @@ get(Copy_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.copyPasses[handle.value];
 }
 
-[[nodiscard]] inline MovePassData&
+inline MovePassData&
 get(Move_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Move_, RenderGraph::vertex_descriptor>>(
@@ -2002,7 +2002,7 @@ get(Move_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.movePasses[handle.value];
 }
 
-[[nodiscard]] inline PresentPassData&
+inline PresentPassData&
 get(Present_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Present_, RenderGraph::vertex_descriptor>>(
@@ -2010,7 +2010,7 @@ get(Present_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.presentPasses[handle.value];
 }
 
-[[nodiscard]] inline RaytracePassData&
+inline RaytracePassData&
 get(Raytrace_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Raytrace_, RenderGraph::vertex_descriptor>>(
@@ -2018,7 +2018,7 @@ get(Raytrace_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.raytracePasses[handle.value];
 }
 
-[[nodiscard]] inline RenderQueueData&
+inline RenderQueueData&
 get(Queue_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Queue_, RenderGraph::vertex_descriptor>>(
@@ -2026,7 +2026,7 @@ get(Queue_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.renderQueues[handle.value];
 }
 
-[[nodiscard]] inline SceneData&
+inline SceneData&
 get(Scene_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Scene_, RenderGraph::vertex_descriptor>>(
@@ -2034,7 +2034,7 @@ get(Scene_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.scenes[handle.value];
 }
 
-[[nodiscard]] inline Blit&
+inline Blit&
 get(Blit_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Blit_, RenderGraph::vertex_descriptor>>(
@@ -2042,7 +2042,7 @@ get(Blit_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.blits[handle.value];
 }
 
-[[nodiscard]] inline Dispatch&
+inline Dispatch&
 get(Dispatch_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<Dispatch_, RenderGraph::vertex_descriptor>>(
@@ -2050,7 +2050,7 @@ get(Dispatch_ /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.dispatches[handle.value];
 }
 
-[[nodiscard]] inline const RasterPassData&
+inline const RasterPassData&
 get(Raster_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Raster_, RenderGraph::vertex_descriptor>>(
@@ -2058,7 +2058,7 @@ get(Raster_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.rasterPasses[handle.value];
 }
 
-[[nodiscard]] inline const ComputePassData&
+inline const ComputePassData&
 get(Compute_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Compute_, RenderGraph::vertex_descriptor>>(
@@ -2066,7 +2066,7 @@ get(Compute_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.computePasses[handle.value];
 }
 
-[[nodiscard]] inline const CopyPassData&
+inline const CopyPassData&
 get(Copy_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Copy_, RenderGraph::vertex_descriptor>>(
@@ -2074,7 +2074,7 @@ get(Copy_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.copyPasses[handle.value];
 }
 
-[[nodiscard]] inline const MovePassData&
+inline const MovePassData&
 get(Move_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Move_, RenderGraph::vertex_descriptor>>(
@@ -2082,7 +2082,7 @@ get(Move_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.movePasses[handle.value];
 }
 
-[[nodiscard]] inline const PresentPassData&
+inline const PresentPassData&
 get(Present_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Present_, RenderGraph::vertex_descriptor>>(
@@ -2090,7 +2090,7 @@ get(Present_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.presentPasses[handle.value];
 }
 
-[[nodiscard]] inline const RaytracePassData&
+inline const RaytracePassData&
 get(Raytrace_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Raytrace_, RenderGraph::vertex_descriptor>>(
@@ -2098,7 +2098,7 @@ get(Raytrace_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.raytracePasses[handle.value];
 }
 
-[[nodiscard]] inline const RenderQueueData&
+inline const RenderQueueData&
 get(Queue_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Queue_, RenderGraph::vertex_descriptor>>(
@@ -2106,7 +2106,7 @@ get(Queue_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.renderQueues[handle.value];
 }
 
-[[nodiscard]] inline const SceneData&
+inline const SceneData&
 get(Scene_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Scene_, RenderGraph::vertex_descriptor>>(
@@ -2114,7 +2114,7 @@ get(Scene_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.scenes[handle.value];
 }
 
-[[nodiscard]] inline const Blit&
+inline const Blit&
 get(Blit_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Blit_, RenderGraph::vertex_descriptor>>(
@@ -2122,7 +2122,7 @@ get(Blit_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     return g.blits[handle.value];
 }
 
-[[nodiscard]] inline const Dispatch&
+inline const Dispatch&
 get(Dispatch_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<Dispatch_, RenderGraph::vertex_descriptor>>(
@@ -2131,11 +2131,11 @@ get(Dispatch_ /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <class ValueT>
-[[nodiscard]] inline ValueT*
+inline ValueT*
 get_if(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept; // NOLINT
 
 template <>
-[[nodiscard]] inline RasterPassData*
+inline RasterPassData*
 get_if<RasterPassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     RasterPassData* ptr = nullptr;
     if (!pGraph) {
@@ -2152,7 +2152,7 @@ get_if<RasterPassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) no
 }
 
 template <>
-[[nodiscard]] inline ComputePassData*
+inline ComputePassData*
 get_if<ComputePassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     ComputePassData* ptr = nullptr;
     if (!pGraph) {
@@ -2169,7 +2169,7 @@ get_if<ComputePassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) n
 }
 
 template <>
-[[nodiscard]] inline CopyPassData*
+inline CopyPassData*
 get_if<CopyPassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     CopyPassData* ptr = nullptr;
     if (!pGraph) {
@@ -2186,7 +2186,7 @@ get_if<CopyPassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noex
 }
 
 template <>
-[[nodiscard]] inline MovePassData*
+inline MovePassData*
 get_if<MovePassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     MovePassData* ptr = nullptr;
     if (!pGraph) {
@@ -2203,7 +2203,7 @@ get_if<MovePassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noex
 }
 
 template <>
-[[nodiscard]] inline PresentPassData*
+inline PresentPassData*
 get_if<PresentPassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     PresentPassData* ptr = nullptr;
     if (!pGraph) {
@@ -2220,7 +2220,7 @@ get_if<PresentPassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) n
 }
 
 template <>
-[[nodiscard]] inline RaytracePassData*
+inline RaytracePassData*
 get_if<RaytracePassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     RaytracePassData* ptr = nullptr;
     if (!pGraph) {
@@ -2237,7 +2237,7 @@ get_if<RaytracePassData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) 
 }
 
 template <>
-[[nodiscard]] inline RenderQueueData*
+inline RenderQueueData*
 get_if<RenderQueueData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     RenderQueueData* ptr = nullptr;
     if (!pGraph) {
@@ -2254,7 +2254,7 @@ get_if<RenderQueueData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) n
 }
 
 template <>
-[[nodiscard]] inline SceneData*
+inline SceneData*
 get_if<SceneData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     SceneData* ptr = nullptr;
     if (!pGraph) {
@@ -2271,7 +2271,7 @@ get_if<SceneData>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcep
 }
 
 template <>
-[[nodiscard]] inline Blit*
+inline Blit*
 get_if<Blit>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     Blit* ptr = nullptr;
     if (!pGraph) {
@@ -2288,7 +2288,7 @@ get_if<Blit>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { /
 }
 
 template <>
-[[nodiscard]] inline Dispatch*
+inline Dispatch*
 get_if<Dispatch>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
     Dispatch* ptr = nullptr;
     if (!pGraph) {
@@ -2305,11 +2305,11 @@ get_if<Dispatch>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept
 }
 
 template <class ValueT>
-[[nodiscard]] inline const ValueT*
+inline const ValueT*
 get_if(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept; // NOLINT
 
 template <>
-[[nodiscard]] inline const RasterPassData*
+inline const RasterPassData*
 get_if<RasterPassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const RasterPassData* ptr = nullptr;
     if (!pGraph) {
@@ -2326,7 +2326,7 @@ get_if<RasterPassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGra
 }
 
 template <>
-[[nodiscard]] inline const ComputePassData*
+inline const ComputePassData*
 get_if<ComputePassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const ComputePassData* ptr = nullptr;
     if (!pGraph) {
@@ -2343,7 +2343,7 @@ get_if<ComputePassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGr
 }
 
 template <>
-[[nodiscard]] inline const CopyPassData*
+inline const CopyPassData*
 get_if<CopyPassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const CopyPassData* ptr = nullptr;
     if (!pGraph) {
@@ -2360,7 +2360,7 @@ get_if<CopyPassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph
 }
 
 template <>
-[[nodiscard]] inline const MovePassData*
+inline const MovePassData*
 get_if<MovePassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const MovePassData* ptr = nullptr;
     if (!pGraph) {
@@ -2377,7 +2377,7 @@ get_if<MovePassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph
 }
 
 template <>
-[[nodiscard]] inline const PresentPassData*
+inline const PresentPassData*
 get_if<PresentPassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const PresentPassData* ptr = nullptr;
     if (!pGraph) {
@@ -2394,7 +2394,7 @@ get_if<PresentPassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGr
 }
 
 template <>
-[[nodiscard]] inline const RaytracePassData*
+inline const RaytracePassData*
 get_if<RaytracePassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const RaytracePassData* ptr = nullptr;
     if (!pGraph) {
@@ -2411,7 +2411,7 @@ get_if<RaytracePassData>(RenderGraph::vertex_descriptor v, const RenderGraph* pG
 }
 
 template <>
-[[nodiscard]] inline const RenderQueueData*
+inline const RenderQueueData*
 get_if<RenderQueueData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const RenderQueueData* ptr = nullptr;
     if (!pGraph) {
@@ -2428,7 +2428,7 @@ get_if<RenderQueueData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGr
 }
 
 template <>
-[[nodiscard]] inline const SceneData*
+inline const SceneData*
 get_if<SceneData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const SceneData* ptr = nullptr;
     if (!pGraph) {
@@ -2445,7 +2445,7 @@ get_if<SceneData>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) n
 }
 
 template <>
-[[nodiscard]] inline const Blit*
+inline const Blit*
 get_if<Blit>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const Blit* ptr = nullptr;
     if (!pGraph) {
@@ -2462,7 +2462,7 @@ get_if<Blit>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexce
 }
 
 template <>
-[[nodiscard]] inline const Dispatch*
+inline const Dispatch*
 get_if<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
     const Dispatch* ptr = nullptr;
     if (!pGraph) {
@@ -2480,14 +2480,14 @@ get_if<Dispatch>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) no
 
 // Vertex Constant Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, const RenderGraph& g, RenderGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }
 
 // Vertex Mutable Getter
 template <class Tag>
-[[nodiscard]] inline decltype(auto)
+inline decltype(auto)
 get(Tag tag, RenderGraph& g, RenderGraph::vertex_descriptor v) noexcept {
     return get(get(tag, g), v);
 }

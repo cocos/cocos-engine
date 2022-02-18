@@ -626,10 +626,10 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
     ColorMap(boost::container::pmr::vector<boost::default_color_type> &vec) noexcept // NOLINT(google-explicit-constructor)
     : container{&vec} {}
 
-    [[nodiscard]] inline reference operator[](const key_type &v) const noexcept {
+    inline reference operator[](const key_type &v) const noexcept {
         return (*container)[v];
     }
-    [[nodiscard]] inline reference operator()(const key_type &v) const noexcept {
+    inline reference operator()(const key_type &v) const noexcept {
         return this->operator[](v);
     }
 
