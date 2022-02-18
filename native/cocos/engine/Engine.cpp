@@ -132,8 +132,8 @@ int32_t Engine::init() {
     se->start();
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    auto     logicSize  = _systemWidow->getViewSize();
-    IScreen *screen     = _engine->getInterface<IScreen>();
+    auto     logicSize  = getInterface<ISystemWindow>()->getViewSize();
+    IScreen *screen     = getInterface<IScreen>();
     float    pixelRatio = screen->getDevicePixelRatio();
     cc::EventDispatcher::dispatchResizeEvent(logicSize.x * pixelRatio, logicSize.y * pixelRatio);
 #endif
@@ -232,7 +232,7 @@ void Engine::setJsDebugIpAndPort(const std::string &serverAddr, uint32_t port, b
 #endif
 }
 
-void Engine::setExceptionCallback(const se::ScriptEngine::ExceptionCallback &cb) {
+void Engine::setExceptionCallback(const ExceptionCallback &cb) {
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     se->setExceptionCallback(_seExceptionCallback);
 }

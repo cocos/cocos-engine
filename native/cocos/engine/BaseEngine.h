@@ -29,7 +29,6 @@
 
 #include "base/Scheduler.h"
 #include "base/TypeDef.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
 #include "platform/BasePlatform.h"
 
 namespace cc {
@@ -120,7 +119,8 @@ public:
     /**
      @brief Set exception callback.
      */
-    virtual void setExceptionCallback(const se::ScriptEngine::ExceptionCallback &cb) = 0;
+    using ExceptionCallback = std::function<void(const char *, const char *, const char *)>; // location, message, stack
+    virtual void setExceptionCallback(const ExceptionCallback &cb) = 0;
 
     using SchedulerPtr = std::shared_ptr<Scheduler>;
     /**
