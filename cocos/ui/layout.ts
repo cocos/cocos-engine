@@ -1160,6 +1160,4 @@ export class Layout extends Component {
     }
 }
 
-export { Layout as LayoutComponent };
 legacyCC.Layout = Layout;
-js.setClassAlias(Layout, 'cc.LayoutComponent');

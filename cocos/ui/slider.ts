@@ -330,6 +330,4 @@ export class Slider extends Component {
  * @param {Slider} slider - The slider component.
  */
 
-export { Slider as SliderComponent };
 legacyCC.Slider = Slider;
-js.setClassAlias(Slider, 'cc.SliderComponent');

@@ -1005,6 +1005,4 @@ export declare namespace Widget {
 legacyCC.internal.computeInverseTransForTarget = computeInverseTransForTarget;
 legacyCC.internal.getReadonlyNodeSize = getReadonlyNodeSize;
 
-export { Widget as WidgetComponent };
 legacyCC.Widget = Widget;
-js.setClassAlias(Widget, 'cc.WidgetComponent');

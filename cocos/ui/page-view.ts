@@ -781,6 +781,4 @@ export class PageView extends ScrollView {
  * @param {PageView} pageView - The PageView component.
  */
 
-export { PageView as PageViewComponent };
 legacyCC.PageView = PageView;
-js.setClassAlias(PageView, 'cc.PageViewComponent');

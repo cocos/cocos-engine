@@ -846,6 +846,4 @@ export class Label extends Renderable2D {
     }
 }
 
-export { Label as LabelComponent };
 legacyCC.Label = Label;
-js.setClassAlias(Label, 'cc.LabelComponent');

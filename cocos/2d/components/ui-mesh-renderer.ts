@@ -166,6 +166,4 @@ export class UIMeshRenderer extends Component {
     }
 }
 
-export { UIMeshRenderer as UIModelComponent };
 legacyCC.UIModel = UIMeshRenderer;
-js.setClassAlias(UIMeshRenderer, 'cc.UIModelComponent');

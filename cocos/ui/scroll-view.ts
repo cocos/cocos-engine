@@ -1920,6 +1920,4 @@ export class ScrollView extends ViewGroup {
  * @param {ScrollView} scrollView - The ScrollView component.
  */
 
-export { ScrollView as ScrollViewComponent };
 legacyCC.ScrollView = ScrollView;
-js.setClassAlias(ScrollView, 'cc.ScrollViewComponent');

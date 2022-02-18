@@ -344,6 +344,4 @@ export class ProgressBar extends Component {
     }
 }
 
-export { ProgressBar as ProgressBarComponent };
 legacyCC.ProgressBar = ProgressBar;
-js.setClassAlias(ProgressBar, 'cc.ProgressBarComponent');

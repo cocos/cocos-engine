@@ -122,6 +122,4 @@ export class SafeArea extends Component {
     }
 }
 
-export { SafeArea as SafeAreaComponent };
 legacyCC.SafeArea = SafeArea;
-js.setClassAlias(SafeArea, 'cc.SafeAreaComponent');

@@ -1122,6 +1122,4 @@ export class RichText extends Component {
     }
 }
 
-export { RichText as RichTextComponent };
 legacyCC.RichText = RichText;
-js.setClassAlias(RichText, 'cc.RichTextComponent');

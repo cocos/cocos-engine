@@ -497,6 +497,4 @@ export class ScrollBar extends Component {
     }
 }
 
-export { ScrollBar as ScrollBarComponent };
 legacyCC.ScrollBar = ScrollBar;
-js.setClassAlias(ScrollBar, 'cc.ScrollBarComponent');

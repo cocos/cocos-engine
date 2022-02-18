@@ -264,6 +264,4 @@ export class PageViewIndicator extends Component {
     }
 }
 
-export { PageViewIndicator as PageViewIndicatorComponent };
 legacyCC.PageViewIndicator = PageViewIndicator;
-js.setClassAlias(PageViewIndicator, 'cc.PageViewIndicatorComponent');

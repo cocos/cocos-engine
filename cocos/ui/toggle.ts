@@ -214,6 +214,4 @@ export class Toggle extends Button {
  * @param {Toggle} toggle - The Toggle component.
  */
 
-export { Toggle as ToggleComponent };
 legacyCC.Toggle = Toggle;
-js.setClassAlias(Toggle, 'cc.ToggleComponent');

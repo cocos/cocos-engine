@@ -698,6 +698,4 @@ export class Sprite extends Renderable2D {
     }
 }
 
-export { Sprite as SpriteComponent };
 legacyCC.Sprite = Sprite;
-js.setClassAlias(Sprite, 'cc.SpriteComponent');

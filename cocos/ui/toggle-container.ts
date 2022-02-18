@@ -173,6 +173,4 @@ export class ToggleContainer extends Component {
     }
 }
 
-export { ToggleContainer as ToggleContainerComponent };
 legacyCC.ToggleContainer = ToggleContainer;
-js.setClassAlias(ToggleContainer, 'cc.ToggleContainerComponent');

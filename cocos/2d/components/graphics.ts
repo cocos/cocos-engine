@@ -674,6 +674,4 @@ export class Graphics extends Renderable2D {
     }
 }
 
-export { Graphics as GraphicsComponent };
 legacyCC.Graphics = Graphics;
-js.setClassAlias(Graphics, 'cc.GraphicsComponent');

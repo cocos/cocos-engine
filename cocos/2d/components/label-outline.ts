@@ -135,6 +135,4 @@ export class LabelOutline extends Component {
     }
 }
 
-export { LabelOutline as LabelOutlineComponent };
 legacyCC.LabelOutline = LabelOutline;
-js.setClassAlias(LabelOutline, 'cc.LabelOutlineComponent');
