@@ -149,4 +149,10 @@ export class CSMLayers {
                 i, '] = (', this._shadowCSMLayers[i].shadowCameraNear, ', ', this._shadowCSMLayers[i].shadowCameraFar, ')');
         }
     }
+
+    public destroy () {
+        this._dirLight = null;
+        this._shadowCSMLevelCount = 0;
+        this._shadowCSMLayers.length = 0;
+    }
 }

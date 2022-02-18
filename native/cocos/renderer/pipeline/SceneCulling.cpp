@@ -38,6 +38,7 @@
 #include "scene/RenderScene.h"
 #include "scene/Sphere.h"
 #include "scene/SpotLight.h"
+#include "shadow/CSMLayers.h"
 
 namespace cc {
 namespace pipeline {
@@ -328,9 +329,10 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
     PipelineSceneData *const              sceneData  = pipeline->getPipelineSceneData();
     const scene::PipelineSharedSceneData *sharedData = sceneData->getSharedData();
     const scene::Shadow *                 shadowInfo = sharedData->shadow;
+    CSMLayers *                           csmLayers  = sceneData->getCSMLayers();
     const scene::Skybox *                 skyBox     = sharedData->skybox;
     const scene::RenderScene *const       scene      = camera->scene;
-    const scene::DirectionalLight *       mainLight  = scene->getMainLight();
+    scene::DirectionalLight *             mainLight  = scene->getMainLight();
     scene::Frustum                        dirLightFrustum;
 
     RenderObjectList dirShadowObjects;
@@ -340,6 +342,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
 
         // update dirLightFrustum
         if (mainLight && mainLight->getNode()) {
+            csmLayers->update(mainLight);
             quantizeDirLightShadowCamera(pipeline, camera, &dirLightFrustum);
         } else {
             for (Vec3 &vertex : dirLightFrustum.vertices) {

@@ -29,6 +29,7 @@
 #include "scene/Define.h"
 #include "scene/Light.h"
 #include "scene/Sphere.h"
+#include "shadow/CSMLayers.h"
 
 namespace cc {
 
@@ -71,6 +72,7 @@ public:
     inline void                                                                clearRenderObjects() { _renderObjects.clear(); }
     inline void                                                                addValidPunctualLight(scene::Light *light) { _validPunctualLights.emplace_back(light); }
     inline void                                                                clearValidPunctualLights() { _validPunctualLights.clear(); }
+    inline CSMLayers *                                                         getCSMLayers() const { return _csmLayers; }
 
 private:
     RenderObjectList             _renderObjects;
@@ -81,6 +83,7 @@ private:
     scene::PipelineSharedSceneData *_sharedSceneData = nullptr;
     RenderPipeline *                _pipeline        = nullptr;
     gfx::Device *                   _device          = nullptr;
+    CSMLayers *                     _csmLayers       = nullptr;
     float                           _shadowCameraFar = 0.0F;
     Mat4                            _matShadowView;
     Mat4                            _matShadowProj;
