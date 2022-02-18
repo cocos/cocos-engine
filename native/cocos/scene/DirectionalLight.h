@@ -62,9 +62,9 @@ public:
     inline void setShadowFrustumItem(Vec2 *shadowFrustumItem) { memcpy(_shadowFrustumItem, shadowFrustumItem, sizeof(Vec2) * 4); }
     inline void setShadowFrustumItem(const Vec2 &val, const Vec2 &val1, const Vec2 &val2, const Vec2 &val3) {
         _shadowFrustumItem[0].set(val);
-        _shadowFrustumItem[1].set(val);
-        _shadowFrustumItem[2].set(val);
-        _shadowFrustumItem[3].set(val);
+        _shadowFrustumItem[1].set(val1);
+        _shadowFrustumItem[2].set(val2);
+        _shadowFrustumItem[3].set(val3);
     }
 
     inline const Vec3 & getDirection() const { return _dir; }
