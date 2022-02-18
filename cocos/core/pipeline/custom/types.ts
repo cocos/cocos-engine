@@ -74,6 +74,7 @@ export const enum ResourceResidency {
 }
 
 export const enum QueueHint {
+    NONE,
     RENDER_OPAQUE,
     RENDER_CUTOUT,
     RENDER_TRANSPARENT,

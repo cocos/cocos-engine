@@ -286,6 +286,17 @@ static bool js_render_RasterQueueBuilder_addFullscreenQuad(se::State& s) // NOLI
     const auto& args = s.args();
     size_t argc = args.size();
     do {
+        if (argc == 1) {
+            HolderType<std::string, true> arg0 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->addFullscreenQuad(arg0.value());
+            return true;
+        }
+    } while(false);
+
+    do {
         if (argc == 2) {
             HolderType<std::string, true> arg0 = {};
             HolderType<std::string, true> arg1 = {};
@@ -295,34 +306,6 @@ static bool js_render_RasterQueueBuilder_addFullscreenQuad(se::State& s) // NOLI
             ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
             if (!ok) { ok = true; break; }
             cobj->addFullscreenQuad(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<std::string, true> arg0 = {};
-            HolderType<std::string, true> arg1 = {};
-            HolderType<std::string, true> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addFullscreenQuad(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 1) {
-            HolderType<std::string, true> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->addFullscreenQuad(arg0.value());
             return true;
         }
     } while(false);
@@ -1169,11 +1152,15 @@ static bool js_render_Pipeline_beginFrame(se::State& s) // NOLINT(readability-id
     SE_PRECONDITION2(cobj, false, "js_render_Pipeline_beginFrame : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    if (argc == 0) {
-        cobj->beginFrame();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::pipeline::PipelineSceneData*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_Pipeline_beginFrame : Error processing arguments");
+        cobj->beginFrame(arg0.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
 SE_BIND_FUNC(js_render_Pipeline_beginFrame)

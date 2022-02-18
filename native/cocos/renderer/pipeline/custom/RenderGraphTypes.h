@@ -427,40 +427,40 @@ struct SubpassGraph {
     boost::container::pmr::vector<RasterSubpass> subpasses;
 };
 
-struct RasterPassData {
+struct RasterPass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {rasterViews.get_allocator().resource()};
     }
 
-    RasterPassData(const allocator_type& alloc) noexcept; // NOLINT
-    RasterPassData(RasterPassData&& rhs, const allocator_type& alloc);
-    RasterPassData(RasterPassData const& rhs, const allocator_type& alloc);
+    RasterPass(const allocator_type& alloc) noexcept; // NOLINT
+    RasterPass(RasterPass&& rhs, const allocator_type& alloc);
+    RasterPass(RasterPass const& rhs, const allocator_type& alloc);
 
-    RasterPassData(RasterPassData&& rhs) noexcept = default;
-    RasterPassData(RasterPassData const& rhs)     = delete;
-    RasterPassData& operator=(RasterPassData&& rhs) = default;
-    RasterPassData& operator=(RasterPassData const& rhs) = default;
+    RasterPass(RasterPass&& rhs) noexcept = default;
+    RasterPass(RasterPass const& rhs)     = delete;
+    RasterPass& operator=(RasterPass&& rhs) = default;
+    RasterPass& operator=(RasterPass const& rhs) = default;
 
     PmrTransparentMap<PmrString, RasterView>                                 rasterViews;
     PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
     SubpassGraph                                                             subpassGraph;
 };
 
-struct ComputePassData {
+struct ComputePass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {computeViews.get_allocator().resource()};
     }
 
-    ComputePassData(const allocator_type& alloc) noexcept; // NOLINT
-    ComputePassData(ComputePassData&& rhs, const allocator_type& alloc);
-    ComputePassData(ComputePassData const& rhs, const allocator_type& alloc);
+    ComputePass(const allocator_type& alloc) noexcept; // NOLINT
+    ComputePass(ComputePass&& rhs, const allocator_type& alloc);
+    ComputePass(ComputePass const& rhs, const allocator_type& alloc);
 
-    ComputePassData(ComputePassData&& rhs) noexcept = default;
-    ComputePassData(ComputePassData const& rhs)     = delete;
-    ComputePassData& operator=(ComputePassData&& rhs) = default;
-    ComputePassData& operator=(ComputePassData const& rhs) = default;
+    ComputePass(ComputePass&& rhs) noexcept = default;
+    ComputePass(ComputePass const& rhs)     = delete;
+    ComputePass& operator=(ComputePass&& rhs) = default;
+    ComputePass& operator=(ComputePass const& rhs) = default;
 
     PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
 };
@@ -493,20 +493,20 @@ struct CopyPair {
     uint32_t  targetPlaneSlice      = 0;
 };
 
-struct CopyPassData {
+struct CopyPass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {copyPairs.get_allocator().resource()};
     }
 
-    CopyPassData(const allocator_type& alloc) noexcept; // NOLINT
-    CopyPassData(CopyPassData&& rhs, const allocator_type& alloc);
-    CopyPassData(CopyPassData const& rhs, const allocator_type& alloc);
+    CopyPass(const allocator_type& alloc) noexcept; // NOLINT
+    CopyPass(CopyPass&& rhs, const allocator_type& alloc);
+    CopyPass(CopyPass const& rhs, const allocator_type& alloc);
 
-    CopyPassData(CopyPassData&& rhs) noexcept = default;
-    CopyPassData(CopyPassData const& rhs)     = delete;
-    CopyPassData& operator=(CopyPassData&& rhs) = default;
-    CopyPassData& operator=(CopyPassData const& rhs) = default;
+    CopyPass(CopyPass&& rhs) noexcept = default;
+    CopyPass(CopyPass const& rhs)     = delete;
+    CopyPass& operator=(CopyPass&& rhs) = default;
+    CopyPass& operator=(CopyPass const& rhs) = default;
 
     boost::container::pmr::vector<CopyPair> copyPairs;
 };
@@ -536,38 +536,38 @@ struct MovePair {
     uint32_t  targetPlaneSlice      = 0;
 };
 
-struct MovePassData {
+struct MovePass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {movePairs.get_allocator().resource()};
     }
 
-    MovePassData(const allocator_type& alloc) noexcept; // NOLINT
-    MovePassData(MovePassData&& rhs, const allocator_type& alloc);
-    MovePassData(MovePassData const& rhs, const allocator_type& alloc);
+    MovePass(const allocator_type& alloc) noexcept; // NOLINT
+    MovePass(MovePass&& rhs, const allocator_type& alloc);
+    MovePass(MovePass const& rhs, const allocator_type& alloc);
 
-    MovePassData(MovePassData&& rhs) noexcept = default;
-    MovePassData(MovePassData const& rhs)     = delete;
-    MovePassData& operator=(MovePassData&& rhs) = default;
-    MovePassData& operator=(MovePassData const& rhs) = default;
+    MovePass(MovePass&& rhs) noexcept = default;
+    MovePass(MovePass const& rhs)     = delete;
+    MovePass& operator=(MovePass&& rhs) = default;
+    MovePass& operator=(MovePass const& rhs) = default;
 
     boost::container::pmr::vector<MovePair> movePairs;
 };
 
-struct RaytracePassData {
+struct RaytracePass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {computeViews.get_allocator().resource()};
     }
 
-    RaytracePassData(const allocator_type& alloc) noexcept; // NOLINT
-    RaytracePassData(RaytracePassData&& rhs, const allocator_type& alloc);
-    RaytracePassData(RaytracePassData const& rhs, const allocator_type& alloc);
+    RaytracePass(const allocator_type& alloc) noexcept; // NOLINT
+    RaytracePass(RaytracePass&& rhs, const allocator_type& alloc);
+    RaytracePass(RaytracePass const& rhs, const allocator_type& alloc);
 
-    RaytracePassData(RaytracePassData&& rhs) noexcept = default;
-    RaytracePassData(RaytracePassData const& rhs)     = delete;
-    RaytracePassData& operator=(RaytracePassData&& rhs) = default;
-    RaytracePassData& operator=(RaytracePassData const& rhs) = default;
+    RaytracePass(RaytracePass&& rhs) noexcept = default;
+    RaytracePass(RaytracePass const& rhs)     = delete;
+    RaytracePass& operator=(RaytracePass&& rhs) = default;
+    RaytracePass& operator=(RaytracePass const& rhs) = default;
 
     PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
 };
@@ -578,9 +578,9 @@ struct Dispatch_ {};
 struct Blit_ {};
 struct Present_ {};
 
-struct RenderQueueData {
-    RenderQueueData() = default;
-    RenderQueueData(QueueHint hintIn) noexcept // NOLINT
+struct RenderQueue {
+    RenderQueue() = default;
+    RenderQueue(QueueHint hintIn) noexcept // NOLINT
     : hint(hintIn) {}
 
     QueueHint hint = QueueHint::RENDER_OPAQUE;
@@ -648,21 +648,21 @@ struct Blit {
     PmrString shader;
 };
 
-struct PresentPassData {
+struct PresentPass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {resourceName.get_allocator().resource()};
     }
 
-    PresentPassData(const allocator_type& alloc) noexcept; // NOLINT
-    PresentPassData(PmrString resourceNameIn, uint32_t syncIntervalIn, uint32_t flagsIn, const allocator_type& alloc) noexcept;
-    PresentPassData(PresentPassData&& rhs, const allocator_type& alloc);
-    PresentPassData(PresentPassData const& rhs, const allocator_type& alloc);
+    PresentPass(const allocator_type& alloc) noexcept; // NOLINT
+    PresentPass(PmrString resourceNameIn, uint32_t syncIntervalIn, uint32_t flagsIn, const allocator_type& alloc) noexcept;
+    PresentPass(PresentPass&& rhs, const allocator_type& alloc);
+    PresentPass(PresentPass const& rhs, const allocator_type& alloc);
 
-    PresentPassData(PresentPassData&& rhs) noexcept = default;
-    PresentPassData(PresentPassData const& rhs)     = delete;
-    PresentPassData& operator=(PresentPassData&& rhs) = default;
-    PresentPassData& operator=(PresentPassData const& rhs) = default;
+    PresentPass(PresentPass&& rhs) noexcept = default;
+    PresentPass(PresentPass const& rhs)     = delete;
+    PresentPass& operator=(PresentPass&& rhs) = default;
+    PresentPass& operator=(PresentPass const& rhs) = default;
 
     PmrString resourceName;
     uint32_t  syncInterval = 0;
@@ -809,8 +809,8 @@ struct RenderGraph {
 
     // PolymorphicGraph
     using vertex_tag_type         = boost::variant2::variant<Raster_, Compute_, Copy_, Move_, Present_, Raytrace_, Queue_, Scene_, Blit_, Dispatch_>;
-    using vertex_value_type       = boost::variant2::variant<RasterPassData*, ComputePassData*, CopyPassData*, MovePassData*, PresentPassData*, RaytracePassData*, RenderQueueData*, SceneData*, Blit*, Dispatch*>;
-    using vertex_const_value_type = boost::variant2::variant<const RasterPassData*, const ComputePassData*, const CopyPassData*, const MovePassData*, const PresentPassData*, const RaytracePassData*, const RenderQueueData*, const SceneData*, const Blit*, const Dispatch*>;
+    using vertex_value_type       = boost::variant2::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*>;
+    using vertex_const_value_type = boost::variant2::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*>;
     using vertex_handle_type      = boost::variant2::variant<
         impl::ValueHandle<Raster_, vertex_descriptor>,
         impl::ValueHandle<Compute_, vertex_descriptor>,
@@ -882,16 +882,16 @@ struct RenderGraph {
     boost::container::pmr::vector<PmrString>  layoutNodes;
     boost::container::pmr::vector<RenderData> data;
     // PolymorphicGraph
-    boost::container::pmr::vector<RasterPassData>   rasterPasses;
-    boost::container::pmr::vector<ComputePassData>  computePasses;
-    boost::container::pmr::vector<CopyPassData>     copyPasses;
-    boost::container::pmr::vector<MovePassData>     movePasses;
-    boost::container::pmr::vector<PresentPassData>  presentPasses;
-    boost::container::pmr::vector<RaytracePassData> raytracePasses;
-    boost::container::pmr::vector<RenderQueueData>  renderQueues;
-    boost::container::pmr::vector<SceneData>        scenes;
-    boost::container::pmr::vector<Blit>             blits;
-    boost::container::pmr::vector<Dispatch>         dispatches;
+    boost::container::pmr::vector<RasterPass>   rasterPasses;
+    boost::container::pmr::vector<ComputePass>  computePasses;
+    boost::container::pmr::vector<CopyPass>     copyPasses;
+    boost::container::pmr::vector<MovePass>     movePasses;
+    boost::container::pmr::vector<PresentPass>  presentPasses;
+    boost::container::pmr::vector<RaytracePass> raytracePasses;
+    boost::container::pmr::vector<RenderQueue>  renderQueues;
+    boost::container::pmr::vector<SceneData>    scenes;
+    boost::container::pmr::vector<Blit>         blits;
+    boost::container::pmr::vector<Dispatch>     dispatches;
     // Members
     PmrUnorderedMap<PmrString, uint32_t> index;
 };

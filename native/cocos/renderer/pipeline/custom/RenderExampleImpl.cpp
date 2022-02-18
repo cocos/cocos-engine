@@ -54,10 +54,10 @@ int RenderCompiler::validate() const {
         for (const auto& vertID : makeRange(vertices(rg))) {
             visitObject(
                 vertID, rg,
-                [&](const RasterPassData& pass) {
+                [&](const RasterPass& pass) {
                     checkComputeValue(pass.computeViews);
                 },
-                [&](const ComputePassData& pass) {
+                [&](const ComputePass& pass) {
                     checkComputeValue(pass.computeViews);
                 },
                 [&](const auto& /*pass*/) {
@@ -147,7 +147,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
     for (const auto passID : makeRange(vertices(rg))) {
         visitObject(
             passID, rg,
-            [&](const RasterPassData& pass) {
+            [&](const RasterPass& pass) {
                 auto  vertID   = add_vertex(rdg, passID);
                 auto& node     = get(RDG::Pass, rdg, vertID);
                 auto& valueIDs = get(RDG::ValueID, rdg, vertID);
@@ -162,7 +162,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                     addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
                 }
             },
-            [&](const ComputePassData& pass) {
+            [&](const ComputePass& pass) {
                 auto  vertID   = add_vertex(rdg, passID);
                 auto& node     = get(RDG::Pass, rdg, vertID);
                 auto& valueIDs = get(RDG::ValueID, rdg, vertID);
@@ -172,7 +172,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                     addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
                 }
             },
-            [&](const CopyPassData& pass) {
+            [&](const CopyPass& pass) {
                 auto  vertID   = add_vertex(rdg, passID);
                 auto& node     = get(RDG::Pass, rdg, vertID);
                 auto& valueIDs = get(RDG::ValueID, rdg, vertID);
@@ -182,7 +182,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                     addPassNodeValue(rdg, node, valueIDs, pair.target, AccessType::WRITE);
                 }
             },
-            [&](const MovePassData& pass) {
+            [&](const MovePass& pass) {
                 auto  vertID   = add_vertex(rdg, passID);
                 auto& node     = get(RDG::Pass, rdg, vertID);
                 auto& valueIDs = get(RDG::ValueID, rdg, vertID);
@@ -192,7 +192,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                     addPassNodeValue(rdg, node, valueIDs, pair.target, AccessType::WRITE);
                 }
             },
-            [&](const RaytracePassData& pass) {
+            [&](const RaytracePass& pass) {
                 auto  vertID   = add_vertex(rdg, passID);
                 auto& node     = get(RDG::Pass, rdg, vertID);
                 auto& valueIDs = get(RDG::ValueID, rdg, vertID);
@@ -202,7 +202,7 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                     addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
                 }
             },
-            [&](const PresentPassData& pass) {
+            [&](const PresentPass& pass) {
                 auto  vertID   = add_vertex(rdg, passID);
                 auto& node     = get(RDG::Pass, rdg, vertID);
                 auto& valueIDs = get(RDG::ValueID, rdg, vertID);

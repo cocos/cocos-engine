@@ -119,6 +119,7 @@ struct Memoryless_ {};
 using ResourceResidency = boost::variant2::variant<Managed_, Persistent_, Backbuffer_, Memoryless_>;
 
 enum class QueueHint {
+    NONE,
     RENDER_OPAQUE,
     RENDER_CUTOUT,
     RENDER_TRANSPARENT,

@@ -689,13 +689,13 @@ export class SubpassGraph implements impl.BidirectionalGraph
     readonly _subpasses: RasterSubpass[] = [];
 }
 
-export class RasterPassData {
+export class RasterPass {
     rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     subpassGraph: SubpassGraph = new SubpassGraph();
 }
 
-export class ComputePassData {
+export class ComputePass {
     computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
@@ -735,7 +735,7 @@ export class CopyPair {
     targetPlaneSlice: number;
 }
 
-export class CopyPassData {
+export class CopyPass {
     copyPairs: CopyPair[] = [];
 }
 
@@ -766,15 +766,15 @@ export class MovePair {
     targetPlaneSlice: number;
 }
 
-export class MovePassData {
+export class MovePass {
     movePairs: MovePair[] = [];
 }
 
-export class RaytracePassData {
+export class RaytracePass {
     computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
-export class RenderQueueData {
+export class RenderQueue {
     constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE) {
         this.hint = hint;
     }
@@ -810,7 +810,7 @@ export class Blit {
     shader: string;
 }
 
-export class PresentPassData {
+export class PresentPass {
     constructor (resourceName = '', syncInterval = 0, flags = 0) {
         this.resourceName = resourceName;
         this.syncInterval = syncInterval;
@@ -846,38 +846,38 @@ export const enum RenderGraphValue {
 }
 
 interface RenderGraphValueType {
-    [RenderGraphValue.Raster]: RasterPassData
-    [RenderGraphValue.Compute]: ComputePassData
-    [RenderGraphValue.Copy]: CopyPassData
-    [RenderGraphValue.Move]: MovePassData
-    [RenderGraphValue.Present]: PresentPassData
-    [RenderGraphValue.Raytrace]: RaytracePassData
-    [RenderGraphValue.Queue]: RenderQueueData
+    [RenderGraphValue.Raster]: RasterPass
+    [RenderGraphValue.Compute]: ComputePass
+    [RenderGraphValue.Copy]: CopyPass
+    [RenderGraphValue.Move]: MovePass
+    [RenderGraphValue.Present]: PresentPass
+    [RenderGraphValue.Raytrace]: RaytracePass
+    [RenderGraphValue.Queue]: RenderQueue
     [RenderGraphValue.Scene]: SceneData
     [RenderGraphValue.Blit]: Blit
     [RenderGraphValue.Dispatch]: Dispatch
 }
 
 export interface RenderGraphVisitor {
-    raster(value: RasterPassData): unknown;
-    compute(value: ComputePassData): unknown;
-    copy(value: CopyPassData): unknown;
-    move(value: MovePassData): unknown;
-    present(value: PresentPassData): unknown;
-    raytrace(value: RaytracePassData): unknown;
-    queue(value: RenderQueueData): unknown;
+    raster(value: RasterPass): unknown;
+    compute(value: ComputePass): unknown;
+    copy(value: CopyPass): unknown;
+    move(value: MovePass): unknown;
+    present(value: PresentPass): unknown;
+    raytrace(value: RaytracePass): unknown;
+    queue(value: RenderQueue): unknown;
     scene(value: SceneData): unknown;
     blit(value: Blit): unknown;
     dispatch(value: Dispatch): unknown;
 }
 
-type RenderGraphObject = RasterPassData
-| ComputePassData
-| CopyPassData
-| MovePassData
-| PresentPassData
-| RaytracePassData
-| RenderQueueData
+type RenderGraphObject = RasterPass
+| ComputePass
+| CopyPass
+| MovePass
+| PresentPass
+| RaytracePass
+| RenderQueue
 | SceneData
 | Blit
 | Dispatch;
@@ -1260,19 +1260,19 @@ export class RenderGraph implements impl.BidirectionalGraph
         const vert = this._vertices[v];
         switch (vert._id) {
         case RenderGraphValue.Raster:
-            return visitor.raster(vert._object as RasterPassData);
+            return visitor.raster(vert._object as RasterPass);
         case RenderGraphValue.Compute:
-            return visitor.compute(vert._object as ComputePassData);
+            return visitor.compute(vert._object as ComputePass);
         case RenderGraphValue.Copy:
-            return visitor.copy(vert._object as CopyPassData);
+            return visitor.copy(vert._object as CopyPass);
         case RenderGraphValue.Move:
-            return visitor.move(vert._object as MovePassData);
+            return visitor.move(vert._object as MovePass);
         case RenderGraphValue.Present:
-            return visitor.present(vert._object as PresentPassData);
+            return visitor.present(vert._object as PresentPass);
         case RenderGraphValue.Raytrace:
-            return visitor.raytrace(vert._object as RaytracePassData);
+            return visitor.raytrace(vert._object as RaytracePass);
         case RenderGraphValue.Queue:
-            return visitor.queue(vert._object as RenderQueueData);
+            return visitor.queue(vert._object as RenderQueue);
         case RenderGraphValue.Scene:
             return visitor.scene(vert._object as SceneData);
         case RenderGraphValue.Blit:
@@ -1283,51 +1283,51 @@ export class RenderGraph implements impl.BidirectionalGraph
             throw Error('polymorphic type not found');
         }
     }
-    getRaster (v: number): RasterPassData {
+    getRaster (v: number): RasterPass {
         if (this._vertices[v]._id === RenderGraphValue.Raster) {
-            return this._vertices[v]._object as RasterPassData;
+            return this._vertices[v]._object as RasterPass;
         } else {
             throw Error('value id not match');
         }
     }
-    getCompute (v: number): ComputePassData {
+    getCompute (v: number): ComputePass {
         if (this._vertices[v]._id === RenderGraphValue.Compute) {
-            return this._vertices[v]._object as ComputePassData;
+            return this._vertices[v]._object as ComputePass;
         } else {
             throw Error('value id not match');
         }
     }
-    getCopy (v: number): CopyPassData {
+    getCopy (v: number): CopyPass {
         if (this._vertices[v]._id === RenderGraphValue.Copy) {
-            return this._vertices[v]._object as CopyPassData;
+            return this._vertices[v]._object as CopyPass;
         } else {
             throw Error('value id not match');
         }
     }
-    getMove (v: number): MovePassData {
+    getMove (v: number): MovePass {
         if (this._vertices[v]._id === RenderGraphValue.Move) {
-            return this._vertices[v]._object as MovePassData;
+            return this._vertices[v]._object as MovePass;
         } else {
             throw Error('value id not match');
         }
     }
-    getPresent (v: number): PresentPassData {
+    getPresent (v: number): PresentPass {
         if (this._vertices[v]._id === RenderGraphValue.Present) {
-            return this._vertices[v]._object as PresentPassData;
+            return this._vertices[v]._object as PresentPass;
         } else {
             throw Error('value id not match');
         }
     }
-    getRaytrace (v: number): RaytracePassData {
+    getRaytrace (v: number): RaytracePass {
         if (this._vertices[v]._id === RenderGraphValue.Raytrace) {
-            return this._vertices[v]._object as RaytracePassData;
+            return this._vertices[v]._object as RaytracePass;
         } else {
             throw Error('value id not match');
         }
     }
-    getQueue (v: number): RenderQueueData {
+    getQueue (v: number): RenderQueue {
         if (this._vertices[v]._id === RenderGraphValue.Queue) {
-            return this._vertices[v]._object as RenderQueueData;
+            return this._vertices[v]._object as RenderQueue;
         } else {
             throw Error('value id not match');
         }
@@ -1353,51 +1353,51 @@ export class RenderGraph implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryGetRaster (v: number): RasterPassData | null {
+    tryGetRaster (v: number): RasterPass | null {
         if (this._vertices[v]._id === RenderGraphValue.Raster) {
-            return this._vertices[v]._object as RasterPassData;
+            return this._vertices[v]._object as RasterPass;
         } else {
             return null;
         }
     }
-    tryGetCompute (v: number): ComputePassData | null {
+    tryGetCompute (v: number): ComputePass | null {
         if (this._vertices[v]._id === RenderGraphValue.Compute) {
-            return this._vertices[v]._object as ComputePassData;
+            return this._vertices[v]._object as ComputePass;
         } else {
             return null;
         }
     }
-    tryGetCopy (v: number): CopyPassData | null {
+    tryGetCopy (v: number): CopyPass | null {
         if (this._vertices[v]._id === RenderGraphValue.Copy) {
-            return this._vertices[v]._object as CopyPassData;
+            return this._vertices[v]._object as CopyPass;
         } else {
             return null;
         }
     }
-    tryGetMove (v: number): MovePassData | null {
+    tryGetMove (v: number): MovePass | null {
         if (this._vertices[v]._id === RenderGraphValue.Move) {
-            return this._vertices[v]._object as MovePassData;
+            return this._vertices[v]._object as MovePass;
         } else {
             return null;
         }
     }
-    tryGetPresent (v: number): PresentPassData | null {
+    tryGetPresent (v: number): PresentPass | null {
         if (this._vertices[v]._id === RenderGraphValue.Present) {
-            return this._vertices[v]._object as PresentPassData;
+            return this._vertices[v]._object as PresentPass;
         } else {
             return null;
         }
     }
-    tryGetRaytrace (v: number): RaytracePassData | null {
+    tryGetRaytrace (v: number): RaytracePass | null {
         if (this._vertices[v]._id === RenderGraphValue.Raytrace) {
-            return this._vertices[v]._object as RaytracePassData;
+            return this._vertices[v]._object as RaytracePass;
         } else {
             return null;
         }
     }
-    tryGetQueue (v: number): RenderQueueData | null {
+    tryGetQueue (v: number): RenderQueue | null {
         if (this._vertices[v]._id === RenderGraphValue.Queue) {
-            return this._vertices[v]._object as RenderQueueData;
+            return this._vertices[v]._object as RenderQueue;
         } else {
             return null;
         }

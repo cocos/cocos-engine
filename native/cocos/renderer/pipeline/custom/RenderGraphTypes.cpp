@@ -139,28 +139,28 @@ SubpassGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_t
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
-RasterPassData::RasterPassData(const allocator_type& alloc) noexcept
+RasterPass::RasterPass(const allocator_type& alloc) noexcept
 : rasterViews(alloc),
   computeViews(alloc),
   subpassGraph(alloc) {}
 
-RasterPassData::RasterPassData(RasterPassData&& rhs, const allocator_type& alloc)
+RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
 : rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
   subpassGraph(std::move(rhs.subpassGraph), alloc) {}
 
-RasterPassData::RasterPassData(RasterPassData const& rhs, const allocator_type& alloc)
+RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
   subpassGraph(rhs.subpassGraph, alloc) {}
 
-ComputePassData::ComputePassData(const allocator_type& alloc) noexcept
+ComputePass::ComputePass(const allocator_type& alloc) noexcept
 : computeViews(alloc) {}
 
-ComputePassData::ComputePassData(ComputePassData&& rhs, const allocator_type& alloc)
+ComputePass::ComputePass(ComputePass&& rhs, const allocator_type& alloc)
 : computeViews(std::move(rhs.computeViews), alloc) {}
 
-ComputePassData::ComputePassData(ComputePassData const& rhs, const allocator_type& alloc)
+ComputePass::ComputePass(ComputePass const& rhs, const allocator_type& alloc)
 : computeViews(rhs.computeViews, alloc) {}
 
 CopyPair::CopyPair(const allocator_type& alloc) noexcept
@@ -203,13 +203,13 @@ CopyPair::CopyPair(CopyPair const& rhs, const allocator_type& alloc)
   targetFirstSlice(rhs.targetFirstSlice),
   targetPlaneSlice(rhs.targetPlaneSlice) {}
 
-CopyPassData::CopyPassData(const allocator_type& alloc) noexcept
+CopyPass::CopyPass(const allocator_type& alloc) noexcept
 : copyPairs(alloc) {}
 
-CopyPassData::CopyPassData(CopyPassData&& rhs, const allocator_type& alloc)
+CopyPass::CopyPass(CopyPass&& rhs, const allocator_type& alloc)
 : copyPairs(std::move(rhs.copyPairs), alloc) {}
 
-CopyPassData::CopyPassData(CopyPassData const& rhs, const allocator_type& alloc)
+CopyPass::CopyPass(CopyPass const& rhs, const allocator_type& alloc)
 : copyPairs(rhs.copyPairs, alloc) {}
 
 MovePair::MovePair(const allocator_type& alloc) noexcept
@@ -243,22 +243,22 @@ MovePair::MovePair(MovePair const& rhs, const allocator_type& alloc)
   targetFirstSlice(rhs.targetFirstSlice),
   targetPlaneSlice(rhs.targetPlaneSlice) {}
 
-MovePassData::MovePassData(const allocator_type& alloc) noexcept
+MovePass::MovePass(const allocator_type& alloc) noexcept
 : movePairs(alloc) {}
 
-MovePassData::MovePassData(MovePassData&& rhs, const allocator_type& alloc)
+MovePass::MovePass(MovePass&& rhs, const allocator_type& alloc)
 : movePairs(std::move(rhs.movePairs), alloc) {}
 
-MovePassData::MovePassData(MovePassData const& rhs, const allocator_type& alloc)
+MovePass::MovePass(MovePass const& rhs, const allocator_type& alloc)
 : movePairs(rhs.movePairs, alloc) {}
 
-RaytracePassData::RaytracePassData(const allocator_type& alloc) noexcept
+RaytracePass::RaytracePass(const allocator_type& alloc) noexcept
 : computeViews(alloc) {}
 
-RaytracePassData::RaytracePassData(RaytracePassData&& rhs, const allocator_type& alloc)
+RaytracePass::RaytracePass(RaytracePass&& rhs, const allocator_type& alloc)
 : computeViews(std::move(rhs.computeViews), alloc) {}
 
-RaytracePassData::RaytracePassData(RaytracePassData const& rhs, const allocator_type& alloc)
+RaytracePass::RaytracePass(RaytracePass const& rhs, const allocator_type& alloc)
 : computeViews(rhs.computeViews, alloc) {}
 
 SceneData::SceneData(const allocator_type& alloc) noexcept
@@ -312,20 +312,20 @@ Blit::Blit(Blit&& rhs, const allocator_type& alloc)
 Blit::Blit(Blit const& rhs, const allocator_type& alloc)
 : shader(rhs.shader, alloc) {}
 
-PresentPassData::PresentPassData(const allocator_type& alloc) noexcept
+PresentPass::PresentPass(const allocator_type& alloc) noexcept
 : resourceName(alloc) {}
 
-PresentPassData::PresentPassData(PmrString resourceNameIn, uint32_t syncIntervalIn, uint32_t flagsIn, const allocator_type& alloc) noexcept // NOLINT
+PresentPass::PresentPass(PmrString resourceNameIn, uint32_t syncIntervalIn, uint32_t flagsIn, const allocator_type& alloc) noexcept // NOLINT
 : resourceName(std::move(resourceNameIn), alloc),
   syncInterval(syncIntervalIn),
   flags(flagsIn) {}
 
-PresentPassData::PresentPassData(PresentPassData&& rhs, const allocator_type& alloc)
+PresentPass::PresentPass(PresentPass&& rhs, const allocator_type& alloc)
 : resourceName(std::move(rhs.resourceName), alloc),
   syncInterval(rhs.syncInterval),
   flags(rhs.flags) {}
 
-PresentPassData::PresentPassData(PresentPassData const& rhs, const allocator_type& alloc)
+PresentPass::PresentPass(PresentPass const& rhs, const allocator_type& alloc)
 : resourceName(rhs.resourceName, alloc),
   syncInterval(rhs.syncInterval),
   flags(rhs.flags) {}

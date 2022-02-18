@@ -83,6 +83,7 @@ inline const char* getName(const Backbuffer_& /*v*/) noexcept { return "Backbuff
 inline const char* getName(const Memoryless_& /*v*/) noexcept { return "Memoryless"; }
 inline const char* getName(QueueHint e) noexcept {
     switch (e) {
+        case QueueHint::NONE: return "NONE";
         case QueueHint::RENDER_OPAQUE: return "RENDER_OPAQUE";
         case QueueHint::RENDER_CUTOUT: return "RENDER_CUTOUT";
         case QueueHint::RENDER_TRANSPARENT: return "RENDER_TRANSPARENT";

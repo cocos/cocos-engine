@@ -2,6 +2,7 @@
 import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
+import { PipelineSceneData } from '../pipeline-scene-data';
 import { QueueHint } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 
@@ -23,8 +24,7 @@ export abstract class RasterQueueBuilder {
     public abstract addSceneOfCamera(camera: Camera, name: string): void;
     public abstract addSceneOfCamera(camera: Camera): void;
     public abstract addScene(name: string): void;
-    public abstract addFullscreenQuad(shader: string, layoutName: string, name: string): void;
-    public abstract addFullscreenQuad(shader: string, layoutName: string): void;
+    public abstract addFullscreenQuad(shader: string, name: string): void;
     public abstract addFullscreenQuad(shader: string): void;
 }
 
@@ -67,7 +67,7 @@ export abstract class Pipeline {
     public abstract addRenderTexture(name: string, format: Format, width: number, height: number): number;
     public abstract addRenderTarget(name: string, format: Format, width: number, height: number): number;
     public abstract addDepthStencil(name: string, format: Format, width: number, height: number): number;
-    public abstract beginFrame(): void;
+    public abstract beginFrame(pplScene: PipelineSceneData): void;
     public abstract endFrame(): void;
     public abstract addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
     public abstract addRasterPass(width: number, height: number, layoutName: string): RasterPassBuilder;
