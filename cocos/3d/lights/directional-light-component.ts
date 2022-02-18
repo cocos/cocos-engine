@@ -65,10 +65,6 @@ export class DirectionalLight extends Light {
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
     protected _shadowCSMLevel = CSMLevel.level_3;
-    @serializable
-    protected _shadowCSMLambda = 0.75;
-    @serializable
-    protected _shadowFrustumItem: Vec2[] = [];
 
     // fixed area properties
     @serializable
@@ -221,9 +217,9 @@ export class DirectionalLight extends Light {
     }
     set shadowDistance (val) {
         this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
-        this._splitFrustumItem();
         if (this._light) {
             this._light.shadowDistance = this._shadowDistance;
+            this._light.shadowCSMValueDirty = true;
         }
     }
 
@@ -269,34 +265,9 @@ export class DirectionalLight extends Light {
     }
     set shadowCSMLevel (val) {
         this._shadowCSMLevel = val;
-        this._splitFrustumItem();
         if (this._light) {
             this._light.shadowCSMLevel = this._shadowCSMLevel;
-        }
-    }
-
-    /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置潜在阴影产生的范围
-    */
-    @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
-                === ShadowType.ShadowMap && this._shadowFixedArea === false;
-    })
-    @property({ group: { name: 'ShadowSettings', displayOrder: 12 } })
-    @editable
-    @tooltip('CSM weighted average coefficient')
-    @range([0.0, 1.0, 0.1])
-    @slide
-    @type(CCFloat)
-    get shadowCSMLambda () {
-        return this._shadowCSMLambda;
-    }
-    set shadowCSMLambda (val) {
-        this._shadowCSMLambda = val;
-        this._splitFrustumItem();
-        if (this._light) {
-            this._light.shadowCSMLambda = this._shadowCSMLambda;
+            this._light.shadowCSMValueDirty = true;
         }
     }
 
@@ -383,12 +354,6 @@ export class DirectionalLight extends Light {
     constructor () {
         super();
         this._lightType = scene.DirectionalLight;
-        this._shadowFrustumItem = [
-            new Vec2(),
-            new Vec2(),
-            new Vec2(),
-            new Vec2(),
-        ];
     }
 
     protected _createLight () {
@@ -409,36 +374,6 @@ export class DirectionalLight extends Light {
             this._light.shadowFar = this._shadowFar;
             this._light.shadowOrthoSize = this._shadowOrthoSize;
             this._light.shadowCSMLevel = this._shadowCSMLevel;
-            this._light.shadowCSMLambda = this._shadowCSMLambda;
-            this._light.shadowFrustumItem = this._shadowFrustumItem;
         }
-    }
-
-    public shadowFrustumItemToString () {
-        for (let i = 0; i < this._shadowCSMLevel; i++) {
-            console.warn(this.name, '._splitFrustumLevel[',
-                i, '] = (', this._shadowFrustumItem[i].x, ', ', this._shadowFrustumItem[i].y, ')');
-        }
-    }
-
-    private _splitFrustumItem () {
-        const nd = 0.1;
-        const fd = this._shadowDistance;
-        const ratio = fd / nd;
-        const lambda = this._shadowCSMLambda;
-        const level = this._shadowCSMLevel;
-        this._shadowFrustumItem[0].x = nd;
-        for (let i = 1; i < level; i++) {
-            // i ÷ numbers of level
-            const si = i / level;
-            // eslint-disable-next-line no-restricted-properties
-            const preNear = lambda * (nd * Math.pow(ratio, si)) + (1 - lambda) * (nd + (fd - nd) * si);
-            // Slightly increase the overlap to avoid fracture
-            const nextFar = preNear * 1.005;
-            this._shadowFrustumItem[i].x = preNear;
-            this._shadowFrustumItem[i - 1].y = nextFar;
-        }
-        // numbers of level - 1
-        this._shadowFrustumItem[level - 1].y = fd;
     }
 }

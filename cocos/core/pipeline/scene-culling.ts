@@ -355,6 +355,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const sceneData = pipeline.pipelineSceneData;
     const shadows = sceneData.shadows;
     const skybox = sceneData.skybox;
+    const csmLayers = sceneData.csmLayers;
 
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
@@ -385,6 +386,8 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     if (mainLight) {
         if (shadows.type === ShadowType.Planar) {
             updateDirLight(pipeline, mainLight);
+        } else {
+            csmLayers.update(mainLight);
         }
     }
 
