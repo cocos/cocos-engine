@@ -438,6 +438,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         sceneData->setDirShadowObjects(std::move(dirShadowObjects));
         sceneData->setCastShadowObjects(std::move(castShadowObject));
     }
+    csmLayers = nullptr;
 }
 
 } // namespace pipeline

@@ -74,7 +74,7 @@ void CSMLayers::splitFrustumLevels() {
     for (uint i = 1; i < level; ++i) {
         // i ÷ numbers of level
         const float si = static_cast<float>(i) / static_cast<float>(level);
-        const float preNear = SHADOW_CSM_LAMBDA * (nd * powf(ratio, si)) + (1 - SHADOW_CSM_LAMBDA) * (nd + (fd - nd) * si);
+        const float preNear = SHADOW_CSM_LAMBDA * (nd * powf(ratio, si)) + (1.0F - SHADOW_CSM_LAMBDA) * (nd + (fd - nd) * si);
         // Slightly increase the overlap to avoid fracture
         const float nextFar = preNear * 1.005F;
         _shadowCSMLayers.at(i)->_shadowCameraNear = preNear;
