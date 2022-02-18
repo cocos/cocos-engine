@@ -152,7 +152,6 @@ private:
     cc::Vec2                               _viewLogicalSize{0, 0};
     std::shared_ptr<Scheduler>             _scheduler{nullptr};
     std::unique_ptr<EngineObserverManager> _observers{nullptr};
-    ExceptionCallback                      _seExceptionCallback{nullptr};
     std::map<OSEventType, EventCb>         _eventCallbacks;
     CC_DISABLE_COPY_AND_MOVE_SEMANTICS(Engine);
 };

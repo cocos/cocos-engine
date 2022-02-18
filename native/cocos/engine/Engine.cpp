@@ -234,7 +234,7 @@ void Engine::setJsDebugIpAndPort(const std::string &serverAddr, uint32_t port, b
 
 void Engine::setExceptionCallback(const ExceptionCallback &cb) {
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
-    se->setExceptionCallback(_seExceptionCallback);
+    se->setExceptionCallback(cb);
 }
 
 void Engine::runJsScript(const std::string &filePath) {
