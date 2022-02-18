@@ -7,7 +7,7 @@ import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
@@ -18,11 +18,10 @@ import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
-import { MeshRenderData } from '../2d/renderer/render-data';
-import { IBatcher } from '../2d/renderer/i-batcher';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
 import { legacyCC } from '../core/global-exports';
 import { ArmatureSystem } from './ArmatureSystem';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -74,9 +73,11 @@ function setEnumAttr (obj, propName, enumDef) {
     CCClass.Attr.setClassAttr(obj, propName, 'enumList', Enum.getList(enumDef));
 }
 
-export interface ArmatureDisplayMeshData {
-    renderData: MeshRenderData;
+export interface ArmatureDisplayDrawData {
+    material: Material | null;
     texture: Texture2D | null;
+    indexOffset: number;
+    indexCount: number;
 }
 
 @ccclass('dragonBones.ArmatureDisplay.DragonBoneSocket')
@@ -251,7 +252,6 @@ export class ArmatureDisplay extends Renderable2D {
         } else {
             errorID(7401, this.name);
         }
-        this.resetRenderData();
         this.markForUpdateRenderData();
     }
 
@@ -409,7 +409,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     public attachUtil: AttachUtil;
 
-    get meshRenderDataArray () { return this._meshRenderDataArray; }
+    get drawList () { return this._drawList; }
 
     @serializable
     protected _defaultArmatureIndexValue: DefaultArmaturesEnum = DefaultArmaturesEnum.default;
@@ -440,17 +440,32 @@ export class ArmatureDisplay extends Renderable2D {
     public _enableBatch = false;
 
     // DragonBones data store key.
+    /**
+     * @internal
+     */
     protected _armatureKey = '';
 
     // Below properties will effect when cache mode is SHARED_CACHE or PRIVATE_CACHE.
     // accumulate time
+    /**
+     * @internal
+     */
     protected _accTime = 0;
     // Play times counter
+    /**
+     * @internal
+     */
     protected _playCount = 0;
     // Frame cache
+    /**
+     * @internal
+     */
     protected _frameCache: AnimationCache | null = null;
     // Cur frame
-    /* protected */ _curFrame: ArmatureFrame | null = null;
+    /**
+     * @internal
+     */
+    public _curFrame: ArmatureFrame | null = null;
     // Playing flag
     protected _playing = false;
     // Armature cache
@@ -462,8 +477,22 @@ export class ArmatureDisplay extends Renderable2D {
 
     protected _displayProxy: CCArmatureDisplay | null = null;
 
-    protected _meshRenderDataArrayIdx = 0;
-    protected _meshRenderDataArray: ArmatureDisplayMeshData[] = [];
+    protected _drawIdx = 0;
+    protected _drawList = new RecyclePool<ArmatureDisplayDrawData>(() => ({
+        material: null,
+        texture: null,
+        indexOffset: 0,
+        indexCount: 0,
+    }), 1);
+    /**
+    * @internal
+    */
+    public maxVertexCount = 0;
+    /**
+    * @internal
+    */
+    public maxIndexCount = 0;
+
     protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
 
     protected _enumArmatures: any = Enum({});
@@ -509,28 +538,21 @@ export class ArmatureDisplay extends Renderable2D {
         }
     }
 
-    public requestMeshRenderData () {
-        const arr = this._meshRenderDataArray;
-        if (arr.length > 0 && arr[arr.length - 1].renderData.vertexCount === 0) {
-            return arr[arr.length - 1];
-        }
-        const renderData = MeshRenderData.add();
-        const comb = { renderData, texture: null };
-        arr.push(comb);
-        return comb;
+    /**
+     * @internal
+     */
+    public _requestDrawData (material: Material, texture: Texture2D, indexOffset: number, indexCount: number) {
+        const draw = this._drawList.add();
+        draw.material = material;
+        draw.texture = texture;
+        draw.indexOffset = indexOffset;
+        draw.indexCount = indexCount;
+        return draw;
     }
 
     public destroyRenderData () {
-        if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { MeshRenderData.remove(rd.renderData); });
-            this._meshRenderDataArray.length = 0;
-        }
-    }
-
-    public resetRenderData () {
-        if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
-        }
+        this._drawList.destroy();
+        if (this._renderData) this._renderData.clear();
     }
 
     public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
@@ -558,21 +580,28 @@ export class ArmatureDisplay extends Renderable2D {
         return inst;
     }
 
-    protected _render (ui: IBatcher) {
-        if (this._meshRenderDataArray) {
-            for (let i = 0; i < this._meshRenderDataArray.length; i++) {
-                // HACK
-                const mat = this.material;
-                this._meshRenderDataArrayIdx = i;
-                const m = this._meshRenderDataArray[i];
-                if (m.renderData.material) {
-                    this.material = m.renderData.material;
+    protected _render (batcher: Batcher2D) {
+        if (this._renderData && this._drawList) {
+            const rd = this._renderData;
+            const chunk = rd.chunk;
+            const accessor = chunk.vertexAccessor;
+            const meshBuffer = rd.getMeshBuffer()!;
+            const origin = meshBuffer.indexOffset;
+            // Fill index buffer
+            accessor.appendIndices(chunk.bufferId, rd.indices!);
+            for (let i = 0; i < this._drawList.length; i++) {
+                this._drawIdx = i;
+                const dc = this._drawList.data[i];
+                if (dc.texture) {
+                    // Construct IA
+                    const ia = meshBuffer.requireFreeIA(batcher.device);
+                    ia.firstIndex = origin + dc.indexOffset;
+                    ia.indexCount = dc.indexCount;
+                    // Commit IA
+                    batcher.commitIA(this, ia, dc.texture, dc.material!, this.node);
                 }
-                if (m.texture) {
-                    ui.commitComp(this, m.renderData, m.texture, this._assembler, this.node);
-                }
-                this.material = mat;
             }
+            // this.node._static = true;
         }
     }
 
@@ -583,7 +612,6 @@ export class ArmatureDisplay extends Renderable2D {
         //     baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
         // }
         this._materialCache = {};
-        this.destroyRenderData();
         this.markForUpdateRenderData();
     }
 
@@ -755,6 +783,17 @@ export class ArmatureDisplay extends Renderable2D {
             if (frameCache.isInvalid()) {
                 frameCache.updateToFrame();
                 this._curFrame = frames[frames.length - 1];
+                // Update render data size if needed
+                if (this._renderData
+                    && (this._renderData.vertexCount < frameCache.maxVertexCount
+                    || this._renderData.indexCount < frameCache.maxIndexCount)) {
+                    this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
+                    this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
+                    this._renderData.resize(this.maxVertexCount, this.maxIndexCount);
+                    if (!this._renderData.indices || this.maxIndexCount > this._renderData.indices.length) {
+                        this._renderData.indices = new Uint16Array(this.maxIndexCount);
+                    }
+                }
             }
             return;
         }
@@ -772,6 +811,17 @@ export class ArmatureDisplay extends Renderable2D {
         let frameIdx = Math.floor(this._accTime / frameTime);
         if (!frameCache.isCompleted) {
             frameCache.updateToFrame(frameIdx);
+            // Update render data size if needed
+            if (this._renderData
+                && (this._renderData.vertexCount < frameCache.maxVertexCount
+                || this._renderData.indexCount < frameCache.maxIndexCount)) {
+                this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
+                this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
+                this._renderData.resize(this.maxVertexCount, this.maxIndexCount);
+                if (!this._renderData.indices || this.maxIndexCount > this._renderData.indices.length) {
+                    this._renderData.indices = new Uint16Array(this.maxIndexCount);
+                }
+            }
         }
 
         if (frameCache.isCompleted && frameIdx >= frames.length) {
@@ -835,7 +885,6 @@ export class ArmatureDisplay extends Renderable2D {
         } else if (this._debugDraw) {
             this._debugDraw.node.parent = null;
         }
-        this.destroyRenderData();
         this.markForUpdateRenderData();
     }
 
@@ -913,9 +962,7 @@ export class ArmatureDisplay extends Renderable2D {
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }
-
-        this.destroyRenderData();
-        this.markForUpdateRenderData();
+        this._flushAssembler();
     }
 
     public querySockets () {
@@ -1265,12 +1312,14 @@ export class ArmatureDisplay extends Renderable2D {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (this._meshRenderDataArray.length === 0) {
-            if (this._assembler && this._assembler.createData) {
-                this._assembler.createData(this);
-                this.markForUpdateRenderData();
-                this._updateColor();
+        if (this._armature && this._assembler) {
+            this._renderData = this._assembler.createData(this);
+            if (this._renderData) {
+                this.maxVertexCount = this._renderData.vertexCount;
+                this.maxIndexCount = this._renderData.indexCount;
             }
+            this.markForUpdateRenderData();
+            this._updateColor();
         }
     }
 

@@ -791,6 +791,9 @@ const cacheManager = require('./jsb-cache-manager');
     // assembler
     const assembler = cc.internal.DragonBonesAssembler;
 
+    assembler.createData = function (comp) {
+    };
+
     assembler.updateRenderData = function () {
     };
 

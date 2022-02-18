@@ -1489,9 +1489,12 @@ export class Skeleton extends Renderable2D {
             if (this._renderData
                 && (this._renderData.vertexCount < frameCache.maxVertexCount
                 || this._renderData.indexCount < frameCache.maxIndexCount)) {
-                this.maxVertexCount = frameCache.maxVertexCount;
-                this.maxIndexCount = frameCache.maxIndexCount;
+                this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
+                this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
                 this._renderData.resize(this.maxVertexCount, this.maxIndexCount);
+                if (!this._renderData.indices || this.maxIndexCount > this._renderData.indices.length) {
+                    this._renderData.indices = new Uint16Array(this.maxIndexCount);
+                }
             }
         }
 
