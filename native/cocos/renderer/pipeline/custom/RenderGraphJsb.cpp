@@ -123,7 +123,8 @@ bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Obje
     return true;
 }
 
-bool sevalue_to_native(const se::Value &from, cc::render::RasterView *to, se::Object *ctx) { // NOLINT
+template <>
+bool sevalue_to_native<cc::render::RasterView>(const se::Value &from, cc::render::RasterView *to, se::Object *ctx) { // NOLINT
     SE_PRECONDITION2(from.isObject(), false, " Convert parameter to RasterView failed !");
 
     auto *obj = const_cast<se::Object *>(from.toObject());
@@ -160,7 +161,8 @@ bool sevalue_to_native(const se::Value &from, cc::render::RasterView *to, se::Ob
     return ok;
 }
 
-bool sevalue_to_native(const se::Value &from, cc::render::ComputeView *to, se::Object *ctx) { // NOLINT
+template <>
+bool sevalue_to_native<cc::render::ComputeView>(const se::Value &from, cc::render::ComputeView *to, se::Object *ctx) { // NOLINT
     SE_PRECONDITION2(from.isObject(), false, " Convert parameter to ComputeView failed !");
 
     auto *obj = const_cast<se::Object *>(from.toObject());
@@ -189,7 +191,8 @@ bool sevalue_to_native(const se::Value &from, cc::render::ComputeView *to, se::O
     return ok;
 }
 
-bool sevalue_to_native(const se::Value &from, cc::render::CopyPair *to, se::Object *ctx) { // NOLINT
+template <>
+bool sevalue_to_native<cc::render::CopyPair>(const se::Value &from, cc::render::CopyPair *to, se::Object *ctx) { // NOLINT
     SE_PRECONDITION2(from.isObject(), false, " Convert parameter to CopyPair failed !");
 
     auto *obj = const_cast<se::Object *>(from.toObject());
@@ -238,7 +241,8 @@ bool sevalue_to_native(const se::Value &from, cc::render::CopyPair *to, se::Obje
     return ok;
 }
 
-bool sevalue_to_native(const se::Value &from, cc::render::MovePair *to, se::Object *ctx) { // NOLINT
+template <>
+bool sevalue_to_native<cc::render::MovePair>(const se::Value &from, cc::render::MovePair *to, se::Object *ctx) { // NOLINT
     SE_PRECONDITION2(from.isObject(), false, " Convert parameter to MovePair failed !");
 
     auto *obj = const_cast<se::Object *>(from.toObject());
