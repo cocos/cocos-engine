@@ -184,12 +184,11 @@ static long getCurrentMillSecond() {
 int32_t QnxPlatform::loop() {
     long lastTime        = 0L;
     long curTime         = 0L;
-    long desiredInterval = 0L;
+    long desiredInterval = (long)(1000.0 / getFps());;
     long actualInterval  = 0L;
     onResume();
     while (!_quit) {
         curTime         = getCurrentMillSecond();
-        desiredInterval = (long)(1.0 / getFps());
 
         //pollEvent();
         actualInterval = curTime - lastTime;
