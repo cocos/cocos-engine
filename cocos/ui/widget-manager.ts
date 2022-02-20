@@ -352,7 +352,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 let l = -parentAP.x * matchSize.width;
                 l += zero.x;
                 l *= one.x;
-                temp = pos.x - myAP.x * trans.width * widgetNodeScale.x - l;
+                temp = pos.x - myAP.x * trans.width * Math.abs(widgetNodeScale.x) - l;
                 if (!widget.isAbsoluteLeft) {
                     temp /= matchSize.width;
                 }
@@ -364,7 +364,7 @@ export const widgetManager = legacyCC._widgetManager = {
             if (e & alignFlags.RIGHT) {
                 let r = (1 - parentAP.x) * matchSize.width;
                 r += zero.x;
-                temp = (r *= one.x) - (pos.x + (1 - myAP.x) * trans.width * widgetNodeScale.x);
+                temp = (r *= one.x) - (pos.x + (1 - myAP.x) * trans.width * Math.abs(widgetNodeScale.x));
                 if (!widget.isAbsoluteRight) {
                     temp /= matchSize.width;
                 }
@@ -376,7 +376,7 @@ export const widgetManager = legacyCC._widgetManager = {
             if (e & alignFlags.TOP) {
                 let t = (1 - parentAP.y) * matchSize.height;
                 t += zero.y;
-                temp = (t *= one.y) - (pos.y + (1 - myAP.y) * trans.height * widgetNodeScale.y);
+                temp = (t *= one.y) - (pos.y + (1 - myAP.y) * trans.height * Math.abs(widgetNodeScale.y));
                 if (!widget.isAbsoluteTop) {
                     temp /= matchSize.height;
                 }
@@ -389,7 +389,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 let b = -parentAP.y * matchSize.height;
                 b += zero.y;
                 b *= one.y;
-                temp = pos.y - myAP.y * trans.height * widgetNodeScale.y - b;
+                temp = pos.y - myAP.y * trans.height * Math.abs(widgetNodeScale.y) - b;
                 if (!widget.isAbsoluteBottom) {
                     temp /= matchSize.height;
                 }
