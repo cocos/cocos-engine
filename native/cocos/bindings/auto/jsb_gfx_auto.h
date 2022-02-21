@@ -119,6 +119,7 @@ bool js_register_cc_gfx_Size(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::Size *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_Size_copy);
 
 extern se::Object *__jsb_cc_gfx_DeviceCaps_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DeviceCaps_class; // NOLINT
@@ -127,6 +128,7 @@ bool js_register_cc_gfx_DeviceCaps(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::DeviceCaps *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_DeviceCaps_copy);
 
 extern se::Object *__jsb_cc_gfx_Offset_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_Offset_class; // NOLINT
@@ -135,6 +137,7 @@ bool js_register_cc_gfx_Offset(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::Offset *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_Offset_copy);
 
 extern se::Object *__jsb_cc_gfx_Rect_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_Rect_class; // NOLINT
@@ -143,6 +146,7 @@ bool js_register_cc_gfx_Rect(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::Rect *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_Rect_copy);
 
 extern se::Object *__jsb_cc_gfx_Extent_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_Extent_class; // NOLINT
@@ -151,6 +155,7 @@ bool js_register_cc_gfx_Extent(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::Extent *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_Extent_copy);
 
 extern se::Object *__jsb_cc_gfx_TextureSubresLayers_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_TextureSubresLayers_class; // NOLINT
@@ -159,6 +164,7 @@ bool js_register_cc_gfx_TextureSubresLayers(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::TextureSubresLayers *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_TextureSubresLayers_copy);
 
 extern se::Object *__jsb_cc_gfx_TextureSubresRange_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_TextureSubresRange_class; // NOLINT
@@ -167,6 +173,7 @@ bool js_register_cc_gfx_TextureSubresRange(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::TextureSubresRange *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_TextureSubresRange_copy);
 
 extern se::Object *__jsb_cc_gfx_TextureCopy_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_TextureCopy_class; // NOLINT
@@ -175,6 +182,7 @@ bool js_register_cc_gfx_TextureCopy(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::TextureCopy *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_TextureCopy_copy);
 
 extern se::Object *__jsb_cc_gfx_TextureBlit_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_TextureBlit_class; // NOLINT
@@ -183,6 +191,7 @@ bool js_register_cc_gfx_TextureBlit(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::TextureBlit *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_TextureBlit_copy);
 
 extern se::Object *__jsb_cc_gfx_BufferTextureCopy_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_BufferTextureCopy_class; // NOLINT
@@ -191,6 +200,7 @@ bool js_register_cc_gfx_BufferTextureCopy(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::BufferTextureCopy *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_BufferTextureCopy_copy);
 
 extern se::Object *__jsb_cc_gfx_Viewport_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_Viewport_class; // NOLINT
@@ -199,6 +209,7 @@ bool js_register_cc_gfx_Viewport(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::Viewport *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_Viewport_copy);
 
 extern se::Object *__jsb_cc_gfx_Color_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_Color_class; // NOLINT
@@ -207,6 +218,7 @@ bool js_register_cc_gfx_Color(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::Color *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_Color_copy);
 
 extern se::Object *__jsb_cc_gfx_BindingMappingInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_BindingMappingInfo_class; // NOLINT
@@ -215,6 +227,7 @@ bool js_register_cc_gfx_BindingMappingInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::BindingMappingInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_BindingMappingInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_SwapchainInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_SwapchainInfo_class; // NOLINT
@@ -223,6 +236,7 @@ bool js_register_cc_gfx_SwapchainInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::SwapchainInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_SwapchainInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_DeviceInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DeviceInfo_class; // NOLINT
@@ -231,6 +245,7 @@ bool js_register_cc_gfx_DeviceInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::DeviceInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_DeviceInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_BufferInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_BufferInfo_class; // NOLINT
@@ -239,6 +254,7 @@ bool js_register_cc_gfx_BufferInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::BufferInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_BufferInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_BufferViewInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_BufferViewInfo_class; // NOLINT
@@ -247,6 +263,7 @@ bool js_register_cc_gfx_BufferViewInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::BufferViewInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_BufferViewInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_DrawInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DrawInfo_class; // NOLINT
@@ -255,6 +272,7 @@ bool js_register_cc_gfx_DrawInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::DrawInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_DrawInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_DispatchInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DispatchInfo_class; // NOLINT
@@ -263,6 +281,7 @@ bool js_register_cc_gfx_DispatchInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::DispatchInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_DispatchInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_IndirectBuffer_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_IndirectBuffer_class; // NOLINT
@@ -271,6 +290,7 @@ bool js_register_cc_gfx_IndirectBuffer(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::IndirectBuffer *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_IndirectBuffer_copy);
 
 extern se::Object *__jsb_cc_gfx_TextureInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_TextureInfo_class; // NOLINT
@@ -279,6 +299,7 @@ bool js_register_cc_gfx_TextureInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::TextureInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_TextureInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_TextureViewInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_TextureViewInfo_class; // NOLINT
@@ -287,6 +308,7 @@ bool js_register_cc_gfx_TextureViewInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::TextureViewInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_TextureViewInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_SamplerInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_SamplerInfo_class; // NOLINT
@@ -295,6 +317,7 @@ bool js_register_cc_gfx_SamplerInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::SamplerInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_SamplerInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_Uniform_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_Uniform_class; // NOLINT
@@ -303,6 +326,7 @@ bool js_register_cc_gfx_Uniform(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::Uniform *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_Uniform_copy);
 
 extern se::Object *__jsb_cc_gfx_UniformBlock_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_UniformBlock_class; // NOLINT
@@ -311,6 +335,7 @@ bool js_register_cc_gfx_UniformBlock(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::UniformBlock *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_UniformBlock_copy);
 
 extern se::Object *__jsb_cc_gfx_UniformSamplerTexture_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_UniformSamplerTexture_class; // NOLINT
@@ -319,6 +344,7 @@ bool js_register_cc_gfx_UniformSamplerTexture(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::UniformSamplerTexture *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_UniformSamplerTexture_copy);
 
 extern se::Object *__jsb_cc_gfx_UniformSampler_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_UniformSampler_class; // NOLINT
@@ -327,6 +353,7 @@ bool js_register_cc_gfx_UniformSampler(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::UniformSampler *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_UniformSampler_copy);
 
 extern se::Object *__jsb_cc_gfx_UniformTexture_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_UniformTexture_class; // NOLINT
@@ -335,6 +362,7 @@ bool js_register_cc_gfx_UniformTexture(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::UniformTexture *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_UniformTexture_copy);
 
 extern se::Object *__jsb_cc_gfx_UniformStorageImage_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_UniformStorageImage_class; // NOLINT
@@ -343,6 +371,7 @@ bool js_register_cc_gfx_UniformStorageImage(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::UniformStorageImage *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_UniformStorageImage_copy);
 
 extern se::Object *__jsb_cc_gfx_UniformStorageBuffer_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_UniformStorageBuffer_class; // NOLINT
@@ -351,6 +380,7 @@ bool js_register_cc_gfx_UniformStorageBuffer(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::UniformStorageBuffer *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_UniformStorageBuffer_copy);
 
 extern se::Object *__jsb_cc_gfx_UniformInputAttachment_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_UniformInputAttachment_class; // NOLINT
@@ -359,6 +389,7 @@ bool js_register_cc_gfx_UniformInputAttachment(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::UniformInputAttachment *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_UniformInputAttachment_copy);
 
 extern se::Object *__jsb_cc_gfx_ShaderStage_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_ShaderStage_class; // NOLINT
@@ -367,6 +398,7 @@ bool js_register_cc_gfx_ShaderStage(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::ShaderStage *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_ShaderStage_copy);
 
 extern se::Object *__jsb_cc_gfx_Attribute_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_Attribute_class; // NOLINT
@@ -375,6 +407,7 @@ bool js_register_cc_gfx_Attribute(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::Attribute *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_Attribute_copy);
 
 extern se::Object *__jsb_cc_gfx_ShaderInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_ShaderInfo_class; // NOLINT
@@ -383,6 +416,7 @@ bool js_register_cc_gfx_ShaderInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::ShaderInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_ShaderInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_InputAssemblerInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_InputAssemblerInfo_class; // NOLINT
@@ -391,6 +425,7 @@ bool js_register_cc_gfx_InputAssemblerInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::InputAssemblerInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_InputAssemblerInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_ColorAttachment_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_ColorAttachment_class; // NOLINT
@@ -399,6 +434,7 @@ bool js_register_cc_gfx_ColorAttachment(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::ColorAttachment *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_ColorAttachment_copy);
 
 extern se::Object *__jsb_cc_gfx_DepthStencilAttachment_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DepthStencilAttachment_class; // NOLINT
@@ -407,6 +443,7 @@ bool js_register_cc_gfx_DepthStencilAttachment(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::DepthStencilAttachment *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_DepthStencilAttachment_copy);
 
 extern se::Object *__jsb_cc_gfx_SubpassInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_SubpassInfo_class; // NOLINT
@@ -415,6 +452,7 @@ bool js_register_cc_gfx_SubpassInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::SubpassInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_SubpassInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_SubpassDependency_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_SubpassDependency_class; // NOLINT
@@ -423,6 +461,7 @@ bool js_register_cc_gfx_SubpassDependency(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::SubpassDependency *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_SubpassDependency_copy);
 
 extern se::Object *__jsb_cc_gfx_RenderPassInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_RenderPassInfo_class; // NOLINT
@@ -431,6 +470,7 @@ bool js_register_cc_gfx_RenderPassInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::RenderPassInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_RenderPassInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_GeneralBarrierInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_GeneralBarrierInfo_class; // NOLINT
@@ -439,6 +479,7 @@ bool js_register_cc_gfx_GeneralBarrierInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::GeneralBarrierInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_GeneralBarrierInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_TextureBarrierInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_TextureBarrierInfo_class; // NOLINT
@@ -447,6 +488,7 @@ bool js_register_cc_gfx_TextureBarrierInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::TextureBarrierInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_TextureBarrierInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_FramebufferInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_FramebufferInfo_class; // NOLINT
@@ -455,6 +497,7 @@ bool js_register_cc_gfx_FramebufferInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::FramebufferInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_FramebufferInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_DescriptorSetLayoutBinding_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DescriptorSetLayoutBinding_class; // NOLINT
@@ -463,6 +506,7 @@ bool js_register_cc_gfx_DescriptorSetLayoutBinding(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::DescriptorSetLayoutBinding *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_DescriptorSetLayoutBinding_copy);
 
 extern se::Object *__jsb_cc_gfx_DescriptorSetLayoutInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DescriptorSetLayoutInfo_class; // NOLINT
@@ -471,6 +515,7 @@ bool js_register_cc_gfx_DescriptorSetLayoutInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::DescriptorSetLayoutInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_DescriptorSetLayoutInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_DescriptorSetInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DescriptorSetInfo_class; // NOLINT
@@ -479,6 +524,7 @@ bool js_register_cc_gfx_DescriptorSetInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::DescriptorSetInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_DescriptorSetInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_PipelineLayoutInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_PipelineLayoutInfo_class; // NOLINT
@@ -487,6 +533,7 @@ bool js_register_cc_gfx_PipelineLayoutInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::PipelineLayoutInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_PipelineLayoutInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_InputState_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_InputState_class; // NOLINT
@@ -495,6 +542,7 @@ bool js_register_cc_gfx_InputState(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::InputState *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_InputState_copy);
 
 extern se::Object *__jsb_cc_gfx_RasterizerState_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_RasterizerState_class; // NOLINT
@@ -503,6 +551,7 @@ bool js_register_cc_gfx_RasterizerState(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::RasterizerState *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_RasterizerState_copy);
 SE_DECLARE_FUNC(js_gfx_RasterizerState_reset);
 
 extern se::Object *__jsb_cc_gfx_DepthStencilState_proto; // NOLINT
@@ -512,6 +561,7 @@ bool js_register_cc_gfx_DepthStencilState(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::DepthStencilState *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_DepthStencilState_copy);
 SE_DECLARE_FUNC(js_gfx_DepthStencilState_reset);
 
 extern se::Object *__jsb_cc_gfx_BlendTarget_proto; // NOLINT
@@ -521,6 +571,8 @@ bool js_register_cc_gfx_BlendTarget(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::BlendTarget *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_BlendTarget_copy);
+SE_DECLARE_FUNC(js_gfx_BlendTarget_reset);
 
 extern se::Object *__jsb_cc_gfx_BlendState_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_BlendState_class; // NOLINT
@@ -529,6 +581,7 @@ bool js_register_cc_gfx_BlendState(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::BlendState *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_BlendState_copy);
 SE_DECLARE_FUNC(js_gfx_BlendState_destroy);
 SE_DECLARE_FUNC(js_gfx_BlendState_reset);
 SE_DECLARE_FUNC(js_gfx_BlendState_setTarget);
@@ -540,6 +593,7 @@ bool js_register_cc_gfx_PipelineStateInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::PipelineStateInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_PipelineStateInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_CommandBufferInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_CommandBufferInfo_class; // NOLINT
@@ -548,6 +602,7 @@ bool js_register_cc_gfx_CommandBufferInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::CommandBufferInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_CommandBufferInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_QueueInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_QueueInfo_class; // NOLINT
@@ -556,6 +611,7 @@ bool js_register_cc_gfx_QueueInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::QueueInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_QueueInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_QueryPoolInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_QueryPoolInfo_class; // NOLINT
@@ -564,6 +620,7 @@ bool js_register_cc_gfx_QueryPoolInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::QueryPoolInfo *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_QueryPoolInfo_copy);
 
 extern se::Object *__jsb_cc_gfx_MemoryStatus_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_MemoryStatus_class; // NOLINT
@@ -572,6 +629,7 @@ bool js_register_cc_gfx_MemoryStatus(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::gfx::MemoryStatus *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_gfx_MemoryStatus_copy);
 
 extern se::Object *__jsb_cc_gfx_GFXObject_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_GFXObject_class; // NOLINT
