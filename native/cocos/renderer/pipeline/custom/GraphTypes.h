@@ -56,8 +56,8 @@ struct EdgeDescriptor {
     void expectsNoProperty() const noexcept {
         // CC_EXPECTS(false);
     }
-    VertexDescriptor source = static_cast<VertexDescriptor>(-1);
-    VertexDescriptor target = static_cast<VertexDescriptor>(-1);
+    VertexDescriptor source{static_cast<VertexDescriptor>(-1)};
+    VertexDescriptor target{static_cast<VertexDescriptor>(-1)};
 };
 
 template <class VertexDescriptor>
@@ -102,7 +102,7 @@ struct EdgeDescriptorWithProperty : EdgeDescriptor<DirectedCategory, VertexDescr
         return edgeProperty;
     }
 
-    property_type *edgeProperty = nullptr;
+    property_type *edgeProperty{};
 };
 
 template <class DirectedCategory, class VertexDescriptor>
@@ -209,7 +209,7 @@ public:
     }
 
 protected:
-    EdgeListIter _edgeListIter = {};
+    EdgeListIter _edgeListIter{};
 };
 
 template <class VertexDescriptor, class EdgeVec, class EdgeProperty = boost::no_property>
@@ -233,8 +233,8 @@ public:
     }
 
 protected:
-    size_t   _id     = static_cast<size_t>(-1);
-    EdgeVec *_vector = nullptr;
+    size_t   _id{static_cast<size_t>(-1)};
+    EdgeVec *_vector{};
 };
 
 //--------------------------------------------------------------------
@@ -294,7 +294,7 @@ struct OutEdgeIter : boost::iterator_adaptor<
         return EdgeDescriptor{
             source, (*this->base()).get_target()};
     }
-    VertexDescriptor source = {};
+    VertexDescriptor source{};
 };
 
 template <class BaseIter, class VertexDescriptor, class EdgeDescriptor, class Difference>
@@ -314,7 +314,7 @@ struct OutPropertyEdgeIter : boost::iterator_adaptor<
         return EdgeDescriptor{
             source, (*this->base()).get_target(), &(*this->base()).get_property()};
     }
-    VertexDescriptor source = {};
+    VertexDescriptor source{};
 };
 
 //--------------------------------------------------------------------
@@ -336,7 +336,7 @@ struct InEdgeIter : boost::iterator_adaptor<
         return EdgeDescriptor{
             (*this->base()).get_target(), source};
     }
-    VertexDescriptor source = {};
+    VertexDescriptor source{};
 };
 
 template <class BaseIter, class VertexDescriptor, class EdgeDescriptor, class Difference>
@@ -355,7 +355,7 @@ struct InPropertyEdgeIter : boost::iterator_adaptor<
         return EdgeDescriptor{
             (*this->base()).get_target(), source, &this->base()->get_property()};
     }
-    VertexDescriptor source = {};
+    VertexDescriptor source{};
 };
 
 //--------------------------------------------------------------------
@@ -433,11 +433,11 @@ public:
     }
 
 protected:
-    VertexIterator                                               _begin = {};
-    VertexIterator                                               _curr  = {};
-    VertexIterator                                               _end   = {};
+    VertexIterator                                               _begin{};
+    VertexIterator                                               _curr{};
+    VertexIterator                                               _end{};
     boost::optional<std::pair<OutEdgeIterator, OutEdgeIterator>> _edges;
-    const Graph                                                 *_g = nullptr;
+    const Graph                                                 *_g{};
 };
 
 //--------------------------------------------------------------------
@@ -461,8 +461,8 @@ struct ListEdge {
     EdgeProperty       &get_property() noexcept { return property; }       // NOLINT
     const EdgeProperty &get_property() const noexcept { return property; } // NOLINT
 
-    VertexDescriptor source = {};
-    VertexDescriptor target = {};
+    VertexDescriptor source{};
+    VertexDescriptor target{};
     EdgeProperty     property;
 };
 
@@ -498,8 +498,8 @@ struct PmrListEdge {
     EdgeProperty       &get_property() noexcept { return property; }       // NOLINT
     const EdgeProperty &get_property() const noexcept { return property; } // NOLINT
 
-    VertexDescriptor source = {};
-    VertexDescriptor target = {};
+    VertexDescriptor source{};
+    VertexDescriptor target{};
     EdgeProperty     property;
 };
 
@@ -528,7 +528,7 @@ struct ValueHandle : Tag {
     ValueHandle(Args &&...args) noexcept // NOLINT(google-explicit-constructor)
     : value(std::forward<Args>(args)...) {}
 
-    Handle value = {};
+    Handle value{};
 };
 
 // Reference Graph
@@ -586,11 +586,11 @@ public:
     }
 
 protected:
-    VertexIterator                                               _begin = {};
-    VertexIterator                                               _curr  = {};
-    VertexIterator                                               _end   = {};
+    VertexIterator                                               _begin{};
+    VertexIterator                                               _curr{};
+    VertexIterator                                               _end{};
     boost::optional<std::pair<OutEdgeIterator, OutEdgeIterator>> _edges;
-    const Graph                                                 *_g = nullptr;
+    const Graph                                                 *_g{};
 };
 
 } // namespace impl
