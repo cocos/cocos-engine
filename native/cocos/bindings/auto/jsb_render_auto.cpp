@@ -16,6 +16,142 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+se::Object* __jsb_cc_render_ShaderGroupBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_ShaderGroupBuilder_class = nullptr;  // NOLINT
+
+static bool js_render_ShaderGroupBuilder_addShader(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::ShaderGroupBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_ShaderGroupBuilder_addShader : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->addShader();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_ShaderGroupBuilder_addShader)
+
+bool js_register_render_ShaderGroupBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("ShaderGroupBuilder", obj, nullptr, nullptr);
+
+    cls->defineFunction("addShader", _SE(js_render_ShaderGroupBuilder_addShader));
+    cls->install();
+    JSBClassType::registerClass<cc::render::ShaderGroupBuilder>(cls);
+
+    __jsb_cc_render_ShaderGroupBuilder_proto = cls->getProto();
+    __jsb_cc_render_ShaderGroupBuilder_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_render_DescriptorGroupBuilder_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_DescriptorGroupBuilder_class = nullptr;  // NOLINT
+
+static bool js_render_DescriptorGroupBuilder_addDescriptorGroup(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::DescriptorGroupBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_DescriptorGroupBuilder_addDescriptorGroup : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::render::UpdateFrequency, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_DescriptorGroupBuilder_addDescriptorGroup : Error processing arguments");
+        cc::render::DescriptorGroupBuilder* result = cobj->addDescriptorGroup(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_DescriptorGroupBuilder_addDescriptorGroup : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_DescriptorGroupBuilder_addDescriptorGroup)
+
+static bool js_render_DescriptorGroupBuilder_addShaderGroup(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::DescriptorGroupBuilder>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_DescriptorGroupBuilder_addShaderGroup : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::render::UpdateFrequency, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_DescriptorGroupBuilder_addShaderGroup : Error processing arguments");
+        cc::render::ShaderGroupBuilder* result = cobj->addShaderGroup(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_DescriptorGroupBuilder_addShaderGroup : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_DescriptorGroupBuilder_addShaderGroup)
+
+bool js_register_render_DescriptorGroupBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("DescriptorGroupBuilder", obj, nullptr, nullptr);
+
+    cls->defineFunction("addDescriptorGroup", _SE(js_render_DescriptorGroupBuilder_addDescriptorGroup));
+    cls->defineFunction("addShaderGroup", _SE(js_render_DescriptorGroupBuilder_addShaderGroup));
+    cls->install();
+    JSBClassType::registerClass<cc::render::DescriptorGroupBuilder>(cls);
+
+    __jsb_cc_render_DescriptorGroupBuilder_proto = cls->getProto();
+    __jsb_cc_render_DescriptorGroupBuilder_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_render_DescriptorLayout_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_DescriptorLayout_class = nullptr;  // NOLINT
+
+static bool js_render_DescriptorLayout_addDescriptorGroup(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::DescriptorLayout>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_DescriptorLayout_addDescriptorGroup : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::render::UpdateFrequency, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_DescriptorLayout_addDescriptorGroup : Error processing arguments");
+        cc::render::DescriptorGroupBuilder* result = cobj->addDescriptorGroup(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_DescriptorLayout_addDescriptorGroup : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_DescriptorLayout_addDescriptorGroup)
+
+bool js_register_render_DescriptorLayout(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("DescriptorLayout", obj, nullptr, nullptr);
+
+    cls->defineFunction("addDescriptorGroup", _SE(js_render_DescriptorLayout_addDescriptorGroup));
+    cls->install();
+    JSBClassType::registerClass<cc::render::DescriptorLayout>(cls);
+
+    __jsb_cc_render_DescriptorLayout_proto = cls->getProto();
+    __jsb_cc_render_DescriptorLayout_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_render_Setter_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_Setter_class = nullptr;  // NOLINT
 
@@ -1218,11 +1354,14 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_ComputePassBuilder(ns);
     js_register_render_ComputeQueueBuilder(ns);
     js_register_render_CopyPassBuilder(ns);
+    js_register_render_DescriptorGroupBuilder(ns);
+    js_register_render_DescriptorLayout(ns);
     js_register_render_MovePassBuilder(ns);
     js_register_render_Pipeline(ns);
     js_register_render_RasterPassBuilder(ns);
     js_register_render_RasterQueueBuilder(ns);
     js_register_render_Setter(ns);
+    js_register_render_ShaderGroupBuilder(ns);
     return true;
 }
 

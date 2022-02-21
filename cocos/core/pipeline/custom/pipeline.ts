@@ -8,8 +8,21 @@ import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint } from './types';
+import { QueueHint, UpdateFrequency } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
+
+export abstract class ShaderGroupBuilder {
+    public abstract addShader(): void;
+}
+
+export abstract class DescriptorGroupBuilder {
+    public abstract addDescriptorGroup(update: UpdateFrequency): DescriptorGroupBuilder;
+    public abstract addShaderGroup(update: UpdateFrequency): ShaderGroupBuilder;
+}
+
+export abstract class DescriptorLayout {
+    public abstract addDescriptorGroup(update: UpdateFrequency): DescriptorGroupBuilder;
+}
 
 export abstract class Setter {
     public abstract setMat4(name: string, mat: Mat4): void;

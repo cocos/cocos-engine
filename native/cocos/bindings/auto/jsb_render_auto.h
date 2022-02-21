@@ -8,6 +8,9 @@
 
 bool register_all_render(se::Object *obj);                   // NOLINT
 
+JSB_REGISTER_OBJECT_TYPE(cc::render::ShaderGroupBuilder);
+JSB_REGISTER_OBJECT_TYPE(cc::render::DescriptorGroupBuilder);
+JSB_REGISTER_OBJECT_TYPE(cc::render::DescriptorLayout);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Setter);
 JSB_REGISTER_OBJECT_TYPE(cc::render::RasterQueueBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::RasterPassBuilder);
@@ -17,6 +20,28 @@ JSB_REGISTER_OBJECT_TYPE(cc::render::MovePassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::CopyPassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);
 
+
+extern se::Object *__jsb_cc_render_ShaderGroupBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_ShaderGroupBuilder_class; // NOLINT
+
+bool js_register_cc_render_ShaderGroupBuilder(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_ShaderGroupBuilder_addShader);
+
+extern se::Object *__jsb_cc_render_DescriptorGroupBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_DescriptorGroupBuilder_class; // NOLINT
+
+bool js_register_cc_render_DescriptorGroupBuilder(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_DescriptorGroupBuilder_addDescriptorGroup);
+SE_DECLARE_FUNC(js_render_DescriptorGroupBuilder_addShaderGroup);
+
+extern se::Object *__jsb_cc_render_DescriptorLayout_proto; // NOLINT
+extern se::Class * __jsb_cc_render_DescriptorLayout_class; // NOLINT
+
+bool js_register_cc_render_DescriptorLayout(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_DescriptorLayout_addDescriptorGroup);
 
 extern se::Object *__jsb_cc_render_Setter_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Setter_class; // NOLINT

@@ -12,6 +12,9 @@ namespace cc {
 
 namespace render {
 
+class ShaderGroupBuilder;
+class DescriptorGroupBuilder;
+class DescriptorLayout;
 class Setter;
 class RasterQueueBuilder;
 class RasterPassBuilder;
