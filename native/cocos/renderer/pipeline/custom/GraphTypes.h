@@ -202,10 +202,10 @@ public:
         return _edgeListIter;
     }
     EdgeProperty &get_property() noexcept { // NOLINT
-        return this->_edgeListIter->get_property();
+        return _edgeListIter->get_property();
     }
     const EdgeProperty &get_property() const noexcept { // NOLINT
-        return this->_edgeListIter->get_property();
+        return _edgeListIter->get_property();
     }
 
 protected:
@@ -224,12 +224,12 @@ public:
         return _vector->begin() + _id;
     }
     EdgeProperty &get_property() noexcept { // NOLINT
-        CC_EXPECTS(this->_vector);
-        return (*this->_vector)[this->_id].get_property();
+        CC_EXPECTS(_vector);
+        return (*_vector)[_id].get_property();
     }
     const EdgeProperty &get_property() const noexcept { // NOLINT
-        CC_EXPECTS(this->_vector);
-        return (*this->_vector)[this->_id].get_property();
+        CC_EXPECTS(_vector);
+        return (*_vector)[_id].get_property();
     }
 
 protected:
