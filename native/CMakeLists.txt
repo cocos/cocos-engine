@@ -1117,6 +1117,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/shadow/ShadowFlow.h
                  cocos/renderer/pipeline/shadow/ShadowStage.cpp
                  cocos/renderer/pipeline/shadow/ShadowStage.h
+                 cocos/renderer/pipeline/shadow/CSMLayers.cpp
+                 cocos/renderer/pipeline/shadow/CSMLayers.h
                  cocos/renderer/pipeline/Enum.h
                  cocos/renderer/pipeline/deferred/BloomStage.cpp
                  cocos/renderer/pipeline/deferred/BloomStage.h
