@@ -4,24 +4,16 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
+import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint, UpdateFrequency } from './types';
+import { QueueHint } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 
-export abstract class ShaderGroupBuilder {
-    public abstract addShader(): void;
-}
-
-export abstract class DescriptorGroupBuilder {
-    public abstract addDescriptorGroup(update: UpdateFrequency): DescriptorGroupBuilder;
-    public abstract addShaderGroup(update: UpdateFrequency): ShaderGroupBuilder;
-}
-
-export abstract class DescriptorLayout {
-    public abstract addDescriptorGroup(update: UpdateFrequency): DescriptorGroupBuilder;
+export abstract class DescriptorHierarchy {
+    public abstract addEffect(asset: EffectAsset): void;
 }
 
 export abstract class Setter {

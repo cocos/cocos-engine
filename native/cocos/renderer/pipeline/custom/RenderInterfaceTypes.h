@@ -5,6 +5,7 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
@@ -19,6 +20,8 @@ class Vec4;
 class Vec3;
 class Vec2;
 
+class EffectAsset;
+
 namespace pipeline {
 
 class PipelineSceneData;
@@ -31,51 +34,20 @@ namespace cc {
 
 namespace render {
 
-class ShaderGroupBuilder {
+class DescriptorHierarchy {
 public:
-    ShaderGroupBuilder() noexcept = default;
-    ShaderGroupBuilder(ShaderGroupBuilder&& rhs)      = delete;
-    ShaderGroupBuilder(ShaderGroupBuilder const& rhs) = delete;
-    ShaderGroupBuilder& operator=(ShaderGroupBuilder&& rhs) = delete;
-    ShaderGroupBuilder& operator=(ShaderGroupBuilder const& rhs) = delete;
+    DescriptorHierarchy() noexcept = default;
+    DescriptorHierarchy(DescriptorHierarchy&& rhs)      = delete;
+    DescriptorHierarchy(DescriptorHierarchy const& rhs) = delete;
+    DescriptorHierarchy& operator=(DescriptorHierarchy&& rhs) = delete;
+    DescriptorHierarchy& operator=(DescriptorHierarchy const& rhs) = delete;
 
-    virtual ~ShaderGroupBuilder() noexcept = 0;
+    virtual ~DescriptorHierarchy() noexcept = 0;
 
-    virtual void addShader() = 0;
+    virtual void addEffect(EffectAsset* asset) = 0;
 };
 
-inline ShaderGroupBuilder::~ShaderGroupBuilder() noexcept = default;
-
-class DescriptorGroupBuilder {
-public:
-    DescriptorGroupBuilder() noexcept = default;
-    DescriptorGroupBuilder(DescriptorGroupBuilder&& rhs)      = delete;
-    DescriptorGroupBuilder(DescriptorGroupBuilder const& rhs) = delete;
-    DescriptorGroupBuilder& operator=(DescriptorGroupBuilder&& rhs) = delete;
-    DescriptorGroupBuilder& operator=(DescriptorGroupBuilder const& rhs) = delete;
-
-    virtual ~DescriptorGroupBuilder() noexcept = 0;
-
-    virtual DescriptorGroupBuilder* addDescriptorGroup(UpdateFrequency update) = 0;
-    virtual ShaderGroupBuilder* addShaderGroup(UpdateFrequency update) = 0;
-};
-
-inline DescriptorGroupBuilder::~DescriptorGroupBuilder() noexcept = default;
-
-class DescriptorLayout {
-public:
-    DescriptorLayout() noexcept = default;
-    DescriptorLayout(DescriptorLayout&& rhs)      = delete;
-    DescriptorLayout(DescriptorLayout const& rhs) = delete;
-    DescriptorLayout& operator=(DescriptorLayout&& rhs) = delete;
-    DescriptorLayout& operator=(DescriptorLayout const& rhs) = delete;
-
-    virtual ~DescriptorLayout() noexcept = 0;
-
-    virtual DescriptorGroupBuilder* addDescriptorGroup(UpdateFrequency update) = 0;
-};
-
-inline DescriptorLayout::~DescriptorLayout() noexcept = default;
+inline DescriptorHierarchy::~DescriptorHierarchy() noexcept = default;
 
 class Setter {
 public:

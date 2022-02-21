@@ -6,15 +6,14 @@
 // clang-format off
 #pragma once
 #include <boost/variant2/variant.hpp>
+#include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 
 namespace cc {
 
 namespace render {
 
-class ShaderGroupBuilder;
-class DescriptorGroupBuilder;
-class DescriptorLayout;
+class DescriptorHierarchy;
 class Setter;
 class RasterQueueBuilder;
 class RasterPassBuilder;
