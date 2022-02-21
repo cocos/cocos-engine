@@ -103,7 +103,7 @@ CCProgram terrain-vs %{
     CC_TRANSFER_FOG(vec4(worldPos, 1.0));
 
     #if CC_RECEIVE_SHADOW
-      v_shadowBias = CCGetShadowBias();
+      v_shadowBias = vec2(0.0, 0.0);
     #endif
 
     #if USE_NORMALMAP
