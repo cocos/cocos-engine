@@ -140,13 +140,13 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         if (layoutName === '') {
             switch (hint) {
             case QueueHint.RENDER_OPAQUE:
-                layoutName = 'RENDER_OPAQUE';
+                layoutName = 'Opaque';
                 break;
             case QueueHint.RENDER_CUTOUT:
-                layoutName = 'RENDER_CUTOUT';
+                layoutName = 'Cutout';
                 break;
             case QueueHint.RENDER_TRANSPARENT:
-                layoutName = 'RENDER_TRANSPARENT';
+                layoutName = 'Transparent';
                 break;
             default:
                 throw Error('cannot infer layoutName from QueueHint');
