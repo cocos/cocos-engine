@@ -27,10 +27,10 @@
 #pragma once
 
 #define SCRIPT_ENGINE_NONE 0
-//#define SCRIPT_ENGINE_SM             1
+#define SCRIPT_ENGINE_SM  1
 #define SCRIPT_ENGINE_V8  2
 #define SCRIPT_ENGINE_JSC 3
-//#define SCRIPT_ENGINE_CHAKRACORE     4
+#define SCRIPT_ENGINE_CHAKRACORE     4
 
 #ifndef SCRIPT_ENGINE_TYPE
     #define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_V8

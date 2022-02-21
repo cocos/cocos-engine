@@ -38,6 +38,10 @@ namespace se {
 
 class Class;
 
+namespace internal {
+struct PrivateData;
+}
+
 /**
      * se::Object represents JavaScript Object.
      */
@@ -93,13 +97,27 @@ public:
     static Object *createTypedArray(TypedArrayType type, const void *data, size_t byteLength);
 
     /**
+         *  @brief Creates a JavaScript Typed Array Object with a se::Object, which is a ArrayBuffer,
+                   if provide a null pointer,then will create a empty JavaScript Typed Array Object.
+         *  @param[in] type The format of typed array.
+         *  @param[in] obj A ArrayBuffer to TypedArray.
+         *  @param[in] offset Offset of ArrayBuffer to create with.
+         *  @param[in] byteLength The number of bytes pointed to by the parameter bytes.
+         *  @return A JavaScript Typed Array Object which refers to the ArrayBuffer Object, or nullptr if there is an error.
+         *  @note The return value (non-null) has to be released manually.
+         */
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj);
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset);
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength);
+
+    /**
          *  @brief Creates a JavaScript Array Buffer object from an existing pointer.
          *  @param[in] bytes A pointer to the byte buffer to be used as the backing store of the Typed Array object.
          *  @param[in] byteLength The number of bytes pointed to by the parameter bytes.
          *  @return A Array Buffer Object whose backing store is the same as the one pointed to data, or nullptr if there is an error.
          *  @note The return value (non-null) has to be released manually.
          */
-    static Object *createArrayBufferObject(void *data, size_t byteLength);
+    static Object *createArrayBufferObject(const void *data, size_t byteLength);
 
     /**
          *  @brief Creates a JavaScript Object from a JSON formatted string.
@@ -131,7 +149,15 @@ public:
          *  @param[out] value The property's value if object has the property, otherwise the undefined value.
          *  @return true if object has the property, otherwise false.
          */
-    bool getProperty(const char *name, Value *value);
+    inline bool getProperty(const char *name, Value *data) {
+        return getProperty(name, data, false);
+    }
+
+    bool getProperty(const char *name, Value *data, bool cachePropertyName);
+
+    inline bool getProperty(const std::string &name, Value *value) {
+        return getProperty(name.c_str(), value);
+    }
 
     /**
          *  @brief Sets a property to an object.
@@ -141,6 +167,10 @@ public:
          */
     bool setProperty(const char *name, const Value &value);
 
+    inline bool setProperty(const std::string &name, const Value &value) {
+        return setProperty(name.c_str(), value);
+    }
+
     /**
          *  @brief Defines a property with native accessor callbacks for an object.
          *  @param[in] name A utf-8 string containing the property's name.
@@ -149,6 +179,8 @@ public:
          *  @return true if succeed, otherwise false.
          */
     bool defineProperty(const char *name, JSNative getter, JSNative setter);
+
+    bool defineOwnProperty(const char *name, const se::Value &value, bool writable = true, bool enumerable = true, bool configurable = true);
 
     /**
          *  @brief Defines a function with a native callback for an object.
@@ -242,25 +274,44 @@ public:
          */
     bool getAllKeys(std::vector<std::string> *allKeys) const;
 
-    /**
-         *  @brief Sets a pointer to private data on an object.
-         *  @param[in] data A void* to set as the object's private data.
-         *  @note This method will associate private data with se::Object by std::unordered_map::emplace.
-         *        It's used for search a se::Object via a void* private data.
-         */
-    void setPrivateData(void *data);
+    void               setPrivateObject(PrivateObjectBase *data);
+    PrivateObjectBase *getPrivateObject() const;
 
     /**
-         *  @brief Gets an object's private data.
-         *  @return A void* that is the object's private data, if the object has private data, otherwise nullptr.
-         */
-    void *getPrivateData() const;
+     *  @brief Gets an object's private data.
+     *  @return A void* that is the object's private data, if the object has private data, otherwise nullptr.
+     */
+    inline void *getPrivateData() const {
+        return _privateObject ? _privateObject->getRaw() : nullptr;
+    }
+
+    /**
+     *  @brief Sets a pointer to private data on an object.
+     *  @param[in] data A void* to set as the object's private data.
+     *  @note This method will associate private data with se::Object by std::unordered_map::emplace.
+     *        It's used for search a se::Object via a void* private data.
+     */
+    template <typename T>
+    inline void setPrivateData(T *data) {
+        static_assert(!std::is_void<T>::value, "void * is not allowed for private data");
+        setPrivateObject(se::make_shared_private_object(data));
+    }
+
+    template <typename T>
+    inline T *getTypedPrivateData() const {
+        return reinterpret_cast<T *>(getPrivateData());
+    }
 
     /**
          *  @brief Clears private data of an object.
          *  @param clearMapping Whether to clear the mapping of native object & se::Object.
          */
     void clearPrivateData(bool clearMapping = true);
+
+    /**
+     * @brief Sets whether to clear the mapping of native object & se::Object in finalizer
+     */
+    void setClearMappingInFinalizer(bool v) { _clearMappingInFinalizer = v; }
 
     /**
          *  @brief Roots an object from garbage collection.
@@ -371,22 +422,25 @@ private:
     static void cleanup();
 
     void trace(JSTracer *tracer, void *data);
-    bool updateAfterGC(void *data);
+    bool updateAfterGC(JSTracer* trc, void *data);
 
     void protect();
     void unprotect();
     void reset();
 
     JS::Heap<JSObject *>        _heap; /* should be untouched if in rooted mode */
-    JS::PersistentRootedObject *_root; /* should be null if not in rooted mode */
+    JS::PersistentRootedObject *_root{nullptr}; /* should be null if not in rooted mode */
 
-    void *_privateData;
+    PrivateObjectBase *    _privateObject{nullptr};
+    internal::PrivateData *_internalData{nullptr};
 
-    Class *      _cls;
-    JSFinalizeOp _finalizeCb;
+    Class *      _cls{nullptr};
+    JSFinalizeOp _finalizeCb{nullptr};
 
-    uint32_t _rootCount;
-    uint32_t _currentVMId;
+    uint32_t _rootCount{0};
+    uint32_t _currentVMId{0};
+
+    bool _clearMappingInFinalizer{true};
 
     friend class ScriptEngine;
 };

@@ -51,6 +51,7 @@ public:
          *  @note Don't need to delete the pointer return by this method, it's managed internally.
          */
     static Class *create(const char *className, Object *obj, Object *parentProto, JSNative ctor);
+    static Class *create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, JSNative ctor);
 
     /**
          *  @brief Defines a member function with a callback. Each objects created by class will have this function property.
@@ -68,6 +69,7 @@ public:
          *  @return true if succeed, otherwise false.
          */
     bool defineProperty(const char *name, JSNative getter, JSNative setter);
+    bool defineProperty(const std::initializer_list<const char *> &names, JSNative getter, JSNative setter);
 
     /**
          *  @brief Defines a static function with a callback. Only JavaScript constructor object will have this function.

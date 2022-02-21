@@ -41,8 +41,8 @@ class Class;
 namespace internal {
 
 struct PrivateData {
-    void *       data;
-    JSFinalizeOp finalizeCb;
+    void *       data{nullptr};
+    JSFinalizeOp finalizeCb{nullptr};
 };
 
 void        forceConvertJsValueToStdString(JSContext *cx, JS::HandleValue jsval, std::string *ret);
@@ -50,15 +50,18 @@ std::string jsToStdString(JSContext *cx, JS::HandleString jsStr);
 
 void jsToSeArgs(JSContext *cx, int argc, const JS::CallArgs &argv, ValueArray *outArr);
 void jsToSeValue(JSContext *cx, JS::HandleValue jsval, Value *v);
-void seToJsArgs(JSContext *cx, const ValueArray &args, JS::AutoValueVector *outArr);
+void seToJsArgs(JSContext *cx, const ValueArray &args, JS::RootedValueVector *outArr);
 void seToJsValue(JSContext *cx, const Value &v, JS::MutableHandleValue outVal);
 
 void setReturnValue(JSContext *cx, const Value &data, const JS::CallArgs &argv);
 
 bool  hasPrivate(JSContext *cx, JS::HandleObject obj);
-void *getPrivate(JSContext *cx, JS::HandleObject obj);
-void  setPrivate(JSContext *cx, JS::HandleObject obj, void *data, JSFinalizeOp finalizeCb);
+void *getPrivate(JSContext *cx, JS::HandleObject obj, uint32_t slot);
+void  setPrivate(JSContext *cx, JS::HandleObject obj, PrivateObjectBase *data, Object *seObj, PrivateData **outInternalData, JSFinalizeOp finalizeCb);
 void  clearPrivate(JSContext *cx, JS::HandleObject obj);
+
+void* SE_JS_GetPrivate(JSObject* obj, uint32_t slot);
+void SE_JS_SetPrivate(JSObject* obj, uint32_t slot, void* data);
 
 } // namespace internal
 

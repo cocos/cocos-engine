@@ -84,6 +84,13 @@ public:
     void addRegisterCallback(RegisterCallback cb);
 
     /**
+     *  @brief Adds a callback for registering a native binding module, which will not be removed by ScriptEngine::cleanup.
+     *  @param[in] cb A callback for registering a native binding module.
+     *  @note This method just add a callback to a vector, callbacks is invoked in `start` method.
+     */
+    void addPermanentRegisterCallback(RegisterCallback cb);
+    
+    /**
          *  @brief Starts the script engine.
          *  @return true if succeed, otherwise false.
          *  @note This method will invoke all callbacks of native binding modules by the order of registration.
@@ -140,6 +147,20 @@ public:
          *  @return true if succeed, otherwise false.
          */
     bool evalString(const char *scriptStr, ssize_t length = -1, Value *rval = nullptr, const char *fileName = nullptr);
+
+    /**
+     *  @brief Compile script file into v8::ScriptCompiler::CachedData and save to file.
+     *  @param[in] path The path of script file.
+     *  @param[in] pathBc The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
+     *  @return true if succeed, otherwise false.
+     */
+    bool saveByteCodeToFile(const std::string &path, const std::string &pathBc) { assert(false); } //cjh
+
+    /**
+     * @brief Grab a snapshot of the current JavaScript execution stack.
+     * @return current stack trace string
+     */
+    std::string getCurrentStackTrace() { return ""; } //cjh
 
     /**
          *  Delegate class for file operation
@@ -210,6 +231,11 @@ public:
     bool isValid() { return _isValid; }
 
     /**
+     * @brief Throw JS exception
+     */
+    void throwException(const std::string &errorMessage) { assert(false); } //cjh 
+
+    /**
          *  @brief Clears all exceptions.
          */
     void clearException();
@@ -221,6 +247,12 @@ public:
          *  @param[in] cb The callback function to notify that an exception is fired.
          */
     void setExceptionCallback(const ExceptionCallback &cb);
+
+    /**
+     *  @brief Sets the callback function while an exception is fired in JS.
+     *  @param[in] cb The callback function to notify that an exception is fired.
+     */
+    void setJSExceptionCallback(const ExceptionCallback &cb) { assert(false); } //cjh
 
     /**
          *  @brief Gets the start time of script engine.
@@ -252,6 +284,16 @@ public:
          */
     uint32_t getVMId() const { return _vmId; }
 
+    /**
+     * @brief Fast version of call script function, faster than Object::call
+     */
+    bool callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval = nullptr);
+
+    /**
+     * @brief Handle all exceptions throwed by promise
+     */
+    void handlePromiseExceptions() { assert(false); } //TODO(cjh)
+
     // Private API used in wrapper
     JSContext *_getContext() { return _cx; }
     void       _setGarbageCollecting(bool isGarbageCollecting);
@@ -261,14 +303,14 @@ private:
     ScriptEngine();
     ~ScriptEngine();
 
-    static void onWeakPointerCompartmentCallback(JSContext *cx, JSCompartment *comp, void *data);
-    static void onWeakPointerZoneGroupCallback(JSContext *cx, void *data);
+    static void onWeakPointerCompartmentCallback(JSTracer* trc, JS::Compartment *comp, void *data);
+    static void onWeakPointerZoneGroupCallback(JSTracer *trc, void *data);
 
     bool getScript(const std::string &path, JS::MutableHandleScript script);
     bool compileScript(const std::string &path, JS::MutableHandleScript script);
 
     JSContext *    _cx;
-    JSCompartment *_oldCompartment;
+    JS::Realm *_oldCompartment;
 
     Object *_globalObj;
     Object *_debugGlobalObj;
@@ -276,6 +318,7 @@ private:
     FileOperationDelegate _fileOperationDelegate;
 
     std::vector<RegisterCallback>         _registerCallbackArray;
+    std::vector<RegisterCallback>         _permRegisterCallbackArray;
     std::chrono::steady_clock::time_point _startTime;
 
     std::vector<std::function<void()>> _beforeInitHookArray;
