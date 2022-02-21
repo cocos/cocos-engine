@@ -12,6 +12,7 @@ CCEffect %{
 CCProgram wireframe-vs %{
     precision mediump float;
     #include <cc-global>
+    #include <decode-base>
     #include <cc-local-batch>
     #include <input>
 
