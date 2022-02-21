@@ -58,16 +58,16 @@ int Game::init() {
     return 0;
 }
 
-void Game::onPause() {
-    cc::CocosApplication::onPause();
+void Game::onEnginePause() {
+    cc::CocosApplication::onEnginePause();
 }
 
-void Game::onResume() {
-    cc::CocosApplication::onResume();
+void Game::onEngineResume() {
+    cc::CocosApplication::onEngineResume();
 }
 
-void Game::onClose() {
-    cc::CocosApplication::onClose();
+void Game::onEngineClose() {
+    cc::CocosApplication::onEngineClose();
 }
 
 CC_APPLICATION_MAIN(Game);
