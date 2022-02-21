@@ -294,7 +294,7 @@
         "cc.Touch",
         "cc.Tween",
         "cc.UI",
-		"cc.UIModel",
+		"cc.UIMeshRenderer",
         "cc.UIModelComponent",
         "cc.UIReorderComponent",
         "cc.UITransformComponent",
