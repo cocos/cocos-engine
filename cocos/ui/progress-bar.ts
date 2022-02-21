@@ -38,7 +38,6 @@ import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
 import { warn } from '../core/platform/debug';
 import { legacyCC } from '../core/global-exports';
-import { js } from '../core/utils/js';
 
 /**
  * @en

@@ -38,7 +38,6 @@ import { director, Director } from '../core/director';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { Node, warn } from '../core';
 import { NodeEventType } from '../core/scene-graph/node-event';
-import { js } from '../core/utils/js';
 import { legacyCC } from '../core/global-exports';
 
 /**

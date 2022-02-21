@@ -36,7 +36,6 @@ import { UITransform } from '../2d/framework';
 import { view, sys } from '../core/platform';
 import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
-import { js } from '../core/utils/js';
 import { legacyCC } from '../core/global-exports';
 
 /**

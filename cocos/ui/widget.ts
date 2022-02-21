@@ -43,7 +43,6 @@ import { ccenum } from '../core/value-types/enum';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
-import { js } from '../core/utils/js';
 
 const _tempScale = new Vec2();
 

@@ -44,7 +44,6 @@ import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, M
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
-import { js } from '../../core/utils/js';
 
 const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),

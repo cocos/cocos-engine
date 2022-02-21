@@ -38,7 +38,6 @@ import { ToggleContainer } from './toggle-container';
 import { extendsEnum } from '../core/data/utils/extends-enum';
 import { EventType as ButtonEventType, Button } from './button';
 import { legacyCC } from '../core/global-exports';
-import { js } from '../core/utils/js';
 
 enum EventType {
     TOGGLE = 'toggle',

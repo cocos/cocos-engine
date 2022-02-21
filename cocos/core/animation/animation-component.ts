@@ -38,7 +38,6 @@ import { createMap } from '../utils/js-typed';
 import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
-import { js } from '../utils/js';
 import { legacyCC } from '../global-exports';
 
 /**

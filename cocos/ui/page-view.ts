@@ -43,7 +43,6 @@ import { extendsEnum } from '../core/data/utils/extends-enum';
 import { Node } from '../core/scene-graph';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
-import { js } from '../core/utils/js';
 
 const _tempVec2 = new Vec2();
 

@@ -33,7 +33,6 @@ import { ccclass, help, executionOrder, menu, tooltip, requireComponent, execute
 import { Component } from '../../core/components/component';
 import { Color } from '../../core/math';
 import { Label } from './label';
-import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
 
 /**

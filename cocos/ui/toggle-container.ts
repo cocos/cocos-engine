@@ -34,7 +34,6 @@ import { Component, EventHandler as ComponentEventHandler } from '../core/compon
 import { Toggle } from './toggle';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
-import { js } from '../core/utils/js';
 
 /**
  * @en
