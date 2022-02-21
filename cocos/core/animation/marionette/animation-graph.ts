@@ -557,6 +557,7 @@ export class Variable {
             break;
         case VariableType.BOOLEAN:
         case VariableType.TRIGGER:
+        case VariableType.AUTO_TRIGGER:
             this._value = false;
             break;
         }
@@ -582,6 +583,8 @@ export class Variable {
                 assertIsTrue(Number.isInteger(value));
                 break;
             case VariableType.BOOLEAN:
+            case VariableType.TRIGGER:
+            case VariableType.AUTO_TRIGGER:
                 assertIsTrue(typeof value === 'boolean');
                 break;
             }
