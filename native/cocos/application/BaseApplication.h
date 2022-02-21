@@ -29,7 +29,7 @@
 #include "engine/BaseEngine.h"
 
 namespace cc {
-
+class ApplicationObserver;
 class BaseApplication {
 public:
     virtual ~BaseApplication() = default;
@@ -58,6 +58,16 @@ public:
      * @brief Close the application.
      */
     virtual void close() = 0;
+
+    /**
+     * @brief Register an app observer.
+     */
+    virtual void registerObserver(ApplicationObserver *observer) = 0;
+    /**
+     * @brief Unregister an app observer.
+     */
+    virtual void unregisterObserver(ApplicationObserver *observer) = 0;
+
     /**
      * @brief Get engine.
      */

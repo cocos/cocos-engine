@@ -28,11 +28,14 @@
 #include <iostream>
 #include "application/BaseApplication.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
+#include "engine/EngineObserver.h"
 
 namespace cc {
 class BaseEngine;
+class ApplicationObserverManager;
 
-class CocosApplication : public BaseApplication {
+class CocosApplication : public BaseApplication,
+                         public EngineObserver {
 public:
     CocosApplication();
     ~CocosApplication() override;
@@ -67,17 +70,20 @@ public:
     BaseEngine::Ptr getEngine() const override;
 
     /**
-     * @brief Processing pause events..
+     * @brief Register an observer
      */
-    virtual void onPause();
+    void registerObserver(ApplicationObserver *observer) override;
     /**
-     * @brief Processing recovery events.
+     * @brief Unregister an observer
      */
-    virtual void onResume();
-    /**
-     * @brief Processing close events.
-     */
-    virtual void onClose();
+    void unregisterObserver(ApplicationObserver *observer) override;
+
+    // Engine life cycle Observer overrides:
+    void onEngineStart() override;
+    void onEnginePause() override;
+    void onEngineResume() override;
+    void onEngineClose() override;
+
     /**
      * @brief Create window.
      * @param title: Window title
@@ -91,6 +97,14 @@ public:
                               int32_t x, int32_t y, int32_t w,
                               int32_t h, int32_t flags);
     /**
+     * @brief Js exception handling
+     * @param location,Exception location
+     * @param message,Exception message
+     * @param stack,Exception stack
+     */
+    virtual void handleException(const char *location, const char *message, const char *stack);
+
+    /**
      * @brief Set the js debugging server Addr and port
      * @param serverAddr:Server address.
      * @param port:Server port.
@@ -102,19 +116,11 @@ public:
      * @param filePath:Js file path.
      */
     virtual void runJsScript(const std::string &filePath);
-    /**
-     * @brief Js exception handling
-     * @param location,Exception location
-     * @param message,Exception message
-     * @param stack,Exception stack
-     */
-    virtual void handleException(const char *location, const char *message, const char *stack);
+
     virtual void setXXTeaKey(const std::string &key);
 
 private:
-    void handleAppEvent(const OSEvent &ev);
-
-    ISystemWindow * _systemWidow{nullptr};
-    BaseEngine::Ptr _engine{nullptr};
+    std::unique_ptr<ApplicationObserverManager> _observers;
+    BaseEngine::Ptr                             _engine{nullptr};
 };
 } // namespace cc

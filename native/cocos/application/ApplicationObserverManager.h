@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,22 +21,56 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #pragma once
 
-#include "cocos/application/CocosApplication.h"
+#include <vector>
+#include "application/ApplicationObserver.h"
 
-/**
- @brief    The cocos2d Application.
- 
- The reason for implement as private inheritance is to hide some interface call by Director.
- */
-class Game : public cc::CocosApplication {
+namespace cc {
+
+class ApplicationObserverManager {
 public:
-    Game();
-    int init() override;
-    //bool init() override;
-    void onEnginePause() override;
-    void onEngineResume() override;
-    void onEngineClose() override;
+    ApplicationObserverManager()          = default;
+    virtual ~ApplicationObserverManager() = default;
+
+    /**
+     * @brief Application initialized.
+     */
+    void onAppInit();
+
+    /**
+     * @brief Application started.
+     */
+    void onAppStart();
+
+    /**
+     * @brief Application Paused.
+     */
+    void onAppPause();
+
+    /**
+     * @brief Application resumed.
+     */
+    void onAppResume();
+
+    /**
+     * @brief Application closed.
+     */
+    void onAppClose();
+
+    /**
+     * @brief Register an observer
+     */
+    void registerObserver(ApplicationObserver *observer);
+    /**
+     * @brief Unregister an observer
+     */
+    void unregisterObserver(ApplicationObserver *observer);
+
+private:
+    std::vector<ApplicationObserver *> _observers;
 };
+
+} // namespace cc
