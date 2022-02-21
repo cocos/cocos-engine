@@ -10,8 +10,9 @@ set(ENGINE_NAME cocos_engine)
 
 ################################# options ############################################
 # default fallback options
-cc_set_if_undefined(USE_SE_V8                ON)
-cc_set_if_undefined(USE_V8_DEBUGGER          ON)
+cc_set_if_undefined(USE_SE_V8                OFF)
+cc_set_if_undefined(USE_SE_SM                ON)
+cc_set_if_undefined(USE_V8_DEBUGGER          OFF)
 cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
 cc_set_if_undefined(USE_EDIT_BOX             ON)
@@ -101,6 +102,7 @@ cc_inspect_values(
     CC_USE_VULKAN
     USE_SE_V8
     USE_V8_DEBUGGER
+    USE_SE_SM
     USE_SOCKET
     USE_AUDIO
     USE_EDIT_BOX
@@ -111,8 +113,6 @@ cc_inspect_values(
     USE_DRAGONBONES
     USE_SPINE
     USE_WEBSOCKET_SERVER
-    USE_SE_V8
-    USE_V8_DEBUGGER
     USE_PHYSICS_PHYSX
     USE_JOB_SYSTEM_TBB
     USE_JOB_SYSTEM_TASKFLOW
@@ -2368,6 +2368,23 @@ if(USE_SE_JSC)
     )
 endif()
 
+if(USE_SE_SM)
+    cocos_source_files(MODULE ccbindings
+                    cocos/bindings/jswrapper/sm/Base.h
+        NO_WERROR   cocos/bindings/jswrapper/sm/Class.cpp
+                    cocos/bindings/jswrapper/sm/Class.h
+                    cocos/bindings/jswrapper/sm/HelperMacros.h
+        NO_WERROR   cocos/bindings/jswrapper/sm/HelperMacros.cpp
+        NO_WERROR   cocos/bindings/jswrapper/sm/Object.cpp
+                    cocos/bindings/jswrapper/sm/Object.h
+        NO_WERROR   cocos/bindings/jswrapper/sm/ScriptEngine.cpp
+                    cocos/bindings/jswrapper/sm/ScriptEngine.h
+                    cocos/bindings/jswrapper/sm/SeApi.h
+        NO_WERROR   cocos/bindings/jswrapper/sm/Utils.cpp
+                    cocos/bindings/jswrapper/sm/Utils.h
+    )
+endif()
+
 cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/config.cpp
                  cocos/bindings/jswrapper/config.h
@@ -2740,6 +2757,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,USE_PHYSICS_PHYSX=1,USE_PHYSICS_PHYSX=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
         $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
+        $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
         $<$<CONFIG:Debug>:CC_DEBUG=1>
     )
 endfunction()
