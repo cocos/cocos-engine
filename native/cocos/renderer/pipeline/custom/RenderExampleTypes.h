@@ -49,7 +49,7 @@ struct RenderPassNode {
 };
 
 struct RenderPassTraits {
-    bool keep = false;
+    bool keep{false};
 };
 
 struct RenderDependencyGraph {
@@ -210,8 +210,8 @@ struct RenderValueNode {
     : passID(passIDIn),
       valueID(valueIDIn) {}
 
-    uint32_t passID  = 0xFFFFFFFF;
-    uint32_t valueID = 0xFFFFFFFF;
+    uint32_t passID{0xFFFFFFFF};
+    uint32_t valueID{0xFFFFFFFF};
 };
 
 inline bool operator==(const RenderValueNode& lhs, const RenderValueNode& rhs) noexcept {
@@ -359,7 +359,7 @@ struct RenderCompiler {
     ResourceGraph&                          resourceGraph;
     RenderGraph&                            graph;
     LayoutGraphData&                        layoutGraph;
-    boost::container::pmr::memory_resource* scratch = nullptr;
+    boost::container::pmr::memory_resource* scratch{nullptr};
 };
 
 } // namespace example

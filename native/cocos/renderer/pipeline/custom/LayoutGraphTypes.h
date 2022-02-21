@@ -21,7 +21,7 @@ namespace render {
 
 struct Constant {
     ValueType type;
-    uint32_t  valueID = 0xFFFFFFFF;
+    uint32_t  valueID{0xFFFFFFFF};
 };
 
 struct ConstantBuffer {
@@ -39,7 +39,7 @@ struct ConstantBuffer {
     ConstantBuffer& operator=(ConstantBuffer&& rhs) = default;
     ConstantBuffer& operator=(ConstantBuffer const& rhs) = default;
 
-    uint32_t                                size = 0;
+    uint32_t                                size{0};
     boost::container::pmr::vector<Constant> constants;
 };
 
@@ -73,13 +73,13 @@ struct DescriptorBlock {
     DescriptorBlock& operator=(DescriptorBlock const& rhs) = default;
 
     DescriptorType                          type;
-    uint32_t                                capacity = 0;
+    uint32_t                                capacity{0};
     boost::container::pmr::vector<uint32_t> attributeIDs;
 };
 
 struct DescriptorArray {
-    uint32_t capacity    = 0;
-    uint32_t attributeID = 0xFFFFFFFF;
+    uint32_t capacity{0};
+    uint32_t attributeID{0xFFFFFFFF};
 };
 
 struct UnboundedDescriptor {
@@ -116,8 +116,8 @@ struct DescriptorTable {
     DescriptorTable& operator=(DescriptorTable&& rhs) = default;
     DescriptorTable& operator=(DescriptorTable const& rhs) = default;
 
-    uint32_t                                       slot     = 0;
-    uint32_t                                       capacity = 0;
+    uint32_t                                       slot{0};
+    uint32_t                                       capacity{0};
     boost::container::pmr::vector<DescriptorBlock> blocks;
 };
 
@@ -182,7 +182,7 @@ struct GroupNodeData {
     GroupNodeData(NodeType nodeTypeIn) noexcept // NOLINT
     : nodeType(nodeTypeIn) {}
 
-    NodeType nodeType = NodeType::INTERNAL;
+    NodeType nodeType{NodeType::INTERNAL};
 };
 
 struct ShaderNodeData {

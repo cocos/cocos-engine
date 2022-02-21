@@ -69,16 +69,16 @@ enum class TextureLayout {
 };
 
 struct ResourceDesc {
-    ResourceDimension dimension        = ResourceDimension::BUFFER;
-    uint32_t          alignment        = 0;
-    uint32_t          width            = 0;
-    uint32_t          height           = 0;
-    uint16_t          depthOrArraySize = 0;
-    uint16_t          mipLevels        = 0;
-    gfx::Format       format           = gfx::Format::UNKNOWN;
-    gfx::SampleCount  sampleCount      = gfx::SampleCount::ONE;
-    TextureLayout     layout           = TextureLayout::UNKNOWN;
-    ResourceFlags     flags            = ResourceFlags::NONE;
+    ResourceDimension dimension{ResourceDimension::BUFFER};
+    uint32_t          alignment{0};
+    uint32_t          width{0};
+    uint32_t          height{0};
+    uint16_t          depthOrArraySize{0};
+    uint16_t          mipLevels{0};
+    gfx::Format       format{gfx::Format::UNKNOWN};
+    gfx::SampleCount  sampleCount{gfx::SampleCount::ONE};
+    TextureLayout     layout{TextureLayout::UNKNOWN};
+    ResourceFlags     flags{ResourceFlags::NONE};
 };
 
 struct ResourceTraits {
@@ -249,11 +249,11 @@ struct RasterView {
     RasterView& operator=(RasterView const& rhs) = default;
 
     PmrString         slotName;
-    AccessType        accessType     = AccessType::WRITE;
-    AttachmentType    attachmentType = AttachmentType::RENDER_TARGET;
-    gfx::LoadOp       loadOp         = gfx::LoadOp::LOAD;
-    gfx::StoreOp      storeOp        = gfx::StoreOp::STORE;
-    gfx::ClearFlagBit clearFlags     = gfx::ClearFlagBit::ALL;
+    AccessType        accessType{AccessType::WRITE};
+    AttachmentType    attachmentType{AttachmentType::RENDER_TARGET};
+    gfx::LoadOp       loadOp{gfx::LoadOp::LOAD};
+    gfx::StoreOp      storeOp{gfx::StoreOp::STORE};
+    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::ALL};
     gfx::Color        clearColor;
 };
 
@@ -285,10 +285,10 @@ struct ComputeView {
     }
 
     PmrString         name;
-    AccessType        accessType = AccessType::READ;
-    gfx::ClearFlagBit clearFlags = gfx::ClearFlagBit::NONE;
+    AccessType        accessType{AccessType::READ};
+    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::NONE};
     gfx::Color        clearColor;
-    ClearValueType    clearValueType = ClearValueType::FLOAT_TYPE;
+    ClearValueType    clearValueType{ClearValueType::FLOAT_TYPE};
 };
 
 struct RasterSubpass {
@@ -488,14 +488,14 @@ struct CopyPair {
 
     PmrString source;
     PmrString target;
-    uint32_t  mipLevels             = 0xFFFFFFFF;
-    uint32_t  numSlices             = 0xFFFFFFFF;
-    uint32_t  sourceMostDetailedMip = 0;
-    uint32_t  sourceFirstSlice      = 0;
-    uint32_t  sourcePlaneSlice      = 0;
-    uint32_t  targetMostDetailedMip = 0;
-    uint32_t  targetFirstSlice      = 0;
-    uint32_t  targetPlaneSlice      = 0;
+    uint32_t  mipLevels{0xFFFFFFFF};
+    uint32_t  numSlices{0xFFFFFFFF};
+    uint32_t  sourceMostDetailedMip{0};
+    uint32_t  sourceFirstSlice{0};
+    uint32_t  sourcePlaneSlice{0};
+    uint32_t  targetMostDetailedMip{0};
+    uint32_t  targetFirstSlice{0};
+    uint32_t  targetPlaneSlice{0};
 };
 
 struct CopyPass {
@@ -534,11 +534,11 @@ struct MovePair {
 
     PmrString source;
     PmrString target;
-    uint32_t  mipLevels             = 0xFFFFFFFF;
-    uint32_t  numSlices             = 0xFFFFFFFF;
-    uint32_t  targetMostDetailedMip = 0;
-    uint32_t  targetFirstSlice      = 0;
-    uint32_t  targetPlaneSlice      = 0;
+    uint32_t  mipLevels{0xFFFFFFFF};
+    uint32_t  numSlices{0xFFFFFFFF};
+    uint32_t  targetMostDetailedMip{0};
+    uint32_t  targetFirstSlice{0};
+    uint32_t  targetPlaneSlice{0};
 };
 
 struct MovePass {
@@ -588,7 +588,7 @@ struct RenderQueue {
     RenderQueue(QueueHint hintIn) noexcept // NOLINT
     : hint(hintIn) {}
 
-    QueueHint hint = QueueHint::RENDER_OPAQUE;
+    QueueHint hint{QueueHint::RENDER_OPAQUE};
 };
 
 struct SceneData {
@@ -608,7 +608,7 @@ struct SceneData {
     SceneData& operator=(SceneData const& rhs) = default;
 
     PmrString                                name;
-    scene::Camera*                           camera = nullptr;
+    scene::Camera*                           camera{nullptr};
     boost::container::pmr::vector<PmrString> scenes;
 };
 
@@ -629,9 +629,9 @@ struct Dispatch {
     Dispatch& operator=(Dispatch const& rhs) = default;
 
     PmrString shader;
-    uint32_t  threadGroupCountX = 0;
-    uint32_t  threadGroupCountY = 0;
-    uint32_t  threadGroupCountZ = 0;
+    uint32_t  threadGroupCountX{0};
+    uint32_t  threadGroupCountY{0};
+    uint32_t  threadGroupCountZ{0};
 };
 
 struct Blit {
@@ -670,8 +670,8 @@ struct PresentPass {
     PresentPass& operator=(PresentPass const& rhs) = default;
 
     PmrString resourceName;
-    uint32_t  syncInterval = 0;
-    uint32_t  flags        = 0;
+    uint32_t  syncInterval{0};
+    uint32_t  flags{0};
 };
 
 struct RenderData {

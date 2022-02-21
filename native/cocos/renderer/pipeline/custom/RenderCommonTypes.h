@@ -139,8 +139,8 @@ enum class ResourceDimension {
 };
 
 struct SampleDesc {
-    uint32_t count   = 1;
-    uint32_t quality = 0;
+    uint32_t count{1};
+    uint32_t quality{0};
 };
 
 enum class NodeType {

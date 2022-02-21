@@ -30,7 +30,7 @@ struct RenderCompiler {
     ResourceGraph&                          resourceGraph;
     RenderGraph&                            graph;
     LayoutGraphData&                        layoutGraph;
-    boost::container::pmr::memory_resource* scratch = nullptr;
+    boost::container::pmr::memory_resource* scratch{nullptr};
 };
 
 } // namespace render
