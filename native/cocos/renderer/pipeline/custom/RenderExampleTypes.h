@@ -342,7 +342,7 @@ struct RenderValueGraph {
 };
 
 struct RenderCompiler {
-    RenderCompiler(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraph& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn) noexcept
+    RenderCompiler(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn) noexcept
     : resourceGraph(resourceGraphIn),
       graph(graphIn),
       layoutGraph(layoutGraphIn),
@@ -358,7 +358,7 @@ struct RenderCompiler {
 
     ResourceGraph&                          resourceGraph;
     RenderGraph&                            graph;
-    LayoutGraph&                            layoutGraph;
+    LayoutGraphData&                        layoutGraph;
     boost::container::pmr::memory_resource* scratch = nullptr;
 };
 

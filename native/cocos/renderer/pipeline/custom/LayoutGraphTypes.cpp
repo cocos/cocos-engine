@@ -105,7 +105,7 @@ ShaderNodeData::ShaderNodeData(ShaderNodeData const& rhs, const allocator_type& 
   shaderPrograms(rhs.shaderPrograms, alloc),
   shaderIndex(rhs.shaderIndex, alloc) {}
 
-LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
+LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
 : vertices(alloc),
   names(alloc),
   updateFrequencies(alloc),
@@ -114,7 +114,7 @@ LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
   shaderNodes(alloc),
   pathIndex(alloc) {}
 
-LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
+LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
 : vertices(std::move(rhs.vertices), alloc),
   names(std::move(rhs.names), alloc),
   updateFrequencies(std::move(rhs.updateFrequencies), alloc),
@@ -123,7 +123,7 @@ LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
   shaderNodes(std::move(rhs.shaderNodes), alloc),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
-LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
+LayoutGraphData::LayoutGraphData(LayoutGraphData const& rhs, const allocator_type& alloc)
 : vertices(rhs.vertices, alloc),
   names(rhs.names, alloc),
   updateFrequencies(rhs.updateFrequencies, alloc),
@@ -133,23 +133,23 @@ LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
   pathIndex(rhs.pathIndex, alloc) {}
 
 // ContinuousContainer
-void LayoutGraph::reserve(vertices_size_type sz) {
+void LayoutGraphData::reserve(vertices_size_type sz) {
     this->vertices.reserve(sz);
     names.reserve(sz);
     updateFrequencies.reserve(sz);
     layouts.reserve(sz);
 }
 
-LayoutGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
+LayoutGraphData::vertex_type::vertex_type(const allocator_type& alloc) noexcept
 : outEdges(alloc),
   inEdges(alloc) {}
 
-LayoutGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
+LayoutGraphData::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
 : outEdges(std::move(rhs.outEdges), alloc),
   inEdges(std::move(rhs.inEdges), alloc),
   handle(std::move(rhs.handle)) {}
 
-LayoutGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
+LayoutGraphData::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc),
   handle(rhs.handle) {}

@@ -208,7 +208,7 @@ struct ShaderNodeData {
 struct Group_ {};
 struct Shader_ {};
 
-struct LayoutGraph {
+struct LayoutGraphData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {vertices.get_allocator().resource()};
@@ -218,14 +218,14 @@ struct LayoutGraph {
         return get_allocator().resource();
     }
 
-    LayoutGraph(const allocator_type& alloc) noexcept; // NOLINT
-    LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc);
-    LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc);
+    LayoutGraphData(const allocator_type& alloc) noexcept; // NOLINT
+    LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc);
+    LayoutGraphData(LayoutGraphData const& rhs, const allocator_type& alloc);
 
-    LayoutGraph(LayoutGraph&& rhs) noexcept = default;
-    LayoutGraph(LayoutGraph const& rhs)     = delete;
-    LayoutGraph& operator=(LayoutGraph&& rhs) = default;
-    LayoutGraph& operator=(LayoutGraph const& rhs) = default;
+    LayoutGraphData(LayoutGraphData&& rhs) noexcept = default;
+    LayoutGraphData(LayoutGraphData const& rhs)     = delete;
+    LayoutGraphData& operator=(LayoutGraphData&& rhs) = default;
+    LayoutGraphData& operator=(LayoutGraphData const& rhs) = default;
 
     // Graph
     using directed_category      = boost::bidirectional_tag;
@@ -258,7 +258,7 @@ struct LayoutGraph {
 
     // AdjacencyGraph
     using adjacency_iterator = boost::adjacency_iterator_generator<
-        LayoutGraph, vertex_descriptor, out_edge_iterator>::type;
+        LayoutGraphData, vertex_descriptor, out_edge_iterator>::type;
 
     // VertexListGraph
     using vertex_iterator    = boost::integer_range<vertex_descriptor>::iterator;
@@ -292,7 +292,7 @@ struct LayoutGraph {
     }
 
     // EdgeListGraph
-    using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, LayoutGraph>;
+    using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, LayoutGraphData>;
     using edges_size_type = uint32_t;
 
     // AddressableGraph (Alias)
@@ -309,7 +309,7 @@ struct LayoutGraph {
         boost::container::pmr::vector<in_edge_type>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
 
-    using ownership_iterator   = impl::DirectedEdgeIterator<vertex_iterator, children_iterator, LayoutGraph>;
+    using ownership_iterator   = impl::DirectedEdgeIterator<vertex_iterator, children_iterator, LayoutGraphData>;
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions

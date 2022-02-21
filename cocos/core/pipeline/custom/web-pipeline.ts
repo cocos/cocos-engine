@@ -8,7 +8,7 @@ import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuild
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { RenderScene } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
-import { LayoutGraph } from './layout-graph';
+import { LayoutGraphData } from './layout-graph';
 
 export class WebSetter extends Setter {
     constructor (data: RenderData) {
@@ -354,7 +354,7 @@ export class WebPipeline extends Pipeline {
         pass.setVec4('cc_nativeSize',
             new Vec4(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight));
     }
-    private readonly _layoutGraph: LayoutGraph = new LayoutGraph();
+    private readonly _layoutGraph: LayoutGraphData = new LayoutGraphData();
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
     private _renderGraph: RenderGraph | null = null;
     private _pipelineSceneData: PipelineSceneData | null = null;

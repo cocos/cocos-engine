@@ -28,7 +28,7 @@ struct GroupNodeData;
 struct ShaderNodeData;
 struct Group_;
 struct Shader_;
-struct LayoutGraph;
+struct LayoutGraphData;
 
 } // namespace render
 

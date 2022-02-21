@@ -76,45 +76,45 @@ export class ShaderNodeData {
 }
 
 //=================================================================
-// LayoutGraph
+// LayoutGraphData
 //=================================================================
 // PolymorphicGraph Concept
-export const enum LayoutGraphValue {
+export const enum LayoutGraphDataValue {
     Group,
     Shader,
 }
 
-interface LayoutGraphValueType {
-    [LayoutGraphValue.Group]: GroupNodeData
-    [LayoutGraphValue.Shader]: ShaderNodeData
+interface LayoutGraphDataValueType {
+    [LayoutGraphDataValue.Group]: GroupNodeData
+    [LayoutGraphDataValue.Shader]: ShaderNodeData
 }
 
-export interface LayoutGraphVisitor {
+export interface LayoutGraphDataVisitor {
     group(value: GroupNodeData): unknown;
     shader(value: ShaderNodeData): unknown;
 }
 
-type LayoutGraphObject = GroupNodeData | ShaderNodeData;
+type LayoutGraphDataObject = GroupNodeData | ShaderNodeData;
 
 //-----------------------------------------------------------------
 // Graph Concept
-export class LayoutGraphVertex {
+export class LayoutGraphDataVertex {
     constructor (
-        readonly id: LayoutGraphValue,
-        readonly object: LayoutGraphObject,
+        readonly id: LayoutGraphDataValue,
+        readonly object: LayoutGraphDataObject,
     ) {
         this._id = id;
         this._object = object;
     }
     readonly _outEdges: impl.OutE[] = [];
     readonly _inEdges: impl.OutE[] = [];
-    readonly _id: LayoutGraphValue;
-    readonly _object: LayoutGraphObject;
+    readonly _id: LayoutGraphDataValue;
+    readonly _object: LayoutGraphDataObject;
 }
 
 //-----------------------------------------------------------------
 // PropertyGraph Concept
-export class LayoutGraphNameMap implements impl.PropertyMap {
+export class LayoutGraphDataNameMap implements impl.PropertyMap {
     constructor (readonly names: string[]) {
         this._names = names;
     }
@@ -124,7 +124,7 @@ export class LayoutGraphNameMap implements impl.PropertyMap {
     readonly _names: string[];
 }
 
-export class LayoutGraphUpdateMap implements impl.PropertyMap {
+export class LayoutGraphDataUpdateMap implements impl.PropertyMap {
     constructor (readonly updateFrequencies: UpdateFrequency[]) {
         this._updateFrequencies = updateFrequencies;
     }
@@ -134,7 +134,7 @@ export class LayoutGraphUpdateMap implements impl.PropertyMap {
     readonly _updateFrequencies: UpdateFrequency[];
 }
 
-export class LayoutGraphLayoutMap implements impl.PropertyMap {
+export class LayoutGraphDataLayoutMap implements impl.PropertyMap {
     constructor (readonly layouts: LayoutData[]) {
         this._layouts = layouts;
     }
@@ -146,27 +146,27 @@ export class LayoutGraphLayoutMap implements impl.PropertyMap {
 
 //-----------------------------------------------------------------
 // ComponentGraph Concept
-export const enum LayoutGraphComponent {
+export const enum LayoutGraphDataComponent {
     Name,
     Update,
     Layout,
 }
 
-interface LayoutGraphComponentType {
-    [LayoutGraphComponent.Name]: string;
-    [LayoutGraphComponent.Update]: UpdateFrequency;
-    [LayoutGraphComponent.Layout]: LayoutData;
+interface LayoutGraphDataComponentType {
+    [LayoutGraphDataComponent.Name]: string;
+    [LayoutGraphDataComponent.Update]: UpdateFrequency;
+    [LayoutGraphDataComponent.Layout]: LayoutData;
 }
 
-interface LayoutGraphComponentPropertyMap {
-    [LayoutGraphComponent.Name]: LayoutGraphNameMap;
-    [LayoutGraphComponent.Update]: LayoutGraphUpdateMap;
-    [LayoutGraphComponent.Layout]: LayoutGraphLayoutMap;
+interface LayoutGraphDataComponentPropertyMap {
+    [LayoutGraphDataComponent.Name]: LayoutGraphDataNameMap;
+    [LayoutGraphDataComponent.Update]: LayoutGraphDataUpdateMap;
+    [LayoutGraphDataComponent.Layout]: LayoutGraphDataLayoutMap;
 }
 
 //-----------------------------------------------------------------
-// LayoutGraph Implementation
-export class LayoutGraph implements impl.BidirectionalGraph
+// LayoutGraphData Implementation
+export class LayoutGraphData implements impl.BidirectionalGraph
 , impl.AdjacencyGraph
 , impl.VertexListGraph
 , impl.MutableGraph
@@ -240,15 +240,15 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
-    addVertex<T extends LayoutGraphValue> (
-        id: LayoutGraphValue,
-        object: LayoutGraphValueType[T],
+    addVertex<T extends LayoutGraphDataValue> (
+        id: LayoutGraphDataValue,
+        object: LayoutGraphDataValueType[T],
         name: string,
         update: UpdateFrequency,
         layout: LayoutData,
         u = 0xFFFFFFFF,
     ): number {
-        const vert = new LayoutGraphVertex(id, object);
+        const vert = new LayoutGraphDataVertex(id, object);
         const v = this._vertices.length;
         this._vertices.push(vert);
         this._names.push(name);
@@ -361,46 +361,46 @@ export class LayoutGraph implements impl.BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    vertexNameMap (): LayoutGraphNameMap {
-        return new LayoutGraphNameMap(this._names);
+    vertexNameMap (): LayoutGraphDataNameMap {
+        return new LayoutGraphDataNameMap(this._names);
     }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): LayoutGraphNameMap | LayoutGraphUpdateMap | LayoutGraphLayoutMap {
+    get (tag: string): LayoutGraphDataNameMap | LayoutGraphDataUpdateMap | LayoutGraphDataLayoutMap {
         switch (tag) {
         // Components
         case 'Name':
-            return new LayoutGraphNameMap(this._names);
+            return new LayoutGraphDataNameMap(this._names);
         case 'Update':
-            return new LayoutGraphUpdateMap(this._updateFrequencies);
+            return new LayoutGraphDataUpdateMap(this._updateFrequencies);
         case 'Layout':
-            return new LayoutGraphLayoutMap(this._layouts);
+            return new LayoutGraphDataLayoutMap(this._layouts);
         default:
             throw Error('property map not found');
         }
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends LayoutGraphComponent> (id: T, v: number): LayoutGraphComponentType[T] {
+    component<T extends LayoutGraphDataComponent> (id: T, v: number): LayoutGraphDataComponentType[T] {
         switch (id) {
-        case LayoutGraphComponent.Name:
-            return this._names[v] as LayoutGraphComponentType[T];
-        case LayoutGraphComponent.Update:
-            return this._updateFrequencies[v] as LayoutGraphComponentType[T];
-        case LayoutGraphComponent.Layout:
-            return this._layouts[v] as LayoutGraphComponentType[T];
+        case LayoutGraphDataComponent.Name:
+            return this._names[v] as LayoutGraphDataComponentType[T];
+        case LayoutGraphDataComponent.Update:
+            return this._updateFrequencies[v] as LayoutGraphDataComponentType[T];
+        case LayoutGraphDataComponent.Layout:
+            return this._layouts[v] as LayoutGraphDataComponentType[T];
         default:
             throw Error('component not found');
         }
     }
-    componentMap<T extends LayoutGraphComponent> (id: T): LayoutGraphComponentPropertyMap[T] {
+    componentMap<T extends LayoutGraphDataComponent> (id: T): LayoutGraphDataComponentPropertyMap[T] {
         switch (id) {
-        case LayoutGraphComponent.Name:
-            return new LayoutGraphNameMap(this._names) as LayoutGraphComponentPropertyMap[T];
-        case LayoutGraphComponent.Update:
-            return new LayoutGraphUpdateMap(this._updateFrequencies) as LayoutGraphComponentPropertyMap[T];
-        case LayoutGraphComponent.Layout:
-            return new LayoutGraphLayoutMap(this._layouts) as LayoutGraphComponentPropertyMap[T];
+        case LayoutGraphDataComponent.Name:
+            return new LayoutGraphDataNameMap(this._names) as LayoutGraphDataComponentPropertyMap[T];
+        case LayoutGraphDataComponent.Update:
+            return new LayoutGraphDataUpdateMap(this._updateFrequencies) as LayoutGraphDataComponentPropertyMap[T];
+        case LayoutGraphDataComponent.Layout:
+            return new LayoutGraphDataLayoutMap(this._layouts) as LayoutGraphDataComponentPropertyMap[T];
         default:
             throw Error('component map not found');
         }
@@ -416,63 +416,63 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
-    holds (id: LayoutGraphValue, v: number): boolean {
+    holds (id: LayoutGraphDataValue, v: number): boolean {
         return this._vertices[v]._id === id;
     }
-    id (v: number): LayoutGraphValue {
+    id (v: number): LayoutGraphDataValue {
         return this._vertices[v]._id;
     }
-    object (v: number): LayoutGraphObject {
+    object (v: number): LayoutGraphDataObject {
         return this._vertices[v]._object;
     }
-    value<T extends LayoutGraphValue> (id: T, v: number): LayoutGraphValueType[T] {
+    value<T extends LayoutGraphDataValue> (id: T, v: number): LayoutGraphDataValueType[T] {
         if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as LayoutGraphValueType[T];
+            return this._vertices[v]._object as LayoutGraphDataValueType[T];
         } else {
             throw Error('value id not match');
         }
     }
-    tryValue<T extends LayoutGraphValue> (id: T, v: number): LayoutGraphValueType[T] | null {
+    tryValue<T extends LayoutGraphDataValue> (id: T, v: number): LayoutGraphDataValueType[T] | null {
         if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as LayoutGraphValueType[T];
+            return this._vertices[v]._object as LayoutGraphDataValueType[T];
         } else {
             return null;
         }
     }
-    visitVertex (visitor: LayoutGraphVisitor, v: number): unknown {
+    visitVertex (visitor: LayoutGraphDataVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
-        case LayoutGraphValue.Group:
+        case LayoutGraphDataValue.Group:
             return visitor.group(vert._object as GroupNodeData);
-        case LayoutGraphValue.Shader:
+        case LayoutGraphDataValue.Shader:
             return visitor.shader(vert._object as ShaderNodeData);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getGroup (v: number): GroupNodeData {
-        if (this._vertices[v]._id === LayoutGraphValue.Group) {
+        if (this._vertices[v]._id === LayoutGraphDataValue.Group) {
             return this._vertices[v]._object as GroupNodeData;
         } else {
             throw Error('value id not match');
         }
     }
     getShader (v: number): ShaderNodeData {
-        if (this._vertices[v]._id === LayoutGraphValue.Shader) {
+        if (this._vertices[v]._id === LayoutGraphDataValue.Shader) {
             return this._vertices[v]._object as ShaderNodeData;
         } else {
             throw Error('value id not match');
         }
     }
     tryGetGroup (v: number): GroupNodeData | null {
-        if (this._vertices[v]._id === LayoutGraphValue.Group) {
+        if (this._vertices[v]._id === LayoutGraphDataValue.Group) {
             return this._vertices[v]._object as GroupNodeData;
         } else {
             return null;
         }
     }
     tryGetShader (v: number): ShaderNodeData | null {
-        if (this._vertices[v]._id === LayoutGraphValue.Shader) {
+        if (this._vertices[v]._id === LayoutGraphDataValue.Shader) {
             return this._vertices[v]._object as ShaderNodeData;
         } else {
             return null;
@@ -589,7 +589,7 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
 
     readonly components: string[] = ['Name', 'Update', 'Layout'];
-    readonly _vertices: LayoutGraphVertex[] = [];
+    readonly _vertices: LayoutGraphDataVertex[] = [];
     readonly _names: string[] = [];
     readonly _updateFrequencies: UpdateFrequency[] = [];
     readonly _layouts: LayoutData[] = [];
