@@ -323,9 +323,10 @@ module.exports = {
             edit: '编辑',
         },
         animationMask: {
-            importSkeleton: '导入骨骼节点',
-            clearAllNodes: '清空所有节点',
-            clearAllNodesWarn: '确定从当前的动画遮罩中清空所有节点吗',
+            importSkeleton: '导入骨骼',
+            clearAllNodes: '清空',
+            clearAllNodesWarn: '确定清空所有遮罩数据吗？',
+            illegalFbx: '导入骨骼失败：此 fbx 文件不含有 prefab 子资源。',
             nodeEnableTip: '是否启用这个节点<br>按住 Alt + 点击，可以切换自身和子孙节点的状态',
         },
         multipleWarning: '不支持此类型资源的多选编辑',

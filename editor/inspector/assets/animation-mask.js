@@ -214,12 +214,19 @@ exports.ready = function() {
             name: 'ui-kit.searcher',
             timestamp: rawTimestamp,
             type: 'asset',
-            droppable: 'cc.Prefab',
+            assetFilter: {
+                importer: 'fbx',
+            },
             events: {
                 async confirm(uuid) {
+                    const info = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
+                    if (!info || !info.redirect || info.redirect.type !== 'cc.Prefab') {
+                        console.error(Editor.I18n.t('ENGINE.assets.animationMask.illegalFbx') + ` {asset(${uuid})}`);
+                        return;
+                    }
                     panel.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
                         method: 'import-skeleton',
-                        uuid,
+                        uuid: info.redirect.uuid,
                     });
 
                     panel.updateTree();
