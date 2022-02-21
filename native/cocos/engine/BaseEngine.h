@@ -32,7 +32,7 @@
 #include "platform/BasePlatform.h"
 
 namespace cc {
-
+class EngineObserver;
 class BaseEngine : public std::enable_shared_from_this<BaseEngine> {
 public:
     virtual ~BaseEngine();
@@ -84,6 +84,14 @@ public:
      * @param fps The preferred frame rate for main loop callback.
      */
     virtual void setPreferredFramesPerSecond(int fps) = 0;
+    /**
+     * @brief Register an observer
+     */
+    virtual void registerObserver(EngineObserver *observer) = 0;
+    /**
+     * @brief Unregister an observer
+     */
+    virtual void unregisterObserver(EngineObserver *observer) = 0;
 
     using EventCb = std::function<void(const OSEvent &)>;
     /**
@@ -94,6 +102,25 @@ public:
      @brief Remove listening event callback.
      */
     virtual void removeEventCallback(OSEventType evtype) = 0;
+
+    virtual void setXXTeaKey(const std::string &key) = 0;
+    /**
+     * @brief Run the js code file
+     * @param filePath:Js file path.
+     */
+    virtual void runJsScript(const std::string &filePath) = 0;
+    /**
+     * @brief Set the js debugging server Addr and port
+     * @param serverAddr:Server address.
+     * @param port:Server port.
+     * @param isWaitForConnect:Is Wait for connect.
+     */
+    virtual void setJsDebugIpAndPort(const std::string &serverAddr, uint32_t port, bool isWaitForConnect) = 0;
+    /**
+     @brief Set exception callback.
+     */
+    using ExceptionCallback = std::function<void(const char *, const char *, const char *)>; // location, message, stack
+    virtual void setExceptionCallback(const ExceptionCallback &cb) = 0;
 
     using SchedulerPtr = std::shared_ptr<Scheduler>;
     /**

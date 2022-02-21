@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,22 +21,40 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #pragma once
 
-#include "cocos/application/CocosApplication.h"
+namespace cc {
 
-/**
- @brief    The cocos2d Application.
- 
- The reason for implement as private inheritance is to hide some interface call by Director.
- */
-class Game : public cc::CocosApplication {
+class ApplicationObserver {
 public:
-    Game();
-    int init() override;
-    //bool init() override;
-    void onEnginePause() override;
-    void onEngineResume() override;
-    void onEngineClose() override;
+    ApplicationObserver()          = default;
+    virtual ~ApplicationObserver() = default;
+    /**
+     * @brief Application initialized.
+     */
+    virtual void onAppInit() {}
+
+    /**
+     * @brief Application started.
+     */
+    virtual void onAppStart() {}
+
+    /**
+     * @brief Application Paused.
+     */
+    virtual void onAppPause() {}
+
+    /**
+     * @brief Application resumed.
+     */
+    virtual void onAppResume() {}
+
+    /**
+     * @brief Application closed.
+     */
+    virtual void onAppClose() {}
 };
+
+} // namespace cc
