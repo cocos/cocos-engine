@@ -41,7 +41,7 @@ void PipelineSceneData::setPipelineSharedSceneData(scene::PipelineSharedSceneDat
 }
 
 void PipelineSceneData::destroy() {
-    for (auto &pair : _shadowFrameBufferMap) {
+    for (const auto &pair : _shadowFrameBufferMap) {
         pair.second->destroy();
         delete pair.second;
     }

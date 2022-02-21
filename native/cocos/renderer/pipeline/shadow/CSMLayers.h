@@ -41,7 +41,7 @@ struct CSMLayerInfo {
     Mat4 _matShadowProj;
     Mat4 _matShadowViewProj;
 
-    CSMLayerInfo(uint level) {
+    explicit CSMLayerInfo(uint level) {
         _level            = level;
         _shadowCameraNear = 0.0F;
         _shadowCameraFar  = 0.0F;

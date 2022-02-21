@@ -38,7 +38,7 @@ CSMLayers::~CSMLayers() {
         }
     }
 
-    _shadowCSMLayers.resize(0);
+    _shadowCSMLayers.clear();
 }
 
 void CSMLayers::update(scene::DirectionalLight* dirLight) {
