@@ -56,6 +56,10 @@ CCProgram terrain-vs %{
   in vec3 a_normal;
   in vec2 a_texCoord;
 
+  #if CC_RECEIVE_SHADOW
+    out vec2 v_shadowBias;
+  #endif
+
   out highp vec3 v_position;
   out mediump vec3 v_normal;
   #if USE_NORMALMAP
@@ -98,6 +102,10 @@ CCProgram terrain-vs %{
     v_normal = a_normal;
     CC_TRANSFER_FOG(vec4(worldPos, 1.0));
 
+    #if CC_RECEIVE_SHADOW
+      v_shadowBias = CCGetShadowBias();
+    #endif
+
     #if USE_NORMALMAP
       v_tangent = vec3(1.0, 0.0, 0.0);
       v_binormal = vec3(0.0, 0.0, 1.0);
@@ -124,10 +132,16 @@ CCProgram terrain-fs %{
 
   in highp vec3 v_position;
   in mediump vec3 v_normal;
+
+  #if CC_RECEIVE_SHADOW
+    in vec2 v_shadowBias;
+  #endif
+
   #if USE_NORMALMAP
     in mediump vec3 v_tangent;
     in mediump vec3 v_binormal;
   #endif
+
   in mediump vec2 uvw;
   in mediump vec2 uv0;
   in mediump vec2 uv1;
@@ -204,6 +218,10 @@ CCProgram terrain-fs %{
         nmmp.z * normalize(v_normal);
     #else
       s.normal = v_normal;
+    #endif
+
+    #if CC_RECEIVE_SHADOW
+      s.shadowBias = v_shadowBias;
     #endif
 
     s.albedo = vec4(SRGBToLinear(baseColor.rgb), 1.0);

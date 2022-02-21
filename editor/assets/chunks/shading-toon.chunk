@@ -13,12 +13,15 @@ struct ToonSurface {
   vec3 shade1;
   vec3 shade2;
   vec3 emissive;
-  vec2 shadowBias;
   float baseStep;
   float baseFeather;
   float shadeStep;
   float shadeFeather;
   float shadowCover;
+
+  #if CC_RECEIVE_SHADOW
+    vec2 shadowBias;
+  #endif
 };
 
 // Inspired by UTS2, (C)UTJ/UCL

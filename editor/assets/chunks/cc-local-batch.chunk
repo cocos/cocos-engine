@@ -4,6 +4,7 @@
 #pragma define USE_BATCHING editor(elevated: true)
 
 #include <cc-local>
+#include <decode-base>
 
 void CCGetWorldMatrix(out mat4 matWorld)
 {

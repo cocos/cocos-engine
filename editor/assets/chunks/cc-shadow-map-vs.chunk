@@ -7,3 +7,14 @@ out highp vec4 v_shadowPos;
 
 #define CC_SHADOW_POSITION v_shadowPos
 #define CC_TRANSFER_SHADOW(worldPos) CC_TRANSFER_SHADOW_BASE(worldPos, v_shadowPos)
+
+#if CC_RECEIVE_SHADOW
+vec2 CCGetShadowBias()
+{
+  #if USE_INSTANCING
+    return vec2(a_localShadowBias.x + cc_shadowWHPBInfo.w, a_localShadowBias.y + cc_shadowLPNNInfo.z);
+  #else
+    return vec2(cc_localShadowBias.x + cc_shadowWHPBInfo.w, cc_localShadowBias.y + cc_shadowLPNNInfo.z);
+  #endif
+}
+#endif

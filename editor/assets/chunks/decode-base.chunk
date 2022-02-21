@@ -20,6 +20,9 @@ layout(location = 3) in vec4 a_tangent;
   #if USE_LIGHTMAP
     in vec4 a_lightingMapUVParam;
   #endif
+  #if CC_RECEIVE_SHADOW
+    in vec2 a_localShadowBias; // x:shadow bias, y:shadow normal bias.
+  #endif
 #elif USE_BATCHING
   in float a_dyn_batch_id;
 #endif
