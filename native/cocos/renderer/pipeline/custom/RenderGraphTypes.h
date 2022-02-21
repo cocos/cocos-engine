@@ -230,11 +230,11 @@ struct ResourceGraph {
     };
 
     struct NameTag {
-    } static constexpr Name = {}; // NOLINT
+    } static constexpr Name{}; // NOLINT
     struct DescTag {
-    } static constexpr Desc = {}; // NOLINT
+    } static constexpr Desc{}; // NOLINT
     struct TraitsTag {
-    } static constexpr Traits = {}; // NOLINT
+    } static constexpr Traits{}; // NOLINT
 
     // Vertices
     boost::container::pmr::vector<vertex_type> vertices;
@@ -446,9 +446,9 @@ struct SubpassGraph {
     };
 
     struct NameTag {
-    } static constexpr Name = {}; // NOLINT
+    } static constexpr Name{}; // NOLINT
     struct SubpassTag {
-    } static constexpr Subpass = {}; // NOLINT
+    } static constexpr Subpass{}; // NOLINT
 
     // Vertices
     boost::container::pmr::vector<vertex_type> vertices;
@@ -897,11 +897,11 @@ struct RenderGraph {
     };
 
     struct NameTag {
-    } static constexpr Name = {}; // NOLINT
+    } static constexpr Name{}; // NOLINT
     struct LayoutTag {
-    } static constexpr Layout = {}; // NOLINT
+    } static constexpr Layout{}; // NOLINT
     struct DataTag {
-    } static constexpr Data = {}; // NOLINT
+    } static constexpr Data{}; // NOLINT
 
     // Owners
     boost::container::pmr::vector<object_type> objects;

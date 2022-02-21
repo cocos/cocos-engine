@@ -163,9 +163,9 @@ struct DeviceResourceGraph {
     };
 
     struct NameTag {
-    } static constexpr Name = {}; // NOLINT
+    } static constexpr Name{}; // NOLINT
     struct RefCountTag {
-    } static constexpr RefCount = {}; // NOLINT
+    } static constexpr RefCount{}; // NOLINT
 
     // Vertices
     boost::container::pmr::vector<vertex_type> vertices;

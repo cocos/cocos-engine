@@ -385,11 +385,11 @@ struct LayoutGraphData {
     };
 
     struct NameTag {
-    } static constexpr Name = {}; // NOLINT
+    } static constexpr Name{}; // NOLINT
     struct UpdateTag {
-    } static constexpr Update = {}; // NOLINT
+    } static constexpr Update{}; // NOLINT
     struct LayoutTag {
-    } static constexpr Layout = {}; // NOLINT
+    } static constexpr Layout{}; // NOLINT
 
     // Vertices
     boost::container::pmr::vector<vertex_type> vertices;
