@@ -33,7 +33,7 @@ struct VectorVertexBundlePropertyMap
         return graph->mVertices[v].property;
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     Graph *graph{};
@@ -56,7 +56,7 @@ struct PointerVertexBundlePropertyMap
         return sv->property;
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     Graph *graph{};
@@ -78,7 +78,7 @@ struct VectorVertexBundleMemberPropertyMap
         return graph->mVertices[v].property.*memberPointer;
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     Graph        *graph{};
@@ -102,7 +102,7 @@ struct PointerVertexBundleMemberPropertyMap
         return sv->property.*memberPointer;
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     Graph        *graph{};
@@ -125,7 +125,7 @@ struct VectorVertexComponentPropertyMap
         return (*container)[v];
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     Container *container{};
@@ -147,7 +147,7 @@ struct VectorVertexComponentMemberPropertyMap
         return (*container)[v].*memberPointer;
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     Container    *container{};
@@ -170,7 +170,7 @@ struct VectorVertexIteratorComponentPropertyMap
         return *(graph->mVertices[v].*componentPointer);
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     Graph           *graph{};
@@ -193,7 +193,7 @@ struct VectorVertexIteratorComponentMemberPropertyMap
         return (*(graph->mVertices[v].*componentPointer)).*memberPointer;
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     Graph           *graph{};
@@ -217,7 +217,7 @@ struct VectorPathPropertyMap
         return (*container)[v].mPathIterator->first;
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     Container *container{};
@@ -239,7 +239,7 @@ struct EdgeBundlePropertyMap
         return *static_cast<typename Graph::edge_property_type *>(e.get_property());
     }
     inline reference operator()(const key_type &e) const noexcept {
-        return this->operator[](e);
+        return operator[](e);
     }
 
     Graph *graph{};
@@ -262,7 +262,7 @@ struct EdgeBundleMemberPropertyMap
         return p.*memberPointer;
     }
     inline reference operator()(const key_type &e) const noexcept {
-        return this->operator[](e);
+        return operator[](e);
     }
 
     Graph        *graph{};
@@ -630,7 +630,7 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
         return (*container)[v];
     }
     inline reference operator()(const key_type &v) const noexcept {
-        return this->operator[](v);
+        return operator[](v);
     }
 
     boost::container::pmr::vector<boost::default_color_type> *container{};
