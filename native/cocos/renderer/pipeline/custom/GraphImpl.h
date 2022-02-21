@@ -36,7 +36,7 @@ struct VectorVertexBundlePropertyMap
         return this->operator[](v);
     }
 
-    Graph *graph = nullptr;
+    Graph *graph{};
 };
 
 template <class Category, class Graph, class Value, class Reference>
@@ -59,7 +59,7 @@ struct PointerVertexBundlePropertyMap
         return this->operator[](v);
     }
 
-    Graph *graph = nullptr;
+    Graph *graph{};
 };
 
 template <class Category, class Graph, class Value, class Reference, class MemberPointer>
@@ -81,8 +81,8 @@ struct VectorVertexBundleMemberPropertyMap
         return this->operator[](v);
     }
 
-    Graph        *graph         = nullptr;
-    MemberPointer memberPointer = {};
+    Graph        *graph{};
+    MemberPointer memberPointer{};
 };
 
 template <class Category, class Graph, class Value, class Reference, class MemberPointer>
@@ -105,8 +105,8 @@ struct PointerVertexBundleMemberPropertyMap
         return this->operator[](v);
     }
 
-    Graph        *graph         = nullptr;
-    MemberPointer memberPointer = {};
+    Graph        *graph{};
+    MemberPointer memberPointer{};
 };
 
 template <class Category, class Graph, class Container, class Value, class Reference>
@@ -128,7 +128,7 @@ struct VectorVertexComponentPropertyMap
         return this->operator[](v);
     }
 
-    Container *container = nullptr;
+    Container *container{};
 };
 
 template <class Category, class Graph, class Container, class Value, class Reference, class MemberPointer>
@@ -150,8 +150,8 @@ struct VectorVertexComponentMemberPropertyMap
         return this->operator[](v);
     }
 
-    Container    *container     = nullptr;
-    MemberPointer memberPointer = {};
+    Container    *container{};
+    MemberPointer memberPointer{};
 };
 
 template <class Category, class Graph, class ComponentPointer, class Value, class Reference>
@@ -173,8 +173,8 @@ struct VectorVertexIteratorComponentPropertyMap
         return this->operator[](v);
     }
 
-    Graph           *graph            = nullptr;
-    ComponentPointer componentPointer = {};
+    Graph           *graph{};
+    ComponentPointer componentPointer{};
 };
 
 template <class Category, class Graph, class ComponentPointer, class Value, class Reference, class MemberPointer>
@@ -196,9 +196,9 @@ struct VectorVertexIteratorComponentMemberPropertyMap
         return this->operator[](v);
     }
 
-    Graph           *graph            = nullptr;
-    ComponentPointer componentPointer = {};
-    MemberPointer    memberPointer    = {};
+    Graph           *graph{};
+    ComponentPointer componentPointer{};
+    MemberPointer    memberPointer{};
 };
 
 template <class Category, class VertexDescriptor, class Container, class Value, class Reference>
@@ -220,7 +220,7 @@ struct VectorPathPropertyMap
         return this->operator[](v);
     }
 
-    Container *container = nullptr;
+    Container *container{};
 };
 
 template <class Category, class Graph, class Value, class Reference>
@@ -242,7 +242,7 @@ struct EdgeBundlePropertyMap
         return this->operator[](e);
     }
 
-    Graph *graph = nullptr;
+    Graph *graph{};
 };
 
 template <class Category, class Graph, class Value, class Reference, class MemberPointer>
@@ -265,8 +265,8 @@ struct EdgeBundleMemberPropertyMap
         return this->operator[](e);
     }
 
-    Graph        *graph         = nullptr;
-    MemberPointer memberPointer = {};
+    Graph        *graph{};
+    MemberPointer memberPointer{};
 };
 
 template <class Sequence, class Predicate>
@@ -633,7 +633,7 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
         return this->operator[](v);
     }
 
-    boost::container::pmr::vector<boost::default_color_type> *container = nullptr;
+    boost::container::pmr::vector<boost::default_color_type> *container{};
 };
 
 } // namespace impl
