@@ -648,7 +648,7 @@ export class Node extends BaseNode implements CustomSerializable {
     /**
      * @en Perform a rotation on the node
      * @zh 旋转节点
-     * @param trans The increment on position
+     * @param rot The increment on rotation
      * @param ns The operation coordinate space
      */
     public rotate (rot: Quat, ns?: NodeSpace): void {
