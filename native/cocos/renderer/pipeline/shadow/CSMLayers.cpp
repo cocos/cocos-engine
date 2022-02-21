@@ -31,9 +31,11 @@ namespace pipeline {
 
 CSMLayers::~CSMLayers() {
     _dirLight = nullptr;
-    for (auto shadowCSMLayer : _shadowCSMLayers) {
-        delete shadowCSMLayer;
-        shadowCSMLayer = nullptr;
+    for (const auto *shadowCSMLayer : _shadowCSMLayers) {
+        if (shadowCSMLayer) {
+            delete shadowCSMLayer;
+            shadowCSMLayer = nullptr;
+        }
     }
 
     _shadowCSMLayers.resize(0);
