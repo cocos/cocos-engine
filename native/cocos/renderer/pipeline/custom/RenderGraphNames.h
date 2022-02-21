@@ -57,11 +57,11 @@ inline const char* getName(const CopyPass& /*v*/) noexcept { return "CopyPass"; 
 inline const char* getName(const MovePair& /*v*/) noexcept { return "MovePair"; }
 inline const char* getName(const MovePass& /*v*/) noexcept { return "MovePass"; }
 inline const char* getName(const RaytracePass& /*v*/) noexcept { return "RaytracePass"; }
-inline const char* getName(const Queue_& /*v*/) noexcept { return "Queue"; }
-inline const char* getName(const Scene_& /*v*/) noexcept { return "Scene"; }
-inline const char* getName(const Dispatch_& /*v*/) noexcept { return "Dispatch"; }
-inline const char* getName(const Blit_& /*v*/) noexcept { return "Blit"; }
-inline const char* getName(const Present_& /*v*/) noexcept { return "Present"; }
+inline const char* getName(const QueueTag& /*v*/) noexcept { return "Queue"; }
+inline const char* getName(const SceneTag& /*v*/) noexcept { return "Scene"; }
+inline const char* getName(const DispatchTag& /*v*/) noexcept { return "Dispatch"; }
+inline const char* getName(const BlitTag& /*v*/) noexcept { return "Blit"; }
+inline const char* getName(const PresentTag& /*v*/) noexcept { return "Present"; }
 inline const char* getName(const RenderQueue& /*v*/) noexcept { return "RenderQueue"; }
 inline const char* getName(const SceneData& /*v*/) noexcept { return "SceneData"; }
 inline const char* getName(const Dispatch& /*v*/) noexcept { return "Dispatch"; }

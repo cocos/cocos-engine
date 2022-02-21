@@ -178,13 +178,13 @@ struct RenderDependencyGraph {
         boost::container::pmr::vector<in_edge_type>  inEdges;
     };
 
-    struct Pass_ { // NOLINT
+    struct PassTag {
     } static constexpr Pass = {}; // NOLINT
-    struct ValueID_ { // NOLINT
+    struct ValueIDTag {
     } static constexpr ValueID = {}; // NOLINT
-    struct PassID_ { // NOLINT
+    struct PassIDTag {
     } static constexpr PassID = {}; // NOLINT
-    struct Traits_ { // NOLINT
+    struct TraitsTag {
     } static constexpr Traits = {}; // NOLINT
 
     // Vertices
@@ -330,7 +330,7 @@ struct RenderValueGraph {
         boost::container::pmr::vector<in_edge_type>  inEdges;
     };
 
-    struct Node_ { // NOLINT
+    struct NodeTag {
     } static constexpr Node = {}; // NOLINT
 
     // Vertices

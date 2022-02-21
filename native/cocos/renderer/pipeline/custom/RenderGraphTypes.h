@@ -87,8 +87,8 @@ struct ResourceTraits {
     : residency(residencyIn) {}
 
     bool hasSideEffects() const noexcept {
-        return boost::variant2::holds_alternative<Persistent_>(residency) ||
-               boost::variant2::holds_alternative<Backbuffer_>(residency);
+        return boost::variant2::holds_alternative<PersistentTag>(residency) ||
+               boost::variant2::holds_alternative<BackbufferTag>(residency);
     }
 
     ResourceResidency residency;
@@ -204,11 +204,11 @@ struct ResourceGraph {
         boost::container::pmr::vector<in_edge_type>  inEdges;
     };
 
-    struct Name_ { // NOLINT
+    struct NameTag {
     } static constexpr Name = {}; // NOLINT
-    struct Desc_ { // NOLINT
+    struct DescTag {
     } static constexpr Desc = {}; // NOLINT
-    struct Traits_ { // NOLINT
+    struct TraitsTag {
     } static constexpr Traits = {}; // NOLINT
 
     // Vertices
@@ -420,9 +420,9 @@ struct SubpassGraph {
         boost::container::pmr::vector<in_edge_type>  inEdges;
     };
 
-    struct Name_ { // NOLINT
+    struct NameTag {
     } static constexpr Name = {}; // NOLINT
-    struct Subpass_ { // NOLINT
+    struct SubpassTag {
     } static constexpr Subpass = {}; // NOLINT
 
     // Vertices
@@ -577,11 +577,11 @@ struct RaytracePass {
     PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
 };
 
-struct Queue_ {};
-struct Scene_ {};
-struct Dispatch_ {};
-struct Blit_ {};
-struct Present_ {};
+struct QueueTag {};
+struct SceneTag {};
+struct DispatchTag {};
+struct BlitTag {};
+struct PresentTag {};
 
 struct RenderQueue {
     RenderQueue() = default;
@@ -813,20 +813,20 @@ struct RenderGraph {
     }
 
     // PolymorphicGraph
-    using vertex_tag_type         = boost::variant2::variant<Raster_, Compute_, Copy_, Move_, Present_, Raytrace_, Queue_, Scene_, Blit_, Dispatch_>;
+    using vertex_tag_type         = boost::variant2::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag>;
     using vertex_value_type       = boost::variant2::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*>;
     using vertex_const_value_type = boost::variant2::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*>;
     using vertex_handle_type      = boost::variant2::variant<
-        impl::ValueHandle<Raster_, vertex_descriptor>,
-        impl::ValueHandle<Compute_, vertex_descriptor>,
-        impl::ValueHandle<Copy_, vertex_descriptor>,
-        impl::ValueHandle<Move_, vertex_descriptor>,
-        impl::ValueHandle<Present_, vertex_descriptor>,
-        impl::ValueHandle<Raytrace_, vertex_descriptor>,
-        impl::ValueHandle<Queue_, vertex_descriptor>,
-        impl::ValueHandle<Scene_, vertex_descriptor>,
-        impl::ValueHandle<Blit_, vertex_descriptor>,
-        impl::ValueHandle<Dispatch_, vertex_descriptor>>;
+        impl::ValueHandle<RasterTag, vertex_descriptor>,
+        impl::ValueHandle<ComputeTag, vertex_descriptor>,
+        impl::ValueHandle<CopyTag, vertex_descriptor>,
+        impl::ValueHandle<MoveTag, vertex_descriptor>,
+        impl::ValueHandle<PresentTag, vertex_descriptor>,
+        impl::ValueHandle<RaytraceTag, vertex_descriptor>,
+        impl::ValueHandle<QueueTag, vertex_descriptor>,
+        impl::ValueHandle<SceneTag, vertex_descriptor>,
+        impl::ValueHandle<BlitTag, vertex_descriptor>,
+        impl::ValueHandle<DispatchTag, vertex_descriptor>>;
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -871,11 +871,11 @@ struct RenderGraph {
         vertex_handle_type                           handle;
     };
 
-    struct Name_ { // NOLINT
+    struct NameTag {
     } static constexpr Name = {}; // NOLINT
-    struct Layout_ { // NOLINT
+    struct LayoutTag {
     } static constexpr Layout = {}; // NOLINT
-    struct Data_ { // NOLINT
+    struct DataTag {
     } static constexpr Data = {}; // NOLINT
 
     // Owners

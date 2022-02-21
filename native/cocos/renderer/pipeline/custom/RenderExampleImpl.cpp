@@ -305,11 +305,11 @@ struct CullingVisitor : boost::dfs_visitor<> {
         const RenderGraph&           rg0,
         const RenderDependencyGraph& rdg0,
 
-        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Pass_>::const_type    passes,
-        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueID_>::const_type valueIDs,
-        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassID_>::const_type  passIDs,
-        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Traits_>::type        traits,
-        boost::property_map<ResourceGraph, ResourceGraph::Traits_>::const_type                  resourceTraits)
+        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::const_type    passes,
+        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueIDTag>::const_type valueIDs,
+        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassIDTag>::const_type  passIDs,
+        boost::property_map<RenderDependencyGraph, RenderDependencyGraph::TraitsTag>::type        traits,
+        boost::property_map<ResourceGraph, ResourceGraph::TraitsTag>::const_type                  resourceTraits)
     : resg(resg0),
       rg(rg0),
       rdg(rdg0),
@@ -341,7 +341,7 @@ struct CullingVisitor : boost::dfs_visitor<> {
         }
 
         auto passID = rdg.passIDs.at(u);
-        if (holds_tag<Present_>(passID, rg)) {
+        if (holds_tag<PresentTag>(passID, rg)) {
             keep = true;
             return;
         }
@@ -377,12 +377,12 @@ struct CullingVisitor : boost::dfs_visitor<> {
     const RenderGraph&           rg;
     const RenderDependencyGraph& rdg;
 
-    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Pass_>::const_type    mPasses;
-    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueID_>::const_type valueIDs;
-    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassID_>::const_type  passIDs;
-    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Traits_>::type        traits;
+    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::const_type    mPasses;
+    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueIDTag>::const_type valueIDs;
+    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassIDTag>::const_type  passIDs;
+    boost::property_map<RenderDependencyGraph, RenderDependencyGraph::TraitsTag>::type        traits;
 
-    boost::property_map<ResourceGraph, ResourceGraph::Traits_>::const_type mResourceTraits;
+    boost::property_map<ResourceGraph, ResourceGraph::TraitsTag>::const_type mResourceTraits;
 };
 
 } // namespace
@@ -463,7 +463,7 @@ int RenderCompiler::compile() {
         GroupNodeData{},
         layoutGraph);
 
-    add_vertex(Shader_{},
+    add_vertex(ShaderTag{},
         std::forward_as_tuple("name"),
         std::forward_as_tuple(UpdateFrequency::PER_INSTANCE),
         std::forward_as_tuple(),

@@ -43,7 +43,7 @@ struct ConstantBuffer {
     boost::container::pmr::vector<Constant> constants;
 };
 
-using DescriptorType = boost::variant2::variant<CBuffer_, RWBuffer_, RWTexture_, Buffer_, Texture_, Sampler_>;
+using DescriptorType = boost::variant2::variant<CBufferTag, RWBufferTag, RWTextureTag, BufferTag, TextureTag, SamplerTag>;
 
 inline bool operator<(const DescriptorType& lhs, const DescriptorType& rhs) noexcept {
     return lhs.index() < rhs.index();
@@ -205,8 +205,8 @@ struct ShaderNodeData {
     PmrTransparentMap<std::string, uint32_t>         shaderIndex;
 };
 
-struct Group_ {};
-struct Shader_ {};
+struct GroupTag {};
+struct ShaderTag {};
 
 struct LayoutGraphData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -328,12 +328,12 @@ struct LayoutGraphData {
     }
 
     // PolymorphicGraph
-    using vertex_tag_type         = boost::variant2::variant<Group_, Shader_>;
+    using vertex_tag_type         = boost::variant2::variant<GroupTag, ShaderTag>;
     using vertex_value_type       = boost::variant2::variant<GroupNodeData*, ShaderNodeData*>;
     using vertex_const_value_type = boost::variant2::variant<const GroupNodeData*, const ShaderNodeData*>;
     using vertex_handle_type      = boost::variant2::variant<
-        impl::ValueHandle<Group_, vertex_descriptor>,
-        impl::ValueHandle<Shader_, vertex_descriptor>>;
+        impl::ValueHandle<GroupTag, vertex_descriptor>,
+        impl::ValueHandle<ShaderTag, vertex_descriptor>>;
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -359,11 +359,11 @@ struct LayoutGraphData {
         vertex_handle_type                           handle;
     };
 
-    struct Name_ { // NOLINT
+    struct NameTag {
     } static constexpr Name = {}; // NOLINT
-    struct Update_ { // NOLINT
+    struct UpdateTag {
     } static constexpr Update = {}; // NOLINT
-    struct Layout_ { // NOLINT
+    struct LayoutTag {
     } static constexpr Layout = {}; // NOLINT
 
     // Vertices

@@ -106,12 +106,12 @@ struct DeviceResourceGraph {
     using edges_size_type = uint32_t;
 
     // PolymorphicGraph
-    using vertex_tag_type         = boost::variant2::variant<Buffer_, Texture_>;
+    using vertex_tag_type         = boost::variant2::variant<BufferTag, TextureTag>;
     using vertex_value_type       = boost::variant2::variant<std::unique_ptr<gfx::Buffer>*, std::unique_ptr<gfx::Texture>*>;
     using vertex_const_value_type = boost::variant2::variant<const std::unique_ptr<gfx::Buffer>*, const std::unique_ptr<gfx::Texture>*>;
     using vertex_handle_type      = boost::variant2::variant<
-        impl::ValueHandle<Buffer_, vertex_descriptor>,
-        impl::ValueHandle<Texture_, vertex_descriptor>>;
+        impl::ValueHandle<BufferTag, vertex_descriptor>,
+        impl::ValueHandle<TextureTag, vertex_descriptor>>;
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -137,9 +137,9 @@ struct DeviceResourceGraph {
         vertex_handle_type                           handle;
     };
 
-    struct Name_ { // NOLINT
+    struct NameTag {
     } static constexpr Name = {}; // NOLINT
-    struct RefCount_ { // NOLINT
+    struct RefCountTag {
     } static constexpr RefCount = {}; // NOLINT
 
     // Vertices

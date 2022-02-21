@@ -15,7 +15,7 @@ namespace render {
 struct Constant;
 struct ConstantBuffer;
 
-using DescriptorType = boost::variant2::variant<CBuffer_, RWBuffer_, RWTexture_, Buffer_, Texture_, Sampler_>;
+using DescriptorType = boost::variant2::variant<CBufferTag, RWBufferTag, RWTextureTag, BufferTag, TextureTag, SamplerTag>;
 
 struct DescriptorBlock;
 struct DescriptorArray;
@@ -26,8 +26,8 @@ struct LayoutData;
 struct ShaderProgramData;
 struct GroupNodeData;
 struct ShaderNodeData;
-struct Group_;
-struct Shader_;
+struct GroupTag;
+struct ShaderTag;
 struct LayoutGraphData;
 
 } // namespace render

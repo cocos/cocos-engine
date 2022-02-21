@@ -300,7 +300,7 @@ struct property_map<cc::render::LayoutGraphData, vertex_index_t> {
 
 // Vertex Component
 template <>
-struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::Name_> {
+struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::NameTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::LayoutGraphData,
@@ -334,7 +334,7 @@ struct property_map<cc::render::LayoutGraphData, vertex_name_t> {
 
 // Vertex Component
 template <>
-struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::Update_> {
+struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::UpdateTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraphData,
@@ -351,7 +351,7 @@ struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::Up
 
 // Vertex Component
 template <>
-struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::Layout_> {
+struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::LayoutTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::LayoutGraphData,
@@ -408,13 +408,13 @@ get(boost::container::pmr::vector<boost::default_color_type>& colors, const Layo
 }
 
 // Vertex Component
-inline typename boost::property_map<LayoutGraphData, LayoutGraphData::Name_>::const_type
-get(LayoutGraphData::Name_ /*tag*/, const LayoutGraphData& g) noexcept {
+inline typename boost::property_map<LayoutGraphData, LayoutGraphData::NameTag>::const_type
+get(LayoutGraphData::NameTag /*tag*/, const LayoutGraphData& g) noexcept {
     return {g.names};
 }
 
-inline typename boost::property_map<LayoutGraphData, LayoutGraphData::Name_>::type
-get(LayoutGraphData::Name_ /*tag*/, LayoutGraphData& g) noexcept {
+inline typename boost::property_map<LayoutGraphData, LayoutGraphData::NameTag>::type
+get(LayoutGraphData::NameTag /*tag*/, LayoutGraphData& g) noexcept {
     return {g.names};
 }
 
@@ -425,24 +425,24 @@ get(boost::vertex_name_t /*tag*/, const LayoutGraphData& g) noexcept {
 }
 
 // Vertex Component
-inline typename boost::property_map<LayoutGraphData, LayoutGraphData::Update_>::const_type
-get(LayoutGraphData::Update_ /*tag*/, const LayoutGraphData& g) noexcept {
+inline typename boost::property_map<LayoutGraphData, LayoutGraphData::UpdateTag>::const_type
+get(LayoutGraphData::UpdateTag /*tag*/, const LayoutGraphData& g) noexcept {
     return {g.updateFrequencies};
 }
 
-inline typename boost::property_map<LayoutGraphData, LayoutGraphData::Update_>::type
-get(LayoutGraphData::Update_ /*tag*/, LayoutGraphData& g) noexcept {
+inline typename boost::property_map<LayoutGraphData, LayoutGraphData::UpdateTag>::type
+get(LayoutGraphData::UpdateTag /*tag*/, LayoutGraphData& g) noexcept {
     return {g.updateFrequencies};
 }
 
 // Vertex Component
-inline typename boost::property_map<LayoutGraphData, LayoutGraphData::Layout_>::const_type
-get(LayoutGraphData::Layout_ /*tag*/, const LayoutGraphData& g) noexcept {
+inline typename boost::property_map<LayoutGraphData, LayoutGraphData::LayoutTag>::const_type
+get(LayoutGraphData::LayoutTag /*tag*/, const LayoutGraphData& g) noexcept {
     return {g.layouts};
 }
 
-inline typename boost::property_map<LayoutGraphData, LayoutGraphData::Layout_>::type
-get(LayoutGraphData::Layout_ /*tag*/, LayoutGraphData& g) noexcept {
+inline typename boost::property_map<LayoutGraphData, LayoutGraphData::LayoutTag>::type
+get(LayoutGraphData::LayoutTag /*tag*/, LayoutGraphData& g) noexcept {
     return {g.layouts};
 }
 
@@ -465,10 +465,10 @@ value_id(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcep
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     return cc::visit(
         overload(
-            [](const impl::ValueHandle<Group_, vertex_descriptor>& h) {
+            [](const impl::ValueHandle<GroupTag, vertex_descriptor>& h) {
                 return h.value;
             },
-            [](const impl::ValueHandle<Shader_, vertex_descriptor>& h) {
+            [](const impl::ValueHandle<ShaderTag, vertex_descriptor>& h) {
                 return h.value;
             }),
         g.vertices[u].handle);
@@ -479,11 +479,11 @@ tag(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     return cc::visit(
         overload(
-            [](const impl::ValueHandle<Group_, vertex_descriptor>&) {
-                return LayoutGraphData::vertex_tag_type{Group_{}};
+            [](const impl::ValueHandle<GroupTag, vertex_descriptor>&) {
+                return LayoutGraphData::vertex_tag_type{GroupTag{}};
             },
-            [](const impl::ValueHandle<Shader_, vertex_descriptor>&) {
-                return LayoutGraphData::vertex_tag_type{Shader_{}};
+            [](const impl::ValueHandle<ShaderTag, vertex_descriptor>&) {
+                return LayoutGraphData::vertex_tag_type{ShaderTag{}};
             }),
         g.vertices[u].handle);
 }
@@ -493,10 +493,10 @@ value(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     return cc::visit(
         overload(
-            [&](const impl::ValueHandle<Group_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<GroupTag, vertex_descriptor>& h) {
                 return LayoutGraphData::vertex_value_type{&g.groupNodes[h.value]};
             },
-            [&](const impl::ValueHandle<Shader_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<ShaderTag, vertex_descriptor>& h) {
                 return LayoutGraphData::vertex_value_type{&g.shaderNodes[h.value]};
             }),
         g.vertices[u].handle);
@@ -507,10 +507,10 @@ value(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     return cc::visit(
         overload(
-            [&](const impl::ValueHandle<Group_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<GroupTag, vertex_descriptor>& h) {
                 return LayoutGraphData::vertex_const_value_type{&g.groupNodes[h.value]};
             },
-            [&](const impl::ValueHandle<Shader_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<ShaderTag, vertex_descriptor>& h) {
                 return LayoutGraphData::vertex_const_value_type{&g.shaderNodes[h.value]};
             }),
         g.vertices[u].handle);
@@ -522,17 +522,17 @@ holds_tag(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexce
 
 template <>
 inline bool
-holds_tag<Group_>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
+holds_tag<GroupTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
-        impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
 template <>
 inline bool
-holds_tag<Shader_>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
+holds_tag<ShaderTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
-        impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -544,7 +544,7 @@ template <>
 inline bool
 holds_alternative<GroupNodeData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
-        impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -552,7 +552,7 @@ template <>
 inline bool
 holds_alternative<ShaderNodeData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
-        impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -564,7 +564,7 @@ template <>
 inline GroupNodeData&
 get<GroupNodeData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
     auto& handle = boost::variant2::get<
-        impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.groupNodes[handle.value];
 }
@@ -573,7 +573,7 @@ template <>
 inline ShaderNodeData&
 get<ShaderNodeData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
     auto& handle = boost::variant2::get<
-        impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.shaderNodes[handle.value];
 }
@@ -586,7 +586,7 @@ template <>
 inline const GroupNodeData&
 get<GroupNodeData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
     const auto& handle = boost::variant2::get<
-        impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.groupNodes[handle.value];
 }
@@ -595,39 +595,39 @@ template <>
 inline const ShaderNodeData&
 get<ShaderNodeData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
     const auto& handle = boost::variant2::get<
-        impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.shaderNodes[handle.value];
 }
 
 inline GroupNodeData&
-get(Group_ /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
+get(GroupTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
     auto& handle = boost::variant2::get<
-        impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.groupNodes[handle.value];
 }
 
 inline ShaderNodeData&
-get(Shader_ /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
+get(ShaderTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
     auto& handle = boost::variant2::get<
-        impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.shaderNodes[handle.value];
 }
 
 inline const GroupNodeData&
-get(Group_ /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
+get(GroupTag /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
     const auto& handle = boost::variant2::get<
-        impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.groupNodes[handle.value];
 }
 
 inline const ShaderNodeData&
-get(Shader_ /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
+get(ShaderTag /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
     const auto& handle = boost::variant2::get<
-        impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.shaderNodes[handle.value];
 }
@@ -645,7 +645,7 @@ get_if<GroupNodeData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGr
     }
     auto& g       = *pGraph;
     auto* pHandle = boost::variant2::get_if<
-        impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.groupNodes[pHandle->value];
@@ -662,7 +662,7 @@ get_if<ShaderNodeData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pG
     }
     auto& g       = *pGraph;
     auto* pHandle = boost::variant2::get_if<
-        impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.shaderNodes[pHandle->value];
@@ -683,7 +683,7 @@ get_if<GroupNodeData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphDat
     }
     const auto& g       = *pGraph;
     const auto* pHandle = boost::variant2::get_if<
-        impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.groupNodes[pHandle->value];
@@ -700,7 +700,7 @@ get_if<ShaderNodeData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphDa
     }
     const auto& g       = *pGraph;
     const auto* pHandle = boost::variant2::get_if<
-        impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>>(
+        impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.shaderNodes[pHandle->value];
@@ -946,19 +946,19 @@ inline void remove_vertex_value_impl(const LayoutGraphData::vertex_handle_type& 
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     cc::visit(
         overload(
-            [&](const impl::ValueHandle<Group_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<GroupTag, vertex_descriptor>& h) {
                 g.groupNodes.erase(g.groupNodes.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.groupNodes.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<Group_>(g.vertices, h.value);
+                impl::reindexVectorHandle<GroupTag>(g.vertices, h.value);
             },
-            [&](const impl::ValueHandle<Shader_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<ShaderTag, vertex_descriptor>& h) {
                 g.shaderNodes.erase(g.shaderNodes.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.shaderNodes.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<Shader_>(g.vertices, h.value);
+                impl::reindexVectorHandle<ShaderTag>(g.vertices, h.value);
             }),
         h);
 }
@@ -980,7 +980,7 @@ template <class ValueT>
 void add_vertex_impl( // NOLINT
     ValueT &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert, // NOLINT
     std::enable_if_t<std::is_same<std::decay_t<ValueT>, GroupNodeData>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>{
+    vert.handle = impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>{
         gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.groupNodes.size())};
     g.groupNodes.emplace_back(std::forward<ValueT>(val));
 }
@@ -989,7 +989,7 @@ template <class ValueT>
 void add_vertex_impl( // NOLINT
     ValueT &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert, // NOLINT
     std::enable_if_t<std::is_same<std::decay_t<ValueT>, ShaderNodeData>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>{
+    vert.handle = impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>{
         gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.shaderNodes.size())};
     g.shaderNodes.emplace_back(std::forward<ValueT>(val));
 }
@@ -1016,10 +1016,10 @@ add_vertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, Layo
 }
 
 template <class Tuple>
-void add_vertex_impl(Group_ /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert) { // NOLINT
+void add_vertex_impl(GroupTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert) { // NOLINT
     invoke_hpp::apply(
         [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<Group_, LayoutGraphData::vertex_descriptor>{
+            vert.handle = impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.groupNodes.size())};
             g.groupNodes.emplace_back(std::forward<decltype(args)>(args)...);
         },
@@ -1027,10 +1027,10 @@ void add_vertex_impl(Group_ /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGrap
 }
 
 template <class Tuple>
-void add_vertex_impl(Shader_ /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert) { // NOLINT
+void add_vertex_impl(ShaderTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert) { // NOLINT
     invoke_hpp::apply(
         [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<Shader_, LayoutGraphData::vertex_descriptor>{
+            vert.handle = impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.shaderNodes.size())};
             g.shaderNodes.emplace_back(std::forward<decltype(args)>(args)...);
         },

@@ -237,19 +237,19 @@ inline void remove_vertex_value_impl(const DeviceResourceGraph::vertex_handle_ty
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     cc::visit(
         overload(
-            [&](const impl::ValueHandle<Buffer_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<BufferTag, vertex_descriptor>& h) {
                 g.buffers.erase(g.buffers.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.buffers.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<Buffer_>(g.vertices, h.value);
+                impl::reindexVectorHandle<BufferTag>(g.vertices, h.value);
             },
-            [&](const impl::ValueHandle<Texture_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<TextureTag, vertex_descriptor>& h) {
                 g.textures.erase(g.textures.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.textures.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<Texture_>(g.vertices, h.value);
+                impl::reindexVectorHandle<TextureTag>(g.vertices, h.value);
             }),
         h);
 }
@@ -270,7 +270,7 @@ template <class ValueT>
 void add_vertex_impl( // NOLINT
     ValueT &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert, // NOLINT
     std::enable_if_t<std::is_same<std::decay_t<ValueT>, std::unique_ptr<gfx::Buffer>>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>{
+    vert.handle = impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>{
         gsl::narrow_cast<DeviceResourceGraph::vertex_descriptor>(g.buffers.size())};
     g.buffers.emplace_back(std::forward<ValueT>(val));
 }
@@ -279,7 +279,7 @@ template <class ValueT>
 void add_vertex_impl( // NOLINT
     ValueT &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert, // NOLINT
     std::enable_if_t<std::is_same<std::decay_t<ValueT>, std::unique_ptr<gfx::Texture>>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>{
+    vert.handle = impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>{
         gsl::narrow_cast<DeviceResourceGraph::vertex_descriptor>(g.textures.size())};
     g.textures.emplace_back(std::forward<ValueT>(val));
 }
@@ -302,10 +302,10 @@ add_vertex(Component0&& c0, Component1&& c1, ValueT&& val, DeviceResourceGraph& 
 }
 
 template <class Tuple>
-void add_vertex_impl(Buffer_ /*tag*/, Tuple &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert) { // NOLINT
+void add_vertex_impl(BufferTag /*tag*/, Tuple &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert) { // NOLINT
     invoke_hpp::apply(
         [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>{
+            vert.handle = impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<DeviceResourceGraph::vertex_descriptor>(g.buffers.size())};
             g.buffers.emplace_back(std::forward<decltype(args)>(args)...);
         },
@@ -313,10 +313,10 @@ void add_vertex_impl(Buffer_ /*tag*/, Tuple &&val, DeviceResourceGraph &g, Devic
 }
 
 template <class Tuple>
-void add_vertex_impl(Texture_ /*tag*/, Tuple &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert) { // NOLINT
+void add_vertex_impl(TextureTag /*tag*/, Tuple &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert) { // NOLINT
     invoke_hpp::apply(
         [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>{
+            vert.handle = impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<DeviceResourceGraph::vertex_descriptor>(g.textures.size())};
             g.textures.emplace_back(std::forward<decltype(args)>(args)...);
         },
@@ -365,7 +365,7 @@ struct property_map<cc::render::DeviceResourceGraph, vertex_index_t> {
 
 // Vertex Component
 template <>
-struct property_map<cc::render::DeviceResourceGraph, cc::render::DeviceResourceGraph::Name_> {
+struct property_map<cc::render::DeviceResourceGraph, cc::render::DeviceResourceGraph::NameTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         const cc::render::DeviceResourceGraph,
@@ -399,7 +399,7 @@ struct property_map<cc::render::DeviceResourceGraph, vertex_name_t> {
 
 // Vertex Component
 template <>
-struct property_map<cc::render::DeviceResourceGraph, cc::render::DeviceResourceGraph::RefCount_> {
+struct property_map<cc::render::DeviceResourceGraph, cc::render::DeviceResourceGraph::RefCountTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::DeviceResourceGraph,
@@ -437,13 +437,13 @@ get(boost::container::pmr::vector<boost::default_color_type>& colors, const Devi
 }
 
 // Vertex Component
-inline typename boost::property_map<DeviceResourceGraph, DeviceResourceGraph::Name_>::const_type
-get(DeviceResourceGraph::Name_ /*tag*/, const DeviceResourceGraph& g) noexcept {
+inline typename boost::property_map<DeviceResourceGraph, DeviceResourceGraph::NameTag>::const_type
+get(DeviceResourceGraph::NameTag /*tag*/, const DeviceResourceGraph& g) noexcept {
     return {g.names};
 }
 
-inline typename boost::property_map<DeviceResourceGraph, DeviceResourceGraph::Name_>::type
-get(DeviceResourceGraph::Name_ /*tag*/, DeviceResourceGraph& g) noexcept {
+inline typename boost::property_map<DeviceResourceGraph, DeviceResourceGraph::NameTag>::type
+get(DeviceResourceGraph::NameTag /*tag*/, DeviceResourceGraph& g) noexcept {
     return {g.names};
 }
 
@@ -454,13 +454,13 @@ get(boost::vertex_name_t /*tag*/, const DeviceResourceGraph& g) noexcept {
 }
 
 // Vertex Component
-inline typename boost::property_map<DeviceResourceGraph, DeviceResourceGraph::RefCount_>::const_type
-get(DeviceResourceGraph::RefCount_ /*tag*/, const DeviceResourceGraph& g) noexcept {
+inline typename boost::property_map<DeviceResourceGraph, DeviceResourceGraph::RefCountTag>::const_type
+get(DeviceResourceGraph::RefCountTag /*tag*/, const DeviceResourceGraph& g) noexcept {
     return {g.refCounts};
 }
 
-inline typename boost::property_map<DeviceResourceGraph, DeviceResourceGraph::RefCount_>::type
-get(DeviceResourceGraph::RefCount_ /*tag*/, DeviceResourceGraph& g) noexcept {
+inline typename boost::property_map<DeviceResourceGraph, DeviceResourceGraph::RefCountTag>::type
+get(DeviceResourceGraph::RefCountTag /*tag*/, DeviceResourceGraph& g) noexcept {
     return {g.refCounts};
 }
 
@@ -470,10 +470,10 @@ value_id(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g)
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     return cc::visit(
         overload(
-            [](const impl::ValueHandle<Buffer_, vertex_descriptor>& h) {
+            [](const impl::ValueHandle<BufferTag, vertex_descriptor>& h) {
                 return h.value;
             },
-            [](const impl::ValueHandle<Texture_, vertex_descriptor>& h) {
+            [](const impl::ValueHandle<TextureTag, vertex_descriptor>& h) {
                 return h.value;
             }),
         g.vertices[u].handle);
@@ -484,11 +484,11 @@ tag(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) noex
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     return cc::visit(
         overload(
-            [](const impl::ValueHandle<Buffer_, vertex_descriptor>&) {
-                return DeviceResourceGraph::vertex_tag_type{Buffer_{}};
+            [](const impl::ValueHandle<BufferTag, vertex_descriptor>&) {
+                return DeviceResourceGraph::vertex_tag_type{BufferTag{}};
             },
-            [](const impl::ValueHandle<Texture_, vertex_descriptor>&) {
-                return DeviceResourceGraph::vertex_tag_type{Texture_{}};
+            [](const impl::ValueHandle<TextureTag, vertex_descriptor>&) {
+                return DeviceResourceGraph::vertex_tag_type{TextureTag{}};
             }),
         g.vertices[u].handle);
 }
@@ -498,10 +498,10 @@ value(DeviceResourceGraph::vertex_descriptor u, DeviceResourceGraph& g) noexcept
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     return cc::visit(
         overload(
-            [&](const impl::ValueHandle<Buffer_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<BufferTag, vertex_descriptor>& h) {
                 return DeviceResourceGraph::vertex_value_type{&g.buffers[h.value]};
             },
-            [&](const impl::ValueHandle<Texture_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<TextureTag, vertex_descriptor>& h) {
                 return DeviceResourceGraph::vertex_value_type{&g.textures[h.value]};
             }),
         g.vertices[u].handle);
@@ -512,10 +512,10 @@ value(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) no
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     return cc::visit(
         overload(
-            [&](const impl::ValueHandle<Buffer_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<BufferTag, vertex_descriptor>& h) {
                 return DeviceResourceGraph::vertex_const_value_type{&g.buffers[h.value]};
             },
-            [&](const impl::ValueHandle<Texture_, vertex_descriptor>& h) {
+            [&](const impl::ValueHandle<TextureTag, vertex_descriptor>& h) {
                 return DeviceResourceGraph::vertex_const_value_type{&g.textures[h.value]};
             }),
         g.vertices[u].handle);
@@ -527,17 +527,17 @@ holds_tag(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g
 
 template <>
 inline bool
-holds_tag<Buffer_>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
+holds_tag<BufferTag>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
-        impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
 template <>
 inline bool
-holds_tag<Texture_>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
+holds_tag<TextureTag>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
-        impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -549,7 +549,7 @@ template <>
 inline bool
 holds_alternative<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
-        impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -557,7 +557,7 @@ template <>
 inline bool
 holds_alternative<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
-        impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -569,7 +569,7 @@ template <>
 inline std::unique_ptr<gfx::Buffer>&
 get<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
     auto& handle = boost::variant2::get<
-        impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.buffers[handle.value];
 }
@@ -578,7 +578,7 @@ template <>
 inline std::unique_ptr<gfx::Texture>&
 get<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
     auto& handle = boost::variant2::get<
-        impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.textures[handle.value];
 }
@@ -591,7 +591,7 @@ template <>
 inline const std::unique_ptr<gfx::Buffer>&
 get<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
     const auto& handle = boost::variant2::get<
-        impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.buffers[handle.value];
 }
@@ -600,39 +600,39 @@ template <>
 inline const std::unique_ptr<gfx::Texture>&
 get<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
     const auto& handle = boost::variant2::get<
-        impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.textures[handle.value];
 }
 
 inline std::unique_ptr<gfx::Buffer>&
-get(Buffer_ /*tag*/, DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
+get(BufferTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
     auto& handle = boost::variant2::get<
-        impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.buffers[handle.value];
 }
 
 inline std::unique_ptr<gfx::Texture>&
-get(Texture_ /*tag*/, DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
+get(TextureTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
     auto& handle = boost::variant2::get<
-        impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.textures[handle.value];
 }
 
 inline const std::unique_ptr<gfx::Buffer>&
-get(Buffer_ /*tag*/, DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
+get(BufferTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
     const auto& handle = boost::variant2::get<
-        impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.buffers[handle.value];
 }
 
 inline const std::unique_ptr<gfx::Texture>&
-get(Texture_ /*tag*/, DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
+get(TextureTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
     const auto& handle = boost::variant2::get<
-        impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.textures[handle.value];
 }
@@ -650,7 +650,7 @@ get_if<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, D
     }
     auto& g       = *pGraph;
     auto* pHandle = boost::variant2::get_if<
-        impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.buffers[pHandle->value];
@@ -667,7 +667,7 @@ get_if<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, 
     }
     auto& g       = *pGraph;
     auto* pHandle = boost::variant2::get_if<
-        impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.textures[pHandle->value];
@@ -688,7 +688,7 @@ get_if<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, c
     }
     const auto& g       = *pGraph;
     const auto* pHandle = boost::variant2::get_if<
-        impl::ValueHandle<Buffer_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.buffers[pHandle->value];
@@ -705,7 +705,7 @@ get_if<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, 
     }
     const auto& g       = *pGraph;
     const auto* pHandle = boost::variant2::get_if<
-        impl::ValueHandle<Texture_, DeviceResourceGraph::vertex_descriptor>>(
+        impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.textures[pHandle->value];

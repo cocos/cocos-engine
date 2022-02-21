@@ -23,8 +23,8 @@ inline const char* getName(const LayoutData& /*v*/) noexcept { return "LayoutDat
 inline const char* getName(const ShaderProgramData& /*v*/) noexcept { return "ShaderProgramData"; }
 inline const char* getName(const GroupNodeData& /*v*/) noexcept { return "GroupNodeData"; }
 inline const char* getName(const ShaderNodeData& /*v*/) noexcept { return "ShaderNodeData"; }
-inline const char* getName(const Group_& /*v*/) noexcept { return "Group"; }
-inline const char* getName(const Shader_& /*v*/) noexcept { return "Shader"; }
+inline const char* getName(const GroupTag& /*v*/) noexcept { return "Group"; }
+inline const char* getName(const ShaderTag& /*v*/) noexcept { return "Shader"; }
 inline const char* getName(const LayoutGraphData& /*v*/) noexcept { return "LayoutGraphData"; }
 
 } // namespace render

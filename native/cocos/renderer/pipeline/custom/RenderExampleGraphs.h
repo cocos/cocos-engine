@@ -659,7 +659,7 @@ struct property_map<cc::render::example::RenderDependencyGraph, vertex_index_t> 
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::Pass_> {
+struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::PassTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
@@ -695,7 +695,7 @@ struct property_map<cc::render::example::RenderDependencyGraph, T cc::render::ex
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::ValueID_> {
+struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::ValueIDTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
@@ -712,7 +712,7 @@ struct property_map<cc::render::example::RenderDependencyGraph, cc::render::exam
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::PassID_> {
+struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::PassIDTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
@@ -729,7 +729,7 @@ struct property_map<cc::render::example::RenderDependencyGraph, cc::render::exam
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::Traits_> {
+struct property_map<cc::render::example::RenderDependencyGraph, cc::render::example::RenderDependencyGraph::TraitsTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderDependencyGraph,
@@ -802,7 +802,7 @@ struct property_map<cc::render::example::RenderValueGraph, vertex_index_t> {
 
 // Vertex Component
 template <>
-struct property_map<cc::render::example::RenderValueGraph, cc::render::example::RenderValueGraph::Node_> {
+struct property_map<cc::render::example::RenderValueGraph, cc::render::example::RenderValueGraph::NodeTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::example::RenderValueGraph,
@@ -861,13 +861,13 @@ get(boost::container::pmr::vector<boost::default_color_type>& colors, const Rend
 }
 
 // Vertex Component
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Pass_>::const_type
-get(RenderDependencyGraph::Pass_ /*tag*/, const RenderDependencyGraph& g) noexcept {
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::const_type
+get(RenderDependencyGraph::PassTag /*tag*/, const RenderDependencyGraph& g) noexcept {
     return {g.passes};
 }
 
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Pass_>::type
-get(RenderDependencyGraph::Pass_ /*tag*/, RenderDependencyGraph& g) noexcept {
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassTag>::type
+get(RenderDependencyGraph::PassTag /*tag*/, RenderDependencyGraph& g) noexcept {
     return {g.passes};
 }
 
@@ -885,35 +885,35 @@ get(T RenderPassNode::*memberPointer, RenderDependencyGraph& g) noexcept {
 }
 
 // Vertex Component
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueID_>::const_type
-get(RenderDependencyGraph::ValueID_ /*tag*/, const RenderDependencyGraph& g) noexcept {
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueIDTag>::const_type
+get(RenderDependencyGraph::ValueIDTag /*tag*/, const RenderDependencyGraph& g) noexcept {
     return {g.valueIDs};
 }
 
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueID_>::type
-get(RenderDependencyGraph::ValueID_ /*tag*/, RenderDependencyGraph& g) noexcept {
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::ValueIDTag>::type
+get(RenderDependencyGraph::ValueIDTag /*tag*/, RenderDependencyGraph& g) noexcept {
     return {g.valueIDs};
 }
 
 // Vertex Component
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassID_>::const_type
-get(RenderDependencyGraph::PassID_ /*tag*/, const RenderDependencyGraph& g) noexcept {
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassIDTag>::const_type
+get(RenderDependencyGraph::PassIDTag /*tag*/, const RenderDependencyGraph& g) noexcept {
     return {g.passIDs};
 }
 
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassID_>::type
-get(RenderDependencyGraph::PassID_ /*tag*/, RenderDependencyGraph& g) noexcept {
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::PassIDTag>::type
+get(RenderDependencyGraph::PassIDTag /*tag*/, RenderDependencyGraph& g) noexcept {
     return {g.passIDs};
 }
 
 // Vertex Component
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Traits_>::const_type
-get(RenderDependencyGraph::Traits_ /*tag*/, const RenderDependencyGraph& g) noexcept {
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::TraitsTag>::const_type
+get(RenderDependencyGraph::TraitsTag /*tag*/, const RenderDependencyGraph& g) noexcept {
     return {g.traits};
 }
 
-inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::Traits_>::type
-get(RenderDependencyGraph::Traits_ /*tag*/, RenderDependencyGraph& g) noexcept {
+inline typename boost::property_map<RenderDependencyGraph, RenderDependencyGraph::TraitsTag>::type
+get(RenderDependencyGraph::TraitsTag /*tag*/, RenderDependencyGraph& g) noexcept {
     return {g.traits};
 }
 
@@ -1068,13 +1068,13 @@ get(boost::container::pmr::vector<boost::default_color_type>& colors, const Rend
 }
 
 // Vertex Component
-inline typename boost::property_map<RenderValueGraph, RenderValueGraph::Node_>::const_type
-get(RenderValueGraph::Node_ /*tag*/, const RenderValueGraph& g) noexcept {
+inline typename boost::property_map<RenderValueGraph, RenderValueGraph::NodeTag>::const_type
+get(RenderValueGraph::NodeTag /*tag*/, const RenderValueGraph& g) noexcept {
     return {g.nodes};
 }
 
-inline typename boost::property_map<RenderValueGraph, RenderValueGraph::Node_>::type
-get(RenderValueGraph::Node_ /*tag*/, RenderValueGraph& g) noexcept {
+inline typename boost::property_map<RenderValueGraph, RenderValueGraph::NodeTag>::type
+get(RenderValueGraph::NodeTag /*tag*/, RenderValueGraph& g) noexcept {
     return {g.nodes};
 }
 
