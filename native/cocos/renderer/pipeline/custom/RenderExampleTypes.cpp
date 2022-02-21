@@ -38,7 +38,7 @@ RenderDependencyGraph::RenderDependencyGraph(const allocator_type& alloc) noexce
 
 // ContinuousContainer
 void RenderDependencyGraph::reserve(vertices_size_type sz) {
-    this->vertices.reserve(sz);
+    vertices.reserve(sz);
     passes.reserve(sz);
     valueIDs.reserve(sz);
     passIDs.reserve(sz);
@@ -64,7 +64,7 @@ RenderValueGraph::RenderValueGraph(const allocator_type& alloc) noexcept
 
 // ContinuousContainer
 void RenderValueGraph::reserve(vertices_size_type sz) {
-    this->vertices.reserve(sz);
+    vertices.reserve(sz);
     nodes.reserve(sz);
 }
 

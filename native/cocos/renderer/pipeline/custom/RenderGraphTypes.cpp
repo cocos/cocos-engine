@@ -33,7 +33,7 @@ ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& all
 
 // ContinuousContainer
 void ResourceGraph::reserve(vertices_size_type sz) {
-    this->vertices.reserve(sz);
+    vertices.reserve(sz);
     names.reserve(sz);
     descs.reserve(sz);
     traits.reserve(sz);
@@ -127,7 +127,7 @@ SubpassGraph::SubpassGraph(SubpassGraph const& rhs, const allocator_type& alloc)
 
 // ContinuousContainer
 void SubpassGraph::reserve(vertices_size_type sz) {
-    this->vertices.reserve(sz);
+    vertices.reserve(sz);
     names.reserve(sz);
     subpasses.reserve(sz);
 }
@@ -385,8 +385,8 @@ RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
 
 // ContinuousContainer
 void RenderGraph::reserve(vertices_size_type sz) {
-    this->objects.reserve(sz);
-    this->vertices.reserve(sz);
+    objects.reserve(sz);
+    vertices.reserve(sz);
     names.reserve(sz);
     layoutNodes.reserve(sz);
     data.reserve(sz);

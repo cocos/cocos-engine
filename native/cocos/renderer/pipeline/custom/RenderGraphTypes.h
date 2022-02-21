@@ -152,29 +152,29 @@ struct ResourceGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return this->vertices[v].outEdges;
+        return vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return this->vertices[v].outEdges;
+        return vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
-        return this->vertices[v].inEdges;
+        return vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return this->vertices[v].inEdges;
+        return vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(this->vertices.size())};
+        return {0, static_cast<vertices_size_type>(vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(this->vertices.size());
+        return static_cast<vertex_descriptor>(vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -368,29 +368,29 @@ struct SubpassGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return this->vertices[v].outEdges;
+        return vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return this->vertices[v].outEdges;
+        return vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
-        return this->vertices[v].inEdges;
+        return vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return this->vertices[v].inEdges;
+        return vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(this->vertices.size())};
+        return {0, static_cast<vertices_size_type>(vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(this->vertices.size());
+        return static_cast<vertex_descriptor>(vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -751,29 +751,29 @@ struct RenderGraph {
 
     // VertexList help functions
     inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return this->vertices[v].outEdges;
+        return vertices[v].outEdges;
     }
     inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return this->vertices[v].outEdges;
+        return vertices[v].outEdges;
     }
 
     inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
-        return this->vertices[v].inEdges;
+        return vertices[v].inEdges;
     }
     inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return this->vertices[v].inEdges;
+        return vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(this->vertices.size())};
+        return {0, static_cast<vertices_size_type>(vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(this->vertices.size());
+        return static_cast<vertex_descriptor>(vertices.size());
     }
 
     inline boost::container::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return boost::container::pmr::vector<boost::default_color_type>(this->vertices.size(), mr);
+        return boost::container::pmr::vector<boost::default_color_type>(vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -799,17 +799,17 @@ struct RenderGraph {
 
     // AddressableGraph help functions
     inline boost::container::pmr::vector<children_edge_type>& getChildrenList(vertex_descriptor v) noexcept {
-        return this->objects[v].children;
+        return objects[v].children;
     }
     inline const boost::container::pmr::vector<children_edge_type>& getChildrenList(vertex_descriptor v) const noexcept {
-        return this->objects[v].children;
+        return objects[v].children;
     }
 
     inline boost::container::pmr::vector<parent_edge_type>& getParentsList(vertex_descriptor v) noexcept {
-        return this->objects[v].parents;
+        return objects[v].parents;
     }
     inline const boost::container::pmr::vector<parent_edge_type>& getParentsList(vertex_descriptor v) const noexcept {
-        return this->objects[v].parents;
+        return objects[v].parents;
     }
 
     // PolymorphicGraph

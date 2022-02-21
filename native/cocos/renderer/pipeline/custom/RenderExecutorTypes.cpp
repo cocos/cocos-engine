@@ -19,7 +19,7 @@ DeviceResourceGraph::DeviceResourceGraph(const allocator_type& alloc) noexcept
 
 // ContinuousContainer
 void DeviceResourceGraph::reserve(vertices_size_type sz) {
-    this->vertices.reserve(sz);
+    vertices.reserve(sz);
     names.reserve(sz);
     refCounts.reserve(sz);
 }

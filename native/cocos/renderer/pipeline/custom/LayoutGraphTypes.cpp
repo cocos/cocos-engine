@@ -134,7 +134,7 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData const& rhs, const allocator_typ
 
 // ContinuousContainer
 void LayoutGraphData::reserve(vertices_size_type sz) {
-    this->vertices.reserve(sz);
+    vertices.reserve(sz);
     names.reserve(sz);
     updateFrequencies.reserve(sz);
     layouts.reserve(sz);
