@@ -38,6 +38,7 @@ import { director, Director } from '../core/director';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { Node, warn } from '../core';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en Layout type.
@@ -1157,3 +1158,5 @@ export class Layout extends Component {
         return num;
     }
 }
+
+legacyCC.Layout = Layout;

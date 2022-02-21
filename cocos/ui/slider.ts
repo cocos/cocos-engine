@@ -328,3 +328,5 @@ export class Slider extends Component {
  * @param {Event.EventCustom} event
  * @param {Slider} slider - The slider component.
  */
+
+legacyCC.Slider = Slider;

@@ -971,3 +971,5 @@ export class Button extends Component {
         }
     }
 }
+
+legacyCC.Button = Button;

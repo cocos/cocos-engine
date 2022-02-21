@@ -779,3 +779,5 @@ export class PageView extends ScrollView {
  * @param {Event.EventCustom} event
  * @param {PageView} pageView - The PageView component.
  */
+
+legacyCC.PageView = PageView;

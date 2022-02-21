@@ -41,6 +41,7 @@ import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { director } from '../../core/director';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -843,3 +844,5 @@ export class Label extends Renderable2D {
         this.updateMaterial();
     }
 }
+
+legacyCC.Label = Label;

@@ -1003,3 +1003,5 @@ export declare namespace Widget {
 // cc.Widget = module.exports = Widget;
 legacyCC.internal.computeInverseTransForTarget = computeInverseTransForTarget;
 legacyCC.internal.getReadonlyNodeSize = getReadonlyNodeSize;
+
+legacyCC.Widget = Widget;

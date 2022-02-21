@@ -283,4 +283,5 @@ export class SubContextView extends Component {
         this._openDataContext = null;
     }
 }
+
 legacyCC.SubContextView = SubContextView;

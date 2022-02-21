@@ -36,6 +36,7 @@ import { IBatcher } from '../renderer/i-batcher';
 import { scene } from '../../core/renderer';
 import { Stage } from '../renderer/stencil-manager';
 import { Component } from '../../core/components';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -163,3 +164,5 @@ export class UIMeshRenderer extends Component {
     public setTextureDirty () {
     }
 }
+
+legacyCC.UIMeshRenderer = UIMeshRenderer;

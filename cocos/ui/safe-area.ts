@@ -36,6 +36,7 @@ import { UITransform } from '../2d/framework';
 import { view, sys } from '../core/platform';
 import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en
@@ -119,3 +120,5 @@ export class SafeArea extends Component {
         widgetManager.add(widget);
     }
 }
+
+legacyCC.SafeArea = SafeArea;

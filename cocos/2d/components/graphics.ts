@@ -672,3 +672,5 @@ export class Graphics extends Renderable2D {
         return !!this.model && this._isDrawing;
     }
 }
+
+legacyCC.Graphics = Graphics;

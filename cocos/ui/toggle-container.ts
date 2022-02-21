@@ -113,11 +113,11 @@ export class ToggleContainer extends Component {
     }
 
     public activeToggles () {
-        return this.toggleItems.filter((x) => x!.isChecked);
+        return this.toggleItems.filter((x) => x.isChecked);
     }
 
     public anyTogglesChecked () {
-        return !!this.toggleItems.find((x) => x!.isChecked);
+        return !!this.toggleItems.find((x) => x.isChecked);
     }
 
     /**
@@ -166,8 +166,10 @@ export class ToggleContainer extends Component {
                 if (toggle === firstToggle) {
                     continue;
                 }
-                toggle!.isChecked = false;
+                toggle.isChecked = false;
             }
         }
     }
 }
+
+legacyCC.ToggleContainer = ToggleContainer;

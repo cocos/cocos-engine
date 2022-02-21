@@ -1918,3 +1918,5 @@ export class ScrollView extends ViewGroup {
  * @param {Event.EventCustom} event
  * @param {ScrollView} scrollView - The ScrollView component.
  */
+
+legacyCC.ScrollView = ScrollView;
