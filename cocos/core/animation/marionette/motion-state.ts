@@ -10,12 +10,23 @@ export class MotionState extends InteractiveState {
     public motion: Motion | null = null;
 
     @serializable
-    public speed = new BindableNumber(1.0);
+    public speed = 1.0;
+
+    /**
+     * Should be float.
+     */
+    @serializable
+    public speedMultiplier = '';
+
+    @serializable
+    public speedMultiplierEnabled = false;
 
     public clone () {
         const that = new MotionState();
         that.motion = this.motion?.clone() ?? null;
-        that.speed = this.speed.clone();
+        that.speed = this.speed;
+        that.speedMultiplier = this.speedMultiplier;
+        that.speedMultiplierEnabled = this.speedMultiplierEnabled;
         return that;
     }
 }

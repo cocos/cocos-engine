@@ -18,8 +18,7 @@
     },
     "name": "",
     "weight": 1,
-    "mask": null,
-    "blending": 1
+    "mask": null
   },
   {
     "__type__": "cc.animation.StateMachine",

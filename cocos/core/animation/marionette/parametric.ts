@@ -4,16 +4,9 @@ import { warn } from '../../platform/debug';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import type { VarInstance } from './graph-eval';
+import { VariableType } from './variable';
 
-export enum VariableType {
-    FLOAT,
-
-    BOOLEAN,
-
-    TRIGGER,
-
-    INTEGER,
-}
+export { VariableType };
 
 export interface Bindable<TValue> {
     value: TValue;
@@ -160,5 +153,11 @@ export function validateVariableType (type: VariableType, expected: VariableType
 export function validateVariableTypeNumeric (type: VariableType, name: string) {
     if (type !== VariableType.FLOAT && type !== VariableType.INTEGER) {
         throw new VariableTypeMismatchedError(name, 'number or integer');
+    }
+}
+
+export function validateVariableTypeTriggerLike (type: VariableType, name: string) {
+    if (type !== VariableType.TRIGGER && type !== VariableType.AUTO_TRIGGER) {
+        throw new VariableTypeMismatchedError(name, 'trigger');
     }
 }

@@ -2,6 +2,7 @@ import {
     VariableType,
     BindableBoolean, BindableNumber, BindContext, bindOr, validateVariableExistence, validateVariableType,
     bindNumericOr,
+    validateVariableTypeTriggerLike,
 } from './parametric';
 import { ccclass, serializable } from '../../data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
@@ -241,7 +242,7 @@ export class TriggerCondition implements Condition {
         const evaluation = new TriggerConditionEval(false);
         const triggerInstance = context.getVar(this.trigger);
         if (validateVariableExistence(triggerInstance, this.trigger)) {
-            validateVariableType(triggerInstance.type, VariableType.TRIGGER, this.trigger);
+            validateVariableTypeTriggerLike(triggerInstance.type, this.trigger);
             evaluation.setTrigger(triggerInstance.bind(
                 evaluation.setTrigger,
                 evaluation,

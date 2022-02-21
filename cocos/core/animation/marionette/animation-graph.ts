@@ -11,7 +11,7 @@ import { InvalidTransitionError } from './errors';
 import { createEval } from './create-eval';
 import { MotionState } from './motion-state';
 import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state';
-import { SkeletonMask } from '../skeleton-mask';
+import { AnimationMask } from './animation-mask';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { array } from '../../utils/js';
 import { move } from '../../algorithm/move';
@@ -106,6 +106,28 @@ export type { AnimationTransitionView as AnimationTransition };
 
 export function isAnimationTransition (transition: TransitionView): transition is AnimationTransitionView {
     return transition instanceof AnimationTransition;
+}
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PassthroughState`)
+export class PassthroughState extends State {
+    public declare __brand: 'PassthroughState';
+}
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PassthroughTransition`)
+export class PassthroughTransition extends Transition {
+    /**
+     * The transition duration.
+     * The unit of the duration is the real duration of transition source
+     * if `relativeDuration` is `true` or seconds otherwise.
+     */
+    @serializable
+    public duration = 0.3;
+
+    /**
+     * Determines the unit of transition duration. See `duration`.
+     */
+    @serializable
+    public relativeDuration = false;
 }
 
 @ccclass('cc.animation.StateMachine')
@@ -248,6 +270,14 @@ export class StateMachine extends EditorExtendable {
     }
 
     /**
+     * Adds a passthrough state into this state machine.
+     * @returns The newly created passthrough state.
+     */
+    public addPassthrough () {
+        return this._addState(new PassthroughState());
+    }
+
+    /**
      * Removes specified state from this state machine.
      * @param state The state to remove.
      */
@@ -279,6 +309,14 @@ export class StateMachine extends EditorExtendable {
      * @param from Source state.
      * @param to Target state.
      * @param condition The transition condition.
+     */
+    public connect (from: PassthroughState, to: State, conditions?: Condition[]): PassthroughTransition;
+
+    /**
+     * Connect two states.
+     * @param from Source state.
+     * @param to Target state.
+     * @param condition The transition condition.
      * @throws `InvalidTransitionError` if:
      * - the target state is entry or any, or
      * - the source state is exit.
@@ -301,7 +339,9 @@ export class StateMachine extends EditorExtendable {
 
         const transition = from instanceof MotionState || from === this._anyState
             ? new AnimationTransition(from, to, conditions)
-            : new Transition(from, to, conditions);
+            : from instanceof PassthroughState
+                ? new PassthroughTransition(from, to, conditions)
+                : new Transition(from, to, conditions);
 
         own(transition, this);
         this._transitions.push(transition);
@@ -470,11 +510,11 @@ export class Layer implements OwnedBy<AnimationGraph> {
     public weight = 1.0;
 
     @serializable
-    public mask: SkeletonMask | null = null;
+    public mask: AnimationMask | null = null;
 
-    @serializable
-    public blending: LayerBlending = LayerBlending.additive;
-
+    /**
+     * @marked_as_engine_private
+     */
     constructor () {
         this._stateMachine = new StateMachine();
     }

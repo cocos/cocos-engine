@@ -1,4 +1,8 @@
 module.exports = {
+    dialog: {
+        confirm: '确认',
+        cancel: '取消',
+    },
     assets: {
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',
@@ -317,6 +321,12 @@ module.exports = {
         },
         animationGraph: {
             edit: '编辑',
+        },
+        animationMask: {
+            importSkeleton: '导入骨骼节点',
+            clearAllNodes: '清空所有节点',
+            clearAllNodesWarn: '确定从当前的动画遮罩中清空所有节点吗',
+            nodeEnableTip: '是否启用这个节点<br>按住 Alt + 点击，可以切换自身和子孙节点的状态',
         },
         multipleWarning: '不支持此类型资源的多选编辑',
     },

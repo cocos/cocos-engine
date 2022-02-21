@@ -1,17 +1,21 @@
 import { DEBUG } from 'internal:constants';
-import { AnimationGraph, Layer, StateMachine, State, Transition, isAnimationTransition, SubStateMachine } from './animation-graph';
+import {
+    AnimationGraph, Layer, StateMachine, State, isAnimationTransition,
+    SubStateMachine, PassthroughState, PassthroughTransition,
+} from './animation-graph';
 import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
-import { Value } from './variable';
-import { BindContext, bindOr, VariableType } from './parametric';
+import { Value, VarInstance } from './variable';
+import { BindContext, bindOr, validateVariableExistence, validateVariableType, VariableType } from './parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import { MotionState } from './motion-state';
-import { SkeletonMask } from '../skeleton-mask';
+import { AnimationMask } from './animation-mask';
 import { debug, warnID } from '../../platform/debug';
-import { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
+import { BlendStateBuffer, LayeredBlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
+import { MAX_ANIMATION_LAYER } from '../../../3d/skeletal-animation/limits';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
 import { AnimationClip } from '../animation-clip';
 import type { AnimationController } from './animation-controller';
@@ -20,15 +24,27 @@ import { InteractiveState } from './state';
 
 export class AnimationGraphEval {
     private declare _layerEvaluations: LayerEval[];
-    private _blendBuffer = new BlendStateBuffer();
+    private _blendBuffer = new LayeredBlendStateBuffer();
     private _currentTransitionCache: TransitionStatus = {
         duration: 0.0,
         time: 0.0,
     };
 
     constructor (graph: AnimationGraph, root: Node, controller: AnimationController) {
+        if (DEBUG) {
+            if (graph.layers.length >= MAX_ANIMATION_LAYER) {
+                throw new Error(
+                    `Max layer count exceeds. `
+                    + `Allowed: ${MAX_ANIMATION_LAYER}, actual: ${graph.layers.length}`,
+                );
+            }
+        }
+
         for (const [name, { type, value }] of graph.variables) {
             this._varInstances[name] = new VarInstance(type, value);
+            if (type === VariableType.AUTO_TRIGGER) {
+                this._hasAutoTrigger = true;
+            }
         }
 
         const context: LayerContext = {
@@ -41,22 +57,48 @@ export class AnimationGraphEval {
             },
         };
 
-        this._layerEvaluations = Array.from(graph.layers).map((layer) => {
+        const layerEvaluations = this._layerEvaluations = Array.from(graph.layers).map((layer) => {
             const layerEval = new LayerEval(layer, {
                 ...context,
                 mask: layer.mask ?? undefined,
             });
             return layerEval;
         });
+
+        // Set layer masks.
+        const nLayers = layerEvaluations.length;
+        for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
+            const mask = graph.layers[iLayer].mask;
+            if (mask) {
+                const excludeNodes = new Set(mask.filterDisabledNodes(context.node));
+                this._blendBuffer.setMask(iLayer, excludeNodes);
+            }
+        }
     }
 
     public update (deltaTime: number) {
+        const {
+            _blendBuffer: blendBuffer,
+            _layerEvaluations: layerEvaluations,
+        } = this;
         graphDebugGroup(`New frame started.`);
         if (GRAPH_DEBUG_ENABLED) {
             clearWeightsStats();
         }
-        for (const layerEval of this._layerEvaluations) {
+        const nLayers = layerEvaluations.length;
+        for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
+            const layerEval = layerEvaluations[iLayer];
             layerEval.update(deltaTime);
+            blendBuffer.commitLayerChanges(iLayer, layerEval.weight * layerEval.passthroughWeight);
+        }
+        if (this._hasAutoTrigger) {
+            const { _varInstances: varInstances } = this;
+            for (const varName in varInstances) {
+                const varInstance = varInstances[varName];
+                if (varInstance.type === VariableType.AUTO_TRIGGER && varInstance.value) {
+                    varInstance.value = false;
+                }
+            }
         }
         if (GRAPH_DEBUG_ENABLED) {
             graphDebug(`Weights: ${getWeightsStats()}`);
@@ -112,7 +154,12 @@ export class AnimationGraphEval {
         varInstance.value = value;
     }
 
+    public setLayerWeight (layerIndex: number, weight: number) {
+        this._layerEvaluations[layerIndex].weight = weight;
+    }
+
     private _varInstances: Record<string, VarInstance> = {};
+    private _hasAutoTrigger = false;
 }
 
 export interface TransitionStatus {
@@ -171,7 +218,7 @@ interface LayerContext extends BindContext {
     /**
      * The mask applied to this layer.
      */
-    mask?: SkeletonMask;
+    mask?: AnimationMask;
 
     /**
      * TODO: A little hacky.
@@ -183,10 +230,14 @@ interface LayerContext extends BindContext {
 class LayerEval {
     public declare name: string;
 
+    public declare weight: number;
+
+    public passthroughWeight = 1.0;
+
     constructor (layer: Layer, context: LayerContext) {
         this.name = layer.name;
         this._controller = context.controller;
-        this._weight = layer.weight;
+        this.weight = layer.weight;
         const { entry, exit } = this._addStateMachine(layer.stateMachine, null, {
             ...context,
         }, layer.name);
@@ -252,7 +303,10 @@ class LayerEval {
     }
 
     public getNextStateStatus (): Readonly<MotionStateStatus> | null {
-        assertIsTrue(this._currentTransitionToNode, 'There is no transition currently in layer.');
+        assertIsTrue(
+            this._currentTransitionToNode && this._currentTransitionToNode.kind !== NodeKind.PASSTHROUGH,
+            'There is no transition currently in layer.',
+        );
         return this._currentTransitionToNode.getToPortStatus();
     }
 
@@ -266,12 +320,11 @@ class LayerEval {
     }
 
     private declare _controller: AnimationController;
-    private _weight: number;
     private _nodes: NodeEval[] = [];
     private _topLevelEntry: NodeEval;
     private _topLevelExit: NodeEval;
     private _currentNode: NodeEval;
-    private _currentTransitionToNode: MotionStateEval | null = null;
+    private _currentTransitionToNode: PassthroughEval | MotionStateEval | null = null;
     private _currentTransitionPath: TransitionEval[] = [];
     private _transitionProgress = 0;
     private declare _triggerReset: TriggerResetFn;
@@ -296,8 +349,10 @@ class LayerEval {
                 return entryEval = new SpecialStateEval(node, NodeKind.entry, node.name);
             } else if (node === graph.exitState) {
                 return exitEval = new SpecialStateEval(node, NodeKind.exit, node.name);
-            }  else if (node === graph.anyState) {
+            } else if (node === graph.anyState) {
                 return anyNode = new SpecialStateEval(node, NodeKind.any, node.name);
+            } else if (node instanceof PassthroughState) {
+                return new PassthroughEval(node);
             } else {
                 assertIsTrue(node instanceof SubStateMachine);
                 return null;
@@ -375,15 +430,28 @@ class LayerEval {
                     toNode = nodeEval;
                 }
 
+                const conditions = outgoing.conditions.map((condition) => condition[createEval](context));
+
                 const transitionEval: TransitionEval = {
+                    conditions,
                     to: toNode,
-                    conditions: outgoing.conditions.map((condition) => condition[createEval](context)),
-                    duration: isAnimationTransition(outgoing) ? outgoing.duration : 0.0,
-                    normalizedDuration: isAnimationTransition(outgoing) ? outgoing.relativeDuration : false,
-                    exitConditionEnabled: isAnimationTransition(outgoing) ? outgoing.exitConditionEnabled : false,
-                    exitCondition: isAnimationTransition(outgoing) ? outgoing.exitCondition : 0.0,
                     triggers: undefined,
+                    duration: 0.0,
+                    normalizedDuration: false,
+                    exitCondition: 0.0,
+                    exitConditionEnabled: false,
                 };
+
+                if (isAnimationTransition(outgoing)) {
+                    transitionEval.duration = outgoing.duration;
+                    transitionEval.normalizedDuration = outgoing.relativeDuration;
+                    transitionEval.exitConditionEnabled = outgoing.exitConditionEnabled;
+                    transitionEval.exitCondition = outgoing.exitCondition;
+                } else if (outgoing instanceof PassthroughTransition) {
+                    transitionEval.duration = outgoing.duration;
+                    transitionEval.normalizedDuration = outgoing.relativeDuration;
+                }
+
                 transitionEval.conditions.forEach((conditionEval, iCondition) => {
                     const condition = outgoing.conditions[iCondition];
                     if (condition instanceof TriggerCondition && condition.trigger) {
@@ -494,6 +562,11 @@ class LayerEval {
                     this._fromUpdated = true;
                     // Animation play eat all times.
                     remainTimePiece = 0.0;
+                } else {
+                    // Happened when firstly entered the layer's top level entry
+                    // and no further transition.
+                    // I'm sure conscious of it's redundant with above statement, just emphasize.
+                    remainTimePiece = 0.0;
                 }
                 if (GRAPH_DEBUG_ENABLED) {
                     passConsumed = remainTimePiece;
@@ -510,7 +583,7 @@ class LayerEval {
             this._currentNode.triggerFromPortUpdate(this._controller);
         }
 
-        if (this._currentTransitionToNode && this._toUpdated && this._currentNode.kind === NodeKind.animation) {
+        if (this._currentTransitionToNode && this._toUpdated && this._currentTransitionToNode.kind === NodeKind.animation) {
             this._toUpdated = false;
             this._currentTransitionToNode.triggerToPortUpdate(this._controller);
         }
@@ -523,13 +596,25 @@ class LayerEval {
             _currentNode: currentNode,
             _currentTransitionToNode: currentTransitionToNode,
             _fromWeight: fromWeight,
+            _toWeight: toWeight,
         } = this;
-        if (currentNode.kind === NodeKind.animation) {
-            currentNode.sampleFromPort(fromWeight);
-        }
-        if (currentTransitionToNode) {
-            if (currentTransitionToNode.kind === NodeKind.animation) {
-                currentTransitionToNode.sampleToPort(this._toWeight);
+        if (currentNode.kind === NodeKind.PASSTHROUGH) {
+            this.passthroughWeight = toWeight;
+            if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.animation) {
+                currentTransitionToNode.sampleToPort(1.0);
+            }
+        } else if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.PASSTHROUGH) {
+            this.passthroughWeight = fromWeight;
+            if (currentNode.kind === NodeKind.animation) {
+                currentNode.sampleFromPort(1.0);
+            }
+        } else {
+            this.passthroughWeight = 1.0;
+            if (currentNode.kind === NodeKind.animation) {
+                currentNode.sampleFromPort(fromWeight);
+            }
+            if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.animation) {
+                currentTransitionToNode.sampleToPort(toWeight);
             }
         }
     }
@@ -701,7 +786,7 @@ class LayerEval {
         const lastTransition = currentTransitionPath[lenCurrentTransitionPath - 1];
         const tailNode = lastTransition.to;
 
-        if (tailNode.kind !== NodeKind.animation) {
+        if (tailNode.kind !== NodeKind.animation && tailNode.kind !== NodeKind.PASSTHROUGH) {
             const motionNode = this._matchTransitionPathUntilMotion();
             if (motionNode) {
                 // Apply transitions
@@ -725,7 +810,7 @@ class LayerEval {
 
         const lastTransition = currentTransitionPath[lenCurrentTransitionPath - 1];
         let tailNode = lastTransition.to;
-        for (; tailNode.kind !== NodeKind.animation;) {
+        for (; tailNode.kind !== NodeKind.animation && tailNode.kind !== NodeKind.PASSTHROUGH;) {
             const transitionMatch = this._matchTransition(
                 tailNode,
                 tailNode,
@@ -741,7 +826,7 @@ class LayerEval {
             tailNode = transition.to;
         }
 
-        return tailNode.kind === NodeKind.animation ? tailNode : null;
+        return tailNode.kind === NodeKind.animation || tailNode.kind === NodeKind.PASSTHROUGH ? tailNode : null;
     }
 
     private _consumeTransition (transition: TransitionEval) {
@@ -763,7 +848,7 @@ class LayerEval {
         }
     }
 
-    private _doTransitionToMotion (targetNode: MotionStateEval) {
+    private _doTransitionToMotion (targetNode: MotionStateEval | PassthroughEval) {
         // Reset triggers
         this._resetTriggersAlongThePath();
 
@@ -771,7 +856,9 @@ class LayerEval {
         this._currentTransitionToNode = targetNode;
         this._toUpdated = false;
 
-        targetNode.resetToPort();
+        if (targetNode.kind === NodeKind.animation) {
+            targetNode.resetToPort();
+        }
         this._callEnterMethods(targetNode);
     }
 
@@ -806,9 +893,11 @@ class LayerEval {
             contrib = 0.0;
             ratio = 1.0;
         } else {
-            assertIsTrue(fromNode.kind === NodeKind.animation);
+            assertIsTrue(fromNode.kind === NodeKind.animation || fromNode.kind === NodeKind.PASSTHROUGH);
             const { _transitionProgress: transitionProgress } = this;
-            const durationSeconds = normalizedDuration ? transitionDuration * fromNode.duration : transitionDuration;
+            const durationSeconds = fromNode.kind === NodeKind.PASSTHROUGH
+                ? transitionDuration
+                : normalizedDuration ? transitionDuration * fromNode.duration : transitionDuration;
             const progressSeconds = transitionProgress * durationSeconds;
             const remain = durationSeconds - progressSeconds;
             assertIsTrue(remain >= 0.0);
@@ -819,14 +908,8 @@ class LayerEval {
 
         const toNodeName = toNode?.name ?? '<Empty>';
 
-        const weight = this._weight;
-        graphDebugGroup(
-            `[SubStateMachine ${this.name}]: TransitionUpdate: ${fromNode.name} -> ${toNodeName}`
-            + `with ratio ${ratio} in base weight ${this._weight}.`,
-        );
-
-        this._fromWeight = weight * (1.0 - ratio);
-        this._toWeight = weight * ratio;
+        this._fromWeight = (1.0 - ratio);
+        this._toWeight = ratio;
 
         const shouldUpdatePorts = contrib !== 0;
         const hasFinished = ratio === 1.0;
@@ -838,7 +921,7 @@ class LayerEval {
             graphDebugGroupEnd();
         }
 
-        if (toNode && shouldUpdatePorts) {
+        if (toNode.kind === NodeKind.animation && shouldUpdatePorts) {
             graphDebugGroup(`Update ${toNode.name}`);
             toNode.updateToPort(contrib);
             this._toUpdated = true;
@@ -865,10 +948,13 @@ class LayerEval {
             }
             this._fromUpdated = this._toUpdated;
             this._toUpdated = false;
-            toNode.finishTransition();
+            if (toNode.kind === NodeKind.animation) {
+                toNode.finishTransition();
+            }
             this._currentNode = toNode;
             this._currentTransitionToNode = null;
             this._currentTransitionPath.length = 0;
+            // Make sure we won't suffer from precision problem
             this._fromWeight = 1.0;
             this._toWeight = 0.0;
         }
@@ -976,6 +1062,7 @@ const transitionMatchCacheAny = new TransitionMatchCache();
 
 enum NodeKind {
     entry, exit, any, animation,
+    PASSTHROUGH,
 }
 
 export class StateEval {
@@ -1077,14 +1164,21 @@ interface StateMachineInfo {
 export class MotionStateEval extends StateEval {
     constructor (node: MotionState, context: LayerContext) {
         super(node);
-        const speed = bindOr(
-            context,
-            node.speed,
-            VariableType.FLOAT,
-            this._setSpeed,
-            this,
-        );
-        this._speed = speed;
+
+        this._baseSpeed = node.speed;
+        this._setSpeedMultiplier(1.0);
+
+        if (node.speedMultiplierEnabled && node.speedMultiplier) {
+            const speedMultiplierVarName = node.speedMultiplier;
+            const varInstance = context.getVar(speedMultiplierVarName);
+            if (validateVariableExistence(varInstance, speedMultiplierVarName)) {
+                validateVariableType(varInstance.type, VariableType.FLOAT, speedMultiplierVarName);
+                varInstance.bind(this._setSpeedMultiplier, this);
+                const initialSpeedMultiplier = varInstance.value as number;
+                this._setSpeedMultiplier(initialSpeedMultiplier);
+            }
+        }
+
         const sourceEvalContext: MotionEvalContext = {
             ...context,
         };
@@ -1178,6 +1272,7 @@ export class MotionStateEval extends StateEval {
     }
 
     private _source: MotionEval | null = null;
+    private _baseSpeed = 1.0;
     private _speed = 1.0;
     private _fromPort: MotionEvalPort = {
         progress: 0.0,
@@ -1188,8 +1283,8 @@ export class MotionStateEval extends StateEval {
         statusCache: createStateStatusCache(),
     };
 
-    private _setSpeed (value: number) {
-        this._speed = value;
+    private _setSpeedMultiplier (value: number) {
+        this._speed = this._baseSpeed * value;
     }
 }
 
@@ -1220,7 +1315,15 @@ export class SpecialStateEval extends StateEval {
     public readonly kind: NodeKind.entry | NodeKind.exit | NodeKind.any;
 }
 
-export type NodeEval = MotionStateEval | SpecialStateEval;
+export class PassthroughEval extends StateEval {
+    public readonly kind = NodeKind.PASSTHROUGH;
+
+    constructor (node: State) {
+        super(node);
+    }
+}
+
+export type NodeEval = MotionStateEval | SpecialStateEval | PassthroughEval;
 
 interface TransitionEval {
     to: NodeEval;
@@ -1235,56 +1338,4 @@ interface TransitionEval {
     triggers: string[] | undefined;
 }
 
-class VarInstance {
-    public type: VariableType;
-
-    constructor (type: VariableType, value: Value) {
-        this.type = type;
-        this._value = value;
-    }
-
-    get value () {
-        return this._value;
-    }
-
-    set value (value) {
-        this._value = value;
-        for (const { fn, thisArg, args } of this._refs) {
-            fn.call(thisArg, value, ...args);
-        }
-    }
-
-    public bind <T, TThis, ExtraArgs extends any[]> (
-        fn: (this: TThis, value: T, ...args: ExtraArgs) => void,
-        thisArg: TThis,
-        ...args: ExtraArgs
-    ) {
-        this._refs.push({
-            fn: fn as (this: unknown, value: unknown, ...args: unknown[]) => void,
-            thisArg,
-            args,
-        });
-        return this._value;
-    }
-
-    private _value: Value;
-    private _refs: VarRef[] = [];
-}
-
-export type { VarInstance };
-
-interface VarRefs {
-    type: VariableType;
-
-    value: Value;
-
-    refs: VarRef[];
-}
-
-interface VarRef {
-    fn: (this: unknown, value: unknown, ...args: unknown[]) => void;
-
-    thisArg: unknown;
-
-    args: unknown[];
-}
+export type { VarInstance } from './variable';

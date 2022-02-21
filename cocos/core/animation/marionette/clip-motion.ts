@@ -1,9 +1,10 @@
+import { editorExtrasTag } from '../../data';
 import { ccclass, type } from '../../data/class-decorator';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { AnimationClip } from '../animation-clip';
 import { AnimationState } from '../animation-state';
 import { createEval } from './create-eval';
-import { graphDebug, GRAPH_DEBUG_ENABLED, pushWeight } from './graph-debug';
+import { getMotionRuntimeID, graphDebug, GRAPH_DEBUG_ENABLED, pushWeight, RUNTIME_ID_ENABLED } from './graph-debug';
 import { ClipStatus } from './graph-eval';
 import { MotionEvalContext, Motion, MotionEval } from './motion';
 
@@ -13,7 +14,14 @@ export class ClipMotion extends EditorExtendable implements Motion {
     public clip: AnimationClip | null = null;
 
     public [createEval] (context: MotionEvalContext) {
-        return !this.clip ? null : new ClipMotionEval(context, this.clip);
+        if (!this.clip) {
+            return null;
+        }
+        const clipMotionEval = new ClipMotionEval(context, this.clip);
+        if (RUNTIME_ID_ENABLED) {
+            clipMotionEval.runtimeId = getMotionRuntimeID(this);
+        }
+        return clipMotionEval;
     }
 
     public clone () {
@@ -29,14 +37,16 @@ class ClipMotionEval implements MotionEval {
      */
     public declare __DEBUG__ID__?: string;
 
+    public declare runtimeId?: number;
+
     private declare _state: AnimationState;
 
     public declare readonly duration: number;
 
     constructor (context: MotionEvalContext, clip: AnimationClip) {
-        this.duration = clip.duration;
+        this.duration = clip.duration / clip.speed;
         this._state = new AnimationState(clip);
-        this._state.initialize(context.node, context.blendBuffer);
+        this._state.initialize(context.node, context.blendBuffer, context.mask);
     }
 
     public getClipStatuses (baseWeight: number): Iterator<ClipStatus, any, undefined> {

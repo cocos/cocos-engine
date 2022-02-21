@@ -70,7 +70,14 @@ export class AnimationBlend2D extends AnimationBlend {
     }
 
     public [createEval] (context: MotionEvalContext) {
-        const evaluation = new AnimationBlend2DEval(context, this._items, this._items.map(({ threshold }) => threshold), this.algorithm, [0.0, 0.0]);
+        const evaluation = new AnimationBlend2DEval(
+            context,
+            this,
+            this._items,
+            this._items.map(({ threshold }) => threshold),
+            this.algorithm,
+            [0.0, 0.0],
+        );
         const initialValueX = bindOr(
             context,
             this.paramX,
@@ -106,12 +113,13 @@ class AnimationBlend2DEval extends AnimationBlendEval {
 
     constructor (
         context: MotionEvalContext,
+        base: AnimationBlend,
         items: AnimationBlendItem[],
         thresholds: readonly Vec2[],
         algorithm: Algorithm,
         inputs: [number, number],
     ) {
-        super(context, items, inputs);
+        super(context, base, items, inputs);
         this._thresholds = thresholds;
         this._algorithm = algorithm;
         this.doEval();

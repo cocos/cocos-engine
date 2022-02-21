@@ -1,4 +1,8 @@
 module.exports = {
+    dialog: {
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+    },
     assets: {
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',
@@ -288,7 +292,7 @@ module.exports = {
             animationBakeRate: {
                 name: 'Animation Bake Rate',
                 title: 'Specify the animation bake rate in frames per second (fps).',
-                auto: '自动',
+                auto: 'Auto',
             },
             promoteSingleRootNode: {
                 name: 'Promote single root node',
@@ -326,6 +330,12 @@ module.exports = {
         },
         animationGraph: {
             edit: 'Edit',
+        },
+        animationMask: {
+            importSkeleton: 'Import Skeleton Nodes',
+            clearAllNodes: 'Clear All Nodes',
+            clearAllNodesWarn: 'Do you sure clear all nodes in this Animation Mask?',
+            nodeEnableTip: 'Whether enable this joint;<br>Alt + Click can toggle the children state.',
         },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
     },

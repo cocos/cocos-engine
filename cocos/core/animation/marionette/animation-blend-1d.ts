@@ -53,7 +53,7 @@ export class AnimationBlend1D extends AnimationBlend {
     }
 
     public [createEval] (context: MotionEvalContext) {
-        const evaluation = new AnimationBlend1DEval(context, this._items, this._items.map(({ threshold }) => threshold), 0.0);
+        const evaluation = new AnimationBlend1DEval(context, this, this._items, this._items.map(({ threshold }) => threshold), 0.0);
         const initialValue = bindOr(
             context,
             this.param,
@@ -74,8 +74,8 @@ export declare namespace AnimationBlend1D {
 class AnimationBlend1DEval extends AnimationBlendEval {
     private declare _thresholds: readonly number[];
 
-    constructor (context: MotionEvalContext, items: AnimationBlendItem[], thresholds: readonly number[], input: number) {
-        super(context, items, [input]);
+    constructor (context: MotionEvalContext, base: AnimationBlend, items: AnimationBlendItem[], thresholds: readonly number[], input: number) {
+        super(context, base, items, [input]);
         this._thresholds = thresholds;
         this.doEval();
     }
