@@ -77,9 +77,8 @@ struct UniformBlockDB {
 
 struct Descriptor {
     Descriptor() = default;
-    Descriptor(gfx::Type typeIn, uint32_t countIn) noexcept
-    : type(typeIn),
-      count(countIn) {}
+    Descriptor(gfx::Type typeIn) noexcept // NOLINT
+    : type(typeIn) {}
 
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t  count{1};
@@ -123,6 +122,12 @@ struct DescriptorTable {
 };
 
 struct DescriptorTableIndex {
+    DescriptorTableIndex() = default;
+    DescriptorTableIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
+    : updateFrequency(updateFrequencyIn),
+      parameterType(parameterTypeIn),
+      visibility(visibilityIn) {}
+
     UpdateFrequency         updateFrequency{UpdateFrequency::PER_INSTANCE};
     ParameterType           parameterType{ParameterType::CONSTANTS};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
@@ -341,6 +346,11 @@ struct LayoutGraph {
 };
 
 struct UniformData {
+    UniformData() = default;
+    UniformData(gfx::Type typeIn, uint32_t valueIDIn) noexcept
+    : type(typeIn),
+      valueID(valueIDIn) {}
+
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t  valueID{0xFFFFFFFF};
 };
@@ -365,9 +375,14 @@ struct UniformBlockData {
 };
 
 struct DescriptorData {
+    DescriptorData() = default;
+    DescriptorData(uint32_t idIn, gfx::Type typeIn) noexcept
+    : id(idIn),
+      type(typeIn) {}
+
     uint32_t  id{0xFFFFFFFF};
     gfx::Type type{gfx::Type::UNKNOWN};
-    uint32_t  count{0};
+    uint32_t  count{1};
 };
 
 struct DescriptorBlockData {
@@ -377,6 +392,7 @@ struct DescriptorBlockData {
     }
 
     DescriptorBlockData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorBlockData(DescriptorIndex typeIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
     DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc);
     DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc);
 
@@ -397,6 +413,7 @@ struct DescriptorTableData {
     }
 
     DescriptorTableData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorTableData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
     DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc);
     DescriptorTableData(DescriptorTableData const& rhs, const allocator_type& alloc);
 

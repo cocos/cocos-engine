@@ -142,6 +142,11 @@ UniformBlockData::UniformBlockData(UniformBlockData const& rhs, const allocator_
 DescriptorBlockData::DescriptorBlockData(const allocator_type& alloc) noexcept
 : descriptors(alloc) {}
 
+DescriptorBlockData::DescriptorBlockData(DescriptorIndex typeIn, uint32_t capacityIn, const allocator_type& alloc) noexcept
+: type(typeIn),
+  capacity(capacityIn),
+  descriptors(alloc) {}
+
 DescriptorBlockData::DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc)
 : type(rhs.type),
   capacity(rhs.capacity),
@@ -154,6 +159,12 @@ DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const a
 
 DescriptorTableData::DescriptorTableData(const allocator_type& alloc) noexcept
 : descriptorBlocks(alloc),
+  uniformBlocks(alloc) {}
+
+DescriptorTableData::DescriptorTableData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
+: slot(slotIn),
+  capacity(capacityIn),
+  descriptorBlocks(alloc),
   uniformBlocks(alloc) {}
 
 DescriptorTableData::DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc)

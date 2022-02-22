@@ -48,12 +48,11 @@ export class UniformBlockDB {
 }
 
 export class Descriptor {
-    constructor (type: Type = Type.UNKNOWN, count = 1) {
+    constructor (type: Type = Type.UNKNOWN) {
         this.type = type;
-        this.count = count;
     }
     type: Type;
-    count: number;
+    count = 1;
 }
 
 export class DescriptorBlock {
@@ -66,13 +65,18 @@ export class DescriptorTable {
 }
 
 export class DescriptorTableIndex {
-    updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE;
-    parameterType: ParameterType = ParameterType.CONSTANTS;
-    visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE;
+    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
+        this.updateFrequency = updateFrequency;
+        this.parameterType = parameterType;
+        this.visibility = visibility;
+    }
+    updateFrequency: UpdateFrequency;
+    parameterType: ParameterType;
+    visibility: ShaderStageFlagBit;
 }
 
 export class DescriptorDB {
-    tables: Map<DescriptorTableIndex, DescriptorTable> = new Map<DescriptorTableIndex, DescriptorTable>();
+    tables: Map<string, DescriptorTable> = new Map<string, DescriptorTable>();
 }
 
 export class RenderPhase {
@@ -574,8 +578,12 @@ export class LayoutGraph implements impl.BidirectionalGraph
 }
 
 export class UniformData {
-    type: Type = Type.UNKNOWN;
-    valueID = 0xFFFFFFFF;
+    constructor (type: Type = Type.UNKNOWN, valueID = 0xFFFFFFFF) {
+        this.type = type;
+        this.valueID = valueID;
+    }
+    type: Type;
+    valueID: number;
 }
 
 export class UniformBlockData {
@@ -584,20 +592,32 @@ export class UniformBlockData {
 }
 
 export class DescriptorData {
-    iD = 0xFFFFFFFF;
-    type: Type = Type.UNKNOWN;
-    count = 0;
+    constructor (iD = 0xFFFFFFFF, type: Type = Type.UNKNOWN) {
+        this.iD = iD;
+        this.type = type;
+    }
+    iD: number;
+    type: Type;
+    count = 1;
 }
 
 export class DescriptorBlockData {
-    type: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK;
-    capacity = 0;
+    constructor (type: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK, capacity = 0) {
+        this.type = type;
+        this.capacity = capacity;
+    }
+    type: DescriptorIndex;
+    capacity: number;
     descriptors: DescriptorData[] = [];
 }
 
 export class DescriptorTableData {
-    slot = 0xFFFFFFFF;
-    capacity = 0;
+    constructor (slot = 0xFFFFFFFF, capacity = 0) {
+        this.slot = slot;
+        this.capacity = capacity;
+    }
+    slot: number;
+    capacity: number;
     descriptorBlocks: DescriptorBlockData[] = [];
     uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
 }
