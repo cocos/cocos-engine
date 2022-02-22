@@ -185,7 +185,7 @@ CCProgram toon-fs %{
   #endif
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])
   #endif
 
   void surf (out ToonSurface s) {
@@ -303,7 +303,7 @@ CCProgram shadow-caster-fs %{
   #endif
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])
   #endif
 
   vec4 frag () {

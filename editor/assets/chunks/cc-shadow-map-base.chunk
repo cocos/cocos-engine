@@ -6,7 +6,7 @@
 #include <cc-local-batch>
 
 // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
-#define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
+#pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 
 float CCGetLinearDepthFromViewSpace(vec3 viewPos) {
   float dist = length(viewPos);
@@ -357,4 +357,4 @@ float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 }
 #endif
 
-#define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) shadowPos = cc_matLightViewProj * pos
+#pragma define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) shadowPos = cc_matLightViewProj * pos

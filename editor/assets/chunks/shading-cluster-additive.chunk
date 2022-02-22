@@ -1,8 +1,8 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-#define CLUSTERS_X 16
-#define CLUSTERS_Y 8
-#define CLUSTERS_Z 24
-#define MAX_LIGHTS_PER_CLUSTER 100u
+#pragma define CLUSTERS_X 16
+#pragma define CLUSTERS_Y 8
+#pragma define CLUSTERS_Z 24
+#pragma define MAX_LIGHTS_PER_CLUSTER 100u
 
 #pragma glBinding(4)
 readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };

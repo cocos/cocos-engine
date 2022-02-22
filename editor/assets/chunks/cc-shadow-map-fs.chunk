@@ -4,7 +4,7 @@ in highp vec4 v_shadowPos;
 
 #include <cc-shadow-map-base>
 
-#define CC_SHADOW_POSITION v_shadowPos
+#pragma define CC_SHADOW_POSITION v_shadowPos
 
 // Just to be compatible with old projects only
 #if CC_RECEIVE_SHADOW

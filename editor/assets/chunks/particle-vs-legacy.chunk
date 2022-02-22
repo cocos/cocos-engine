@@ -35,7 +35,7 @@ vec4 lpvs_main () {
     #endif
   #endif
 
-  #define INDENTIFY_NEG_QUAT 10.0
+  #pragma define INDENTIFY_NEG_QUAT 10.0
 
   #if ROTATION_OVER_TIME_MODULE_ENABLE
     vec3 rotTmp = a_texCoord2;

@@ -6,7 +6,7 @@
 in float v_fog_factor;
 #endif
 
-#define CC_FOG_FACTOR v_fog_factor
+#pragma define CC_FOG_FACTOR v_fog_factor
 
 // Just to be compatible with old projects only
 // Do not support accurate fog

@@ -25,9 +25,9 @@ struct SpriteVertexInternalData {
   float filltype;
 };
 
-#define CC_VEC4_PRE_QUAD 5
-#define CC_UI_VECTOR_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / CC_VEC4_PRE_QUAD * CC_VEC4_PRE_QUAD // alignment with 5
-// #define CC_UI_VECTOR_PER_DRAW 16 * CC_VEC4_PRE_QUAD // for debug
+#pragma define CC_VEC4_PRE_QUAD 5
+#pragma define CC_UI_VECTOR_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / CC_VEC4_PRE_QUAD * CC_VEC4_PRE_QUAD // alignment with 5
+// #pragma define CC_UI_VECTOR_PER_DRAW 16 * CC_VEC4_PRE_QUAD // for debug
 #pragma builtin(local)
 layout(set = 2, binding = 5) uniform CCUILocal {
   vec4 cc_local_data[CC_UI_VECTOR_PER_DRAW];
