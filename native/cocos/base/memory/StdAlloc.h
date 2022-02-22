@@ -26,9 +26,9 @@ THE SOFTWARE.
 
 #pragma once
 
-    #include "base/Macros.h"
-    #include <limits>
-    #include <stdlib.h>
+#include "base/Macros.h"
+#include <limits>
+#include <stdlib.h>
 
 namespace cc {
 
@@ -42,37 +42,36 @@ namespace cc {
 class CC_DLL StdAllocPolicy {
 public:
     static inline CC_DECL_MALLOC void *AllocateBytesAligned(size_t alignment, size_t count,
-                                                               const char * = NULL, int = 0, const char * = NULL
-    ) {
-    #ifdef _MSC_VER
+                                                            const char * = NULL, int = 0, const char * = NULL) {
+#ifdef _MSC_VER
         void *ptr = _aligned_malloc(count, alignment);
-    #elif defined(__ANDROID__)
+#elif defined(__ANDROID__)
         //void* ptr = memalign(alignment, count);
-        unsigned char *p = (unsigned char *)malloc(count + alignment);
-        size_t offset = alignment - (size_t(p) & (alignment - 1));
-        unsigned char *ptr = p + offset;
-        ptr[-1] = (unsigned char)offset;
-    #else
-        CCASSERT(alignment % sizeof(void*) == 0, "alignment is not multiple of sizeof(void*)");
+        unsigned char *p      = (unsigned char *)malloc(count + alignment);
+        size_t         offset = alignment - (size_t(p) & (alignment - 1));
+        unsigned char *ptr    = p + offset;
+        ptr[-1]               = (unsigned char)offset;
+#else
+        CCASSERT(alignment % sizeof(void *) == 0, "alignment is not multiple of sizeof(void*)");
         void *ptr = NULL;
         posix_memalign(&ptr, alignment, count);
-    #endif
+#endif
         return ptr;
     }
 
     static inline void DeallocateBytesAligned(void *ptr) {
 
-    #ifdef _MSC_VER
+#ifdef _MSC_VER
         _aligned_free(ptr);
-    #elif defined(__ANDROID__)
+#elif defined(__ANDROID__)
         if (ptr) {
             unsigned char *mem = (unsigned char *)ptr;
-            mem = mem - mem[-1];
+            mem                = mem - mem[-1];
             free(mem);
         }
-    #else
+#else
         free(ptr);
-    #endif
+#endif
     }
 
 private:

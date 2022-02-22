@@ -28,27 +28,27 @@ THE SOFTWARE.
 
 #include "StdAlloc.h"
 
-    // aligned allocation
-    /// Allocate a block of raw memory aligned to user defined boundaries.
-    #define _CC_MALLOC_ALIGN(bytes, align)         ::cc::StdAllocPolicy::AllocateBytesAligned(align, bytes)
-    /// Free the memory allocated with either _CC_MALLOC_ALIGN or _CC_ALLOC_T_ALIGN.
-    #define _CC_FREE_ALIGN(ptr)                    ::cc::StdAllocPolicy::DeallocateBytesAligned((void *)ptr)
+// aligned allocation
+/// Allocate a block of raw memory aligned to user defined boundaries.
+#define _CC_MALLOC_ALIGN(bytes, align) ::cc::StdAllocPolicy::AllocateBytesAligned(align, bytes)
+/// Free the memory allocated with either _CC_MALLOC_ALIGN or _CC_ALLOC_T_ALIGN.
+#define _CC_FREE_ALIGN(ptr) ::cc::StdAllocPolicy::DeallocateBytesAligned((void *)ptr)
 
-    /// Allocate space for one primitive type, external type or non-virtual type aligned to user defined boundaries
-    #define _CC_NEW_ALIGN(T, align)              new (::cc::StdAllocPolicy::AllocateBytesAligned(align, sizeof(T))) T
-    #define _CC_NEW_ALIGN_ARGS(T, align, ...)    new (::cc::StdAllocPolicy::AllocateBytesAligned(align, sizeof(T))) T(__VA_ARGS__)
+/// Allocate space for one primitive type, external type or non-virtual type aligned to user defined boundaries
+#define _CC_NEW_ALIGN(T, align)           new (::cc::StdAllocPolicy::AllocateBytesAligned(align, sizeof(T))) T
+#define _CC_NEW_ALIGN_ARGS(T, align, ...) new (::cc::StdAllocPolicy::AllocateBytesAligned(align, sizeof(T))) T(__VA_ARGS__)
 
-    /// Free the memory allocated with _CC_NEW_ALIGN.
-    #define _CC_DELETE_ALIGN(ptr, T, align)                                  \
-        if (ptr) {                                                             \
-            (ptr)->~T();                                                       \
-            ::cc::StdAllocPolicy::DeallocateBytesAligned((void *)ptr); \
-        }
-    /// Free the memory allocated with _CC_NEW_ARRAY_ALIGN.
-    #define _CC_DELETE_ARRAY_ALIGN(ptr, T, count, align)                     \
-        if (ptr) {                                                             \
-            for (size_t _b = 0; _b < (size_t)count; ++_b) {                    \
-                (ptr)[_b].~T();                                                \
-            }                                                                  \
-            ::cc::StdAllocPolicy::DeallocateBytesAligned((void *)ptr); \
-        }
+/// Free the memory allocated with _CC_NEW_ALIGN.
+#define _CC_DELETE_ALIGN(ptr, T, align)                            \
+    if (ptr) {                                                     \
+        (ptr)->~T();                                               \
+        ::cc::StdAllocPolicy::DeallocateBytesAligned((void *)ptr); \
+    }
+/// Free the memory allocated with _CC_NEW_ARRAY_ALIGN.
+#define _CC_DELETE_ARRAY_ALIGN(ptr, T, count, align)               \
+    if (ptr) {                                                     \
+        for (size_t _b = 0; _b < (size_t)count; ++_b) {            \
+            (ptr)[_b].~T();                                        \
+        }                                                          \
+        ::cc::StdAllocPolicy::DeallocateBytesAligned((void *)ptr); \
+    }

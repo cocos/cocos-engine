@@ -303,7 +303,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 #define CC_DISALLOW_ASSIGN(TypeName)                \
     TypeName &operator=(const TypeName &) = delete; \
-TypeName &operator=(TypeName &&) = delete;
+    TypeName &operator=(TypeName &&) = delete;
 
 #define CC_DISALLOW_COPY_MOVE_ASSIGN(TypeName) \
     TypeName(const TypeName &) = delete;       \

@@ -39,14 +39,14 @@
 #undef CC_SAFE_DELETE_ARRAY
 #undef CC_SAFE_FREE
 
-#define CC_NEW(T)              new T
-#define CC_NEW_ALIGN(T, align) _CC_NEW_ALIGN(T, align)
-#define CC_NEW_ALIGN_ARGS(T, align, ...) _CC_NEW_ALIGN_ARGS(T, align, ...)
-#define CC_NEW_ARRAY(T, count) new T[count]
-#define CC_DELETE(ptr)         delete(ptr)
-#define CC_DELETE_ARRAY(ptr)   delete[](ptr)
-#define CC_DELETE_ALIGN(ptr, T, align) _CC_DELETE_ALIGN(ptr, T, align) 
-#define CC_DELETE_ARRAY_ALIGN(ptr, T, count, align) _CC_DELETE_ARRAY_ALIGN(ptr, T, count, align) 
+#define CC_NEW(T)                                   new T
+#define CC_NEW_ALIGN(T, align)                      _CC_NEW_ALIGN(T, align)
+#define CC_NEW_ALIGN_ARGS(T, align, ...)            _CC_NEW_ALIGN_ARGS(T, align, ...)
+#define CC_NEW_ARRAY(T, count)                      new T[count]
+#define CC_DELETE(ptr)                              delete (ptr)
+#define CC_DELETE_ARRAY(ptr)                        delete[](ptr)
+#define CC_DELETE_ALIGN(ptr, T, align)              _CC_DELETE_ALIGN(ptr, T, align)
+#define CC_DELETE_ARRAY_ALIGN(ptr, T, count, align) _CC_DELETE_ARRAY_ALIGN(ptr, T, count, align)
 #define CC_SAFE_DELETE(ptr) \
     if (ptr) {              \
         CC_DELETE(ptr);     \
@@ -58,11 +58,11 @@
         (ptr) = nullptr;          \
     }
 
-#define CC_MALLOC(bytes)       malloc(bytes)
-#define CC_MALLOC_ALIGN(bytes, align)         _CC_MALLOC_ALIGN(align, bytes)
-#define CC_REALLOC(ptr, bytes) realloc(ptr, bytes)
-#define CC_FREE(ptr)           free((void*)ptr)
-#define CC_FREE_ALIGN(ptr)     _CC_FREE_ALIGN(ptr)
+#define CC_MALLOC(bytes)              malloc(bytes)
+#define CC_MALLOC_ALIGN(bytes, align) _CC_MALLOC_ALIGN(align, bytes)
+#define CC_REALLOC(ptr, bytes)        realloc(ptr, bytes)
+#define CC_FREE(ptr)                  free((void *)ptr)
+#define CC_FREE_ALIGN(ptr)            _CC_FREE_ALIGN(ptr)
 #define CC_SAFE_FREE(ptr) \
     if (ptr) {            \
         CC_FREE(ptr);     \
@@ -87,21 +87,21 @@
         (ptr) = nullptr;          \
     }
 
-#define CC_SAFE_RELEASE(p)  \
-       if (p) {            \
-           (p)->release(); \
-       }                   
+#define CC_SAFE_RELEASE(p) \
+    if (p) {               \
+        (p)->release();    \
+    }
 
 #define CC_SAFE_RELEASE_NULL(p) \
-       if (p) {                \
-           (p)->release();     \
-           (p) = nullptr;      \
-       } 
-                             
+    if (p) {                    \
+        (p)->release();         \
+        (p) = nullptr;          \
+    }
+
 #define CC_SAFE_ADD_REF(p) \
-       if (p) {           \
-           (p)->addRef(); \
-       }                  
+    if (p) {               \
+        (p)->addRef();     \
+    }
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0)
     #define ALIGNAS(x)
