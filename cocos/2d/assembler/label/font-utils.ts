@@ -28,7 +28,6 @@
  * @hidden
  */
 
-import { screenAdapter } from 'pal/screen-adapter';
 import { FontAtlas } from '../../assets/bitmap-font';
 import { Color } from '../../../core/math';
 import { ImageAsset, Texture2D } from '../../../core/assets';
@@ -44,7 +43,6 @@ export interface ISharedLabelData {
 }
 
 let _canvasPool: CanvasPool;
-const _dpr =  Math.min(Math.ceil(screenAdapter.devicePixelRatio), 2);
 
 export class CanvasPool {
     static getInstance (): CanvasPool {
@@ -60,10 +58,6 @@ export class CanvasPool {
         if (!data) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-
-            context!.imageSmoothingEnabled = true;
-            context!.imageSmoothingQuality = 'high';
-
             data = {
                 canvas,
                 context,
@@ -165,10 +159,11 @@ class LetterTexture {
             this.context.font = this.labelInfo.fontDesc;
             const width = safeMeasureText(this.context, this.char, this.labelInfo.fontDesc);
             const blank = this.labelInfo.margin * 2 + bleed;
-            this.width = parseFloat(width.toFixed(2)) * _dpr + blank;
-            this.height = this.labelInfo.fontSize * _dpr + BASELINE_RATIO * this.labelInfo.fontSize + blank;
-            this.offsetY = -(this.labelInfo.fontSize *  BASELINE_RATIO) * _dpr / 2;
+            this.width = parseFloat(width.toFixed(2)) + blank;
+            this.height = (1 + BASELINE_RATIO) * this.labelInfo.fontSize + blank;
+            this.offsetY = -(this.labelInfo.fontSize * BASELINE_RATIO) / 2;
         }
+
         if (this.canvas.width !== this.width) {
             this.canvas.width = this.width;
         }
@@ -176,6 +171,7 @@ class LetterTexture {
         if (this.canvas.height !== this.height) {
             this.canvas.height = this.height;
         }
+
         if (!this.image) {
             this.image = new ImageAsset();
         }
@@ -183,25 +179,6 @@ class LetterTexture {
         this.image.reset(this.canvas);
     }
 
-    private _upScaleFontDpr (context: CanvasRenderingContext2D | null) {
-        if (!context) {
-            return;
-        }
-        context.font = context.font.replace(
-            /(\d+)(px|em|rem|pt)/g,
-            (w, m:string, u:string) => (+m * _dpr).toString() + u,
-        );
-    }
-
-    private _downScaleFontPx (context: CanvasRenderingContext2D | null) {
-        if (!context) {
-            return;
-        }
-        context.font = context.font.replace(
-            /(\d+)(px|em|rem|pt)/g,
-            (w, m:string, u:string) => (+m / _dpr).toString() + u,
-        );
-    }
     private _updateTexture () {
         if (!this.context || !this.canvas) {
             return;
@@ -222,20 +199,19 @@ class LetterTexture {
 
         const fontSize = labelInfo.fontSize;
         const startX = width / 2;
-        const startY = height / 2 + fontSize  * _dpr * ((BASELINE_RATIO / _dpr + 1) / 2 - BASELINE_RATIO / _dpr) + fontSize * _dpr * BASELINE_OFFSET;
+        const startY = height / 2 + fontSize * MIDDLE_RATIO + fontSize * BASELINE_OFFSET;
         const color = labelInfo.color;
         // use round for line join to avoid sharp intersect point
         context.lineJoin = 'round';
         context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${1})`;
-        this._upScaleFontDpr(context);
         if (labelInfo.isOutlined) {
             const strokeColor = labelInfo.out || WHITE;
             context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
-            context.lineWidth = labelInfo.margin * 2 * _dpr;
+            context.lineWidth = labelInfo.margin * 2;
             context.strokeText(this.char, startX, startY);
         }
         context.fillText(this.char, startX, startY);
-        this._downScaleFontPx(context);
+
         // this.texture.handleLoadedTexture();
         // (this.image as Texture2D).updateImage();
     }
@@ -322,15 +298,19 @@ export class LetterAtlas {
         if (!texture || !this.fontDefDictionary || !device) {
             return null;
         }
+
         const width = texture.width;
         const height = texture.height;
+
         if ((this._x + width + space) > this._width) {
             this._x = space;
             this._y = this._nextY;
         }
+
         if ((this._y + height) > this._nextY) {
             this._nextY = this._y + height + space;
         }
+
         if (this._nextY > this._height) {
             warnID(12100);
             return null;
