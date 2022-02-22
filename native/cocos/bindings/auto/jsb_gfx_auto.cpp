@@ -19840,7 +19840,7 @@ static bool js_gfx_Shader_getName(se::State& s) // NOLINT(readability-identifier
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->getName();
+        const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Shader_getName : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -21284,7 +21284,7 @@ static bool js_gfx_Device_getDeviceName(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->getDeviceName();
+        const std::string& result = cobj->getDeviceName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_getDeviceName : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -21499,7 +21499,7 @@ static bool js_gfx_Device_getRenderer(se::State& s) // NOLINT(readability-identi
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->getRenderer();
+        const std::string& result = cobj->getRenderer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_getRenderer : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -21562,7 +21562,7 @@ static bool js_gfx_Device_getVendor(se::State& s) // NOLINT(readability-identifi
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->getVendor();
+        const std::string& result = cobj->getVendor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Device_getVendor : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
