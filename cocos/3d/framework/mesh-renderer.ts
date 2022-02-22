@@ -354,6 +354,7 @@ export class MeshRenderer extends RenderableComponent {
         this._updateReceiveShadow();
         this._updateShadowBias();
         this._updateShadowNormalBias();
+        this._onUpdateLocalShadowBias();
         this._attachToScene();
     }
 
