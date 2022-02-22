@@ -71,13 +71,6 @@ if(ENABLE_SANDBOX)
     )
 endif()
 
-if(CUSTOM_COPY_RESOURCE_HOOK)
-add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${LIB_NAME}>/../Resources
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${RES_DIR}/assets $<TARGET_FILE_DIR:${LIB_NAME}>/../Resources
-)
-endif()
-
 get_property(gles2_loc TARGET GLESv2 PROPERTY IMPORTED_LOCATION)
 get_property(egl_loc TARGET EGL PROPERTY IMPORTED_LOCATION)
 add_custom_command(TARGET ${LIB_NAME} POST_BUILD
