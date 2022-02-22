@@ -171,7 +171,7 @@ const gfx::UniformBlock UBOLocal::LAYOUT = {
         {"cc_matWorld", gfx::Type::MAT4, 1},
         {"cc_matWorldIT", gfx::Type::MAT4, 1},
         {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1},
-        {"cc_localShadowMapBias", gfx::Type::FLOAT4, 1},
+        {"cc_localShadowBias", gfx::Type::FLOAT4, 1},
     },
     1,
 };
