@@ -35,63 +35,63 @@ namespace cc {
 
 namespace render {
 
-ConstantBuffer::ConstantBuffer(const allocator_type& alloc) noexcept
+ConstantBufferData::ConstantBufferData(const allocator_type& alloc) noexcept
 : constants(alloc) {}
 
-ConstantBuffer::ConstantBuffer(ConstantBuffer&& rhs, const allocator_type& alloc)
+ConstantBufferData::ConstantBufferData(ConstantBufferData&& rhs, const allocator_type& alloc)
 : size(rhs.size),
   constants(std::move(rhs.constants), alloc) {}
 
-ConstantBuffer::ConstantBuffer(ConstantBuffer const& rhs, const allocator_type& alloc)
+ConstantBufferData::ConstantBufferData(ConstantBufferData const& rhs, const allocator_type& alloc)
 : size(rhs.size),
   constants(rhs.constants, alloc) {}
 
-DescriptorBlock::DescriptorBlock(const allocator_type& alloc) noexcept
+DescriptorBlockData::DescriptorBlockData(const allocator_type& alloc) noexcept
 : attributeIDs(alloc) {}
 
-DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
+DescriptorBlockData::DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc)
 : type(rhs.type),
   capacity(rhs.capacity),
   attributeIDs(std::move(rhs.attributeIDs), alloc) {}
 
-DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
+DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc)
 : type(rhs.type),
   capacity(rhs.capacity),
   attributeIDs(rhs.attributeIDs, alloc) {}
 
-UnboundedDescriptor::UnboundedDescriptor(const allocator_type& alloc) noexcept
+UnboundedDescriptorData::UnboundedDescriptorData(const allocator_type& alloc) noexcept
 : descriptors(alloc) {}
 
-UnboundedDescriptor::UnboundedDescriptor(UnboundedDescriptor&& rhs, const allocator_type& alloc)
+UnboundedDescriptorData::UnboundedDescriptorData(UnboundedDescriptorData&& rhs, const allocator_type& alloc)
 : type(rhs.type),
   descriptors(std::move(rhs.descriptors), alloc) {}
 
-UnboundedDescriptor::UnboundedDescriptor(UnboundedDescriptor const& rhs, const allocator_type& alloc)
+UnboundedDescriptorData::UnboundedDescriptorData(UnboundedDescriptorData const& rhs, const allocator_type& alloc)
 : type(rhs.type),
   descriptors(rhs.descriptors, alloc) {}
 
-DescriptorTable::DescriptorTable(const allocator_type& alloc) noexcept
+DescriptorTableData::DescriptorTableData(const allocator_type& alloc) noexcept
 : blocks(alloc) {}
 
-DescriptorTable::DescriptorTable(DescriptorTable&& rhs, const allocator_type& alloc)
+DescriptorTableData::DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc)
 : slot(rhs.slot),
   capacity(rhs.capacity),
   blocks(std::move(rhs.blocks), alloc) {}
 
-DescriptorTable::DescriptorTable(DescriptorTable const& rhs, const allocator_type& alloc)
+DescriptorTableData::DescriptorTableData(DescriptorTableData const& rhs, const allocator_type& alloc)
 : slot(rhs.slot),
   capacity(rhs.capacity),
   blocks(rhs.blocks, alloc) {}
 
-DescriptorSet::DescriptorSet(const allocator_type& alloc) noexcept
+DescriptorSetData::DescriptorSetData(const allocator_type& alloc) noexcept
 : tables(alloc),
   unbounded(alloc) {}
 
-DescriptorSet::DescriptorSet(DescriptorSet&& rhs, const allocator_type& alloc)
+DescriptorSetData::DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc)
 : tables(std::move(rhs.tables), alloc),
   unbounded(std::move(rhs.unbounded), alloc) {}
 
-DescriptorSet::DescriptorSet(DescriptorSet const& rhs, const allocator_type& alloc)
+DescriptorSetData::DescriptorSetData(DescriptorSetData const& rhs, const allocator_type& alloc)
 : tables(rhs.tables, alloc),
   unbounded(rhs.unbounded, alloc) {}
 

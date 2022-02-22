@@ -44,28 +44,28 @@ namespace cc {
 
 namespace render {
 
-struct Constant {
+struct ConstantData {
     ValueType type;
     uint32_t  valueID{0xFFFFFFFF};
 };
 
-struct ConstantBuffer {
+struct ConstantBufferData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {constants.get_allocator().resource()};
     }
 
-    ConstantBuffer(const allocator_type& alloc) noexcept; // NOLINT
-    ConstantBuffer(ConstantBuffer&& rhs, const allocator_type& alloc);
-    ConstantBuffer(ConstantBuffer const& rhs, const allocator_type& alloc);
+    ConstantBufferData(const allocator_type& alloc) noexcept; // NOLINT
+    ConstantBufferData(ConstantBufferData&& rhs, const allocator_type& alloc);
+    ConstantBufferData(ConstantBufferData const& rhs, const allocator_type& alloc);
 
-    ConstantBuffer(ConstantBuffer&& rhs) noexcept = default;
-    ConstantBuffer(ConstantBuffer const& rhs)     = delete;
-    ConstantBuffer& operator=(ConstantBuffer&& rhs) = default;
-    ConstantBuffer& operator=(ConstantBuffer const& rhs) = default;
+    ConstantBufferData(ConstantBufferData&& rhs) noexcept = default;
+    ConstantBufferData(ConstantBufferData const& rhs)     = delete;
+    ConstantBufferData& operator=(ConstantBufferData&& rhs) = default;
+    ConstantBufferData& operator=(ConstantBufferData const& rhs) = default;
 
-    uint32_t                                size{0};
-    boost::container::pmr::vector<Constant> constants;
+    uint32_t                                    size{0};
+    boost::container::pmr::vector<ConstantData> constants;
 };
 
 using DescriptorType = boost::variant2::variant<CBufferTag, RWBufferTag, RWTextureTag, BufferTag, TextureTag, SamplerTag>;
@@ -82,87 +82,87 @@ inline bool operator!=(const DescriptorType& lhs, const DescriptorType& rhs) noe
     return !(lhs == rhs);
 }
 
-struct DescriptorBlock {
+struct DescriptorBlockData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {attributeIDs.get_allocator().resource()};
     }
 
-    DescriptorBlock(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc);
-    DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc);
+    DescriptorBlockData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc);
+    DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc);
 
-    DescriptorBlock(DescriptorBlock&& rhs) noexcept = default;
-    DescriptorBlock(DescriptorBlock const& rhs)     = delete;
-    DescriptorBlock& operator=(DescriptorBlock&& rhs) = default;
-    DescriptorBlock& operator=(DescriptorBlock const& rhs) = default;
+    DescriptorBlockData(DescriptorBlockData&& rhs) noexcept = default;
+    DescriptorBlockData(DescriptorBlockData const& rhs)     = delete;
+    DescriptorBlockData& operator=(DescriptorBlockData&& rhs) = default;
+    DescriptorBlockData& operator=(DescriptorBlockData const& rhs) = default;
 
     DescriptorType                          type;
     uint32_t                                capacity{0};
     boost::container::pmr::vector<uint32_t> attributeIDs;
 };
 
-struct DescriptorArray {
+struct DescriptorArrayData {
     uint32_t capacity{0};
     uint32_t attributeID{0xFFFFFFFF};
 };
 
-struct UnboundedDescriptor {
+struct UnboundedDescriptorData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {descriptors.get_allocator().resource()};
     }
 
-    UnboundedDescriptor(const allocator_type& alloc) noexcept; // NOLINT
-    UnboundedDescriptor(UnboundedDescriptor&& rhs, const allocator_type& alloc);
-    UnboundedDescriptor(UnboundedDescriptor const& rhs, const allocator_type& alloc);
+    UnboundedDescriptorData(const allocator_type& alloc) noexcept; // NOLINT
+    UnboundedDescriptorData(UnboundedDescriptorData&& rhs, const allocator_type& alloc);
+    UnboundedDescriptorData(UnboundedDescriptorData const& rhs, const allocator_type& alloc);
 
-    UnboundedDescriptor(UnboundedDescriptor&& rhs) noexcept = default;
-    UnboundedDescriptor(UnboundedDescriptor const& rhs)     = delete;
-    UnboundedDescriptor& operator=(UnboundedDescriptor&& rhs) = default;
-    UnboundedDescriptor& operator=(UnboundedDescriptor const& rhs) = default;
+    UnboundedDescriptorData(UnboundedDescriptorData&& rhs) noexcept = default;
+    UnboundedDescriptorData(UnboundedDescriptorData const& rhs)     = delete;
+    UnboundedDescriptorData& operator=(UnboundedDescriptorData&& rhs) = default;
+    UnboundedDescriptorData& operator=(UnboundedDescriptorData const& rhs) = default;
 
-    DescriptorType                                 type;
-    boost::container::pmr::vector<DescriptorArray> descriptors;
+    DescriptorType                                     type;
+    boost::container::pmr::vector<DescriptorArrayData> descriptors;
 };
 
-struct DescriptorTable {
+struct DescriptorTableData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {blocks.get_allocator().resource()};
     }
 
-    DescriptorTable(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorTable(DescriptorTable&& rhs, const allocator_type& alloc);
-    DescriptorTable(DescriptorTable const& rhs, const allocator_type& alloc);
+    DescriptorTableData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc);
+    DescriptorTableData(DescriptorTableData const& rhs, const allocator_type& alloc);
 
-    DescriptorTable(DescriptorTable&& rhs) noexcept = default;
-    DescriptorTable(DescriptorTable const& rhs)     = delete;
-    DescriptorTable& operator=(DescriptorTable&& rhs) = default;
-    DescriptorTable& operator=(DescriptorTable const& rhs) = default;
+    DescriptorTableData(DescriptorTableData&& rhs) noexcept = default;
+    DescriptorTableData(DescriptorTableData const& rhs)     = delete;
+    DescriptorTableData& operator=(DescriptorTableData&& rhs) = default;
+    DescriptorTableData& operator=(DescriptorTableData const& rhs) = default;
 
-    uint32_t                                       slot{0};
-    uint32_t                                       capacity{0};
-    boost::container::pmr::vector<DescriptorBlock> blocks;
+    uint32_t                                           slot{0};
+    uint32_t                                           capacity{0};
+    boost::container::pmr::vector<DescriptorBlockData> blocks;
 };
 
-struct DescriptorSet {
+struct DescriptorSetData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {tables.get_allocator().resource()};
     }
 
-    DescriptorSet(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorSet(DescriptorSet&& rhs, const allocator_type& alloc);
-    DescriptorSet(DescriptorSet const& rhs, const allocator_type& alloc);
+    DescriptorSetData(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc);
+    DescriptorSetData(DescriptorSetData const& rhs, const allocator_type& alloc);
 
-    DescriptorSet(DescriptorSet&& rhs) noexcept = default;
-    DescriptorSet(DescriptorSet const& rhs)     = delete;
-    DescriptorSet& operator=(DescriptorSet&& rhs) = default;
-    DescriptorSet& operator=(DescriptorSet const& rhs) = default;
+    DescriptorSetData(DescriptorSetData&& rhs) noexcept = default;
+    DescriptorSetData(DescriptorSetData const& rhs)     = delete;
+    DescriptorSetData& operator=(DescriptorSetData&& rhs) = default;
+    DescriptorSetData& operator=(DescriptorSetData const& rhs) = default;
 
-    boost::container::pmr::vector<DescriptorTable> tables;
-    UnboundedDescriptor                            unbounded;
+    boost::container::pmr::vector<DescriptorTableData> tables;
+    UnboundedDescriptorData                            unbounded;
 };
 
 struct LayoutData {
@@ -180,8 +180,8 @@ struct LayoutData {
     LayoutData& operator=(LayoutData&& rhs) = default;
     LayoutData& operator=(LayoutData const& rhs) = default;
 
-    PmrTransparentMap<ParameterType, ConstantBuffer> constantBuffers;
-    PmrTransparentMap<ParameterType, DescriptorSet>  descriptorSets;
+    PmrTransparentMap<ParameterType, ConstantBufferData> constantBuffers;
+    PmrTransparentMap<ParameterType, DescriptorSetData>  descriptorSets;
 };
 
 struct ShaderProgramData {

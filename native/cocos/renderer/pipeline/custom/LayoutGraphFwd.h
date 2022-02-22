@@ -37,16 +37,16 @@ namespace cc {
 
 namespace render {
 
-struct Constant;
-struct ConstantBuffer;
+struct ConstantData;
+struct ConstantBufferData;
 
 using DescriptorType = boost::variant2::variant<CBufferTag, RWBufferTag, RWTextureTag, BufferTag, TextureTag, SamplerTag>;
 
-struct DescriptorBlock;
-struct DescriptorArray;
-struct UnboundedDescriptor;
-struct DescriptorTable;
-struct DescriptorSet;
+struct DescriptorBlockData;
+struct DescriptorArrayData;
+struct UnboundedDescriptorData;
+struct DescriptorTableData;
+struct DescriptorSetData;
 struct LayoutData;
 struct ShaderProgramData;
 struct GroupNodeData;

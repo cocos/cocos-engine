@@ -37,13 +37,13 @@ namespace cc {
 
 namespace render {
 
-inline const char* getName(const Constant& /*v*/) noexcept { return "Constant"; }
-inline const char* getName(const ConstantBuffer& /*v*/) noexcept { return "ConstantBuffer"; }
-inline const char* getName(const DescriptorBlock& /*v*/) noexcept { return "DescriptorBlock"; }
-inline const char* getName(const DescriptorArray& /*v*/) noexcept { return "DescriptorArray"; }
-inline const char* getName(const UnboundedDescriptor& /*v*/) noexcept { return "UnboundedDescriptor"; }
-inline const char* getName(const DescriptorTable& /*v*/) noexcept { return "DescriptorTable"; }
-inline const char* getName(const DescriptorSet& /*v*/) noexcept { return "DescriptorSet"; }
+inline const char* getName(const ConstantData& /*v*/) noexcept { return "ConstantData"; }
+inline const char* getName(const ConstantBufferData& /*v*/) noexcept { return "ConstantBufferData"; }
+inline const char* getName(const DescriptorBlockData& /*v*/) noexcept { return "DescriptorBlockData"; }
+inline const char* getName(const DescriptorArrayData& /*v*/) noexcept { return "DescriptorArrayData"; }
+inline const char* getName(const UnboundedDescriptorData& /*v*/) noexcept { return "UnboundedDescriptorData"; }
+inline const char* getName(const DescriptorTableData& /*v*/) noexcept { return "DescriptorTableData"; }
+inline const char* getName(const DescriptorSetData& /*v*/) noexcept { return "DescriptorSetData"; }
 inline const char* getName(const LayoutData& /*v*/) noexcept { return "LayoutData"; }
 inline const char* getName(const ShaderProgramData& /*v*/) noexcept { return "ShaderProgramData"; }
 inline const char* getName(const GroupNodeData& /*v*/) noexcept { return "GroupNodeData"; }

@@ -32,14 +32,14 @@
 import * as impl from './graph';
 import { NodeType, ParameterType, UpdateFrequency, ValueType } from './types';
 
-export class Constant {
+export class ConstantData {
     type: ValueType = ValueType.Typeless;
     valueID = 0xFFFFFFFF;
 }
 
-export class ConstantBuffer {
+export class ConstantBufferData {
     size = 0;
-    constants: Constant[] = [];
+    constants: ConstantData[] = [];
 }
 
 export const enum DescriptorType {
@@ -51,36 +51,36 @@ export const enum DescriptorType {
     Sampler,
 }
 
-export class DescriptorBlock {
+export class DescriptorBlockData {
     type: DescriptorType = DescriptorType.CBuffer;
     capacity = 0;
     attributeIDs: Uint32Array = new Uint32Array(0);
 }
 
-export class DescriptorArray {
+export class DescriptorArrayData {
     capacity = 0;
     attributeID = 0xFFFFFFFF;
 }
 
-export class UnboundedDescriptor {
+export class UnboundedDescriptorData {
     type: DescriptorType = DescriptorType.CBuffer;
-    descriptors: DescriptorArray[] = [];
+    descriptors: DescriptorArrayData[] = [];
 }
 
-export class DescriptorTable {
+export class DescriptorTableData {
     slot = 0;
     capacity = 0;
-    blocks: DescriptorBlock[] = [];
+    blocks: DescriptorBlockData[] = [];
 }
 
-export class DescriptorSet {
-    tables: DescriptorTable[] = [];
-    unbounded: UnboundedDescriptor = new UnboundedDescriptor();
+export class DescriptorSetData {
+    tables: DescriptorTableData[] = [];
+    unbounded: UnboundedDescriptorData = new UnboundedDescriptorData();
 }
 
 export class LayoutData {
-    constantBuffers: Map<ParameterType, ConstantBuffer> = new Map<ParameterType, ConstantBuffer>();
-    descriptorSets: Map<ParameterType, DescriptorSet> = new Map<ParameterType, DescriptorSet>();
+    constantBuffers: Map<ParameterType, ConstantBufferData> = new Map<ParameterType, ConstantBufferData>();
+    descriptorSets: Map<ParameterType, DescriptorSetData> = new Map<ParameterType, DescriptorSetData>();
 }
 
 export class ShaderProgramData {
