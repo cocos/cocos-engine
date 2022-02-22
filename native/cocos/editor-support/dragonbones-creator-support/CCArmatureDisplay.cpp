@@ -58,7 +58,7 @@ CCArmatureDisplay::CCArmatureDisplay() {
 }
 
 CCArmatureDisplay::~CCArmatureDisplay() {
-    dispose(true);
+    dispose();
 
     if (_debugBuffer) {
         delete _debugBuffer;
@@ -76,7 +76,7 @@ CCArmatureDisplay::~CCArmatureDisplay() {
     }
 }
 
-void CCArmatureDisplay::dispose(bool /*disposeProxy*/) {
+void CCArmatureDisplay::dispose() {
     if (_armature != nullptr) {
         _armature->dispose();
         _armature = nullptr;

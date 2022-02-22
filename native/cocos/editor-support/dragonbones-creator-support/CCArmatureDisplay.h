@@ -82,7 +82,7 @@ public:
     /**
      * @inheritDoc
      */
-    void dispose(bool disposeProxy) override;
+    void dispose() override;
     /**
      * @inheritDoc
      */
