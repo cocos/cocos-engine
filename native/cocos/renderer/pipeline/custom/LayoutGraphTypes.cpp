@@ -35,98 +35,178 @@ namespace cc {
 
 namespace render {
 
-ConstantBufferData::ConstantBufferData(const allocator_type& alloc) noexcept
-: constants(alloc) {}
+UniformBlockDB::UniformBlockDB(const allocator_type& alloc) noexcept
+: values(alloc) {}
 
-ConstantBufferData::ConstantBufferData(ConstantBufferData&& rhs, const allocator_type& alloc)
-: size(rhs.size),
-  constants(std::move(rhs.constants), alloc) {}
+UniformBlockDB::UniformBlockDB(UniformBlockDB&& rhs, const allocator_type& alloc)
+: values(std::move(rhs.values), alloc) {}
 
-ConstantBufferData::ConstantBufferData(ConstantBufferData const& rhs, const allocator_type& alloc)
+UniformBlockDB::UniformBlockDB(UniformBlockDB const& rhs, const allocator_type& alloc)
+: values(rhs.values, alloc) {}
+
+DescriptorBlock::DescriptorBlock(const allocator_type& alloc) noexcept
+: uniforms(alloc) {}
+
+DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
+: uniforms(std::move(rhs.uniforms), alloc) {}
+
+DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
+: uniforms(rhs.uniforms, alloc) {}
+
+DescriptorTable::DescriptorTable(const allocator_type& alloc) noexcept
+: descriptorBlocks(alloc),
+  uniformBlocks(alloc) {}
+
+DescriptorTable::DescriptorTable(DescriptorTable&& rhs, const allocator_type& alloc)
+: descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
+  uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
+
+DescriptorTable::DescriptorTable(DescriptorTable const& rhs, const allocator_type& alloc)
+: descriptorBlocks(rhs.descriptorBlocks, alloc),
+  uniformBlocks(rhs.uniformBlocks, alloc) {}
+
+DescriptorDB::DescriptorDB(const allocator_type& alloc) noexcept
+: tables(alloc) {}
+
+DescriptorDB::DescriptorDB(DescriptorDB&& rhs, const allocator_type& alloc)
+: tables(std::move(rhs.tables), alloc) {}
+
+DescriptorDB::DescriptorDB(DescriptorDB const& rhs, const allocator_type& alloc)
+: tables(rhs.tables, alloc) {}
+
+RenderPhase::RenderPhase(const allocator_type& alloc) noexcept
+: shaders(alloc) {}
+
+RenderPhase::RenderPhase(RenderPhase&& rhs, const allocator_type& alloc)
+: shaders(std::move(rhs.shaders), alloc) {}
+
+RenderPhase::RenderPhase(RenderPhase const& rhs, const allocator_type& alloc)
+: shaders(rhs.shaders, alloc) {}
+
+LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
+: vertices(alloc),
+  names(alloc),
+  descriptors(alloc),
+  stages(alloc),
+  phases(alloc),
+  pathIndex(alloc) {}
+
+LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
+: vertices(std::move(rhs.vertices), alloc),
+  names(std::move(rhs.names), alloc),
+  descriptors(std::move(rhs.descriptors), alloc),
+  stages(std::move(rhs.stages), alloc),
+  phases(std::move(rhs.phases), alloc),
+  pathIndex(std::move(rhs.pathIndex), alloc) {}
+
+LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
+: vertices(rhs.vertices, alloc),
+  names(rhs.names, alloc),
+  descriptors(rhs.descriptors, alloc),
+  stages(rhs.stages, alloc),
+  phases(rhs.phases, alloc),
+  pathIndex(rhs.pathIndex, alloc) {}
+
+// ContinuousContainer
+void LayoutGraph::reserve(vertices_size_type sz) {
+    vertices.reserve(sz);
+    names.reserve(sz);
+    descriptors.reserve(sz);
+}
+
+LayoutGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
+: outEdges(alloc),
+  inEdges(alloc) {}
+
+LayoutGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
+: outEdges(std::move(rhs.outEdges), alloc),
+  inEdges(std::move(rhs.inEdges), alloc),
+  handle(std::move(rhs.handle)) {}
+
+LayoutGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
+: outEdges(rhs.outEdges, alloc),
+  inEdges(rhs.inEdges, alloc),
+  handle(rhs.handle) {}
+
+UniformBlockData::UniformBlockData(const allocator_type& alloc) noexcept
+: values(alloc) {}
+
+UniformBlockData::UniformBlockData(UniformBlockData&& rhs, const allocator_type& alloc)
 : size(rhs.size),
-  constants(rhs.constants, alloc) {}
+  values(std::move(rhs.values), alloc) {}
+
+UniformBlockData::UniformBlockData(UniformBlockData const& rhs, const allocator_type& alloc)
+: size(rhs.size),
+  values(rhs.values, alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(const allocator_type& alloc) noexcept
-: attributeIDs(alloc) {}
+: descriptors(alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc)
 : type(rhs.type),
   capacity(rhs.capacity),
-  attributeIDs(std::move(rhs.attributeIDs), alloc) {}
+  descriptors(std::move(rhs.descriptors), alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc)
 : type(rhs.type),
   capacity(rhs.capacity),
-  attributeIDs(rhs.attributeIDs, alloc) {}
-
-UnboundedDescriptorData::UnboundedDescriptorData(const allocator_type& alloc) noexcept
-: descriptors(alloc) {}
-
-UnboundedDescriptorData::UnboundedDescriptorData(UnboundedDescriptorData&& rhs, const allocator_type& alloc)
-: type(rhs.type),
-  descriptors(std::move(rhs.descriptors), alloc) {}
-
-UnboundedDescriptorData::UnboundedDescriptorData(UnboundedDescriptorData const& rhs, const allocator_type& alloc)
-: type(rhs.type),
   descriptors(rhs.descriptors, alloc) {}
 
 DescriptorTableData::DescriptorTableData(const allocator_type& alloc) noexcept
-: blocks(alloc) {}
+: descriptorBlocks(alloc),
+  uniformBlocks(alloc) {}
 
 DescriptorTableData::DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc)
 : slot(rhs.slot),
   capacity(rhs.capacity),
-  blocks(std::move(rhs.blocks), alloc) {}
+  descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
+  uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
 
 DescriptorTableData::DescriptorTableData(DescriptorTableData const& rhs, const allocator_type& alloc)
 : slot(rhs.slot),
   capacity(rhs.capacity),
-  blocks(rhs.blocks, alloc) {}
+  descriptorBlocks(rhs.descriptorBlocks, alloc),
+  uniformBlocks(rhs.uniformBlocks, alloc) {}
 
 DescriptorSetData::DescriptorSetData(const allocator_type& alloc) noexcept
-: tables(alloc),
-  unbounded(alloc) {}
+: tables(alloc) {}
 
 DescriptorSetData::DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc)
-: tables(std::move(rhs.tables), alloc),
-  unbounded(std::move(rhs.unbounded), alloc) {}
+: tables(std::move(rhs.tables), alloc) {}
 
 DescriptorSetData::DescriptorSetData(DescriptorSetData const& rhs, const allocator_type& alloc)
-: tables(rhs.tables, alloc),
-  unbounded(rhs.unbounded, alloc) {}
+: tables(rhs.tables, alloc) {}
 
-LayoutData::LayoutData(const allocator_type& alloc) noexcept
-: constantBuffers(alloc),
-  descriptorSets(alloc) {}
+PipelineLayoutData::PipelineLayoutData(const allocator_type& alloc) noexcept
+: descriptorSets(alloc) {}
 
-LayoutData::LayoutData(LayoutData&& rhs, const allocator_type& alloc)
-: constantBuffers(std::move(rhs.constantBuffers), alloc),
-  descriptorSets(std::move(rhs.descriptorSets), alloc) {}
+PipelineLayoutData::PipelineLayoutData(PipelineLayoutData&& rhs, const allocator_type& alloc)
+: descriptorSets(std::move(rhs.descriptorSets), alloc) {}
 
-LayoutData::LayoutData(LayoutData const& rhs, const allocator_type& alloc)
-: constantBuffers(rhs.constantBuffers, alloc),
-  descriptorSets(rhs.descriptorSets, alloc) {}
+PipelineLayoutData::PipelineLayoutData(PipelineLayoutData const& rhs, const allocator_type& alloc)
+: descriptorSets(rhs.descriptorSets, alloc) {}
 
 ShaderProgramData::ShaderProgramData(const allocator_type& alloc) noexcept
-: layouts(alloc) {}
+: layout(alloc) {}
 
 ShaderProgramData::ShaderProgramData(ShaderProgramData&& rhs, const allocator_type& alloc)
-: layouts(std::move(rhs.layouts), alloc) {}
+: layout(std::move(rhs.layout), alloc) {}
 
 ShaderProgramData::ShaderProgramData(ShaderProgramData const& rhs, const allocator_type& alloc)
-: layouts(rhs.layouts, alloc) {}
+: layout(rhs.layout, alloc) {}
 
-ShaderNodeData::ShaderNodeData(const allocator_type& alloc) noexcept
-: shaderPrograms(alloc),
+RenderPhaseData::RenderPhaseData(const allocator_type& alloc) noexcept
+: rootSignature(alloc),
+  shaderPrograms(alloc),
   shaderIndex(alloc) {}
 
-ShaderNodeData::ShaderNodeData(ShaderNodeData&& rhs, const allocator_type& alloc)
-: rootSignature(std::move(rhs.rootSignature)),
+RenderPhaseData::RenderPhaseData(RenderPhaseData&& rhs, const allocator_type& alloc)
+: rootSignature(std::move(rhs.rootSignature), alloc),
   shaderPrograms(std::move(rhs.shaderPrograms), alloc),
   shaderIndex(std::move(rhs.shaderIndex), alloc) {}
 
-ShaderNodeData::ShaderNodeData(ShaderNodeData const& rhs, const allocator_type& alloc)
-: rootSignature(rhs.rootSignature),
+RenderPhaseData::RenderPhaseData(RenderPhaseData const& rhs, const allocator_type& alloc)
+: rootSignature(rhs.rootSignature, alloc),
   shaderPrograms(rhs.shaderPrograms, alloc),
   shaderIndex(rhs.shaderIndex, alloc) {}
 
@@ -135,8 +215,8 @@ LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
   names(alloc),
   updateFrequencies(alloc),
   layouts(alloc),
-  groupNodes(alloc),
-  shaderNodes(alloc),
+  stages(alloc),
+  phases(alloc),
   pathIndex(alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
@@ -144,8 +224,8 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& al
   names(std::move(rhs.names), alloc),
   updateFrequencies(std::move(rhs.updateFrequencies), alloc),
   layouts(std::move(rhs.layouts), alloc),
-  groupNodes(std::move(rhs.groupNodes), alloc),
-  shaderNodes(std::move(rhs.shaderNodes), alloc),
+  stages(std::move(rhs.stages), alloc),
+  phases(std::move(rhs.phases), alloc),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData const& rhs, const allocator_type& alloc)
@@ -153,8 +233,8 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData const& rhs, const allocator_typ
   names(rhs.names, alloc),
   updateFrequencies(rhs.updateFrequencies, alloc),
   layouts(rhs.layouts, alloc),
-  groupNodes(rhs.groupNodes, alloc),
-  shaderNodes(rhs.shaderNodes, alloc),
+  stages(rhs.stages, alloc),
+  phases(rhs.phases, alloc),
   pathIndex(rhs.pathIndex, alloc) {}
 
 // ContinuousContainer

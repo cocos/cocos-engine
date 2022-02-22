@@ -484,11 +484,11 @@ int RenderCompiler::compile() {
     addVertex(
         "name",
         UpdateFrequency::PER_INSTANCE,
-        LayoutData(scratch),
-        GroupNodeData{},
+        PipelineLayoutData(scratch),
+        uint32_t(0),
         layoutGraph);
 
-    addVertex(ShaderTag{},
+    addVertex(RenderPhaseTag{},
         std::forward_as_tuple("name"),
         std::forward_as_tuple(UpdateFrequency::PER_INSTANCE),
         std::forward_as_tuple(),

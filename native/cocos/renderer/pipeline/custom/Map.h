@@ -37,6 +37,16 @@ namespace cc {
 
 // map
 template <class Key, class Value>
+using PmrMap = std::map<
+    Key, Value, std::less<Key>,
+    boost::container::pmr::polymorphic_allocator<std::pair<const Key, Value>>>;
+
+template <class Key, class Value>
+using PmrMultiMap = std::multimap<
+    Key, Value, std::less<Key>,
+    boost::container::pmr::polymorphic_allocator<std::pair<const Key, Value>>>;
+
+template <class Key, class Value>
 using TransparentMap = std::map<Key, Value, std::less<>>;
 
 template <class Key, class Value>

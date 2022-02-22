@@ -38,11 +38,11 @@ export const enum UpdateFrequency {
 }
 
 export const enum ParameterType {
-    Constants,
+    CONSTANTS,
     CBV,
     UAV,
     SRV,
-    Table,
+    TABLE,
     SSV,
 }
 

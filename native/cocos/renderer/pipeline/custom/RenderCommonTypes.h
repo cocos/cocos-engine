@@ -44,32 +44,16 @@ enum class UpdateFrequency {
     COUNT,
 };
 
-struct CBVTag {};
-struct UAVTag {};
-struct SRVTag {};
-struct SSVTag {};
-struct RTVTag {};
-struct DSVTag {};
-struct IBVTag {};
-struct VBVTag {};
-struct SOVTag {};
+enum class ParameterType {
+    CONSTANTS,
+    CBV,
+    UAV,
+    SRV,
+    TABLE,
+    SSV,
+};
+
 struct ConstantsTag {};
-struct TableTag {};
-
-using ParameterType = boost::variant2::variant<ConstantsTag, CBVTag, UAVTag, SRVTag, TableTag, SSVTag>;
-
-inline bool operator<(const ParameterType& lhs, const ParameterType& rhs) noexcept {
-    return lhs.index() < rhs.index();
-}
-
-inline bool operator==(const ParameterType& lhs, const ParameterType& rhs) noexcept {
-    return lhs.index() == rhs.index();
-}
-
-inline bool operator!=(const ParameterType& lhs, const ParameterType& rhs) noexcept {
-    return !(lhs == rhs);
-}
-
 struct BoundedTag {};
 struct UnboundedTag {};
 

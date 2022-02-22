@@ -37,21 +37,9 @@ namespace cc {
 namespace render {
 
 enum class UpdateFrequency;
+enum class ParameterType;
 
-struct CBVTag;
-struct UAVTag;
-struct SRVTag;
-struct SSVTag;
-struct RTVTag;
-struct DSVTag;
-struct IBVTag;
-struct VBVTag;
-struct SOVTag;
 struct ConstantsTag;
-struct TableTag;
-
-using ParameterType = boost::variant2::variant<ConstantsTag, CBVTag, UAVTag, SRVTag, TableTag, SSVTag>;
-
 struct BoundedTag;
 struct UnboundedTag;
 
