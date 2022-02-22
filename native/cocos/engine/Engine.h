@@ -125,7 +125,7 @@ private:
     bool                       _needRestart{false};
 
     std::map<OSEventType, EventCb> _eventCallbacks;
-    CC_DISABLE_COPY_AND_MOVE_SEMANTICS(Engine);
+    CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
 };
 
 } // namespace cc

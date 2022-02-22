@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include "cocos/base/Log.h"
 #include "cocos/platform/FileUtils.h"
+#include "cocos/base/memory/Memory.h"
 
 #if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
     #include "DeviceEx.h"

@@ -614,15 +614,9 @@ cocos_source_files(MODULE ccunzip
 cocos_source_files(
                  cocos/base/memory/AllocatedObj.cpp
                  cocos/base/memory/AllocatedObj.h
-                 cocos/base/memory/JeAlloc.cpp
-                 cocos/base/memory/JeAlloc.h
                  cocos/base/memory/MemDef.h
                  cocos/base/memory/Memory.cpp
                  cocos/base/memory/Memory.h
-                 cocos/base/memory/MemTracker.cpp
-                 cocos/base/memory/MemTracker.h
-                 cocos/base/memory/NedPooling.cpp
-                 cocos/base/memory/NedPooling.h
                  cocos/base/memory/StdAlloc.h
                  cocos/base/memory/StlAlloc.h
                  cocos/base/memory/MemoryHook.cpp

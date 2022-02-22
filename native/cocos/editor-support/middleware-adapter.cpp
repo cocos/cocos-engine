@@ -25,7 +25,7 @@
 
 #include "middleware-adapter.h"
 #include "base/DeferredReleasePool.h"
-#include "base/Macros.h"
+#include "base/memory/Memory.h"
 
 MIDDLEWARE_BEGIN
 

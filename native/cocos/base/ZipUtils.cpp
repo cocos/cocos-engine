@@ -48,6 +48,7 @@
 #include "base/Data.h"
 #include "base/Locked.h"
 #include "platform/FileUtils.h"
+#include "base/memory/Memory.h"
 
 // minizip 1.2.0 is same with other platforms
 #ifndef unzGoToFirstFile64

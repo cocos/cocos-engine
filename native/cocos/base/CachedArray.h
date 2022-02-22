@@ -29,6 +29,7 @@
 #include <climits>
 #include "base/Object.h"
 #include "base/TypeDef.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 

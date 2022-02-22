@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "memory/Memory.h"
+#include "base/memory/AllocatedObj.h"
 
 namespace cc {
 
 // Now define all the base classes for each allocation
-using Object = AllocatedObject<GAP>;
+using Object = AllocatedObject;
 
 } // namespace cc
