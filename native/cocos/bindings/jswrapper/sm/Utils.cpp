@@ -44,7 +44,12 @@ void* SE_JS_GetPrivate(JSObject* obj, uint32_t slot) {
 
 void SE_JS_SetPrivate(JSObject* obj, uint32_t slot, void* data) {
     assert(slot >= 0 && slot < 2);
-    JS::SetReservedSlot(obj, 0, JS::PrivateValue(data));
+    JS::SetReservedSlot(obj, slot, JS::PrivateValue(data));
+}
+
+bool isJSBClass(JSObject* obj) {
+    const JSClass *cls   = JS::GetClass(obj);
+    return (cls->flags & (JSCLASS_HAS_RESERVED_SLOTS(2)) && (cls->flags & JSCLASS_USERBIT1));
 }
 
 void forceConvertJsValueToStdString(JSContext *cx, JS::HandleValue jsval, std::string *ret) {
@@ -59,12 +64,9 @@ std::string jsToStdString(JSContext *cx, JS::HandleString jsStr) {
     return ret;
 }
 
-void jsToSeArgs(JSContext *cx, int argc, const JS::CallArgs &argv, ValueArray *outArr) {
-    outArr->reserve(argc);
+void jsToSeArgs(JSContext *cx, int argc, const JS::CallArgs &argv, ValueArray &outArr) {
     for (int i = 0; i < argc; ++i) {
-        Value v;
-        jsToSeValue(cx, argv[i], &v);
-        outArr->push_back(v);
+        jsToSeValue(cx, argv[i], &outArr[i]);
     }
 }
 
@@ -114,6 +116,12 @@ void seToJsValue(JSContext *cx, const Value &arg, JS::MutableHandleValue outVal)
             value.setUndefined();
             outVal.set(value);
         } break;
+        case Value::Type::BigInt: {
+            JS::RootedValue value(cx);
+            JS::BigInt* bi = JS::NumberToBigInt(cx, arg.toUint64());
+            outVal.setBigInt(bi);
+        }
+            break;
         default:
             assert(false);
             break;
@@ -132,7 +140,8 @@ void jsToSeValue(JSContext *cx, JS::HandleValue jsval, Value *v) {
         Object *object = nullptr;
 
         JS::RootedObject jsobj(cx, jsval.toObjectOrNull());
-        void *           nativeObj = getPrivate(cx, jsobj, 0);
+        PrivateObjectBase *privateObject = static_cast<PrivateObjectBase *>(internal::getPrivate(cx, jsobj, 0));
+        void *nativeObj = privateObject ? privateObject->getRaw() : nullptr;
 
         if (nativeObj != nullptr) {
             object = Object::getObjectWithPtr(nativeObj);
@@ -147,6 +156,8 @@ void jsToSeValue(JSContext *cx, JS::HandleValue jsval, Value *v) {
         v->setNull();
     } else if (jsval.isUndefined()) {
         v->setUndefined();
+    } else if (jsval.isBigInt()) {
+        v->setUint64(JS::ToBigUint64(jsval.toBigInt()));
     } else {
         assert(false);
     }
@@ -161,10 +172,7 @@ void setReturnValue(JSContext *cx, const Value &data, const JS::CallArgs &argv) 
 const char *KEY_PRIVATE_DATA = "__cc_private_data";
 
 bool hasPrivate(JSContext *cx, JS::HandleObject obj) {
-    bool           found = false;
-    const JSClass *cls   = JS::GetClass(obj);
-    found                = !!(cls->flags & JSCLASS_HAS_RESERVED_SLOTS(2));
-
+    bool found = isJSBClass(obj);
     if (!found) {
         JS::RootedObject jsobj(cx, obj);
         if (JS_HasProperty(cx, jsobj, KEY_PRIVATE_DATA, &found) && found) {
@@ -176,10 +184,7 @@ bool hasPrivate(JSContext *cx, JS::HandleObject obj) {
 }
 
 void *getPrivate(JSContext *cx, JS::HandleObject obj, uint32_t slot) {
-    bool           found = false;
-    const JSClass *cls   = JS::GetClass(obj);
-    found                = !!(cls->flags & JSCLASS_HAS_RESERVED_SLOTS(2));
-
+    bool found = isJSBClass(obj);
     if (found) {
         return SE_JS_GetPrivate(obj, slot);
     }
@@ -187,7 +192,7 @@ void *getPrivate(JSContext *cx, JS::HandleObject obj, uint32_t slot) {
     if (JS_HasProperty(cx, obj, KEY_PRIVATE_DATA, &found) && found) {
         JS::RootedValue jsData(cx);
         if (JS_GetProperty(cx, obj, KEY_PRIVATE_DATA, &jsData)) {
-            PrivateData *privateData = (PrivateData *)SE_JS_GetPrivate(jsData.toObjectOrNull(), 0);
+            PrivateData *privateData = (PrivateData *)SE_JS_GetPrivate(jsData.toObjectOrNull(), slot);
             return privateData->data;
         }
     }
@@ -196,9 +201,7 @@ void *getPrivate(JSContext *cx, JS::HandleObject obj, uint32_t slot) {
 }
 
 void setPrivate(JSContext *cx, JS::HandleObject obj, PrivateObjectBase *data, Object *seObj, PrivateData **outInternalData, JSFinalizeOp finalizeCb) {
-    bool           found = false;
-    const JSClass *jsCls = JS::GetClass(obj);
-    found                = !!(jsCls->flags & JSCLASS_HAS_RESERVED_SLOTS(2));
+    bool found = isJSBClass(obj);
 
     if (found) {
         SE_JS_SetPrivate(obj, 0, data);
@@ -211,6 +214,7 @@ void setPrivate(JSContext *cx, JS::HandleObject obj, PrivateObjectBase *data, Ob
         Object *     privateObj  = Object::createObjectWithClass(__jsb_CCPrivateData_class);
         PrivateData *privateData = (PrivateData *)malloc(sizeof(PrivateData));
         privateData->data        = data;
+        privateData->seObj   = privateObj;
         privateData->finalizeCb  = finalizeCb;
 
         JS::RootedObject jsPrivateObj(cx, privateObj->_getJSObject());
@@ -224,12 +228,10 @@ void setPrivate(JSContext *cx, JS::HandleObject obj, PrivateObjectBase *data, Ob
 }
 
 void clearPrivate(JSContext *cx, JS::HandleObject obj) {
-    bool           found = false;
-    const JSClass *cls   = JS::GetClass(obj);
-    found                = !!(cls->flags & JSCLASS_HAS_RESERVED_SLOTS(2));
-
+    bool found = isJSBClass(obj);
     if (found) {
         SE_JS_SetPrivate(obj, 0, nullptr);
+        SE_JS_SetPrivate(obj, 1, nullptr);
     } else if (JS_HasProperty(cx, obj, KEY_PRIVATE_DATA, &found) && found) {
         JS::RootedValue jsData(cx);
         assert(JS_GetProperty(cx, obj, KEY_PRIVATE_DATA, &jsData));

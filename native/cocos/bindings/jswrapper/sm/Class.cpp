@@ -117,10 +117,10 @@ bool Class::install() {
 
     _jsCls.name = _name;
     if (_finalizeOp != nullptr) {
-        _jsCls.flags       = JSCLASS_HAS_RESERVED_SLOTS(2) | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
+        _jsCls.flags       = JSCLASS_USERBIT1 | JSCLASS_HAS_RESERVED_SLOTS(2) | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
         _classOps.finalize = _finalizeOp;
     } else {
-        _jsCls.flags = JSCLASS_HAS_RESERVED_SLOTS(2);
+        _jsCls.flags = JSCLASS_USERBIT1 | JSCLASS_HAS_RESERVED_SLOTS(2);
     }
 
     _jsCls.cOps = &_classOps;
@@ -146,13 +146,13 @@ bool Class::install() {
 }
 
 bool Class::defineFunction(const char *name, JSNative func) {
-    JSFunctionSpec cb = JS_FN(name, func, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE);
+    JSFunctionSpec cb = JS_FN(name, func, 0, JSPROP_ENUMERATE);
     _funcs.push_back(cb);
     return true;
 }
 
 bool Class::defineProperty(const char *name, JSNative getter, JSNative setter) {
-    JSPropertySpec property = JS_PSGS(name, getter, setter, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JSPropertySpec property = JS_PSGS(name, getter, setter, JSPROP_ENUMERATE);
     _properties.push_back(property);
     return true;
 }
@@ -166,13 +166,13 @@ bool Class::defineProperty(const std::initializer_list<const char *> &names, JSN
 }
 
 bool Class::defineStaticFunction(const char *name, JSNative func) {
-    JSFunctionSpec cb = JS_FN(name, func, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE);
+    JSFunctionSpec cb = JS_FN(name, func, 0, JSPROP_ENUMERATE);
     _staticFuncs.push_back(cb);
     return true;
 }
 
 bool Class::defineStaticProperty(const char *name, JSNative getter, JSNative setter) {
-    JSPropertySpec property = JS_PSGS(name, getter, setter, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JSPropertySpec property = JS_PSGS(name, getter, setter, JSPROP_ENUMERATE);
     _staticProperties.push_back(property);
     return true;
 }

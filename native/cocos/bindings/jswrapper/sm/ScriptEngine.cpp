@@ -306,7 +306,8 @@ AutoHandleScope::AutoHandleScope() {
 }
 
 AutoHandleScope::~AutoHandleScope() {
-    drainJobQueue();
+//cjh    drainJobQueue();
+    js::RunJobs(se::ScriptEngine::getInstance()->_getContext());
 }
 
 ScriptEngine *ScriptEngine::getInstance() {
@@ -391,6 +392,8 @@ bool ScriptEngine::init() {
     Class::setContext(_cx);
     Object::setContext(_cx);
 
+    js::UseInternalJobQueues(_cx);
+
     JS_SetGCParameter(_cx, JSGC_MAX_BYTES, 0xffffffff);
 //cjh    JS_SetGCParameter(_cx, JSGC_MODE, JSGC_MODE_INCREMENTAL);
     JS_SetNativeStackQuota(_cx, 5000000);
@@ -400,11 +403,11 @@ bool ScriptEngine::init() {
     if (!JS::InitSelfHostedCode(_cx))
         return false;
 
-    PromiseState *sc = new (std::nothrow) PromiseState(_cx);
-    if (!sc)
-        return false;
-
-    JS_SetContextPrivate(_cx, sc);
+//    PromiseState *sc = new (std::nothrow) PromiseState(_cx);
+//    if (!sc)
+//        return false;
+//
+//    JS_SetContextPrivate(_cx, sc);
 
     // Waiting is allowed on the shell's main thread, for now.
     JS_SetFutexCanWait(_cx);
@@ -425,7 +428,7 @@ bool ScriptEngine::init() {
 #ifdef DEBUG
     JS::ContextOptionsRef(_cx)
                 // .setIon(false)
-                .setExtraWarnings(true)
+//                .setExtraWarnings(true)
                 .setWasmBaseline(false)
                 .setAsmJS(false)
                 .setWasm(false)
@@ -482,7 +485,7 @@ bool ScriptEngine::init() {
     JS_FireOnNewGlobalObject(_cx, rootedGlobalObj);
     JS::SetProcessBuildIdOp(getBytecodeBuildId);
 
-    sc->jobQueue.init(_cx, JobQueue(js::SystemAllocPolicy()));
+//    sc->jobQueue.init(_cx, JobQueue(js::SystemAllocPolicy()));
 //cjh    JS::SetEnqueuePromiseJobCallback(_cx, onEnqueuePromiseJobCallback);
 //cjh    JS::SetGetIncumbentGlobalCallback(_cx, onGetIncumbentGlobalCallback);
 
@@ -974,7 +977,6 @@ bool ScriptEngine::compileScript(const std::string &path, JS::MutableHandleScrip
         /* Clear any pending exception from previous failed decoding.  */
         clearException();
 
-        ok                        = false;
         std::string jsFileContent = _fileOperationDelegate.onGetStringFromFile(path);
         if (!jsFileContent.empty()) {
             JS::CompileOptions op(_cx);
@@ -986,10 +988,10 @@ bool ScriptEngine::compileScript(const std::string &path, JS::MutableHandleScrip
                                        JS::SourceOwnership::Borrowed);
 
             assert(succeed);
-
-            script.set(JS::Compile(_cx, op, srcBuf));
-            if (ok) {
+            JSScript* compiledScript = JS::Compile(_cx, op, srcBuf);
+            if (compiledScript != nullptr) {
                 compileSucceed               = true;
+                script.set(compiledScript);
                 std::string fullPath         = _fileOperationDelegate.onGetFullPath(path);
                 _filenameScriptMap[fullPath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
             }
@@ -1142,6 +1144,10 @@ void ScriptEngine::setExceptionCallback(const ExceptionCallback &cb) {
     _exceptionCallback = cb;
 }
 
+void ScriptEngine::setJSExceptionCallback(const ExceptionCallback &cb) { //TODO(cjh)
+
+}
+
 void ScriptEngine::enableDebugger(const std::string &serverAddr, uint32_t port, bool isWait) {
     _debuggerServerAddr = serverAddr;
     _debuggerServerPort = port;
@@ -1176,14 +1182,15 @@ void ScriptEngine::mainLoopUpdate() {
 
 bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval /* = nullptr*/) {
     JS::RootedValueVector jsarr(_cx);
-    if (!jsarr.resize(argc)) {
+    if (!jsarr.reserve(argc)) {
         SE_LOGE("ScriptEngine::callFunction out of memory!");
         return false;
     }
 
     for (size_t i = 0; i < argc; ++i) {
-        JS::RootedValue jsval(_cx, jsarr[i]);
+        JS::RootedValue jsval(_cx);
         internal::seToJsValue(_cx, args[i], &jsval);
+        jsarr.append(jsval);
     }
 
     JS::RootedObject contextObject(_cx);
@@ -1218,6 +1225,8 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
 
     return ok;
 }
+
+void ScriptEngine::handlePromiseExceptions() { } //TODO(cjh)
 
 } // namespace se
 

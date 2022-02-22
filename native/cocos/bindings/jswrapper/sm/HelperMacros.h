@@ -103,7 +103,7 @@ void printJSBInvokeAtFrame(int n);
             _argv.computeThis(_cx, &_thizObj); \
             se::ValueArray &       args = se::gValueArrayPool.get(argc); \
             se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth}; \
-            se::internal::jsToSeArgs(_cx, argc, _argv, &args);                                            \
+            se::internal::jsToSeArgs(_cx, argc, _argv, args);                                            \
             se::PrivateObjectBase *privateObject = static_cast<se::PrivateObjectBase *>(se::internal::getPrivate(_cx, _thizObj, 0));                  \
             se::Object *           thisObject    = reinterpret_cast<se::Object *>(se::internal::getPrivate(_cx, _thizObj, 1));       \
             se::State        state(thisObject, privateObject, args);                                               \
@@ -148,7 +148,7 @@ void printJSBInvokeAtFrame(int n);
             JS::CallArgs   _argv = JS::CallArgsFromVp(argc, _vp);                                         \
             se::ValueArray &       args = se::gValueArrayPool.get(argc);                      \
             se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                          \
-            se::internal::jsToSeArgs(_cx, argc, _argv, &args);                                            \
+            se::internal::jsToSeArgs(_cx, argc, _argv, args);                                            \
             se::Object *thisObject = se::Object::createObjectWithClass(cls);                              \
             _argv.rval().setObject(*thisObject->_getJSObject());                                          \
             se::State state(thisObject, args);                                                            \
@@ -173,7 +173,7 @@ void printJSBInvokeAtFrame(int n);
             _argv.computeThis(_cx, &_thizObj); \
             se::ValueArray &       args = se::gValueArrayPool.get(argc);                      \
             se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                          \
-            se::internal::jsToSeArgs(_cx, argc, _argv, &args);                                            \
+            se::internal::jsToSeArgs(_cx, argc, _argv, args);                                            \
             se::Object *thisObject = se::Object::_createJSObject(cls, _thizObj);            \
             thisObject->_setFinalizeCallback(finalizeCb##Registry);                                       \
             se::State state(thisObject, args);                                                            \

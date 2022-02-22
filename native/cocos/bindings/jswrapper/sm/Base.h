@@ -48,6 +48,7 @@
 #include "js/MemoryMetrics.h"
 #include "js/Array.h"
 #include "js/experimental/TypedData.h"
+#include "js/BigInt.h"
 
 #include "mozilla/Unused.h"
 

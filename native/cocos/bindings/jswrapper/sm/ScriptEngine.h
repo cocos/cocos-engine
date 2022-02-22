@@ -252,7 +252,7 @@ public:
      *  @brief Sets the callback function while an exception is fired in JS.
      *  @param[in] cb The callback function to notify that an exception is fired.
      */
-    void setJSExceptionCallback(const ExceptionCallback &cb) { assert(false); } //cjh
+    void setJSExceptionCallback(const ExceptionCallback &cb);
 
     /**
          *  @brief Gets the start time of script engine.
@@ -292,7 +292,7 @@ public:
     /**
      * @brief Handle all exceptions throwed by promise
      */
-    void handlePromiseExceptions() { assert(false); } //TODO(cjh)
+    void handlePromiseExceptions();
 
     // Private API used in wrapper
     JSContext *_getContext() { return _cx; }

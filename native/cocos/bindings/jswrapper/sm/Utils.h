@@ -40,15 +40,16 @@ class Class;
 
 namespace internal {
 
-struct PrivateData {
-    void *       data{nullptr};
+ struct PrivateData {
+    PrivateObjectBase *data{nullptr};
+    Object *           seObj{nullptr};
     JSFinalizeOp finalizeCb{nullptr};
 };
 
 void        forceConvertJsValueToStdString(JSContext *cx, JS::HandleValue jsval, std::string *ret);
 std::string jsToStdString(JSContext *cx, JS::HandleString jsStr);
 
-void jsToSeArgs(JSContext *cx, int argc, const JS::CallArgs &argv, ValueArray *outArr);
+void jsToSeArgs(JSContext *cx, int argc, const JS::CallArgs &argv, ValueArray &outArr);
 void jsToSeValue(JSContext *cx, JS::HandleValue jsval, Value *v);
 void seToJsArgs(JSContext *cx, const ValueArray &args, JS::RootedValueVector *outArr);
 void seToJsValue(JSContext *cx, const Value &v, JS::MutableHandleValue outVal);
