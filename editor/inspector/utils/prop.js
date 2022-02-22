@@ -201,7 +201,7 @@ exports.updatePropByDump = function(panel, dump) {
     const oldPropKeys = Object.keys(panel.$props);
     const newPropKeys = [];
 
-    Object.keys(dump.value).forEach((key) => {
+    Object.keys(dump.value).forEach((key, index) => {
         const info = dump.value[key];
         if (!info.visible) {
             return;
@@ -221,8 +221,7 @@ exports.updatePropByDump = function(panel, dump) {
                 $prop.setAttribute('type', 'dump');
             }
 
-            $prop.displayOrder = info.displayOrder === undefined ? 0 : Number(info.displayOrder);
-            $prop.displayOrder += 100;
+            $prop.displayOrder = info.displayOrder === undefined ? index : Number(info.displayOrder);
 
             if (element && element.displayOrder !== undefined) {
                 $prop.displayOrder = element.displayOrder;
