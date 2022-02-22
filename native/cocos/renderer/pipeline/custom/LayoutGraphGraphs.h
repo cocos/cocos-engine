@@ -68,7 +68,7 @@ out_degree(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexc
 inline std::pair<LayoutGraphData::edge_descriptor, bool>
 edge(LayoutGraphData::vertex_descriptor u, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept {
     const auto& outEdgeList = g.getOutEdgeList(u);
-    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), LayoutGraphData::out_edge_type(v));
+    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), LayoutGraphData::OutEdge(v));
     bool  hasEdge     = (iter != outEdgeList.end());
     return {LayoutGraphData::edge_descriptor(u, v), hasEdge};
 }
@@ -243,14 +243,14 @@ children(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcep
 }
 
 inline LayoutGraphData::children_size_type
-num_children(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept { // NOLINT
+numChildren(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     return gsl::narrow_cast<LayoutGraphData::children_size_type>(g.getChildrenList(u).size());
 }
 
 inline std::pair<LayoutGraphData::ownership_descriptor, bool>
-ownership(LayoutGraphData::vertex_descriptor u, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) noexcept {
+reference(LayoutGraphData::vertex_descriptor u, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) noexcept {
     auto& outEdgeList = g.getChildrenList(u);
-    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), LayoutGraphData::out_edge_type(v));
+    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), LayoutGraphData::OutEdge(v));
     bool  hasEdge     = (iter != outEdgeList.end());
     return {LayoutGraphData::ownership_descriptor(u, v), hasEdge};
 }
@@ -263,7 +263,7 @@ parents(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept
 }
 
 inline LayoutGraphData::children_size_type
-num_parents(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept { // NOLINT
+numParents(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     return gsl::narrow_cast<LayoutGraphData::children_size_type>(g.getParentsList(u).size());
 }
 
@@ -293,7 +293,7 @@ ancestor(LayoutGraphData::vertex_descriptor u, LayoutGraphData::vertex_descripto
 }
 
 inline std::pair<LayoutGraphData::ownership_iterator, LayoutGraphData::ownership_iterator>
-ownerships(const LayoutGraphData& g0) noexcept {
+references(const LayoutGraphData& g0) noexcept {
     auto& g = const_cast<LayoutGraphData&>(g0);
     return std::make_pair(
         LayoutGraphData::ownership_iterator(g.getVertexList().begin(), g.getVertexList().begin(), g.getVertexList().end(), g),
@@ -301,11 +301,11 @@ ownerships(const LayoutGraphData& g0) noexcept {
 }
 
 inline LayoutGraphData::ownerships_size_type
-num_ownerships(const LayoutGraphData& g) noexcept { // NOLINT
+numReferences(const LayoutGraphData& g) noexcept {
     LayoutGraphData::ownerships_size_type numEdges = 0;
     auto                                  range    = vertices(g);
     for (auto iter = range.first; iter != range.second; ++iter) {
-        numEdges += num_children(*iter, g);
+        numEdges += numChildren(*iter, g);
     }
     return numEdges;
 }
@@ -486,7 +486,7 @@ get(T LayoutData::*memberPointer, LayoutGraphData& g) noexcept {
 
 // PolymorphicGraph
 inline LayoutGraphData::vertices_size_type
-value_id(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept { // NOLINT
+id(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     return cc::visit(
         overload(
@@ -499,55 +499,55 @@ value_id(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcep
         g.vertices[u].handle);
 }
 
-inline LayoutGraphData::vertex_tag_type
+inline LayoutGraphData::VertexTag
 tag(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     return cc::visit(
         overload(
             [](const impl::ValueHandle<GroupTag, vertex_descriptor>&) {
-                return LayoutGraphData::vertex_tag_type{GroupTag{}};
+                return LayoutGraphData::VertexTag{GroupTag{}};
             },
             [](const impl::ValueHandle<ShaderTag, vertex_descriptor>&) {
-                return LayoutGraphData::vertex_tag_type{ShaderTag{}};
+                return LayoutGraphData::VertexTag{ShaderTag{}};
             }),
         g.vertices[u].handle);
 }
 
-inline LayoutGraphData::vertex_value_type
+inline LayoutGraphData::VertexValue
 value(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     return cc::visit(
         overload(
             [&](const impl::ValueHandle<GroupTag, vertex_descriptor>& h) {
-                return LayoutGraphData::vertex_value_type{&g.groupNodes[h.value]};
+                return LayoutGraphData::VertexValue{&g.groupNodes[h.value]};
             },
             [&](const impl::ValueHandle<ShaderTag, vertex_descriptor>& h) {
-                return LayoutGraphData::vertex_value_type{&g.shaderNodes[h.value]};
+                return LayoutGraphData::VertexValue{&g.shaderNodes[h.value]};
             }),
         g.vertices[u].handle);
 }
 
-inline LayoutGraphData::vertex_const_value_type
+inline LayoutGraphData::VertexConstValue
 value(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     return cc::visit(
         overload(
             [&](const impl::ValueHandle<GroupTag, vertex_descriptor>& h) {
-                return LayoutGraphData::vertex_const_value_type{&g.groupNodes[h.value]};
+                return LayoutGraphData::VertexConstValue{&g.groupNodes[h.value]};
             },
             [&](const impl::ValueHandle<ShaderTag, vertex_descriptor>& h) {
-                return LayoutGraphData::vertex_const_value_type{&g.shaderNodes[h.value]};
+                return LayoutGraphData::VertexConstValue{&g.shaderNodes[h.value]};
             }),
         g.vertices[u].handle);
 }
 
 template <class Tag>
 inline bool
-holds_tag(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept; // NOLINT
+holds(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept;
 
 template <>
 inline bool
-holds_tag<GroupTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
+holds<GroupTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept {
     return boost::variant2::holds_alternative<
         impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -555,7 +555,7 @@ holds_tag<GroupTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData&
 
 template <>
 inline bool
-holds_tag<ShaderTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
+holds<ShaderTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept {
     return boost::variant2::holds_alternative<
         impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -757,23 +757,10 @@ inline void put(
 }
 
 // AddressableGraph
-inline std::ptrdiff_t
-path_length(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept { // NOLINT
-    return impl::pathLength(u, g);
-}
-
-template <class Allocator>
-inline void
-path_composite( // NOLINT
-    std::basic_string<char, std::char_traits<char>, Allocator>& str,
-    std::ptrdiff_t& sz, LayoutGraphData::vertex_descriptor u,
-    const LayoutGraphData& g) noexcept {
-    impl::pathComposite(str, sz, u, g);
-}
 
 template <class Allocator>
 inline const std::basic_string<char, std::char_traits<char>, Allocator>&
-get_path( // NOLINT
+getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
     boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
@@ -796,33 +783,33 @@ get_path( // NOLINT
 }
 
 inline std::string
-get_path( // NOLINT
+getPath(
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
     boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
     std::string output;
-    get_path(output, u0, g, prefix, parent);
+    getPath(output, u0, g, prefix, parent);
     return output;
 }
 
 template <class Allocator>
 inline const std::basic_string<char, std::char_traits<char>, Allocator>&
-get_path( // NOLINT
+getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
-    LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g) { // NOLINT
+    LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g) {
     output.clear();
-    auto sz = path_length(parent, g);
+    auto sz = impl::pathLength(parent, g);
     output.resize(sz + name.size() + 1);
     output[sz] = '/';
     std::copy(name.begin(), name.end(), output.begin() + sz + 1);
-    path_composite(output, sz, parent, g);
+    impl::pathComposite(output, sz, parent, g);
     CC_ENSURES(sz == 0);
     return output;
 }
 
 inline std::string
-get_path(LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g) { // NOLINT
+getPath(LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g) {
     std::string output;
-    get_path(output, parent, name, g);
+    getPath(output, parent, name, g);
     return output;
 }
 
@@ -839,7 +826,7 @@ inline LayoutGraphData::vertex_descriptor
 locate(LayoutGraphData::vertex_descriptor u, boost::string_view relative, const LayoutGraphData& g) {
     CC_EXPECTS(!relative.starts_with('/'));
     CC_EXPECTS(!relative.ends_with('/'));
-    auto key = get_path(u, relative, g);
+    auto key = getPath(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);
 };
@@ -894,7 +881,7 @@ get_if(boost::string_view pt, const LayoutGraphData* pGraph) noexcept { // NOLIN
 }
 
 // MutableGraph(Vertex)
-inline void add_path_impl(LayoutGraphData::vertex_descriptor u, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) { // NOLINT
+inline void addPathImpl(LayoutGraphData::vertex_descriptor u, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) { // NOLINT
     // add to parent
     if (u != LayoutGraphData::null_vertex()) {
         auto& outEdgeList = g.getChildrenList(u);
@@ -905,15 +892,15 @@ inline void add_path_impl(LayoutGraphData::vertex_descriptor u, LayoutGraphData:
     }
 
     // add to external path index
-    auto pathName = get_path(v, g);
+    auto pathName = getPath(v, g);
     auto res      = g.pathIndex.emplace(std::move(pathName), v);
     CC_ENSURES(res.second);
 }
 
-inline void remove_path_impl(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept { // NOLINT
+inline void removePathImpl(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
     // notice: here we use std::string, not std::pmr::string
     // we do not want to increase the memory of g
-    auto pathName = get_path(u, g);
+    auto pathName = getPath(u, g);
     auto iter     = g.pathIndex.find(boost::string_view(pathName));
     CC_EXPECTS(iter != g.pathIndex.end());
     g.pathIndex.erase(iter);
@@ -947,7 +934,7 @@ inline void clear_out_edges(LayoutGraphData::vertex_descriptor u, LayoutGraphDat
 inline void clear_in_edges(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept { // NOLINT
     // AddressableGraph (Alias)
     CC_EXPECTS(out_degree(u, g) == 0);
-    remove_path_impl(u, g);
+    removePathImpl(u, g);
 
     // Bidirectional (InEdges)
     auto& inEdgeList = g.getInEdgeList(u);
@@ -967,7 +954,7 @@ inline void clear_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData& 
     clear_in_edges(u, g);
 }
 
-inline void remove_vertex_value_impl(const LayoutGraphData::vertex_handle_type& h, LayoutGraphData& g) noexcept { // NOLINT
+inline void remove_vertex_value_impl(const LayoutGraphData::VertexHandle& h, LayoutGraphData& g) noexcept { // NOLINT
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
     cc::visit(
         overload(
@@ -1002,8 +989,8 @@ inline void remove_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData&
 
 // MutablePropertyGraph(Vertex)
 template <class ValueT>
-void add_vertex_impl( // NOLINT
-    ValueT &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert, // NOLINT
+void addVertexImpl( // NOLINT
+    ValueT &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert, // NOLINT
     std::enable_if_t<std::is_same<std::decay_t<ValueT>, GroupNodeData>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>{
         gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.groupNodes.size())};
@@ -1011,8 +998,8 @@ void add_vertex_impl( // NOLINT
 }
 
 template <class ValueT>
-void add_vertex_impl( // NOLINT
-    ValueT &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert, // NOLINT
+void addVertexImpl( // NOLINT
+    ValueT &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert, // NOLINT
     std::enable_if_t<std::is_same<std::decay_t<ValueT>, ShaderNodeData>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>{
         gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.shaderNodes.size())};
@@ -1021,7 +1008,7 @@ void add_vertex_impl( // NOLINT
 
 template <class Component0, class Component1, class Component2, class ValueT>
 inline LayoutGraphData::vertex_descriptor
-add_vertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, LayoutGraphData& g, LayoutGraphData::vertex_descriptor u = LayoutGraphData::null_vertex()) { // NOLINT
+addVertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, LayoutGraphData& g, LayoutGraphData::vertex_descriptor u = LayoutGraphData::null_vertex()) {
     auto v = gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
@@ -1032,16 +1019,16 @@ add_vertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, Layo
 
     // PolymorphicGraph
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
-    add_vertex_impl(std::forward<ValueT>(val), g, vert);
+    addVertexImpl(std::forward<ValueT>(val), g, vert);
 
     // AddressableGraph
-    add_path_impl(u, v, g);
+    addPathImpl(u, v, g);
 
     return v;
 }
 
 template <class Tuple>
-void add_vertex_impl(GroupTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert) { // NOLINT
+void addVertexImpl(GroupTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert) {
     invoke_hpp::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<GroupTag, LayoutGraphData::vertex_descriptor>{
@@ -1052,7 +1039,7 @@ void add_vertex_impl(GroupTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGr
 }
 
 template <class Tuple>
-void add_vertex_impl(ShaderTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::vertex_type &vert) { // NOLINT
+void addVertexImpl(ShaderTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert) {
     invoke_hpp::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<ShaderTag, LayoutGraphData::vertex_descriptor>{
@@ -1064,7 +1051,7 @@ void add_vertex_impl(ShaderTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutG
 
 template <class Component0, class Component1, class Component2, class Tag, class ValueT>
 inline LayoutGraphData::vertex_descriptor
-add_vertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, LayoutGraphData& g, LayoutGraphData::vertex_descriptor u = LayoutGraphData::null_vertex()) { // NOLINT
+addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, LayoutGraphData& g, LayoutGraphData::vertex_descriptor u = LayoutGraphData::null_vertex()) {
     auto v = gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
@@ -1090,10 +1077,10 @@ add_vertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& 
 
     // PolymorphicGraph
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
-    add_vertex_impl(tag, std::forward<ValueT>(val), g, vert);
+    addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
 
     // AddressableGraph
-    add_path_impl(u, v, g);
+    addPathImpl(u, v, g);
 
     return v;
 }
@@ -1102,7 +1089,7 @@ add_vertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& 
 template <class Tag>
 inline LayoutGraphData::vertex_descriptor
 add_vertex(LayoutGraphData& g, Tag t, std::string&& name, LayoutGraphData::vertex_descriptor parentID = LayoutGraphData::null_vertex()) { // NOLINT
-    return add_vertex(
+    return addVertex(
         t,
         std::forward_as_tuple(std::move(name)), // names
         std::forward_as_tuple(),                // updateFrequencies
@@ -1114,7 +1101,7 @@ add_vertex(LayoutGraphData& g, Tag t, std::string&& name, LayoutGraphData::verte
 template <class Tag>
 inline LayoutGraphData::vertex_descriptor
 add_vertex(LayoutGraphData& g, Tag t, const char* name, LayoutGraphData::vertex_descriptor parentID = LayoutGraphData::null_vertex()) { // NOLINT
-    return add_vertex(
+    return addVertex(
         t,
         std::forward_as_tuple(name), // names
         std::forward_as_tuple(),     // updateFrequencies

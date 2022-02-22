@@ -573,7 +573,7 @@ public:
     OwnershipIterator(VertexIterator b, VertexIterator c, VertexIterator e, const G &g) noexcept
     : _begin(b), _curr(c), _end(e), _g(&g) {
         if (_curr != _end) {
-            while (_curr != _end && num_children(*_curr, *_g) == 0) {
+            while (_curr != _end && numChildren(*_curr, *_g) == 0) {
                 ++_curr;
             }
             if (_curr != _end) {
@@ -586,7 +586,7 @@ public:
         ++_edges->first;
         if (_edges->first == _edges->second) {
             ++_curr;
-            while (_curr != _end && num_children(*_curr, *_g) == 0) {
+            while (_curr != _end && numChildren(*_curr, *_g) == 0) {
                 ++_curr;
             }
             if (_curr != _end) {

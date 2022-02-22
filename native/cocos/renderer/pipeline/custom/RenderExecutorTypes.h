@@ -79,16 +79,16 @@ struct DeviceResourceGraph {
     }
 
     // IncidenceGraph
-    using out_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<out_edge_type>::iterator,
+        boost::container::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
-    using in_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<in_edge_type>::iterator,
+        boost::container::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -100,17 +100,17 @@ struct DeviceResourceGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -131,10 +131,10 @@ struct DeviceResourceGraph {
     using edges_size_type = uint32_t;
 
     // PolymorphicGraph
-    using vertex_tag_type         = boost::variant2::variant<BufferTag, TextureTag>;
-    using vertex_value_type       = boost::variant2::variant<std::unique_ptr<gfx::Buffer>*, std::unique_ptr<gfx::Texture>*>;
-    using vertex_const_value_type = boost::variant2::variant<const std::unique_ptr<gfx::Buffer>*, const std::unique_ptr<gfx::Texture>*>;
-    using vertex_handle_type      = boost::variant2::variant<
+    using VertexTag         = boost::variant2::variant<BufferTag, TextureTag>;
+    using VertexValue       = boost::variant2::variant<std::unique_ptr<gfx::Buffer>*, std::unique_ptr<gfx::Texture>*>;
+    using VertexConstValue = boost::variant2::variant<const std::unique_ptr<gfx::Buffer>*, const std::unique_ptr<gfx::Texture>*>;
+    using VertexHandle      = boost::variant2::variant<
         impl::ValueHandle<BufferTag, vertex_descriptor>,
         impl::ValueHandle<TextureTag, vertex_descriptor>>;
 
@@ -142,24 +142,24 @@ struct DeviceResourceGraph {
     void reserve(vertices_size_type sz);
 
     // Members
-    struct vertex_type { // NOLINT
+    struct Vertex {
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
             return {outEdges.get_allocator().resource()};
         }
 
-        vertex_type(const allocator_type& alloc) noexcept; // NOLINT
-        vertex_type(vertex_type&& rhs, const allocator_type& alloc);
-        vertex_type(vertex_type const& rhs, const allocator_type& alloc);
+        Vertex(const allocator_type& alloc) noexcept; // NOLINT
+        Vertex(Vertex&& rhs, const allocator_type& alloc);
+        Vertex(Vertex const& rhs, const allocator_type& alloc);
 
-        vertex_type(vertex_type&& rhs) noexcept = default;
-        vertex_type(vertex_type const& rhs)     = delete;
-        vertex_type& operator=(vertex_type&& rhs) = default;
-        vertex_type& operator=(vertex_type const& rhs) = default;
+        Vertex(Vertex&& rhs) noexcept = default;
+        Vertex(Vertex const& rhs)     = delete;
+        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> outEdges;
-        boost::container::pmr::vector<in_edge_type>  inEdges;
-        vertex_handle_type                           handle;
+        boost::container::pmr::vector<OutEdge> outEdges;
+        boost::container::pmr::vector<InEdge>  inEdges;
+        VertexHandle                           handle;
     };
 
     struct NameTag {
@@ -168,7 +168,7 @@ struct DeviceResourceGraph {
     } static constexpr RefCount{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> vertices;
+    boost::container::pmr::vector<Vertex> vertices;
     // Components
     boost::container::pmr::vector<std::string> names;
     boost::container::pmr::vector<int32_t>     refCounts;

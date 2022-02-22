@@ -253,7 +253,7 @@ void buildRenderValueGraphAndInitialPass(RenderDependencyGraph& rdg, RenderValue
         const auto& valueIDs = get(RDG::ValueID, rdg, passID);
         for (const auto& valueID : valueIDs) {
             CC_EXPECTS(!contains(RenderValueNode(passID, valueID), rvg));
-            add_vertex(std::piecewise_construct,
+            addVertex(std::piecewise_construct,
                        std::forward_as_tuple(passID, valueID), rvg);
         }
     }
@@ -366,7 +366,7 @@ struct CullingVisitor : boost::dfs_visitor<> {
         }
 
         auto passID = rdg.passIDs.at(u);
-        if (holds_tag<PresentTag>(passID, rg)) {
+        if (holds<PresentTag>(passID, rg)) {
             keep = true;
             return;
         }
@@ -481,14 +481,14 @@ int RenderCompiler::compile() {
         return 1;
     }
 
-    add_vertex(
+    addVertex(
         "name",
         UpdateFrequency::PER_INSTANCE,
         LayoutData(scratch),
         GroupNodeData{},
         layoutGraph);
 
-    add_vertex(ShaderTag{},
+    addVertex(ShaderTag{},
         std::forward_as_tuple("name"),
         std::forward_as_tuple(UpdateFrequency::PER_INSTANCE),
         std::forward_as_tuple(),

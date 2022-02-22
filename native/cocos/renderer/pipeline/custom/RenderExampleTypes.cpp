@@ -70,15 +70,15 @@ void RenderDependencyGraph::reserve(vertices_size_type sz) {
     traits.reserve(sz);
 }
 
-RenderDependencyGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
+RenderDependencyGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
 : outEdges(alloc),
   inEdges(alloc) {}
 
-RenderDependencyGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
+RenderDependencyGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
 : outEdges(std::move(rhs.outEdges), alloc),
   inEdges(std::move(rhs.inEdges), alloc) {}
 
-RenderDependencyGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
+RenderDependencyGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
@@ -93,15 +93,15 @@ void RenderValueGraph::reserve(vertices_size_type sz) {
     nodes.reserve(sz);
 }
 
-RenderValueGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
+RenderValueGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
 : outEdges(alloc),
   inEdges(alloc) {}
 
-RenderValueGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
+RenderValueGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
 : outEdges(std::move(rhs.outEdges), alloc),
   inEdges(std::move(rhs.inEdges), alloc) {}
 
-RenderValueGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
+RenderValueGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 

@@ -165,16 +165,16 @@ void LayoutGraphData::reserve(vertices_size_type sz) {
     layouts.reserve(sz);
 }
 
-LayoutGraphData::vertex_type::vertex_type(const allocator_type& alloc) noexcept
+LayoutGraphData::Vertex::Vertex(const allocator_type& alloc) noexcept
 : outEdges(alloc),
   inEdges(alloc) {}
 
-LayoutGraphData::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
+LayoutGraphData::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
 : outEdges(std::move(rhs.outEdges), alloc),
   inEdges(std::move(rhs.inEdges), alloc),
   handle(std::move(rhs.handle)) {}
 
-LayoutGraphData::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
+LayoutGraphData::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc),
   handle(rhs.handle) {}

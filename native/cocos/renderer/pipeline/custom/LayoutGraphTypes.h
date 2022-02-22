@@ -269,16 +269,16 @@ struct LayoutGraphData {
     }
 
     // IncidenceGraph
-    using out_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<out_edge_type>::iterator,
+        boost::container::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
-    using in_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<in_edge_type>::iterator,
+        boost::container::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -290,17 +290,17 @@ struct LayoutGraphData {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -323,40 +323,40 @@ struct LayoutGraphData {
     // AddressableGraph (Alias)
     using ownership_descriptor = impl::EdgeDescriptor<boost::bidirectional_tag, vertex_descriptor>;
 
-    using children_edge_type = out_edge_type;
+    using ChildEdge = OutEdge;
     using children_iterator  = impl::OutEdgeIter<
-        boost::container::pmr::vector<out_edge_type>::iterator,
+        boost::container::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
     using children_size_type = uint32_t;
 
-    using parent_edge_type = in_edge_type;
+    using ParentEdge = InEdge;
     using parent_iterator  = impl::InEdgeIter<
-        boost::container::pmr::vector<in_edge_type>::iterator,
+        boost::container::pmr::vector<InEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
 
     using ownership_iterator   = impl::DirectedEdgeIterator<vertex_iterator, children_iterator, LayoutGraphData>;
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline boost::container::pmr::vector<out_edge_type>& getChildrenList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<out_edge_type>& getChildrenList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<in_edge_type>& getParentsList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<in_edge_type>& getParentsList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
     // PolymorphicGraph
-    using vertex_tag_type         = boost::variant2::variant<GroupTag, ShaderTag>;
-    using vertex_value_type       = boost::variant2::variant<GroupNodeData*, ShaderNodeData*>;
-    using vertex_const_value_type = boost::variant2::variant<const GroupNodeData*, const ShaderNodeData*>;
-    using vertex_handle_type      = boost::variant2::variant<
+    using VertexTag         = boost::variant2::variant<GroupTag, ShaderTag>;
+    using VertexValue       = boost::variant2::variant<GroupNodeData*, ShaderNodeData*>;
+    using VertexConstValue = boost::variant2::variant<const GroupNodeData*, const ShaderNodeData*>;
+    using VertexHandle      = boost::variant2::variant<
         impl::ValueHandle<GroupTag, vertex_descriptor>,
         impl::ValueHandle<ShaderTag, vertex_descriptor>>;
 
@@ -364,24 +364,24 @@ struct LayoutGraphData {
     void reserve(vertices_size_type sz);
 
     // Members
-    struct vertex_type { // NOLINT
+    struct Vertex {
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
             return {outEdges.get_allocator().resource()};
         }
 
-        vertex_type(const allocator_type& alloc) noexcept; // NOLINT
-        vertex_type(vertex_type&& rhs, const allocator_type& alloc);
-        vertex_type(vertex_type const& rhs, const allocator_type& alloc);
+        Vertex(const allocator_type& alloc) noexcept; // NOLINT
+        Vertex(Vertex&& rhs, const allocator_type& alloc);
+        Vertex(Vertex const& rhs, const allocator_type& alloc);
 
-        vertex_type(vertex_type&& rhs) noexcept = default;
-        vertex_type(vertex_type const& rhs)     = delete;
-        vertex_type& operator=(vertex_type&& rhs) = default;
-        vertex_type& operator=(vertex_type const& rhs) = default;
+        Vertex(Vertex&& rhs) noexcept = default;
+        Vertex(Vertex const& rhs)     = delete;
+        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> outEdges;
-        boost::container::pmr::vector<in_edge_type>  inEdges;
-        vertex_handle_type                           handle;
+        boost::container::pmr::vector<OutEdge> outEdges;
+        boost::container::pmr::vector<InEdge>  inEdges;
+        VertexHandle                           handle;
     };
 
     struct NameTag {
@@ -392,7 +392,7 @@ struct LayoutGraphData {
     } static constexpr Layout{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> vertices;
+    boost::container::pmr::vector<Vertex> vertices;
     // Components
     boost::container::pmr::vector<std::string>     names;
     boost::container::pmr::vector<UpdateFrequency> updateFrequencies;

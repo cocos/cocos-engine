@@ -155,16 +155,16 @@ struct ResourceGraph {
     }
 
     // IncidenceGraph
-    using out_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<out_edge_type>::iterator,
+        boost::container::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
-    using in_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<in_edge_type>::iterator,
+        boost::container::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -176,17 +176,17 @@ struct ResourceGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -210,23 +210,23 @@ struct ResourceGraph {
     void reserve(vertices_size_type sz);
 
     // Members
-    struct vertex_type { // NOLINT
+    struct Vertex {
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
             return {outEdges.get_allocator().resource()};
         }
 
-        vertex_type(const allocator_type& alloc) noexcept; // NOLINT
-        vertex_type(vertex_type&& rhs, const allocator_type& alloc);
-        vertex_type(vertex_type const& rhs, const allocator_type& alloc);
+        Vertex(const allocator_type& alloc) noexcept; // NOLINT
+        Vertex(Vertex&& rhs, const allocator_type& alloc);
+        Vertex(Vertex const& rhs, const allocator_type& alloc);
 
-        vertex_type(vertex_type&& rhs) noexcept = default;
-        vertex_type(vertex_type const& rhs)     = delete;
-        vertex_type& operator=(vertex_type&& rhs) = default;
-        vertex_type& operator=(vertex_type const& rhs) = default;
+        Vertex(Vertex&& rhs) noexcept = default;
+        Vertex(Vertex const& rhs)     = delete;
+        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> outEdges;
-        boost::container::pmr::vector<in_edge_type>  inEdges;
+        boost::container::pmr::vector<OutEdge> outEdges;
+        boost::container::pmr::vector<InEdge>  inEdges;
     };
 
     struct NameTag {
@@ -237,7 +237,7 @@ struct ResourceGraph {
     } static constexpr Traits{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> vertices;
+    boost::container::pmr::vector<Vertex> vertices;
     // Components
     boost::container::pmr::vector<PmrString>      names;
     boost::container::pmr::vector<ResourceDesc>   descs;
@@ -371,16 +371,16 @@ struct SubpassGraph {
     }
 
     // IncidenceGraph
-    using out_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<out_edge_type>::iterator,
+        boost::container::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
-    using in_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<in_edge_type>::iterator,
+        boost::container::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -392,17 +392,17 @@ struct SubpassGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -426,23 +426,23 @@ struct SubpassGraph {
     void reserve(vertices_size_type sz);
 
     // Members
-    struct vertex_type { // NOLINT
+    struct Vertex {
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
             return {outEdges.get_allocator().resource()};
         }
 
-        vertex_type(const allocator_type& alloc) noexcept; // NOLINT
-        vertex_type(vertex_type&& rhs, const allocator_type& alloc);
-        vertex_type(vertex_type const& rhs, const allocator_type& alloc);
+        Vertex(const allocator_type& alloc) noexcept; // NOLINT
+        Vertex(Vertex&& rhs, const allocator_type& alloc);
+        Vertex(Vertex const& rhs, const allocator_type& alloc);
 
-        vertex_type(vertex_type&& rhs) noexcept = default;
-        vertex_type(vertex_type const& rhs)     = delete;
-        vertex_type& operator=(vertex_type&& rhs) = default;
-        vertex_type& operator=(vertex_type const& rhs) = default;
+        Vertex(Vertex&& rhs) noexcept = default;
+        Vertex(Vertex const& rhs)     = delete;
+        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> outEdges;
-        boost::container::pmr::vector<in_edge_type>  inEdges;
+        boost::container::pmr::vector<OutEdge> outEdges;
+        boost::container::pmr::vector<InEdge>  inEdges;
     };
 
     struct NameTag {
@@ -451,7 +451,7 @@ struct SubpassGraph {
     } static constexpr Subpass{}; // NOLINT
 
     // Vertices
-    boost::container::pmr::vector<vertex_type> vertices;
+    boost::container::pmr::vector<Vertex> vertices;
     // Components
     boost::container::pmr::vector<PmrString>     names;
     boost::container::pmr::vector<RasterSubpass> subpasses;
@@ -754,16 +754,16 @@ struct RenderGraph {
     }
 
     // IncidenceGraph
-    using out_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        boost::container::pmr::vector<out_edge_type>::iterator,
+        boost::container::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
-    using in_edge_type     = impl::StoredEdge<vertex_descriptor>;
+    using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        boost::container::pmr::vector<in_edge_type>::iterator,
+        boost::container::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
@@ -775,17 +775,17 @@ struct RenderGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].outEdges;
     }
-    inline const boost::container::pmr::vector<out_edge_type>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].outEdges;
     }
 
-    inline boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return vertices[v].inEdges;
     }
-    inline const boost::container::pmr::vector<in_edge_type>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return vertices[v].inEdges;
     }
 
@@ -808,40 +808,40 @@ struct RenderGraph {
     // AddressableGraph (Separated)
     using ownership_descriptor = impl::EdgeDescriptor<boost::bidirectional_tag, vertex_descriptor>;
 
-    using children_edge_type = impl::StoredEdge<vertex_descriptor>;
+    using ChildEdge = impl::StoredEdge<vertex_descriptor>;
     using children_iterator  = impl::OutEdgeIter<
-        boost::container::pmr::vector<children_edge_type>::iterator,
+        boost::container::pmr::vector<ChildEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
     using children_size_type = uint32_t;
 
-    using parent_edge_type = impl::StoredEdge<vertex_descriptor>;
+    using ParentEdge = impl::StoredEdge<vertex_descriptor>;
     using parent_iterator  = impl::InEdgeIter<
-        boost::container::pmr::vector<parent_edge_type>::iterator,
+        boost::container::pmr::vector<ParentEdge>::iterator,
         vertex_descriptor, ownership_descriptor, int32_t>;
 
     using ownership_iterator   = impl::OwnershipIterator<vertex_iterator, children_iterator, RenderGraph>;
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline boost::container::pmr::vector<children_edge_type>& getChildrenList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return objects[v].children;
     }
-    inline const boost::container::pmr::vector<children_edge_type>& getChildrenList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return objects[v].children;
     }
 
-    inline boost::container::pmr::vector<parent_edge_type>& getParentsList(vertex_descriptor v) noexcept {
+    inline boost::container::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) noexcept {
         return objects[v].parents;
     }
-    inline const boost::container::pmr::vector<parent_edge_type>& getParentsList(vertex_descriptor v) const noexcept {
+    inline const boost::container::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return objects[v].parents;
     }
 
     // PolymorphicGraph
-    using vertex_tag_type         = boost::variant2::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag>;
-    using vertex_value_type       = boost::variant2::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*>;
-    using vertex_const_value_type = boost::variant2::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*>;
-    using vertex_handle_type      = boost::variant2::variant<
+    using VertexTag         = boost::variant2::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag>;
+    using VertexValue       = boost::variant2::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*>;
+    using VertexConstValue = boost::variant2::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*>;
+    using VertexHandle      = boost::variant2::variant<
         impl::ValueHandle<RasterTag, vertex_descriptor>,
         impl::ValueHandle<ComputeTag, vertex_descriptor>,
         impl::ValueHandle<CopyTag, vertex_descriptor>,
@@ -857,43 +857,43 @@ struct RenderGraph {
     void reserve(vertices_size_type sz);
 
     // Members
-    struct object_type { // NOLINT
+    struct Object {
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
             return {children.get_allocator().resource()};
         }
 
-        object_type(const allocator_type& alloc) noexcept; // NOLINT
-        object_type(object_type&& rhs, const allocator_type& alloc);
-        object_type(object_type const& rhs, const allocator_type& alloc);
+        Object(const allocator_type& alloc) noexcept; // NOLINT
+        Object(Object&& rhs, const allocator_type& alloc);
+        Object(Object const& rhs, const allocator_type& alloc);
 
-        object_type(object_type&& rhs) noexcept = default;
-        object_type(object_type const& rhs)     = delete;
-        object_type& operator=(object_type&& rhs) = default;
-        object_type& operator=(object_type const& rhs) = default;
+        Object(Object&& rhs) noexcept = default;
+        Object(Object const& rhs)     = delete;
+        Object& operator=(Object&& rhs) = default;
+        Object& operator=(Object const& rhs) = default;
 
-        boost::container::pmr::vector<children_edge_type> children;
-        boost::container::pmr::vector<parent_edge_type>   parents;
+        boost::container::pmr::vector<ChildEdge>  children;
+        boost::container::pmr::vector<ParentEdge> parents;
     };
 
-    struct vertex_type { // NOLINT
+    struct Vertex {
         using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
         allocator_type get_allocator() const noexcept { // NOLINT
             return {outEdges.get_allocator().resource()};
         }
 
-        vertex_type(const allocator_type& alloc) noexcept; // NOLINT
-        vertex_type(vertex_type&& rhs, const allocator_type& alloc);
-        vertex_type(vertex_type const& rhs, const allocator_type& alloc);
+        Vertex(const allocator_type& alloc) noexcept; // NOLINT
+        Vertex(Vertex&& rhs, const allocator_type& alloc);
+        Vertex(Vertex const& rhs, const allocator_type& alloc);
 
-        vertex_type(vertex_type&& rhs) noexcept = default;
-        vertex_type(vertex_type const& rhs)     = delete;
-        vertex_type& operator=(vertex_type&& rhs) = default;
-        vertex_type& operator=(vertex_type const& rhs) = default;
+        Vertex(Vertex&& rhs) noexcept = default;
+        Vertex(Vertex const& rhs)     = delete;
+        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex const& rhs) = default;
 
-        boost::container::pmr::vector<out_edge_type> outEdges;
-        boost::container::pmr::vector<in_edge_type>  inEdges;
-        vertex_handle_type                           handle;
+        boost::container::pmr::vector<OutEdge> outEdges;
+        boost::container::pmr::vector<InEdge>  inEdges;
+        VertexHandle                           handle;
     };
 
     struct NameTag {
@@ -904,9 +904,9 @@ struct RenderGraph {
     } static constexpr Data{}; // NOLINT
 
     // Owners
-    boost::container::pmr::vector<object_type> objects;
+    boost::container::pmr::vector<Object> objects;
     // Vertices
-    boost::container::pmr::vector<vertex_type> vertices;
+    boost::container::pmr::vector<Vertex> vertices;
     // Components
     boost::container::pmr::vector<PmrString>  names;
     boost::container::pmr::vector<PmrString>  layoutNodes;

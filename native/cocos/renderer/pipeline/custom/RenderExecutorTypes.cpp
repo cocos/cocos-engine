@@ -49,16 +49,16 @@ void DeviceResourceGraph::reserve(vertices_size_type sz) {
     refCounts.reserve(sz);
 }
 
-DeviceResourceGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
+DeviceResourceGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
 : outEdges(alloc),
   inEdges(alloc) {}
 
-DeviceResourceGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
+DeviceResourceGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
 : outEdges(std::move(rhs.outEdges), alloc),
   inEdges(std::move(rhs.inEdges), alloc),
   handle(std::move(rhs.handle)) {}
 
-DeviceResourceGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
+DeviceResourceGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc),
   handle(rhs.handle) {}
