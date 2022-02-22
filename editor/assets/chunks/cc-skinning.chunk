@@ -36,7 +36,7 @@
     y = (tempY + 0.5) * invSize;
   }
 #else
-  #define JOINT_UNIFORM_CAPACITY 30
+  #pragma define JOINT_UNIFORM_CAPACITY 30
   #pragma builtin(local)
   layout(set = 2, binding = 3) uniform CCSkinning {
     highp vec4 cc_joints[JOINT_UNIFORM_CAPACITY * 3];

@@ -108,7 +108,7 @@ CCProgram camera-texture-fs %{
   #include <output>
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])
   #endif
 
   #if USE_TEXTURE

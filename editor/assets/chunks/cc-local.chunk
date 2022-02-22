@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
 #if USE_BATCHING
-  #define BATCHING_COUNT 10
+  #pragma define BATCHING_COUNT 10
   #pragma builtin(local)
   layout(set = 2, binding = 0) uniform CCLocalBatched {
     highp mat4 cc_matWorlds[BATCHING_COUNT];

@@ -71,7 +71,7 @@ CCEffect %{
 CCProgram vert %{
   precision mediump float;
   #include <particle-common>
-  #define CC_RENDER_MODE RENDER_MODE_BILLBOARD
+  #pragma define CC_RENDER_MODE RENDER_MODE_BILLBOARD
   in vec3 a_position; // center position
   in vec2 a_texCoord;  // texcoord
   in vec4 a_color;

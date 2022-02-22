@@ -61,7 +61,7 @@ CCProgram smaa-edge-fs %{
   #include <gamma>
   #include <aces>
 
-  #define SMAA_THRESHOLD 0.1
+  #pragma define SMAA_THRESHOLD 0.1
 
   in vec2 v_uv;
   in vec4 v_offsets[3];
@@ -117,7 +117,7 @@ CCProgram smaa-blend-vs %{
   precision highp float;
   #include <cc-global>
 
-  #define SMAA_MAX_SEARCH_STEPS 8
+  #pragma define SMAA_MAX_SEARCH_STEPS 8
 
   in vec2 a_position;
   in vec2 a_texCoord;
@@ -141,10 +141,10 @@ CCProgram smaa-blend-fs %{
   precision highp float;
   #include <cc-global>
 
-  #define SMAA_MAX_SEARCH_STEPS 8
-  #define SMAA_AREATEX_MAX_DISTANCE 16
-  #define SMAA_AREATEX_PIXEL_SIZE (1.0 / vec2(160.0, 560.0))
-  #define SMAA_AREATEX_SUBTEX_SIZE (1.0 / 7.0)
+  #pragma define SMAA_MAX_SEARCH_STEPS 8
+  #pragma define SMAA_AREATEX_MAX_DISTANCE 16
+  #pragma define SMAA_AREATEX_PIXEL_SIZE (1.0 / vec2(160.0, 560.0))
+  #pragma define SMAA_AREATEX_SUBTEX_SIZE (1.0 / 7.0)
 
   in vec2 v_uv;
   in vec4 v_offsets[3];

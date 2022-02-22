@@ -27,9 +27,9 @@ CCEffect %{
 CCProgram splash-screen-vs %{
   precision mediump float;
   
-  #define u_resolution      u_buffer0.xy
-  #define u_worldScale      u_buffer1.xy
-  #define u_worldTranslate  u_buffer1.zw
+  #pragma define u_resolution      u_buffer0.xy
+  #pragma define u_worldScale      u_buffer1.xy
+  #pragma define u_worldTranslate  u_buffer1.zw
 
   in vec2 a_position;
   in vec2 a_texCoord;
