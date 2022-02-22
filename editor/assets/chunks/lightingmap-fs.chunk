@@ -2,7 +2,7 @@ in vec3 v_luv;
 #pragma builtin(local)
 layout(set = 2, binding = 10) uniform sampler2D cc_lightingMap;
 
-#define LFX_MAX_EXPONENT 8.0
+#pragma define LFX_MAX_EXPONENT 8.0
 
 vec3 UnpackLightingmap(vec4 color) {
   vec3 c;

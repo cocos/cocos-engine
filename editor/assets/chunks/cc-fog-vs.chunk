@@ -6,7 +6,7 @@
 out float v_fog_factor;
 #endif
 
-#define CC_FOG_FACTOR v_fog_factor
+#pragma define CC_FOG_FACTOR v_fog_factor
 
 void CC_TRANSFER_FOG(vec4 pos) {
 #if !CC_USE_ACCURATE_FOG

@@ -102,7 +102,7 @@ CCProgram downsample-fs %{
 
   layout(location = 0) out vec4 fragColor;
 
-#define SAM(uv) texture(bloomTexture, uv).xyz
+#pragma define SAM(uv) texture(bloomTexture, uv).xyz
 
   vec3 downsample(vec2 uv, vec2 halfpixel) {
     vec3 sum = SAM(uv) * 4.0;
@@ -144,7 +144,7 @@ CCProgram upsample-fs %{
 
   layout(location = 0) out vec4 fragColor;
 
-#define SAM(uv) texture(bloomTexture, uv).xyz
+#pragma define SAM(uv) texture(bloomTexture, uv).xyz
 
   vec3 upsample(vec2 uv, vec2 halfpixel) {
     vec3 sum = SAM(uv + vec2(-halfpixel.x * 2.0, 0.0));

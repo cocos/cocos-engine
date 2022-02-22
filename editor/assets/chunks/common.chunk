@@ -3,36 +3,34 @@
 // common module
 
 // constant value
-#define PI 3.14159265359
-#define PI2 6.28318530718
-#define EPSILON 1e-6
-#define LOG2 1.442695
+#define PI           3.14159265359
+#define PI2          6.28318530718
+#define EPSILON      1e-6
+#define LOG2         1.442695
+#define FP_MAX       65504.0
+#define FP_SCALE     0.0009765625
+#define FP_SCALE_INV 1024.0
 
 // common function
-#define saturate(a) clamp(a, 0.0, 1.0)
-
-#define FP_MAX          65504.0
-#define FP_SCALE        0.0009765625
-#define FP_SCALE_INV    1024.0
+#pragma define saturate(a) clamp(a, 0.0, 1.0)
 
 // runtime constants
-#pragma define CC_DEVICE_SUPPORT_FLOAT_TEXTURE default(1)
-#pragma define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS default(1024)
-#pragma define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS default(1024)
-#pragma define CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS default(128)
-#pragma define CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS default(128)
-#pragma define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT default(0)
-#pragma define CC_PLATFORM_ANDROID_AND_WEBGL default(0)
-#pragma define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES default(0)
+#pragma define-meta CC_DEVICE_SUPPORT_FLOAT_TEXTURE default(1)
+#pragma define-meta CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS default(1024)
+#pragma define-meta CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS default(1024)
+#pragma define-meta CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS default(128)
+#pragma define-meta CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS default(128)
+#pragma define-meta CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT default(0)
+#pragma define-meta CC_PLATFORM_ANDROID_AND_WEBGL default(0)
+#pragma define-meta CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES default(0)
+#pragma define-meta CC_ENABLE_CLUSTERED_LIGHT_CULLING default(0)
 
-// use cluster shading or not
-#pragma define CC_ENABLE_CLUSTERED_LIGHT_CULLING default(0)
 // When sampling RTs, Y-flip is needed if the screen space sign Y is positive (pointing upwards)
-#define CC_HANDLE_RT_SAMPLE_FLIP(uv) uv = cc_cameraPos.w > 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
-#define CC_HANDLE_GET_CLIP_FLIP(uv) uv = cc_cameraPos.w == 0.0 ? vec2(uv.x, -uv.y) : uv
+#pragma define CC_HANDLE_RT_SAMPLE_FLIP(uv) uv = cc_cameraPos.w > 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
+#pragma define CC_HANDLE_GET_CLIP_FLIP(uv) uv = cc_cameraPos.w == 0.0 ? vec2(uv.x, -uv.y) : uv
 
-#define STEP_FINT_128(v) (step(128.0, (v) + 0.5))
-#define MOD_FINT_128(v) (mod(float(int((v) + 0.5)), 128.0))
+#pragma define STEP_FINT_128(v) (step(128.0, (v) + 0.5))
+#pragma define MOD_FINT_128(v) (mod(float(int((v) + 0.5)), 128.0))
 
 highp float decode32 (highp vec4 rgba) {
   rgba = rgba * 255.0;
@@ -42,7 +40,6 @@ highp float decode32 (highp vec4 rgba) {
   return Sign * exp2(Exponent - 23.0) * Mantissa;
 }
 
-float isNan(float val) 
-{ 
-    return (val <= 0.0 || 0.0 <= val) ? 0.0 : 1.0; 
+float isNan(float val) {
+  return (val <= 0.0 || 0.0 <= val) ? 0.0 : 1.0;
 }

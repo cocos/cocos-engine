@@ -22,9 +22,9 @@ CCProgram profiler-vs %{
   precision mediump float;
   #include <cc-global>
 
-  #define ROWS 8 // multiple of 4
-  #define COLS 10
-  #define VECTOR_COUNT ROWS * COLS / 4
+  #pragma define ROWS 8 // multiple of 4
+  #pragma define COLS 10
+  #pragma define VECTOR_COUNT ROWS * COLS / 4
 
   in vec3 a_position;
   in vec4 a_color;
