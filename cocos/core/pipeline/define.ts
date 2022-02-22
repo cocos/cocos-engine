@@ -342,7 +342,7 @@ export class UBOLocal {
         new Uniform('cc_matWorld', Type.MAT4, 1),
         new Uniform('cc_matWorldIT', Type.MAT4, 1),
         new Uniform('cc_lightingMapUVParam', Type.FLOAT4, 1),
-        new Uniform('cc_localShadowMapBias', Type.FLOAT4, 1),
+        new Uniform('cc_localShadowBias', Type.FLOAT4, 1),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;
