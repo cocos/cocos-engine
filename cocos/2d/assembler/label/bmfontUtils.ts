@@ -83,7 +83,7 @@ let _labelWidth = 0;
 let _labelHeight = 0;
 let _maxLineWidth = 0;
 let _enableDpr = false;
-let _dpr = 1;
+const _dpr =  Math.min(Math.ceil(screenAdapter.devicePixelRatio), 2);
 
 export const bmfontUtils = {
     enableDpr (v: boolean) {
@@ -95,12 +95,6 @@ export const bmfontUtils = {
         }
 
         if (_comp === comp) { return; }
-
-        if (comp.font instanceof BitmapFont) {
-            _dpr = 1;
-        } else {
-            _dpr = Math.min(Math.ceil(screenAdapter.devicePixelRatio), 2);
-        }
 
         if (comp.renderData.vertDirty) {
             _comp = comp;
