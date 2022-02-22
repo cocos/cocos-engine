@@ -81,6 +81,17 @@ Object *Object::_createJSObject(Class *cls, JSObject *obj) {
     return ret;
 }
 
+Object *Object::_createJSObjectForConstructor(Class *cls, const JS::CallArgs& args) {
+    Object *ret = new Object();
+    JS::RootedObject obj(__cx, JS_NewObjectForConstructor(__cx, &cls->_jsCls, args));
+    if (!ret->init(cls, obj)) {
+        delete ret;
+        ret = nullptr;
+    }
+
+    return ret;
+}
+
 Object *Object::createPlainObject() {
     Object *obj = Object::_createJSObject(nullptr, JS_NewPlainObject(__cx));
     return obj;

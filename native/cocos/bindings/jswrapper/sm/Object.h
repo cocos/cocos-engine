@@ -407,6 +407,7 @@ public:
 
     // Private API used in wrapper
     static Object *_createJSObject(Class *cls, JSObject *obj);
+    static Object *_createJSObjectForConstructor(Class *cls, const JS::CallArgs& args);
     void           _setFinalizeCallback(JSFinalizeOp finalizeCb);
     bool           _isNativeFunction(JSNative func) const;
     JSObject *     _getJSObject() const;

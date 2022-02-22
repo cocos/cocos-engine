@@ -149,7 +149,8 @@ void printJSBInvokeAtFrame(int n);
             se::ValueArray &       args = se::gValueArrayPool.get(argc);                      \
             se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                          \
             se::internal::jsToSeArgs(_cx, argc, _argv, args);                                            \
-            se::Object *thisObject = se::Object::createObjectWithClass(cls);                              \
+            se::Object *thisObject = se::Object::_createJSObjectForConstructor(cls, _argv); \
+            thisObject->_setFinalizeCallback(finalizeCb##Registry); \
             _argv.rval().setObject(*thisObject->_getJSObject());                                          \
             se::State state(thisObject, args);                                                            \
             ret = funcName(state);                                                                        \
