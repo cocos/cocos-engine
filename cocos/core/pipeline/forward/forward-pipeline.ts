@@ -41,6 +41,12 @@ import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { PipelineSceneData } from '../pipeline-scene-data';
+import { RenderGraph } from '../custom/render-graph';
+import { LayoutGraphData } from '../custom/layout-graph';
+import { DeviceResourceGraph } from '../custom/executor';
+import { Pipeline } from '../custom/pipeline';
+import { WebPipeline } from '../custom/web-pipeline';
+import { WebDescriptorHierarchy } from '../custom/web-descriptor-hierarchy';
 
 const PIPELINE_TYPE = 0;
 

@@ -26,6 +26,7 @@ conversions:
     "dragonBones::": "dragonbones."
     "cc::gfx::": "gfx."
     "cc::pipeline::": "nr."
+    "cc::render::": "render."
     "cc::scene::": "jsb."
     "cc::geometry::": "jsb."
     "cc::event::": "jsb."
