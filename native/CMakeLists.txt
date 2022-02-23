@@ -25,6 +25,7 @@ cc_set_if_undefined(USE_JOB_SYSTEM_TASKFLOW  OFF)
 cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
 cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
+cc_set_if_undefined(USE_SERVER_MODE          OFF)
 
 add_definitions()
 
@@ -47,7 +48,7 @@ if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
     set(CC_USE_GLES3 OFF)
     set(CC_USE_GLES2 OFF)
-    set(SERVER_MODE TRUE)
+    add_definitions(-DSERVER_MODE)
 endif()
 
 if(USE_PHYSICS_PHYSX)
@@ -122,6 +123,7 @@ cc_inspect_values(
     USE_PHYSICS_PHYSX
     USE_JOB_SYSTEM_TBB
     USE_JOB_SYSTEM_TASKFLOW
+    USE_SERVER_MODE
 )
 
 ################################# external source code ################################
