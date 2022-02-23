@@ -87,7 +87,7 @@ struct Descriptor {
 struct DescriptorBlock {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {uniforms.get_allocator().resource()};
+        return {descriptors.get_allocator().resource()};
     }
 
     DescriptorBlock(const allocator_type& alloc) noexcept; // NOLINT
@@ -99,49 +99,52 @@ struct DescriptorBlock {
     DescriptorBlock& operator=(DescriptorBlock&& rhs) = default;
     DescriptorBlock& operator=(DescriptorBlock const& rhs) = default;
 
-    PmrTransparentMap<PmrString, Descriptor> uniforms;
-};
-
-struct DescriptorTable {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {descriptorBlocks.get_allocator().resource()};
-    }
-
-    DescriptorTable(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorTable(DescriptorTable&& rhs, const allocator_type& alloc);
-    DescriptorTable(DescriptorTable const& rhs, const allocator_type& alloc);
-
-    DescriptorTable(DescriptorTable&& rhs) noexcept = default;
-    DescriptorTable(DescriptorTable const& rhs)     = delete;
-    DescriptorTable& operator=(DescriptorTable&& rhs) = default;
-    DescriptorTable& operator=(DescriptorTable const& rhs) = default;
-
-    PmrMap<DescriptorIndex, DescriptorBlock>     descriptorBlocks;
+    PmrTransparentMap<PmrString, Descriptor>     descriptors;
     PmrTransparentMap<PmrString, UniformBlockDB> uniformBlocks;
 };
 
-struct DescriptorTableIndex {
-    DescriptorTableIndex() = default;
-    DescriptorTableIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
+struct DescriptorBlockIndex {
+    DescriptorBlockIndex() = default;
+    DescriptorBlockIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, DescriptorIndex descriptorTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
     : updateFrequency(updateFrequencyIn),
       parameterType(parameterTypeIn),
+      descriptorType(descriptorTypeIn),
       visibility(visibilityIn) {}
 
     UpdateFrequency         updateFrequency{UpdateFrequency::PER_INSTANCE};
     ParameterType           parameterType{ParameterType::CONSTANTS};
+    DescriptorIndex         descriptorType{DescriptorIndex::UNIFORM_BLOCK};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
 };
 
-inline bool operator<(const DescriptorTableIndex& lhs, const DescriptorTableIndex& rhs) noexcept {
-    return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.visibility) <
-           std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.visibility);
+inline bool operator<(const DescriptorBlockIndex& lhs, const DescriptorBlockIndex& rhs) noexcept {
+    return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.descriptorType, lhs.visibility) <
+           std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.descriptorType, rhs.visibility);
+}
+
+struct DescriptorBlockIndexDx {
+    DescriptorBlockIndexDx() = default;
+    DescriptorBlockIndexDx(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, gfx::ShaderStageFlagBit visibilityIn, DescriptorIndex descriptorTypeIn) noexcept
+    : updateFrequency(updateFrequencyIn),
+      parameterType(parameterTypeIn),
+      visibility(visibilityIn),
+      descriptorType(descriptorTypeIn) {}
+
+    UpdateFrequency         updateFrequency{UpdateFrequency::PER_INSTANCE};
+    ParameterType           parameterType{ParameterType::CONSTANTS};
+    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
+    DescriptorIndex         descriptorType{DescriptorIndex::UNIFORM_BLOCK};
+};
+
+inline bool operator<(const DescriptorBlockIndexDx& lhs, const DescriptorBlockIndexDx& rhs) noexcept {
+    return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.visibility, lhs.descriptorType) <
+           std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.visibility, rhs.descriptorType);
 }
 
 struct DescriptorDB {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {tables.get_allocator().resource()};
+        return {blocks.get_allocator().resource()};
     }
 
     DescriptorDB(const allocator_type& alloc) noexcept; // NOLINT
@@ -153,7 +156,7 @@ struct DescriptorDB {
     DescriptorDB& operator=(DescriptorDB&& rhs) = default;
     DescriptorDB& operator=(DescriptorDB const& rhs) = default;
 
-    PmrMap<DescriptorTableIndex, DescriptorTable> tables;
+    PmrMap<DescriptorBlockIndex, DescriptorBlock> blocks;
 };
 
 struct RenderStageTag {};

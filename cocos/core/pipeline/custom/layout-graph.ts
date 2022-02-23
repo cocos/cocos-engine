@@ -56,27 +56,38 @@ export class Descriptor {
 }
 
 export class DescriptorBlock {
-    uniforms: Map<string, Descriptor> = new Map<string, Descriptor>();
-}
-
-export class DescriptorTable {
-    descriptorBlocks: Map<DescriptorIndex, DescriptorBlock> = new Map<DescriptorIndex, DescriptorBlock>();
+    descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
     uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
 }
 
-export class DescriptorTableIndex {
-    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
+export class DescriptorBlockIndex {
+    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
         this.updateFrequency = updateFrequency;
         this.parameterType = parameterType;
+        this.descriptorType = descriptorType;
         this.visibility = visibility;
     }
     updateFrequency: UpdateFrequency;
     parameterType: ParameterType;
+    descriptorType: DescriptorIndex;
     visibility: ShaderStageFlagBit;
 }
 
+export class DescriptorBlockIndexDx {
+    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, descriptorType: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK) {
+        this.updateFrequency = updateFrequency;
+        this.parameterType = parameterType;
+        this.visibility = visibility;
+        this.descriptorType = descriptorType;
+    }
+    updateFrequency: UpdateFrequency;
+    parameterType: ParameterType;
+    visibility: ShaderStageFlagBit;
+    descriptorType: DescriptorIndex;
+}
+
 export class DescriptorDB {
-    tables: Map<string, DescriptorTable> = new Map<string, DescriptorTable>();
+    blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
 }
 
 export class RenderPhase {

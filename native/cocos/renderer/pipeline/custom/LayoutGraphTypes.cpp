@@ -45,34 +45,25 @@ UniformBlockDB::UniformBlockDB(UniformBlockDB const& rhs, const allocator_type& 
 : values(rhs.values, alloc) {}
 
 DescriptorBlock::DescriptorBlock(const allocator_type& alloc) noexcept
-: uniforms(alloc) {}
-
-DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
-: uniforms(std::move(rhs.uniforms), alloc) {}
-
-DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
-: uniforms(rhs.uniforms, alloc) {}
-
-DescriptorTable::DescriptorTable(const allocator_type& alloc) noexcept
-: descriptorBlocks(alloc),
+: descriptors(alloc),
   uniformBlocks(alloc) {}
 
-DescriptorTable::DescriptorTable(DescriptorTable&& rhs, const allocator_type& alloc)
-: descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
+DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
+: descriptors(std::move(rhs.descriptors), alloc),
   uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
 
-DescriptorTable::DescriptorTable(DescriptorTable const& rhs, const allocator_type& alloc)
-: descriptorBlocks(rhs.descriptorBlocks, alloc),
+DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
+: descriptors(rhs.descriptors, alloc),
   uniformBlocks(rhs.uniformBlocks, alloc) {}
 
 DescriptorDB::DescriptorDB(const allocator_type& alloc) noexcept
-: tables(alloc) {}
+: blocks(alloc) {}
 
 DescriptorDB::DescriptorDB(DescriptorDB&& rhs, const allocator_type& alloc)
-: tables(std::move(rhs.tables), alloc) {}
+: blocks(std::move(rhs.blocks), alloc) {}
 
 DescriptorDB::DescriptorDB(DescriptorDB const& rhs, const allocator_type& alloc)
-: tables(rhs.tables, alloc) {}
+: blocks(rhs.blocks, alloc) {}
 
 RenderPhase::RenderPhase(const allocator_type& alloc) noexcept
 : shaders(alloc) {}
