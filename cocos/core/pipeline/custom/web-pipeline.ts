@@ -28,7 +28,7 @@ import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceResidency } from './types';
-import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, MovePair, MovePass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, ResourceDesc, ResourceFlags, ResourceGraph, ResourceTraits, SceneData } from './render-graph';
+import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, ResourceDesc, ResourceFlags, ResourceGraph, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { RenderScene } from '../../renderer/scene';
@@ -364,6 +364,10 @@ export class WebPipeline extends Pipeline {
         const pass = new CopyPass();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', new RenderData());
         return new WebCopyPassBuilder(this._renderGraph!, vertID, pass);
+    }
+    addPresentPass (name: string, swapchainName: string): void {
+        const pass = new PresentPass(swapchainName);
+        this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, name, '', new RenderData());
     }
     get renderGraph () {
         return this._renderGraph;

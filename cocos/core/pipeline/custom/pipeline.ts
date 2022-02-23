@@ -110,4 +110,5 @@ export abstract class Pipeline {
     public abstract addComputePass(layoutName: string): ComputePassBuilder;
     public abstract addMovePass(name: string): MovePassBuilder;
     public abstract addCopyPass(name: string): CopyPassBuilder;
+    public abstract addPresentPass(name: string, swapchainName: string): void;
 }
