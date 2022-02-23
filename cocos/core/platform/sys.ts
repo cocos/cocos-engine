@@ -30,6 +30,7 @@
  */
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
+import { WECHAT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
@@ -348,9 +349,15 @@ export const sys = {
         };
     }
 
-    // @ts-expect-error HACK: this private property only needed on web
-    sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
+    if (WECHAT) {
+        // @ts-expect-error HACK: this private property only needed on web & wechat JIT
+        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
+        && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+    } else {
+        // @ts-expect-error HACK: this private property only needed on web & wechat JIT
+        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
         && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
+    }
 }());
 
 legacyCC.sys = sys;
