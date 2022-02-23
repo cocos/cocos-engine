@@ -101,6 +101,7 @@ SE_DECLARE_FUNC(js_render_Pipeline_addComputePass);
 SE_DECLARE_FUNC(js_render_Pipeline_addCopyPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addDepthStencil);
 SE_DECLARE_FUNC(js_render_Pipeline_addMovePass);
+SE_DECLARE_FUNC(js_render_Pipeline_addPresentPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addRasterPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTarget);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTexture);
