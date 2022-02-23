@@ -685,6 +685,18 @@ void CCVKDevice::waitAllFences() {
     }
 }
 
+void CCVKDevice::updateBackBufferCount(uint32_t backBufferCount) {
+    if (backBufferCount <= _gpuDevice->backBufferCount) return;
+    for (uint32_t i = _gpuDevice->backBufferCount; i < backBufferCount; i++) {
+        _gpuFencePools.push_back(CC_NEW(CCVKGPUFencePool(_gpuDevice)));
+        _gpuRecycleBins.push_back(CC_NEW(CCVKGPURecycleBin(_gpuDevice)));
+        _gpuStagingBufferPools.push_back(CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice)));
+    }
+    _gpuBufferHub->updateBackBufferCount(backBufferCount);
+    _gpuDescriptorSetHub->updateBackBufferCount(backBufferCount);
+    _gpuDevice->backBufferCount = backBufferCount;
+}
+
 void CCVKDevice::initFormatFeature() {
     const auto           formatLen     = static_cast<size_t>(Format::COUNT);
     VkFormatProperties   properties    = {};

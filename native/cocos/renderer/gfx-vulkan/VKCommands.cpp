@@ -171,15 +171,15 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     };
 
     if (gpuTexture->swapchain) {
-        uint32_t backBufferCount = device->gpuDevice()->backBufferCount;
+        size_t backBufferCount = gpuTexture->swapchain->swapchainImages.size();
         gpuTexture->swapchainVkImages.resize(backBufferCount);
         if (GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].hasDepth) {
             gpuTexture->swapchainVmaAllocations.resize(backBufferCount);
-            for (uint32_t i = 0; i < backBufferCount; ++i) {
+            for (size_t i = 0; i < backBufferCount; ++i) {
                 createFn(&gpuTexture->swapchainVkImages[i], &gpuTexture->swapchainVmaAllocations[i]);
             }
         } else {
-            for (uint32_t i = 0; i < backBufferCount; ++i) {
+            for (size_t i = 0; i < backBufferCount; ++i) {
                 gpuTexture->swapchainVkImages[i] = gpuTexture->swapchain->swapchainImages[i];
             }
         }
@@ -207,9 +207,9 @@ void cmdFuncCCVKCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTex
     };
 
     if (gpuTextureView->gpuTexture->swapchain) {
-        uint32_t backBufferCount = device->gpuDevice()->backBufferCount;
+        size_t backBufferCount = gpuTextureView->gpuTexture->swapchain->swapchainImages.size();
         gpuTextureView->swapchainVkImageViews.resize(backBufferCount);
-        for (uint32_t i = 0; i < backBufferCount; ++i) {
+        for (size_t i = 0; i < backBufferCount; ++i) {
             createFn(gpuTextureView->gpuTexture->swapchainVkImages[i], &gpuTextureView->swapchainVkImageViews[i]);
         }
     } else if (gpuTextureView->gpuTexture->vkImage) {
