@@ -25,8 +25,12 @@
 
 import gfx from '../../../renderer/gfx';
 
-const FIX_IOS14_BUFFER = (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_OSX) && cc.sys.isBrowser && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
-
+let FIX_IOS14_BUFFER;
+if (CC_WECHATGAME) {
+    FIX_IOS14_BUFFER = (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_OSX) && GameGlobal?.isIOSHighPerformanceMode && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+} else {
+    FIX_IOS14_BUFFER = (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_OSX) && cc.sys.isBrowser && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+}
 let MeshBuffer = cc.Class({
     name: 'cc.MeshBuffer',
     ctor (batcher, vertexFormat) {
