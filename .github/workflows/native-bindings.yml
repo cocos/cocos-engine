@@ -23,16 +23,21 @@ jobs:
           python3 -m pip install PyYAML==5.4.1 Cheetah3
           python3 ./native/tools/tojs/genbindings.py
           rm ./native/tools/tojs/userconf.ini
+      - name: Update builtin-res 
+        run: |
+          cd native
+          sh utils/generate_compile_commands_android.sh
+          cmake --build ./build --target builtin-res
 
       - name: Create Pull Request 
         uses: fish9167/create-pull-request@v3
         with:
-            title: '[ci skip][AUTO]: Automated PR to genbindings'
+            title: '[ci skip][AUTO]: Automated PR to generate code'
             body: |
-              Automated PR to genbindings
+              Automated PR to genbindings & built resources
             committer: cocos-robot <cocos-robot@cocos.com>
             author: cocos-robot <cocos-robot@cocos.com>
-            commit-message: "[ci skip][AUTO]: Automated genbindings update: ${{ github.event.pull_request.head.sha }}  (#${{ github.event.number }})"
+            commit-message: "[ci skip][AUTO]: Automated code generating update: ${{ github.event.pull_request.head.sha }}  (#${{ github.event.number }})"
             token: ${{ secrets.PR_TOKEN }}
             push-to-fork: cocos-robot/engine
             branch: t/bot/genbindings

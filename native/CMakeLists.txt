@@ -2580,19 +2580,21 @@ list(APPEND COCOS_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 ### generate source files
 
 
-macro(compile_ts file_without_ext)
+function(compile_ts input_file_ts output_file)
+    get_filename_component(outdir ${output_file} PATH)
     add_custom_command(
-        OUTPUT ${file_without_ext}.js
-        COMMAND ${TSC_EXECUTABLE} --module commonjs ${file_without_ext}.ts
-        DEPENDS ${file_without_ext}.ts
+        OUTPUT ${output_file}
+        # COMMAND ${CMAKE_COMMAND} -E echo "compiling ts file ${input_file_ts}"
+        COMMAND ${TSC_EXECUTABLE} --module commonjs ${input_file_ts} --outDir ${outdir}
+        DEPENDS ${input_file_ts}
         VERBATIM USES_TERMINAL
     )
-endmacro()
+endfunction()
 
-compile_ts(${CWD}/cocos/core/builtin/effects)
-compile_ts(${CWD}/cocos/core/builtin/shader-sources/glsl1)
-compile_ts(${CWD}/cocos/core/builtin/shader-sources/glsl3)
-compile_ts(${CWD}/cocos/core/builtin/shader-sources/glsl4)
+compile_ts(${CWD}/../cocos/core/builtin/effects.ts ${CWD}/cocos/core/builtin/effects.js)
+compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl1.ts ${CWD}/cocos/core/builtin/shader-sources/glsl1.js)
+compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl3.ts ${CWD}/cocos/core/builtin/shader-sources/glsl3.js)
+compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl4.ts ${CWD}/cocos/core/builtin/shader-sources/glsl4.js)
 
 set(CC_GENERATED_FILES
     ${CWD}/cocos/core/builtin/Effects.cpp
