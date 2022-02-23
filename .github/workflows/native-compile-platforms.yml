@@ -42,6 +42,8 @@ jobs:
           echo "set(CC_USE_GLES3 ON)" >> build-win32/proj/cfg.cmake
           echo "set(CC_USE_VULKAN ON)" >> build-win32/proj/cfg.cmake
           echo "set(CC_USE_GLES2 ON)" >> build-win32/proj/cfg.cmake
+          echo "set(USE_SPINE OFF)" >> build-win32/proj/cfg.cmake
+          echo "set(USE_DRAGONBONES OFF)" >> build-win32/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win32/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win32/proj/cfg.cmake
           mkdir build-win32/assets

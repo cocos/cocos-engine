@@ -37,11 +37,11 @@
 #include "extensions/cocos-ext.h"
 #include "network/Downloader.h"
 
+#include "bindings/auto/jsb_assets_auto.h"
 #include "cocos/core/geometry/Geometry.h"
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
-#include "bindings/auto/jsb_assets_auto.h"
 
 ///////////////////////// utils /////////////////////////
 
@@ -1194,7 +1194,9 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
     return true;
 }
+#endif
 
+#if USE_MIDDLEWARE
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middleware::Texture2D *> *ret) {
     assert(ret != nullptr);
@@ -1226,6 +1228,8 @@ bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middle
 
     return true;
 }
+
+#endif
 
 ////////////////////////////////////////////////////////////////////////////
 /////////////////nativevalue_to_se//////////////////////////////////////////
@@ -1400,7 +1404,7 @@ bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret) {
 
     return true;
 }
-
+#if USE_SPINE
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object * /*unused*/) {
     val.setString(obj.buffer());

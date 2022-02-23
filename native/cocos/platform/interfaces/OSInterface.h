@@ -69,7 +69,7 @@ protected:
     IEventDispatch *_evDispatchInterface{nullptr};
 
 private:
-    CC_DISABLE_COPY_AND_MOVE_SEMANTICS(OSInterface);
+    CC_DISALLOW_COPY_MOVE_ASSIGN(OSInterface);
 };
 
 } // namespace cc

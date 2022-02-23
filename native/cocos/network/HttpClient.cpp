@@ -32,6 +32,7 @@
 #include <queue>
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 #include "platform/StdC.h"
 

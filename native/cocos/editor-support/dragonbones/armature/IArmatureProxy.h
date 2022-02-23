@@ -83,7 +83,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    virtual void dispose(bool disposeProxy) = 0;
+    virtual void dispose() = 0;
     /**
      * - The armature.
      * @version DragonBones 4.5

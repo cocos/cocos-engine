@@ -29,6 +29,7 @@
 
 #include "SkeletonCache.h"
 #include "spine-creator-support/AttachmentVertices.h"
+#include "base/memory/Memory.h"
 
 USING_NS_MW;        // NOLINT(google-build-using-namespace)
 using namespace cc; // NOLINT(google-build-using-namespace)

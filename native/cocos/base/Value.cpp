@@ -35,6 +35,7 @@
 #include <sstream>
 
 #include "base/Utils.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 

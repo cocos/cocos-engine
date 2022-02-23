@@ -647,7 +647,7 @@ static bool js_pipeline_RenderPipeline_getConstantMacros(se::State& s) // NOLINT
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->getConstantMacros();
+        const std::string& result = cobj->getConstantMacros();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getConstantMacros : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -859,7 +859,7 @@ static bool js_pipeline_RenderPipeline_getRenderstageByName(se::State& s) // NOL
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::String, true> arg0 = {};
+        HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getRenderstageByName : Error processing arguments");
         cc::pipeline::RenderStage* result = cobj->getRenderstageByName(arg0.value());
@@ -1181,7 +1181,7 @@ static bool js_pipeline_RenderPipeline_setValue(se::State& s) // NOLINT(readabil
     size_t argc = args.size();
     do {
         if (argc == 2) {
-            HolderType<cc::String, true> arg0 = {};
+            HolderType<std::string, true> arg0 = {};
             HolderType<bool, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1194,7 +1194,7 @@ static bool js_pipeline_RenderPipeline_setValue(se::State& s) // NOLINT(readabil
 
     do {
         if (argc == 2) {
-            HolderType<cc::String, true> arg0 = {};
+            HolderType<std::string, true> arg0 = {};
             HolderType<int32_t, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1208,7 +1208,7 @@ static bool js_pipeline_RenderPipeline_setValue(se::State& s) // NOLINT(readabil
 
     do {
         if (argc == 2) {
-            HolderType<cc::String, true> arg0 = {};
+            HolderType<std::string, true> arg0 = {};
             HolderType<std::string, true> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
@@ -1619,7 +1619,7 @@ static bool js_pipeline_RenderFlow_getRenderstageByName(se::State& s) // NOLINT(
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::String, true> arg0 = {};
+        HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_pipeline_RenderFlow_getRenderstageByName : Error processing arguments");
         cc::pipeline::RenderStage* result = cobj->getRenderstageByName(arg0.value());

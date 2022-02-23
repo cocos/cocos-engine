@@ -508,8 +508,6 @@ bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object *ctx
 
 bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
-bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middleware::Texture2D *> *ret); // NOLINT(readability-identifier-naming)
-
 #endif
 
 #if USE_MIDDLEWARE
@@ -517,7 +515,8 @@ inline bool nativevalue_to_se(const se_object_ptr &from, se::Value &to, se::Obje
     to.setObject(const_cast<se::Object *>(from));
     return true;
 }
-#endif //USE_MIDDLEWARE
+bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middleware::Texture2D *> *ret); // NOLINT(readability-identifier-naming)
+#endif                                                                                                    //USE_MIDDLEWARE
 
 #if USE_PHYSICS_PHYSX
 

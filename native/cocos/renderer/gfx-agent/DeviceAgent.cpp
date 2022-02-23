@@ -79,7 +79,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
 
     // NOTE: C++17 is required when enable alignment
     // TODO(PatriceJiang): replace with: _mainMessageQueue = CC_NEW(MessageQueue);
-    _mainMessageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue)); //NOLINT
+    _mainMessageQueue = CC_NEW_ALIGN(MessageQueue, alignof(MessageQueue)); //NOLINT
 
     static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
     static_cast<CommandBufferAgent *>(_cmdBuff)->initAgent();
@@ -118,7 +118,7 @@ void DeviceAgent::doDestroy() {
 
     // NOTE: C++17 required when enable alignment
     // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
-    _CC_DELETE_T_ALIGN(_mainMessageQueue, MessageQueue, alignof(MessageQueue)); // NOLINT
+    CC_DELETE_ALIGN(_mainMessageQueue, MessageQueue, alignof(MessageQueue)); // NOLINT
     _mainMessageQueue = nullptr;
 }
 
@@ -288,7 +288,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
     }
 
     //TODO(PatriceJiang): in C++17 replace with:*allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
-    auto *allocator = _CC_NEW_T_ALIGN(ThreadSafeLinearAllocator(totalSize), alignof(ThreadSafeLinearAllocator));
+    auto *allocator = CC_NEW_ALIGN(ThreadSafeLinearAllocator(totalSize), alignof(ThreadSafeLinearAllocator));
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
@@ -316,7 +316,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
             // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
-            if (allocator) _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
+            if (allocator) CC_DELETE_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
         });
 }
 
