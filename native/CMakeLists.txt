@@ -2516,8 +2516,12 @@ if(QNX)
         ${CC_EXTERNAL_LIBS}
     )
 elseif(LINUX)
+    set(LINUX_GRAPHIC_LIBS "")
+    if(NOT USE_SERVER_MODE)
+        list(APPEND LINUX_GRAPHIC_LIBS X11)
+    endif()
     target_link_libraries(cocos2d PUBLIC
-        X11
+        ${LINUX_GRAPHIC_LIBS}
         ${CC_EXTERNAL_LIBS}
     )
 endif()
