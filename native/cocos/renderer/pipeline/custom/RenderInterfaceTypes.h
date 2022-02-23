@@ -100,15 +100,11 @@ public:
 
 inline Setter::~Setter() noexcept = default;
 
-class RasterQueueBuilder {
+class RasterQueueBuilder : public Setter {
 public:
     RasterQueueBuilder() noexcept = default;
-    RasterQueueBuilder(RasterQueueBuilder&& rhs)      = delete;
-    RasterQueueBuilder(RasterQueueBuilder const& rhs) = delete;
-    RasterQueueBuilder& operator=(RasterQueueBuilder&& rhs) = delete;
-    RasterQueueBuilder& operator=(RasterQueueBuilder const& rhs) = delete;
 
-    virtual ~RasterQueueBuilder() noexcept = 0;
+    ~RasterQueueBuilder() noexcept override = 0;
 
     virtual void addSceneOfCamera(scene::Camera* camera, const std::string& name) = 0;
     virtual void addSceneOfCamera(scene::Camera* camera) = 0;
@@ -119,15 +115,11 @@ public:
 
 inline RasterQueueBuilder::~RasterQueueBuilder() noexcept = default;
 
-class RasterPassBuilder {
+class RasterPassBuilder : public Setter {
 public:
     RasterPassBuilder() noexcept = default;
-    RasterPassBuilder(RasterPassBuilder&& rhs)      = delete;
-    RasterPassBuilder(RasterPassBuilder const& rhs) = delete;
-    RasterPassBuilder& operator=(RasterPassBuilder&& rhs) = delete;
-    RasterPassBuilder& operator=(RasterPassBuilder const& rhs) = delete;
 
-    virtual ~RasterPassBuilder() noexcept = 0;
+    ~RasterPassBuilder() noexcept override = 0;
 
     virtual void addRasterView(const std::string& name, const RasterView& view) = 0;
     virtual void addComputeView(const std::string& name, const ComputeView& view) = 0;
@@ -141,15 +133,11 @@ public:
 
 inline RasterPassBuilder::~RasterPassBuilder() noexcept = default;
 
-class ComputeQueueBuilder {
+class ComputeQueueBuilder : public Setter {
 public:
     ComputeQueueBuilder() noexcept = default;
-    ComputeQueueBuilder(ComputeQueueBuilder&& rhs)      = delete;
-    ComputeQueueBuilder(ComputeQueueBuilder const& rhs) = delete;
-    ComputeQueueBuilder& operator=(ComputeQueueBuilder&& rhs) = delete;
-    ComputeQueueBuilder& operator=(ComputeQueueBuilder const& rhs) = delete;
 
-    virtual ~ComputeQueueBuilder() noexcept = 0;
+    ~ComputeQueueBuilder() noexcept override = 0;
 
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const std::string& layoutName, const std::string& name) = 0;
     virtual void addDispatch(const std::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const std::string& layoutName) = 0;
@@ -158,15 +146,11 @@ public:
 
 inline ComputeQueueBuilder::~ComputeQueueBuilder() noexcept = default;
 
-class ComputePassBuilder {
+class ComputePassBuilder : public Setter {
 public:
     ComputePassBuilder() noexcept = default;
-    ComputePassBuilder(ComputePassBuilder&& rhs)      = delete;
-    ComputePassBuilder(ComputePassBuilder const& rhs) = delete;
-    ComputePassBuilder& operator=(ComputePassBuilder&& rhs) = delete;
-    ComputePassBuilder& operator=(ComputePassBuilder const& rhs) = delete;
 
-    virtual ~ComputePassBuilder() noexcept = 0;
+    ~ComputePassBuilder() noexcept override = 0;
 
     virtual void addComputeView(const std::string& name, const ComputeView& view) = 0;
 

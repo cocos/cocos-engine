@@ -410,7 +410,7 @@ SE_BIND_FUNC(js_render_RasterQueueBuilder_addSceneOfCamera)
 
 bool js_register_render_RasterQueueBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("RasterQueueBuilder", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("RasterQueueBuilder", obj, __jsb_cc_render_Setter_proto, nullptr);
 
     cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterQueueBuilder_addFullscreenQuad));
     cls->defineFunction("addScene", _SE(js_render_RasterQueueBuilder_addScene));
@@ -589,7 +589,7 @@ SE_BIND_FUNC(js_render_RasterPassBuilder_addRasterView)
 
 bool js_register_render_RasterPassBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("RasterPassBuilder", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("RasterPassBuilder", obj, __jsb_cc_render_Setter_proto, nullptr);
 
     cls->defineFunction("addComputeView", _SE(js_render_RasterPassBuilder_addComputeView));
     cls->defineFunction("addFullscreenQuad", _SE(js_render_RasterPassBuilder_addFullscreenQuad));
@@ -691,7 +691,7 @@ SE_BIND_FUNC(js_render_ComputeQueueBuilder_addDispatch)
 
 bool js_register_render_ComputeQueueBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("ComputeQueueBuilder", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("ComputeQueueBuilder", obj, __jsb_cc_render_Setter_proto, nullptr);
 
     cls->defineFunction("addDispatch", _SE(js_render_ComputeQueueBuilder_addDispatch));
     cls->install();
@@ -865,7 +865,7 @@ SE_BIND_FUNC(js_render_ComputePassBuilder_addQueue)
 
 bool js_register_render_ComputePassBuilder(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("ComputePassBuilder", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("ComputePassBuilder", obj, __jsb_cc_render_Setter_proto, nullptr);
 
     cls->defineFunction("addComputeView", _SE(js_render_ComputePassBuilder_addComputeView));
     cls->defineFunction("addDispatch", _SE(js_render_ComputePassBuilder_addDispatch));
@@ -1274,6 +1274,7 @@ bool register_all_render(se::Object* obj)    // NOLINT
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_render_Setter(ns);
     js_register_render_ComputePassBuilder(ns);
     js_register_render_ComputeQueueBuilder(ns);
     js_register_render_CopyPassBuilder(ns);
@@ -1282,7 +1283,6 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_Pipeline(ns);
     js_register_render_RasterPassBuilder(ns);
     js_register_render_RasterQueueBuilder(ns);
-    js_register_render_Setter(ns);
     return true;
 }
 
