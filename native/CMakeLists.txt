@@ -2581,10 +2581,11 @@ list(APPEND COCOS_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 
 
 function(compile_ts input_file_ts output_file)
-    get_filename_component(outdir ${output_file} PATH)
+    get_filename_component(outdir ${output_file} DIRECTORY)
+    get_filename_component(from_ts ${input_file_ts} NAME)
     add_custom_command(
         OUTPUT ${output_file}
-        # COMMAND ${CMAKE_COMMAND} -E echo "compiling ts file ${input_file_ts}"
+        COMMAND ${CMAKE_COMMAND} -E echo " transform ${from_ts} file ${output_file}"
         COMMAND ${TSC_EXECUTABLE} --module commonjs ${input_file_ts} --outDir ${outdir}
         DEPENDS ${input_file_ts}
         VERBATIM USES_TERMINAL

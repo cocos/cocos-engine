@@ -26,6 +26,7 @@ jobs:
       - name: Update builtin-res 
         run: |
           cd native
+          npm install -g typescript
           sh utils/generate_compile_commands_android.sh
           cmake --build ./build --target builtin-res
 
