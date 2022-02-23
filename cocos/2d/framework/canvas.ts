@@ -214,9 +214,9 @@ export class Canvas extends RenderRoot2D {
 
         if (EDITOR) {
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+        } else {
+            this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
         }
-
-        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
     }
 
     protected _onResizeCamera () {
