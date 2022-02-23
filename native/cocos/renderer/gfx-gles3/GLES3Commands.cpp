@@ -2781,6 +2781,27 @@ void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
     }
 }
 
+uint8_t *stagingBuffer    = nullptr;
+uint32_t stagingBufferLen = 0;
+
+uint8_t *funcGLES3PixelBufferPick(const uint8_t *buffer, uint32_t offset, uint32_t width, uint32_t height, uint32_t fmtSize, uint32_t stride) {
+    const uint32_t bufferSize = width * height * fmtSize;
+
+    if (stagingBufferLen < bufferSize) {
+        delete[] stagingBuffer;
+        stagingBuffer = new uint8_t[bufferSize];
+    }
+    uint32_t chunkSize    = fmtSize * width;
+    uint32_t chunkOffset  = 0;
+    uint32_t bufferOffset = offset;
+    for (uint32_t i = 0; i < height; i++) {
+        memcpy(stagingBuffer + chunkOffset, buffer + bufferOffset, chunkSize);
+        chunkOffset += chunkSize;
+        bufferOffset += stride;
+    }
+    return stagingBuffer;
+}
+
 void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const *buffers, GLES3GPUTexture *gpuTexture, const BufferTextureCopy *regions, uint32_t count) {
     if (gpuTexture->memoryless) return;
 
@@ -2792,6 +2813,7 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
 
     bool     isCompressed = GFX_FORMAT_INFOS[static_cast<int>(gpuTexture->format)].isCompressed;
     uint32_t n            = 0;
+    uint32_t fmtSize      = GFX_FORMAT_INFOS[static_cast<uint32_t>(gpuTexture->format)].size;
 
     switch (gpuTexture->glTarget) {
         case GL_TEXTURE_2D: {
@@ -2801,7 +2823,16 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
                 const BufferTextureCopy &region = regions[i];
                 w                               = region.texExtent.width;
                 h                               = region.texExtent.height;
-                const uint8_t *buff             = buffers[n++];
+                uint32_t bufferOffset           = region.buffOffset;
+
+                const uint8_t *buff;
+                if (region.buffStride > 0) {
+                    buff         = funcGLES3PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
+                    bufferOffset = 0;
+                } else {
+                    buff = buffers[n++] + bufferOffset;
+                }
+
                 if (isCompressed) {
                     auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
                     GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_2D,
@@ -2833,10 +2864,20 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
                 uint32_t                 d          = region.texSubres.layerCount;
                 uint32_t                 layerCount = d + region.texSubres.baseArrayLayer;
 
+                uint32_t bufferOffset = region.buffOffset;
                 for (uint32_t z = region.texSubres.baseArrayLayer; z < layerCount; ++z) {
-                    w                   = region.texExtent.width;
-                    h                   = region.texExtent.height;
-                    const uint8_t *buff = buffers[n++];
+                    w            = region.texExtent.width;
+                    h            = region.texExtent.height;
+                    bufferOffset = region.buffOffset;
+
+                    const uint8_t *buff;
+                    if (region.buffStride > 0) {
+                        buff         = funcGLES3PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
+                        bufferOffset = 0;
+                    } else {
+                        buff = buffers[n++] + bufferOffset;
+                    }
+
                     if (isCompressed) {
                         auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
                         GL_CHECK(glCompressedTexSubImage3D(GL_TEXTURE_2D_ARRAY,
@@ -2872,7 +2913,16 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
                 w                               = region.texExtent.width;
                 h                               = region.texExtent.height;
                 d                               = region.texExtent.depth;
-                const uint8_t *buff             = buffers[n++];
+                uint32_t bufferOffset           = region.buffOffset;
+
+                const uint8_t *buff;
+                if (region.buffStride > 0) {
+                    buff         = funcGLES3PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
+                    bufferOffset = 0;
+                } else {
+                    buff = buffers[n++] + bufferOffset;
+                }
+
                 if (isCompressed) {
                     auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
                     GL_CHECK(glCompressedTexSubImage3D(GL_TEXTURE_3D,
@@ -2902,13 +2952,24 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
             uint32_t w;
             uint32_t h;
             uint32_t f;
+
             for (size_t i = 0; i < count; ++i) {
-                const BufferTextureCopy &region    = regions[i];
-                uint32_t                 faceCount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+                const BufferTextureCopy &region       = regions[i];
+                uint32_t                 faceCount    = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+                uint32_t                 bufferOffset = region.buffOffset;
                 for (f = region.texSubres.baseArrayLayer; f < faceCount; ++f) {
-                    w                   = region.texExtent.width;
-                    h                   = region.texExtent.height;
-                    const uint8_t *buff = buffers[n++];
+                    w            = region.texExtent.width;
+                    h            = region.texExtent.height;
+                    bufferOffset = region.buffOffset;
+
+                    const uint8_t *buff;
+                    if (region.buffStride > 0) {
+                        buff         = funcGLES3PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
+                        bufferOffset = 0;
+                    } else {
+                        buff = buffers[n++] + bufferOffset;
+                    }
+
                     if (isCompressed) {
                         auto memSize = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
                         GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f,
@@ -2942,6 +3003,11 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
     if (!isCompressed && hasFlag(gpuTexture->flags, TextureFlagBit::GEN_MIPMAP)) {
         GL_CHECK(glBindTexture(gpuTexture->glTarget, gpuTexture->glTexture));
         GL_CHECK(glGenerateMipmap(gpuTexture->glTarget));
+    }
+
+    if (stagingBuffer != nullptr) {
+        delete[] stagingBuffer;
+        stagingBuffer = nullptr;
     }
 }
 

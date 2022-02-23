@@ -894,6 +894,7 @@ export class BufferTextureCopy {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
+        public buffOffset: number = 0,
         public buffStride: number = 0,
         public buffTexHeight: number = 0,
         public texOffset: Offset = new Offset(),
@@ -902,6 +903,7 @@ export class BufferTextureCopy {
     ) {}
 
     public copy (info: Readonly<BufferTextureCopy>) {
+        this.buffOffset = info.buffOffset;
         this.buffStride = info.buffStride;
         this.buffTexHeight = info.buffTexHeight;
         this.texOffset.copy(info.texOffset);

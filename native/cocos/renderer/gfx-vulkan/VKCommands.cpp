@@ -1244,6 +1244,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     for (size_t i = 0U; i < count; ++i) {
         const BufferTextureCopy &region{regions[i]};
 
+        uint32_t regionOffset = region.buffOffset;
         uint32_t regionWidth  = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
         uint32_t regionHeight = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
         size_t   regionSize   = formatSize(gpuTexture->format, regionWidth, regionHeight, region.texExtent.depth);
@@ -1265,7 +1266,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
             CCVKGPUBuffer stagingBuffer;
             stagingBuffer.size = curSize;
             device->gpuStagingBufferPool()->alloc(&stagingBuffer, GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].size);
-            memcpy(stagingBuffer.mappedData, buffers[i] + s, curSize);
+            memcpy(stagingBuffer.mappedData, buffers[i] + s + regionOffset, curSize);
 
             VkBufferImageCopy stagingRegion;
             stagingRegion.bufferOffset      = stagingBuffer.startOffset;

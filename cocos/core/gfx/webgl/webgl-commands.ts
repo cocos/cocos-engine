@@ -2693,6 +2693,30 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
     }
 }
 
+let stagingBuffer = new Uint8Array(1);
+function pixelBufferPick (buffer : ArrayBufferView,
+    offset: number,
+    width: number,
+    height: number,
+    fmtSize: number,
+    stride : number) : ArrayBufferView {
+    const bufferSize = height * width * fmtSize;
+    if (stagingBuffer.byteLength < bufferSize) {
+        stagingBuffer = new Uint8Array(bufferSize);
+    }
+    const chunkSize = width * fmtSize;
+    let chunkOffset = 0;
+    let bufferOffset = offset;
+    for (let j = 0; j < height; j++) {
+        stagingBuffer.subarray(chunkOffset, chunkOffset + chunkSize).set(
+            new Uint8Array(buffer.buffer, bufferOffset, chunkSize),
+        );
+        chunkOffset += chunkSize;
+        bufferOffset += stride;
+    }
+    return stagingBuffer;
+}
+
 export function WebGLCmdFuncCopyBuffersToTexture (
     device: WebGLDevice,
     buffers: ArrayBufferView[],
@@ -2717,11 +2741,19 @@ export function WebGLCmdFuncCopyBuffersToTexture (
     case gl.TEXTURE_2D: {
         for (let i = 0; i < regions.length; i++) {
             const region = regions[i];
+            const bufferOffset = region.buffOffset;
             w = region.texExtent.width;
             h = region.texExtent.height;
             // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);
 
-            const pixels = buffers[n++];
+            let pixels = buffers[n++];
+            if (region.buffStride > 0) {
+                pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo.size, region.buffStride);
+            } else {
+                stagingBuffer = new Uint8Array(pixels.buffer, bufferOffset);
+                pixels = stagingBuffer;
+            }
+
             if (!isCompressed) {
                 gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                     region.texOffset.x, region.texOffset.y, w, h,
@@ -2741,13 +2773,21 @@ export function WebGLCmdFuncCopyBuffersToTexture (
     case gl.TEXTURE_CUBE_MAP: {
         for (let i = 0; i < regions.length; i++) {
             const region = regions[i];
+            const bufferOffset = region.buffOffset;
             const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
             for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                 w = region.texExtent.width;
                 h = region.texExtent.height;
                 // console.debug('Copying buffer to texture cube: ' + w + ' x ' + h);
 
-                const pixels = buffers[n++];
+                let pixels = buffers[n++];
+                if (region.buffStride > 0) {
+                    pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo.size, region.buffStride);
+                } else {
+                    stagingBuffer = new Uint8Array(pixels.buffer, bufferOffset);
+                    pixels = stagingBuffer;
+                }
+
                 if (!isCompressed) {
                     gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
                         region.texOffset.x, region.texOffset.y, w, h,
