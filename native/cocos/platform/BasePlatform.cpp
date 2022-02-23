@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "platform/BasePlatform.h"
-#if (USE_SERVER_MODE == TRUE)
+#if (SERVER_MODE)
     #include "platform/empty/EmptyPlatform.h"
 #elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "platform/win32/WindowsPlatform.h"
@@ -47,7 +47,7 @@ BasePlatform::BasePlatform()  = default;
 BasePlatform::~BasePlatform() = default;
 
 BasePlatform* BasePlatform::getPlatform() {
-#if (USE_SERVER_MODE == TRUE)
+#if (SERVER_MODE)
     static EmptyPlatform platform;
 #elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     static WindowsPlatform platform;

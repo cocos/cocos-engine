@@ -47,6 +47,7 @@ if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
     set(CC_USE_GLES3 OFF)
     set(CC_USE_GLES2 OFF)
+    set(SERVER_MODE TRUE)
 endif()
 
 if(USE_PHYSICS_PHYSX)
