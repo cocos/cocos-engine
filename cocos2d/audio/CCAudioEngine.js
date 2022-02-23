@@ -291,6 +291,18 @@ var audioEngine = {
     },
 
     /**
+     * !#en Whether the audio is playing
+     * !#zh 音乐是否正在播放
+     * @method isPlaying
+     * @return {Boolean}
+     * @example
+     * cc.audioEngine.isPlaying(audioID);
+     */
+    isPlaying: function(audioID) {
+        return this.getState(audioID) === this.AudioState.PLAYING;
+    },
+
+    /**
      * !#en Set Audio finish callback
      * !#zh 设置一个音频结束后的回调
      * @method setFinishCallback
