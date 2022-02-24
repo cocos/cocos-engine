@@ -8,11 +8,11 @@ in highp vec4 v_shadowPos;
 
 // Just to be compatible with old projects only
 #if CC_RECEIVE_SHADOW
-void CC_SPOT_SHADOW_FACTOR(out float realtimeShadow, vec3 worldPos, vec3 lightPos, vec3 normal) {
-    realtimeShadow = CCSpotShadowFactorBase(CC_SHADOW_POSITION, worldPos);
+void CC_SPOT_SHADOW_FACTOR(out float realtimeShadow, vec3 worldPos, vec3 lightPos, vec3 normal, vec2 shadowBias) {
+    realtimeShadow = CCSpotShadowFactorBase(CC_SHADOW_POSITION, worldPos, shadowBias);
 }
 
-void CC_SHADOW_FACTOR(out float realtimeShadow, vec3 N, float NL) {
-    realtimeShadow = CCShadowFactorBase(CC_SHADOW_POSITION, N);
+void CC_SHADOW_FACTOR(out float realtimeShadow, vec3 N, float NL, vec2 shadowBias) {
+    realtimeShadow = CCShadowFactorBase(CC_SHADOW_POSITION, N, shadowBias);
 }
 #endif
