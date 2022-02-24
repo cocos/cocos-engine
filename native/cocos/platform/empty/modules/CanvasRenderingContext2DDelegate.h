@@ -74,15 +74,12 @@ public:
     void            strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     void            rect(float x, float y, float w, float h) override;
 
-public:
-
 private:
     int32_t _x{0};
     int32_t _y{0};
     int32_t _lineCap{0};
     int32_t _lineJoin{0};
 
-private:
     cc::Data    _imageData;
     std::string _curFontPath;
     int         _savedDC{0};
