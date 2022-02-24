@@ -78,7 +78,6 @@ export enum SpineMaterialType {
 }
 
 export interface SkeletonDrawData {
-    // renderData: MeshRenderData;
     material: Material | null;
     texture: Texture2D | null;
     indexOffset: number;
@@ -1317,7 +1316,7 @@ export class Skeleton extends Renderable2D {
 
     public destroyRenderData () {
         this._drawList.destroy();
-        if (this._renderData) this._renderData.clear();
+        super.destroyRenderData();
     }
 
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
