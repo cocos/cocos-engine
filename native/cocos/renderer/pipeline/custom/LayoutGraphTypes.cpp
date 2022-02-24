@@ -50,11 +50,17 @@ DescriptorBlock::DescriptorBlock(const allocator_type& alloc) noexcept
 
 DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
 : descriptors(std::move(rhs.descriptors), alloc),
-  uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
+  uniformBlocks(std::move(rhs.uniformBlocks), alloc),
+  capacity(rhs.capacity),
+  start(rhs.start),
+  count(rhs.count) {}
 
 DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
 : descriptors(rhs.descriptors, alloc),
-  uniformBlocks(rhs.uniformBlocks, alloc) {}
+  uniformBlocks(rhs.uniformBlocks, alloc),
+  capacity(rhs.capacity),
+  start(rhs.start),
+  count(rhs.count) {}
 
 DescriptorDB::DescriptorDB(const allocator_type& alloc) noexcept
 : blocks(alloc) {}

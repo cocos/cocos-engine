@@ -58,6 +58,9 @@ export class Descriptor {
 export class DescriptorBlock {
     descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
     uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
+    capacity = 0;
+    start = 0;
+    count = 0;
 }
 
 export class DescriptorBlockIndex {
