@@ -154,7 +154,7 @@ public:
      *  @param[in] pathBc The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
      *  @return true if succeed, otherwise false.
      */
-    bool saveByteCodeToFile(const std::string &path, const std::string &pathBc) { assert(false); } //cjh
+    bool saveByteCodeToFile(const std::string &path, const std::string &pathBc) { assert(false); return false; } //cjh
 
     /**
      * @brief Grab a snapshot of the current JavaScript execution stack.
@@ -293,6 +293,7 @@ public:
      * @brief Handle all exceptions throwed by promise
      */
     void handlePromiseExceptions();
+    
 
     // Private API used in wrapper
     JSContext *_getContext() { return _cx; }

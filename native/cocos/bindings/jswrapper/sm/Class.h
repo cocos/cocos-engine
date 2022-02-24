@@ -126,10 +126,12 @@ private:
     void destroy();
 
     //        static JSObject* _createJSObject(const std::string &clsName, Class** outCls);
-    static JSObject *_createJSObjectWithClass(Class *cls);
+    static void _createJSObjectWithClass(Class *cls, JS::MutableHandleObject outObj);
 
     static void setContext(JSContext *cx);
     static void cleanup();
+
+    static void onTraceCallback(JSTracer* trc, JSObject* obj);
 
     const char *_name;
     Object *    _parent;

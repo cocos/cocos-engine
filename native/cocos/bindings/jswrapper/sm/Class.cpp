@@ -110,31 +110,41 @@ void Class::destroy() {
     SAFE_DEC_REF(_parentProto);
 }
 
+/* static */
+void Class::onTraceCallback(JSTracer* trc, JSObject* obj) {
+    auto* seObj = reinterpret_cast<Object*>(internal::SE_JS_GetPrivate(obj, 1));
+    if (seObj != nullptr) {
+        JS::TraceEdge(trc, &seObj->_heap, "seObj");
+    }
+}
+
 bool Class::install() {
     //        assert(__clsMap.find(_name) == __clsMap.end());
     //
     //        __clsMap.emplace(_name, this);
 
     _jsCls.name = _name;
+    _jsCls.flags       = JSCLASS_USERBIT1 | JSCLASS_HAS_RESERVED_SLOTS(2) | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
     if (_finalizeOp != nullptr) {
-        _jsCls.flags       = JSCLASS_USERBIT1 | JSCLASS_HAS_RESERVED_SLOTS(2) | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
         _classOps.finalize = _finalizeOp;
     } else {
-        _jsCls.flags = JSCLASS_USERBIT1 | JSCLASS_HAS_RESERVED_SLOTS(2);
+        _classOps.finalize = [](JSFreeOp *fop, JSObject *obj) {};
     }
+
+    _classOps.trace = Class::onTraceCallback;
 
     _jsCls.cOps = &_classOps;
 
     JSObject *       parentObj = _parentProto != nullptr ? _parentProto->_getJSObject() : nullptr;
-    JS::RootedObject parent(__cx, _parent->_getJSObject());
     JS::RootedObject parentProto(__cx, parentObj);
+    JS::RootedObject parent(__cx, _parent->_getJSObject());
 
     _funcs.push_back(JS_FS_END);
     _properties.push_back(JS_PS_END);
     _staticFuncs.push_back(JS_FS_END);
     _staticProperties.push_back(JS_PS_END);
 
-    JSObject *jsobj = JS_InitClass(__cx, parent, parentProto, &_jsCls, _ctor, 0, _properties.data(), _funcs.data(), _staticProperties.data(), _staticFuncs.data());
+    JS::RootedObject jsobj(__cx, JS_InitClass(__cx, parent, parentProto, &_jsCls, _ctor, 0, _properties.data(), _funcs.data(), _staticProperties.data(), _staticFuncs.data()));
     if (jsobj != nullptr) {
         _proto = Object::_createJSObject(nullptr, jsobj);
         //            SE_LOGD("_proto: %p, name: %s\n", _proto, _name);
@@ -197,11 +207,10 @@ bool Class::defineFinalizeFunction(JSFinalizeOp func) {
 //        return obj;
 //    }
 
-JSObject *Class::_createJSObjectWithClass(Class *cls) {
-    JSObject *       proto = cls->_proto != nullptr ? cls->_proto->_getJSObject() : nullptr;
+void Class::_createJSObjectWithClass(Class *cls, JS::MutableHandleObject outObj) {
+    JSObject *proto = cls->_proto != nullptr ? cls->_proto->_getJSObject() : nullptr;
     JS::RootedObject jsProto(__cx, proto);
-    JS::RootedObject obj(__cx, JS_NewObjectWithGivenProto(__cx, &cls->_jsCls, jsProto));
-    return obj;
+    outObj.set(JS_NewObjectWithGivenProto(__cx, &cls->_jsCls, jsProto));
 }
 
 void Class::setContext(JSContext *cx) {

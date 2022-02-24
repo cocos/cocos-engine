@@ -87,7 +87,7 @@ JSClass __globalClass = {
 
 void reportWarning(JSContext *cx, JSErrorReport *report) {
     MOZ_RELEASE_ASSERT(report);
-//cjh    MOZ_RELEASE_ASSERT(JSREPORT_IS_WARNING(report->flags));
+//    MOZ_RELEASE_ASSERT(report->isWarning());
 
     SE_LOGE("%s:%u:%s\n", report->filename ? report->filename : "<no filename>",
             (unsigned int)report->lineno,
@@ -96,7 +96,6 @@ void reportWarning(JSContext *cx, JSErrorReport *report) {
 
 void SetStandardCompartmentOptions(JS::RealmOptions &options) {
     bool enableSharedMemory = true;
-//cjh    options.behaviors().setVersion(JSVERSION_LATEST);
     options.creationOptions().setSharedMemoryAndAtomicsEnabled(enableSharedMemory);
 }
 
@@ -138,7 +137,7 @@ void privateDataFinalize(JSFreeOp *fop, JSObject *obj) {
 
 // ------------------------------------------------------- ScriptEngine
 
-void on_garbage_collect(JSContext *cx, JSGCStatus status, void *data) {
+void on_garbage_collect(JSContext* cx, JSGCStatus status, JS::GCReason reason, void* data) {
     /* We finalize any pending toggle refs before doing any garbage collection,
              * so that we can collect the JS wrapper objects, and in order to minimize
              * the chances of objects having a pending toggle up queued when they are
@@ -150,66 +149,6 @@ void on_garbage_collect(JSContext *cx, JSGCStatus status, void *data) {
         SE_LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
         ScriptEngine::getInstance()->_setGarbageCollecting(false);
     }
-}
-
-// For promise
-using JobQueue = JS::GCVector<JSObject *, 0, js::SystemAllocPolicy>;
-
-// Per-context promise state.
-struct PromiseState {
-    explicit PromiseState(JSContext *cx);
-
-    JS::PersistentRooted<JobQueue> jobQueue;
-    bool                           drainingJobQueue;
-    bool                           quitting;
-};
-
-PromiseState::PromiseState(JSContext *cx)
-: drainingJobQueue(false),
-  quitting(false) {}
-
-PromiseState *getPromiseState(JSContext *cx) {
-    PromiseState *sc = static_cast<PromiseState *>(JS_GetContextPrivate(cx));
-    assert(sc);
-    return sc;
-}
-
-JSObject *onGetIncumbentGlobalCallback(JSContext *cx) {
-    return JS::CurrentGlobalOrNull(cx);
-}
-
-bool onEnqueuePromiseJobCallback(JSContext *cx, JS::HandleObject job, JS::HandleObject allocationSite,
-                                 JS::HandleObject incumbentGlobal, void *data) {
-    PromiseState *sc = getPromiseState(cx);
-    assert(job);
-    return sc->jobQueue.append(job);
-}
-
-bool drainJobQueue() {
-    JSContext *   cx = ScriptEngine::getInstance()->_getContext();
-    PromiseState *sc = getPromiseState(cx);
-    if (sc->quitting || sc->drainingJobQueue)
-        return true;
-
-    sc->drainingJobQueue = true;
-
-    JS::RootedObject     job(cx);
-    JS::HandleValueArray args(JS::HandleValueArray::empty());
-    JS::RootedValue      rval(cx);
-    // Execute jobs in a loop until we've reached the end of the queue.
-    // Since executing a job can trigger enqueuing of additional jobs,
-    // it's crucial to re-check the queue length during each iteration.
-    for (size_t i = 0; i < sc->jobQueue.length(); i++) {
-        job = sc->jobQueue[i];
-//cjh        JS::AutoCompartment ac(cx, job);
-        JS::Call(cx, JS::UndefinedHandleValue, job, args, &rval);
-        ScriptEngine::getInstance()->clearException();
-        sc->jobQueue[i].set(nullptr);
-    }
-    sc->jobQueue.clear();
-    sc->drainingJobQueue = false;
-
-    return true;
 }
 
 std::string removeFileExt(const std::string &filePath) {
@@ -300,13 +239,24 @@ bool JSB_console_assert(State &s) {
     return true;
 }
 SE_BIND_FUNC(JSB_console_assert)
+
+bool JSB_console_time(State &s) {
+    return true; //TODO(cjh)
+}
+SE_BIND_FUNC(JSB_console_time)
+
+bool JSB_console_timeEnd(State &s) {
+    return true;//TODO(cjh)
+}
+SE_BIND_FUNC(JSB_console_timeEnd)
+
+
 } // namespace
 
 AutoHandleScope::AutoHandleScope() {
 }
 
 AutoHandleScope::~AutoHandleScope() {
-//cjh    drainJobQueue();
     js::RunJobs(se::ScriptEngine::getInstance()->_getContext());
 }
 
@@ -395,49 +345,42 @@ bool ScriptEngine::init() {
     js::UseInternalJobQueues(_cx);
 
     JS_SetGCParameter(_cx, JSGC_MAX_BYTES, 0xffffffff);
-//cjh    JS_SetGCParameter(_cx, JSGC_MODE, JSGC_MODE_INCREMENTAL);
+    JS_SetGCParameter(_cx, JSGC_INCREMENTAL_GC_ENABLED, 1);
+    JS_SetGCParameter(_cx, JSGC_PER_ZONE_GC_ENABLED, 1);
+    JS_SetGCParameter(_cx, JSGC_COMPACTING_ENABLED, 1);
+
     JS_SetNativeStackQuota(_cx, 5000000);
 
-//cjh    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
+    JS_SetOffthreadIonCompilationEnabled(_cx, true);
+    JS_SetGlobalJitCompilerOption(_cx, JSJITCOMPILER_ION_ENABLE, 1);
+    JS_SetGlobalJitCompilerOption(_cx, JSJITCOMPILER_BASELINE_ENABLE, 1);
+
+    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
 
     if (!JS::InitSelfHostedCode(_cx))
         return false;
-
-//    PromiseState *sc = new (std::nothrow) PromiseState(_cx);
-//    if (!sc)
-//        return false;
-//
-//    JS_SetContextPrivate(_cx, sc);
 
     // Waiting is allowed on the shell's main thread, for now.
     JS_SetFutexCanWait(_cx);
 
     JS::SetWarningReporter(_cx, reportWarning);
 
-    #if defined(JS_GC_ZEAL) && defined(DEBUG)
-    //        JS_SetGCZeal(_cx, 2, JS_DEFAULT_ZEAL_FREQ);
-    #endif
-
-//cjh    JS_SetDefaultLocale(_cx, "UTF-8");
-
-//cjh    JS_BeginRequest(_cx);
+#if defined(JS_GC_ZEAL) && defined(DEBUG)
+//    JS_SetGCZeal(_cx, 2, JS_DEFAULT_ZEAL_FREQ);
+#endif
 
     JS::RealmOptions options;
     SetStandardCompartmentOptions(options);
 
 #ifdef DEBUG
     JS::ContextOptionsRef(_cx)
-                // .setIon(false)
-//                .setExtraWarnings(true)
+                .setDisableIon()
                 .setWasmBaseline(false)
                 .setAsmJS(false)
                 .setWasm(false)
                 .setWasmIon(false);
 #else
     JS::ContextOptionsRef(_cx)
-//                    .setExtraWarnings(true)
-//                    .setIon(true)
-//                    .setBaseline(true)
                 .setAsmJS(true)
                 .setWasm(true)
                 .setWasmBaseline(true)
@@ -471,6 +414,8 @@ bool ScriptEngine::init() {
     consoleObj->defineFunction("warn", _SE(JSB_console_warn));
     consoleObj->defineFunction("error", _SE(JSB_console_error));
     consoleObj->defineFunction("assert", _SE(JSB_console_assert));
+    consoleObj->defineFunction("time", _SE(JSB_console_info)); //TODO(cjh)
+    consoleObj->defineFunction("timeEnd", _SE(JSB_console_info)); //TODO(cjh)
 
     _globalObj->setProperty("console", Value(consoleObj));
 
@@ -479,15 +424,8 @@ bool ScriptEngine::init() {
     JS_DefineFunction(_cx, rootedGlobalObj, "log", __log, 0, JSPROP_PERMANENT);
     JS_DefineFunction(_cx, rootedGlobalObj, "forceGC", __forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT);
 
-    //        JS_AddWeakPointerZoneGroupCallback(_cx, ScriptEngine::onWeakPointerZoneGroupCallback, nullptr);
-    JS_AddWeakPointerCompartmentCallback(_cx, ScriptEngine::onWeakPointerCompartmentCallback, nullptr);
-
     JS_FireOnNewGlobalObject(_cx, rootedGlobalObj);
     JS::SetProcessBuildIdOp(getBytecodeBuildId);
-
-//    sc->jobQueue.init(_cx, JobQueue(js::SystemAllocPolicy()));
-//cjh    JS::SetEnqueuePromiseJobCallback(_cx, onEnqueuePromiseJobCallback);
-//cjh    JS::SetGetIncumbentGlobalCallback(_cx, onGetIncumbentGlobalCallback);
 
     __jsb_CCPrivateData_class = Class::create("__PrivateData", _globalObj, nullptr, privateDataContructor);
     __jsb_CCPrivateData_class->defineFinalizeFunction(privateDataFinalize);
@@ -518,23 +456,12 @@ void ScriptEngine::cleanup() {
     }
     _beforeCleanupHookArray.clear();
 
-    auto sc      = getPromiseState(_cx);
-    sc->quitting = true;
-
     SAFE_DEC_REF(_globalObj);
     Class::cleanup();
     Object::cleanup();
 
-    // JS_RemoveWeakPointerZoneGroupCallback(_cx, ScriptEngine::onWeakPointerZoneGroupCallback);
-    //        JS_RemoveWeakPointerCompartmentCallback(_cx, ScriptEngine::onWeakPointerCompartmentCallback);
     JS::LeaveRealm(_cx, _oldCompartment);
 
-//cjh    JS::SetGetIncumbentGlobalCallback(_cx, nullptr);
-//cjh    JS::SetEnqueuePromiseJobCallback(_cx, nullptr);
-
-    sc->jobQueue.reset();
-
-//cjh    JS_EndRequest(_cx);
     JS_DestroyContext(_cx);
 
     delete sc;
@@ -667,7 +594,7 @@ static bool JSBDebug_enterNestedEventLoop(State &s) {
     uint32_t nestLevel = ++s_nestedLoopLevel;
 
     while (NS_SUCCEEDED(rv) && s_nestedLoopLevel >= nestLevel) {
-        drainJobQueue();
+        js::RunJobs(se::ScriptEngine::getInstance()->_getContext());
         if (!NS_ProcessNextEvent())
             rv = NS_ERROR_UNEXPECTED;
     }
@@ -844,7 +771,6 @@ bool ScriptEngine::start() {
 
     if (isDebuggerEnabled() && _debugGlobalObj == nullptr) {
         JS::RealmOptions options;
-//cjh        options.behaviors().setVersion(JSVERSION_LATEST);
         options.creationOptions().setSharedMemoryAndAtomicsEnabled(true);
 
         JS::RootedObject debugGlobal(_cx, JS_NewGlobalObject(_cx, &__globalClass, nullptr, JS::DontFireOnNewGlobalHook, options));
@@ -980,7 +906,6 @@ bool ScriptEngine::compileScript(const std::string &path, JS::MutableHandleScrip
         std::string jsFileContent = _fileOperationDelegate.onGetStringFromFile(path);
         if (!jsFileContent.empty()) {
             JS::CompileOptions op(_cx);
-//cjh            op.setUTF8(true);
             op.setFileAndLine(path.c_str(), 1);
 
             JS::SourceText<mozilla::Utf8Unit> srcBuf;
@@ -1019,8 +944,6 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
 
     JS::CompileOptions options(_cx);
     options.setFile(fileName);
-//cjh        .setUTF8(true)
-//cjh        .setVersion(JSVERSION_LATEST);
 
     JS::RootedValue rval(_cx);
 
@@ -1158,6 +1081,11 @@ bool ScriptEngine::isDebuggerEnabled() const {
 }
 
 void ScriptEngine::mainLoopUpdate() {
+    js::RunJobs(_cx);
+
+    if (!isDebuggerEnabled()) {
+        return;
+    }
     std::string message;
     size_t      messageCount = 0;
     while (true) {
@@ -1226,7 +1154,9 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
     return ok;
 }
 
-void ScriptEngine::handlePromiseExceptions() { } //TODO(cjh)
+void ScriptEngine::handlePromiseExceptions() {
+    clearException();
+} //TODO(cjh)
 
 } // namespace se
 

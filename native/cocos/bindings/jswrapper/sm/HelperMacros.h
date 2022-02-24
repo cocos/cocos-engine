@@ -122,6 +122,8 @@ void printJSBInvokeAtFrame(int n);
         _argv.computeThis(_cx, &_thizObj); \
         auto *privateObject = static_cast<se::PrivateObjectBase *>(se::internal::SE_JS_GetPrivate(_thizObj, 0)); \
         funcName(privateObject->getRaw()); \
+        _argv.rval().setUndefined(); \
+        return true; \
     }
 
     #define SE_DECLARE_FINALIZE_FUNC(funcName) \
@@ -129,8 +131,10 @@ void printJSBInvokeAtFrame(int n);
 
     #define SE_BIND_FINALIZE_FUNC(funcName)                                                               \
         void funcName##Registry(JSFreeOp *_fop, JSObject *_obj) {                                         \
+            SE_LOGD("cjh finalize: %s, %p\n", #funcName,  _obj); \
             JsbInvokeScope(#funcName);                                                                    \
             se::PrivateObjectBase* privateObject = static_cast<se::PrivateObjectBase*>(se::internal::SE_JS_GetPrivate(_obj, 0)); \
+            se::Object* seObj = static_cast<se::Object*>(se::internal::SE_JS_GetPrivate(_obj, 1)); \
             bool  ret              = false;                                                               \
             if (privateObject == nullptr)                                                              \
                 return;                                                                                   \
@@ -139,7 +143,16 @@ void printJSBInvokeAtFrame(int n);
             if (!ret) {                                                                                   \
                 SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
             }                                                                                             \
+            if (seObj->isClearMappingInFinalizer() && privateObject!= nullptr) { \
+                void *nativeObj = privateObject->getRaw(); \
+                auto  iter      = se::NativePtrToObjectMap::find(nativeObj); \
+                if (iter != se::NativePtrToObjectMap::end()) { \
+                    se::NativePtrToObjectMap::erase(iter); \
+                } \
+            } \
+            seObj->decRef(); \
         }
+
 
     #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                                       \
         bool funcName##Registry(JSContext *_cx, unsigned argc, JS::Value *_vp) {                          \

@@ -42,15 +42,18 @@ JSContext *__cx = nullptr;
 } // namespace
 
 Object::Object()
-: _root(nullptr),
-  _privateObject(nullptr),
+: _privateObject(nullptr),
   _cls(nullptr),
   _finalizeCb(nullptr),
   _rootCount(0) {
-    _currentVMId = ScriptEngine::getInstance()->getVMId();
+      _currentVMId = ScriptEngine::getInstance()->getVMId();
 }
 
 Object::~Object() {
+    if (_cls == nullptr) {
+        unroot();
+    }
+
     if (_rootCount > 0) {
         unprotect();
     }
@@ -67,6 +70,10 @@ bool Object::init(Class *cls, JSObject *obj) {
 
     assert(__objectMap.find(this) == __objectMap.end());
     __objectMap.emplace(this, nullptr);
+
+    if (_cls == nullptr) {
+        root();
+    }
 
     return true;
 }
@@ -88,7 +95,6 @@ Object *Object::_createJSObjectForConstructor(Class *cls, const JS::CallArgs& ar
         delete ret;
         ret = nullptr;
     }
-
     return ret;
 }
 
@@ -98,7 +104,8 @@ Object *Object::createPlainObject() {
 }
 
 Object *Object::createObjectWithClass(Class *cls) {
-    JSObject *jsobj = Class::_createJSObjectWithClass(cls);
+    JS::RootedObject jsobj(__cx);
+    Class::_createJSObjectWithClass(cls, &jsobj);
     Object *  obj   = Object::_createJSObject(cls, jsobj);
     return obj;
 }
@@ -150,6 +157,36 @@ Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
         }
     }
 
+    return obj;
+}
+
+/* static */
+Object *Object::createExternalArrayBufferObject(void* contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void* freeUserData/* = nullptr*/) {
+    struct BackingStoreUserData {
+        BufferContentsFreeFunc freeFunc;
+        void* freeUserData;
+        size_t byteLength;
+    };
+
+    auto* userData = new BackingStoreUserData();
+    userData->freeFunc = freeFunc;
+    userData->freeUserData = freeUserData;
+    userData->byteLength = byteLength;
+
+    Object* obj = nullptr;
+    JS::RootedObject jsobj(__cx, JS::NewExternalArrayBuffer(
+        __cx, byteLength, contents, 
+        [](void* data, void* deleterData) {
+            auto* userData = reinterpret_cast<BackingStoreUserData*>(deleterData);
+            userData->freeFunc(data, userData->byteLength, userData->freeUserData);
+            delete userData;
+        },
+        userData)
+    );
+    if (jsobj)
+    {
+        obj = Object::_createJSObject(nullptr, jsobj);
+    }
     return obj;
 }
 
@@ -368,6 +405,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     JS::RootedValue func(__cx, JS::ObjectValue(*funcObj));
     JS::RootedValue rcValue(__cx);
 
+    JSAutoRealm autoRealm(__cx, func.toObjectOrNull());
     bool ok = JS_CallFunctionValue(__cx, contextObject, func, jsarr, &rcValue);
 
     if (ok) {
@@ -595,7 +633,7 @@ void Object::cleanup() {
 }
 
 JSObject *Object::_getJSObject() const {
-    return isRooted() ? _root->get() : _heap.get();
+    return isRooted() ? _root.get() : _heap.get();
 }
 
 void Object::root() {
@@ -618,35 +656,35 @@ void Object::protect() {
     assert(_root == nullptr);
     assert(_heap != JS::SafelyInitialized<JSObject *>::create());
 
-    _root = new JS::PersistentRootedObject(__cx, _heap);
+    _root.init(__cx, _heap);
     _heap.set(JS::SafelyInitialized<JSObject *>::create());
 }
 
 void Object::unprotect() {
-    if (_root == nullptr)
+    if (!_root.initialized())
         return;
 
     assert(_currentVMId == ScriptEngine::getInstance()->getVMId());
     assert(_heap == JS::SafelyInitialized<JSObject *>::create());
-    _heap = *_root;
-    delete _root;
-    _root = nullptr;
+    _heap = _root.get();
+    _root.reset();
 }
 
 void Object::reset() {
-    if (_root != nullptr) {
-        delete _root;
-        _root = nullptr;
-    }
-
+    _root.reset();
     _heap = JS::SafelyInitialized<JSObject *>::create();
+}
+
+void Object::onTraceCallback(JSTracer* trc, void* data) {
+    auto* thiz = reinterpret_cast<Object*>(data);
+    thiz->trace(trc);
 }
 
 /* Tracing makes no sense in the rooted case, because JS::PersistentRooted
      * already takes care of that. */
-void Object::trace(JSTracer *tracer, void *data) {
+void Object::trace(JSTracer *tracer) {
     assert(!isRooted());
-    JS::TraceEdge(tracer, &_heap, "ccobj tracing");
+    JS::TraceEdge(tracer, &_heap, "seobj tracing");
 }
 
 /* If not tracing, then you must call this method during GC in order to

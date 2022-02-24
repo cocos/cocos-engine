@@ -119,6 +119,9 @@ public:
          */
     static Object *createArrayBufferObject(const void *data, size_t byteLength);
 
+    using BufferContentsFreeFunc = void (*)(void* contents, size_t byteLength, void* userData);
+    static Object *createExternalArrayBufferObject(void* contents, size_t nbytes, BufferContentsFreeFunc freeFunc, void* freeUserData = nullptr);
+
     /**
          *  @brief Creates a JavaScript Object from a JSON formatted string.
          *  @param[in] jsonStr The utf-8 string containing the JSON string to be parsed.
@@ -311,7 +314,8 @@ public:
     /**
      * @brief Sets whether to clear the mapping of native object & se::Object in finalizer
      */
-    void setClearMappingInFinalizer(bool v) { _clearMappingInFinalizer = v; }
+    inline void setClearMappingInFinalizer(bool v) { _clearMappingInFinalizer = v; }
+    inline bool isClearMappingInFinalizer() const { return _clearMappingInFinalizer; }
 
     /**
          *  @brief Roots an object from garbage collection.
@@ -421,8 +425,9 @@ private:
 
     static void setContext(JSContext *cx);
     static void cleanup();
+    static void onTraceCallback(JSTracer* trc, void* data);
 
-    void trace(JSTracer *tracer, void *data);
+    void trace(JSTracer *tracer);
     bool updateAfterGC(JSTracer* trc, void *data);
 
     void protect();
@@ -430,7 +435,7 @@ private:
     void reset();
 
     JS::Heap<JSObject *>        _heap; /* should be untouched if in rooted mode */
-    JS::PersistentRootedObject *_root{nullptr}; /* should be null if not in rooted mode */
+    JS::PersistentRootedObject _root; /* should be null if not in rooted mode */
 
     PrivateObjectBase *    _privateObject{nullptr};
     internal::PrivateData *_internalData{nullptr};
@@ -444,6 +449,7 @@ private:
     bool _clearMappingInFinalizer{true};
 
     friend class ScriptEngine;
+    friend class Class;
 };
 
 extern std::unordered_map<Object *, void *> __objectMap; // Currently, the value `void*` is always nullptr

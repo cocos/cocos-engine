@@ -142,15 +142,16 @@ void jsToSeValue(JSContext *cx, JS::HandleValue jsval, Value *v) {
         JS::RootedObject jsobj(cx, jsval.toObjectOrNull());
         PrivateObjectBase *privateObject = static_cast<PrivateObjectBase *>(internal::getPrivate(cx, jsobj, 0));
         void *nativeObj = privateObject ? privateObject->getRaw() : nullptr;
-
+        bool needRoot = false;
         if (nativeObj != nullptr) {
             object = Object::getObjectWithPtr(nativeObj);
         }
 
         if (object == nullptr) {
             object = Object::_createJSObject(nullptr, jsobj);
+            needRoot = true;
         }
-        v->setObject(object, true);
+        v->setObject(object, needRoot);
         object->decRef();
     } else if (jsval.isNull()) {
         v->setNull();
