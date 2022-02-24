@@ -755,6 +755,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影接收的最大光源数量
      */
     @type(CCInteger)
+    @tooltip('i18n:shadow.maxReceived')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set maxReceived (val: number) {
         this._maxReceived = val;
