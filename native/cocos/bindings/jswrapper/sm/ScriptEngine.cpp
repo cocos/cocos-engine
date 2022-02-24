@@ -464,7 +464,6 @@ void ScriptEngine::cleanup() {
 
     JS_DestroyContext(_cx);
 
-    delete sc;
     _cx             = nullptr;
     _globalObj      = nullptr;
     _oldCompartment = nullptr;
