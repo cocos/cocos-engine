@@ -538,26 +538,4 @@ export class MeshRenderData extends BaseRenderData {
     }
 }
 
-export class QuadRenderData extends MeshRenderData {
-    private _fillQuadBuffer () {
-        const count = this.iData.length / 6;
-        const buffer = this.iData;
-        for (let i = 0, idx = 0; i < count; i++) {
-            const vId = i * 4;
-            buffer[idx++] = vId;
-            buffer[idx++] = vId + 1;
-            buffer[idx++] = vId + 2;
-            buffer[idx++] = vId + 1;
-            buffer[idx++] = vId + 3;
-            buffer[idx++] = vId + 2;
-        }
-    }
-
-    protected _reallocBuffer (vCount, iCount) {
-        // copy old data
-        super._reallocBuffer(vCount, iCount);
-        this._fillQuadBuffer();
-    }
-}
-
 const _meshDataPool: RecyclePool<MeshRenderData> = new RecyclePool(() => new MeshRenderData(), 32);

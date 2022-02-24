@@ -68,5 +68,4 @@ legacyCC.UI = {
     labelAssembler,
     RenderData,
     MeshRenderData,
-    QuadRenderData,
 };
