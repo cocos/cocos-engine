@@ -100,7 +100,7 @@ export class NodeUIProperties {
         this._node = node;
 
         if (JSB) {
-            this._uiTransformDirty = new Uint32Array(1);
+            this._uiTransformDirty = new Uint32Array((jsb as any).createExternalArrayBuffer(4));
             Object.defineProperty(this, 'uiTransformDirty',
                 {
                     get (): boolean {
