@@ -1,4 +1,4 @@
-name: 🏗️ Native Compile-self
+name: <Native> Compile-self
 
 on: [pull_request]
 
