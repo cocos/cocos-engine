@@ -1549,10 +1549,7 @@ export class Skeleton extends Renderable2D {
     // if change use tint mode, just clear material cache
     protected _updateUseTint () {
         this._cleanMaterialCache();
-        if (this._renderData) {
-            RenderData.remove(this._renderData);
-            this._renderData = null;
-        }
+        this.destroyRenderData();
         if (this._assembler && this._skeleton) {
             this._renderData = this._assembler.createData(this);
             this.markForUpdateRenderData();
