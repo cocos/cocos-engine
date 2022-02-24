@@ -48,7 +48,7 @@ if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
     set(CC_USE_GLES3 OFF)
     set(CC_USE_GLES2 OFF)
-    add_definitions(-DSERVER_MODE)
+    add_definitions(-DCC_SERVER_MODE)
 endif()
 
 if(USE_PHYSICS_PHYSX)
@@ -348,7 +348,7 @@ cocos_source_files(
 ############ main
 if(USE_SERVER_MODE)
     cocos_source_files(
-        cocos/main/main-empty.cpp
+        cocos/main/EmptyMain.cpp
     )
 elseif(WINDOWS)
     cocos_source_files(
