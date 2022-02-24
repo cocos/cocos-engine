@@ -126,11 +126,12 @@ struct CopyTag {};
 struct MoveTag {};
 struct RaytraceTag {};
 struct ManagedTag {};
-struct PersistentTag {};
-struct BackbufferTag {};
 struct MemorylessTag {};
+struct PersistentTag {};
+struct ExternalTag {};
+struct BackbufferTag {};
 
-using ResourceResidency = boost::variant2::variant<ManagedTag, PersistentTag, BackbufferTag, MemorylessTag>;
+using ResourceResidency = boost::variant2::variant<ManagedTag, MemorylessTag, PersistentTag, ExternalTag, BackbufferTag>;
 
 enum class QueueHint {
     NONE,

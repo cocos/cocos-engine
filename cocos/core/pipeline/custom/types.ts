@@ -98,9 +98,10 @@ export const enum ValueType {
 
 export const enum ResourceResidency {
     Managed,
-    Persistent,
-    Backbuffer,
     Memoryless,
+    Persistent,
+    External,
+    Backbuffer,
 }
 
 export const enum QueueHint {

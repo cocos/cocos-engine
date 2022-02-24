@@ -109,9 +109,10 @@ inline const char* getName(const CopyTag& /*v*/) noexcept { return "Copy"; }
 inline const char* getName(const MoveTag& /*v*/) noexcept { return "Move"; }
 inline const char* getName(const RaytraceTag& /*v*/) noexcept { return "Raytrace"; }
 inline const char* getName(const ManagedTag& /*v*/) noexcept { return "Managed"; }
-inline const char* getName(const PersistentTag& /*v*/) noexcept { return "Persistent"; }
-inline const char* getName(const BackbufferTag& /*v*/) noexcept { return "Backbuffer"; }
 inline const char* getName(const MemorylessTag& /*v*/) noexcept { return "Memoryless"; }
+inline const char* getName(const PersistentTag& /*v*/) noexcept { return "Persistent"; }
+inline const char* getName(const ExternalTag& /*v*/) noexcept { return "External"; }
+inline const char* getName(const BackbufferTag& /*v*/) noexcept { return "Backbuffer"; }
 inline const char* getName(QueueHint e) noexcept {
     switch (e) {
         case QueueHint::NONE: return "NONE";
