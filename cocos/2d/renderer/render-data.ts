@@ -121,7 +121,8 @@ export class RenderData extends BaseRenderData {
             return;
         }
 
-        _pool.data[idx].clear();
+        data.clear();
+        data._accessor = null!;
         _pool.removeAt(idx);
     }
 
@@ -304,8 +305,6 @@ export class RenderData extends BaseRenderData {
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
-        this._vertexFormat = vfmtPosUvColor;
-        this._accessor = null!;
     }
 }
 
