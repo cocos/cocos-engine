@@ -200,6 +200,18 @@ Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
     return obj;
 }
 
+/* static */
+Object *Object::createExternalArrayBufferObject(void* contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void* freeUserData/* = nullptr*/) {
+    std::shared_ptr<v8::BackingStore> backingStore = v8::ArrayBuffer::NewBackingStore(contents, byteLength, freeFunc, freeUserData);
+    Object* obj = nullptr;
+    v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, backingStore);
+    if (!jsobj.IsEmpty())
+    {
+        obj = Object::_createJSObject(nullptr, jsobj);
+    }
+    return obj;
+}
+
 Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t byteLength) {
     if (type == TypedArrayType::NONE) {
         SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
