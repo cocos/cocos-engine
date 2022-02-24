@@ -41,10 +41,10 @@ namespace render {
 
 namespace example {
 
+namespace {
+
 using RDG = RenderDependencyGraph;
 using RESG = ResourceGraph;
-
-namespace {
 
 // validation
 void checkComputeValue(const PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>>& values0) {
