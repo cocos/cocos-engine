@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,33 +23,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/linux/modules/Screen.h"
+#include "platform/empty/modules/Screen.h"
 #include "base/Macros.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
-#include <X11/Xlib.h>
 
 namespace cc {
 
 int Screen::getDPI() const {
     static int dpi = -1;
-    if (dpi == -1) {
-        Display *dpy;
-        char *   displayname = NULL;
-        int      scr         = 0; /* Screen number */
-        dpy                  = XOpenDisplay(displayname);
-        /*
-         * there are 2.54 centimeters to an inch; so there are 25.4 millimeters.
-         *
-         *     dpi = N pixels / (M millimeters / (25.4 millimeters / 1 inch))
-         *         = N pixels / (M inch / 25.4)
-         *         = N * 25.4 pixels / M inch
-         */
-        double xres = ((((double)DisplayWidth(dpy, scr)) * 25.4) /
-                       ((double)DisplayWidthMM(dpy, scr)));
-        dpi         = (int)(xres + 0.5);
-        //printf("dpi = %d\n", dpi);
-        XCloseDisplay(dpy);
-    }
     return dpi;
 }
 
