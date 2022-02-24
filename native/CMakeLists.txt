@@ -10,9 +10,9 @@ set(ENGINE_NAME cocos_engine)
 
 ################################# options ############################################
 # default fallback options
-cc_set_if_undefined(USE_SE_V8                OFF)
-cc_set_if_undefined(USE_SE_SM                ON)
-cc_set_if_undefined(USE_V8_DEBUGGER          OFF)
+cc_set_if_undefined(USE_SE_V8                ON)
+cc_set_if_undefined(USE_SE_SM                OFF)
+cc_set_if_undefined(USE_V8_DEBUGGER          ON)
 cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
 cc_set_if_undefined(USE_EDIT_BOX             ON)
