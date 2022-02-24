@@ -847,9 +847,6 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
 
-    auto glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
-    glContextCls->install();
-
     __jsbObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
 
