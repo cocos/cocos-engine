@@ -66,7 +66,7 @@ simpleTextureProto._ctor = function () {
 const oldGetGFXTexture = simpleTextureProto.getGFXTexture;
 simpleTextureProto.getGFXTexture = function () {
     if (!this._gfxTexture) {
-        this._gfxTexture = oldGetGFXTexture();
+        this._gfxTexture = oldGetGFXTexture.call(this);
     }
     return this._gfxTexture;
 };
