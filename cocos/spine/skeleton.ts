@@ -1312,7 +1312,6 @@ export class Skeleton extends Renderable2D {
 
     public onDestroy () {
         this._cleanMaterialCache();
-        this.destroyRenderData();
         super.onDestroy();
     }
 

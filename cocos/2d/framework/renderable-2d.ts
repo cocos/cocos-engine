@@ -341,7 +341,6 @@ export class Renderable2D extends RenderableComponent {
                 if (instance) { instance.destroy(); }
             }
         }
-        this._renderData = null;
         if (this._blendState) {
             this._blendState.destroy();
         }

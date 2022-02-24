@@ -386,7 +386,6 @@ export class Mask extends Renderable2D {
     }
 
     public onDestroy () {
-        super.onDestroy();
         if (this._clearModel && this._clearModelMesh) {
             director.root!.destroyModel(this._clearModel);
             this._clearModelMesh.destroy();
@@ -397,6 +396,7 @@ export class Mask extends Renderable2D {
         }
 
         this._removeGraphics();
+        super.onDestroy();
     }
 
     /**

@@ -552,7 +552,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     public destroyRenderData () {
         this._drawList.destroy();
-        if (this._renderData) this._renderData.clear();
+        super.destroyRenderData();
     }
 
     public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
