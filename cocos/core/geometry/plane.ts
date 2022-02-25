@@ -186,6 +186,15 @@ export class Plane {
         return this._type;
     }
 
+    /**
+     * @en Transform to string with plane information.
+     * @zh 返回当前平面的字符串表示。
+     * @returns The string with plane information
+     */
+    public toString () {
+        return `normal: (${this.n.toString()}), d: ${this.d.toFixed(2)}`;
+    }
+
     // compatibility with vector interfaces
     set x (val) { this.n.x = val; }
     get x () { return this.n.x; }
