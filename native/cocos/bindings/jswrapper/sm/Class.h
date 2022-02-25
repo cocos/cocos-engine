@@ -51,6 +51,7 @@ public:
          *  @note Don't need to delete the pointer return by this method, it's managed internally.
          */
     static Class *create(const char *className, Object *obj, Object *parentProto, JSNative ctor);
+    static Class *create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, JSNative ctor);
 
     /**
          *  @brief Defines a member function with a callback. Each objects created by class will have this function property.
@@ -68,6 +69,7 @@ public:
          *  @return true if succeed, otherwise false.
          */
     bool defineProperty(const char *name, JSNative getter, JSNative setter);
+    bool defineProperty(const std::initializer_list<const char *> &names, JSNative getter, JSNative setter);
 
     /**
          *  @brief Defines a static function with a callback. Only JavaScript constructor object will have this function.
@@ -124,10 +126,12 @@ private:
     void destroy();
 
     //        static JSObject* _createJSObject(const std::string &clsName, Class** outCls);
-    static JSObject *_createJSObjectWithClass(Class *cls);
+    static void _createJSObjectWithClass(Class *cls, JS::MutableHandleObject outObj);
 
     static void setContext(JSContext *cx);
     static void cleanup();
+
+    static void onTraceCallback(JSTracer* trc, JSObject* obj);
 
     const char *_name;
     Object *    _parent;

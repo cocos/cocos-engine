@@ -222,6 +222,7 @@ void Engine::tick() {
     
     se::ScriptEngine::getInstance()->handlePromiseExceptions();
     cc::EventDispatcher::dispatchTickEvent(dt);
+    se::ScriptEngine::getInstance()->mainLoopUpdate();
 
     cc::DeferredReleasePool::clear();
 

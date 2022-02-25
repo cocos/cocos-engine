@@ -153,6 +153,7 @@ public:
      * GFX 设备
      */
     inline gfx::Device *getDevice() const { return _device; }
+    inline void setDevice(gfx::Device* device) { _device = device; }
 
     /**
      * @zh
