@@ -551,7 +551,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     public destroyRenderData () {
-        this._drawList.destroy();
+        this._drawList.reset();
         super.destroyRenderData();
     }
 
@@ -832,7 +832,6 @@ export class ArmatureDisplay extends Renderable2D {
 
     onDestroy () {
         this._materialInstances = this._materialInstances.filter((instance) => !!instance);
-        super.onDestroy();
         this._inited = false;
 
         if (!EDITOR) {
@@ -851,7 +850,8 @@ export class ArmatureDisplay extends Renderable2D {
             this._armature.dispose();
             this._armature = null;
         }
-        this.destroyRenderData();
+        this._drawList.destroy();
+        super.onDestroy();
     }
 
     _updateDebugDraw () {
