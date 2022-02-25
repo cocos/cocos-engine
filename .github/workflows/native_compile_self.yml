@@ -12,7 +12,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
           rm -rf external
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
 
@@ -71,7 +71,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          EXT_VERSION=`grep version  native/external/config.json  |awk -F'"' '{print $4}'`
           rm -rf external
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
 
