@@ -262,6 +262,11 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
 void JniNativeGlue::postExecCmd(JniCommand cmd) {
     switch (cmd) {
         case JniCommand::JNI_CMD_TERM_WINDOW: {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+            if (_window) {
+                ANativeWindow_release(_window);
+            }
+#endif
             _window = nullptr;
         } break;
         default:

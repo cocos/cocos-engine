@@ -141,6 +141,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         setContentView(mFrameLayout);
 
         mSurfaceView = new CocosSurfaceView(this);
+        mSurfaceView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mSurfaceView.getHolder().addCallback(this);
         mFrameLayout.addView(mSurfaceView);
 
@@ -191,12 +192,18 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     protected void onStop() {
         super.onStop();
         onStopNative();
+        if (mSurfaceView != null && mSurfaceView.getParent() != null) {
+            mFrameLayout.removeView(mSurfaceView);
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         onStartNative();
+        if (mSurfaceView != null && mSurfaceView.getParent() == null) {
+            mFrameLayout.addView(mSurfaceView);
+        }
     }
 
     @Override
