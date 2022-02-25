@@ -29,10 +29,14 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { DirectionalLight } from '../../renderer/scene';
+import { DirectionalLight, Camera } from '../../renderer/scene';
 import { Mat4 } from '../../math/mat4';
+import { Frustum } from '../../geometry';
+import { getCameraWorldMatrix } from '../scene-culling';
 
 const SHADOW_CSM_LAMBDA = 0.75;
+
+const _mat4_trans = new Mat4();
 
 class CSMLayerInfo {
     protected _level: number | undefined;
@@ -43,6 +47,8 @@ class CSMLayerInfo {
     protected _matShadowProj: Mat4 | undefined;
     protected _matShadowViewProj: Mat4 | undefined;
 
+    protected _validFrustum: Frustum | undefined;
+
     constructor (level: number) {
         this._level = level;
         this._shadowCameraNear = 0.0;
@@ -50,6 +56,8 @@ class CSMLayerInfo {
         this._matShadowView = new Mat4();
         this._matShadowProj = new Mat4();
         this._matShadowViewProj = new Mat4();
+        this._validFrustum = new Frustum();
+        this._validFrustum.accurate = true;
     }
 
     get shadowCameraNear () {
@@ -86,6 +94,13 @@ class CSMLayerInfo {
     set matShadowViewProj (val) {
         this._matShadowViewProj?.set(val!);
     }
+
+    get validFrustum () {
+        return this._validFrustum;
+    }
+    set validFrustum (val) {
+        this._validFrustum = Frustum.clone(val!);
+    }
 }
 
 /**
@@ -95,6 +110,7 @@ class CSMLayerInfo {
 @ccclass('CSMLayers')
 export class CSMLayers {
     protected _dirLight: DirectionalLight | null = null;
+    protected _camera: Camera | null = null;
     protected _shadowCSMLayers: CSMLayerInfo[] = [];
     protected _shadowCSMLevelCount = 0;
 
@@ -102,8 +118,9 @@ export class CSMLayers {
         return this._shadowCSMLayers;
     }
 
-    public update (dirLight: DirectionalLight) {
+    public update (camera: Camera, dirLight: DirectionalLight) {
         this._dirLight = dirLight;
+        this._camera = camera;
         this._shadowCSMLevelCount = dirLight.shadowCSMLevel;
 
         let isRecalculate = false;
@@ -116,7 +133,22 @@ export class CSMLayers {
 
         if (dirLight.shadowCSMValueDirty || isRecalculate) {
             this._splitFrustumLevels();
+            this._splitFrustum();
         }
+    }
+
+    public shadowFrustumItemToConsole () {
+        for (let i = 0; i < this._shadowCSMLevelCount; i++) {
+            console.warn(this._dirLight?.node!.name, '._shadowCSMLayers[',
+                i, '] = (', this._shadowCSMLayers[i].shadowCameraNear, ', ', this._shadowCSMLayers[i].shadowCameraFar, ')');
+            console.warn(this._camera?.node!.name, '._validFrustum[', i, '] =', this._shadowCSMLayers[i].validFrustum?.toString());
+        }
+    }
+
+    public destroy () {
+        this._dirLight = null;
+        this._shadowCSMLevelCount = 0;
+        this._shadowCSMLayers.length = 0;
     }
 
     private _splitFrustumLevels () {
@@ -143,16 +175,18 @@ export class CSMLayers {
         this._dirLight.shadowCSMValueDirty = false;
     }
 
-    public shadowFrustumItemToString () {
-        for (let i = 0; i < this._shadowCSMLevelCount; i++) {
-            console.warn(this._dirLight?.node!.name, '._shadowCSMLayers[',
-                i, '] = (', this._shadowCSMLayers[i].shadowCameraNear, ', ', this._shadowCSMLayers[i].shadowCameraFar, ')');
-        }
-    }
+    private _splitFrustum () {
+        if (!this._dirLight || !this._camera) return;
 
-    public destroy () {
-        this._dirLight = null;
-        this._shadowCSMLevelCount = 0;
-        this._shadowCSMLayers.length = 0;
+        const dirLight = this._dirLight;
+        const level = dirLight.shadowCSMLevel;
+        const camera = this._camera;
+        for (let i = 0; i < level; i++) {
+            const _validFrustum = this._shadowCSMLayers[i].validFrustum!;
+            const near = this._shadowCSMLayers[i].shadowCameraNear!;
+            const far = this._shadowCSMLayers[i].shadowCameraFar!;
+            getCameraWorldMatrix(_mat4_trans, camera);
+            Frustum.split(_validFrustum, camera, _mat4_trans, near, far);
+        }
     }
 }

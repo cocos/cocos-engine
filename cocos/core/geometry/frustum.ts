@@ -227,6 +227,30 @@ export class Frustum {
         return this._type;
     }
 
+    /**
+     * @en Transform to string with frustum information.
+     * @zh 返回当前视锥体的字符串表示。
+     * @returns The string with frustum information
+     */
+    public toString () {
+        return `vertices:
+                    ${this.vertices[0].toString()}
+                    ${this.vertices[1].toString()}
+                    ${this.vertices[2].toString()}
+                    ${this.vertices[3].toString()}
+                    ${this.vertices[4].toString()}
+                    ${this.vertices[5].toString()}
+                    ${this.vertices[6].toString()}
+                    ${this.vertices[7].toString()}
+        planes:
+            ${this.planes[0].toString()}
+            ${this.planes[1].toString()}
+            ${this.planes[2].toString()}
+            ${this.planes[3].toString()}
+            ${this.planes[4].toString()}
+            ${this.planes[5].toString()}`;
+    }
+
     protected _type: number;
 
     public planes: Plane[];

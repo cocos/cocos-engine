@@ -31,7 +31,7 @@
 import { AABB, Frustum, intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Vec2, Vec3, Mat4, Quat, Vec4 } from '../math';
+import { Vec2, Vec3, Mat4, Quat, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
@@ -66,6 +66,10 @@ const _projSnap = new Vec3();
 const _snap = new Vec3();
 const _focus = new Vec3(0, 0, 0);
 const _ab = new AABB();
+const red = new Color(255, 0, 0, 255);
+const green = new Color(0, 255, 0, 255);
+const yellow = new Color(0, 0, 255, 255);
+const pink = new Color(255, 255, 0, 255);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const dirShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -390,7 +394,11 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         if (shadows.type === ShadowType.Planar) {
             updateDirLight(pipeline, mainLight);
         } else {
-            csmLayers.update(mainLight);
+            csmLayers.update(camera, mainLight);
+            if (csmLayers.shadowCSMLayers[0]) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[0].validFrustum!, red, false); }
+            if (csmLayers.shadowCSMLayers[1]) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[1].validFrustum!, yellow, false); }
+            if (csmLayers.shadowCSMLayers[2]) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].validFrustum!, green, false); }
+            if (csmLayers.shadowCSMLayers[3]) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[3].validFrustum!, pink, false); }
         }
     }
 
