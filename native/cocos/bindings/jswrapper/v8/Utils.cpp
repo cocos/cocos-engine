@@ -173,14 +173,9 @@ void setReturnValue(const Value &data, const v8::PropertyCallbackInfo<v8::Value>
     setReturnValueTemplate(data, argv);
 }
 
-bool hasPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value) {
+bool hasPrivate(v8::Isolate * /*isolate*/, v8::Local<v8::Value> value) {
     v8::Local<v8::Object> obj = v8::Local<v8::Object>::Cast(value);
-    int                   c   = obj->InternalFieldCount();
-    if (c > 0) {
-        return true;
-    }
-
-    return false;
+    return obj->InternalFieldCount() > 0;
 }
 
 void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, PrivateObjectBase *data, Object *thizObj, PrivateData **outInternalData) {
