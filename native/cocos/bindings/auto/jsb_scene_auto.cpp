@@ -9939,6 +9939,25 @@ static bool js_scene_Root_setCurWindow(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_Root_setCurWindow)
 
+static bool js_scene_Root_setDevice(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Root_setDevice : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Device*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Root_setDevice : Error processing arguments");
+        cobj->setDevice(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_scene_Root_setDevice)
+
 static bool js_scene_Root_setFixedFPS(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
@@ -10048,7 +10067,7 @@ bool js_register_scene_Root(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Root", obj, nullptr, _SE(js_scene_Root_constructor));
 
-    cls->defineProperty({"device", "_device"}, _SE(js_scene_Root_getDevice_asGetter), nullptr);
+    cls->defineProperty({"device", "_device"}, _SE(js_scene_Root_getDevice_asGetter), _SE(js_scene_Root_setDevice_asSetter));
     cls->defineProperty("mainWindow", _SE(js_scene_Root_getMainWindow_asGetter), nullptr);
     cls->defineProperty("curWindow", _SE(js_scene_Root_getCurWindow_asGetter), _SE(js_scene_Root_setCurWindow_asSetter));
     cls->defineProperty("tempWindow", _SE(js_scene_Root_getTempWindow_asGetter), _SE(js_scene_Root_setTempWindow_asSetter));
