@@ -23,19 +23,68 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "RenderInterfaceTypes.h"
 #include "NativePipelineTypes.h"
 
 namespace cc {
 
 namespace render {
 
-Pipeline* Factory::createPipeline() {
-    return new NativePipeline();
+// NOLINTNEXTLINE
+uint32_t NativePipeline::addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) {
+    return 0;
 }
 
-DescriptorHierarchy* Factory::createDescriptorHierarchy(){
+// NOLINTNEXTLINE
+uint32_t NativePipeline::addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) {
+    return 0;
+}
+
+// NOLINTNEXTLINE
+uint32_t NativePipeline::addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) {
+    return 0;
+}
+
+void NativePipeline::beginFrame(pipeline::PipelineSceneData* pplScene) {
+
+}
+
+void NativePipeline::endFrame() {
+
+}
+
+// NOLINTNEXTLINE
+RasterPassBuilder* NativePipeline::addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) {
     return nullptr;
+}
+
+// NOLINTNEXTLINE
+RasterPassBuilder* NativePipeline::addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) {
+    return nullptr;
+}
+
+// NOLINTNEXTLINE
+ComputePassBuilder* NativePipeline::addComputePass(const std::string& layoutName, const std::string& name) {
+    return nullptr;
+}
+
+// NOLINTNEXTLINE
+ComputePassBuilder* NativePipeline::addComputePass(const std::string& layoutName) {
+    return nullptr;
+}
+
+// NOLINTNEXTLINE
+MovePassBuilder* NativePipeline::addMovePass(const std::string& name) {
+    return nullptr;
+}
+
+// NOLINTNEXTLINE
+CopyPassBuilder* NativePipeline::addCopyPass(const std::string& name) {
+    return nullptr;
+}
+
+// NOLINTNEXTLINE
+void NativePipeline::addPresentPass(const std::string& name, const std::string& swapchainName) {
+
 }
 
 } // namespace render

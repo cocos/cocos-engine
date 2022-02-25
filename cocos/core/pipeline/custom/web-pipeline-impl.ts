@@ -23,21 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "RenderInterfaceTypes.h"
-#include "NativePipelineTypes.h"
-
-namespace cc {
-
-namespace render {
-
-Pipeline* Factory::createPipeline() {
-    return new NativePipeline();
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
+/* eslint-disable max-len */
+export class WebImplExample {
+    name = '';
 }
-
-DescriptorHierarchy* Factory::createDescriptorHierarchy(){
-    return nullptr;
-}
-
-} // namespace render
-
-} // namespace cc

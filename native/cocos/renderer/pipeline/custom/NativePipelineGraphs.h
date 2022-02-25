@@ -23,21 +23,19 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "RenderInterfaceTypes.h"
-#include "NativePipelineTypes.h"
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
+// clang-format off
+#pragma once
+#include <boost/utility/string_view.hpp>
+#include "cocos/renderer/pipeline/custom/GraphImpl.h"
+#include "cocos/renderer/pipeline/custom/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
+#include "cocos/renderer/pipeline/custom/Overload.h"
+#include "cocos/renderer/pipeline/custom/PathUtils.h"
+#include "cocos/renderer/pipeline/custom/invoke.hpp"
 
-namespace cc {
-
-namespace render {
-
-Pipeline* Factory::createPipeline() {
-    return new NativePipeline();
-}
-
-DescriptorHierarchy* Factory::createDescriptorHierarchy(){
-    return nullptr;
-}
-
-} // namespace render
-
-} // namespace cc
+// clang-format on

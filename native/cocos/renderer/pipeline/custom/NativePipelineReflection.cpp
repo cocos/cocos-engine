@@ -23,21 +23,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "RenderInterfaceTypes.h"
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
+// clang-format off
+#include "NativePipelineReflection.h"
 #include "NativePipelineTypes.h"
 
-namespace cc {
-
-namespace render {
-
-Pipeline* Factory::createPipeline() {
-    return new NativePipeline();
-}
-
-DescriptorHierarchy* Factory::createDescriptorHierarchy(){
-    return nullptr;
-}
-
-} // namespace render
-
-} // namespace cc
+// clang-format on

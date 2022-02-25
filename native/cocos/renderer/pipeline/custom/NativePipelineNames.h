@@ -23,21 +23,25 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "RenderInterfaceTypes.h"
-#include "NativePipelineTypes.h"
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
+// clang-format off
+#pragma once
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderCompilerNames.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceNames.h"
 
 namespace cc {
 
 namespace render {
 
-Pipeline* Factory::createPipeline() {
-    return new NativePipeline();
-}
-
-DescriptorHierarchy* Factory::createDescriptorHierarchy(){
-    return nullptr;
-}
+inline const char* getName(const NativePipeline& /*v*/) noexcept { return "NativePipeline"; }
 
 } // namespace render
 
 } // namespace cc
+
+// clang-format on
