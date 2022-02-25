@@ -131,7 +131,6 @@ void printJSBInvokeAtFrame(int n);
 
     #define SE_BIND_FINALIZE_FUNC(funcName)                                                               \
         void funcName##Registry(JSFreeOp *_fop, JSObject *_obj) {                                         \
-            SE_LOGD("cjh finalize: %s, %p\n", #funcName,  _obj); \
             JsbInvokeScope(#funcName);                                                                    \
             se::PrivateObjectBase* privateObject = static_cast<se::PrivateObjectBase*>(se::internal::SE_JS_GetPrivate(_obj, 0)); \
             se::Object* seObj = static_cast<se::Object*>(se::internal::SE_JS_GetPrivate(_obj, 1)); \
@@ -165,31 +164,6 @@ void printJSBInvokeAtFrame(int n);
             se::Object *thisObject = se::Object::_createJSObjectForConstructor(cls, _argv); \
             thisObject->_setFinalizeCallback(finalizeCb##Registry); \
             _argv.rval().setObject(*thisObject->_getJSObject());                                          \
-            se::State state(thisObject, args);                                                            \
-            ret = funcName(state);                                                                        \
-            if (ret) {                                                                                    \
-                se::Value _property;                                                                      \
-                bool      _found = false;                                                                 \
-                _found           = thisObject->getProperty("_ctor", &_property);                          \
-                if (_found) _property.toObject()->call(args, thisObject);                                 \
-            } else {                                                                                      \
-                SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
-            }                                                                                             \
-            return ret;                                                                                   \
-        }
-
-    #define SE_BIND_SUB_CLS_CTOR(funcName, cls, finalizeCb)                                               \
-        bool funcName##Registry(JSContext *_cx, unsigned argc, JS::Value *_vp) {                          \
-            JsbInvokeScope(#funcName);                                                                    \
-            bool           ret   = false;                                                                 \
-            JS::CallArgs   _argv = JS::CallArgsFromVp(argc, _vp);                                         \
-            JS::RootedObject      _thizObj(_cx); \
-            _argv.computeThis(_cx, &_thizObj); \
-            se::ValueArray &       args = se::gValueArrayPool.get(argc);                      \
-            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                          \
-            se::internal::jsToSeArgs(_cx, argc, _argv, args);                                            \
-            se::Object *thisObject = se::Object::_createJSObject(cls, _thizObj);            \
-            thisObject->_setFinalizeCallback(finalizeCb##Registry);                                       \
             se::State state(thisObject, args);                                                            \
             ret = funcName(state);                                                                        \
             if (ret) {                                                                                    \

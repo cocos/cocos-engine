@@ -172,8 +172,6 @@ void printJSBInvokeAtFrame(int n);
             if (_found) _property.toObject()->call(args, thisObject);                                     \
         }
 
-    #define SE_BIND_SUB_CLS_CTOR SE_BIND_CTOR
-
     #define SE_BIND_PROP_GET_IMPL(funcName, postFix)                                                                                            \
         void funcName##postFix##Registry(v8::Local<v8::Name> /*_property*/, const v8::PropertyCallbackInfo<v8::Value> &_v8args) {               \
             JsbInvokeScope(#funcName);                                                                                                          \
