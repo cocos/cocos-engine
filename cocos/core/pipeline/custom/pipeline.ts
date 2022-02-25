@@ -112,3 +112,6 @@ export abstract class Pipeline {
     public abstract addCopyPass(name: string): CopyPassBuilder;
     public abstract addPresentPass(name: string, swapchainName: string): void;
 }
+
+export class Factory {
+}

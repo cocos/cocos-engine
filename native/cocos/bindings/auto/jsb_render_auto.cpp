@@ -1262,6 +1262,65 @@ bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifi
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_render_Factory_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_Factory_class = nullptr;  // NOLINT
+
+static bool js_render_Factory_createDescriptorHierarchy_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::render::DescriptorHierarchy* result = cc::render::Factory::createDescriptorHierarchy();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_Factory_createDescriptorHierarchy_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_Factory_createDescriptorHierarchy_static)
+
+static bool js_render_Factory_createPipeline_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::render::Pipeline* result = cc::render::Factory::createPipeline();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_Factory_createPipeline_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_Factory_createPipeline_static)
+static bool js_cc_render_Factory_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_render_Factory_finalize)
+
+bool js_register_render_Factory(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("Factory", obj, nullptr, nullptr);
+
+    cls->defineStaticFunction("createDescriptorHierarchy", _SE(js_render_Factory_createDescriptorHierarchy_static));
+    cls->defineStaticFunction("createPipeline", _SE(js_render_Factory_createPipeline_static));
+    cls->defineFinalizeFunction(_SE(js_cc_render_Factory_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::render::Factory>(cls);
+
+    __jsb_cc_render_Factory_proto = cls->getProto();
+    __jsb_cc_render_Factory_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 bool register_all_render(se::Object* obj)    // NOLINT
 {
     // Get the ns
@@ -1279,6 +1338,7 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_ComputeQueueBuilder(ns);
     js_register_render_CopyPassBuilder(ns);
     js_register_render_DescriptorHierarchy(ns);
+    js_register_render_Factory(ns);
     js_register_render_MovePassBuilder(ns);
     js_register_render_Pipeline(ns);
     js_register_render_RasterPassBuilder(ns);

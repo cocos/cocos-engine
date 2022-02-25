@@ -23,34 +23,20 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-/**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- */
-// clang-format off
-#pragma once
-#include <boost/variant2/variant.hpp>
-#include "cocos/core/assets/EffectAsset.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
+#include "RenderInterfaceTypes.h"
 
 namespace cc {
 
 namespace render {
 
-class DescriptorHierarchy;
-class Setter;
-class RasterQueueBuilder;
-class RasterPassBuilder;
-class ComputeQueueBuilder;
-class ComputePassBuilder;
-class MovePassBuilder;
-class CopyPassBuilder;
-class Pipeline;
-class Factory;
+Pipeline* Factory::createPipeline() {
+    return nullptr;
+}
+
+DescriptorHierarchy* Factory::createDescriptorHierarchy(){
+    return nullptr;
+}
 
 } // namespace render
 
 } // namespace cc
-
-// clang-format on

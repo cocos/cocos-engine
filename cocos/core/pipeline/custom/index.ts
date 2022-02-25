@@ -1,7 +1,7 @@
-/****************************************************************************
+/*
  Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,36 +21,21 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ */
 
 /**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * @packageDocumentation
+ * @module custom-pipeline
  */
-// clang-format off
-#pragma once
-#include <boost/variant2/variant.hpp>
-#include "cocos/core/assets/EffectAsset.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 
-namespace cc {
+import { DescriptorHierarchy, Pipeline } from './pipeline';
+import { WebPipeline } from './web-pipeline';
+import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 
-namespace render {
+export function createDescriptorHierarchy (): DescriptorHierarchy {
+    return new WebDescriptorHierarchy();
+}
 
-class DescriptorHierarchy;
-class Setter;
-class RasterQueueBuilder;
-class RasterPassBuilder;
-class ComputeQueueBuilder;
-class ComputePassBuilder;
-class MovePassBuilder;
-class CopyPassBuilder;
-class Pipeline;
-class Factory;
-
-} // namespace render
-
-} // namespace cc
-
-// clang-format on
+export function createCustomPipeline (): Pipeline {
+    return new WebPipeline();
+}

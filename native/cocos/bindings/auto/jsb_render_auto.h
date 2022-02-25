@@ -17,6 +17,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::render::ComputePassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::MovePassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::CopyPassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);
+JSB_REGISTER_OBJECT_TYPE(cc::render::Factory);
 
 
 extern se::Object *__jsb_cc_render_DescriptorHierarchy_proto; // NOLINT
@@ -107,4 +108,12 @@ SE_DECLARE_FUNC(js_render_Pipeline_addRenderTarget);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTexture);
 SE_DECLARE_FUNC(js_render_Pipeline_beginFrame);
 SE_DECLARE_FUNC(js_render_Pipeline_endFrame);
+
+extern se::Object *__jsb_cc_render_Factory_proto; // NOLINT
+extern se::Class * __jsb_cc_render_Factory_class; // NOLINT
+
+bool js_register_cc_render_Factory(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_Factory_createDescriptorHierarchy);
+SE_DECLARE_FUNC(js_render_Factory_createPipeline);
     // clang-format on

@@ -1193,6 +1193,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderGraphTypes.cpp
                  cocos/renderer/pipeline/custom/RenderGraphTypes.h
                  cocos/renderer/pipeline/custom/RenderInterfaceFwd.h
+                 cocos/renderer/pipeline/custom/RenderInterfaceImpl.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
 )

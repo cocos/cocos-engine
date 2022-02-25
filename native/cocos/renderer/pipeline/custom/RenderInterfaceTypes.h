@@ -221,6 +221,12 @@ public:
 
 inline Pipeline::~Pipeline() noexcept = default;
 
+class Factory {
+public:
+    static Pipeline* createPipeline();
+    static DescriptorHierarchy* createDescriptorHierarchy();
+};
+
 } // namespace render
 
 } // namespace cc
