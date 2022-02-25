@@ -669,6 +669,9 @@ let Label = cc.Class({
                 this.setVertsDirty();
             }
         }
+        if (cc.sys.isNative && this._nativeTTF()) {
+            this.node._renderFlag |= cc.RenderFlow.FLAG_COLOR;
+        }
         RenderComponent.prototype._updateColor.call(this);
     },
 
