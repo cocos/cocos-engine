@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
 #include <common> // decode32
-#pragma define CC_MORPH_TARGET_COUNT range([2, 8])
+#pragma define-meta CC_MORPH_TARGET_COUNT range([2, 8])
 
 #pragma builtin(local)
 layout(set = 2, binding = 4) uniform CCMorph {
