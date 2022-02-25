@@ -30,7 +30,7 @@ import {
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
-import { Feature } from '../gfx';
+import { Device, Feature, Format, FormatFeatureBit } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
 import { warnID } from '../platform';
@@ -221,15 +221,15 @@ imageAssetProto._deserialize = function (data: any) {
             const fmt = extFormat[1] ? parseInt(extFormat[1]) : this.format;
 
             // check whether or not support compressed texture
-            if (tmpExt === '.astc' && (!device || !device.hasFeature(Feature.FORMAT_ASTC))) {
+            if (tmpExt === '.astc' && (!device || !(device.getFormatFeatures(Format.ASTC_RGBA_4X4) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                 continue;
-            } else if (tmpExt === '.pvr' && (!device || !device.hasFeature(Feature.FORMAT_PVRTC))) {
+            } else if (tmpExt === '.pvr' && (!device || !(device.getFormatFeatures(Format.PVRTC_RGBA4) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                 continue;
             } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1)
-                && (!device || !device.hasFeature(Feature.FORMAT_ETC1))) {
+                && (!device || !(device.getFormatFeatures(Format.ETC_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                 continue;
             } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2)
-                && (!device || !device.hasFeature(Feature.FORMAT_ETC2))) {
+                && (!device || !(device.getFormatFeatures(Format.ETC2_RGB8) & FormatFeatureBit.SAMPLED_TEXTURE))) {
                 continue;
             } else if (tmpExt === '.webp' && !legacyCC.sys.capabilities.webp) {
                 continue;
