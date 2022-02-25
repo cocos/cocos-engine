@@ -424,10 +424,6 @@ export class TiledLayer extends Renderable2D {
         this.markForUpdateRenderData();
     }
 
-    onDestroy () {
-        super.onDestroy();
-    }
-
     /**
      * @en Gets the layer name.
      * @zh 获取层的名称。
@@ -1427,6 +1423,7 @@ export class TiledLayer extends Renderable2D {
             });
             this._meshRenderDataArray.length = 0;
         }
+        super.destroyRenderData();
     }
 
     protected _flushAssembler () {

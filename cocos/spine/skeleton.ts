@@ -78,7 +78,6 @@ export enum SpineMaterialType {
 }
 
 export interface SkeletonDrawData {
-    // renderData: MeshRenderData;
     material: Material | null;
     texture: Texture2D | null;
     indexOffset: number;
@@ -624,13 +623,6 @@ export class Skeleton extends Renderable2D {
         this.attachUtil = new AttachUtil();
         setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
-    }
-
-    // override base class disableRender to clear post render flag
-    public disableRender () {
-        // this._super();
-        // this.node._renderFlag &= ~FLAG_POST_RENDER;
-        // this.destroyRenderData();
     }
 
     /**
@@ -1312,13 +1304,13 @@ export class Skeleton extends Renderable2D {
 
     public onDestroy () {
         this._cleanMaterialCache();
-        this.destroyRenderData();
+        this._drawList.destroy();
         super.onDestroy();
     }
 
     public destroyRenderData () {
-        this._drawList.destroy();
-        if (this._renderData) this._renderData.clear();
+        this._drawList.reset();
+        super.destroyRenderData();
     }
 
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
@@ -1551,10 +1543,7 @@ export class Skeleton extends Renderable2D {
     // if change use tint mode, just clear material cache
     protected _updateUseTint () {
         this._cleanMaterialCache();
-        if (this._renderData) {
-            RenderData.remove(this._renderData);
-            this._renderData = null;
-        }
+        this.destroyRenderData();
         if (this._assembler && this._skeleton) {
             this._renderData = this._assembler.createData(this);
             this.markForUpdateRenderData();
@@ -1568,13 +1557,6 @@ export class Skeleton extends Renderable2D {
         // }
         // this._materialCache = {};
         this.markForUpdateRenderData();
-    }
-
-    protected _validateRender () {
-        const skeletonData = this.skeletonData;
-        if (!skeletonData) {
-            this.disableRender();
-        }
     }
 
     // update animation list for editor
@@ -1619,13 +1601,11 @@ export class Skeleton extends Renderable2D {
 
     protected _updateSkeletonData () {
         if (!this.skeletonData) {
-            this.disableRender();
             return;
         }
 
         const data = this.skeletonData.getRuntimeData();
         if (!data) {
-            this.disableRender();
             return;
         }
 

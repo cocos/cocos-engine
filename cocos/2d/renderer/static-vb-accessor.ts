@@ -78,7 +78,7 @@ export class StaticVBAccessor extends BufferAccessor {
 
     public constructor (device: Device, attributes: Attribute[], vCount?: number, iCount?: number) {
         super(device, attributes);
-        this._vCount = vCount || (macro.BATCHER2D_MEM_INCREMENT * 1024 / this._vertexFormatBytes);
+        this._vCount = vCount || Math.floor(macro.BATCHER2D_MEM_INCREMENT * 1024 / this._vertexFormatBytes);
         this._iCount = iCount || (this._vCount * StaticVBAccessor.IB_SCALE);
 
         // Initialize first mesh buffer

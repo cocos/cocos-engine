@@ -600,6 +600,7 @@ export class Batcher2D implements IBatcher {
 
     public resetRenderStates () {
         this._currMaterial = this._emptyMaterial;
+        this._currRenderData = null;
         this._currTexture = null;
         this._currComponent = null;
         this._currTransform = null;

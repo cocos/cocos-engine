@@ -121,7 +121,8 @@ export class RenderData extends BaseRenderData {
             return;
         }
 
-        _pool.data[idx].clear();
+        data.clear();
+        data._accessor = null!;
         _pool.removeAt(idx);
     }
 
@@ -304,8 +305,6 @@ export class RenderData extends BaseRenderData {
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
-        this._vertexFormat = vfmtPosUvColor;
-        this._accessor = null!;
     }
 }
 
@@ -536,28 +535,6 @@ export class MeshRenderData extends BaseRenderData {
         if (oldIData) {
             this.iData.set(oldIData, 0);
         }
-    }
-}
-
-export class QuadRenderData extends MeshRenderData {
-    private _fillQuadBuffer () {
-        const count = this.iData.length / 6;
-        const buffer = this.iData;
-        for (let i = 0, idx = 0; i < count; i++) {
-            const vId = i * 4;
-            buffer[idx++] = vId;
-            buffer[idx++] = vId + 1;
-            buffer[idx++] = vId + 2;
-            buffer[idx++] = vId + 1;
-            buffer[idx++] = vId + 3;
-            buffer[idx++] = vId + 2;
-        }
-    }
-
-    protected _reallocBuffer (vCount, iCount) {
-        // copy old data
-        super._reallocBuffer(vCount, iCount);
-        this._fillQuadBuffer();
     }
 }
 

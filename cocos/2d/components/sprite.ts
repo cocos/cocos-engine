@@ -494,7 +494,6 @@ export class Sprite extends Renderable2D {
     }
 
     public onDestroy () {
-        this.destroyRenderData();
         if (EDITOR) {
             this.node.off(NodeEventType.SIZE_CHANGED, this._resized, this);
         }

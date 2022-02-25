@@ -551,8 +551,8 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     public destroyRenderData () {
-        this._drawList.destroy();
-        if (this._renderData) this._renderData.clear();
+        this._drawList.reset();
+        super.destroyRenderData();
     }
 
     public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
@@ -634,21 +634,6 @@ export class ArmatureDisplay extends Renderable2D {
         //     );
         // }
         this.markForUpdateRenderData();
-    }
-
-    // override base class disableRender to clear post render flag
-    disableRender () {
-        // this._super();
-        // this.node._renderFlag &= ~FLAG_POST_RENDER;
-    }
-
-    _validateRender () {
-        const texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
-        if (!texture) {
-            this.disableRender();
-            return false;
-        }
-        return true;
     }
 
     __preload () {
@@ -847,7 +832,6 @@ export class ArmatureDisplay extends Renderable2D {
 
     onDestroy () {
         this._materialInstances = this._materialInstances.filter((instance) => !!instance);
-        super.onDestroy();
         this._inited = false;
 
         if (!EDITOR) {
@@ -866,7 +850,8 @@ export class ArmatureDisplay extends Renderable2D {
             this._armature.dispose();
             this._armature = null;
         }
-        this.destroyRenderData();
+        this._drawList.destroy();
+        super.onDestroy();
     }
 
     _updateDebugDraw () {
