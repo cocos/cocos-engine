@@ -911,3 +911,4 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceManager);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_addSurfaceEventListener);
+

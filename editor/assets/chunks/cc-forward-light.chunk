@@ -1,14 +1,14 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
-#define CC_PIPELINE_TYPE_FORWARD 0
-#define CC_PIPELINE_TYPE_DEFERRED 1
-#pragma define CC_PIPELINE_TYPE range([0, 1])
-#pragma define CC_FORCE_FORWARD_SHADING
+#pragma define CC_PIPELINE_TYPE_FORWARD 0
+#pragma define CC_PIPELINE_TYPE_DEFERRED 1
+#pragma define-meta CC_PIPELINE_TYPE range([0, 1])
+#pragma define-meta CC_FORCE_FORWARD_SHADING
 
 #if CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD
-# define LIGHTS_PER_PASS 1 // indent to avoid effect-compile-time substitution
+  #define LIGHTS_PER_PASS 1
 #else
-# define LIGHTS_PER_PASS 10 // indent to avoid effect-compile-time substitution
+  #define LIGHTS_PER_PASS 10
 #endif
 
 #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 0
