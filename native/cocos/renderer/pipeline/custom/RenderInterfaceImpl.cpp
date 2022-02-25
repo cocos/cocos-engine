@@ -34,7 +34,7 @@ Pipeline* Factory::createPipeline() {
     return new NativePipeline();
 }
 
-DescriptorHierarchy* Factory::createDescriptorHierarchy(){
+DescriptorHierarchy* Factory::createDescriptorHierarchy() {
     return nullptr;
 }
 

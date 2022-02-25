@@ -31,7 +31,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
+import { Buffer, Format, Sampler, Texture } from '../../gfx';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { QueueHint } from './types';

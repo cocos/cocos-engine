@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { ShaderStageFlagBit, Type, Uniform } from '../../gfx/index';
+import { ShaderStageFlagBit, Type, Uniform } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 
 export const enum DescriptorIndex {

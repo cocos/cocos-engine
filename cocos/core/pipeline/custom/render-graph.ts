@@ -31,7 +31,7 @@
 /* eslint-disable max-len */
 import * as impl from './graph';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, ClearFlagBit, Color, Format, LoadOp, SampleCount, Sampler, StoreOp, Texture } from '../../gfx/index';
+import { Buffer, ClearFlagBit, Color, Format, LoadOp, SampleCount, Sampler, StoreOp, Texture } from '../../gfx';
 import { QueueHint, ResourceDimension, ResourceResidency } from './types';
 
 export const enum ResourceFlags {

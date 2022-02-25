@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { Buffer, Texture } from '../../gfx/index';
+import { Buffer, Texture } from '../../gfx';
 
 //=================================================================
 // DeviceResourceGraph

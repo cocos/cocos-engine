@@ -40,6 +40,8 @@ namespace render {
 
 class NativePipeline final : public Pipeline {
 public:
+    NativePipeline() noexcept;
+
     uint32_t addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) override;
     uint32_t addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) override;
     uint32_t addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) override;

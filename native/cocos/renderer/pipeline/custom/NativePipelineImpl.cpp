@@ -24,10 +24,15 @@
 ****************************************************************************/
 
 #include "NativePipelineTypes.h"
+#include "pipeline/custom/GslUtils.h"
 
 namespace cc {
 
 namespace render {
+
+NativePipeline::NativePipeline() noexcept {
+    CC_EXPECTS(true);
+}
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) {

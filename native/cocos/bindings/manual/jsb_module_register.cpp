@@ -33,6 +33,7 @@
 #include "cocos/bindings/auto/jsb_network_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
+#include "cocos/bindings/auto/jsb_render_auto.h"
 #include "cocos/bindings/dop/jsb_dop.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_assets_manual.h"
@@ -131,6 +132,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_assets_manual);
     se->addRegisterCallback(register_all_scene);
     se->addRegisterCallback(register_all_scene_manual);
+    se->addRegisterCallback(register_all_render);
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     se->addRegisterCallback(register_javascript_objc_bridge);

@@ -41,8 +41,6 @@ import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { DeviceResourceGraph } from '../custom/executor';
-import { createCustomPipeline } from '../custom';
 
 const PIPELINE_TYPE = 0;
 

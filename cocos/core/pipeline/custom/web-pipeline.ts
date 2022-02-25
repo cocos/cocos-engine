@@ -34,6 +34,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { RenderScene } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
+import { DeviceResourceGraph } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 
 export class WebSetter {
