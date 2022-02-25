@@ -625,13 +625,6 @@ export class Skeleton extends Renderable2D {
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
     }
 
-    // override base class disableRender to clear post render flag
-    public disableRender () {
-        // this._super();
-        // this.node._renderFlag &= ~FLAG_POST_RENDER;
-        // this.destroyRenderData();
-    }
-
     /**
      * @en
      * Sets runtime skeleton data to sp.Skeleton.<br>
@@ -1311,11 +1304,12 @@ export class Skeleton extends Renderable2D {
 
     public onDestroy () {
         this._cleanMaterialCache();
+        this._drawList.destroy();
         super.onDestroy();
     }
 
     public destroyRenderData () {
-        this._drawList.destroy();
+        this._drawList.reset();
         super.destroyRenderData();
     }
 
@@ -1565,13 +1559,6 @@ export class Skeleton extends Renderable2D {
         this.markForUpdateRenderData();
     }
 
-    protected _validateRender () {
-        const skeletonData = this.skeletonData;
-        if (!skeletonData) {
-            this.disableRender();
-        }
-    }
-
     // update animation list for editor
     protected _updateAnimEnum () {
         let animEnum;
@@ -1614,13 +1601,11 @@ export class Skeleton extends Renderable2D {
 
     protected _updateSkeletonData () {
         if (!this.skeletonData) {
-            this.disableRender();
             return;
         }
 
         const data = this.skeletonData.getRuntimeData();
         if (!data) {
-            this.disableRender();
             return;
         }
 

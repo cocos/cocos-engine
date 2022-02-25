@@ -636,21 +636,6 @@ export class ArmatureDisplay extends Renderable2D {
         this.markForUpdateRenderData();
     }
 
-    // override base class disableRender to clear post render flag
-    disableRender () {
-        // this._super();
-        // this.node._renderFlag &= ~FLAG_POST_RENDER;
-    }
-
-    _validateRender () {
-        const texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
-        if (!texture) {
-            this.disableRender();
-            return false;
-        }
-        return true;
-    }
-
     __preload () {
         super.__preload();
         this._init();
