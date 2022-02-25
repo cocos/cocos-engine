@@ -327,22 +327,36 @@ export default class NativeTTF {
         this.setSpacingX(comp.spacingX);
         this.setContentSize(node.getContentSize().width, node.getContentSize().height);
         this.setAnchorPoint(node.anchorX, node.anchorY);
-        this.setColor(this._colorToObj(c.getR(), c.getG(), c.getB(), Math.ceil(c.getA() * node.opacity / 255)));
+        cc._memoryNativeLabelOpacity = node.opacity;
+        let self = this;
+        let getTrueOpacityByParent = function (node) {
+            let parent = node.parent;
+            if (parent) {
+                cc._memoryNativeLabelOpacity = parent.opacity / 255 * cc._memoryNativeLabelOpacity;
+                getTrueOpacityByParent(parent);
+            } else {
+                self.setColor(self._colorToObj(c.getR(), c.getG(), c.getB(), c.getA() * cc._memoryNativeLabelOpacity / 255));
+                var isScene = node instanceof cc.Scene;
+                if (!isScene) {
+                    let shadow = node.getComponent(cc.LabelShadow);
+                    if (shadow && shadow.enabled) {
+                        let shadowColor = shadow.color;
+                        self.setShadow(shadow.offset.x, shadow.offset.y, shadow.blur);
+                        self.setShadowColor(self._colorToObj(shadowColor.getR(), shadowColor.getG(), shadowColor.getB(), Math.ceil(shadowColor.getA() * node.opacity / 255)));
+                    } else {
+                        self.setShadow(0, 0, -1);
+                    }
+                }
 
+                self._updateTTFMaterial(comp);
 
-        let shadow = node.getComponent(cc.LabelShadow);
-        if (shadow && shadow.enabled) {
-            let shadowColor = shadow.color;
-            this.setShadow(shadow.offset.x, shadow.offset.y, shadow.blur);
-            this.setShadowColor(this._colorToObj(shadowColor.getR(), shadowColor.getG(), shadowColor.getB(), Math.ceil(shadowColor.getA() * node.opacity / 255)));
-        } else {
-            this.setShadow(0, 0, -1);
-        }
+                layout.render();
+                //comp._vertsDirty = false;
+            }
 
-        this._updateTTFMaterial(comp);
-        
-        layout.render();
-        //comp._vertsDirty = false;
+        };
+
+        getTrueOpacityByParent(node);
     }
 
     _bindMaterial(comp) {
