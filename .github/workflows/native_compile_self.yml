@@ -21,8 +21,8 @@ jobs:
           NDK_ROOT='/home/tools/android-sdk-linux/ndk-bundle'
           ANDROID_NDK_HOME='/home/tools/android-sdk-linux/ndk-bundle'
           export NDK_ROOT ANDROID_NDK_HOME
-          python3 ./tools/tojs/genbindings.py
-          rm ./tools/tojs/userconf.ini
+          python3 ./native/tools/tojs/genbindings.py
+          rm ./native/tools/tojs/userconf.ini
 
       - name: Compile
         env:
@@ -79,7 +79,7 @@ jobs:
         shell: bash
         run: |
           python2 -V
-          cd ./tools/tojs
+          cd ./native/tools/tojs
           echo "Create auto-generated jsbinding glue codes."
           python2 ./genbindings.py
           rm userconf.ini
