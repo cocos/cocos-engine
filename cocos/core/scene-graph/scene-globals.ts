@@ -737,8 +737,6 @@ export class ShadowsInfo {
      * @zh 阴影接收平面与原点的距离
      */
     @editable
-    @range([-50.0, 50.0, 1])
-    @slide
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
     @tooltip('i18n:shadow.planeHeight')
