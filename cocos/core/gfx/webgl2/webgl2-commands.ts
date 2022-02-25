@@ -2630,6 +2630,7 @@ function pixelBufferPick (buffer : ArrayBufferView,
     fmtSize: number,
     stride : number) : ArrayBufferView {
     const bufferSize = height * width * fmtSize;
+    stride *= fmtSize;
     if (stagingBuffer.byteLength < bufferSize) {
         stagingBuffer = new Uint8Array(bufferSize);
     }

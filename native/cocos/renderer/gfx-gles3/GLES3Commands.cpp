@@ -2781,25 +2781,26 @@ void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
     }
 }
 
-uint8_t *stagingBuffer    = nullptr;
-uint32_t stagingBufferLen = 0;
+uint8_t *es3StagingBuffer    = nullptr;
+uint32_t es3StagingBufferLen = 0;
 
 uint8_t *funcGLES3PixelBufferPick(const uint8_t *buffer, uint32_t offset, uint32_t width, uint32_t height, uint32_t fmtSize, uint32_t stride) {
     const uint32_t bufferSize = width * height * fmtSize;
+    stride *= fmtSize;
 
-    if (stagingBufferLen < bufferSize) {
-        delete[] stagingBuffer;
-        stagingBuffer = new uint8_t[bufferSize];
+    if (es3StagingBufferLen < bufferSize) {
+        CC_FREE(es3StagingBuffer);
+        es3StagingBuffer = static_cast<uint8_t *>(CC_MALLOC(bufferSize));
     }
     uint32_t chunkSize    = fmtSize * width;
     uint32_t chunkOffset  = 0;
     uint32_t bufferOffset = offset;
     for (uint32_t i = 0; i < height; i++) {
-        memcpy(stagingBuffer + chunkOffset, buffer + bufferOffset, chunkSize);
+        memcpy(es3StagingBuffer + chunkOffset, buffer + bufferOffset, chunkSize);
         chunkOffset += chunkSize;
         bufferOffset += stride;
     }
-    return stagingBuffer;
+    return es3StagingBuffer;
 }
 
 void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const *buffers, GLES3GPUTexture *gpuTexture, const BufferTextureCopy *regions, uint32_t count) {
@@ -3005,9 +3006,10 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
         GL_CHECK(glGenerateMipmap(gpuTexture->glTarget));
     }
 
-    if (stagingBuffer != nullptr) {
-        delete[] stagingBuffer;
-        stagingBuffer = nullptr;
+    if (es3StagingBuffer != nullptr && es3StagingBufferLen > 0) {
+        CC_FREE(es3StagingBuffer);
+        es3StagingBuffer    = nullptr;
+        es3StagingBufferLen = 0;
     }
 }
 

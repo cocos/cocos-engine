@@ -284,6 +284,9 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         const BufferTextureCopy &region = regions[i];
 
         uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        // if (region.buffStride > 0) {
+        //     size = formatSize(texture->getFormat(), region.buffStride, region.buffTexHeight, 1);
+        // }
         totalSize += size * region.texSubres.layerCount;
     }
 
@@ -297,12 +300,37 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
     for (uint32_t i = 0U, n = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
 
-        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, region.texExtent.depth);
+
+        uint32_t width     = region.texExtent.width;
+        uint32_t height    = region.texExtent.height;
+        uint32_t stride    = formatSize(texture->getFormat(), region.buffStride, 1, region.texExtent.depth);
+        uint32_t chunkSize = formatSize(texture->getFormat(), width, 1, region.texExtent.depth);
+
+        uint32_t chunkOffset  = 0;
+        uint32_t bufferOffset = region.buffOffset;
+
         for (uint32_t l = 0; l < region.texSubres.layerCount; l++) {
+            chunkOffset  = 0;
+            bufferOffset = region.buffOffset;
             auto *buffer = allocator->allocate<uint8_t>(size);
-            memcpy(buffer, buffers[n], size);
-            actorBuffers[n++] = buffer;
+            if (stride <= chunkSize) {
+                memcpy(buffer, buffers[n], size);
+            } else {
+                for (uint32_t j = 0; j < height; j++) {
+                    memcpy(buffer + chunkOffset, buffers[n] + bufferOffset, chunkSize);
+                    chunkOffset += chunkSize;
+                    bufferOffset += stride;
+                }
+            }
+            // rewrite the copy function
+            actorBuffers[n] = buffer;
+            n++;
         }
+
+        actorRegions[i].buffOffset    = 0;
+        actorRegions[i].buffStride    = 0;
+        actorRegions[i].buffTexHeight = 0;
     }
 
     ENQUEUE_MESSAGE_6(

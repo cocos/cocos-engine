@@ -2542,21 +2542,26 @@ void cmdFuncGLES2UpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, co
     }
 }
 
-uint8_t *GLES2PixelBufferPick(const uint8_t *buffer, uint32_t offset, uint32_t width, uint32_t height, uint32_t fmtSize, uint32_t stride) {
-    const uint32_t  imgSize = width * height;
-    static uint8_t *stagingBuffer;
-    if (stagingBuffer != nullptr) {
-        delete[] stagingBuffer;
-        stagingBuffer = nullptr;
+uint8_t *es2StagingBuffer    = nullptr;
+uint32_t es2StagingBufferLen = 0;
+
+uint8_t *funcGLES2PixelBufferPick(const uint8_t *buffer, uint32_t offset, uint32_t width, uint32_t height, uint32_t fmtSize, uint32_t stride) {
+    const uint32_t bufferSize = width * height * fmtSize;
+    stride *= fmtSize;
+
+    if (es2StagingBufferLen < bufferSize) {
+        CC_FREE(es2StagingBuffer);
+        es2StagingBuffer = static_cast<uint8_t *>(CC_MALLOC(bufferSize));
     }
-    stagingBuffer        = new uint8_t[imgSize * fmtSize];
-    uint32_t chunkSize   = fmtSize * width;
-    uint32_t chunkOffset = offset;
+    uint32_t chunkSize    = fmtSize * width;
+    uint32_t chunkOffset  = 0;
+    uint32_t bufferOffset = offset;
     for (uint32_t i = 0; i < height; i++) {
-        memcpy(stagingBuffer, buffer + chunkOffset, chunkSize);
-        chunkOffset += stride;
+        memcpy(es2StagingBuffer + chunkOffset, buffer + bufferOffset, chunkSize);
+        chunkOffset += chunkSize;
+        bufferOffset += stride;
     }
-    return stagingBuffer;
+    return es2StagingBuffer;
 }
 
 void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const *buffers,
@@ -2583,7 +2588,7 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
 
                 const uint8_t *buff;
                 if (region.buffStride > 0) {
-                    buff         = GLES2PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
+                    buff         = funcGLES2PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
                     bufferOffset = 0;
                 } else {
                     buff = buffers[n++] + bufferOffset;
@@ -2628,7 +2633,7 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
 
                     const uint8_t *buff;
                     if (region.buffStride > 0) {
-                        buff         = GLES2PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
+                        buff         = funcGLES2PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
                         bufferOffset = 0;
                     } else {
                         buff = buffers[n++] + bufferOffset;
@@ -2672,7 +2677,7 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
 
                 const uint8_t *buff;
                 if (region.buffStride > 0) {
-                    buff         = GLES2PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
+                    buff         = funcGLES2PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
                     bufferOffset = 0;
                 } else {
                     buff = buffers[n++] + bufferOffset;
@@ -2719,7 +2724,7 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
 
                     const uint8_t *buff;
                     if (region.buffStride > 0) {
-                        buff         = GLES2PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
+                        buff         = funcGLES2PixelBufferPick(buffers[n++], bufferOffset, w, h, fmtSize, region.buffStride);
                         bufferOffset = 0;
                     } else {
                         buff = buffers[n++] + bufferOffset;
@@ -2758,10 +2763,10 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
         GL_CHECK(glGenerateMipmap(gpuTexture->glTarget));
     }
 
-    static uint8_t *stagingBuffer;
-    if (stagingBuffer != nullptr) {
-        delete[] stagingBuffer;
-        stagingBuffer = nullptr;
+    if (es2StagingBuffer != nullptr && es2StagingBufferLen > 0) {
+        CC_FREE(es2StagingBuffer);
+        es2StagingBuffer    = nullptr;
+        es2StagingBufferLen = 0;
     }
 }
 
