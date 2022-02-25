@@ -192,7 +192,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     protected void onStop() {
         super.onStop();
         onStopNative();
-        if (mSurfaceView != null && mSurfaceView.getParent() != null) {
+        if (mFrameLayout != null) {
             mFrameLayout.removeView(mSurfaceView);
         }
     }
