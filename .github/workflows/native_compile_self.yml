@@ -13,8 +13,8 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
-          rm -rf external
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+          rm -rf native/external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
 
       - name: Generate bindings
         run: |
@@ -72,8 +72,8 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`grep version  native/external/config.json  |awk -F'"' '{print $4}'`
-          rm -rf external
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+          rm -rf native/external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
 
       - name: Generate bindings
         shell: bash
