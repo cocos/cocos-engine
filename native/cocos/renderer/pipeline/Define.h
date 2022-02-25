@@ -272,7 +272,8 @@ struct CC_DLL UBOLocal {
     static constexpr uint                        MAT_WORLD_OFFSET    = 0;
     static constexpr uint                        MAT_WORLD_IT_OFFSET = UBOLocal::MAT_WORLD_OFFSET + 16;
     static constexpr uint                        LIGHTINGMAP_UVPARAM = UBOLocal::MAT_WORLD_IT_OFFSET + 16;
-    static constexpr uint                        COUNT               = UBOLocal::LIGHTINGMAP_UVPARAM + 4;
+    static constexpr uint                        LOCAL_SHADOW_BIAS   = UBOLocal::LIGHTINGMAP_UVPARAM + 4;
+    static constexpr uint                        COUNT               = UBOLocal::LOCAL_SHADOW_BIAS + 4;
     static constexpr uint                        SIZE                = UBOLocal::COUNT * 4;
     static constexpr uint                        BINDING             = static_cast<uint>(ModelLocalBindings::UBO_LOCAL);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;

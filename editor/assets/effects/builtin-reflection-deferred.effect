@@ -135,15 +135,15 @@ CCProgram standard-fs %{
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
-    #pragma define ALBEDO_UV options([v_uv, v_uv1])
+    #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
   #if USE_NORMAL_MAP
     in vec3 v_tangent;
     in vec3 v_bitangent;
     uniform sampler2D normalMap;
-    #pragma define NORMAL_UV options([v_uv, v_uv1])
+    #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
   #endif
-  #pragma define PBR_UV options([v_uv, v_uv1])
+  #pragma define-meta PBR_UV options([v_uv, v_uv1])
   #if USE_PBR_MAP
     uniform sampler2D pbrMap;
   #endif
@@ -155,15 +155,15 @@ CCProgram standard-fs %{
   #endif
   #if USE_EMISSIVE_MAP
     uniform sampler2D emissiveMap;
-    #pragma define EMISSIVE_UV options([v_uv, v_uv1])
+    #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
   #endif
 
-  #define OCCLUSION_CHANNEL r
-  #define ROUGHNESS_CHANNEL g
-  #define METALLIC_CHANNEL  b
+  #pragma define OCCLUSION_CHANNEL r
+  #pragma define ROUGHNESS_CHANNEL g
+  #pragma define METALLIC_CHANNEL  b
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
   #endif
 
   void surf (out StandardSurface s) {

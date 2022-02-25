@@ -93,7 +93,7 @@ export class PipelineUBO {
         cv[UBOCamera.EXPOSURE_OFFSET + 3] = 0.0;
 
         if (mainLight) {
-            const shadowEnable = (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
+            const shadowEnable = (mainLight.shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
             const mainLightDir = mainLight.direction;
             _lightDir.set(mainLightDir.x, mainLightDir.y, mainLightDir.z, shadowEnable);
             Vec4.toArray(cv, _lightDir, UBOCamera.MAIN_LIT_DIR_OFFSET);
@@ -178,9 +178,9 @@ export class PipelineUBO {
                 const matShadowView = shadowInfo.matShadowView;
                 const matShadowProj = shadowInfo.matShadowProj;
                 const matShadowViewProj = shadowInfo.matShadowViewProj;
-                if (mainLight.fixedArea) {
-                    near = mainLight.fixedNear;
-                    far = mainLight.fixedFar;
+                if (mainLight.shadowFixedArea) {
+                    near = mainLight.shadowNear;
+                    far = mainLight.shadowFar;
                 } else {
                     near = 0.1;
                     far = shadowInfo.shadowCameraFar;
@@ -239,9 +239,9 @@ export class PipelineUBO {
         switch (light.type) {
         case LightType.DIRECTIONAL: {
             const mainLight = light as DirectionalLight;
-            if (mainLight.fixedArea) {
-                near = mainLight.fixedNear;
-                far = mainLight.fixedFar;
+            if (mainLight.shadowFixedArea) {
+                near = mainLight.shadowNear;
+                far = mainLight.shadowFar;
             } else {
                 near = 0.1;
                 far = shadowInfo.shadowCameraFar;

@@ -2,7 +2,7 @@
 #include <cc-sprite-common>
 #include <embedded-alpha>
 
-#define ONE_OVER_PI 0.3183098861838
+#pragma define ONE_OVER_PI 0.3183098861838
 
 in vec2 v_uv0;
 

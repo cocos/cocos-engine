@@ -244,7 +244,12 @@ void AudioPlayer::rotateBufferThread(int offsetFrame) {
 
         while (!_isDestroyed) {
             alGetSourcei(_alSource, AL_SOURCE_STATE, &sourceState);
-            if (sourceState == AL_PLAYING) {
+            /* On IOS, audio state will lie, when the system is not fully foreground,
+             * openAl will process the buffer in queue, but our condition cannot make sure that the audio
+             * is playing as it's too short. Interesting IOS system.
+             * Solution is to load buffer even if it's paused, just make sure that there's no bufferProcessed in 
+             */
+            if (sourceState == AL_PLAYING || sourceState == AL_PAUSED) {
                 alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
                 while (bufferProcessed > 0) {
                     bufferProcessed--;
