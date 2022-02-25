@@ -71,8 +71,8 @@ exports.methods = {
         this.cacheData = {};
     },
     /**
-     * 
-     * @param {string} inspector 
+     *
+     * @param {string} inspector
      */
     async updateCustomInspector(inspector) {
         this.$.customPanel.hidden = false;
@@ -295,9 +295,8 @@ exports.methods = {
         this.$.materialDump.style = hide ? 'display:none' : '';
     },
 
-    async updatePreview() {
-        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
-        Editor.Message.broadcast('material-inspector:change-dump');
+    updatePreview() {
+        Editor.Message.broadcast('material-inspector:change-dump', this.asset.uuid, this.material);
     },
 
     storeCache() {

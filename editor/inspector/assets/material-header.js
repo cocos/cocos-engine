@@ -83,9 +83,10 @@ exports.methods = {
             panel.refreshPreview();
         });
     },
-    updatePreviewDataDirty() {
+    async updatePreviewDataDirty(assetUuid, material) {
         const panel = this;
 
+        await Editor.Message.request('scene', 'preview-material', assetUuid, material);
         panel.isPreviewDataDirty = true;
     },
 };

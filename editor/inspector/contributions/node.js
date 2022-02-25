@@ -1030,7 +1030,8 @@ const Elements = {
                     materialPanel.setAttribute('uuid', materialUuid);
                     materialPanel.panelObject.$.container.removeAttribute('whole');
                     materialPanel.panelObject.$.container.setAttribute('cache-expand', materialUuid);
-                    materialPanel.update([materialUuid], panel.renderManager[materialPanelType]);
+                    const { section = {} } = panel.renderManager[materialPanelType];
+                    materialPanel.update([materialUuid], { section });
 
                     // 按数组顺序放置
                     if (materialPrevPanel) {
