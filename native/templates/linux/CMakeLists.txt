@@ -37,7 +37,7 @@ SET(CMAKE_INSTALL_RPATH "\${ORIGIN}")
 
 set_target_properties(${APP_NAME} PROPERTIES
 COMPILE_FLAGS "-pthread"
-LINK_FLAGS "-pthread ")
+LINK_FLAGS "-pthread -lsndio ")
 
 
 target_link_libraries(${APP_NAME} dl cocos2d)
