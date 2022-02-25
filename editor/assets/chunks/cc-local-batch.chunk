@@ -5,6 +5,12 @@
 
 #include <cc-local>
 
+#if USE_INSTANCING
+  in vec4 a_matWorld0;
+  in vec4 a_matWorld1;
+  in vec4 a_matWorld2;
+#endif
+
 void CCGetWorldMatrix(out mat4 matWorld)
 {
   #if USE_INSTANCING
