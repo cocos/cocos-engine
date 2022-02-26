@@ -53,7 +53,7 @@ public:
         uint32_t fontColor = 0x00000000;
         uint32_t backColor = 0x00000000;//font back color
         uint32_t backgroundColor = 0x00000000;
-        bool isBold = true;
+        bool isBold = false;
         bool isItalic = false;
         bool isUnderline = false;
         uint32_t underlineColor = 0x00000000;

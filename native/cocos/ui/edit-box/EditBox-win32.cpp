@@ -225,8 +225,6 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
                  SWP_NOZORDER);
 
     ::SetWindowTextW(g_hwndEditBox, str2ws(showInfo.defaultValue).c_str());
-    std::string s = "Hello";
-    ::SetWindowTextW(g_hwndEditBox, str2ws(s).c_str());
     
     ::PostMessage(g_hwndEditBox, WM_ACTIVATE, 0, 0);
     ::ShowWindow(g_hwndEditBox, SW_SHOW);
@@ -236,13 +234,14 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     /* Set the caret to the end of the text in the box */
     SendMessage(g_hwndEditBox, EM_SETSEL, (WPARAM)index, (LPARAM)index);
     SendMessage(g_hwndEditBox, EM_SETFONTSIZE, showInfo.fontSize, 0);
-    SendMessage(g_hwndEditBox, EM_SETBKGNDCOLOR, 0, RGB((showInfo.backgroundColor & 0x00ff0000)>>16,(showInfo.backgroundColor & 0x0000ff00)>>8,(showInfo.backgroundColor & 0x000000ff)));
+    SendMessage(g_hwndEditBox, EM_SETBKGNDCOLOR, 0, RGB((showInfo.backgroundColor & 0x000000ff),(showInfo.backgroundColor & 0x0000ff00) >> 8, (showInfo.backgroundColor & 0x00ff0000) >> 16));
     CHARFORMAT2 cf;
     cf.cbSize = sizeof(CHARFORMAT2);
-    cf.crTextColor = RGB((showInfo.fontColor & 0x00ff0000)>>16,(showInfo.fontColor & 0x0000ff00)>>8,(showInfo.fontColor & 0x000000ff));
+    cf.crTextColor = RGB((showInfo.fontColor & 0x000000ff), (showInfo.fontColor & 0x0000ff00) >> 8, (showInfo.fontColor & 0x00ff0000) >> 16);
     //cf.crTextColor = showInfo.fontColor;
-    cf.crBackColor = RGB((showInfo.backColor & 0x00ff0000)>>16,(showInfo.backColor & 0x0000ff00)>>8,(showInfo.backColor & 0x000000ff));
-    cf.dwMask = CFM_COLOR | CFM_BACKCOLOR;
+
+    cf.crBackColor     = RGB((showInfo.backColor & 0x000000ff), (showInfo.backColor & 0x0000ff00) >> 8, (showInfo.backColor & 0x00ff0000) >> 16);
+    cf.dwMask = CFM_COLOR | CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE;
     cf.dwEffects = (showInfo.isUnderline ? CFE_UNDERLINE : 0) | (showInfo.isBold ? CFE_BOLD : 0) | (showInfo.isItalic ? CFE_ITALIC : 0);
     cf.bUnderlineColor = showInfo.underlineColor;
     
