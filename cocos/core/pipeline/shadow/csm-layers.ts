@@ -133,8 +133,9 @@ export class CSMLayers {
 
         if (dirLight.shadowCSMValueDirty || isRecalculate) {
             this._splitFrustumLevels();
-            this._splitFrustum();
         }
+
+        this._splitFrustum();
     }
 
     public shadowFrustumItemToConsole () {

@@ -392,10 +392,10 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             updateDirLight(pipeline, mainLight);
         } else {
             csmLayers.update(camera, mainLight);
-            if (csmLayers.shadowCSMLayers[0]) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[0].validFrustum!, red, false); }
-            if (csmLayers.shadowCSMLayers[1]) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[1].validFrustum!, yellow, false); }
-            if (csmLayers.shadowCSMLayers[2]) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].validFrustum!, green, false); }
-            if (csmLayers.shadowCSMLayers[3]) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[3].validFrustum!, pink, false); }
+            if (mainLight.shadowCSMLevel > 1) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[0].validFrustum!, red, false); }
+            if (mainLight.shadowCSMLevel > 2) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[1].validFrustum!, yellow, false); }
+            if (mainLight.shadowCSMLevel > 3) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].validFrustum!, green, false); }
+            if (mainLight.shadowCSMLevel > 4) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[3].validFrustum!, pink, false); }
         }
     }
 
