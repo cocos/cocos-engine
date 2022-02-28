@@ -444,12 +444,12 @@ inline bool nativevalue_to_se(bool from, se::Value &to, se::Object * /*ctx*/) { 
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 inline bool nativevalue_to_se(unsigned long from, se::Value &to,  se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    static_assert(sizeof(*to) == 8, "");
+    static_assert(sizeof(from) == 8, "");
     to.setDouble(static_cast<double>(from));
     return true;
 }
 inline bool nativevalue_to_se(long from,  se::Value &to,se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    static_assert(sizeof(*to) == 8, "");
+    static_assert(sizeof(from) == 8, "");
     to.setDouble(static_cast<double>(from));
     return true;
 }
