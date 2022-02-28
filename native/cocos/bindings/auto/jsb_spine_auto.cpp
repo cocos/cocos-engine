@@ -14963,7 +14963,6 @@ static bool js_spine_SkeletonAnimation_constructor(se::State& s) // NOLINT(reada
 }
 SE_BIND_CTOR(js_spine_SkeletonAnimation_constructor, __jsb_spine_SkeletonAnimation_class, js_spine_SkeletonAnimation_finalize)
 
-
 static bool js_spine_SkeletonAnimation_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
@@ -15009,7 +15008,6 @@ bool js_register_spine_SkeletonAnimation(se::Object* obj) // NOLINT(readability-
     __jsb_spine_SkeletonAnimation_proto = cls->getProto();
     __jsb_spine_SkeletonAnimation_class = cls;
 
-    jsb_set_extend_property("spine", "SkeletonAnimation");
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
