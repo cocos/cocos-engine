@@ -48,6 +48,7 @@ import { Component } from '../../core/components';
 import { CCObject } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
+
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
 const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
@@ -1120,3 +1121,5 @@ export class RichText extends Component {
         label.isUnderline = false;
     }
 }
+
+legacyCC.RichText = RichText;
