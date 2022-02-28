@@ -393,6 +393,7 @@ export class Batcher2D implements IBatcher {
         if (renderComp) {
             blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
             bsHash = renderComp.blendHash;
+            renderComp.stencilStage = StencilManager.sharedManager!.stage;
             if (renderComp.customMaterial !== null) {
                 depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
             } else {
