@@ -59,3 +59,4 @@ int astcGetHeight(const astc_byte *pHeader) {
     int ysize = pHeader[ASTC_HEADER_SIZE_Y_BEGIN] + (pHeader[ASTC_HEADER_SIZE_Y_BEGIN + 1] * 256) + (pHeader[ASTC_HEADER_SIZE_Y_BEGIN + 2] * 65536);
     return ysize;
 }
+
