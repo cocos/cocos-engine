@@ -219,6 +219,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
         this._names.push(name);
         this._descs.push(desc);
         this._traits.push(traits);
+        // UuidGraph
+        this._valueIndex.set(name, v);
         return v;
     }
     clearVertex (v: number): void {
@@ -250,6 +252,13 @@ export class ResourceGraph implements impl.BidirectionalGraph
         vert._inEdges.length = 0;
     }
     removeVertex (u: number): void {
+        { // UuidGraph
+            const key = this._names[u];
+            this._valueIndex.delete(key);
+            this._valueIndex.forEach((v) => {
+                if (v > u) { --v; }
+            });
+        }
         this._vertices.splice(u, 1);
         this._names.splice(u, 1);
         this._descs.splice(u, 1);
@@ -375,10 +384,12 @@ export class ResourceGraph implements impl.BidirectionalGraph
     //-----------------------------------------------------------------
     // UuidGraph
     vertex (key: string): number {
-        return 0xFFFFFFFF;
+        return this._valueIndex.get(key)!;
     }
     find (key: string): number {
-        return 0xFFFFFFFF;
+        const v = this._valueIndex.get(key);
+        if (v === undefined) return 0xFFFFFFFF;
+        return v;
     }
 
     readonly components: string[] = ['Name', 'Desc', 'Traits'];
