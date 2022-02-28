@@ -26,7 +26,6 @@
 #include "ValidationUtils.h"
 
 #include "DeviceValidator.h"
-#include "bindings/jswrapper/SeApi.h"
 #ifndef CC_WGPU_WASM
     #include "bindings/jswrapper/SeApi.h"
 #endif
