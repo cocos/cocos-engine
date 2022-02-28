@@ -29,15 +29,10 @@
  */
 
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
-import { UI_GPU_DRIVEN } from 'internal:constants';
 import { Renderable2D } from '../framework/renderable-2d';
 import { IBatcher } from '../renderer/i-batcher';
-import { MeshBuffer } from '../renderer/mesh-buffer';
 import { DrawBatch2D } from '../renderer/draw-batch';
 import { director, Color, warnID } from '../../core';
-import { vfmtPosUvColor } from '../renderer/vertex-format';
-import { BlendFactor } from '../../core/gfx';
-import { LinearBufferAccessor } from '../renderer/linear-buffer-accessor';
 import { StaticVBAccessor } from '../renderer/static-vb-accessor';
 
 /**
@@ -88,7 +83,6 @@ export class UIStaticBatch extends Renderable2D {
         // if (!ui) {
         //     return;
         // }
-        // if (UI_GPU_DRIVEN) return;
 
         // const attr = vfmtPosUvColor;
         // this._bufferAccessor = ui.switchBufferAccessor(vfmtPosUvColor);
@@ -106,7 +100,6 @@ export class UIStaticBatch extends Renderable2D {
     }
 
     public updateAssembler (render: IBatcher) {
-        // if (UI_GPU_DRIVEN) return;
         // render.currIsStatic = true;
         // if (this._dirty) {
         //     render.setupStaticBatch(this, this._bufferAccessor!);
@@ -119,7 +112,6 @@ export class UIStaticBatch extends Renderable2D {
     }
 
     public postUpdateAssembler (render: IBatcher) {
-        // if (UI_GPU_DRIVEN) return;
         // if (this._dirty) {
         //     this._dirty = false;
         //     this._init = true;
@@ -141,7 +133,6 @@ export class UIStaticBatch extends Renderable2D {
      * 注意：尽量不要频繁调用此接口，因为会清空原先存储的 ia 数据重新采集，会有一定内存损耗。
      */
     public markAsDirty () {
-        // if (UI_GPU_DRIVEN) return;
 
         // this.node._static = false;
         // this._dirty = true;
