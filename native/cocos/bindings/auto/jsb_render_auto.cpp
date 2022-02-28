@@ -16,6 +16,43 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+se::Object* __jsb_cc_render_PipelineRuntime_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_PipelineRuntime_class = nullptr;  // NOLINT
+
+static bool js_render_PipelineRuntime_getMacros(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_getMacros : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>& result = cobj->getMacros();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_getMacros : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getMacros)
+
+bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("PipelineRuntime", obj, nullptr, nullptr);
+
+    cls->defineProperty("macros", _SE(js_render_PipelineRuntime_getMacros_asGetter), nullptr);
+    cls->install();
+    JSBClassType::registerClass<cc::render::PipelineRuntime>(cls);
+
+    __jsb_cc_render_PipelineRuntime_proto = cls->getProto();
+    __jsb_cc_render_PipelineRuntime_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_render_DescriptorHierarchy_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_DescriptorHierarchy_class = nullptr;  // NOLINT
 
@@ -1341,6 +1378,7 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_Factory(ns);
     js_register_render_MovePassBuilder(ns);
     js_register_render_Pipeline(ns);
+    js_register_render_PipelineRuntime(ns);
     js_register_render_RasterPassBuilder(ns);
     js_register_render_RasterQueueBuilder(ns);
     return true;

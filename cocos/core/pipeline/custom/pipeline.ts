@@ -33,9 +33,14 @@ import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Format, Sampler, Texture } from '../../gfx';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
+import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { QueueHint } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
+
+export abstract class PipelineRuntime {
+    public abstract get macros(): MacroRecord;
+}
 
 export abstract class DescriptorHierarchy {
     public abstract addEffect(asset: EffectAsset): void;

@@ -38,6 +38,7 @@ namespace cc {
 
 namespace render {
 
+class PipelineRuntime;
 class DescriptorHierarchy;
 class Setter;
 class RasterQueueBuilder;

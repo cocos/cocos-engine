@@ -59,6 +59,21 @@ namespace cc {
 
 namespace render {
 
+class PipelineRuntime {
+public:
+    PipelineRuntime() noexcept = default;
+    PipelineRuntime(PipelineRuntime&& rhs)      = delete;
+    PipelineRuntime(PipelineRuntime const& rhs) = delete;
+    PipelineRuntime& operator=(PipelineRuntime&& rhs) = delete;
+    PipelineRuntime& operator=(PipelineRuntime const& rhs) = delete;
+
+    virtual ~PipelineRuntime() noexcept = 0;
+
+    virtual const MacroRecord& getMacros() const = 0;
+};
+
+inline PipelineRuntime::~PipelineRuntime() noexcept = default;
+
 class DescriptorHierarchy {
 public:
     DescriptorHierarchy() noexcept = default;

@@ -8,6 +8,7 @@
 
 bool register_all_render(se::Object *obj);                   // NOLINT
 
+JSB_REGISTER_OBJECT_TYPE(cc::render::PipelineRuntime);
 JSB_REGISTER_OBJECT_TYPE(cc::render::DescriptorHierarchy);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Setter);
 JSB_REGISTER_OBJECT_TYPE(cc::render::RasterQueueBuilder);
@@ -18,6 +19,12 @@ JSB_REGISTER_OBJECT_TYPE(cc::render::MovePassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::CopyPassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Factory);
+
+
+extern se::Object *__jsb_cc_render_PipelineRuntime_proto; // NOLINT
+extern se::Class * __jsb_cc_render_PipelineRuntime_class; // NOLINT
+
+bool js_register_cc_render_PipelineRuntime(se::Object *obj); // NOLINT
 
 
 extern se::Object *__jsb_cc_render_DescriptorHierarchy_proto; // NOLINT
