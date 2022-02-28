@@ -62,7 +62,7 @@ HWND getCurrentWindowHwnd() {
 }
 
 int getCocosWindowHeight() {
-    //HWND parent = cc_get_application_view()->getWindowHandler();
+    // HWND parent = cc_get_application_view()->getWindowHandler();
     HWND parent = getCurrentWindowHwnd();
     RECT rect;
     GetClientRect(parent, &rect);
@@ -117,6 +117,7 @@ std::wstring str2ws(const std::string &text) {
 }
 
 LRESULT mainWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    auto order = SendMessage(getCurrentWindowHwnd(), EM_GETEVENTMASK, 0, 0);
     switch (msg) {
         case WM_LBUTTONDOWN:
             EditBox::complete();
@@ -124,9 +125,10 @@ LRESULT mainWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SetFocus(getCurrentWindowHwnd());
             break;
         case WM_COMMAND:
-            if (EN_CHANGE == HIWORD(wParam))
+            // EN_CHANGE => EN_UPDATE
+            if (EN_UPDATE == HIWORD(wParam)) {
                 callJSFunc("input", getText(g_hwndEditBox).c_str());
-
+            }
             break;
         default:
             break;
@@ -183,19 +185,18 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
             NULL);*/
         LoadLibrary(TEXT("Msftedit.dll"));
         g_hwndEditBox = CreateWindowEx(
-            0, 
+            0,
             MSFTEDIT_CLASS,
-            TEXT("TypeHere"),
+            NULL,
             flags,
             0,
             0,
             0,
             0,
             parent,
+            0,
             NULL,
-            NULL,
-            NULL
-        );
+            NULL);
 
         if (!g_hwndEditBox) {
             wchar_t buffer[256] = {0};
@@ -216,6 +217,8 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     }
 
     ::SendMessageW(g_hwndEditBox, EM_LIMITTEXT, showInfo.maxLength, 0);
+
+    // SendMessage(g_hwndEditBox, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&cf);
     SetWindowPos(g_hwndEditBox,
                  HWND_NOTOPMOST,
                  showInfo.x,
@@ -225,31 +228,44 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
                  SWP_NOZORDER);
 
     ::SetWindowTextW(g_hwndEditBox, str2ws(showInfo.defaultValue).c_str());
-    
+
+    // SendMessage(g_hwndEditBox, EM_SETFONTSIZE, 1, 0);
+    SendMessage(g_hwndEditBox, EM_SETBKGNDCOLOR, 0, RGB((showInfo.backgroundColor & 0x000000ff), (showInfo.backgroundColor & 0x0000ff00) >> 8, (showInfo.backgroundColor & 0x00ff0000) >> 16));
+
     ::PostMessage(g_hwndEditBox, WM_ACTIVATE, 0, 0);
     ::ShowWindow(g_hwndEditBox, SW_SHOW);
     /* Get current length of text in the box */
     int index = GetWindowTextLength(g_hwndEditBox);
     SetFocus(g_hwndEditBox);
+
+    SendMessage(g_hwndEditBox, EM_SETSEL, (WPARAM)0, (LPARAM)index);
+    // int height = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->kheight;
+    CHARFORMAT2 cf;
+    RECT        rect;
+
+    GetWindowRect(getCurrentWindowHwnd(), &rect);
+    float WindowRatio = (float)(rect.bottom - rect.top) / (float)CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize().y;
+    float JsFontRatio = float(showInfo.fontSize) / 5;
+    /** A probale way to calculate the increase of font size
+     * OriginalSize + Increase = OriginalSize * Ratio_of_js_fontSize * Ratio_of_window
+     * Default value : OriginalSize = 8, Ratio_of_js_fontSize = showInfo.fontSize /5,
+     * Ratio_of_window = (float)height / (float)CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize().y
+     * thus Increase was calculated.
+     */
+    int fsize = (float)(JsFontRatio + 8) * WindowRatio - 8;
+
+    SendMessage(g_hwndEditBox, EM_SETFONTSIZE, fsize, 0);
     /* Set the caret to the end of the text in the box */
     SendMessage(g_hwndEditBox, EM_SETSEL, (WPARAM)index, (LPARAM)index);
 
-
-    //SendMessage(g_hwndEditBox, EM_SETFONTSIZE, showInfo.fontSize, 0);
-    SendMessage(g_hwndEditBox, EM_SETBKGNDCOLOR, 0, RGB((showInfo.backgroundColor & 0x000000ff),(showInfo.backgroundColor & 0x0000ff00) >> 8, (showInfo.backgroundColor & 0x00ff0000) >> 16));
-    CHARFORMAT2 cf;
-    cf.cbSize = sizeof(CHARFORMAT2);
+    cf.cbSize      = sizeof(CHARFORMAT2);
     cf.crTextColor = RGB((showInfo.fontColor & 0x000000ff), (showInfo.fontColor & 0x0000ff00) >> 8, (showInfo.fontColor & 0x00ff0000) >> 16);
-    //cf.crTextColor = showInfo.fontColor;
 
     cf.crBackColor     = RGB((showInfo.backColor & 0x000000ff), (showInfo.backColor & 0x0000ff00) >> 8, (showInfo.backColor & 0x00ff0000) >> 16);
-    cf.dwMask = CFM_COLOR | CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE;
-    cf.dwEffects = (showInfo.isUnderline ? CFE_UNDERLINE : 0) | (showInfo.isBold ? CFE_BOLD : 0) | (showInfo.isItalic ? CFE_ITALIC : 0);
+    cf.dwMask          = CFM_COLOR | CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE;
+    cf.dwEffects       = (showInfo.isUnderline ? CFE_UNDERLINE : 0) | (showInfo.isBold ? CFE_BOLD : 0) | (showInfo.isItalic ? CFE_ITALIC : 0);
     cf.bUnderlineColor = showInfo.underlineColor;
-    
-    SendMessage(g_hwndEditBox, EM_SETCHARFORMAT, SCF_DEFAULT, (LPARAM)&cf);
-
-//    CC_LOG_DEBUG("%d", cf.);
+    SendMessage(g_hwndEditBox, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&cf);
 }
 
 void EditBox::hide() {
