@@ -300,13 +300,13 @@ cocos_source_files(
     cocos/base/IndexHandle.h
     cocos/base/Locked.h
     cocos/base/Macros.h
-    cocos/base/Map.h
     cocos/base/Object.h
     cocos/base/Optional.h
     cocos/base/Ptr.h
     cocos/base/Random.h
     cocos/base/RefCounted.cpp
     cocos/base/RefCounted.h
+    cocos/base/RefMap.h
     cocos/base/RefVector.h
     cocos/base/Scheduler.cpp
     cocos/base/Scheduler.h

@@ -23,7 +23,7 @@
 #include "jsb_conversions.h"
 
 #include "cocos/base/DeferredReleasePool.h"
-#include "cocos/base/Map.h"
+#include "cocos/base/RefMap.h"
 #include "cocos/base/RefVector.h"
 #include "cocos/core/TypedArray.h"
 #include "cocos/math/Geometry.h"
@@ -1198,7 +1198,7 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
 #if USE_MIDDLEWARE
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middleware::Texture2D *> *ret) {
+bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, cc::middleware::Texture2D *> *ret) {
     assert(ret != nullptr);
     assert(v.isObject());
     se::Object *obj = v.toObject();
