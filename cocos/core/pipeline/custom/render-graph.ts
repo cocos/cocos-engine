@@ -143,7 +143,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
 , impl.MutableGraph
 , impl.PropertyGraph
 , impl.NamedGraph
-, impl.ComponentGraph {
+, impl.ComponentGraph
+, impl.UuidGraph<string> {
     //-----------------------------------------------------------------
     // Graph
     // type vertex_descriptor = number;
@@ -371,12 +372,21 @@ export class ResourceGraph implements impl.BidirectionalGraph
     getTraits (v: number): ResourceTraits {
         return this._traits[v];
     }
+    //-----------------------------------------------------------------
+    // UuidGraph
+    vertex (key: string): number {
+        return 0xFFFFFFFF;
+    }
+    find (key: string): number {
+        return 0xFFFFFFFF;
+    }
 
     readonly components: string[] = ['Name', 'Desc', 'Traits'];
     readonly _vertices: ResourceGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descs: ResourceDesc[] = [];
     readonly _traits: ResourceTraits[] = [];
+    readonly _valueIndex: Map<string, number> = new Map<string, number>();
 }
 
 export const enum AttachmentType {
@@ -414,7 +424,7 @@ export class RasterView {
     loadOp: LoadOp;
     storeOp: StoreOp;
     clearFlags: ClearFlagBit;
-    clearColor: Color;
+    readonly clearColor: Color;
 }
 
 export const enum ClearValueType {
@@ -426,13 +436,13 @@ export class ComputeView {
     name = '';
     accessType: AccessType = AccessType.READ;
     clearFlags: ClearFlagBit = ClearFlagBit.NONE;
-    clearColor: Color = new Color();
+    readonly clearColor: Color = new Color();
     clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE;
 }
 
 export class RasterSubpass {
-    rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
-    computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
+    readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
 //=================================================================
@@ -717,13 +727,13 @@ export class SubpassGraph implements impl.BidirectionalGraph
 }
 
 export class RasterPass {
-    rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
-    computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
-    subpassGraph: SubpassGraph = new SubpassGraph();
+    readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
+    readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly subpassGraph: SubpassGraph = new SubpassGraph();
 }
 
 export class ComputePass {
-    computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
 export class CopyPair {
@@ -763,7 +773,7 @@ export class CopyPair {
 }
 
 export class CopyPass {
-    copyPairs: CopyPair[] = [];
+    readonly copyPairs: CopyPair[] = [];
 }
 
 export class MovePair {
@@ -794,11 +804,11 @@ export class MovePair {
 }
 
 export class MovePass {
-    movePairs: MovePair[] = [];
+    readonly movePairs: MovePair[] = [];
 }
 
 export class RaytracePass {
-    computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
 export class RenderQueue {
@@ -814,7 +824,7 @@ export class SceneData {
     }
     name: string;
     camera: Camera | null = null;
-    scenes: string[] = [];
+    readonly scenes: string[] = [];
 }
 
 export class Dispatch {
@@ -849,10 +859,10 @@ export class PresentPass {
 }
 
 export class RenderData {
-    constants: Map<number, Uint8Array> = new Map<number, Uint8Array>();
-    buffers: Map<number, Buffer> = new Map<number, Buffer>();
-    textures: Map<number, Texture> = new Map<number, Texture>();
-    samplers: Map<number, Sampler> = new Map<number, Sampler>();
+    readonly constants: Map<number, Uint8Array> = new Map<number, Uint8Array>();
+    readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
+    readonly textures: Map<number, Texture> = new Map<number, Texture>();
+    readonly samplers: Map<number, Sampler> = new Map<number, Sampler>();
 }
 
 //=================================================================
@@ -1570,5 +1580,5 @@ export class RenderGraph implements impl.BidirectionalGraph
     readonly _names: string[] = [];
     readonly _layoutNodes: string[] = [];
     readonly _data: RenderData[] = [];
-    index: Map<string, number> = new Map<string, number>();
+    readonly index: Map<string, number> = new Map<string, number>();
 }

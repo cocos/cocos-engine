@@ -44,7 +44,7 @@ export const enum DescriptorIndex {
 }
 
 export class UniformBlockDB {
-    values: Map<string, Uniform> = new Map<string, Uniform>();
+    readonly values: Map<string, Uniform> = new Map<string, Uniform>();
 }
 
 export class Descriptor {
@@ -56,8 +56,8 @@ export class Descriptor {
 }
 
 export class DescriptorBlock {
-    descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
-    uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
+    readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
+    readonly uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
     capacity = 0;
     start = 0;
     count = 0;
@@ -90,11 +90,11 @@ export class DescriptorBlockIndexDx {
 }
 
 export class DescriptorDB {
-    blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
+    readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
 }
 
 export class RenderPhase {
-    shaders: Set<string> = new Set<string>();
+    readonly shaders: Set<string> = new Set<string>();
 }
 
 //=================================================================
@@ -602,15 +602,15 @@ export class UniformData {
 
 export class UniformBlockData {
     size = 0;
-    values: UniformData[] = [];
+    readonly values: UniformData[] = [];
 }
 
 export class DescriptorData {
-    constructor (iD = 0xFFFFFFFF, type: Type = Type.UNKNOWN) {
-        this.iD = iD;
+    constructor (id = 0xFFFFFFFF, type: Type = Type.UNKNOWN) {
+        this.id = id;
         this.type = type;
     }
-    iD: number;
+    id: number;
     type: Type;
     count = 1;
 }
@@ -622,7 +622,7 @@ export class DescriptorBlockData {
     }
     type: DescriptorIndex;
     capacity: number;
-    descriptors: DescriptorData[] = [];
+    readonly descriptors: DescriptorData[] = [];
 }
 
 export class DescriptorTableData {
@@ -632,26 +632,26 @@ export class DescriptorTableData {
     }
     slot: number;
     capacity: number;
-    descriptorBlocks: DescriptorBlockData[] = [];
-    uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
+    readonly descriptorBlocks: DescriptorBlockData[] = [];
+    readonly uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
 }
 
 export class DescriptorSetData {
-    tables: Map<ShaderStageFlagBit, DescriptorTableData> = new Map<ShaderStageFlagBit, DescriptorTableData>();
+    readonly tables: Map<ShaderStageFlagBit, DescriptorTableData> = new Map<ShaderStageFlagBit, DescriptorTableData>();
 }
 
 export class PipelineLayoutData {
-    descriptorSets: Map<UpdateFrequency, DescriptorSetData> = new Map<UpdateFrequency, DescriptorSetData>();
+    readonly descriptorSets: Map<UpdateFrequency, DescriptorSetData> = new Map<UpdateFrequency, DescriptorSetData>();
 }
 
 export class ShaderProgramData {
-    layout: PipelineLayoutData = new PipelineLayoutData();
+    readonly layout: PipelineLayoutData = new PipelineLayoutData();
 }
 
 export class RenderPhaseData {
     rootSignature = '';
-    shaderPrograms: ShaderProgramData[] = [];
-    shaderIndex: Map<string, number> = new Map<string, number>();
+    readonly shaderPrograms: ShaderProgramData[] = [];
+    readonly shaderIndex: Map<string, number> = new Map<string, number>();
 }
 
 //=================================================================

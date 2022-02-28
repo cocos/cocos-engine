@@ -425,6 +425,14 @@ export interface AddressableGraph extends ParentGraph {
 }
 
 //--------------------------------------------------------------------------
+// UuidGraph
+//--------------------------------------------------------------------------
+export interface UuidGraph<Key> extends Graph {
+    vertex (key: Key): vertex_descriptor;
+    find (key: Key): vertex_descriptor | null;
+}
+
+//--------------------------------------------------------------------------
 // Help Functions
 //--------------------------------------------------------------------------
 export function reindexEdgeList (el: (OutE|OutEP)[], u: number): void {
