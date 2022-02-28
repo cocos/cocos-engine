@@ -233,7 +233,9 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     SetFocus(g_hwndEditBox);
     /* Set the caret to the end of the text in the box */
     SendMessage(g_hwndEditBox, EM_SETSEL, (WPARAM)index, (LPARAM)index);
-    SendMessage(g_hwndEditBox, EM_SETFONTSIZE, showInfo.fontSize, 0);
+
+
+    //SendMessage(g_hwndEditBox, EM_SETFONTSIZE, showInfo.fontSize, 0);
     SendMessage(g_hwndEditBox, EM_SETBKGNDCOLOR, 0, RGB((showInfo.backgroundColor & 0x000000ff),(showInfo.backgroundColor & 0x0000ff00) >> 8, (showInfo.backgroundColor & 0x00ff0000) >> 16));
     CHARFORMAT2 cf;
     cf.cbSize = sizeof(CHARFORMAT2);
@@ -247,6 +249,7 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     
     SendMessage(g_hwndEditBox, EM_SETCHARFORMAT, SCF_DEFAULT, (LPARAM)&cf);
 
+//    CC_LOG_DEBUG("%d", cf.);
 }
 
 void EditBox::hide() {
