@@ -9,22 +9,14 @@ export const effects = [
     "shaders": [
       {
         "name": "billboard|vert:vs_main|tinted-fs:add",
-        "hash": 3550741780,
+        "hash": 1267104656,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 54, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 94, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "RENDER_MODE_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_STRETCHED_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_HORIZONTAL_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_VERTICAL_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_MESH", "type": "boolean" },
-          { "name": "USE_BATCHING", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
-          { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 3] },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" }
+          { "name": "USE_BATCHING", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -85,6 +77,159 @@ export const effects = [
     ]
   },
   {
+    "name": "geometry-renderer",
+    "techniques": [
+      { "passes": [{ "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|line-vs:vert|line-fs:front", "priority": 245, "depthStencilState": { "depthTest": false, "depthWrite": false } }] },
+      { "passes": [{ "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|line-vs:vert|line-fs:front", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false } }, { "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|line-vs:vert|line-fs:back", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false, "depthFunc": 4 } }] },
+      { "passes": [{ "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:front", "priority": 245, "depthStencilState": { "depthTest": false, "depthWrite": false } }] },
+      { "passes": [{ "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:front", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false } }, { "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:back", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false, "depthFunc": 4 } }] },
+      { "passes": [{ "rasterizerState": { "cullMode": 2 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|triangle-vs:vert|triangle-fs:front", "priority": 245, "depthStencilState": { "depthTest": false, "depthWrite": false } }] },
+      { "passes": [{ "rasterizerState": { "cullMode": 2 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|triangle-vs:vert|triangle-fs:front", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false } }, { "rasterizerState": { "cullMode": 2 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|triangle-vs:vert|triangle-fs:back", "priority": 245, "depthStencilState": { "depthTest": true, "depthWrite": false, "depthFunc": 4 } }] }
+    ],
+    "shaders": [
+      {
+        "name": "geometry-renderer|line-vs:vert|line-fs:front",
+        "hash": 3617431000,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 1 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|line-vs:vert|line-fs:back",
+        "hash": 4168905198,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 1 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:front",
+        "hash": 4034582016,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 1 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|dashed-line-vs:vert|dashed-line-fs:back",
+        "hash": 1762165009,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 1 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|triangle-vs:vert|triangle-fs:front",
+        "hash": 4143142643,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_normal", "defines": [], "format": 44, "location": 1 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 2 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      },
+      {
+        "name": "geometry-renderer|triangle-vs:vert|triangle-fs:back",
+        "hash": 826026446,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "USE_FORWARD_PIPELINE", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_normal", "defines": [], "format": 44, "location": 1 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 2 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      }
+    ]
+  },
+  {
     "name": "graphics",
     "techniques": [
       { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 1, "blendDst": 4, "blendSrcAlpha": 1, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "graphics|vs:vert|fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
@@ -92,15 +237,14 @@ export const effects = [
     "shaders": [
       {
         "name": "graphics|vs:vert|fs:frag",
-        "hash": 839052035,
+        "hash": 818680106,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 49, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 89, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "USE_BATCHING", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" }
+          { "name": "USE_BATCHING", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -153,35 +297,15 @@ export const effects = [
     "shaders": [
       {
         "name": "particle-gpu|particle-vs-gpu:gpvs_main|tinted-fs:add",
-        "hash": 621554859,
+        "hash": 1492719419,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 64, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 104, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "RENDER_MODE_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_STRETCHED_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_HORIZONTAL_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_VERTICAL_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_MESH", "type": "boolean" },
+          { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 4] },
           { "name": "USE_BATCHING", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
-          { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 3] },
-          { "name": "CURVE_MODE_FIX", "type": "boolean" },
-          { "name": "CURVE_MODE_BLEND", "type": "boolean" },
-          { "name": "GRADIENT_MODE_FIX", "type": "boolean" },
-          { "name": "GRADIENT_MODE_BLEND", "type": "boolean" },
-          { "name": "SIMULATE_SPACE_LOCAL", "type": "boolean" },
-          { "name": "SIMULATE_SPACE_WORLD", "type": "boolean" },
-          { "name": "ANIMATION_MODE_WHOLE_SHEET", "type": "boolean" },
-          { "name": "ANIMATION_MODE_SINGLE_ROW", "type": "boolean" },
-          { "name": "COLOR_OVERTIME_RAND_OFFSET", "type": "boolean" },
-          { "name": "FORCE_OVERTIME_RAND_OFFSET", "type": "boolean" },
-          { "name": "ROTATION_OVERTIME_RAND_OFFSET", "type": "boolean" },
-          { "name": "SIZE_OVERTIME_RAND_OFFSET", "type": "boolean" },
-          { "name": "TEXTURE_ANIMATION_RAND_OFFSET", "type": "boolean" },
-          { "name": "VELOCITY_OVERTIME_RAND_OFFSET", "type": "boolean" },
           { "name": "USE_VK_SHADER", "type": "boolean" },
           { "name": "COLOR_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
           { "name": "ROTATION_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
@@ -189,9 +313,7 @@ export const effects = [
           { "name": "FORCE_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
           { "name": "VELOCITY_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
           { "name": "TEXTURE_ANIMATION_MODULE_ENABLE", "type": "boolean" },
-          { "name": "INDENTIFY_NEG_QUAT", "type": "boolean" },
-          { "name": "CC_USE_WORLD_SPACE", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" }
+          { "name": "CC_USE_WORLD_SPACE", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position_starttime", "defines": [], "format": 44, "location": 0 },
@@ -200,10 +322,10 @@ export const effects = [
           { "name": "a_color", "defines": [], "format": 44, "location": 3 },
           { "name": "a_dir_life", "defines": [], "format": 44, "location": 4 },
           { "name": "a_rndSeed", "defines": [], "format": 11, "location": 5 },
-          { "name": "a_texCoord", "defines": ["CC_RENDER_MODE", "RENDER_MODE_MESH"], "format": 32, "location": 6 },
-          { "name": "a_texCoord3", "defines": ["CC_RENDER_MODE", "RENDER_MODE_MESH"], "format": 32, "location": 7 },
-          { "name": "a_normal", "defines": ["CC_RENDER_MODE", "RENDER_MODE_MESH"], "format": 32, "location": 8 },
-          { "name": "a_color1", "defines": ["CC_RENDER_MODE", "RENDER_MODE_MESH"], "format": 44, "location": 9 }
+          { "name": "a_texCoord", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 6 },
+          { "name": "a_texCoord3", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 7 },
+          { "name": "a_normal", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 8 },
+          { "name": "a_color1", "defines": ["CC_RENDER_MODE"], "format": 44, "location": 9 }
         ],
         "blocks": [
           {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
@@ -268,23 +390,17 @@ export const effects = [
     "shaders": [
       {
         "name": "particle-trail|particle-trail:vs_main|tinted-fs:add",
-        "hash": 2206886725,
+        "hash": 2681867487,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 53, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 93, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "RENDER_MODE_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_STRETCHED_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_HORIZONTAL_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_VERTICAL_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_MESH", "type": "boolean" },
+          { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 4] },
           { "name": "USE_BATCHING", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
           { "name": "CC_DRAW_WIRE_FRAME", "type": "boolean" },
-          { "name": "CC_USE_WORLD_SPACE", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" }
+          { "name": "CC_USE_WORLD_SPACE", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -323,25 +439,17 @@ export const effects = [
     "shaders": [
       {
         "name": "particle|particle-vs-legacy:lpvs_main|tinted-fs:add",
-        "hash": 2452716456,
+        "hash": 714317392,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 53, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 93, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "RENDER_MODE_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_STRETCHED_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_HORIZONTAL_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_VERTICAL_BILLBOARD", "type": "boolean" },
-          { "name": "RENDER_MODE_MESH", "type": "boolean" },
+          { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 4] },
           { "name": "USE_BATCHING", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
-          { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 3] },
           { "name": "CC_USE_WORLD_SPACE", "type": "boolean" },
-          { "name": "INDENTIFY_NEG_QUAT", "type": "boolean" },
-          { "name": "ROTATION_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" }
+          { "name": "ROTATION_OVER_TIME_MODULE_ENABLE", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -349,9 +457,9 @@ export const effects = [
           { "name": "a_texCoord1", "defines": [], "format": 32, "location": 2 },
           { "name": "a_texCoord2", "defines": [], "format": 32, "location": 3 },
           { "name": "a_color", "defines": [], "format": 44, "location": 4 },
-          { "name": "a_color1", "defines": ["CC_RENDER_MODE", "RENDER_MODE_STRETCHED_BILLBOARD"], "format": 32, "location": 8 },
-          { "name": "a_texCoord3", "defines": ["CC_RENDER_MODE", "RENDER_MODE_MESH"], "format": 32, "location": 6 },
-          { "name": "a_normal", "defines": ["CC_RENDER_MODE", "RENDER_MODE_MESH"], "format": 32, "location": 7 }
+          { "name": "a_color1", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 8 },
+          { "name": "a_texCoord3", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 6 },
+          { "name": "a_normal", "defines": ["CC_RENDER_MODE"], "format": 32, "location": 7 }
         ],
         "blocks": [
           {"name": "Constants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
@@ -383,16 +491,15 @@ export const effects = [
     "shaders": [
       {
         "name": "spine|sprite-vs:vert|sprite-fs:frag",
-        "hash": 2339086279,
+        "hash": 1713049466,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 49, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 89, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_LOCAL", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": [] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_LOCAL", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
           { "name": "TWO_COLORED", "type": "boolean" },
           { "name": "USE_ALPHA_TEST", "type": "boolean" }
         ],
@@ -424,22 +531,16 @@ export const effects = [
     "shaders": [
       {
         "name": "sprite|sprite-vs:vert|sprite-fs:frag",
-        "hash": 1255020137,
+        "hash": 528700848,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 49, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 89, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_LOCAL", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_LOCAL", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
           { "name": "SAMPLE_FROM_RT", "type": "boolean" },
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_PIXEL_ALIGNMENT", "type": "boolean" },
           { "name": "CC_USE_EMBEDDED_ALPHA", "type": "boolean" },
           { "name": "USE_ALPHA_TEST", "type": "boolean" },
@@ -473,76 +574,50 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 1919594038,
+        "hash": 1937716204,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 93, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 75 },
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 223, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 115 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(attr)", "type": "boolean" },
-          { "name": "CC_DEVICE_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
           { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "JOINT_UNIFORM_CAPACITY", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
-          { "name": "CC_FOG_LINEAR", "type": "boolean" },
-          { "name": "CC_FOG_EXP", "type": "boolean" },
-          { "name": "CC_FOG_EXP_SQUARED", "type": "boolean" },
-          { "name": "CC_FOG_LAYERED", "type": "boolean" },
-          { "name": "CC_USE_FOG", "type": "number", "range": [0, 3] },
+          { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] },
           { "name": "CC_USE_ACCURATE_FOG", "type": "boolean" },
-          { "name": "CC_FOG_FACTOR", "type": "boolean" },
-          { "name": "unpackRGBAToDepth(color)", "type": "boolean" },
-          { "name": "DEFINE_PACK_HIGHP_FUNC(type)", "type": "boolean" },
-          { "name": "HIGHP_VALUE_STRUCT_DEFINE(type, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" },
-          { "name": "CC_HANDLE_NDC_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_TRANSFER_SHADOW_BASE(pos, ", "type": "boolean" },
-          { "name": "CC_SHADOW_POSITION", "type": "boolean" },
-          { "name": "CC_TRANSFER_SHADOW(worldPos)", "type": "boolean" },
           { "name": "USE_VERTEX_COLOR", "type": "boolean" },
           { "name": "USE_NORMAL_MAP", "type": "boolean" },
           { "name": "HAS_SECOND_UV", "type": "boolean" },
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
           { "name": "USE_TWOSIDE", "type": "boolean" },
           { "name": "SAMPLE_FROM_RT", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" },
-          { "name": "CC_USE_IBL", "type": "number", "range": [0, 3] },
-          { "name": "IBL_RGBA", "type": "boolean" },
-          { "name": "IBL_RGBE", "type": "boolean" },
-          { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 3] },
+          { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
+          { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 2] },
           { "name": "USE_REFLECTION_DENOISE", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
-          { "name": "CC_STANDARD_SURFACE_ENTRY()", "type": "number", "range": [0, 1] },
-          { "name": "LFX_MAX_EXPONENT", "type": "boolean" },
           { "name": "USE_ALBEDO_MAP", "type": "boolean" },
+          { "name": "ALBEDO_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
+          { "name": "NORMAL_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
+          { "name": "PBR_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
           { "name": "USE_PBR_MAP", "type": "boolean" },
           { "name": "USE_METALLIC_ROUGHNESS_MAP", "type": "boolean" },
           { "name": "USE_OCCLUSION_MAP", "type": "boolean" },
           { "name": "USE_EMISSIVE_MAP", "type": "boolean" },
-          { "name": "OCCLUSION_CHANNEL", "type": "boolean" },
-          { "name": "ROUGHNESS_CHANNEL", "type": "boolean" },
-          { "name": "METALLIC_CHANNEL", "type": "boolean" },
-          { "name": "SPECULAR_INTENSITY_CHANNEL", "type": "boolean" },
-          { "name": "USE_ALPHA_TEST", "type": "boolean" }
+          { "name": "EMISSIVE_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
+          { "name": "USE_ALPHA_TEST", "type": "boolean" },
+          { "name": "ALPHA_TEST_CHANNEL", "type": "string", "options": ["a", "r"] },
+          { "name": "CC_PIPELINE_TYPE", "type": "number", "range": [0, 1] },
+          { "name": "CC_FORCE_FORWARD_SHADING", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -580,7 +655,11 @@ export const effects = [
           { "name": "occlusionMap", "type": 28, "count": 1, "defines": ["USE_OCCLUSION_MAP"], "stageFlags": 16, "binding": 5 },
           { "name": "emissiveMap", "type": 28, "count": 1, "defines": ["USE_EMISSIVE_MAP"], "stageFlags": 16, "binding": 6 }
         ],
-        "buffers": [],
+        "buffers": [
+          { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 7 },
+          { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 8 },
+          { "name": "b_clusterLightGridBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 9 }
+        ],
         "images": [],
         "textures": [],
         "samplers": [],
@@ -588,45 +667,30 @@ export const effects = [
       },
       {
         "name": "standard|shadow-caster-vs:vert|shadow-caster-fs:frag",
-        "hash": 1501322647,
+        "hash": 3038657594,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 54, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 75 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 184, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 115 },
           "globals": { "blocks": [{ "name": "CCShadow", "defines": [] }, { "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(attr)", "type": "boolean" },
-          { "name": "CC_DEVICE_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
           { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "JOINT_UNIFORM_CAPACITY", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
           { "name": "HAS_SECOND_UV", "type": "boolean" },
-          { "name": "unpackRGBAToDepth(color)", "type": "boolean" },
-          { "name": "DEFINE_PACK_HIGHP_FUNC(type)", "type": "boolean" },
-          { "name": "HIGHP_VALUE_STRUCT_DEFINE(type, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" },
-          { "name": "CC_HANDLE_NDC_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_TRANSFER_SHADOW_BASE(pos, ", "type": "boolean" },
           { "name": "USE_ALBEDO_MAP", "type": "boolean" },
-          { "name": "USE_ALPHA_TEST", "type": "boolean" }
+          { "name": "ALBEDO_UV", "type": "string", "options": ["v_uv", "v_uv1"] },
+          { "name": "USE_ALPHA_TEST", "type": "boolean" },
+          { "name": "ALPHA_TEST_CHANNEL", "type": "string", "options": ["a", "r"] }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -674,53 +738,29 @@ export const effects = [
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 2618442610,
+        "hash": 3377788356,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 71, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 71 },
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [{ "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 111, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 111 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
+          "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [{ "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "USE_BATCHING", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
-          { "name": "CC_FOG_LINEAR", "type": "boolean" },
-          { "name": "CC_FOG_EXP", "type": "boolean" },
-          { "name": "CC_FOG_EXP_SQUARED", "type": "boolean" },
-          { "name": "CC_FOG_LAYERED", "type": "boolean" },
-          { "name": "CC_USE_FOG", "type": "number", "range": [0, 3] },
+          { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] },
           { "name": "CC_USE_ACCURATE_FOG", "type": "boolean" },
-          { "name": "CC_FOG_FACTOR", "type": "boolean" },
-          { "name": "unpackRGBAToDepth(color)", "type": "boolean" },
-          { "name": "DEFINE_PACK_HIGHP_FUNC(type)", "type": "boolean" },
-          { "name": "HIGHP_VALUE_STRUCT_DEFINE(type, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" },
-          { "name": "CC_HANDLE_NDC_SAMPLE_FLIP(uv)", "type": "boolean" },
+          { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
-          { "name": "CC_TRANSFER_SHADOW_BASE(pos, ", "type": "boolean" },
-          { "name": "CC_SHADOW_POSITION", "type": "boolean" },
-          { "name": "CC_TRANSFER_SHADOW(worldPos)", "type": "boolean" },
           { "name": "USE_NORMALMAP", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" },
-          { "name": "CC_USE_IBL", "type": "number", "range": [0, 3] },
-          { "name": "IBL_RGBA", "type": "boolean" },
-          { "name": "IBL_RGBE", "type": "boolean" },
-          { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 3] },
+          { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
+          { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 2] },
           { "name": "USE_REFLECTION_DENOISE", "type": "boolean" },
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
-          { "name": "CC_STANDARD_SURFACE_ENTRY()", "type": "number", "range": [0, 1] },
-          { "name": "LFX_MAX_EXPONENT", "type": "boolean" },
-          { "name": "LAYERS", "type": "number", "range": [0, 3] },
-          { "name": "USE_PBR", "type": "boolean" }
+          { "name": "LAYERS", "type": "number", "range": [0, 4] },
+          { "name": "USE_PBR", "type": "boolean" },
+          { "name": "CC_PIPELINE_TYPE", "type": "number", "range": [0, 1] },
+          { "name": "CC_FORCE_FORWARD_SHADING", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -749,7 +789,11 @@ export const effects = [
           { "name": "normalMap3", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 10 },
           { "name": "lightMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 11 }
         ],
-        "buffers": [],
+        "buffers": [
+          { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 12 },
+          { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 13 },
+          { "name": "b_clusterLightGridBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 14 }
+        ],
         "images": [],
         "textures": [],
         "samplers": [],
@@ -757,22 +801,14 @@ export const effects = [
       },
       {
         "name": "terrain|shadow-caster-vs:vert|shadow-caster-fs:frag",
-        "hash": 2097280838,
+        "hash": 182319298,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 69, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 109, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "USE_BATCHING", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
-          { "name": "unpackRGBAToDepth(color)", "type": "boolean" },
-          { "name": "DEFINE_PACK_HIGHP_FUNC(type)", "type": "boolean" },
-          { "name": "HIGHP_VALUE_STRUCT_DEFINE(type, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" }
+          { "name": "USE_BATCHING", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -797,46 +833,33 @@ export const effects = [
     "shaders": [
       {
         "name": "unlit|unlit-vs:vert|unlit-fs:frag",
-        "hash": 2662980522,
+        "hash": 3763836392,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 68, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 198, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 41 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(position)", "type": "boolean" },
-          { "name": "CC_DEVICE_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
           { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "JOINT_UNIFORM_CAPACITY", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
-          { "name": "CC_FOG_LINEAR", "type": "boolean" },
-          { "name": "CC_FOG_EXP", "type": "boolean" },
-          { "name": "CC_FOG_EXP_SQUARED", "type": "boolean" },
-          { "name": "CC_FOG_LAYERED", "type": "boolean" },
-          { "name": "CC_USE_FOG", "type": "number", "range": [0, 3] },
+          { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] },
           { "name": "CC_USE_ACCURATE_FOG", "type": "boolean" },
-          { "name": "CC_FOG_FACTOR", "type": "boolean" },
           { "name": "USE_VERTEX_COLOR", "type": "boolean" },
           { "name": "USE_TEXTURE", "type": "boolean" },
           { "name": "SAMPLE_FROM_RT", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
-          { "name": "USE_ALPHA_TEST", "type": "boolean" }
+          { "name": "USE_ALPHA_TEST", "type": "boolean" },
+          { "name": "ALPHA_TEST_CHANNEL", "type": "string", "options": ["a", "r", "g", "b"] }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -883,33 +906,25 @@ export const effects = [
     "shaders": [
       {
         "name": "bloom|bloom-vs|prefilter-fs",
-        "hash": 3022643198,
+        "hash": 1694283355,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 57, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(attr)", "type": "boolean" },
-          { "name": "CC_DEVICE_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
-          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "JOINT_UNIFORM_CAPACITY", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" }
+          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -943,33 +958,25 @@ export const effects = [
       },
       {
         "name": "bloom|bloom-vs|downsample-fs",
-        "hash": 1054800699,
+        "hash": 546996885,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 57, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(attr)", "type": "boolean" },
-          { "name": "CC_DEVICE_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
-          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "JOINT_UNIFORM_CAPACITY", "type": "boolean" },
-          { "name": "SAM(uv)", "type": "boolean" }
+          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1003,33 +1010,25 @@ export const effects = [
       },
       {
         "name": "bloom|bloom-vs|upsample-fs",
-        "hash": 2790321127,
+        "hash": 4202381467,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 57, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(attr)", "type": "boolean" },
-          { "name": "CC_DEVICE_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
-          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "JOINT_UNIFORM_CAPACITY", "type": "boolean" },
-          { "name": "SAM(uv)", "type": "boolean" }
+          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1063,32 +1062,25 @@ export const effects = [
       },
       {
         "name": "bloom|bloom-vs|combine-fs",
-        "hash": 1845401347,
+        "hash": 1033011508,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 57, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 40 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(attr)", "type": "boolean" },
-          { "name": "CC_DEVICE_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
-          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "JOINT_UNIFORM_CAPACITY", "type": "boolean" }
+          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1131,57 +1123,27 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 1213182075,
+        "hash": 4169577096,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 109 },
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_IBL", "CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_diffuseMap", "defines": ["CC_USE_DIFFUSEMAP"] }], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }, { "name": "CCForwardLight", "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(position)", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" },
-          { "name": "unpackRGBAToDepth(color)", "type": "boolean" },
-          { "name": "DEFINE_PACK_HIGHP_FUNC(type)", "type": "boolean" },
-          { "name": "HIGHP_VALUE_STRUCT_DEFINE(type, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_FROM_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" },
-          { "name": "HIGHP_VALUE_TO_STRUCT_DEFINED_SMALL_RANGE(value, ", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
-          { "name": "CC_HANDLE_NDC_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_TRANSFER_SHADOW_BASE(pos, ", "type": "boolean" },
-          { "name": "CC_USE_IBL", "type": "number", "range": [0, 3] },
-          { "name": "IBL_RGBA", "type": "boolean" },
-          { "name": "IBL_RGBE", "type": "boolean" },
-          { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 3] },
+          { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
+          { "name": "CC_USE_DIFFUSEMAP", "type": "number", "range": [0, 2] },
           { "name": "USE_REFLECTION_DENOISE", "type": "boolean" },
           { "name": "CC_FORWARD_ADD", "type": "boolean" },
-          { "name": "CC_PIPELINE_TYPE_FORWARD", "type": "boolean" },
-          { "name": "CC_PIPELINE_TYPE_DEFERRED", "type": "boolean" },
-          { "name": "CC_PIPELINE_TYPE", "type": "number", "range": [0, 3] },
-          { "name": "CC_ENABLE_CLUSTERED_LIGHT_CULLING", "type": "number", "range": [0, 3] },
-          { "name": "CLUSTERS_X", "type": "boolean" },
-          { "name": "CLUSTERS_Y", "type": "boolean" },
-          { "name": "CLUSTERS_Z", "type": "boolean" },
-          { "name": "MAX_LIGHTS_PER_CLUSTER", "type": "boolean" },
+          { "name": "CC_PIPELINE_TYPE", "type": "number", "range": [0, 1] },
+          { "name": "CC_FORCE_FORWARD_SHADING", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" },
-          { "name": "CC_FOG_LINEAR", "type": "boolean" },
-          { "name": "CC_FOG_EXP", "type": "boolean" },
-          { "name": "CC_FOG_EXP_SQUARED", "type": "boolean" },
-          { "name": "CC_FOG_LAYERED", "type": "boolean" },
-          { "name": "CC_USE_FOG", "type": "number", "range": [0, 3] },
-          { "name": "CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT", "type": "boolean" }
+          { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1226,34 +1188,25 @@ export const effects = [
     "shaders": [
       {
         "name": "planar-shadow|planar-shadow-vs:vert|planar-shadow-fs:frag",
-        "hash": 227024174,
+        "hash": 3508735230,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 87, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 59 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 217, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 59 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["USE_BATCHING"] }, { "name": "CCLocal", "defines": [] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(position)", "type": "boolean" },
-          { "name": "CC_DEVICE_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
-          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "JOINT_UNIFORM_CAPACITY", "type": "boolean" },
-          { "name": "BATCHING_COUNT", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" }
+          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1289,36 +1242,26 @@ export const effects = [
     "shaders": [
       {
         "name": "post-process|post-process-vs|post-process-fs",
-        "hash": 2398911499,
+        "hash": 3459002230,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 57, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(attr)", "type": "boolean" },
-          { "name": "CC_DEVICE_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
           { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
           { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "JOINT_UNIFORM_CAPACITY", "type": "boolean" },
-          { "name": "ANTIALIAS_TYPE", "type": "number", "range": [0, 3] },
-          { "name": "FXAA_REDUCE_MIN", "type": "boolean" },
-          { "name": "FXAA_REDUCE_MUL", "type": "boolean" },
-          { "name": "FXAA_SPAN_MAX", "type": "boolean" }
+          { "name": "ANTIALIAS_TYPE", "type": "number", "range": [0, 3] }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -1356,28 +1299,20 @@ export const effects = [
     "shaders": [
       {
         "name": "skybox|sky-vs:vert|sky-fs:frag",
-        "hash": 3822776425,
+        "hash": 3078878888,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [{ "name": "cc_environment", "defines": [] }], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
-          { "name": "saturate(a)", "type": "boolean" },
-          { "name": "CC_HANDLE_RT_SAMPLE_FLIP(uv)", "type": "boolean" },
-          { "name": "CC_HANDLE_GET_CLIP_FLIP(uv)", "type": "boolean" },
-          { "name": "STEP_FINT_128(v)", "type": "boolean" },
-          { "name": "MOD_FINT_128(v)", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
           { "name": "USE_LIGHTMAP", "type": "boolean" },
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
           { "name": "USE_BATCHING", "type": "boolean" },
           { "name": "CC_USE_MORPH", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
-          { "name": "CCDecode(position)", "type": "boolean" },
-          { "name": "IBL_RGBA", "type": "boolean" },
-          { "name": "IBL_RGBE", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" },
+          { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
           { "name": "CC_USE_HDR", "type": "boolean" },
           { "name": "USE_RGBE_CUBEMAP", "type": "boolean" }
         ],
@@ -1414,18 +1349,13 @@ export const effects = [
     "shaders": [
       {
         "name": "profiler|profiler-vs:vert|profiler-fs:frag",
-        "hash": 2664357949,
+        "hash": 179162168,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 41, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 60, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
-        "defines": [
-          { "name": "ROWS", "type": "boolean" },
-          { "name": "COLS", "type": "boolean" },
-          { "name": "VECTOR_COUNT", "type": "boolean" },
-          { "name": "LinearToSRGB(linear)", "type": "boolean" }
-        ],
+        "defines": [],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
           { "name": "a_color", "defines": [], "format": 44, "location": 1 }
@@ -1435,7 +1365,7 @@ export const effects = [
             { "name": "offset", "type": 16, "count": 1 }
           ]},
           {"name": "PerFrameInfo", "defines": [], "binding": 1, "stageFlags": 1, "members": [
-            { "name": "digits", "type": 16, "count": 1 }
+            { "name": "digits", "type": 16, "count": 20 }
           ]}
         ],
         "samplerTextures": [
@@ -1457,17 +1387,13 @@ export const effects = [
     "shaders": [
       {
         "name": "splash-screen|splash-screen-vs:vert|splash-screen-fs:frag",
-        "hash": 639935020,
+        "hash": 3189094080,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 6, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
           "globals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
         },
-        "defines": [
-          { "name": "u_resolution", "type": "boolean" },
-          { "name": "u_worldScale", "type": "boolean" },
-          { "name": "u_worldTranslate", "type": "boolean" }
-        ],
+        "defines": [],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 21, "location": 0 },
           { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 }
