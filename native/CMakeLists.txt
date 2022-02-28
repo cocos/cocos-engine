@@ -307,6 +307,7 @@ cocos_source_files(
     cocos/base/Random.h
     cocos/base/RefCounted.cpp
     cocos/base/RefCounted.h
+    cocos/base/RefVector.h
     cocos/base/Scheduler.cpp
     cocos/base/Scheduler.h
     cocos/base/StringHandle.cpp
@@ -318,7 +319,6 @@ cocos_source_files(
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
     cocos/base/Variant.h
-    cocos/base/Vector.h
 )
 
 ############ application

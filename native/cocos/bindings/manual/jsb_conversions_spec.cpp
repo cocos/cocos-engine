@@ -24,7 +24,7 @@
 
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/base/Map.h"
-#include "cocos/base/Vector.h"
+#include "cocos/base/RefVector.h"
 #include "cocos/core/TypedArray.h"
 #include "cocos/math/Geometry.h"
 #include "cocos/math/Quaternion.h"
