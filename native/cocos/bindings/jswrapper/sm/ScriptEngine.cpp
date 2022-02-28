@@ -58,8 +58,6 @@ uint32_t __jsbInvocationCount = 0;
 
 namespace se {
 
-Class *__jsb_CCPrivateData_class = nullptr;
-
 namespace {
 
 const char *BYTE_CODE_FILE_EXT = ".jsc";
@@ -426,10 +424,6 @@ bool ScriptEngine::init() {
 
     JS_FireOnNewGlobalObject(_cx, rootedGlobalObj);
     JS::SetProcessBuildIdOp(getBytecodeBuildId);
-
-    __jsb_CCPrivateData_class = Class::create("__PrivateData", _globalObj, nullptr, privateDataContructor);
-    __jsb_CCPrivateData_class->defineFinalizeFunction(privateDataFinalize);
-    __jsb_CCPrivateData_class->install();
 
     _isValid = true;
 

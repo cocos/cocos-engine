@@ -38,8 +38,6 @@ class Object;
 class Class;
 class Value;
 
-extern Class *__jsb_CCPrivateData_class;
-
 /**
      * A stack-allocated class that governs a number of local handles.
      * It's only implemented for v8 wrapper now.
