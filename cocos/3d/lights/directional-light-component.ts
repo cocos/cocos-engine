@@ -255,7 +255,7 @@ export class DirectionalLight extends Light {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
             === ShadowType.ShadowMap && this._shadowFixedArea === false;
     })
-    @property({ group: { name: 'ShadowSettings', displayOrder: 11 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
     @editable
     @tooltip('CSM Level')
     @slide

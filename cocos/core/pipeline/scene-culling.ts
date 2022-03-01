@@ -48,8 +48,7 @@ const _cameraBoundingSphere = new Sphere();
 const _validFrustum = new Frustum();
 _validFrustum.accurate = true;
 let _lightViewFrustum = new Frustum();
-_lightViewFrustum.accurate = true;
-const _dirLightFrustum = new Frustum();
+_lightViewFrustum.accurate = true; let _dirLightFrustum = new Frustum();
 const _matShadowTrans = new Mat4();
 const _matShadowView = new Mat4();
 const _matShadowViewInv = new Mat4();
@@ -63,10 +62,6 @@ const _projSnap = new Vec3();
 const _snap = new Vec3();
 const _focus = new Vec3(0, 0, 0);
 const _ab = new AABB();
-const red = new Color(255, 0, 0, 255);
-const green = new Color(0, 255, 0, 255);
-const yellow = new Color(0, 0, 255, 255);
-const pink = new Color(255, 255, 0, 255);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const dirShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -390,12 +385,33 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     if (mainLight) {
         if (shadows.type === ShadowType.Planar) {
             updateDirLight(pipeline, mainLight);
-        } else {
-            csmLayers.update(camera, mainLight);
-            if (mainLight.shadowCSMLevel > 1) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[0].validFrustum!, red, false); }
-            if (mainLight.shadowCSMLevel > 2) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[1].validFrustum!, yellow, false); }
-            if (mainLight.shadowCSMLevel > 3) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].validFrustum!, green, false); }
-            if (mainLight.shadowCSMLevel > 4) { pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[3].validFrustum!, pink, false); }
+        } else if (camera.node.name === 'Main Camera') {
+            csmLayers.update(pipeline, camera, mainLight, shadows);
+            if (mainLight.shadowCSMLevel > 0) {
+                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[0].splitFrustum!, Color.YELLOW, false);
+                // pipeline.geometryRenderer.addBoundingBox(csmLayers.shadowCSMLayers[0].splitBoundingBox!, Color.BLACK, true, false);
+                // pipeline.geometryRenderer.addBoundingSphere(csmLayers.shadowCSMLayers[0].splitBoundingSphere!, Color.RED, 8, 8);
+                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[0].validFrustum!, Color.GREEN, false);
+            }
+            if (mainLight.shadowCSMLevel > 1) {
+                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[1].splitFrustum!, Color.YELLOW, false);
+                // pipeline.geometryRenderer.addBoundingBox(csmLayers.shadowCSMLayers[1].splitBoundingBox!, Color.BLACK, true, false);
+                // pipeline.geometryRenderer.addBoundingSphere(csmLayers.shadowCSMLayers[1].splitBoundingSphere!, Color.RED, 8, 4);
+                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[1].validFrustum!, Color.GREEN, false);
+            }
+            if (mainLight.shadowCSMLevel > 2) {
+                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].splitFrustum!, Color.YELLOW, false);
+                // pipeline.geometryRenderer.addBoundingBox(csmLayers.shadowCSMLayers[2].castLightViewBoundingBox!, Color.BLACK, true, false);
+                // pipeline.geometryRenderer.addBoundingSphere(csmLayers.shadowCSMLayers[2].splitBoundingSphere!, Color.RED, 8, 4);
+                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].validFrustum!, Color.GREEN, false);
+            }
+            if (mainLight.shadowCSMLevel > 3) {
+                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[3].splitFrustum!, Color.YELLOW, false);
+                // pipeline.geometryRenderer.addBoundingBox(csmLayers.shadowCSMLayers[3].splitBoundingBox!, Color.BLACK, true, false);
+                // pipeline.geometryRenderer.addBoundingSphere(csmLayers.shadowCSMLayers[3].splitBoundingSphere!, Color.RED, 8, 4);
+                // pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].validFrustum!, Color.GREEN, false);
+            }
+            _dirLightFrustum =  Frustum.clone(csmLayers.shadowCSMLayers[0].validFrustum!);
         }
     }
 
