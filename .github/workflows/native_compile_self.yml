@@ -12,23 +12,22 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
-          rm -rf external
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
 
       - name: Generate bindings
         run: |
           NDK_ROOT='/home/tools/android-sdk-linux/ndk-bundle'
           ANDROID_NDK_HOME='/home/tools/android-sdk-linux/ndk-bundle'
           export NDK_ROOT ANDROID_NDK_HOME
-          python3 ./tools/tojs/genbindings.py
-          rm ./tools/tojs/userconf.ini
+          python3 ./native/tools/tojs/genbindings.py
+          rm ./native/tools/tojs/userconf.ini
 
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
         run: |
-          COCOS2DX_ROOT=$GITHUB_WORKSPACE   
+          COCOS2DX_ROOT=$GITHUB_WORKSPACE/native
           ANDORID_NDK='/home/tools/android-sdk-linux/ndk-bundle'
           ANDROID_NDK_HOME='/home/tools/android-sdk-linux/ndk-bundle'
           ANDROID_SDK_ROOT='/home/tools/android-sdk-linux'
@@ -71,15 +70,14 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
-          rm -rf external
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+          EXT_VERSION=`grep version  native/external-config.json  |awk -F'"' '{print $4}'`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
 
       - name: Generate bindings
         shell: bash
         run: |
           python2 -V
-          cd ./tools/tojs
+          cd ./native/tools/tojs
           echo "Create auto-generated jsbinding glue codes."
           python2 ./genbindings.py
           rm userconf.ini
@@ -89,7 +87,7 @@ jobs:
         env:
           COCOS_ENGINE_DEV: 1
         run: |
-          cd $GITHUB_WORKSPACE/templates/windows
+          cd $GITHUB_WORKSPACE/native/templates/windows
           mkdir -p build-win32/proj
           touch build-win32/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-win32/proj/cfg.cmake
@@ -99,8 +97,8 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win32/proj/cfg.cmake
           mkdir build-win32/assets
           cd build-win32
-          RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win32
-          COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}
+          RES_DIR=${GITHUB_WORKSPACE//\\//}/native/templates/windows/build-win32
+          COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}/native
           cmake ../ -G"Visual Studio 15 2017" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Awin32
           cmake --build . --config Release
           echo "Compile Win32 Release Done!"

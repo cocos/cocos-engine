@@ -121,9 +121,4 @@ declare module 'internal:constants' {
      * Running in server mode.
      */
     export const SERVER_MODE: boolean;
-
-    /**
-     * Used UI GPU Driven
-     */
-    export const UI_GPU_DRIVEN: boolean;
 }

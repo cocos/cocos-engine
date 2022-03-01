@@ -38,19 +38,12 @@ jobs:
           git clean -xfd
           ls -la
 
-      - name: checkout HEAD branch
+      - name: merge HEAD branch
         working-directory: ./engine
         run: |
           git remote add HEAD_REPO https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
           git fetch HEAD_REPO ${{ github.head_ref }}
-          git checkout -b ${{ github.head_ref }}_HEAD remotes/HEAD_REPO/${{ github.head_ref }}
-          git branch
-
-      - name: rebase BASE branch
-        working-directory: ./engine
-        run: |
-          git checkout .
-          git pull --rebase origin ${{ github.base_ref }}
+          git merge remotes/HEAD_REPO/${{ github.head_ref }}
 
       - name: npm install HEAD branch
         working-directory: ./engine

@@ -215,3 +215,5 @@ export class Toggle extends Button {
  * @param {Event.EventCustom} event
  * @param {Toggle} toggle - The Toggle component.
  */
+
+legacyCC.Toggle = Toggle;
