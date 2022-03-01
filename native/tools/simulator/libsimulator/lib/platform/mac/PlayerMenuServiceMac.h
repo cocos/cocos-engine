@@ -30,7 +30,7 @@
 
 #include "PlayerMacros.h"
 #include "PlayerMenuServiceProtocol.h"
-#include "cocos/base/Vector.h"
+#include "cocos/base/RefVector.h"
 #import <AppKit/AppKit.h>
 
 //
@@ -73,7 +73,7 @@ protected:
     PlayerMenuItemMac *_parent;
     NNMenuItem *_menuItem;
     NSMenu *_menu;
-    cc::Vector<PlayerMenuItemMac *> _children;
+    cc::RefVector<PlayerMenuItemMac *> _children;
 
     friend class PlayerMenuServiceMac;
 };
