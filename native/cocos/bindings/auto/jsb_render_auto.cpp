@@ -1229,7 +1229,7 @@ static bool js_render_Pipeline_addRenderTexture(se::State& s) // NOLINT(readabil
         HolderType<cc::gfx::Format, false> arg1 = {};
         HolderType<unsigned int, false> arg2 = {};
         HolderType<unsigned int, false> arg3 = {};
-        HolderType<cc::RenderTexture*, false> arg4 = {};
+        HolderType<cc::scene::RenderWindow*, false> arg4 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());

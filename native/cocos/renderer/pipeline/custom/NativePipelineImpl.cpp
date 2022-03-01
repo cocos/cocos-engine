@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "NativePipelineTypes.h"
-#include "core/assets/RenderTexture.h"
 #include "pipeline/custom/GslUtils.h"
 #include "pipeline/custom/RenderCommonTypes.h"
+#include "scene/RenderWindow.h"
 
 namespace cc {
 
@@ -37,7 +37,7 @@ NativePipeline::NativePipeline() noexcept {
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, RenderTexture* renderTexture) {
+uint32_t NativePipeline::addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) {
     return 0;
 }
 

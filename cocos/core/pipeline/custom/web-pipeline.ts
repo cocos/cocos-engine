@@ -36,7 +36,7 @@ import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { DeviceResourceGraph } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
-import { RenderTexture } from '../../assets';
+import { RenderWindow } from '../../renderer/core/render-window';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -297,7 +297,7 @@ export class WebCopyPassBuilder extends CopyPassBuilder {
 }
 
 export class WebPipeline extends Pipeline {
-    addRenderTexture (name: string, format: Format, width: number, height: number, renderTexture: RenderTexture) {
+    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -306,7 +306,7 @@ export class WebPipeline extends Pipeline {
         desc.mipLevels = 1;
         desc.format = format;
         desc.flags = ResourceFlags.ALLOW_RENDER_TARGET | ResourceFlags.ALLOW_UNORDERED_ACCESS;
-        if (renderTexture.window?.swapchain === null) {
+        if (renderWindow.swapchain === null) {
             return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.EXTERNAL));
         } else {
             return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.BACKBUFFER));
