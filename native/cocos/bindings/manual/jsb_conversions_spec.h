@@ -222,6 +222,12 @@ inline bool sevalue_to_native(const se::Value &from, unsigned long *to, se::Obje
     *to = static_cast<unsigned long>(from.toUint64());
     return true;
 }
+inline bool sevalue_to_native(const se::Value &from, long *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    // on mac: unsiged long  === uintptr_t
+    static_assert(sizeof(*to) == 8, "");
+    *to = static_cast<long>(from.toUint64());
+    return true;
+}
 #endif
 
 inline bool sevalue_to_native(const se::Value &from, float *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
@@ -435,6 +441,19 @@ inline bool nativevalue_to_se(bool from, se::Value &to, se::Object * /*ctx*/) { 
     to.setBoolean(from);
     return true;
 }
+
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+inline bool nativevalue_to_se(unsigned long from, se::Value &to,  se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    static_assert(sizeof(from) == 8, "");
+    to.setDouble(static_cast<double>(from));
+    return true;
+}
+inline bool nativevalue_to_se(long from,  se::Value &to,se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    static_assert(sizeof(from) == 8, "");
+    to.setDouble(static_cast<double>(from));
+    return true;
+}
+#endif
 
 inline bool nativevalue_to_se(const std::string &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setString(from);
