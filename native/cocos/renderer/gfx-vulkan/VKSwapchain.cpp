@@ -148,11 +148,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 #endif
 
     // Determine the number of images
-    // for now we assume triple buffer is universal
-    uint32_t desiredNumberOfSwapchainImages = gpuDevice->backBufferCount;
-    CCASSERT(desiredNumberOfSwapchainImages <= surfaceCapabilities.maxImageCount &&
-                 desiredNumberOfSwapchainImages >= surfaceCapabilities.minImageCount,
-             "Swapchain image count assumption broken");
+    uint32_t desiredNumberOfSwapchainImages = std::max(gpuDevice->backBufferCount, surfaceCapabilities.minImageCount);
 
     VkExtent2D                    imageExtent  = {1U, 1U};
     VkSurfaceTransformFlagBitsKHR preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
@@ -300,10 +296,9 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
 
     uint32_t imageCount;
     VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
+    CCVKDevice::getInstance()->updateBackBufferCount(imageCount);
     _gpuSwapchain->swapchainImages.resize(imageCount);
     VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
-
-    CCASSERT(imageCount == _gpuSwapchain->createInfo.minImageCount, "swapchain image count assumption is broken");
 
     // should skip size check, since the old swapchain has already been destroyed
     static_cast<CCVKTexture *>(_colorTexture)->_info.width        = 1;

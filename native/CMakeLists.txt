@@ -25,6 +25,7 @@ cc_set_if_undefined(USE_JOB_SYSTEM_TASKFLOW  OFF)
 cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
 cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
+cc_set_if_undefined(USE_SERVER_MODE          OFF)
 
 add_definitions()
 
@@ -41,6 +42,13 @@ elseif(MACOSX OR IOS)
     cc_set_if_undefined(CC_USE_VULKAN OFF)
     cc_set_if_undefined(CC_USE_GLES3 OFF)
     cc_set_if_undefined(CC_USE_GLES2 OFF)
+endif()
+
+if(USE_SERVER_MODE)
+    set(CC_USE_VULKAN OFF)
+    set(CC_USE_GLES3 OFF)
+    set(CC_USE_GLES2 OFF)
+    add_definitions(-DCC_SERVER_MODE)
 endif()
 
 if(USE_PHYSICS_PHYSX)
@@ -115,6 +123,7 @@ cc_inspect_values(
     USE_PHYSICS_PHYSX
     USE_JOB_SYSTEM_TBB
     USE_JOB_SYSTEM_TASKFLOW
+    USE_SERVER_MODE
 )
 
 ################################# external source code ################################
@@ -337,7 +346,11 @@ cocos_source_files(
 )
 
 ############ main
-if(WINDOWS)
+if(USE_SERVER_MODE)
+    cocos_source_files(
+        cocos/main/EmptyMain.cpp
+    )
+elseif(WINDOWS)
     cocos_source_files(
         cocos/main/main-win32.cpp
     )
@@ -367,7 +380,12 @@ cocos_source_files(
     cocos/platform/UniversalPlatform.cpp
     cocos/platform/UniversalPlatform.h
 )
-if(WINDOWS)
+if(USE_SERVER_MODE)
+    cocos_source_files(
+        cocos/platform/empty/EmptyPlatform.cpp
+        cocos/platform/empty/EmptyPlatform.h
+    )
+elseif(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/WindowsPlatform.cpp
         cocos/platform/win32/WindowsPlatform.h
@@ -448,7 +466,12 @@ cocos_source_files(
     cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.cpp
     cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h
 )
-if(WINDOWS)
+if(USE_SERVER_MODE)
+    cocos_source_files(
+        cocos/platform/empty/modules/CanvasRenderingContext2DDelegate.cpp
+        cocos/platform/empty/modules/CanvasRenderingContext2DDelegate.h
+    )
+elseif(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/modules/CanvasRenderingContext2DDelegate.cpp
         cocos/platform/win32/modules/CanvasRenderingContext2DDelegate.h
@@ -477,7 +500,24 @@ endif()
 
 ############ platform : Interface implementation of windows
 
-if(WINDOWS)
+if(USE_SERVER_MODE)
+    cocos_source_files(
+        cocos/platform/empty/modules/Accelerometer.cpp
+        cocos/platform/empty/modules/Accelerometer.h
+        cocos/platform/empty/modules/Battery.cpp
+        cocos/platform/empty/modules/Battery.h
+        cocos/platform/empty/modules/Screen.cpp
+        cocos/platform/empty/modules/Screen.h
+        cocos/platform/empty/modules/Network.cpp
+        cocos/platform/empty/modules/Network.h
+        cocos/platform/empty/modules/Vibrate.cpp
+        cocos/platform/empty/modules/Vibrate.h
+        cocos/platform/empty/modules/System.cpp
+        cocos/platform/empty/modules/System.h
+        cocos/platform/empty/modules/SystemWindow.cpp
+        cocos/platform/empty/modules/SystemWindow.h
+    )
+elseif(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/modules/Accelerometer.cpp
         cocos/platform/win32/modules/Accelerometer.h
@@ -512,7 +552,9 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/SystemWindow.h
     )
 endif()
-if(ANDROID)
+if (USE_SERVER_MODE)
+#nothing
+elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/modules/Screen.cpp
         cocos/platform/android/modules/Screen.h
@@ -2474,8 +2516,12 @@ if(QNX)
         ${CC_EXTERNAL_LIBS}
     )
 elseif(LINUX)
+    set(LINUX_GRAPHIC_LIBS "")
+    if(NOT USE_SERVER_MODE)
+        list(APPEND LINUX_GRAPHIC_LIBS X11)
+    endif()
     target_link_libraries(cocos2d PUBLIC
-        X11
+        ${LINUX_GRAPHIC_LIBS}
         ${CC_EXTERNAL_LIBS}
     )
 endif()

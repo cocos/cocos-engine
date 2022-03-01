@@ -89,6 +89,32 @@ describe('NewGen Anim', () => {
         }
     });
 
+    test('Variables', () => {
+        const graph = new AnimationGraph();
+
+        for (const [name, type, defaultValue] of [
+            ['f', VariableType.FLOAT, 0.0],
+            ['i', VariableType.INTEGER, 0],
+            ['b', VariableType.BOOLEAN, false],
+            ['t', VariableType.TRIGGER, false],
+            ['at', VariableType.AUTO_TRIGGER, false],
+        ] as const) {
+            graph.addVariable(name, type);
+            const variable = graph.getVariable(name);
+            expect(variable.type).toBe(type);
+            expect(variable.value).toBe(defaultValue);
+        }
+
+        graph.removeVariable('f');
+        expect(Array.from(graph.variables).every(([name]) => name !== 'f')).toBeTrue();
+
+        // addVariable() replace existing variable.
+        graph.addVariable('b', VariableType.FLOAT, 2.0);
+        const bVar = graph.getVariable('b');
+        expect(bVar.type).toBe(VariableType.FLOAT);
+        expect(bVar.value).toBe(2.0);
+    })
+
     describe('Asset transition API', () => {
         test('Connect', () => {
             const graph = new AnimationGraph();
