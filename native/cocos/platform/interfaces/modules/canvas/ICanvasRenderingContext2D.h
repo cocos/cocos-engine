@@ -92,6 +92,9 @@ public:
         virtual void            setStrokeStyle(float r, float g, float b, float a)                                                            = 0;
         virtual void            setLineWidth(float lineWidth)                                                                                 = 0;
         virtual const cc::Data &getDataRef() const                                                                                            = 0;
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
+        virtual void            updateData()                                                                                                  = 0;
+#endif
     };
     //static OSInterface::Ptr getInterface();
     // Rect
@@ -140,6 +143,8 @@ public:
 
     virtual void transform(float a, float b, float c, float d, float e, float f)    = 0;
     virtual void setTransform(float a, float b, float c, float d, float e, float f) = 0;
+
+    virtual void fetchData() = 0;
 
 private:
     virtual void recreateBufferIfNeeded() = 0;

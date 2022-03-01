@@ -57,7 +57,10 @@ class CanvasRenderingContext2D {
         this._canvas._dataInner = null;
         this._nativeObj.fill();
     }
-    _fillImageData (data, width, height, offsetX, offsetY) { this._nativeObj._fillImageData(data, width, height, offsetX, offsetY); }
+    _fillImageData (data, width, height, offsetX, offsetY) {
+        this._canvas._dataInner = null;
+        this._nativeObj._fillImageData(data, width, height, offsetX, offsetY);
+    }
     scale (x, y) { this._nativeObj.scale(x, y); }
     clearRect (x, y, width, height) {
         this._canvas._dataInner = null;
