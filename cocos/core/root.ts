@@ -42,8 +42,9 @@ import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
 import { warnID } from './platform/debug';
-import { Pipeline } from './pipeline/custom/pipeline';
+import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
 import { createCustomPipeline } from './pipeline/custom';
+import { LegacyPipelineRuntime } from './pipeline/custom/legacy-pipeline';
 
 /**
  * @zh
@@ -118,7 +119,7 @@ export class Root {
      * @zh
      * 渲染管线
      */
-    public get pipeline (): RenderPipeline {
+    public get pipeline (): PipelineRuntime {
         return this._pipeline!;
     }
 
@@ -211,6 +212,7 @@ export class Root {
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
+    private _pipelineRuntime: PipelineRuntime | null = null;
     private _customPipeline: Pipeline | null = null;
     private _batcher: IBatcher | null = null;
     private _dataPoolMgr: DataPoolManager;
@@ -310,6 +312,7 @@ export class Root {
             isCreateDefaultPipeline = true;
         }
         this._pipeline = rppl;
+        this._pipelineRuntime = new LegacyPipelineRuntime(rppl);
         // now cluster just enabled in deferred pipeline
         if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
             // disable cluster

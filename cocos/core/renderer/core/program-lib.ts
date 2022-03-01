@@ -30,7 +30,7 @@
 
 import { EffectAsset } from '../../assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
-import { RenderPipeline } from '../../pipeline/render-pipeline';
+import { PipelineRuntime } from '../../pipeline/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
@@ -438,7 +438,7 @@ class ProgramLib {
      * @param pipeline The [[RenderPipeline]] which owns the render command
      * @param key The shader cache key, if already known
      */
-    public getGFXShader (device: Device, name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
+    public getGFXShader (device: Device, name: string, defines: MacroRecord, pipeline: PipelineRuntime, key?: string) {
         Object.assign(defines, pipeline.macros);
         if (!key) key = this.getKey(name, defines);
         const res = this._cache[key];

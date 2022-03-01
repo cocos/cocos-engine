@@ -6,6 +6,7 @@ import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
 import { builtinResMgr } from './builtin';
 import { createCustomPipeline } from './pipeline/custom';
+import { LegacyPipelineRuntime } from './pipeline/custom/legacy-pipeline';
 
 declare const nr: any;
 declare const jsb: any;
@@ -163,6 +164,7 @@ rootProto.setRenderPipeline = function (pipeline) {
         pipeline.init();
     }
     this._pipeline = pipeline;
+    this._pipelineRuntime = new LegacyPipelineRuntime(pipeline);
     this._pipeline.geometryRenderer.activate(this._device, this._pipeline);
 
     if (!this._customPipeline) {
