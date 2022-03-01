@@ -49,6 +49,7 @@ class EffectAsset;
 
 namespace pipeline {
 
+class GlobalDSManager;
 class PipelineSceneData;
 class RenderPipeline;
 
@@ -78,6 +79,7 @@ public:
     virtual ~PipelineRuntime() noexcept = 0;
 
     virtual const MacroRecord &          getMacros() const = 0;
+    virtual pipeline::GlobalDSManager &  getGlobalDSManager() const = 0;
     virtual gfx::DescriptorSetLayout &   getDescriptorSetLayout() const = 0;
     virtual pipeline::PipelineSceneData &getPipelineSceneData() const = 0;
     virtual const std::string &          getConstantMacros() const = 0;
