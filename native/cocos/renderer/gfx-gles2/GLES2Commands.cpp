@@ -2542,26 +2542,21 @@ void cmdFuncGLES2UpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, co
     }
 }
 
-uint8_t *es2StagingBuffer    = nullptr;
-uint32_t es2StagingBufferLen = 0;
-
 uint8_t *funcGLES2PixelBufferPick(const uint8_t *buffer, uint32_t offset, uint32_t width, uint32_t height, uint32_t fmtSize, uint32_t stride) {
     const uint32_t bufferSize = width * height * fmtSize;
     stride *= fmtSize;
 
-    if (es2StagingBufferLen < bufferSize) {
-        CC_FREE(es2StagingBuffer);
-        es2StagingBuffer = static_cast<uint8_t *>(CC_MALLOC(bufferSize));
-    }
+    uint8_t *stagingBuffer = GLES2Device::getInstance()->getStagingBuffer(bufferSize);
+
     uint32_t chunkSize    = fmtSize * width;
     uint32_t chunkOffset  = 0;
     uint32_t bufferOffset = offset;
     for (uint32_t i = 0; i < height; i++) {
-        memcpy(es2StagingBuffer + chunkOffset, buffer + bufferOffset, chunkSize);
+        memcpy(stagingBuffer + chunkOffset, buffer + bufferOffset, chunkSize);
         chunkOffset += chunkSize;
         bufferOffset += stride;
     }
-    return es2StagingBuffer;
+    return stagingBuffer;
 }
 
 void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const *buffers,
@@ -2761,12 +2756,6 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
     if (!isCompressed && hasFlag(gpuTexture->flags, TextureFlagBit::GEN_MIPMAP)) {
         GL_CHECK(glBindTexture(gpuTexture->glTarget, gpuTexture->glTexture));
         GL_CHECK(glGenerateMipmap(gpuTexture->glTarget));
-    }
-
-    if (es2StagingBuffer != nullptr && es2StagingBufferLen > 0) {
-        CC_FREE(es2StagingBuffer);
-        es2StagingBuffer    = nullptr;
-        es2StagingBufferLen = 0;
     }
 }
 

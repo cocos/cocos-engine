@@ -1250,6 +1250,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
         size_t   regionSize   = formatSize(gpuTexture->format, regionWidth, regionHeight, region.texExtent.depth);
 
         uint32_t layerCount = region.texSubres.layerCount;
+        uint32_t baseLayer  = region.texSubres.baseArrayLayer;
 
         // calculate the max height to upload per staging buffer chunk
         uint32_t chunkHeight     = regionHeight;
@@ -1294,7 +1295,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
                 stagingRegion.bufferOffset      = stagingBuffer.startOffset;
                 stagingRegion.bufferRowLength   = 0;
                 stagingRegion.bufferImageHeight = 0;
-                stagingRegion.imageSubresource  = {gpuTexture->aspectMask, region.texSubres.mipLevel, l, 1};
+                stagingRegion.imageSubresource  = {gpuTexture->aspectMask, region.texSubres.mipLevel, l + baseLayer, 1};
                 stagingRegion.imageOffset       = {region.texOffset.x, region.texOffset.y + heightOffset, region.texOffset.z};
                 stagingRegion.imageExtent       = {region.texExtent.width, std::min(chunkHeight, regionHeight - heightOffset), region.texExtent.depth};
 

@@ -43,6 +43,7 @@
 #include "GLES2Shader.h"
 #include "GLES2Swapchain.h"
 #include "GLES2Texture.h"
+#include "bindings/auto/jsb_pipeline_auto.h"
 #include "states/GLES2Sampler.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
@@ -215,6 +216,8 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 
 void GLES2Device::doDestroy() {
     _gpuBlitManager->destroy();
+
+    CC_SAFE_DELETE(_stagingBuffer);
 
     CC_SAFE_DELETE(_gpuFramebufferCacheMap)
     CC_SAFE_DELETE(_gpuConstantRegistry)

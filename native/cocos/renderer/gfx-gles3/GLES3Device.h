@@ -84,6 +84,16 @@ public:
         });
     }
 
+    inline uint8_t *getStagingBuffer(uint32_t size = 0) {
+        if (size > _stagingBufferSize) {
+            CC_FREE(_stagingBuffer);
+            _stagingBuffer     = static_cast<uint8_t *>(CC_MALLOC(size));
+            _stagingBufferSize = size;
+        }
+
+        return _stagingBuffer;
+    }
+
     inline bool isTextureExclusive(const Format &format) { return _textureExclusive[static_cast<size_t>(format)]; };
 
 protected:
@@ -110,7 +120,7 @@ protected:
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
 
-    Sampler *      createSampler(const SamplerInfo &info) override;
+    Sampler *       createSampler(const SamplerInfo &info) override;
     GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
@@ -135,6 +145,9 @@ protected:
     StringArray _extensions;
 
     std::array<bool, static_cast<size_t>(Format::COUNT)> _textureExclusive;
+
+    uint8_t *_stagingBuffer{nullptr};
+    uint32_t _stagingBufferSize{0};
 };
 
 } // namespace gfx
