@@ -73,7 +73,7 @@ function align (node: Node, widget: Widget) {
     const useGlobal = target instanceof Scene || !target.getComponent(UITransform);
     const targetAnchor = useGlobal ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
 
-    const isRoot = !EDITOR && useGlobal;
+    const isRoot = useGlobal;
     node.getPosition(_tempPos);
     const uiTrans = node._uiProps.uiTransformComp!;
     let x = _tempPos.x;
