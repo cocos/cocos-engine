@@ -306,8 +306,8 @@ export class RenderDependencyGraph {
         if (pass.graphFlag === RenderGraphValue.Present && pass.present !== null) {
             const resTex = pass.present;
             const traits = resTex.getResourceTraits()!;
-            if (traits.residency !== ResourceResidency.Managed
-                    && traits.residency !== ResourceResidency.Memoryless) {
+            if (traits.residency !== ResourceResidency.MANAGED
+                    && traits.residency !== ResourceResidency.MEMORYLESS) {
                 // The phase contains multiple passes that need to be executed.
                 // Adding a phase is equivalent to adding all the dependent passes.
                 pass.addInputPhase(resTex.name);
@@ -316,8 +316,8 @@ export class RenderDependencyGraph {
             for (const res of pass.inputs) {
                 const resTex = res as RenderTextureResource;
                 const traits = resTex.getResourceTraits()!;
-                if (traits.residency !== ResourceResidency.Managed
-                    && traits.residency !== ResourceResidency.Memoryless) {
+                if (traits.residency !== ResourceResidency.MANAGED
+                    && traits.residency !== ResourceResidency.MEMORYLESS) {
                     // The phase contains multiple passes that need to be executed.
                     // Adding a phase is equivalent to adding all the dependent passes.
                     pass.addInputPhase(resTex.name);
@@ -341,8 +341,8 @@ export class RenderDependencyGraph {
             const texRes = res as RenderTextureResource;
             const traits = texRes.getResourceTraits()!;
             // The render phase will only create persistent, external and backbuffer resources.
-            if (traits.residency === ResourceResidency.Managed
-        || traits.residency === ResourceResidency.Memoryless) {
+            if (traits.residency === ResourceResidency.MANAGED
+        || traits.residency === ResourceResidency.MEMORYLESS) {
                 continue;
             }
             const currPhase = new RenderPhase(texRes);
