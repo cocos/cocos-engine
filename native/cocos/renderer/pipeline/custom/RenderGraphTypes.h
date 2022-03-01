@@ -112,11 +112,12 @@ struct ResourceTraits {
     : residency(residencyIn) {}
 
     bool hasSideEffects() const noexcept {
-        return boost::variant2::holds_alternative<PersistentTag>(residency) ||
-               boost::variant2::holds_alternative<BackbufferTag>(residency);
+        return residency == ResourceResidency::PERSISTENT ||
+               residency == ResourceResidency::EXTERNAL ||
+               residency == ResourceResidency::BACKBUFFER;
     }
 
-    ResourceResidency residency;
+    ResourceResidency residency{ResourceResidency::MANAGED};
 };
 
 struct ResourceGraph {

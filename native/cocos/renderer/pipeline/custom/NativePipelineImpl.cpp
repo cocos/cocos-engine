@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "NativePipelineTypes.h"
+#include "core/assets/RenderTexture.h"
 #include "pipeline/custom/GslUtils.h"
+#include "pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 
@@ -35,17 +37,17 @@ NativePipeline::NativePipeline() noexcept {
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) {
+uint32_t NativePipeline::addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, RenderTexture* renderTexture) {
     return 0;
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) {
+uint32_t NativePipeline::addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
     return 0;
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) {
+uint32_t NativePipeline::addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
     return 0;
 }
 

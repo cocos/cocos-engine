@@ -42,9 +42,9 @@ class NativePipeline final : public Pipeline {
 public:
     NativePipeline() noexcept;
 
-    uint32_t addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) override;
-    uint32_t addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) override;
-    uint32_t addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height) override;
+    uint32_t addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, RenderTexture* renderTexture) override;
+    uint32_t addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    uint32_t addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     void beginFrame(pipeline::PipelineSceneData* pplScene) override;
     void endFrame() override;
     RasterPassBuilder* addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) override;

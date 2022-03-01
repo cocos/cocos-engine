@@ -36,6 +36,7 @@ import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { DeviceResourceGraph } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
+import { RenderTexture } from '../../assets';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -296,7 +297,7 @@ export class WebCopyPassBuilder extends CopyPassBuilder {
 }
 
 export class WebPipeline extends Pipeline {
-    addRenderTexture (name: string, format: Format, width: number, height: number) {
+    addRenderTexture (name: string, format: Format, width: number, height: number, renderTexture: RenderTexture) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -305,10 +306,13 @@ export class WebPipeline extends Pipeline {
         desc.mipLevels = 1;
         desc.format = format;
         desc.flags = ResourceFlags.ALLOW_RENDER_TARGET | ResourceFlags.ALLOW_UNORDERED_ACCESS;
-
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.Persistent));
+        if (renderTexture.window?.swapchain === null) {
+            return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.EXTERNAL));
+        } else {
+            return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.BACKBUFFER));
+        }
     }
-    addRenderTarget (name: string, format: Format, width: number, height: number) {
+    addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -317,9 +321,9 @@ export class WebPipeline extends Pipeline {
         desc.mipLevels = 1;
         desc.format = format;
         desc.flags = ResourceFlags.ALLOW_RENDER_TARGET | ResourceFlags.ALLOW_UNORDERED_ACCESS;
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits());
+        return this._resourceGraph.addVertex(name, desc, new ResourceTraits(residency));
     }
-    addDepthStencil (name: string, format: Format, width: number, height: number) {
+    addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -328,7 +332,7 @@ export class WebPipeline extends Pipeline {
         desc.mipLevels = 1;
         desc.format = format;
         desc.flags = ResourceFlags.ALLOW_DEPTH_STENCIL;
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits());
+        return this._resourceGraph.addVertex(name, desc, new ResourceTraits(residency));
     }
     beginFrame (pplScene: PipelineSceneData) {
         this._renderGraph = new RenderGraph();
