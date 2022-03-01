@@ -383,6 +383,9 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // UuidGraph
+    contains (key: string): boolean {
+        return this._valueIndex.has(key);
+    }
     vertex (key: string): number {
         return this._valueIndex.get(key)!;
     }

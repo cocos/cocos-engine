@@ -572,7 +572,7 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // AddressableGraph
-    contains (absPath: string): boolean {
+    addressable (absPath: string): boolean {
         return impl.findRelative(this, 0xFFFFFFFF, absPath) as number !== 0xFFFFFFFF;
     }
     locate (absPath: string): number {
@@ -1154,7 +1154,7 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // AddressableGraph
-    contains (absPath: string): boolean {
+    addressable (absPath: string): boolean {
         return impl.findRelative(this, 0xFFFFFFFF, absPath) as number !== 0xFFFFFFFF;
     }
     locate (absPath: string): number {
