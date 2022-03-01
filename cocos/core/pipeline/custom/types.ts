@@ -97,11 +97,11 @@ export const enum ValueType {
 }
 
 export const enum ResourceResidency {
-    Managed,
-    Memoryless,
-    Persistent,
-    External,
-    Backbuffer,
+    MANAGED,
+    MEMORYLESS,
+    PERSISTENT,
+    EXTERNAL,
+    BACKBUFFER,
 }
 
 export const enum QueueHint {
@@ -109,7 +109,6 @@ export const enum QueueHint {
     RENDER_OPAQUE,
     RENDER_CUTOUT,
     RENDER_TRANSPARENT,
-    COUNT,
 }
 
 export const enum ResourceDimension {

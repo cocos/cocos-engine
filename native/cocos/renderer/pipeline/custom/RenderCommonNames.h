@@ -108,18 +108,22 @@ inline const char* getName(const ComputeTag& /*v*/) noexcept { return "Compute";
 inline const char* getName(const CopyTag& /*v*/) noexcept { return "Copy"; }
 inline const char* getName(const MoveTag& /*v*/) noexcept { return "Move"; }
 inline const char* getName(const RaytraceTag& /*v*/) noexcept { return "Raytrace"; }
-inline const char* getName(const ManagedTag& /*v*/) noexcept { return "Managed"; }
-inline const char* getName(const MemorylessTag& /*v*/) noexcept { return "Memoryless"; }
-inline const char* getName(const PersistentTag& /*v*/) noexcept { return "Persistent"; }
-inline const char* getName(const ExternalTag& /*v*/) noexcept { return "External"; }
-inline const char* getName(const BackbufferTag& /*v*/) noexcept { return "Backbuffer"; }
+inline const char* getName(ResourceResidency e) noexcept {
+    switch (e) {
+        case ResourceResidency::MANAGED: return "MANAGED";
+        case ResourceResidency::MEMORYLESS: return "MEMORYLESS";
+        case ResourceResidency::PERSISTENT: return "PERSISTENT";
+        case ResourceResidency::EXTERNAL: return "EXTERNAL";
+        case ResourceResidency::BACKBUFFER: return "BACKBUFFER";
+    }
+    return "";
+}
 inline const char* getName(QueueHint e) noexcept {
     switch (e) {
         case QueueHint::NONE: return "NONE";
         case QueueHint::RENDER_OPAQUE: return "RENDER_OPAQUE";
         case QueueHint::RENDER_CUTOUT: return "RENDER_CUTOUT";
         case QueueHint::RENDER_TRANSPARENT: return "RENDER_TRANSPARENT";
-        case QueueHint::COUNT: return "COUNT";
     }
     return "";
 }

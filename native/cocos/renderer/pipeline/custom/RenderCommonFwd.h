@@ -99,14 +99,8 @@ struct ComputeTag;
 struct CopyTag;
 struct MoveTag;
 struct RaytraceTag;
-struct ManagedTag;
-struct MemorylessTag;
-struct PersistentTag;
-struct ExternalTag;
-struct BackbufferTag;
 
-using ResourceResidency = boost::variant2::variant<ManagedTag, MemorylessTag, PersistentTag, ExternalTag, BackbufferTag>;
-
+enum class ResourceResidency;
 enum class QueueHint;
 enum class ResourceDimension;
 

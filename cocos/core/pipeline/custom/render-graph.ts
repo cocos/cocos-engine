@@ -66,7 +66,7 @@ export class ResourceDesc {
 }
 
 export class ResourceTraits {
-    constructor (residency: ResourceResidency = ResourceResidency.Managed) {
+    constructor (residency: ResourceResidency = ResourceResidency.MANAGED) {
         this.residency = residency;
     }
     residency: ResourceResidency;

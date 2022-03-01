@@ -29,13 +29,13 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { EffectAsset } from '../../assets';
+import { EffectAsset, RenderTexture } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Format, Sampler, Texture } from '../../gfx';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint } from './types';
+import { QueueHint, ResourceResidency } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 
 export abstract class PipelineRuntime {
@@ -104,9 +104,9 @@ export abstract class CopyPassBuilder {
 }
 
 export abstract class Pipeline {
-    public abstract addRenderTexture(name: string, format: Format, width: number, height: number): number;
-    public abstract addRenderTarget(name: string, format: Format, width: number, height: number): number;
-    public abstract addDepthStencil(name: string, format: Format, width: number, height: number): number;
+    public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderTexture: RenderTexture): number;
+    public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    public abstract addDepthStencil(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     public abstract beginFrame(pplScene: PipelineSceneData): void;
     public abstract endFrame(): void;
     public abstract addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
