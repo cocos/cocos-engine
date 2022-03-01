@@ -1,6 +1,9 @@
 name: <Native> Compile-self
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - 'native/**'
 
 jobs:
   compile_android:
