@@ -3,7 +3,7 @@
 #include <cc-global>
 #include <cc-shadow>
 #include <packing>
-#include <cc-local-batch>
+#include <cc-local>
 
 // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
 #pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
