@@ -1033,31 +1033,34 @@ sevalue_to_native(const se::Value &from, T to, se::Object * /*ctx*/) { // NOLINT
     using Value = typename std::remove_pointer<typename std::remove_pointer<T>::type>::type;
     CC_STATIC_ASSERT(is_jsb_object_v<Value> || std::is_arithmetic<Value>::value, "Only JSB object or arithmetic types are supported");
 
-    if CC_CONSTEXPR (is_jsb_object_v<Value>) {
-        if (from.isNullOrUndefined()) {
-            //const std::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
-            //SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
-            *to = nullptr;
+    if
+        CC_CONSTEXPR(is_jsb_object_v<Value>) {
+            if (from.isNullOrUndefined()) {
+                //const std::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+                //SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
+                *to = nullptr;
+                return true;
+            }
+            *to = static_cast<typename std::remove_pointer<T>::type>(from.toObject()->getPrivateData());
             return true;
         }
-        *to = static_cast<typename std::remove_pointer<T>::type>(from.toObject()->getPrivateData());
-        return true;
-    } else if CC_CONSTEXPR (std::is_arithmetic<Value>::value) {
-        se::Object *array = from.toObject();
-        if (array->isTypedArray()) {
-            uint8_t *data = nullptr;
-            array->getTypedArrayData(&data, nullptr);
-            *to = reinterpret_cast<Value *>(data);
-        } else if (array->isArrayBuffer()) {
-            uint8_t *data = nullptr;
-            array->getArrayBufferData(&data, nullptr);
-            *to = reinterpret_cast<Value *>(data);
-        } else {
-            assert(false);
-            return false;
+    else if
+        CC_CONSTEXPR(std::is_arithmetic<Value>::value) {
+            se::Object *array = from.toObject();
+            if (array->isTypedArray()) {
+                uint8_t *data = nullptr;
+                array->getTypedArrayData(&data, nullptr);
+                *to = reinterpret_cast<Value *>(data);
+            } else if (array->isArrayBuffer()) {
+                uint8_t *data = nullptr;
+                array->getArrayBufferData(&data, nullptr);
+                *to = reinterpret_cast<Value *>(data);
+            } else {
+                assert(false);
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
 }
 
 template <typename T>
@@ -1208,11 +1211,12 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
             if (!succeed) {
                 se::ScriptEngine::getInstance()->clearException();
             }
-            if CC_CONSTEXPR (!std::is_same<R, void>::value) {
-                R rawRet = {};
-                sevalue_to_native(rval, &rawRet, self);
-                return rawRet;
-            }
+            if
+                CC_CONSTEXPR(!std::is_same<R, void>::value) {
+                    R rawRet = {};
+                    sevalue_to_native(rval, &rawRet, self);
+                    return rawRet;
+                }
         };
     } else {
         return false;
@@ -1223,24 +1227,26 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
 #if HAS_CONSTEXPR
 template <typename T, bool is_reference>
 inline bool sevalue_to_native(const se::Value &from, HolderType<T, is_reference> *holder, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    if CC_CONSTEXPR (is_reference && is_jsb_object_v<T>) {
-        void *ptr = from.toObject()->getPrivateData();
-        if (ptr) {
-            holder->data = static_cast<T *>(ptr);
-            return true;
+    if
+        CC_CONSTEXPR(is_reference && is_jsb_object_v<T>) {
+            void *ptr = from.toObject()->getPrivateData();
+            if (ptr) {
+                holder->data = static_cast<T *>(ptr);
+                return true;
+            }
+            holder->ptr = new T;
+            return sevalue_to_native(from, holder->ptr, ctx);
         }
-        holder->ptr = new T;
-        return sevalue_to_native(from, holder->ptr, ctx);
-
-    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
-        void *ptr = from.toObject()->getPrivateData();
-        if (ptr) {
-            holder->data = *static_cast<T *>(ptr);
-            return true;
+    else if
+        CC_CONSTEXPR(is_jsb_object_v<T>) {
+            void *ptr = from.toObject()->getPrivateData();
+            if (ptr) {
+                holder->data = *static_cast<T *>(ptr);
+                return true;
+            }
+            return sevalue_to_native(from, &(holder->data), ctx);
         }
-        return sevalue_to_native(from, &(holder->data), ctx);
-
-    } else {
+    else {
         return sevalue_to_native(from, &(holder->data), ctx);
     }
 }
@@ -1284,12 +1290,16 @@ inline typename std::enable_if<!is_jsb_object_v<T>, bool>::type sevalue_to_nativ
 #if HAS_CONSTEXPR
 template <typename T, typename allocator>
 inline bool sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, true> *holder, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    if CC_CONSTEXPR (is_jsb_object_v<T> && std::is_pointer<T>::value) {
-        auto &vec = holder->data;
-        return sevalue_to_native(from, &vec, ctx);
-    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
-        return sevalue_to_native(from, static_cast<std::vector<T, allocator> *>(&(holder->data)), ctx);
-    } else {
+    if
+        CC_CONSTEXPR(is_jsb_object_v<T> && std::is_pointer<T>::value) {
+            auto &vec = holder->data;
+            return sevalue_to_native(from, &vec, ctx);
+        }
+    else if
+        CC_CONSTEXPR(is_jsb_object_v<T>) {
+            return sevalue_to_native(from, static_cast<std::vector<T, allocator> *>(&(holder->data)), ctx);
+        }
+    else {
         return sevalue_to_native(from, &(holder->data), ctx);
     }
 }
@@ -1326,20 +1336,30 @@ inline bool nativevalue_to_se(T &&from, se::Value &to) { // NOLINT(readability-i
 
 template <typename T>
 inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
-    if CC_CONSTEXPR (std::is_enum<T>::value) {
-        to.setInt32(static_cast<int32_t>(from));
-        return true;
-    } else if CC_CONSTEXPR (std::is_pointer<T>::value) {
-        return native_ptr_to_seval(from, &to);
-    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
-        return native_ptr_to_seval(from, &to);
-    } else if CC_CONSTEXPR (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
-        to.setInt64(static_cast<int64_t>(from));
-        return true;
-    } else if CC_CONSTEXPR (std::is_arithmetic<T>::value) {
-        to.setDouble(static_cast<double>(from));
-        return true;
-    } else {
+    if
+        CC_CONSTEXPR(std::is_enum<T>::value) {
+            to.setInt32(static_cast<int32_t>(from));
+            return true;
+        }
+    else if
+        CC_CONSTEXPR(std::is_pointer<T>::value) {
+            return native_ptr_to_seval(from, &to);
+        }
+    else if
+        CC_CONSTEXPR(is_jsb_object_v<T>) {
+            return native_ptr_to_seval(from, &to);
+        }
+    else if
+        CC_CONSTEXPR(std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
+            to.setInt64(static_cast<int64_t>(from));
+            return true;
+        }
+    else if
+        CC_CONSTEXPR(std::is_arithmetic<T>::value) {
+            to.setDouble(static_cast<double>(from));
+            return true;
+        }
+    else {
         return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
     }
 }
@@ -1508,15 +1528,15 @@ inline bool nativevalue_to_se(const bool &from, se::Value &to, se::Object * /*ct
 }
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
-template<>
-inline bool nativevalue_to_se(const unsigned long &from, se::Value &to,  se::Object * /*ctx*/) {
+template <>
+inline bool nativevalue_to_se(const unsigned long &from, se::Value &to, se::Object * /*ctx*/) {
     // on mac: unsiged long  === uintptr_t
     CC_STATIC_ASSERT(sizeof(from) == 8);
     to.setDouble(static_cast<double>(from));
     return true;
 }
-template<>
-inline bool nativevalue_to_se(const long &from, se::Value &to,  se::Object * /*ctx*/) {
+template <>
+inline bool nativevalue_to_se(const long &from, se::Value &to, se::Object * /*ctx*/) {
     // on mac: unsiged long  === uintptr_t
     CC_STATIC_ASSERT(sizeof(from) == 8);
     to.setDouble(static_cast<double>(from));
@@ -1543,12 +1563,12 @@ bool nativevalue_to_se_args(se::ValueArray &array, T &x) { // NOLINT(readability
     return nativevalue_to_se(x, array[i], nullptr);
 }
 template <int i, typename T, typename... Args>
-bool nativevalue_to_se_args(se::ValueArray &array, T &x, Args &...args) { // NOLINT(readability-identifier-naming)
+bool nativevalue_to_se_args(se::ValueArray &array, T &x, Args &... args) { // NOLINT(readability-identifier-naming)
     return nativevalue_to_se_args<i, T>(array, x) && nativevalue_to_se_args<i + 1, Args...>(array, args...);
 }
 
 template <typename... Args>
-bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args) { // NOLINT(readability-identifier-naming)
+bool nativevalue_to_se_args_v(se::ValueArray &array, Args &... args) { // NOLINT(readability-identifier-naming)
     return nativevalue_to_se_args<0, Args...>(array, args...);
 }
 
