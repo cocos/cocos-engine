@@ -169,9 +169,7 @@ void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBuffer
 }
 
 void CanvasRenderingContext2D::fetchData() {
-#if (CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
     _delegate->updateData();
-#endif
     if (_canvasBufferUpdatedCB != nullptr) {
         _canvasBufferUpdatedCB(_delegate->getDataRef());
     }
