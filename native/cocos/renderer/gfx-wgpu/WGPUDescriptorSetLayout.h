@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,46 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+
+#include <emscripten/bind.h>
+#include <set>
+#include "gfx-base/GFXDescriptorSetLayout.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+struct CCWGPUBindGroupLayoutObject;
+class CCWGPUTexture;
+class CCWGPUBuffer;
+class CCWGPUSampler;
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+class CCWGPUDescriptorSetLayout final : public emscripten::wrapper<DescriptorSetLayout> {
+public:
+    EMSCRIPTEN_WRAPPER(CCWGPUDescriptorSetLayout);
+    CCWGPUDescriptorSetLayout();
+    ~CCWGPUDescriptorSetLayout() = default;
+
+    inline CCWGPUBindGroupLayoutObject* gpuLayoutEntryObject() { return _gpuLayoutEntryObj; }
+
+    void updateLayout(uint8_t binding, const CCWGPUBuffer* buffer = nullptr, const CCWGPUTexture* tex = nullptr, const CCWGPUSampler* sampler = nullptr);
+
+    void prepare(bool forceUpdate = false);
+
+    inline uint8_t dynamicOffsetCount() { return _dynamicOffsetCount; }
+
+    static void* defaultBindGroupLayout();
+
+    void print() const;
 
 protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
+    void doInit(const DescriptorSetLayoutInfo& info) override;
+    void doDestroy() override;
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+    size_t hash() const;
 
-    uint32_t _typedID = 0U; // inited by sub-classes
+    CCWGPUBindGroupLayoutObject* _gpuLayoutEntryObj = nullptr;
+
+    uint8_t _dynamicOffsetCount = 0;
 };
 
 } // namespace gfx

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,56 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+#include <emscripten/bind.h>
+#include <emscripten/val.h>
+#include "gfx-base/GFXBuffer.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
+struct CCWGPUBufferObject;
+
+class CCWGPUBuffer final : public emscripten::wrapper<Buffer> {
 public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+    EMSCRIPTEN_WRAPPER(CCWGPUBuffer);
+    CCWGPUBuffer();
+    ~CCWGPUBuffer() = default;
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+    void update(const void* buffer, uint size) override;
 
-protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
+    inline CCWGPUBufferObject* gpuBufferObject() const { return _gpuBufferObject; }
+
+    static CCWGPUBuffer* defaultUniformBuffer();
+
+    static CCWGPUBuffer* defaultStorageBuffer();
+
+    inline uint getOffset() const { return _offset; }
+
+    void update(const emscripten::val& v, uint size) {
+        std::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
+        update(reinterpret_cast<const void*>(buffer.data()), size);
     }
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+    void update(const DrawInfoList& drawInfos);
 
-    uint32_t _typedID = 0U; // inited by sub-classes
+    // used before unmap?
+    void check();
+
+    // stamp current resource handler
+    void stamp();
+
+    // resource handler changed?
+    inline bool internalChanged() const { return _internalChanged; }
+
+protected:
+    void doInit(const BufferInfo& info) override;
+    void doInit(const BufferViewInfo& info) override;
+    void doDestroy() override;
+    void doResize(uint size, uint count) override;
+
+    CCWGPUBufferObject* _gpuBufferObject = nullptr;
+
+    bool _internalChanged = false;
 };
 
 } // namespace gfx

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,31 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+#include <emscripten/bind.h>
+#include "gfx-base/states/GFXSampler.h"
+
+#include "WGPUobject.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
+class CCWGPUSampler final : public emscripten::wrapper<Sampler> {
 public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+    EMSCRIPTEN_WRAPPER(CCWGPUSampler);
+    explicit CCWGPUSampler(const SamplerInfo& info);
+    ~CCWGPUSampler();
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+    inline WGPUSampler gpuSampler() { return _wgpuSampler; }
+
+    static CCWGPUSampler* defaultSampler();
+
+    //stamp current state
+    void stamp() {}
+
+    bool internalChanged() const { return false; }
 
 protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
-
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
-
-    uint32_t _typedID = 0U; // inited by sub-classes
+    WGPUSampler _wgpuSampler = wgpuDefaultHandle;
 };
 
 } // namespace gfx

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,36 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+#include <emscripten/bind.h>
+#include <set>
+#include "gfx-base/GFXPipelineState.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+struct CCWGPUPipelineStateObject;
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+class CCWGPUPipelineState final : public emscripten::wrapper<PipelineState> {
+public:
+    CCWGPUPipelineState();
+    ~CCWGPUPipelineState() = default;
+
+    inline CCWGPUPipelineStateObject* gpuPipelineStateObject() { return _gpuPipelineStateObj; }
+
+    void check(RenderPass* renderPass);
+
+    void prepare(const std::set<uint8_t>& setInUse);
+
+    void* ppl() const { return _ppl; }
 
 protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
+    void doInit(const PipelineStateInfo& info) override;
+    void doDestroy() override;
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+    CCWGPUPipelineStateObject* _gpuPipelineStateObj = nullptr;
 
-    uint32_t _typedID = 0U; // inited by sub-classes
+    void* _ppl         = nullptr;
+    bool  _forceUpdate = false;
 };
 
 } // namespace gfx

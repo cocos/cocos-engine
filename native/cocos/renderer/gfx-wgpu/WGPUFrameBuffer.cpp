@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,34 +23,36 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+#include "WGPUFrameBuffer.h"
+#include "WGPUTexture.h"
 
+using namespace emscripten;
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+CCWGPUFramebuffer::CCWGPUFramebuffer() : wrapper<Framebuffer>(val::object()) {
+}
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
-
-protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
+void CCWGPUFramebuffer::doInit(const FramebufferInfo& info) {
+    for (auto* tex : info.colorTextures) {
+        auto*            ccTex     = static_cast<CCWGPUTexture*>(tex);
+        CCWGPUSwapchain* swapchain = ccTex->swapchain();
+        if (swapchain) {
+            _swapchain = swapchain;
+            break;
+        }
     }
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+    if (_depthStencilTexture) {
+        CCWGPUSwapchain* swapchain = static_cast<CCWGPUTexture*>(_depthStencilTexture)->swapchain();
+        if (swapchain) {
+            _swapchain = swapchain;
+        }
+    }
+}
 
-    uint32_t _typedID = 0U; // inited by sub-classes
-};
+void CCWGPUFramebuffer::doDestroy() {
+}
 
 } // namespace gfx
 } // namespace cc

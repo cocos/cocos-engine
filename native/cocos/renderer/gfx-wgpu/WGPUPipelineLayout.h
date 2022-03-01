@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,34 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+#include <emscripten/bind.h>
+#include <set>
+#include "gfx-base/GFXPipelineLayout.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+struct CCWGPUPipelineLayoutObject;
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+class CCWGPUPipelineLayout final : public emscripten::wrapper<PipelineLayout> {
+public:
+    CCWGPUPipelineLayout();
+    ~CCWGPUPipelineLayout() = default;
+
+    inline CCWGPUPipelineLayoutObject* gpuPipelineLayoutObject() { return _gpuPipelineLayoutObj; }
+
+    //bindgroup not ready yet so delay creation
+    void prepare(const std::set<uint8_t>& setInUse);
+
+    // const std::vector<void*> & layouts()const{return _bgLayouts;}
 
 protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
+    void doInit(const PipelineLayoutInfo& info) override;
+    void doDestroy() override;
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+    CCWGPUPipelineLayoutObject* _gpuPipelineLayoutObj = nullptr;
 
-    uint32_t _typedID = 0U; // inited by sub-classes
+    // std::vector<void*> _bgLayouts;
 };
 
 } // namespace gfx

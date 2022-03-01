@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,34 +23,36 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+#include "WGPUInputAssembler.h"
+#include "WGPUObject.h"
 
+using namespace emscripten;
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+CCWGPUInputAssembler::CCWGPUInputAssembler() : wrapper<InputAssembler>(val::object()) {
+}
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+void CCWGPUInputAssembler::doInit(const InputAssemblerInfo& info) {
+    _gpuInputAssemblerObj = CC_NEW(CCWGPUInputAssemblerObject);
+    // // typedef struct WGPUVertexState {
+    // //     WGPUChainedStruct const * nextInChain;
+    // //     WGPUShaderModule module;
+    // //     char const * entryPoint;
+    // //     uint32_t bufferCount;
+    // //     WGPUVertexBufferLayout const * buffers;
+    // // } WGPUVertexState;
 
-protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
+    // _gpuInputAssemblerObj->wgpuVertexState.nextInChain = nullptr;
+    // _gpuInputAssemblerObj->wgpuVertexState.module =
+}
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+void CCWGPUInputAssembler::doDestroy() {
+}
 
-    uint32_t _typedID = 0U; // inited by sub-classes
-};
+void CCWGPUInputAssembler::update(const DrawInfo& info) {
+    _drawInfo = info;
+}
 
 } // namespace gfx
 } // namespace cc

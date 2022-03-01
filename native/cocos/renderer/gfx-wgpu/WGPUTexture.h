@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,46 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+#include <emscripten/bind.h>
+#include "gfx-base/GFXTexture.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+struct CCWGPUTextureObject;
+class CCWGPUSwapchain;
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+class CCWGPUTexture final : public emscripten::wrapper<Texture> {
+public:
+    EMSCRIPTEN_WRAPPER(CCWGPUTexture);
+    CCWGPUTexture();
+    ~CCWGPUTexture() = default;
+
+    inline CCWGPUTextureObject* gpuTextureObject() { return _gpuTextureObj; }
+
+    static CCWGPUTexture* defaultCommonTexture();
+
+    static CCWGPUTexture* defaultStorageTexture();
+
+    CCWGPUSwapchain* swapchain();
+
+    // stamp current state
+    void stamp();
+
+    // resource handler changed?
+    inline bool internalChanged() const { return _internalChanged; }
 
 protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
+    void doInit(const TextureInfo& info) override;
+    void doInit(const TextureViewInfo& info) override;
+    void doDestroy() override;
+    void doResize(uint32_t width, uint32_t height, uint32_t size) override;
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+    void doInit(const SwapchainTextureInfo& info) override;
 
-    uint32_t _typedID = 0U; // inited by sub-classes
+    CCWGPUTextureObject* _gpuTextureObj = nullptr;
+
+    bool _internalChanged = false;
 };
 
 } // namespace gfx

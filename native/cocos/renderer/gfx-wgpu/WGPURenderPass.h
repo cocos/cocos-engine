@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,33 +24,35 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
+
+#include <emscripten/bind.h>
+#include "gfx-base/GFXRenderPass.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+struct CCWGPURenderPassObject;
+class CCWGPURenderPassHelper;
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+class CCWGPURenderPass final : public emscripten::wrapper<RenderPass> {
+public:
+    EMSCRIPTEN_WRAPPER(CCWGPURenderPass);
+    CCWGPURenderPass();
+    ~CCWGPURenderPass() = default;
+
+    inline CCWGPURenderPassObject* gpuRenderPassObject() { return _renderPassObject; }
 
 protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
+    void doInit(const RenderPassInfo& info) override;
+    void doDestroy() override;
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
-
-    uint32_t _typedID = 0U; // inited by sub-classes
+    CCWGPURenderPassObject* _renderPassObject = nullptr;
+    CCWGPURenderPassHelper* _rpHelper         = nullptr;
 };
+
+inline CCWGPURenderPass* getThis(CCWGPURenderPass* that) {
+    return that;
+}
 
 } // namespace gfx
 } // namespace cc

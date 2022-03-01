@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,56 @@
 ****************************************************************************/
 
 #pragma once
-#include "GFXDef.h"
-#include "base/Object.h"
 
+#include <emscripten/bind.h>
+#include <map>
+#include <vector>
+#include "gfx-base/GFXDescriptorSet.h"
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
-public:
-    explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+struct CCWGPUBindGroupObject;
 
-    inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+using Pairs = std::vector<std::pair<uint8_t, uint8_t>>;
+
+class CCWGPUDescriptorSet final : public emscripten::wrapper<DescriptorSet> {
+public:
+    EMSCRIPTEN_WRAPPER(CCWGPUDescriptorSet);
+    CCWGPUDescriptorSet();
+    ~CCWGPUDescriptorSet() = default;
+
+    inline CCWGPUBindGroupObject* gpuBindGroupObject() { return _gpuBindGroupObj; }
+
+    void update() override;
+
+    uint8_t dynamicOffsetCount() const;
+
+    void prepare();
+
+    static void* defaultBindGroup();
+
+    inline Pairs& dynamicOffsets() { return _dynamicOffsets; }
+
+    // void* bgl() const{return _bgl;}
+
+    // DescriptorSetLayout* local()const {return _local;}
 
 protected:
-    template <typename T>
-    static uint32_t generateObjectID() noexcept {
-        static uint32_t generator = 1 << 16;
-        return ++generator;
-    }
+    void doInit(const DescriptorSetInfo& info) override;
+    void doDestroy() override;
 
-    ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+    CCWGPUBindGroupObject* _gpuBindGroupObj = nullptr;
 
-    uint32_t _typedID = 0U; // inited by sub-classes
+    // seperate combined sampler-texture index
+    std::map<uint8_t, uint8_t> _textureIdxMap;
+    std::map<uint8_t, uint8_t> _samplerIdxMap;
+
+    // dynamic offsets, inuse ? 1 : 0;
+    Pairs _dynamicOffsets;
+
+    // void* _bgl = nullptr;
+
+    // DescriptorSetLayout* _local = nullptr;
 };
 
 } // namespace gfx
