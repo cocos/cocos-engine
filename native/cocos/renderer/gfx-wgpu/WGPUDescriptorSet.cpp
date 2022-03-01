@@ -75,9 +75,9 @@ void CCWGPUDescriptorSet::doInit(const DescriptorSetInfo& info) {
             _samplerIdxMap.insert(std::make_pair<uint8_t, uint8_t>(bindings[i].binding, _gpuBindGroupObj->bindGroupEntries.size() - 1));
             dsLayout->updateLayout(smpEntry.binding, nullptr, nullptr, sampler);
         } else if (hasFlag(DESCRIPTOR_BUFFER_TYPE, bindings[i].descriptorType)) {
-            CCWGPUBuffer*      buffer      = hasFlag(DescriptorType::DYNAMIC_STORAGE_BUFFER | DescriptorType::STORAGE_BUFFER, bindings[i].descriptorType)
-                                                 ? deviceObj->defaultResources.storageBuffer
-                                                 : deviceObj->defaultResources.uniformBuffer;
+            CCWGPUBuffer* buffer = hasFlag(DescriptorType::DYNAMIC_STORAGE_BUFFER | DescriptorType::STORAGE_BUFFER, bindings[i].descriptorType)
+                                       ? deviceObj->defaultResources.storageBuffer
+                                       : deviceObj->defaultResources.uniformBuffer;
             WGPUBindGroupEntry bufferEntry = {
                 .binding = bindings[i].binding,
                 .buffer  = buffer->gpuBufferObject()->wgpuBuffer,
