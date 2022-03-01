@@ -16,8 +16,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
-          rm native/external/config.json
+          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Install deps
         run: |
@@ -62,8 +61,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
-          rm native/external/config.json
+          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Generate bindings
         run: |
@@ -121,8 +119,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
-          rm native/external/config.json
+          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Generate bindings
         run: |
@@ -173,8 +170,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
-          rm native/external/config.json
+          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Generate bindings
         run: |
@@ -228,8 +224,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
-          rm native/external/config.json
+          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Generate bindings
         run: |
@@ -286,8 +281,7 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=`grep version native/external/config.json  |awk -F'"' '{print $4}'`
-          rm native/external/config.json
+          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Setup Emscripten
         run: |
