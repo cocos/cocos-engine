@@ -50,11 +50,13 @@ class EffectAsset;
 namespace pipeline {
 
 class PipelineSceneData;
+class RenderPipeline;
 
 } // namespace pipeline
 
 namespace scene {
 
+class Model;
 class RenderWindow;
 
 } // namespace scene
@@ -75,7 +77,12 @@ public:
 
     virtual ~PipelineRuntime() noexcept = 0;
 
-    virtual const MacroRecord& getMacros() const = 0;
+    virtual const MacroRecord &          getMacros() const = 0;
+    virtual gfx::DescriptorSetLayout &   getDescriptorSetLayout() const = 0;
+    virtual pipeline::PipelineSceneData &getPipelineSceneData() const = 0;
+    virtual const std::string &          getConstantMacros() const = 0;
+    virtual scene::Model *               getProfiler() const = 0;
+    virtual void                         setProfiler(scene::Model *profiler) const = 0;
 };
 
 inline PipelineRuntime::~PipelineRuntime() noexcept = default;
@@ -244,6 +251,7 @@ inline Pipeline::~Pipeline() noexcept = default;
 
 class Factory {
 public:
+    static PipelineRuntime* createPipelineRuntime(pipeline::RenderPipeline* pipeline);
     static Pipeline* createPipeline();
     static DescriptorHierarchy* createDescriptorHierarchy();
 };

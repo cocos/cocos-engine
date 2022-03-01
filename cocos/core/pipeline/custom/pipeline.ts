@@ -31,16 +31,22 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, Format, Sampler, Texture } from '../../gfx';
+import { Buffer, DescriptorSetLayout, Format, Sampler, Texture } from '../../gfx';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { QueueHint, ResourceResidency } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderWindow } from '../../renderer/core/render-window';
+import { Model } from '../../renderer/scene';
 
 export abstract class PipelineRuntime {
     public abstract get macros(): MacroRecord;
+    public abstract get descriptorSetLayout(): DescriptorSetLayout;
+    public abstract get pipelineSceneData(): PipelineSceneData;
+    public abstract get constantMacros(): string;
+    public abstract get profiler(): Model | null;
+    public abstract set profiler(profiler: Model | null);
 }
 
 export abstract class DescriptorHierarchy {
