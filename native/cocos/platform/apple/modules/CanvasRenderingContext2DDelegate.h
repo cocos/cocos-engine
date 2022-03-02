@@ -71,6 +71,7 @@ public:
     const cc::Data &getDataRef() const override;
     void            fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
     void            updateData() override {}
+
 private:
     void fillData();
     void unMultiplyAlpha(unsigned char *ptr, ssize_t size) const;

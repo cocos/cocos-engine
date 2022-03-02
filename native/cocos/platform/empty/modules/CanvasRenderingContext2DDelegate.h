@@ -74,6 +74,7 @@ public:
     void            strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     void            rect(float x, float y, float w, float h) override;
     void            updateData() override {}
+
 private:
     int32_t _x{0};
     int32_t _y{0};
