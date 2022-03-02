@@ -31,7 +31,7 @@ import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
-import { ShadowType } from '../renderer/scene/shadows';
+import { CSMLevel, ShadowType } from '../renderer/scene/shadows';
 import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
 import { DirectionalLight, SpotLight } from '../renderer/scene';
@@ -169,21 +169,28 @@ export class PipelineUBO {
         const mainLight = camera.scene!.mainLight;
         const sceneData = pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
+        const csmLayers = sceneData.csmLayers;
         const sv = bufferView;
 
         if (shadowInfo.enabled) {
-            if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+            if (mainLight && mainLight.shadowCSMLevel === CSMLevel.level_1 && shadowInfo.type === ShadowType.ShadowMap) {
                 let near = 0.1;
                 let far = 0;
-                const matShadowView = shadowInfo.matShadowView;
-                const matShadowProj = shadowInfo.matShadowProj;
-                const matShadowViewProj = shadowInfo.matShadowViewProj;
-                if (mainLight.shadowFixedArea) {
+                let matShadowView;
+                let matShadowProj;
+                let matShadowViewProj;
+                if (mainLight.shadowFixedArea && csmLayers.shadowFixedArea) {
                     near = mainLight.shadowNear;
                     far = mainLight.shadowFar;
-                } else {
+                    matShadowView = csmLayers.shadowFixedArea.matShadowView;
+                    matShadowProj = csmLayers.shadowFixedArea.matShadowProj;
+                    matShadowViewProj = csmLayers.shadowFixedArea.matShadowViewProj;
+                } else if (mainLight.shadowCSMLevel === CSMLevel.level_1  && csmLayers.csmLayerInfos[0]) {
                     near = 0.1;
-                    far = shadowInfo.shadowCameraFar;
+                    far = csmLayers.csmLayerInfos[0].shadowCameraFar;
+                    matShadowView = csmLayers.csmLayerInfos[0].matShadowView;
+                    matShadowProj = csmLayers.csmLayerInfos[0].matShadowProj;
+                    matShadowViewProj = csmLayers.csmLayerInfos[0].matShadowViewProj;
                 }
 
                 Mat4.toArray(bufferView, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
@@ -227,24 +234,33 @@ export class PipelineUBO {
 
     public static updateShadowUBOLightView (pipeline: RenderPipeline, bufferView: Float32Array, light: Light) {
         const device = pipeline.device;
+        const sceneData = pipeline.pipelineSceneData;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
+        const csmLayers = sceneData.csmLayers;
         const sv = bufferView;
         const linear = 0.0;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
         let near = 0.1;
         let far = 0;
-        const matShadowView = shadowInfo.matShadowView;
-        const matShadowProj = shadowInfo.matShadowProj;
-        const matShadowViewProj = shadowInfo.matShadowViewProj;
+        let matShadowView;
+        let matShadowProj;
+        let matShadowViewProj;
         switch (light.type) {
         case LightType.DIRECTIONAL: {
             const mainLight = light as DirectionalLight;
-            if (mainLight.shadowFixedArea) {
+            if (mainLight.shadowFixedArea && csmLayers.shadowFixedArea) {
                 near = mainLight.shadowNear;
                 far = mainLight.shadowFar;
-            } else {
+                matShadowView = csmLayers.shadowFixedArea.matShadowView;
+                matShadowProj = csmLayers.shadowFixedArea.matShadowProj;
+                matShadowViewProj = csmLayers.shadowFixedArea.matShadowViewProj;
+            } else if (mainLight.shadowCSMLevel === CSMLevel.level_1 && csmLayers.csmLayerInfos[0]) {
+                if (!csmLayers.csmLayerInfos[0]) { return; }
                 near = 0.1;
-                far = shadowInfo.shadowCameraFar;
+                far = csmLayers.csmLayerInfos[0].shadowCameraFar;
+                matShadowView = csmLayers.csmLayerInfos[0].matShadowView;
+                matShadowProj = csmLayers.csmLayerInfos[0].matShadowProj;
+                matShadowViewProj = csmLayers.csmLayerInfos[0].matShadowViewProj;
             }
 
             Mat4.toArray(bufferView, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);

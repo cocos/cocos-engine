@@ -294,13 +294,6 @@ export class Shadows {
      */
     public maxReceived = 4;
 
-    // local set
-    public firstSetCSM = false;
-    public shadowCameraFar = 0;
-    public matShadowView = new Mat4();
-    public matShadowProj = new Mat4();
-    public matShadowViewProj = new Mat4();
-
     protected _enabled = false;
     protected _type = SHADOW_TYPE_NONE;
     protected _distance = 0;
