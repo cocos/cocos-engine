@@ -123,5 +123,4 @@ bool js_register_cc_render_Factory(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_render_Factory_createDescriptorHierarchy);
 SE_DECLARE_FUNC(js_render_Factory_createPipeline);
-SE_DECLARE_FUNC(js_render_Factory_createPipelineRuntime);
     // clang-format on
