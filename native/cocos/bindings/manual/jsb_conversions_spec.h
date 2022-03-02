@@ -51,7 +51,7 @@ class Color;
 class Rect;
 
 template <typename K, typename V>
-class Map;
+class RefMap;
 
 struct NativeDep;
 
@@ -534,7 +534,7 @@ inline bool nativevalue_to_se(const se_object_ptr &from, se::Value &to, se::Obje
     to.setObject(const_cast<se::Object *>(from));
     return true;
 }
-bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middleware::Texture2D *> *ret); // NOLINT(readability-identifier-naming)
+bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, cc::middleware::Texture2D *> *ret); // NOLINT(readability-identifier-naming)
 #endif                                                                                                    //USE_MIDDLEWARE
 
 #if USE_PHYSICS_PHYSX

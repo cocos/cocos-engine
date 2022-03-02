@@ -30,7 +30,7 @@
 
 #include <condition_variable>
 #include <thread>
-#include "base/Vector.h"
+#include "base/RefVector.h"
 #include "network/HttpCookie.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
@@ -185,10 +185,10 @@ private: // NOLINT(readability-redundant-access-specifiers)
     std::weak_ptr<Scheduler> _scheduler;
     std::mutex               _schedulerMutex;
 
-    Vector<HttpRequest *> _requestQueue;
+    RefVector<HttpRequest *> _requestQueue;
     std::mutex            _requestQueueMutex;
 
-    Vector<HttpResponse *> _responseQueue;
+    RefVector<HttpResponse *> _responseQueue;
     std::mutex             _responseQueueMutex;
 
     std::string _cookieFilename;

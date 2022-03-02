@@ -295,7 +295,7 @@ seval_to_std_vector(const se::Value &v, std::vector<T> *ret) { // NOLINT(readabi
 }
 
 template <typename T>
-bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, T> *ret) { // NOLINT(readability-identifier-naming)
+bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, T> *ret) { // NOLINT(readability-identifier-naming)
     assert(ret != nullptr);
     assert(v.isObject());
     se::Object *obj = v.toObject();
