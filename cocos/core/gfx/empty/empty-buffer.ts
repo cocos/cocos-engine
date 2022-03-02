@@ -27,7 +27,7 @@ import { BufferSource, BufferInfo, BufferViewInfo } from '../base/define';
 import { Buffer } from '../base/buffer';
 
 export class EmptyBuffer extends Buffer {
-    public initialize (info: BufferInfo | BufferViewInfo) {
+    public initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>) {
         if ('buffer' in info) { // buffer view
             this._isBufferView = true;
 
@@ -49,5 +49,5 @@ export class EmptyBuffer extends Buffer {
     }
     public destroy () {}
     public resize (size: number) {}
-    public update (buffer: BufferSource, size?: number) {}
+    public update (buffer: Readonly<BufferSource>, size?: number) {}
 }

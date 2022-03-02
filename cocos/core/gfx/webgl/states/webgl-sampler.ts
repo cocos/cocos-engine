@@ -41,7 +41,7 @@ export class WebGLSampler extends Sampler {
 
     private _gpuSampler: IWebGLGPUSampler | null = null;
 
-    constructor (info: SamplerInfo, hash: number) {
+    constructor (info: Readonly<SamplerInfo>, hash: number) {
         super(info, hash);
 
         let glMinFilter = 0;
