@@ -70,7 +70,7 @@ out_degree(RenderDependencyGraph::vertex_descriptor u, const RenderDependencyGra
 inline std::pair<RenderDependencyGraph::edge_descriptor, bool>
 edge(RenderDependencyGraph::vertex_descriptor u, RenderDependencyGraph::vertex_descriptor v, const RenderDependencyGraph& g) noexcept {
     const auto& outEdgeList = g.getOutEdgeList(u);
-    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), RenderDependencyGraph::out_edge_type(v));
+    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), RenderDependencyGraph::OutEdge(v));
     bool  hasEdge     = (iter != outEdgeList.end());
     return {RenderDependencyGraph::edge_descriptor(u, v, (hasEdge ? &(*iter).get_property() : nullptr)), hasEdge};
 }
@@ -329,7 +329,7 @@ add_edge( // NOLINT
 // MutablePropertyGraph(Vertex)
 template <class Component0, class Component1, class Component2, class Component3>
 inline RenderDependencyGraph::vertex_descriptor
-add_vertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, RenderDependencyGraph& g) { // NOLINT
+addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, RenderDependencyGraph& g) {
     auto v = gsl::narrow_cast<RenderDependencyGraph::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
@@ -349,7 +349,7 @@ add_vertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, R
 
 template <class Component0, class Component1, class Component2, class Component3>
 inline RenderDependencyGraph::vertex_descriptor
-add_vertex(std::piecewise_construct_t, Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, RenderDependencyGraph& g) { // NOLINT
+addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, RenderDependencyGraph& g) {
     auto v = gsl::narrow_cast<RenderDependencyGraph::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
@@ -416,7 +416,7 @@ out_degree(RenderValueGraph::vertex_descriptor u, const RenderValueGraph& g) noe
 inline std::pair<RenderValueGraph::edge_descriptor, bool>
 edge(RenderValueGraph::vertex_descriptor u, RenderValueGraph::vertex_descriptor v, const RenderValueGraph& g) noexcept {
     const auto& outEdgeList = g.getOutEdgeList(u);
-    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), RenderValueGraph::out_edge_type(v));
+    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), RenderValueGraph::OutEdge(v));
     bool  hasEdge     = (iter != outEdgeList.end());
     return {RenderValueGraph::edge_descriptor(u, v), hasEdge};
 }
@@ -627,7 +627,7 @@ inline void remove_vertex(RenderValueGraph::vertex_descriptor u, RenderValueGrap
 // MutablePropertyGraph(Vertex)
 template <class Component0>
 inline RenderValueGraph::vertex_descriptor
-add_vertex(Component0&& c0, RenderValueGraph& g) { // NOLINT
+addVertex(Component0&& c0, RenderValueGraph& g) {
     auto v = gsl::narrow_cast<RenderValueGraph::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
@@ -644,7 +644,7 @@ add_vertex(Component0&& c0, RenderValueGraph& g) { // NOLINT
 
 template <class Component0>
 inline RenderValueGraph::vertex_descriptor
-add_vertex(std::piecewise_construct_t, Component0&& c0, RenderValueGraph& g) { // NOLINT
+addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, RenderValueGraph& g) {
     auto v = gsl::narrow_cast<RenderValueGraph::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
@@ -1042,7 +1042,7 @@ vertex(const KeyLike& key, const RenderDependencyGraph& g) {
 
 template <class KeyLike>
 inline RenderDependencyGraph::vertex_descriptor
-find_vertex(const KeyLike& key, const RenderDependencyGraph& g) noexcept { // NOLINT
+findVertex(const KeyLike& key, const RenderDependencyGraph& g) noexcept {
     const auto& index = g.passIndex;
     auto iter = index.find(key);
     if (iter == index.end()) {
@@ -1067,7 +1067,7 @@ contains(const KeyLike& key, const RenderDependencyGraph& g) noexcept {
 // MutableGraph(Vertex)
 inline RenderDependencyGraph::vertex_descriptor
 add_vertex(RenderDependencyGraph& g, const RenderGraph::vertex_descriptor& key) { // NOLINT
-    return add_vertex(
+    return addVertex(
         std::piecewise_construct,
         std::forward_as_tuple(), // passes
         std::forward_as_tuple(), // valueIDs
@@ -1158,7 +1158,7 @@ vertex(const KeyLike& key, const RenderValueGraph& g) {
 
 template <class KeyLike>
 inline RenderValueGraph::vertex_descriptor
-find_vertex(const KeyLike& key, const RenderValueGraph& g) noexcept { // NOLINT
+findVertex(const KeyLike& key, const RenderValueGraph& g) noexcept {
     const auto& index = g.index;
     auto iter = index.find(key);
     if (iter == index.end()) {
@@ -1183,7 +1183,7 @@ contains(const KeyLike& key, const RenderValueGraph& g) noexcept {
 // MutableGraph(Vertex)
 inline RenderValueGraph::vertex_descriptor
 add_vertex(RenderValueGraph& g, const RenderValueNode& key) { // NOLINT
-    return add_vertex(
+    return addVertex(
         std::piecewise_construct,
         std::forward_as_tuple(key), // nodes
         g);

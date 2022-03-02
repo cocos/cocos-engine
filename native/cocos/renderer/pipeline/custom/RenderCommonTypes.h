@@ -44,32 +44,16 @@ enum class UpdateFrequency {
     COUNT,
 };
 
-struct CBVTag {};
-struct UAVTag {};
-struct SRVTag {};
-struct SSVTag {};
-struct RTVTag {};
-struct DSVTag {};
-struct IBVTag {};
-struct VBVTag {};
-struct SOVTag {};
+enum class ParameterType {
+    CONSTANTS,
+    CBV,
+    UAV,
+    SRV,
+    TABLE,
+    SSV,
+};
+
 struct ConstantsTag {};
-struct TableTag {};
-
-using ParameterType = boost::variant2::variant<ConstantsTag, CBVTag, UAVTag, SRVTag, TableTag, SSVTag>;
-
-inline bool operator<(const ParameterType& lhs, const ParameterType& rhs) noexcept {
-    return lhs.index() < rhs.index();
-}
-
-inline bool operator==(const ParameterType& lhs, const ParameterType& rhs) noexcept {
-    return lhs.index() == rhs.index();
-}
-
-inline bool operator!=(const ParameterType& lhs, const ParameterType& rhs) noexcept {
-    return !(lhs == rhs);
-}
-
 struct BoundedTag {};
 struct UnboundedTag {};
 
@@ -141,19 +125,20 @@ struct ComputeTag {};
 struct CopyTag {};
 struct MoveTag {};
 struct RaytraceTag {};
-struct ManagedTag {};
-struct PersistentTag {};
-struct BackbufferTag {};
-struct MemorylessTag {};
 
-using ResourceResidency = boost::variant2::variant<ManagedTag, PersistentTag, BackbufferTag, MemorylessTag>;
+enum class ResourceResidency {
+    MANAGED,
+    MEMORYLESS,
+    PERSISTENT,
+    EXTERNAL,
+    BACKBUFFER,
+};
 
 enum class QueueHint {
     NONE,
     RENDER_OPAQUE,
     RENDER_CUTOUT,
     RENDER_TRANSPARENT,
-    COUNT,
 };
 
 enum class ResourceDimension {

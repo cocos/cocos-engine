@@ -23,46 +23,21 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-/**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- */
-// clang-format off
-#pragma once
-#include <boost/variant2/variant.hpp>
-#include <functional>
-#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
+#include "RenderInterfaceTypes.h"
+#include "NativePipelineTypes.h"
 
 namespace cc {
 
 namespace render {
 
-namespace example {
+Pipeline* Factory::createPipeline() {
+    return new NativePipeline();
+}
 
-enum class DependencyType;
-
-struct RenderPassNode;
-struct RenderPassTraits;
-struct RenderDependencyGraph;
-struct RenderValueNode;
-struct RenderValueGraph;
-struct RenderCompiler;
-
-} // namespace example
+DescriptorHierarchy* Factory::createDescriptorHierarchy() {
+    return nullptr;
+}
 
 } // namespace render
 
 } // namespace cc
-
-namespace std {
-
-template <>
-struct hash<cc::render::example::RenderValueNode> {
-    size_t operator()(const cc::render::example::RenderValueNode& v) const noexcept;
-};
-
-}
-
-// clang-format on

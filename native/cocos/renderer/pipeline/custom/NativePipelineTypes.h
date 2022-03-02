@@ -30,39 +30,34 @@
  */
 // clang-format off
 #pragma once
-#include <boost/variant2/variant.hpp>
-#include <functional>
-#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
+#include "cocos/renderer/pipeline/custom/RenderCompilerTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
 
 namespace render {
 
-namespace example {
+class NativePipeline final : public Pipeline {
+public:
+    NativePipeline() noexcept;
 
-enum class DependencyType;
-
-struct RenderPassNode;
-struct RenderPassTraits;
-struct RenderDependencyGraph;
-struct RenderValueNode;
-struct RenderValueGraph;
-struct RenderCompiler;
-
-} // namespace example
+    uint32_t addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
+    uint32_t addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    uint32_t addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    void beginFrame(pipeline::PipelineSceneData* pplScene) override;
+    void endFrame() override;
+    RasterPassBuilder* addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) override;
+    RasterPassBuilder* addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) override;
+    ComputePassBuilder* addComputePass(const std::string& layoutName, const std::string& name) override;
+    ComputePassBuilder* addComputePass(const std::string& layoutName) override;
+    MovePassBuilder* addMovePass(const std::string& name) override;
+    CopyPassBuilder* addCopyPass(const std::string& name) override;
+    void addPresentPass(const std::string& name, const std::string& swapchainName) override;
+};
 
 } // namespace render
 
 } // namespace cc
-
-namespace std {
-
-template <>
-struct hash<cc::render::example::RenderValueNode> {
-    size_t operator()(const cc::render::example::RenderValueNode& v) const noexcept;
-};
-
-}
 
 // clang-format on

@@ -1,7 +1,7 @@
-/****************************************************************************
+/*
  Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,48 +21,21 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ */
 
 /**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * @packageDocumentation
+ * @module custom-pipeline
  */
-// clang-format off
-#pragma once
-#include <boost/variant2/variant.hpp>
-#include <functional>
-#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 
-namespace cc {
+declare const render: any;
 
-namespace render {
+import { DescriptorHierarchy, Pipeline } from './pipeline';
 
-namespace example {
-
-enum class DependencyType;
-
-struct RenderPassNode;
-struct RenderPassTraits;
-struct RenderDependencyGraph;
-struct RenderValueNode;
-struct RenderValueGraph;
-struct RenderCompiler;
-
-} // namespace example
-
-} // namespace render
-
-} // namespace cc
-
-namespace std {
-
-template <>
-struct hash<cc::render::example::RenderValueNode> {
-    size_t operator()(const cc::render::example::RenderValueNode& v) const noexcept;
-};
-
+export function createCustomPipeline (): Pipeline {
+    return render.Factory.createPipeline();
 }
 
-// clang-format on
+export function createDescriptorHierarchy (): DescriptorHierarchy {
+    return render.Factory.createDescriptorHierarchy();
+}

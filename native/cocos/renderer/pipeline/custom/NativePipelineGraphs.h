@@ -30,39 +30,12 @@
  */
 // clang-format off
 #pragma once
-#include <boost/variant2/variant.hpp>
-#include <functional>
-#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
-
-namespace cc {
-
-namespace render {
-
-namespace example {
-
-enum class DependencyType;
-
-struct RenderPassNode;
-struct RenderPassTraits;
-struct RenderDependencyGraph;
-struct RenderValueNode;
-struct RenderValueGraph;
-struct RenderCompiler;
-
-} // namespace example
-
-} // namespace render
-
-} // namespace cc
-
-namespace std {
-
-template <>
-struct hash<cc::render::example::RenderValueNode> {
-    size_t operator()(const cc::render::example::RenderValueNode& v) const noexcept;
-};
-
-}
+#include <boost/utility/string_view.hpp>
+#include "cocos/renderer/pipeline/custom/GraphImpl.h"
+#include "cocos/renderer/pipeline/custom/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
+#include "cocos/renderer/pipeline/custom/Overload.h"
+#include "cocos/renderer/pipeline/custom/PathUtils.h"
+#include "cocos/renderer/pipeline/custom/invoke.hpp"
 
 // clang-format on

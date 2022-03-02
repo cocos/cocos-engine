@@ -25,10 +25,12 @@
 
 import { EffectAsset } from '../../assets';
 import { DescriptorHierarchy } from './pipeline';
+import { LayoutGraph } from './layout-graph';
 
 export class WebDescriptorHierarchy extends DescriptorHierarchy {
     constructor () {
         super();
+        this._layoutGraph = new LayoutGraph();
     }
     public addEffect (asset: EffectAsset): void {
         const sz = asset.shaders.length;
@@ -36,4 +38,5 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             const shader = asset.shaders[i];
         }
     }
+    private _layoutGraph: LayoutGraph;
 }

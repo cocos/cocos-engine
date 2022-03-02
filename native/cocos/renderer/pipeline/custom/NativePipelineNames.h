@@ -30,39 +30,18 @@
  */
 // clang-format off
 #pragma once
-#include <boost/variant2/variant.hpp>
-#include <functional>
-#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderCompilerNames.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceNames.h"
 
 namespace cc {
 
 namespace render {
 
-namespace example {
-
-enum class DependencyType;
-
-struct RenderPassNode;
-struct RenderPassTraits;
-struct RenderDependencyGraph;
-struct RenderValueNode;
-struct RenderValueGraph;
-struct RenderCompiler;
-
-} // namespace example
+inline const char* getName(const NativePipeline& /*v*/) noexcept { return "NativePipeline"; }
 
 } // namespace render
 
 } // namespace cc
-
-namespace std {
-
-template <>
-struct hash<cc::render::example::RenderValueNode> {
-    size_t operator()(const cc::render::example::RenderValueNode& v) const noexcept;
-};
-
-}
 
 // clang-format on
