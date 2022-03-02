@@ -329,34 +329,28 @@ export default class NativeTTF {
         this.setAnchorPoint(node.anchorX, node.anchorY);
         cc._memoryNativeLabelOpacity = node.opacity;
         let self = this;
-        let getTrueOpacityByParent = function (node) {
+        let getTrueOpacityByParent = function (node, comp) {
             let parent = node.parent;
             if (parent) {
                 cc._memoryNativeLabelOpacity = parent.opacity / 255 * cc._memoryNativeLabelOpacity;
-                getTrueOpacityByParent(parent);
+                getTrueOpacityByParent(parent, comp);
             } else {
                 self.setColor(self._colorToObj(c.getR(), c.getG(), c.getB(), c.getA() * cc._memoryNativeLabelOpacity / 255));
-                var isScene = node instanceof cc.Scene;
-                if (!isScene) {
-                    let shadow = node.getComponent(cc.LabelShadow);
-                    if (shadow && shadow.enabled) {
-                        let shadowColor = shadow.color;
-                        self.setShadow(shadow.offset.x, shadow.offset.y, shadow.blur);
-                        self.setShadowColor(self._colorToObj(shadowColor.getR(), shadowColor.getG(), shadowColor.getB(), Math.ceil(shadowColor.getA() * node.opacity / 255)));
-                    } else {
-                        self.setShadow(0, 0, -1);
-                    }
+                let shadow = comp.node.getComponent(cc.LabelShadow);
+                if (shadow && shadow.enabled) {
+                    let shadowColor = shadow.color;
+                    self.setShadow(shadow.offset.x, shadow.offset.y, shadow.blur);
+                    self.setShadowColor(self._colorToObj(shadowColor.getR(), shadowColor.getG(), shadowColor.getB(), Math.ceil(shadowColor.getA() * cc._memoryNativeLabelOpacity / 255)));
+                } else {
+                    self.setShadow(0, 0, -1);
                 }
-
                 self._updateTTFMaterial(comp);
 
                 layout.render();
                 //comp._vertsDirty = false;
             }
-
         };
-
-        getTrueOpacityByParent(node);
+        getTrueOpacityByParent(node, comp);
     }
 
     _bindMaterial(comp) {
