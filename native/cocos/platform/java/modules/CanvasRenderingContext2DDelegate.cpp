@@ -26,11 +26,10 @@
 #include "platform/java/modules/CanvasRenderingContext2DDelegate.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-#include <android/bitmap.h>
+    #include <android/bitmap.h>
 #else
-#include <multimedia/image/image_pixel_map.h>
+    #include <multimedia/image/image_pixel_map.h>
 #endif
-
 
 namespace {
 
@@ -210,7 +209,7 @@ void CanvasRenderingContext2DDelegate::fillImageData(const Data &imageData, floa
 }
 
 void CanvasRenderingContext2DDelegate::updateData() {
-    jobject bmpObj = nullptr;
+    jobject       bmpObj = nullptr;
     JniMethodInfo methodInfo;
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     if (JniHelper::getMethodInfo(methodInfo, JCLS_CANVASIMPL, "getBitmap", "()Landroid/graphics/Bitmap;")) {
@@ -247,13 +246,13 @@ void CanvasRenderingContext2DDelegate::updateData() {
         uint32_t size = bmpInfo.stride * bmpInfo.height;
 #else
         OhosPixelMapInfo bmpInfo;
-        void *pixelData = nullptr;
+        void *           pixelData = nullptr;
         if (GetImageInfo(env, bmpObj, bmpInfo) ==
-            OHOS_IMAGE_RESULT_SUCCESS &&
+                OHOS_IMAGE_RESULT_SUCCESS &&
             bmpInfo.width > 0 &&
             bmpInfo.height > 0 &&
             bmpInfo.pixelFormat == OHOS_PIXEL_MAP_FORMAT_RGBA_8888) {
-            if (AccessPixels (env, bmpObj, &pixelData) != OHOS_IMAGE_RESULT_SUCCESS) {
+            if (AccessPixels(env, bmpObj, &pixelData) != OHOS_IMAGE_RESULT_SUCCESS) {
                 CC_LOG_ERROR("AccessPixels() failed ! error");
                 break;
             }
