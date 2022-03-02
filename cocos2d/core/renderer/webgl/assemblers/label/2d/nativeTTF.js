@@ -327,20 +327,20 @@ export default class NativeTTF {
         this.setSpacingX(comp.spacingX);
         this.setContentSize(node.getContentSize().width, node.getContentSize().height);
         this.setAnchorPoint(node.anchorX, node.anchorY);
-        cc._memoryNativeLabelOpacity = node.opacity;
+        comp._memoryNativeLabelOpacity = node.opacity;
         let self = this;
         let getTrueOpacityByParent = function (node, comp) {
             let parent = node.parent;
             if (parent) {
-                cc._memoryNativeLabelOpacity = parent.opacity / 255 * cc._memoryNativeLabelOpacity;
+                comp._memoryNativeLabelOpacity = parent.opacity / 255 * comp._memoryNativeLabelOpacity;
                 getTrueOpacityByParent(parent, comp);
             } else {
-                self.setColor(self._colorToObj(c.getR(), c.getG(), c.getB(), c.getA() * cc._memoryNativeLabelOpacity / 255));
+                self.setColor(self._colorToObj(c.getR(), c.getG(), c.getB(), c.getA() * comp._memoryNativeLabelOpacity / 255));
                 let shadow = comp.node.getComponent(cc.LabelShadow);
                 if (shadow && shadow.enabled) {
                     let shadowColor = shadow.color;
                     self.setShadow(shadow.offset.x, shadow.offset.y, shadow.blur);
-                    self.setShadowColor(self._colorToObj(shadowColor.getR(), shadowColor.getG(), shadowColor.getB(), Math.ceil(shadowColor.getA() * cc._memoryNativeLabelOpacity / 255)));
+                    self.setShadowColor(self._colorToObj(shadowColor.getR(), shadowColor.getG(), shadowColor.getB(), Math.ceil(shadowColor.getA() * comp._memoryNativeLabelOpacity / 255)));
                 } else {
                     self.setShadow(0, 0, -1);
                 }
