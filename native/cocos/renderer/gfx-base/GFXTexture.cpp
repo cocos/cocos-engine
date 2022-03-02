@@ -125,8 +125,8 @@ void Texture::initialize(const SwapchainTextureInfo &info, Texture *out) {
     out->_info.samples    = SampleCount::ONE;
     out->_info.flags      = TextureFlagBit::NONE;
     out->_info.usage      = GFX_FORMAT_INFOS[toNumber(info.format)].hasDepth
-                                ? TextureUsageBit::DEPTH_STENCIL_ATTACHMENT
-                                : TextureUsageBit::COLOR_ATTACHMENT;
+                           ? TextureUsageBit::DEPTH_STENCIL_ATTACHMENT
+                           : TextureUsageBit::COLOR_ATTACHMENT;
 
     out->_swapchain = info.swapchain;
     out->_size      = formatSize(info.format, info.width, info.height, 1);
