@@ -191,12 +191,14 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     protected void onStop() {
         super.onStop();
         onStopNative();
+        mSurfaceView.setVisibility(View.INVISIBLE);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         onStartNative();
+        mSurfaceView.setVisibility(View.VISIBLE);
     }
 
     @Override
