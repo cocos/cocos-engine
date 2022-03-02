@@ -327,30 +327,33 @@ export default class NativeTTF {
         this.setSpacingX(comp.spacingX);
         this.setContentSize(node.getContentSize().width, node.getContentSize().height);
         this.setAnchorPoint(node.anchorX, node.anchorY);
-        comp._memoryNativeLabelOpacity = node.opacity;
         let self = this;
+        let memoryNativeLabelOpacity = null;
         let getTrueOpacityByParent = function (node, comp) {
             let parent = node.parent;
             if (parent) {
-                comp._memoryNativeLabelOpacity = parent.opacity / 255 * comp._memoryNativeLabelOpacity;
+                if (!memoryNativeLabelOpacity && isNaN(memoryNativeLabelOpacity)) memoryNativeLabelOpacity = comp.node.opacity;
+                memoryNativeLabelOpacity = parent.opacity / 255 * memoryNativeLabelOpacity;
                 getTrueOpacityByParent(parent, comp);
             } else {
-                self.setColor(self._colorToObj(c.getR(), c.getG(), c.getB(), c.getA() * comp._memoryNativeLabelOpacity / 255));
+                self.setColor(self._colorToObj(c.getR(), c.getG(), c.getB(), c.getA() * memoryNativeLabelOpacity / 255));
                 let shadow = comp.node.getComponent(cc.LabelShadow);
                 if (shadow && shadow.enabled) {
                     let shadowColor = shadow.color;
                     self.setShadow(shadow.offset.x, shadow.offset.y, shadow.blur);
-                    self.setShadowColor(self._colorToObj(shadowColor.getR(), shadowColor.getG(), shadowColor.getB(), Math.ceil(shadowColor.getA() * comp._memoryNativeLabelOpacity / 255)));
+                    self.setShadowColor(self._colorToObj(shadowColor.getR(), shadowColor.getG(), shadowColor.getB(), Math.ceil(shadowColor.getA() * memoryNativeLabelOpacity / 255)));
                 } else {
                     self.setShadow(0, 0, -1);
                 }
-                self._updateTTFMaterial(comp);
+                self._updateTTFMaterial(comp, memoryNativeLabelOpacity);
 
                 layout.render();
+
+                memoryNativeLabelOpacity = null;
                 //comp._vertsDirty = false;
             }
         };
-        getTrueOpacityByParent(node, comp);
+        getTrueOpacityByParent(node, comp); 
     }
 
     _bindMaterial(comp) {
@@ -362,7 +365,7 @@ export default class NativeTTF {
         return material;
     }
 
-    _updateTTFMaterial(comp) {
+    _updateTTFMaterial(comp, memoryNativeLabelOpacity) {
         let material = this._bindMaterial(comp)
         let node = this._label.node;
         let layout = this._layout;
@@ -371,7 +374,7 @@ export default class NativeTTF {
         if (outline && outline.enabled && outline.width > 0) {
             outlineSize = Math.max(Math.min(outline.width / 10, 0.4), 0.1);
             let c = outline.color;
-            this.setOutlineColor(this._colorToObj(c.getR(), c.getG(), c.getB(), Math.ceil(c.getA() * node.opacity / 255)));
+            this.setOutlineColor(this._colorToObj(c.getR(), c.getG(), c.getB(), Math.ceil(c.getA() * memoryNativeLabelOpacity / 255)));
         }
         this.setOutline(outlineSize);
         material.define('CC_USE_MODEL', true);
