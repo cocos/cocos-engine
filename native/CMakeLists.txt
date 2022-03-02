@@ -2429,6 +2429,7 @@ if(ANDROID)
         ${LIB_EGL}
         ${LIB_GLESv2}
         GLESv2
+        jnigraphics
         ${CC_EXTERNAL_LIBS}
     )
 endif()
@@ -2438,6 +2439,7 @@ if(OHOS)
         EGL
         GLESv3
         zgraphic.z
+        image_pixelmap.z
         rawfile.z
         z
         OpenSLES
