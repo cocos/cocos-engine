@@ -332,7 +332,7 @@ export default class NativeTTF {
         let getTrueOpacityByParent = function (node, comp) {
             let parent = node.parent;
             if (parent) {
-                if (!memoryNativeLabelOpacity && isNaN(memoryNativeLabelOpacity)) memoryNativeLabelOpacity = comp.node.opacity;
+                if (memoryNativeLabelOpacity === null) memoryNativeLabelOpacity = comp.node.opacity;
                 memoryNativeLabelOpacity = parent.opacity / 255 * memoryNativeLabelOpacity;
                 getTrueOpacityByParent(parent, comp);
             } else {
