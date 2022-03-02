@@ -309,7 +309,7 @@ private:
 
     WebSocket *_ws;
 
-    Map<std::string, SIOClient *> _clients;
+    RefMap<std::string, SIOClient *> _clients;
 
 public:
     SIOClientImpl(Uri uri, std::string caFilePath);

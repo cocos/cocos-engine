@@ -31,7 +31,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "base/Vector.h"
+#include "base/RefVector.h"
 #include "cocos/base/Optional.h"
 #include "core/Types.h"
 #include "core/assets/EffectAsset.h"
@@ -56,7 +56,7 @@ struct ITemplateInfo {
     std::vector<gfx::Attribute>                  gfxAttributes;
     gfx::ShaderInfo                              shaderInfo;
     std::vector<int32_t>                         blockSizes;
-    Vector<gfx::DescriptorSetLayout *>           setLayouts;
+    RefVector<gfx::DescriptorSetLayout *>           setLayouts;
     IntrusivePtr<gfx::PipelineLayout>            pipelineLayout;
     Record<std::string, uint32_t>                handleMap;
     std::vector<gfx::DescriptorSetLayoutBinding> bindings;

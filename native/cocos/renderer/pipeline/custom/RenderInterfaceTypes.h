@@ -253,7 +253,6 @@ inline Pipeline::~Pipeline() noexcept = default;
 
 class Factory {
 public:
-    static PipelineRuntime* createPipelineRuntime(pipeline::RenderPipeline* pipeline);
     static Pipeline* createPipeline();
     static DescriptorHierarchy* createDescriptorHierarchy();
 };

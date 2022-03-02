@@ -30,10 +30,6 @@ namespace cc {
 
 namespace render {
 
-PipelineRuntime *Factory::createPipelineRuntime(pipeline::RenderPipeline *pipeline) {
-    return nullptr;
-}
-
 Pipeline* Factory::createPipeline() {
     return new NativePipeline();
 }

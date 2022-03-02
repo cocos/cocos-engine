@@ -49,7 +49,7 @@ namespace cc {
  * @warn The element should be `RefCounted` or its sub-class.
  */
 template <class T>
-class Vector {
+class RefVector {
 public:
     // ------------------------------------------
     // Iterators
@@ -110,7 +110,7 @@ public:
     const_reverse_iterator crend() const { return _data.crend(); }
 
     /** Constructor. */
-    Vector<T>()
+    RefVector<T>()
     : _data() {
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
     }
@@ -119,7 +119,7 @@ public:
      * Constructor with a capacity.
      * @param capacity Capacity of the Vector.
      */
-    explicit Vector<T>(uint32_t capacity)
+    explicit RefVector<T>(uint32_t capacity)
     : _data() {
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
         //        CC_LOG_INFO("In the default constructor with capacity of Vector.");
@@ -127,20 +127,20 @@ public:
     }
 
     /** Constructor with initializer list. */
-    Vector<T>(std::initializer_list<T> list) {
+    RefVector<T>(std::initializer_list<T> list) {
         for (auto &element : list) {
             pushBack(element);
         }
     }
 
     /** Destructor. */
-    ~Vector<T>() {
+    ~RefVector<T>() {
         //        CC_LOG_INFO("In the destructor of Vector.");
         clear();
     }
 
     /** Copy constructor. */
-    Vector<T>(const Vector<T> &other) {
+    RefVector<T>(const RefVector<T> &other) {
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
         //        CC_LOG_INFO("In the copy constructor!");
         _data = other._data;
@@ -148,7 +148,7 @@ public:
     }
 
     /** Copy constructor. */
-    explicit Vector<T>(const std::vector<T> &other) {
+    explicit RefVector<T>(const std::vector<T> &other) {
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
         //        CC_LOG_INFO("In the copy constructor!");
         _data = other;
@@ -156,21 +156,21 @@ public:
     }
 
     /** Constructor with std::move semantic. */
-    Vector<T>(Vector<T> &&other) noexcept {
+    RefVector<T>(RefVector<T> &&other) noexcept {
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
         //        CC_LOG_INFO("In the move constructor of Vector!");
         _data = std::move(other._data);
     }
 
     /** Constructor with std::move semantic. */
-    explicit Vector<T>(std::vector<T> &&other) noexcept {
+    explicit RefVector<T>(std::vector<T> &&other) noexcept {
         static_assert(std::is_convertible<T, RefCounted *>::value, "Invalid Type for cc::Vector<T>!");
         //        CC_LOG_INFO("In the move constructor of Vector!");
         _data = std::move(other);
     }
 
     /** Copy assignment operator. */
-    Vector<T> &operator=(const Vector<T> &other) {
+    RefVector<T> &operator=(const RefVector<T> &other) {
         if (this != &other) {
             //            CC_LOG_INFO("In the copy assignment operator!");
             clear();
@@ -181,7 +181,7 @@ public:
     }
 
     /** Copy assignment operator with std::move semantic. */
-    Vector<T> &operator=(Vector<T> &&other) noexcept {
+    RefVector<T> &operator=(RefVector<T> &&other) noexcept {
         if (this != &other) {
             //            CC_LOG_INFO("In the move assignment operator!");
             clear();
@@ -294,7 +294,7 @@ public:
      * @param other The vector to be compared.
      * @return True if two vectors are equal, false if not.
      */
-    bool equals(const Vector<T> &other) const {
+    bool equals(const RefVector<T> &other) const {
         uint32_t s = this->size();
         if (s != other.size()) {
             return false;
@@ -318,7 +318,7 @@ public:
     }
 
     /** Push all elements of an existing Vector to the end of current Vector. */
-    void pushBack(const Vector<T> &other) {
+    void pushBack(const RefVector<T> &other) {
         for (const auto &obj : other) {
             _data.push_back(obj);
             obj->addRef();

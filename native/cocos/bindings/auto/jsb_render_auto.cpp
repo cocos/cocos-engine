@@ -1460,26 +1460,6 @@ static bool js_render_Factory_createPipeline_static(se::State& s) // NOLINT(read
     return false;
 }
 SE_BIND_FUNC(js_render_Factory_createPipeline_static)
-
-static bool js_render_Factory_createPipelineRuntime_static(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::pipeline::RenderPipeline*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_render_Factory_createPipelineRuntime_static : Error processing arguments");
-        cc::render::PipelineRuntime* result = cc::render::Factory::createPipelineRuntime(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_render_Factory_createPipelineRuntime_static : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_render_Factory_createPipelineRuntime_static)
 static bool js_cc_render_Factory_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
@@ -1492,7 +1472,6 @@ bool js_register_render_Factory(se::Object* obj) // NOLINT(readability-identifie
 
     cls->defineStaticFunction("createDescriptorHierarchy", _SE(js_render_Factory_createDescriptorHierarchy_static));
     cls->defineStaticFunction("createPipeline", _SE(js_render_Factory_createPipeline_static));
-    cls->defineStaticFunction("createPipelineRuntime", _SE(js_render_Factory_createPipelineRuntime_static));
     cls->defineFinalizeFunction(_SE(js_cc_render_Factory_finalize));
     cls->install();
     JSBClassType::registerClass<cc::render::Factory>(cls);
