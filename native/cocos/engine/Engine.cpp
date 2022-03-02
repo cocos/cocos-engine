@@ -101,6 +101,8 @@ Engine::~Engine() {
     BuiltinResMgr::destroyInstance();
     gfx::DeviceManager::destroy();
 
+    CCObject::deferredDestroy();
+
     BasePlatform *platform = BasePlatform::getPlatform();
     platform->setHandleEventCallback(nullptr);
 }
@@ -219,7 +221,7 @@ void Engine::tick() {
     prevTime = std::chrono::steady_clock::now();
 
     _scheduler->update(dt);
-    
+
     se::ScriptEngine::getInstance()->handlePromiseExceptions();
     cc::EventDispatcher::dispatchTickEvent(dt);
     se::ScriptEngine::getInstance()->mainLoopUpdate();
@@ -252,6 +254,9 @@ int32_t Engine::restartVM() {
 
     scriptEngine->cleanup();
     cc::EventDispatcher::destroy();
+    ProgramLib::destroyInstance();
+    BuiltinResMgr::destroyInstance();
+    CCObject::deferredDestroy();
 
     // start
     cc::EventDispatcher::init();
@@ -315,7 +320,7 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
         onClose();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
-        // There is no need to process the quit message, 
+        // There is no need to process the quit message,
         // the quit message is a custom message for the application
         isHandled = true;
     }
