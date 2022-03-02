@@ -386,7 +386,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         const root = legacyCC.director.root as Root;
         this._device = root.device;
         this._generateConstantMacros();
-        this._globalDSManager = new GlobalDSManager(this);
+        this._globalDSManager = new GlobalDSManager(this._device);
         this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);
         // update global defines in advance here for deferred pipeline may tryCompile shaders.
