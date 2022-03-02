@@ -63,6 +63,7 @@ public:
     // callback
     using CanvasBufferUpdatedCallback = std::function<void(const cc::Data &)>;
     void setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback &cb) override;
+    void fetchData() override;
 
     // functions for properties
     void setWidth(float width) override;

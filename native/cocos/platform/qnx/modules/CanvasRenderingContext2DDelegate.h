@@ -75,6 +75,7 @@ public:
     void            fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
     void            strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     void            rect(float x, float y, float w, float h) override;
+    void            updateData() override {}
 
 private:
     static wchar_t *     utf8ToUtf16(const std::string &str, int *pRetLen = nullptr);
