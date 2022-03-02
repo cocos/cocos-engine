@@ -933,7 +933,7 @@ export class SceneGlobals {
     public octree = new OctreeInfo();
 
     public activate () {
-        const sceneData = legacyCC.director.root.pipeline.pipelineSceneData;
+        const sceneData = (legacyCC.director.root as Root).pipeline.pipelineSceneData;
         this.skybox.activate(sceneData.skybox);
         this.ambient.activate(sceneData.ambient);
 

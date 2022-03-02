@@ -42,7 +42,7 @@ import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
 import { warnID } from './platform/debug';
-import { Pipeline } from './pipeline/custom/pipeline';
+import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
 import { createCustomPipeline } from './pipeline/custom';
 
 /**
@@ -118,7 +118,7 @@ export class Root {
      * @zh
      * 渲染管线
      */
-    public get pipeline (): RenderPipeline {
+    public get pipeline (): PipelineRuntime {
         return this._pipeline!;
     }
 

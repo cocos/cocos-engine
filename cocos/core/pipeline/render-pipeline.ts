@@ -52,6 +52,7 @@ import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pip
 import { decideProfilerCamera } from './pipeline-funcs';
 import { OS } from '../../../pal/system-info/enum-type';
 import { macro } from '../platform/macro';
+import { PipelineRuntime } from './custom/pipeline';
 
 /**
  * @en Render pipeline information descriptor
@@ -107,7 +108,7 @@ export class PipelineInputAssemblerData {
  * 渲染流程函数 [[render]] 会由 [[Root]] 发起调用并对所有 [[Camera]] 执行预设的渲染流程。
  */
 @ccclass('cc.RenderPipeline')
-export abstract class RenderPipeline extends Asset implements IPipelineEvent {
+export abstract class RenderPipeline extends Asset implements IPipelineEvent, PipelineRuntime {
     /**
      * @en The tag of pipeline.
      * @zh 管线的标签。
