@@ -24,7 +24,7 @@
 #pragma once
 
 #include "ArmatureCache.h"
-#include "base/Map.h"
+#include "base/RefMap.h"
 #include "dragonbones/DragonBonesHeaders.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
@@ -50,7 +50,7 @@ public:
 
 private:
     static ArmatureCacheMgr *_instance;
-    cc::Map<std::string, ArmatureCache *> _caches;
+    cc::RefMap<std::string, ArmatureCache *> _caches;
 };
 
 DRAGONBONES_NAMESPACE_END
