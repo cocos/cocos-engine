@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable, visible, displayName } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, displayOrder, serializable, visible, displayName } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { Rect, Size, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
@@ -273,6 +273,7 @@ export class Layout extends Component {
      * 布局类型。
      */
     @type(Type)
+    @displayOrder(0)
     @tooltip('i18n:layout.layout_type')
     get type () {
         return this._layoutType;

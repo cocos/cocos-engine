@@ -126,7 +126,6 @@ export class Mask extends Renderable2D {
      * 遮罩类型。
      */
     @type(MaskType)
-    @displayOrder(10)
     @tooltip('i18n:mask.type')
     get type () {
         return this._type;
