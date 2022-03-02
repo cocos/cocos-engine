@@ -248,8 +248,8 @@ export class DirectionalLight extends Light {
     }
 
     /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置潜在阴影产生的范围
+     * @en get or set shadow CSM level
+     * @zh 获取或者设置阴影层级
     */
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type

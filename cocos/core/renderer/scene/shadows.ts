@@ -302,32 +302,6 @@ export class Shadows {
      */
     public maxReceived = 4;
 
-    // local set
-    /**
-     * @internal
-     */
-    public firstSetCSM = false;
-    /**
-     * @en The far clip plane of the shadow camera
-     * @zh 阴影相机的远裁剪平面
-     */
-    public shadowCameraFar = 0;
-    /**
-     * @en Shadow camera's view matrix
-     * @zh 阴影相机的视图矩阵
-     */
-    public matShadowView = new Mat4();
-    /**
-     * @en Shadow camera's projection matrix
-     * @zh 阴影相机的投影矩阵
-     */
-    public matShadowProj = new Mat4();
-    /**
-     * @en Shadow camera's view projection matrix
-     * @zh 阴影相机的视图投影矩阵
-     */
-    public matShadowViewProj = new Mat4();
-
     protected _enabled = false;
     protected _type = SHADOW_TYPE_NONE;
     protected _distance = 0;

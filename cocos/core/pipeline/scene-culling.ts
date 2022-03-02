@@ -32,7 +32,7 @@ import { Vec2, Vec3, Mat4, Quat, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows } from '../renderer/scene/shadows';
+import { ShadowType, Shadows, CSMLevel } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight, Light } from '../renderer/scene';
 
 const _tempVec3 = new Vec3();
@@ -47,7 +47,7 @@ const _sphere = Sphere.create(0, 0, 0, 1);
 const _cameraBoundingSphere = new Sphere();
 const _validFrustum = new Frustum();
 _validFrustum.accurate = true;
-let _lightViewFrustum = new Frustum();
+const _lightViewFrustum = new Frustum();
 _lightViewFrustum.accurate = true; let _dirLightFrustum = new Frustum();
 const _matShadowTrans = new Mat4();
 const _matShadowView = new Mat4();
@@ -253,101 +253,6 @@ export function getCameraWorldMatrix (out: Mat4, camera: Camera) {
     out.m10 *= -1.0;
 }
 
-export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipeline,
-    dirLight: DirectionalLight, camera: Camera, shadowInfo: Shadows) {
-    const device = pipeline.device;
-
-    if (dirLight.shadowFixedArea) {
-        const x = dirLight.shadowOrthoSize;
-        const y = dirLight.shadowOrthoSize;
-        const near = dirLight.shadowNear;
-        const far = dirLight.shadowFar;
-        Mat4.fromRT(_matShadowTrans, dirLight.node!.getWorldRotation(), dirLight.node!.getWorldPosition());
-        Mat4.invert(_matShadowView, _matShadowTrans);
-        Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
-            device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
-        Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-        Mat4.invert(_matShadowViewInv, _matShadowView);
-        shadowInfo.matShadowView = _matShadowView;
-        shadowInfo.matShadowProj = _matShadowProj;
-        shadowInfo.matShadowViewProj = _matShadowViewProj;
-
-        Frustum.createOrtho(out, x * 2.0, y * 2.0, near,  far, _matShadowViewInv);
-    } else {
-        const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
-        const shadowMapWidth = shadowInfo.size.x;
-
-        // Raw data
-        getCameraWorldMatrix(_mat4_trans, camera);
-        Frustum.split(_validFrustum, camera, _mat4_trans, 0.1, dirLight.shadowDistance);
-        _lightViewFrustum = Frustum.clone(_validFrustum);
-
-        // view matrix with range back
-        Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _focus);
-        Mat4.invert(_matShadowView, _matShadowTrans);
-        Mat4.invert(_matShadowViewInv, _matShadowView);
-
-        const shadowViewArbitaryPos = _matShadowView.clone();
-        _lightViewFrustum.transform(_matShadowView);
-        // bounding box in light space
-        AABB.fromPoints(_castLightViewBounds, new Vec3(10000000, 10000000, 10000000), new Vec3(-10000000, -10000000, -10000000));
-        _castLightViewBounds.mergeFrustum(_lightViewFrustum);
-
-        const r = _castLightViewBounds.halfExtents.z * 2.0;
-        _shadowPos.set(_castLightViewBounds.center.x, _castLightViewBounds.center.y,
-            _castLightViewBounds.center.z + _castLightViewBounds.halfExtents.z + invisibleOcclusionRange);
-        Vec3.transformMat4(_shadowPos, _shadowPos, _matShadowViewInv);
-
-        Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _shadowPos);
-        Mat4.invert(_matShadowView, _matShadowTrans);
-        Mat4.invert(_matShadowViewInv, _matShadowView);
-
-        // calculate projection matrix params
-        // min value may lead to some shadow leaks
-        const orthoSizeMin = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
-        // max value is accurate but poor usage for shadowmap
-        _cameraBoundingSphere.center.set(0, 0, 0);
-        _cameraBoundingSphere.radius = -1.0;
-        _cameraBoundingSphere.mergePoints(_validFrustum.vertices);
-        const orthoSizeMax = _cameraBoundingSphere.radius * 2.0;
-        // use lerp(min, accurate_max) to save shadowmap usage
-        const orthoSize = orthoSizeMin * 0.8 + orthoSizeMax * 0.2;
-        shadowInfo.shadowCameraFar = r + invisibleOcclusionRange;
-
-        // snap to whole texels
-        const halfOrthoSize = orthoSize * 0.5;
-        Mat4.ortho(_matShadowProj, -halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1,  shadowInfo.shadowCameraFar,
-            device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
-
-        if (shadowMapWidth > 0.0) {
-            Mat4.multiply(_matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
-            Vec3.transformMat4(_projPos, _shadowPos, _matShadowViewProjArbitaryPos);
-            const invActualSize = 2.0 / shadowMapWidth;
-            _texelSize.set(invActualSize, invActualSize);
-            const modX = _projPos.x % _texelSize.x;
-            const modY = _projPos.y % _texelSize.y;
-            _projSnap.set(_projPos.x - modX, _projPos.y - modY, _projPos.z);
-            Mat4.invert(_matShadowViewProjArbitaryPosInv, _matShadowViewProjArbitaryPos);
-            Vec3.transformMat4(_snap, _projSnap, _matShadowViewProjArbitaryPosInv);
-
-            Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _snap);
-            Mat4.invert(_matShadowView, _matShadowTrans);
-            Mat4.invert(_matShadowViewInv, _matShadowView);
-            Frustum.createOrtho(out, orthoSize, orthoSize, 0.1,  shadowInfo.shadowCameraFar, _matShadowViewInv);
-        } else {
-            for (let i = 0; i < 8; i++) {
-                out.vertices[i].set(0.0, 0.0, 0.0);
-            }
-            out.updatePlanes();
-        }
-
-        Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-        shadowInfo.matShadowView = _matShadowView;
-        shadowInfo.matShadowProj = _matShadowProj;
-        shadowInfo.matShadowViewProj = _matShadowViewProj;
-    }
-}
-
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
@@ -372,7 +277,12 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
             // update dirLightFrustum
             if (mainLight && mainLight.node) {
-                QuantizeDirLightShadowCamera(_dirLightFrustum, pipeline, mainLight, camera, shadows);
+                csmLayers.update(pipeline, camera, mainLight, shadows);
+                if (mainLight.shadowFixedArea && csmLayers.shadowFixedArea) {
+                    _dirLightFrustum = csmLayers.shadowFixedArea.validFrustum!;
+                } else if (mainLight.shadowCSMLevel === CSMLevel.level_1 && csmLayers.csmLayerInfos[0]) {
+                    _dirLightFrustum = csmLayers.csmLayerInfos[0].validFrustum!;
+                }
             } else {
                 for (let i = 0; i < 8; i++) {
                     _dirLightFrustum.vertices[i].set(0.0, 0.0, 0.0);
@@ -385,33 +295,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     if (mainLight) {
         if (shadows.type === ShadowType.Planar) {
             updateDirLight(pipeline, mainLight);
-        } else if (camera.node.name === 'Main Camera') {
-            csmLayers.update(pipeline, camera, mainLight, shadows);
-            if (mainLight.shadowCSMLevel > 0) {
-                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[0].splitFrustum!, Color.YELLOW, false);
-                // pipeline.geometryRenderer.addBoundingBox(csmLayers.shadowCSMLayers[0].splitBoundingBox!, Color.BLACK, true, false);
-                // pipeline.geometryRenderer.addBoundingSphere(csmLayers.shadowCSMLayers[0].splitBoundingSphere!, Color.RED, 8, 8);
-                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[0].validFrustum!, Color.GREEN, false);
-            }
-            if (mainLight.shadowCSMLevel > 1) {
-                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[1].splitFrustum!, Color.YELLOW, false);
-                // pipeline.geometryRenderer.addBoundingBox(csmLayers.shadowCSMLayers[1].splitBoundingBox!, Color.BLACK, true, false);
-                // pipeline.geometryRenderer.addBoundingSphere(csmLayers.shadowCSMLayers[1].splitBoundingSphere!, Color.RED, 8, 4);
-                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[1].validFrustum!, Color.GREEN, false);
-            }
-            if (mainLight.shadowCSMLevel > 2) {
-                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].splitFrustum!, Color.YELLOW, false);
-                // pipeline.geometryRenderer.addBoundingBox(csmLayers.shadowCSMLayers[2].castLightViewBoundingBox!, Color.BLACK, true, false);
-                // pipeline.geometryRenderer.addBoundingSphere(csmLayers.shadowCSMLayers[2].splitBoundingSphere!, Color.RED, 8, 4);
-                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].validFrustum!, Color.GREEN, false);
-            }
-            if (mainLight.shadowCSMLevel > 3) {
-                pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[3].splitFrustum!, Color.YELLOW, false);
-                // pipeline.geometryRenderer.addBoundingBox(csmLayers.shadowCSMLayers[3].splitBoundingBox!, Color.BLACK, true, false);
-                // pipeline.geometryRenderer.addBoundingSphere(csmLayers.shadowCSMLayers[3].splitBoundingSphere!, Color.RED, 8, 4);
-                // pipeline.geometryRenderer.addFrustum(csmLayers.shadowCSMLayers[2].validFrustum!, Color.GREEN, false);
-            }
-            _dirLightFrustum =  Frustum.clone(csmLayers.shadowCSMLayers[0].validFrustum!);
         }
     }
 
@@ -429,14 +312,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         if (model.enabled) {
             if (model.castShadow) {
                 castShadowObjects.push(getCastShadowRenderObject(model, camera));
-            }
-
-            if (shadows.firstSetCSM && model.worldBounds) {
-                if (!_castBoundsInited) {
-                    _castWorldBounds.copy(model.worldBounds);
-                    _castBoundsInited = true;
-                }
-                AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
             }
 
             if (model.node && ((visibility & model.node.layer) === model.node.layer)

@@ -31,12 +31,11 @@
 import { ccclass } from 'cc.decorator';
 import { DirectionalLight, Camera, Shadows } from '../../renderer/scene';
 import { Mat4, Vec3, Vec2 } from '../../math';
-import { Frustum, AABB, Sphere } from '../../geometry';
+import { Frustum, AABB } from '../../geometry';
 import { getCameraWorldMatrix } from '../scene-culling';
 import { RenderPipeline } from '..';
 
 const SHADOW_CSM_LAMBDA = 0.75;
-// const _lerpMax: number[] = [0, 0, 0, 0];
 
 const _mat4_trans = new Mat4();
 const _matShadowTrans = new Mat4();
@@ -54,7 +53,9 @@ const _maxVec3 = new Vec3(10000000, 10000000, 10000000);
 const _minVec3 = new Vec3(-10000000, -10000000, -10000000);
 const _shadowPos = new Vec3();
 const _castLightViewBoundingBox = new AABB();
-const _castLightViewBoundingSphere = new Sphere();
+const _splitFrustum = new Frustum();
+_splitFrustum.accurate = true; let _lightViewFrustum = new Frustum();
+_lightViewFrustum.accurate = true;
 
 class CSMLayerInfo {
     protected _level: number;
@@ -68,10 +69,6 @@ class CSMLayerInfo {
 
     protected _validFrustum: Frustum | undefined;
 
-    // test value
-    protected _splitFrustum: Frustum | undefined;
-    protected _lightViewFrustum: Frustum | undefined;
-
     constructor (level: number) {
         this._level = level;
         this._near = 0.0;
@@ -82,12 +79,6 @@ class CSMLayerInfo {
         this._matShadowViewProj = new Mat4();
         this._validFrustum = new Frustum();
         this._validFrustum.accurate = true;
-
-        // test value
-        this._splitFrustum = new Frustum();
-        this._splitFrustum.accurate = true;
-        this._lightViewFrustum = new Frustum();
-        this._lightViewFrustum.accurate = true;
     }
 
     get near () {
@@ -138,20 +129,6 @@ class CSMLayerInfo {
     set validFrustum (val) {
         this._validFrustum = val;
     }
-
-    get splitFrustum () {
-        return this._splitFrustum;
-    }
-    set splitFrustum (val) {
-        this._splitFrustum = val;
-    }
-
-    get lightViewFrustum () {
-        return this._lightViewFrustum;
-    }
-    set lightViewFrustum (val) {
-        this._lightViewFrustum = val;
-    }
 }
 
 /**
@@ -164,16 +141,16 @@ export class CSMLayers {
     protected _dirLight: DirectionalLight | null = null;
     protected _camera: Camera | null = null;
     protected _shadowInfo: Shadows | null = null;
-    protected _shadowCSMLayers: CSMLayerInfo[] = [];
-    protected _shadowCSMLevelCount = 0;
-    protected _shadowFixedArea: CSMLayerInfo = new CSMLayerInfo(0);
+    protected _csmLayerInfos: CSMLayerInfo[] = [];
+    protected _csmLevelCount = 0;
+    protected _fixedArea: CSMLayerInfo = new CSMLayerInfo(0);
 
-    get shadowCSMLayers () {
-        return this._shadowCSMLayers;
+    get csmLayerInfos () {
+        return this._csmLayerInfos;
     }
 
     get shadowFixedArea () {
-        return this._shadowFixedArea;
+        return this._fixedArea;
     }
 
     public update (pipeline: RenderPipeline, camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
@@ -181,7 +158,7 @@ export class CSMLayers {
         this._dirLight = dirLight;
         this._camera = camera;
         this._shadowInfo = shadowInfo;
-        this._shadowCSMLevelCount = dirLight.shadowCSMLevel;
+        this._csmLevelCount = dirLight.shadowCSMLevel;
 
         if (!this._shadowInfo.enabled || !dirLight.shadowEnabled) { return; }
 
@@ -189,9 +166,9 @@ export class CSMLayers {
             this._updateFixedArea();
         } else {
             let isRecalculate = false;
-            for (let i = 0; i < this._shadowCSMLevelCount; i++) {
-                if (this._shadowCSMLayers[i] === undefined) {
-                    this._shadowCSMLayers[i] = new CSMLayerInfo(i);
+            for (let i = 0; i < this._csmLevelCount; i++) {
+                if (this._csmLayerInfos[i] === undefined) {
+                    this._csmLayerInfos[i] = new CSMLayerInfo(i);
                     isRecalculate = true;
                 }
             }
@@ -200,29 +177,28 @@ export class CSMLayers {
                 this._splitFrustumLevels();
             }
 
-            this._splitFrustum();
+            this._calculateCSM();
         }
     }
 
     public shadowFrustumItemToConsole () {
-        for (let i = 0; i < this._shadowCSMLevelCount; i++) {
+        for (let i = 0; i < this._csmLevelCount; i++) {
             console.warn(this._dirLight?.node!.name, '._shadowCSMLayers[',
-                i, '] = (', this._shadowCSMLayers[i].near, ', ', this._shadowCSMLayers[i].far, ')');
-            console.warn(this._camera?.node!.name, '._validFrustum[', i, '] =', this._shadowCSMLayers[i].validFrustum?.toString());
+                i, '] = (', this._csmLayerInfos[i].near, ', ', this._csmLayerInfos[i].far, ')');
+            console.warn(this._camera?.node!.name, '._validFrustum[', i, '] =', this._csmLayerInfos[i].validFrustum?.toString());
         }
     }
 
     public destroy () {
         this._dirLight = null;
-        this._shadowCSMLevelCount = 0;
-        this._shadowCSMLayers.length = 0;
+        this._csmLevelCount = 0;
+        this._csmLayerInfos.length = 0;
     }
 
     private _updateFixedArea () {
         if (!this._pipeline || !this._dirLight || !this._camera || !this._shadowInfo) return;
         const dirLight = this._dirLight;
         const device = this._pipeline.device;
-        const shadowInfo = this._shadowInfo;
         const x = dirLight.shadowOrthoSize;
         const y = dirLight.shadowOrthoSize;
         const near = dirLight.shadowNear;
@@ -232,11 +208,11 @@ export class CSMLayers {
         Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
             device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
         Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-        shadowInfo.matShadowView = _matShadowView;
-        shadowInfo.matShadowProj = _matShadowProj;
-        shadowInfo.matShadowViewProj = _matShadowViewProj;
+        this._fixedArea.matShadowView = _matShadowView;
+        this._fixedArea.matShadowProj = _matShadowProj;
+        this._fixedArea.matShadowViewProj = _matShadowViewProj;
 
-        Frustum.createOrtho(this._shadowFixedArea.validFrustum!, x * 2.0, y * 2.0, near,  far, _matShadowTrans);
+        Frustum.createOrtho(this._fixedArea.validFrustum!, x * 2.0, y * 2.0, near,  far, _matShadowTrans);
     }
 
     private _splitFrustumLevels () {
@@ -246,7 +222,7 @@ export class CSMLayers {
         const fd = this._dirLight.shadowDistance;
         const ratio = fd / nd;
         const level = this._dirLight.shadowCSMLevel;
-        this._shadowCSMLayers[0].near = nd;
+        this._csmLayerInfos[0].near = nd;
         for (let i = 1; i < level; i++) {
             // i ÷ numbers of level
             const si = i / level;
@@ -254,16 +230,16 @@ export class CSMLayers {
             const preNear = SHADOW_CSM_LAMBDA * (nd * Math.pow(ratio, si)) + (1 - SHADOW_CSM_LAMBDA) * (nd + (fd - nd) * si);
             // Slightly increase the overlap to avoid fracture
             const nextFar = preNear * 1.005;
-            this._shadowCSMLayers[i].near = preNear;
-            this._shadowCSMLayers[i - 1].far = nextFar;
+            this._csmLayerInfos[i].near = preNear;
+            this._csmLayerInfos[i - 1].far = nextFar;
         }
         // numbers of level - 1
-        this._shadowCSMLayers[level - 1].far = fd;
+        this._csmLayerInfos[level - 1].far = fd;
 
         this._dirLight.shadowCSMValueDirty = false;
     }
 
-    private _splitFrustum () {
+    private _calculateCSM () {
         if (!this._pipeline || !this._dirLight || !this._camera || !this._shadowInfo) return;
 
         const device = this._pipeline.device;
@@ -273,23 +249,23 @@ export class CSMLayers {
         const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
         const shadowMapWidth = this._shadowInfo.size.x;
         for (let i = 0; i < level; i++) {
-            const shadowCSMLayer = this._shadowCSMLayers[i]!;
-            const splitFrustum = shadowCSMLayer.splitFrustum!;
+            const shadowCSMLayer = this._csmLayerInfos[i]!;
             const near = shadowCSMLayer.near;
             const far = shadowCSMLayer.far;
             getCameraWorldMatrix(_mat4_trans, camera);
-            Frustum.split(splitFrustum, camera, _mat4_trans, near, far);
-            shadowCSMLayer.lightViewFrustum = Frustum.clone(splitFrustum);
+            Frustum.split(_splitFrustum, camera, _mat4_trans, near, far);
+            _lightViewFrustum = Frustum.clone(_splitFrustum);
 
             // view matrix with range back
             Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _focus);
             Mat4.invert(_matShadowView, _matShadowTrans);
             const shadowViewArbitaryPos = _matShadowView.clone();
-            shadowCSMLayer.lightViewFrustum.transform(_matShadowView);
+            _lightViewFrustum.transform(_matShadowView);
 
             // bounding box in light space
             AABB.fromPoints(_castLightViewBoundingBox, _maxVec3, _minVec3);
-            _castLightViewBoundingBox.mergeFrustum(shadowCSMLayer.lightViewFrustum);
+            _castLightViewBoundingBox.mergeFrustum(_lightViewFrustum);
+            const orthoSize = Vec3.distance(_lightViewFrustum.vertices[0], _lightViewFrustum.vertices[6]);
 
             const r = _castLightViewBoundingBox.halfExtents.z;
             shadowCSMLayer.shadowCameraFar = r * 2 + invisibleOcclusionRange;
@@ -299,19 +275,6 @@ export class CSMLayers {
 
             Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _shadowPos);
             Mat4.invert(_matShadowView, _matShadowTrans);
-
-            // // calculate projection matrix params
-            // // min value may lead to some shadow leaks
-            // const orthoSizeMin = Vec3.distance(splitFrustum.vertices[0], splitFrustum.vertices[6]);
-            // // max value is accurate but poor usage for shadowmap
-            // _castLightViewBoundingSphere.center.set(0, 0, 0);
-            // _castLightViewBoundingSphere.radius = -1;
-            // _castLightViewBoundingSphere.mergePoints(splitFrustum.vertices);
-            // const orthoSizeMax = _castLightViewBoundingSphere!.radius * 2;
-            // // use lerp(min, accurate_max) to save shadowmap usage
-            // const orthoSize = orthoSizeMin * (1 - _lerpMax[i]) + orthoSizeMax * _lerpMax[i];
-
-            const orthoSize = Vec3.distance(shadowCSMLayer.lightViewFrustum.vertices[0], shadowCSMLayer.lightViewFrustum.vertices[6]);
 
             // snap to whole texels
             const halfOrthoSize = orthoSize * 0.5;
