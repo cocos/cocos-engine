@@ -179,18 +179,18 @@ export class PipelineUBO {
                 let matShadowView;
                 let matShadowProj;
                 let matShadowViewProj;
-                if (mainLight.shadowFixedArea && csmLayers.shadowFixedArea) {
+                if (mainLight.shadowFixedArea && csmLayers.fixedArea) {
                     near = mainLight.shadowNear;
                     far = mainLight.shadowFar;
-                    matShadowView = csmLayers.shadowFixedArea.matShadowView;
-                    matShadowProj = csmLayers.shadowFixedArea.matShadowProj;
-                    matShadowViewProj = csmLayers.shadowFixedArea.matShadowViewProj;
-                } else if (mainLight.shadowCSMLevel === CSMLevel.level_1  && csmLayers.csmLayerInfos[0]) {
+                    matShadowView = csmLayers.fixedArea.matShadowView;
+                    matShadowProj = csmLayers.fixedArea.matShadowProj;
+                    matShadowViewProj = csmLayers.fixedArea.matShadowViewProj;
+                } else if (mainLight.shadowCSMLevel === CSMLevel.level_1  && csmLayers.layers[0]) {
                     near = 0.1;
-                    far = csmLayers.csmLayerInfos[0].shadowCameraFar;
-                    matShadowView = csmLayers.csmLayerInfos[0].matShadowView;
-                    matShadowProj = csmLayers.csmLayerInfos[0].matShadowProj;
-                    matShadowViewProj = csmLayers.csmLayerInfos[0].matShadowViewProj;
+                    far = csmLayers.layers[0].shadowCameraFar;
+                    matShadowView = csmLayers.layers[0].matShadowView;
+                    matShadowProj = csmLayers.layers[0].matShadowProj;
+                    matShadowViewProj = csmLayers.layers[0].matShadowViewProj;
                 }
 
                 Mat4.toArray(bufferView, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
@@ -248,19 +248,18 @@ export class PipelineUBO {
         switch (light.type) {
         case LightType.DIRECTIONAL: {
             const mainLight = light as DirectionalLight;
-            if (mainLight.shadowFixedArea && csmLayers.shadowFixedArea) {
+            if (mainLight.shadowFixedArea && csmLayers.fixedArea) {
                 near = mainLight.shadowNear;
                 far = mainLight.shadowFar;
-                matShadowView = csmLayers.shadowFixedArea.matShadowView;
-                matShadowProj = csmLayers.shadowFixedArea.matShadowProj;
-                matShadowViewProj = csmLayers.shadowFixedArea.matShadowViewProj;
-            } else if (mainLight.shadowCSMLevel === CSMLevel.level_1 && csmLayers.csmLayerInfos[0]) {
-                if (!csmLayers.csmLayerInfos[0]) { return; }
+                matShadowView = csmLayers.fixedArea.matShadowView;
+                matShadowProj = csmLayers.fixedArea.matShadowProj;
+                matShadowViewProj = csmLayers.fixedArea.matShadowViewProj;
+            } else if (mainLight.shadowCSMLevel === CSMLevel.level_1 && csmLayers.layers[0]) {
                 near = 0.1;
-                far = csmLayers.csmLayerInfos[0].shadowCameraFar;
-                matShadowView = csmLayers.csmLayerInfos[0].matShadowView;
-                matShadowProj = csmLayers.csmLayerInfos[0].matShadowProj;
-                matShadowViewProj = csmLayers.csmLayerInfos[0].matShadowViewProj;
+                far = csmLayers.layers[0].shadowCameraFar;
+                matShadowView = csmLayers.layers[0].matShadowView;
+                matShadowProj = csmLayers.layers[0].matShadowProj;
+                matShadowViewProj = csmLayers.layers[0].matShadowViewProj;
             }
 
             Mat4.toArray(bufferView, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);

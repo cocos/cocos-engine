@@ -28,43 +28,19 @@
  * @hidden
  */
 
-import { AABB, Frustum, intersect, Sphere } from '../geometry';
+import { Frustum, intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Vec2, Vec3, Mat4, Quat, Vec4, Color } from '../math';
+import { Vec3, Mat4 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, Shadows, CSMLevel } from '../renderer/scene/shadows';
-import { SphereLight, DirectionalLight, Light } from '../renderer/scene';
+import { SphereLight, DirectionalLight } from '../renderer/scene';
 
 const _tempVec3 = new Vec3();
-const _dir_negate = new Vec3();
-const _vec3_p = new Vec3();
-const _shadowPos = new Vec3();
-const _mat4_trans = new Mat4();
-const _castLightViewBounds = new AABB();
-const _castWorldBounds = new AABB();
-let _castBoundsInited = false;
 const _sphere = Sphere.create(0, 0, 0, 1);
-const _cameraBoundingSphere = new Sphere();
-const _validFrustum = new Frustum();
-_validFrustum.accurate = true;
-const _lightViewFrustum = new Frustum();
-_lightViewFrustum.accurate = true; let _dirLightFrustum = new Frustum();
-const _matShadowTrans = new Mat4();
-const _matShadowView = new Mat4();
-const _matShadowViewInv = new Mat4();
-const _matShadowProj = new Mat4();
-const _matShadowViewProj = new Mat4();
-const _matShadowViewProjArbitaryPos = new Mat4();
-const _matShadowViewProjArbitaryPosInv = new Mat4();
-const _projPos = new Vec3();
-const _texelSize = new Vec2();
-const _projSnap = new Vec3();
-const _snap = new Vec3();
-const _focus = new Vec3(0, 0, 0);
-const _ab = new AABB();
+const _dirLightFrustum = new Frustum();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const dirShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -104,19 +80,6 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     ro.model = model;
     ro.depth = depth;
     return ro;
-}
-
-export function getShadowWorldMatrix (pipeline: RenderPipeline, rotation: Quat, dir: Vec3, out: Vec3) {
-    const shadows = pipeline.pipelineSceneData.shadows;
-    Vec3.negate(_dir_negate, dir);
-    const distance: number = shadows.fixedSphere.radius * Shadows.COEFFICIENT_OF_EXPANSION;
-    Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
-    Vec3.add(_vec3_p, _vec3_p, shadows.fixedSphere.center);
-    out.set(_vec3_p);
-
-    Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
-
-    return _mat4_trans;
 }
 
 function updateSphereLight (pipeline: RenderPipeline, light: SphereLight) {
@@ -243,19 +206,6 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     }
 }
 
-export function getCameraWorldMatrix (out: Mat4, camera: Camera) {
-    if (!camera.node) { return; }
-
-    const cameraNode = camera.node;
-    const position = cameraNode.getWorldPosition();
-    const rotation = cameraNode.getWorldRotation();
-
-    Mat4.fromRT(out, rotation, position);
-    out.m08 *= -1.0;
-    out.m09 *= -1.0;
-    out.m10 *= -1.0;
-}
-
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
@@ -269,7 +219,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
     const castShadowObjects = sceneData.castShadowObjects;
     castShadowPool.freeArray(castShadowObjects); castShadowObjects.length = 0;
-    _castBoundsInited = false;
 
     let dirShadowObjects: IRenderObject[] | null = null;
     if (shadows.enabled) {
@@ -281,10 +230,10 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             // update dirLightFrustum
             if (mainLight && mainLight.node) {
                 csmLayers.update(pipeline, camera, mainLight, shadows);
-                if (mainLight.shadowFixedArea && csmLayers.shadowFixedArea) {
-                    _dirLightFrustum = csmLayers.shadowFixedArea.validFrustum!;
-                } else if (mainLight.shadowCSMLevel === CSMLevel.level_1 && csmLayers.csmLayerInfos[0]) {
-                    _dirLightFrustum = csmLayers.csmLayerInfos[0].validFrustum!;
+                if (mainLight.shadowFixedArea && csmLayers.fixedArea) {
+                    Frustum.copy(_dirLightFrustum, csmLayers.fixedArea.validFrustum!);
+                } else if (mainLight.shadowCSMLevel === CSMLevel.level_1 && csmLayers.layers[0]) {
+                    Frustum.copy(_dirLightFrustum, csmLayers.layers[0].validFrustum!);
                 }
             } else {
                 for (let i = 0; i < 8; i++) {

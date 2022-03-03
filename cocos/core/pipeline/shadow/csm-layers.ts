@@ -29,10 +29,9 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { DirectionalLight, Camera, Shadows } from '../../renderer/scene';
+import { DirectionalLight, Camera, Shadows, CSMLevel } from '../../renderer/scene';
 import { Mat4, Vec3, Vec2 } from '../../math';
 import { Frustum, AABB } from '../../geometry';
-import { getCameraWorldMatrix } from '../scene-culling';
 import { RenderPipeline } from '..';
 
 const SHADOW_CSM_LAMBDA = 0.75;
@@ -44,6 +43,7 @@ const _matShadowProj = new Mat4();
 const _matShadowViewProj = new Mat4();
 const _matShadowViewProjArbitaryPos = new Mat4();
 const _matShadowViewProjArbitaryPosInv = new Mat4();
+
 const _focus = new Vec3(0, 0, 0);
 const _projPos = new Vec3();
 const _texelSize = new Vec2();
@@ -52,27 +52,29 @@ const _snap = new Vec3();
 const _maxVec3 = new Vec3(10000000, 10000000, 10000000);
 const _minVec3 = new Vec3(-10000000, -10000000, -10000000);
 const _shadowPos = new Vec3();
+
 const _castLightViewBoundingBox = new AABB();
 const _splitFrustum = new Frustum();
-_splitFrustum.accurate = true; let _lightViewFrustum = new Frustum();
+_splitFrustum.accurate = true;
+const _lightViewFrustum = new Frustum();
 _lightViewFrustum.accurate = true;
 
 class CSMLayerInfo {
     protected _level: number;
-    protected _near: number;
-    protected _far: number;
+    protected _splitCameraNear: number;
+    protected _splitCameraFar: number;
     protected _shadowCameraFar: number;
 
-    protected _matShadowView: Mat4 | undefined;
-    protected _matShadowProj: Mat4 | undefined;
-    protected _matShadowViewProj: Mat4 | undefined;
+    protected _matShadowView: Mat4 | null = null;
+    protected _matShadowProj: Mat4 | null = null;
+    protected _matShadowViewProj: Mat4 | null = null;
 
-    protected _validFrustum: Frustum | undefined;
+    protected _validFrustum: Frustum | null = null;
 
     constructor (level: number) {
         this._level = level;
-        this._near = 0.0;
-        this._far = 0.0;
+        this._splitCameraNear = 0.0;
+        this._splitCameraFar = 0.0;
         this._shadowCameraFar = 0.0;
         this._matShadowView = new Mat4();
         this._matShadowProj = new Mat4();
@@ -81,18 +83,29 @@ class CSMLayerInfo {
         this._validFrustum.accurate = true;
     }
 
-    get near () {
-        return this._near;
-    }
-    set near (val) {
-        this._near = val;
+    public destroy () {
+        this._level = 0;
+        this._splitCameraNear = 0.0;
+        this._splitCameraFar = 0.0;
+        this._shadowCameraFar = 0.0;
+        this._matShadowView = null;
+        this._matShadowProj = null;
+        this._matShadowViewProj = null;
+        this._validFrustum = null;
     }
 
-    get far () {
-        return this._far;
+    get splitCameraNear () {
+        return this._splitCameraNear;
     }
-    set far (val) {
-        this._far = val;
+    set splitCameraNear (val) {
+        this._splitCameraNear = val;
+    }
+
+    get splitCameraFar () {
+        return this._splitCameraFar;
+    }
+    set splitCameraFar (val) {
+        this._splitCameraFar = val;
     }
 
     get shadowCameraFar () {
@@ -141,16 +154,20 @@ export class CSMLayers {
     protected _dirLight: DirectionalLight | null = null;
     protected _camera: Camera | null = null;
     protected _shadowInfo: Shadows | null = null;
-    protected _csmLayerInfos: CSMLayerInfo[] = [];
-    protected _csmLevelCount = 0;
-    protected _fixedArea: CSMLayerInfo = new CSMLayerInfo(0);
+    protected _layers: CSMLayerInfo[] = [];
+    protected _levelCount = 0;
+    protected _fixedArea: CSMLayerInfo | null = null;
 
-    get csmLayerInfos () {
-        return this._csmLayerInfos;
+    get layers () {
+        return this._layers;
     }
 
-    get shadowFixedArea () {
+    get fixedArea () {
         return this._fixedArea;
+    }
+
+    constructor () {
+        this._fixedArea = new CSMLayerInfo(0);
     }
 
     public update (pipeline: RenderPipeline, camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
@@ -158,7 +175,7 @@ export class CSMLayers {
         this._dirLight = dirLight;
         this._camera = camera;
         this._shadowInfo = shadowInfo;
-        this._csmLevelCount = dirLight.shadowCSMLevel;
+        this._levelCount = dirLight.shadowCSMLevel;
 
         if (!this._shadowInfo.enabled || !dirLight.shadowEnabled) { return; }
 
@@ -166,9 +183,9 @@ export class CSMLayers {
             this._updateFixedArea();
         } else {
             let isRecalculate = false;
-            for (let i = 0; i < this._csmLevelCount; i++) {
-                if (this._csmLayerInfos[i] === undefined) {
-                    this._csmLayerInfos[i] = new CSMLayerInfo(i);
+            for (let i = 0; i < this._levelCount; i++) {
+                if (!this._layers[i]) {
+                    this._layers[i] = new CSMLayerInfo(i);
                     isRecalculate = true;
                 }
             }
@@ -182,21 +199,31 @@ export class CSMLayers {
     }
 
     public shadowFrustumItemToConsole () {
-        for (let i = 0; i < this._csmLevelCount; i++) {
+        for (let i = 0; i < this._levelCount; i++) {
             console.warn(this._dirLight?.node!.name, '._shadowCSMLayers[',
-                i, '] = (', this._csmLayerInfos[i].near, ', ', this._csmLayerInfos[i].far, ')');
-            console.warn(this._camera?.node!.name, '._validFrustum[', i, '] =', this._csmLayerInfos[i].validFrustum?.toString());
+                i, '] = (', this._layers[i].splitCameraNear, ', ', this._layers[i].splitCameraFar, ')');
+            console.warn(this._camera?.node!.name, '._validFrustum[', i, '] =', this._layers[i].validFrustum?.toString());
         }
     }
 
     public destroy () {
+        this._pipeline = null;
         this._dirLight = null;
-        this._csmLevelCount = 0;
-        this._csmLayerInfos.length = 0;
+        this._camera = null;
+        this._shadowInfo = null;
+        for (let i = 0; i < CSMLevel.level_4; i++) {
+            if (this._layers[i]) {
+                this._layers[i].destroy();
+            }
+        }
+        this._layers.length = 0;
+        this._levelCount = 0;
+        this._layers.length = 0;
+        this._fixedArea = null;
     }
 
     private _updateFixedArea () {
-        if (!this._pipeline || !this._dirLight || !this._camera || !this._shadowInfo) return;
+        if (!this._pipeline || !this._dirLight || !this._fixedArea) return;
         const dirLight = this._dirLight;
         const device = this._pipeline.device;
         const x = dirLight.shadowOrthoSize;
@@ -222,7 +249,7 @@ export class CSMLayers {
         const fd = this._dirLight.shadowDistance;
         const ratio = fd / nd;
         const level = this._dirLight.shadowCSMLevel;
-        this._csmLayerInfos[0].near = nd;
+        this._layers[0].splitCameraNear = nd;
         for (let i = 1; i < level; i++) {
             // i ÷ numbers of level
             const si = i / level;
@@ -230,11 +257,11 @@ export class CSMLayers {
             const preNear = SHADOW_CSM_LAMBDA * (nd * Math.pow(ratio, si)) + (1 - SHADOW_CSM_LAMBDA) * (nd + (fd - nd) * si);
             // Slightly increase the overlap to avoid fracture
             const nextFar = preNear * 1.005;
-            this._csmLayerInfos[i].near = preNear;
-            this._csmLayerInfos[i - 1].far = nextFar;
+            this._layers[i].splitCameraNear = preNear;
+            this._layers[i - 1].splitCameraFar = nextFar;
         }
         // numbers of level - 1
-        this._csmLayerInfos[level - 1].far = fd;
+        this._layers[level - 1].splitCameraFar = fd;
 
         this._dirLight.shadowCSMValueDirty = false;
     }
@@ -249,12 +276,12 @@ export class CSMLayers {
         const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
         const shadowMapWidth = this._shadowInfo.size.x;
         for (let i = 0; i < level; i++) {
-            const shadowCSMLayer = this._csmLayerInfos[i]!;
-            const near = shadowCSMLayer.near;
-            const far = shadowCSMLayer.far;
-            getCameraWorldMatrix(_mat4_trans, camera);
+            const csmLayer = this._layers[i];
+            const near = csmLayer.splitCameraNear;
+            const far = csmLayer.splitCameraFar;
+            this._getCameraWorldMatrix(_mat4_trans, camera);
             Frustum.split(_splitFrustum, camera, _mat4_trans, near, far);
-            _lightViewFrustum = Frustum.clone(_splitFrustum);
+            Frustum.copy(_lightViewFrustum, _splitFrustum);
 
             // view matrix with range back
             Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _focus);
@@ -268,7 +295,7 @@ export class CSMLayers {
             const orthoSize = Vec3.distance(_lightViewFrustum.vertices[0], _lightViewFrustum.vertices[6]);
 
             const r = _castLightViewBoundingBox.halfExtents.z;
-            shadowCSMLayer.shadowCameraFar = r * 2 + invisibleOcclusionRange;
+            csmLayer.shadowCameraFar = r * 2 + invisibleOcclusionRange;
             const center = _castLightViewBoundingBox.center;
             _shadowPos.set(center.x, center.y, center.z + r + invisibleOcclusionRange);
             Vec3.transformMat4(_shadowPos, _shadowPos, _matShadowTrans);
@@ -278,7 +305,7 @@ export class CSMLayers {
 
             // snap to whole texels
             const halfOrthoSize = orthoSize * 0.5;
-            Mat4.ortho(_matShadowProj, -halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1,  shadowCSMLayer.shadowCameraFar,
+            Mat4.ortho(_matShadowProj, -halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1,  csmLayer.shadowCameraFar,
                 device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
 
             if (shadowMapWidth > 0.0) {
@@ -294,18 +321,31 @@ export class CSMLayers {
 
                 Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _snap);
                 Mat4.invert(_matShadowView, _matShadowTrans);
-                Frustum.createOrtho(shadowCSMLayer.validFrustum!, orthoSize, orthoSize, 0.1,  shadowCSMLayer.shadowCameraFar, _matShadowTrans);
+                Frustum.createOrtho(csmLayer.validFrustum!, orthoSize, orthoSize, 0.1,  csmLayer.shadowCameraFar, _matShadowTrans);
             } else {
                 for (let i = 0; i < 8; i++) {
-                    shadowCSMLayer.validFrustum!.vertices[i].set(0.0, 0.0, 0.0);
+                    csmLayer.validFrustum!.vertices[i].set(0.0, 0.0, 0.0);
                 }
-                shadowCSMLayer.validFrustum!.updatePlanes();
+                csmLayer.validFrustum!.updatePlanes();
             }
 
             Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-            shadowCSMLayer.matShadowView = _matShadowView;
-            shadowCSMLayer.matShadowProj = _matShadowProj;
-            shadowCSMLayer.matShadowViewProj = _matShadowViewProj;
+            csmLayer.matShadowView = _matShadowView;
+            csmLayer.matShadowProj = _matShadowProj;
+            csmLayer.matShadowViewProj = _matShadowViewProj;
         }
+    }
+
+    private _getCameraWorldMatrix (out: Mat4, camera: Camera) {
+        if (!camera.node) { return; }
+
+        const cameraNode = camera.node;
+        const position = cameraNode.getWorldPosition();
+        const rotation = cameraNode.getWorldRotation();
+
+        Mat4.fromRT(out, rotation, position);
+        out.m08 *= -1.0;
+        out.m09 *= -1.0;
+        out.m10 *= -1.0;
     }
 }
