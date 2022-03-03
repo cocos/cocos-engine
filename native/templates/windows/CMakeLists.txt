@@ -56,15 +56,13 @@ if(EXISTS ${RES_DIR}/assets/jsb-adapter)
 endif()
 
 if(MSVC)
-    foreach(item ${WIN32_DLLS})
+    foreach(item ${WINDOWS_DLLS})
         get_filename_component(filename ${item} NAME)
         get_filename_component(abs ${item} ABSOLUTE)
         add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E echo "copy dll ----  ${abs}" 
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${abs} $<TARGET_FILE_DIR:${LIB_NAME}>/${filename}
         )
     endforeach()
     target_link_options(${LIB_NAME} PRIVATE /SUBSYSTEM:WINDOWS /IGNORE:4099)
-    if(${CMAKE_SIZEOF_VOID_P} STREQUAL "4")
-        target_link_options(${LIB_NAME} PRIVATE /LARGEADDRESSAWARE)
-    endif()
 endif()
