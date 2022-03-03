@@ -27,7 +27,6 @@
 
 #include "Define.h"
 #include "RenderInstancedQueue.h"
-#include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
 
 namespace cc {
@@ -39,9 +38,8 @@ namespace pipeline {
         globalDescriptorSetLayout.bindings[info::BINDING] = info::DESCRIPTOR; \
     } while (0)
 
-void GlobalDSManager::activate(gfx::Device *device, RenderPipeline *pipeline) {
+void GlobalDSManager::activate(gfx::Device *device) {
     _device   = device;
-    _pipeline = pipeline;
 
     _linearSampler = device->getSampler({
         gfx::Filter::LINEAR,

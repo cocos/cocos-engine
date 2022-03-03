@@ -77,7 +77,7 @@ bool RenderPipeline::isEnvmapEnabled() const {
 }
 
 bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
-    _globalDSManager->activate(_device, this);
+    _globalDSManager->activate(_device);
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
     _pipelineSceneData->activate(_device, this);
