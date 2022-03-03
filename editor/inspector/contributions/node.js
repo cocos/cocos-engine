@@ -313,7 +313,7 @@ const Elements = {
                 additional.forEach(o => {
                     const config = panel.dropConfig[o.type];
                     if (config) {
-                        Editor.Message.send(config.package, config.message, panel.dump.uuid.value);
+                        Editor.Message.send(config.package, config.message, o, panel.dumps, panel.uuidList);
                     }
                 });
             });
