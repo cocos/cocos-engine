@@ -821,17 +821,20 @@ static bool jsb_createExternalArrayBuffer(se::State& s) {
         ok &= sevalue_to_native(args[0], &byteLength, s.thisObject());
         SE_PRECONDITION2(ok, false, "jsb_createExternalArrayBuffer : Error processing arguments");
         if (byteLength > 0) {
-#ifdef SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
+/**
+ * @brief Currently V8 use shared_ptr which has different abi on win64-debug and win64-release
+ */
+#ifdef CC_PLATFORM == CC_PLATFORM_WINDOWS
             se::HandleObject arrayBuffer{se::Object::createArrayBufferObject(nullptr, byteLength)};
 #else
             void *buffer = malloc(byteLength);
             memset(buffer, 0x00, byteLength);
-            se::HandleObject arrayBuffer{se::Object::createExternalArrayBufferObject(buffer, byteLength, [](void *contents, size_t /*byteLength*/, void * /* userData */) {
+            se::HandleObject arrayBuffer{se::Object::createExternalArrayBufferObject(buffer, byteLength, [](void* contents, size_t /*byteLength*/, void* /*userData*/) {
                 if (contents != nullptr) {
                     free(contents);
                 }
             })};
-#endif // SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
+#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
             s.rval().setObject(arrayBuffer);
         } else {
             s.rval().setNull();
