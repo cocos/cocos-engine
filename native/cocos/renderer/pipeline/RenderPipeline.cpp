@@ -107,6 +107,10 @@ void RenderPipeline::render(const vector<scene::Camera *> &cameras) {
     RenderPipeline::framegraphGC();
 }
 
+void RenderPipeline::onGlobalPipelineStateChanged() {
+    // do nothing
+}
+
 void RenderPipeline::destroyQuadInputAssembler() {
     CC_SAFE_DESTROY_AND_DELETE(_quadIB);
 

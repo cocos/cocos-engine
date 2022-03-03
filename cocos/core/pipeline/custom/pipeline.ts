@@ -50,6 +50,7 @@ export abstract class PipelineRuntime {
     public abstract get constantMacros(): string;
     public abstract get profiler(): Model | null;
     public abstract set profiler(profiler: Model | null);
+    public abstract onGlobalPipelineStateChanged(): void;
 
     public abstract on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback;
     public abstract off (type: PipelineEventType, callback?: any, target?: any): void;

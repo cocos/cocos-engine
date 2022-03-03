@@ -54,7 +54,7 @@ public:
     virtual void activate(gfx::Device *device, RenderPipeline *pipeline);
     void         destroy();
 
-    virtual void onGlobalPipelineStateChanged() {}
+    virtual void updatePipelineSceneData() {}
 
     inline void                                                                setShadowFramebuffer(const scene::Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap.emplace(light, framebuffer); }
     inline const std::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
