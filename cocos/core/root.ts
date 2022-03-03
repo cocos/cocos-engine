@@ -353,7 +353,7 @@ export class Root {
             this._scenes[i].onGlobalPipelineStateChanged();
         }
 
-        this._pipeline!.pipelineSceneData.onGlobalPipelineStateChanged();
+        this._pipeline!.onGlobalPipelineStateChanged();
     }
 
     /**

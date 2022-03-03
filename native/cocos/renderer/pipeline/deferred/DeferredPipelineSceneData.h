@@ -22,7 +22,7 @@ public:
     ~DeferredPipelineSceneData() override;
 
     void activate(gfx::Device *device, RenderPipeline *pipeline) override;
-    void onGlobalPipelineStateChanged() override;
+    void updatePipelineSceneData() override;
 
     void initPipelinePassInfo();
 
