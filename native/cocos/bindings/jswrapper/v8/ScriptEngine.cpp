@@ -314,7 +314,13 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
         SE_LOGE("ERROR: __errorHandler has exception\n");
     }
 }
-
+/**
+* Bug in v8 stacktrace:
+* "handlerAddedAfterPromiseRejected" event is triggered if a resolve handler is added.
+* But if no reject handler is added, then "unhandledRejectedPromise" exception will be called again, but the stacktrace this time become empty
+* LastStackTrace is used to store it.
+*/
+std::string LastStackTrace;
 void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char* event, const char *stackTrace) {
     using element_type = decltype(_promiseArray)::value_type;
     element_type *current;
@@ -334,7 +340,8 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
     auto &exceptions = std::get<1>(*current);
     if (std::strcmp(event,"handlerAddedAfterPromiseRejected") == 0) {
         for (int i = 0; i < exceptions.size(); i++) {
-            if (std::strcmp(exceptions[i].event,"unhandledRejectedPromise") == 0) {
+            if (std::strcmp(exceptions[i].event.c_str(), "unhandledRejectedPromise") == 0) {
+                LastStackTrace = exceptions[i].stackTrace;
                 exceptions.erase(exceptions.begin() + i);
                 return;
             }
@@ -350,7 +357,7 @@ void ScriptEngine::handlePromiseExceptions() {
     for (auto& exceptionsPair : _promiseArray) {
         auto& exceptionVector = std::get<1>(exceptionsPair);
         for (const auto& exceptions : exceptionVector) {
-            getInstance()->callExceptionCallback("", exceptions.event, exceptions.stackTrace);
+            getInstance()->callExceptionCallback("", exceptions.event.c_str(), exceptions.stackTrace.c_str());
         }
         std::get<0>(exceptionsPair).get()->Reset();
     }
@@ -426,7 +433,11 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
 
     auto stackStr = getInstance()->getCurrentStackTrace();
     ss << "stacktrace: " << std::endl;
-    ss << stackStr << std::endl;
+    if (stackStr.empty()) {
+        ss << LastStackTrace << std::endl;
+    } else {
+        ss << stackStr << std::endl;
+    }
     //Check event immediately, for certain case throw exception.
     const char* eventName;
     switch (event) {
