@@ -92,8 +92,9 @@
             const srcVBuf = middlewareMgr.getVBTypedArray(nativeFormat, i);
             const srcIBuf = middlewareMgr.getIBTypedArray(nativeFormat, i);
 
-            buffer.reset();
-            buffer.fillBufferData(srcVBuf, srcIBuf, srcVertexCount, srcIndicesCount);
+            buffer.vData = srcVBuf;
+            buffer.iData = srcIBuf;
+            buffer.resize(srcVertexCount, srcIndicesCount);
 
             renderInfoLookup[nativeFormat][i] = buffer;
         }

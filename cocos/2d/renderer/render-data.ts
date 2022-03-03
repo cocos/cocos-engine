@@ -497,17 +497,6 @@ export class MeshRenderData extends BaseRenderData {
         this.iData = new Uint16Array(256 * 6);
     }
 
-    public fillBufferData (vData: Float32Array, iData: Uint16Array, vertexCount: number, indexCount: number) {
-        const byteOffset = vertexCount * this.stride;
-        this._vc = vertexCount;
-        this._ic = indexCount;
-        this._byteLength = byteOffset;
-        this.vertexRange = this._vc;
-        this.indexRange = this._ic;
-        this.vData = vData;
-        this.iData = iData;
-    }
-
     protected _initIAInfo (device: Device) {
         if (!this._iaInfo) {
             const vbStride = this.stride;
