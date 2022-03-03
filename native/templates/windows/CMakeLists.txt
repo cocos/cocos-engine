@@ -60,7 +60,6 @@ if(MSVC)
         get_filename_component(filename ${item} NAME)
         get_filename_component(abs ${item} ABSOLUTE)
         add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E echo "copy dll ----  ${abs}" 
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${abs} $<TARGET_FILE_DIR:${LIB_NAME}>/${filename}
         )
     endforeach()
