@@ -151,7 +151,13 @@ public:
      */
     static void setVolume(int audioID, float volume);
 
-    /** 
+    /**
+     * sets volume factor for all audio instance
+     * @param factor, Volume factor(range from 0.0 to 1.0).
+     */
+    static void setVolumeFactor(float factor);
+
+    /**
      * Gets the volume value of an audio instance.
      *
      * @param audioID An audioID returned by the play2d function.
@@ -367,8 +373,9 @@ protected:
     static bool sIsEnabled;
 
 private:
-    static uint32_t         sOnPauseListenerID;
-    static uint32_t         sOnResumeListenerID;
+    static float sVolumeFactor;
+    static uint32_t sOnPauseListenerID;
+    static uint32_t sOnResumeListenerID;
     static std::vector<int> sBreakAudioID;
 
     static void onEnterBackground(const CustomEvent &);

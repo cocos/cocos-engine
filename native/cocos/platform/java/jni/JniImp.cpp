@@ -33,6 +33,7 @@
 
 #include <jni.h>
 #include "JniHelper.h"
+#include "cocos/audio/include/AudioEngine.h"
 
 #ifndef JCLS_HELPER
     #define JCLS_HELPER "com/cocos/lib/CocosHelper"
@@ -41,6 +42,11 @@
 #ifndef JCLS_SENSOR
     #define JCLS_SENSOR "com/cocos/lib/CocosSensorHandler"
 #endif
+
+#ifndef COM_AUDIOFOCUS_CLASS_NAME
+#define COM_AUDIOFOCUS_CLASS_NAME com_cocos_lib_CocosAudioFocusManager
+#endif
+#define JNI_AUDIO(FUNC) JNI_METHOD1(COM_AUDIOFOCUS_CLASS_NAME,FUNC)
 
 using namespace cc; //NOLINT
 
@@ -145,4 +151,12 @@ void setAccelerometerIntervalJNI(float interval) {
 
 float *getDeviceMotionValueJNI() {
     return JniHelper::callStaticFloatArrayMethod(JCLS_SENSOR, "getDeviceMotionValue");
+}
+
+
+extern "C" {
+JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv* env, jclass thiz, jfloat volumeFactor)
+{
+    AudioEngine::setVolumeFactor(volumeFactor);
+}
 }
