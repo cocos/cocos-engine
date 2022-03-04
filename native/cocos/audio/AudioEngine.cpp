@@ -290,7 +290,7 @@ void AudioEngine::setVolumeFactor(float factor) {
         factor = 0.0F;
     }
     sVolumeFactor = factor;
-    for (auto& item : sAudioIDInfoMap) {
+    for (auto &item : sAudioIDInfoMap) {
         sAudioEngineImpl->setVolume(item.first, item.second.volume * sVolumeFactor);
     }
 }
