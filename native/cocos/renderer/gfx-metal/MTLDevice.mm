@@ -155,7 +155,7 @@ void CCMTLDevice::doDestroy() {
     //    }
 
     CC_DELETE(_gpuDeviceObj);
-    
+
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
     CC_SAFE_DESTROY_AND_DELETE(_queue);
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
@@ -389,6 +389,8 @@ void CCMTLDevice::initFormatFeatures(uint gpuFamily) {
     _formatFeatures[toNumber(Format::R8SN)]    = tempFeature;
     _formatFeatures[toNumber(Format::RG8SN)]   = tempFeature;
     _formatFeatures[toNumber(Format::RGBA8SN)] = tempFeature;
+
+    _formatFeatures[toNumber(Format::BGRA8)] = tempFeature;
 
     _formatFeatures[toNumber(Format::R8)]    = tempFeature;
     _formatFeatures[toNumber(Format::RG8)]   = tempFeature;

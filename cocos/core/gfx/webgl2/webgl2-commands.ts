@@ -30,6 +30,7 @@ import {
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
     Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
     UniformSamplerTexture,
+    getTypedArrayConstructor,
 } from '../base/define';
 import { WebGL2EXT } from './webgl2-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -2627,14 +2628,17 @@ function pixelBufferPick (buffer : ArrayBufferView,
     offset: number,
     width: number,
     height: number,
-    fmtSize: number,
+    formatInfo : FormatInfo,
     stride : number) : ArrayBufferView {
-    const bufferSize = height * width * fmtSize;
-    stride *= fmtSize;
+    const bufferSize = height * width * formatInfo.size;
+    const strideSize = stride * formatInfo.size;
+    const chunkSize = width * formatInfo.size;
+    const ArrayBufferCtor : TypedArrayConstructor = getTypedArrayConstructor(formatInfo);
+
     if (stagingBuffer.byteLength < bufferSize) {
         stagingBuffer = new Uint8Array(bufferSize);
     }
-    const chunkSize = width * fmtSize;
+
     let chunkOffset = 0;
     let bufferOffset = offset;
     for (let j = 0; j < height; j++) {
@@ -2642,9 +2646,9 @@ function pixelBufferPick (buffer : ArrayBufferView,
             new Uint8Array(buffer.buffer, bufferOffset, chunkSize),
         );
         chunkOffset += chunkSize;
-        bufferOffset += stride;
+        bufferOffset += strideSize;
     }
-    return stagingBuffer;
+    return new ArrayBufferCtor(stagingBuffer.buffer);
 }
 
 export function WebGL2CmdFuncCopyBuffersToTexture (
@@ -2665,22 +2669,23 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     let h = 1;
     let f = 0;
     const fmtInfo: FormatInfo = FormatInfos[gpuTexture.format];
+    const ArrayBufferCtor : TypedArrayConstructor = getTypedArrayConstructor(fmtInfo);
     const { isCompressed } = fmtInfo;
 
     switch (gpuTexture.glTarget) {
     case gl.TEXTURE_2D: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
-            let bufferOffset = region.buffOffset;
-
+            const bufferOffset = region.buffOffset;
             w = region.texExtent.width;
             h = region.texExtent.height;
 
             let pixels = buffers[n++];
 
             if (region.buffStride > 0) {
-                pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo.size, region.buffStride);
-                bufferOffset = 0;
+                pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo, region.buffStride);
+            } else {
+                pixels = new ArrayBufferCtor(pixels.buffer, bufferOffset);
             }
 
             if (!isCompressed) {
@@ -2712,8 +2717,9 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
 
                 let pixels = buffers[n++];
                 if (region.buffStride > 0) {
-                    pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo.size, region.buffStride);
-                    bufferOffset = 0;
+                    pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo, region.buffStride);
+                } else {
+                    pixels = new ArrayBufferCtor(pixels.buffer, bufferOffset);
                 }
 
                 if (!isCompressed) {
