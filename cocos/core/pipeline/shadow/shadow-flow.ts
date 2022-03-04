@@ -43,7 +43,6 @@ import { CSMLevel, ShadowType } from '../../renderer/scene/shadows';
 import { Light, LightType } from '../../renderer/scene/light';
 import { Camera } from '../../renderer/scene';
 import { ShadowTransformInfo } from './csm-layers';
-import { shadowCulling } from '../scene-culling';
 
 const _validLights: Light[] = [];
 
@@ -113,12 +112,10 @@ export class ShadowFlow extends RenderFlow {
 
             const shadowFrameBuffer = shadowFrameBufferMap.get(mainLight);
             if (mainLight.shadowFixedArea || mainLight.shadowCSMLevel === CSMLevel.level_1) {
-                const specialLayer = csmLayers.specialLayer;
-                this._renderDirLightStage(camera, mainLight, specialLayer, shadowFrameBuffer!, globalDS);
+                this._renderDirLightStage(camera, mainLight, csmLayers.specialLayer, shadowFrameBuffer!, globalDS);
             } else {
                 for (let i = 0; i < mainLight.shadowCSMLevel; i++) {
-                    const layer = csmLayers.layers[i];
-                    this._renderDirLightStage(camera, mainLight, layer, shadowFrameBuffer!, globalDS);
+                    this._renderDirLightStage(camera, mainLight, csmLayers.layers[i], shadowFrameBuffer!, globalDS);
                 }
             }
         }
