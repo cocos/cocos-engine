@@ -349,7 +349,7 @@ export class WebPipeline extends Pipeline {
             throw new Error('RenderGraph cannot be built without being created');
         }
         if (!this._renderDependencyGraph) {
-            this._renderDependencyGraph = new RenderDependencyGraph(this._renderGraph, this.resourceGraph, this._layoutGraph);
+            this._renderDependencyGraph = new RenderDependencyGraph(this._renderGraph, this._resourceGraph, this._layoutGraph);
         }
         this._renderDependencyGraph.reset();
         this._renderDependencyGraph.build();
@@ -394,9 +394,6 @@ export class WebPipeline extends Pipeline {
     }
     get renderGraph () {
         return this._renderGraph;
-    }
-    get resourceGraph () {
-        return this._resourceGraph;
     }
     protected _updateRasterPassConstants (pass: Setter, width: number, height: number) {
         const shadingWidth = width;
