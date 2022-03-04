@@ -30,21 +30,21 @@
 
 import { SubModel } from '../renderer/scene/submodel';
 import { SetIndex } from './define';
-import { Device, RenderPass, Shader, CommandBuffer, DescriptorSet } from '../gfx';
+import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../renderer/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { InstancedBuffer } from './instanced-buffer';
 import { RenderBatchedQueue } from './render-batched-queue';
-import { BatchedBuffer } from './batched-buffer';
 import { ShadowType } from '../renderer/scene/shadows';
 import { Light, LightType } from '../renderer/scene/light';
 import { AABB, intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { RenderPipeline } from './render-pipeline';
-import { Camera } from '../renderer/scene';
+import { Camera, DirectionalLight, SpotLight } from '../renderer/scene';
 import { Mat4 } from '../math';
+import { shadowCulling } from './scene-culling';
+import { ShadowTransformInfo } from './shadow/csm-layers';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
@@ -89,17 +89,16 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (globalDS: DescriptorSet, camera: Camera, light: Light, cmdBuff: CommandBuffer) {
+    public gatherDirLightPasses (camera: Camera, light: Light, layer:ShadowTransformInfo, cmdBuff: CommandBuffer) {
         this.clear();
 
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
-        if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            const dirShadowObjects = pipelineSceneData.csmLayers.specialLayer._shadowObjects;
-            const castShadowObjects = pipelineSceneData.csmLayers.castShadowObjects;
-
-            switch (light.type) {
-            case LightType.DIRECTIONAL:
+        if ((light && light.type === LightType.DIRECTIONAL) && (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap)) {
+            const dirLight = light as DirectionalLight;
+            if (dirLight.shadowEnabled) {
+                shadowCulling(this._pipeline, camera, layer);
+                const dirShadowObjects = layer._shadowObjects;
                 if (!dirShadowObjects || dirShadowObjects.length === 0) { return; }
                 for (let i = 0; i < dirShadowObjects.length; i++) {
                     const ro = dirShadowObjects[i];
@@ -107,21 +106,39 @@ export class RenderShadowMapBatchedQueue {
                     if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
                     this.add(model, _shadowPassIndices);
                 }
-                break;
-            case LightType.SPOT:
-                Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
-                Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
-                Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-                for (let i = 0; i < castShadowObjects.length; i++) {
-                    const ro = castShadowObjects[i];
-                    const model = ro.model;
-                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-                    if (model.worldBounds) {
-                        AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
-                        if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
-                    }
 
-                    this.add(model, _shadowPassIndices);
+                this._instancedQueue.uploadBuffers(cmdBuff);
+                this._batchedQueue.uploadBuffers(cmdBuff);
+            }
+        }
+    }
+
+    public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer) {
+        this.clear();
+
+        const pipelineSceneData = this._pipeline.pipelineSceneData;
+        const shadowInfo = pipelineSceneData.shadows;
+        if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
+            const castShadowObjects = pipelineSceneData.csmLayers.castShadowObjects;
+            switch (light.type) {
+            case LightType.SPOT:
+                // eslint-disable-next-line no-case-declarations
+                const spotLight = light as SpotLight;
+                if (spotLight.shadowEnabled) {
+                    Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
+                    Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
+                    Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
+                    for (let i = 0; i < castShadowObjects.length; i++) {
+                        const ro = castShadowObjects[i];
+                        const model = ro.model;
+                        if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
+                        if (model.worldBounds) {
+                            AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
+                            if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
+                        }
+
+                        this.add(model, _shadowPassIndices);
+                    }
                 }
                 break;
             default:

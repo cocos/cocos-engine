@@ -37,10 +37,10 @@ import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, Shadows } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight } from '../renderer/scene';
+import { ShadowTransformInfo } from './shadow/csm-layers';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
-let _dirLightFrustum = new Frustum();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const dirShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -206,6 +206,35 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     }
 }
 
+export function shadowCulling (pipeline: RenderPipeline, camera: Camera, layer: ShadowTransformInfo) {
+    const sceneData = pipeline.pipelineSceneData;
+    const csmLayers = sceneData.csmLayers;
+    const castShadowObjects = csmLayers.castShadowObjects;
+    const dirLightFrustum = layer.validFrustum;
+
+    const dirShadowObjects = layer._shadowObjects;
+    dirShadowPool.freeArray(dirShadowObjects); dirShadowObjects.length = 0;
+
+    const visibility = camera.visibility;
+    for (let i = 0; i < castShadowObjects.length; i++) {
+        const castShadowObject = castShadowObjects[i];
+        const model = castShadowObject.model;
+        // filter model by view visibility
+        if (model.enabled) {
+            if (model.node && ((visibility & model.node.layer) === model.node.layer)) {
+                // shadow render Object
+                if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
+                    // frustum culling
+                    // eslint-disable-next-line no-lonely-if
+                    if (intersect.aabbFrustum(model.worldBounds, dirLightFrustum)) {
+                        dirShadowObjects.push(castShadowObject);
+                    }
+                }
+            }
+        }
+    }
+}
+
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
@@ -220,18 +249,12 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const castShadowObjects = csmLayers.castShadowObjects;
     castShadowPool.freeArray(castShadowObjects); castShadowObjects.length = 0;
 
-    const dirShadowObjects = sceneData.csmLayers.specialLayer._shadowObjects;
-    dirShadowPool.freeArray(dirShadowObjects); dirShadowObjects.length = 0;
-
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
         if (shadows.type === ShadowType.ShadowMap) {
-            // update dirLightFrustum
+            // update CSM layers
             if (mainLight && mainLight.node) {
                 csmLayers.update(pipeline, camera, mainLight, shadows);
-                _dirLightFrustum = csmLayers.specialLayer.validFrustum;
-            } else {
-                _dirLightFrustum.zero();
             }
         }
     }
@@ -260,14 +283,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
             if (model.node && ((visibility & model.node.layer) === model.node.layer)
                  || (visibility & model.visFlags)) {
-                // shadow render Object
-                if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
-                    // frustum culling
-                    // eslint-disable-next-line no-lonely-if
-                    if (intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
-                        dirShadowObjects.push(getDirShadowRenderObject(model, camera));
-                    }
-                }
                 // frustum culling
                 if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
                     continue;

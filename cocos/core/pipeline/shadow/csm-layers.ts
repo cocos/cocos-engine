@@ -28,7 +28,6 @@
  * @module pipeline.forward
  */
 
-import { ccclass } from 'cc.decorator';
 import { DirectionalLight, Camera, Shadows, CSMLevel } from '../../renderer/scene';
 import { Mat4, Vec3, Vec2 } from '../../math';
 import { Frustum, AABB } from '../../geometry';
@@ -62,7 +61,7 @@ _splitFrustum.accurate = true;
 const _lightViewFrustum = new Frustum();
 _lightViewFrustum.accurate = true;
 
-class ShadowTransformInfo {
+export class ShadowTransformInfo {
     public _shadowObjects: IRenderObject[] = [];
 
     protected _shadowCameraFar: number;
@@ -113,7 +112,7 @@ class ShadowTransformInfo {
         this._validFrustum = val;
     }
 }
-class CSMLayerInfo extends ShadowTransformInfo {
+export class CSMLayerInfo extends ShadowTransformInfo {
     // Level is a vector, Indicates the location.
     protected _level: number;
     protected _splitCameraNear: number;
@@ -154,7 +153,6 @@ class CSMLayerInfo extends ShadowTransformInfo {
  * @en Shadow CSM layer manager
  * @zh CSM阴影图层管理
  */
-@ccclass('CSMLayers')
 export class CSMLayers {
     public castShadowObjects: IRenderObject[] = [];
 
