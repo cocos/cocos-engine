@@ -310,6 +310,13 @@ export class Frustum {
         this.updatePlanes();
     }
 
+    public zero () {
+        for (let i = 0; i < 8; i++) {
+            this.vertices[i].set(0.0, 0.0, 0.0);
+        }
+        this.updatePlanes();
+    }
+
     /**
      * @en Update all six planes of the frustum
      * @zh 更新视锥体的所有面数据

@@ -75,8 +75,9 @@ export class ShadowFlow extends RenderFlow {
     public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
+        const csmLayers = pipeline.pipelineSceneData.csmLayers;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const castShadowObjects = pipeline.pipelineSceneData.castShadowObjects;
+        const castShadowObjects = csmLayers.castShadowObjects;
         const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 

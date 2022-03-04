@@ -32,12 +32,12 @@ import { Vec3, Mat4 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows, CSMLevel } from '../renderer/scene/shadows';
+import { ShadowType, Shadows } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight } from '../renderer/scene';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
-const _dirLightFrustum = new Frustum();
+let _dirLightFrustum = new Frustum();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const dirShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -214,29 +214,21 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
-    const castShadowObjects = sceneData.castShadowObjects;
+    const castShadowObjects = csmLayers.castShadowObjects;
     castShadowPool.freeArray(castShadowObjects); castShadowObjects.length = 0;
 
-    let dirShadowObjects: IRenderObject[] | null = null;
+    const dirShadowObjects = sceneData.csmLayers.specialLayer._shadowObjects;
+    dirShadowPool.freeArray(dirShadowObjects); dirShadowObjects.length = 0;
+
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
         if (shadows.type === ShadowType.ShadowMap) {
-            dirShadowObjects = pipeline.pipelineSceneData.dirShadowObjects;
-            dirShadowPool.freeArray(dirShadowObjects); dirShadowObjects.length = 0;
-
             // update dirLightFrustum
             if (mainLight && mainLight.node) {
                 csmLayers.update(pipeline, camera, mainLight, shadows);
-                if (mainLight.shadowFixedArea && csmLayers.fixedArea) {
-                    Frustum.copy(_dirLightFrustum, csmLayers.fixedArea.validFrustum!);
-                } else if (mainLight.shadowCSMLevel === CSMLevel.level_1 && csmLayers.layers[0]) {
-                    Frustum.copy(_dirLightFrustum, csmLayers.layers[0].validFrustum!);
-                }
+                _dirLightFrustum = csmLayers.specialLayer.validFrustum;
             } else {
-                for (let i = 0; i < 8; i++) {
-                    _dirLightFrustum.vertices[i].set(0.0, 0.0, 0.0);
-                }
-                _dirLightFrustum.updatePlanes();
+                _dirLightFrustum.zero();
             }
         }
     }

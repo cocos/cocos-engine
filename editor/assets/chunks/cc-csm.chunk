@@ -1,0 +1,11 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma define MAX_CSM_LEVLE_COUNT 4
+#pragma builtin(global)
+layout(set = 0, binding = 3) uniform CCCSM {
+  highp mat4 cc_matShadowView_levels[MAX_CSM_LEVLE_COUNT];
+  highp mat4 cc_matLightViewProjAtlas_levels[MAX_CSM_LEVLE_COUNT];
+  highp vec4 cc_shadowProjDepthInfo_levels[MAX_CSM_LEVLE_COUNT];
+  highp vec4 cc_shadowProjInfo_levels[MAX_CSM_LEVLE_COUNT];
+  mediump vec4 cc_csm_Far;  // x-> level_1 far, y-> level_2 far, z-> level_3 far, w-> level_4 far,
+};
