@@ -340,20 +340,26 @@ export class WebPipeline extends Pipeline {
         this._pipelineSceneData = pplScene;
     }
     endFrame () {
-        this.build();
         this._renderGraph = null;
         this._pipelineSceneData = null;
     }
+
     build () {
         if (!this._renderGraph) {
             throw new Error('RenderGraph cannot be built without being created');
         }
         if (!this._renderDependencyGraph) {
-            this._renderDependencyGraph = new RenderDependencyGraph(this._renderGraph, this._resourceGraph, this._layoutGraph);
+            this._renderDependencyGraph = new RenderDependencyGraph(this._renderGraph, this.resourceGraph, this._layoutGraph);
         }
         this._renderDependencyGraph.reset();
         this._renderDependencyGraph.build();
     }
+
+    render () {
+        if (!this._renderDependencyGraph) { throw new Error('RenderDependencyGraph is not initialized'); }
+        this._renderDependencyGraph.render();
+    }
+
     addRasterPass (width: number, height: number, layoutName: string, name = 'Raster'): RasterPassBuilder {
         const pass = new RasterPass();
         const data = new RenderData();
@@ -388,6 +394,9 @@ export class WebPipeline extends Pipeline {
     }
     get renderGraph () {
         return this._renderGraph;
+    }
+    get resourceGraph () {
+        return this._resourceGraph;
     }
     protected _updateRasterPassConstants (pass: Setter, width: number, height: number) {
         const shadingWidth = width;
