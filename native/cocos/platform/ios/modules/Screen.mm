@@ -39,11 +39,7 @@ int Screen::getDPI() const {
     static int dpi = -1;
 
     if (dpi == -1) {
-        float scale = 1.0f;
-
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-            scale = [[UIScreen mainScreen] scale];
-        }
+        float scale = [[UIScreen mainScreen] scale];
 
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
             dpi = 132 * scale;
