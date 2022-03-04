@@ -108,26 +108,18 @@ export function isAnimationTransition (transition: TransitionView): transition i
     return transition instanceof AnimationTransition;
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}PassthroughState`)
-export class PassthroughState extends State {
-    public declare __brand: 'PassthroughState';
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyState`)
+export class EmptyState extends State {
+    public declare __brand: 'EmptyState';
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}PassthroughTransition`)
-export class PassthroughTransition extends Transition {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyStateTransition`)
+export class EmptyStateTransition extends Transition {
     /**
-     * The transition duration.
-     * The unit of the duration is the real duration of transition source
-     * if `relativeDuration` is `true` or seconds otherwise.
+     * The transition duration, in seconds.
      */
     @serializable
     public duration = 0.3;
-
-    /**
-     * Determines the unit of transition duration. See `duration`.
-     */
-    @serializable
-    public relativeDuration = false;
 }
 
 @ccclass('cc.animation.StateMachine')
@@ -270,11 +262,11 @@ export class StateMachine extends EditorExtendable {
     }
 
     /**
-     * Adds a passthrough state into this state machine.
-     * @returns The newly created passthrough state.
+     * Adds an empty state into this state machine.
+     * @returns The newly created empty state.
      */
-    public addPassthrough () {
-        return this._addState(new PassthroughState());
+    public addEmpty () {
+        return this._addState(new EmptyState());
     }
 
     /**
@@ -310,7 +302,7 @@ export class StateMachine extends EditorExtendable {
      * @param to Target state.
      * @param condition The transition condition.
      */
-    public connect (from: PassthroughState, to: State, conditions?: Condition[]): PassthroughTransition;
+    public connect (from: EmptyState, to: State, conditions?: Condition[]): EmptyStateTransition;
 
     /**
      * Connect two states.
@@ -339,8 +331,8 @@ export class StateMachine extends EditorExtendable {
 
         const transition = from instanceof MotionState || from === this._anyState
             ? new AnimationTransition(from, to, conditions)
-            : from instanceof PassthroughState
-                ? new PassthroughTransition(from, to, conditions)
+            : from instanceof EmptyState
+                ? new EmptyStateTransition(from, to, conditions)
                 : new Transition(from, to, conditions);
 
         own(transition, this);

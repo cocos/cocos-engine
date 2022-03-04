@@ -1400,40 +1400,39 @@ describe('NewGen Anim', () => {
         });
     });
 
-    describe(`Passthrough state`, () => {
-        test('Single layer: Motion <-> Passthrough', () => {
+    describe(`Empty state`, () => {
+        test('Single layer: Motion <-> Empty', () => {
             const NODE_DEFAULT_VALUE = 9.0;
-            const FIRST_TIME_PASSTHROUGH_REST_TIME = 0.2;
+            const FIRST_TIME_EMPTY_REST_TIME = 0.2;
             const MOTION_SAMPLE_RESULT_AT = (time: number) => lerp(0.4, 0.6, time / 1.0);
-            const PASSTHROUGH_TO_MOTION_DURATION = 0.51;
-            const MOTION_TO_PASSTHROUGH_DURATION = 0.49;
+            const EMPTY_TO_MOTION_DURATION = 0.51;
+            const MOTION_TO_EMPTY_DURATION = 0.49;
             const MOTION_EXIT_CONDITION = 0.7;
 
             const graph = new AnimationGraph();
             const clipMotion = createClipMotionPositionXLinear(1.0, 0.4, 0.6, 'AnimStateClip');
-            { // Entry -> Passthrough <-> Motion
+            { // Entry -> Empty <-> Motion
                 const layer = graph.addLayer();
                 const topLevelStateMachine = layer.stateMachine;
-                const passThroughState = topLevelStateMachine.addPassthrough();
-                passThroughState.name = 'PASSTHROUGH*';
+                const emptyState = topLevelStateMachine.addEmpty();
 
                 const motionState = topLevelStateMachine.addMotion();
                 motionState.motion = clipMotion;
 
-                topLevelStateMachine.connect(topLevelStateMachine.entryState, passThroughState);
+                topLevelStateMachine.connect(topLevelStateMachine.entryState, emptyState);
 
-                const passthroughToMotion = topLevelStateMachine.connect(passThroughState, motionState);
-                passthroughToMotion.duration = PASSTHROUGH_TO_MOTION_DURATION;
-                const [ triggerCondition ] = passthroughToMotion.conditions = [
+                const emptyToMotion = topLevelStateMachine.connect(emptyState, motionState);
+                emptyToMotion.duration = EMPTY_TO_MOTION_DURATION;
+                const [ triggerCondition ] = emptyToMotion.conditions = [
                     new TriggerCondition(),
                 ];
                 triggerCondition.trigger = 't';
                 graph.addVariable('t', VariableType.TRIGGER, false);
 
-                const motionToPassthrough = topLevelStateMachine.connect(motionState, passThroughState);
-                motionToPassthrough.duration = MOTION_TO_PASSTHROUGH_DURATION;
-                motionToPassthrough.exitConditionEnabled = true;
-                motionToPassthrough.exitCondition = MOTION_EXIT_CONDITION;
+                const motionToEmpty = topLevelStateMachine.connect(motionState, emptyState);
+                motionToEmpty.duration = MOTION_TO_EMPTY_DURATION;
+                motionToEmpty.exitConditionEnabled = true;
+                motionToEmpty.exitCondition = MOTION_EXIT_CONDITION;
             }
 
             const node = new Node();
@@ -1443,8 +1442,8 @@ describe('NewGen Anim', () => {
 
             const updater = new GraphUpdater(graphEval);
 
-            // Passthrough
-            updater.goto(FIRST_TIME_PASSTHROUGH_REST_TIME);
+            // Empty
+            updater.goto(FIRST_TIME_EMPTY_REST_TIME);
             expectAnimationGraphEvalStatus(graphEval, [
                 { current: [] },
             ]);
@@ -1453,61 +1452,61 @@ describe('NewGen Anim', () => {
             // Trigger the transition.
             graphEval.setValue('t', true);
 
-            // Start Passthrough -> Motion
+            // Start Empty -> Motion
             updater.step(0.15);
             expectAnimationGraphEvalStatus(graphEval, [
-                { transition: { next: { clip: clipMotion!.clip, weight: 0.15 / PASSTHROUGH_TO_MOTION_DURATION } } },
+                { transition: { next: { clip: clipMotion!.clip, weight: 0.15 / EMPTY_TO_MOTION_DURATION } } },
             ]);
             expect(node.position.x).toBeCloseTo(lerp(
                 NODE_DEFAULT_VALUE, // Default
                 MOTION_SAMPLE_RESULT_AT(0.15), // Layer 0 result
-                0.15 / PASSTHROUGH_TO_MOTION_DURATION,
+                0.15 / EMPTY_TO_MOTION_DURATION,
             ));
 
             // Step for a little while
             updater.step(0.06);
             expectAnimationGraphEvalStatus(graphEval, [
-                { transition: { next: { clip: clipMotion!.clip, weight: 0.21 / PASSTHROUGH_TO_MOTION_DURATION } } },
+                { transition: { next: { clip: clipMotion!.clip, weight: 0.21 / EMPTY_TO_MOTION_DURATION } } },
             ]);
             expect(node.position.x).toBeCloseTo(lerp(
                 NODE_DEFAULT_VALUE, // Default
                 MOTION_SAMPLE_RESULT_AT(0.21), // Layer 0 result
-                0.21 / PASSTHROUGH_TO_MOTION_DURATION,
+                0.21 / EMPTY_TO_MOTION_DURATION,
             ));
 
             // Step so the transition finished.
             // So as here there is only motion running, with full weight.
-            updater.goto(FIRST_TIME_PASSTHROUGH_REST_TIME + PASSTHROUGH_TO_MOTION_DURATION + 0.02);
+            updater.goto(FIRST_TIME_EMPTY_REST_TIME + EMPTY_TO_MOTION_DURATION + 0.02);
             expectAnimationGraphEvalStatus(graphEval, [
                 { current: { clip: clipMotion!.clip, weight: 1.0 } },
             ]);
-            expect(node.position.x).toBeCloseTo(MOTION_SAMPLE_RESULT_AT(PASSTHROUGH_TO_MOTION_DURATION + 0.02));
+            expect(node.position.x).toBeCloseTo(MOTION_SAMPLE_RESULT_AT(EMPTY_TO_MOTION_DURATION + 0.02));
 
-            // Start Motion -> Passthrough
-            updater.goto(FIRST_TIME_PASSTHROUGH_REST_TIME + MOTION_EXIT_CONDITION + 0.15);
+            // Start Motion -> Empty
+            updater.goto(FIRST_TIME_EMPTY_REST_TIME + MOTION_EXIT_CONDITION + 0.15);
             expectAnimationGraphEvalStatus(graphEval, [
-                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.15 / MOTION_TO_PASSTHROUGH_DURATION } },
+                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.15 / MOTION_TO_EMPTY_DURATION } },
             ]);
             expect(node.position.x).toBeCloseTo(lerp(
                 MOTION_SAMPLE_RESULT_AT(MOTION_EXIT_CONDITION + 0.15), // Layer 0 result
                 NODE_DEFAULT_VALUE, // Default
-                0.15 / MOTION_TO_PASSTHROUGH_DURATION,
+                0.15 / MOTION_TO_EMPTY_DURATION,
             ));
 
             // Step for a little while
             updater.step(0.06);
             expectAnimationGraphEvalStatus(graphEval, [
-                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.21 / MOTION_TO_PASSTHROUGH_DURATION } },
+                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.21 / MOTION_TO_EMPTY_DURATION } },
             ]);
             expect(node.position.x).toBeCloseTo(lerp(
                 MOTION_SAMPLE_RESULT_AT(MOTION_EXIT_CONDITION + 0.21), // Layer 0 result
                 NODE_DEFAULT_VALUE, // Default
-                0.21 / MOTION_TO_PASSTHROUGH_DURATION,
+                0.21 / MOTION_TO_EMPTY_DURATION,
             ));
 
             // Step so the transition finished.
-            // So as here there is only passthrough state, with full weight.
-            updater.goto(FIRST_TIME_PASSTHROUGH_REST_TIME + MOTION_EXIT_CONDITION + MOTION_TO_PASSTHROUGH_DURATION + 0.01);
+            // So as here there is only empty state, with full weight.
+            updater.goto(FIRST_TIME_EMPTY_REST_TIME + MOTION_EXIT_CONDITION + MOTION_TO_EMPTY_DURATION + 0.01);
             expectAnimationGraphEvalStatus(graphEval, [
                 { current: [] },
             ]);
@@ -1528,15 +1527,14 @@ describe('NewGen Anim', () => {
             {
                 const layer = graph.addLayer();
                 const topLevelStateMachine = layer.stateMachine;
-                const passThroughState = topLevelStateMachine.addPassthrough();
-                passThroughState.name = 'PASSTHROUGH*';
+                const emptyState = topLevelStateMachine.addEmpty();
                 const motionState = topLevelStateMachine.addMotion();
                 motionState.motion = layer1Clip;
                 topLevelStateMachine.connect(topLevelStateMachine.entryState, motionState);
-                const motionToPassthrough = topLevelStateMachine.connect(motionState, passThroughState);
-                motionToPassthrough.exitConditionEnabled = true;
-                motionToPassthrough.exitCondition = 0.3;
-                motionToPassthrough.duration = 0.5;
+                const motionToEmpty = topLevelStateMachine.connect(motionState, emptyState);
+                motionToEmpty.exitConditionEnabled = true;
+                motionToEmpty.exitCondition = 0.3;
+                motionToEmpty.duration = 0.5;
             }
             const node = new Node();
 

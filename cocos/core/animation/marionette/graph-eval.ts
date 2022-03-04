@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import {
     AnimationGraph, Layer, StateMachine, State, isAnimationTransition,
-    SubStateMachine, PassthroughState, PassthroughTransition,
+    SubStateMachine, EmptyState, EmptyStateTransition,
 } from './animation-graph';
 import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
@@ -304,7 +304,7 @@ class LayerEval {
 
     public getNextStateStatus (): Readonly<MotionStateStatus> | null {
         assertIsTrue(
-            this._currentTransitionToNode && this._currentTransitionToNode.kind !== NodeKind.PASSTHROUGH,
+            this._currentTransitionToNode && this._currentTransitionToNode.kind !== NodeKind.empty,
             'There is no transition currently in layer.',
         );
         return this._currentTransitionToNode.getToPortStatus();
@@ -324,7 +324,7 @@ class LayerEval {
     private _topLevelEntry: NodeEval;
     private _topLevelExit: NodeEval;
     private _currentNode: NodeEval;
-    private _currentTransitionToNode: PassthroughEval | MotionStateEval | null = null;
+    private _currentTransitionToNode: EmptyStateEval | MotionStateEval | null = null;
     private _currentTransitionPath: TransitionEval[] = [];
     private _transitionProgress = 0;
     private declare _triggerReset: TriggerResetFn;
@@ -351,8 +351,8 @@ class LayerEval {
                 return exitEval = new SpecialStateEval(node, NodeKind.exit, node.name);
             } else if (node === graph.anyState) {
                 return anyNode = new SpecialStateEval(node, NodeKind.any, node.name);
-            } else if (node instanceof PassthroughState) {
-                return new PassthroughEval(node);
+            } else if (node instanceof EmptyState) {
+                return new EmptyStateEval(node);
             } else {
                 assertIsTrue(node instanceof SubStateMachine);
                 return null;
@@ -447,9 +447,8 @@ class LayerEval {
                     transitionEval.normalizedDuration = outgoing.relativeDuration;
                     transitionEval.exitConditionEnabled = outgoing.exitConditionEnabled;
                     transitionEval.exitCondition = outgoing.exitCondition;
-                } else if (outgoing instanceof PassthroughTransition) {
+                } else if (outgoing instanceof EmptyStateTransition) {
                     transitionEval.duration = outgoing.duration;
-                    transitionEval.normalizedDuration = outgoing.relativeDuration;
                 }
 
                 transitionEval.conditions.forEach((conditionEval, iCondition) => {
@@ -598,12 +597,12 @@ class LayerEval {
             _fromWeight: fromWeight,
             _toWeight: toWeight,
         } = this;
-        if (currentNode.kind === NodeKind.PASSTHROUGH) {
+        if (currentNode.kind === NodeKind.empty) {
             this.passthroughWeight = toWeight;
             if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.animation) {
                 currentTransitionToNode.sampleToPort(1.0);
             }
-        } else if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.PASSTHROUGH) {
+        } else if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.empty) {
             this.passthroughWeight = fromWeight;
             if (currentNode.kind === NodeKind.animation) {
                 currentNode.sampleFromPort(1.0);
@@ -786,7 +785,7 @@ class LayerEval {
         const lastTransition = currentTransitionPath[lenCurrentTransitionPath - 1];
         const tailNode = lastTransition.to;
 
-        if (tailNode.kind !== NodeKind.animation && tailNode.kind !== NodeKind.PASSTHROUGH) {
+        if (tailNode.kind !== NodeKind.animation && tailNode.kind !== NodeKind.empty) {
             const motionNode = this._matchTransitionPathUntilMotion();
             if (motionNode) {
                 // Apply transitions
@@ -810,7 +809,7 @@ class LayerEval {
 
         const lastTransition = currentTransitionPath[lenCurrentTransitionPath - 1];
         let tailNode = lastTransition.to;
-        for (; tailNode.kind !== NodeKind.animation && tailNode.kind !== NodeKind.PASSTHROUGH;) {
+        for (; tailNode.kind !== NodeKind.animation && tailNode.kind !== NodeKind.empty;) {
             const transitionMatch = this._matchTransition(
                 tailNode,
                 tailNode,
@@ -826,7 +825,7 @@ class LayerEval {
             tailNode = transition.to;
         }
 
-        return tailNode.kind === NodeKind.animation || tailNode.kind === NodeKind.PASSTHROUGH ? tailNode : null;
+        return tailNode.kind === NodeKind.animation || tailNode.kind === NodeKind.empty ? tailNode : null;
     }
 
     private _consumeTransition (transition: TransitionEval) {
@@ -848,7 +847,7 @@ class LayerEval {
         }
     }
 
-    private _doTransitionToMotion (targetNode: MotionStateEval | PassthroughEval) {
+    private _doTransitionToMotion (targetNode: MotionStateEval | EmptyStateEval) {
         // Reset triggers
         this._resetTriggersAlongThePath();
 
@@ -893,9 +892,9 @@ class LayerEval {
             contrib = 0.0;
             ratio = 1.0;
         } else {
-            assertIsTrue(fromNode.kind === NodeKind.animation || fromNode.kind === NodeKind.PASSTHROUGH);
+            assertIsTrue(fromNode.kind === NodeKind.animation || fromNode.kind === NodeKind.empty);
             const { _transitionProgress: transitionProgress } = this;
-            const durationSeconds = fromNode.kind === NodeKind.PASSTHROUGH
+            const durationSeconds = fromNode.kind === NodeKind.empty
                 ? transitionDuration
                 : normalizedDuration ? transitionDuration * fromNode.duration : transitionDuration;
             const progressSeconds = transitionProgress * durationSeconds;
@@ -1062,7 +1061,7 @@ const transitionMatchCacheAny = new TransitionMatchCache();
 
 enum NodeKind {
     entry, exit, any, animation,
-    PASSTHROUGH,
+    empty,
 }
 
 export class StateEval {
@@ -1315,15 +1314,15 @@ export class SpecialStateEval extends StateEval {
     public readonly kind: NodeKind.entry | NodeKind.exit | NodeKind.any;
 }
 
-export class PassthroughEval extends StateEval {
-    public readonly kind = NodeKind.PASSTHROUGH;
+export class EmptyStateEval extends StateEval {
+    public readonly kind = NodeKind.empty;
 
     constructor (node: State) {
         super(node);
     }
 }
 
-export type NodeEval = MotionStateEval | SpecialStateEval | PassthroughEval;
+export type NodeEval = MotionStateEval | SpecialStateEval | EmptyStateEval;
 
 interface TransitionEval {
     to: NodeEval;
