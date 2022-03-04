@@ -33,6 +33,7 @@ import { Mat4, Vec3, Vec2 } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { RenderPipeline } from '..';
 import { IRenderObject } from '../define';
+import { Device } from '../../gfx';
 
 const SHADOW_CSM_LAMBDA = 0.75;
 
@@ -55,12 +56,6 @@ const _maxVec3 = new Vec3(10000000, 10000000, 10000000);
 const _minVec3 = new Vec3(-10000000, -10000000, -10000000);
 const _shadowPos = new Vec3();
 
-const _castLightViewBoundingBox = new AABB();
-const _splitFrustum = new Frustum();
-_splitFrustum.accurate = true;
-const _lightViewFrustum = new Frustum();
-_lightViewFrustum.accurate = true;
-
 export class ShadowTransformInfo {
     public _shadowObjects: IRenderObject[] = [];
 
@@ -72,9 +67,16 @@ export class ShadowTransformInfo {
 
     protected _validFrustum: Frustum = new Frustum();
 
+    // geometry renderer value
+    protected _splitFrustum: Frustum = new Frustum();
+    protected _lightViewFrustum: Frustum = new Frustum();
+    protected _castLightViewBoundingBox: AABB = new AABB();
+
     constructor () {
         this._shadowCameraFar = 0.0;
         this._validFrustum.accurate = true;
+        this._splitFrustum.accurate = true;
+        this._lightViewFrustum.accurate = true;
     }
 
     get shadowCameraFar () {
@@ -110,6 +112,76 @@ export class ShadowTransformInfo {
     }
     set validFrustum (val) {
         this._validFrustum = val;
+    }
+
+    get splitFrustum () {
+        return this._splitFrustum;
+    }
+    set splitFrustum (val) {
+        this._splitFrustum = val;
+    }
+    get lightViewFrustum () {
+        return this._lightViewFrustum;
+    }
+    set lightViewFrustum (val) {
+        this._lightViewFrustum = val;
+    }
+    get castLightViewBoundingBox () {
+        return this._castLightViewBoundingBox;
+    }
+    set castLightViewBoundingBox (val) {
+        this._castLightViewBoundingBox = val;
+    }
+
+    public createMatrix (device: Device, dirLight: DirectionalLight, shadowMapWidth: number, onlyForCulling: boolean) {
+        const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
+
+        // view matrix with range back
+        Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _focus);
+        Mat4.invert(_matShadowView, _matShadowTrans);
+        const shadowViewArbitaryPos = _matShadowView.clone();
+        this._lightViewFrustum.transform(_matShadowView);
+
+        // bounding box in light space
+        AABB.fromPoints(this._castLightViewBoundingBox, _maxVec3, _minVec3);
+        this._castLightViewBoundingBox.mergeFrustum(this._lightViewFrustum);
+        const orthoSize = Vec3.distance(this._lightViewFrustum.vertices[0], this._lightViewFrustum.vertices[6]);
+
+        const r = this._castLightViewBoundingBox.halfExtents.z;
+        this._shadowCameraFar = r * 2 + invisibleOcclusionRange;
+        const center = this._castLightViewBoundingBox.center;
+        _shadowPos.set(center.x, center.y, center.z + r + invisibleOcclusionRange);
+        Vec3.transformMat4(_shadowPos, _shadowPos, _matShadowTrans);
+
+        Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _shadowPos);
+        Mat4.invert(_matShadowView, _matShadowTrans);
+
+        if (!onlyForCulling) {
+            // snap to whole texels
+            const halfOrthoSize = orthoSize * 0.5;
+            Mat4.ortho(_matShadowProj, -halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1, this.shadowCameraFar,
+                device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+
+            Mat4.multiply(_matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
+            Vec3.transformMat4(_projPos, _shadowPos, _matShadowViewProjArbitaryPos);
+            const invActualSize = 2.0 / shadowMapWidth;
+            _texelSize.set(invActualSize, invActualSize);
+            const modX = _projPos.x % _texelSize.x;
+            const modY = _projPos.y % _texelSize.y;
+            _projSnap.set(_projPos.x - modX, _projPos.y - modY, _projPos.z);
+            Mat4.invert(_matShadowViewProjArbitaryPosInv, _matShadowViewProjArbitaryPos);
+            Vec3.transformMat4(_snap, _projSnap, _matShadowViewProjArbitaryPosInv);
+
+            Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _snap);
+            Mat4.invert(_matShadowView, _matShadowTrans);
+
+            // fill data
+            Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
+            Mat4.copy(this._matShadowView, _matShadowView);
+            Mat4.copy(this._matShadowProj, _matShadowProj);
+            Mat4.copy(this._matShadowViewProj, _matShadowViewProj);
+        }
+        Frustum.createOrtho(this._validFrustum, orthoSize, orthoSize, 0.1,  this._shadowCameraFar, _matShadowTrans);
     }
 }
 export class CSMLayerInfo extends ShadowTransformInfo {
@@ -263,70 +335,26 @@ export class CSMLayers {
     }
 
     private _calculateCSM () {
-        if (!this._pipeline || !this._dirLight || !this._camera || !this._shadowInfo) return;
+        if (!this._pipeline || !this._dirLight || !this._camera || !this._shadowInfo) { return; }
 
         const device = this._pipeline.device;
         const dirLight = this._dirLight;
         const level = dirLight.shadowCSMLevel;
         const camera = this._camera;
-        const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
         const shadowMapWidth = this._shadowInfo.size.x;
+
+        if (shadowMapWidth < 0.0) { return; }
+
         for (let i = 0; i < level; i++) {
             const csmLayer = this._layers[i];
             const near = csmLayer.splitCameraNear;
             const far = csmLayer.splitCameraFar;
             this._getCameraWorldMatrix(_mat4Trans, camera);
-            Frustum.split(_splitFrustum, camera, _mat4Trans, near, far);
-            Frustum.copy(_lightViewFrustum, _splitFrustum);
+            Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, near, far);
+            Frustum.copy(csmLayer.lightViewFrustum, csmLayer.splitFrustum);
+            csmLayer.createMatrix(device, dirLight, shadowMapWidth, false);
 
-            // view matrix with range back
-            Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _focus);
-            Mat4.invert(_matShadowView, _matShadowTrans);
-            const shadowViewArbitaryPos = _matShadowView.clone();
-            _lightViewFrustum.transform(_matShadowView);
-
-            // bounding box in light space
-            AABB.fromPoints(_castLightViewBoundingBox, _maxVec3, _minVec3);
-            _castLightViewBoundingBox.mergeFrustum(_lightViewFrustum);
-            const orthoSize = Vec3.distance(_lightViewFrustum.vertices[0], _lightViewFrustum.vertices[6]);
-
-            const r = _castLightViewBoundingBox.halfExtents.z;
-            csmLayer.shadowCameraFar = r * 2 + invisibleOcclusionRange;
-            const center = _castLightViewBoundingBox.center;
-            _shadowPos.set(center.x, center.y, center.z + r + invisibleOcclusionRange);
-            Vec3.transformMat4(_shadowPos, _shadowPos, _matShadowTrans);
-
-            Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _shadowPos);
-            Mat4.invert(_matShadowView, _matShadowTrans);
-
-            // snap to whole texels
-            const halfOrthoSize = orthoSize * 0.5;
-            Mat4.ortho(_matShadowProj, -halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1,  csmLayer.shadowCameraFar,
-                device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
-
-            if (shadowMapWidth > 0.0) {
-                Mat4.multiply(_matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
-                Vec3.transformMat4(_projPos, _shadowPos, _matShadowViewProjArbitaryPos);
-                const invActualSize = 2.0 / shadowMapWidth;
-                _texelSize.set(invActualSize, invActualSize);
-                const modX = _projPos.x % _texelSize.x;
-                const modY = _projPos.y % _texelSize.y;
-                _projSnap.set(_projPos.x - modX, _projPos.y - modY, _projPos.z);
-                Mat4.invert(_matShadowViewProjArbitaryPosInv, _matShadowViewProjArbitaryPos);
-                Vec3.transformMat4(_snap, _projSnap, _matShadowViewProjArbitaryPosInv);
-
-                Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _snap);
-                Mat4.invert(_matShadowView, _matShadowTrans);
-                Frustum.createOrtho(csmLayer.validFrustum, orthoSize, orthoSize, 0.1,  csmLayer.shadowCameraFar, _matShadowTrans);
-            } else {
-                csmLayer.validFrustum.zero();
-            }
-
-            Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-            Mat4.multiply(_matShadowViewProjAtlas, _matShadowViewProj, _mat4Atlas);
-            Mat4.copy(csmLayer.matShadowView, _matShadowView);
-            Mat4.copy(csmLayer.matShadowProj, _matShadowProj);
-            Mat4.copy(csmLayer.matShadowViewProj, _matShadowViewProj);
+            Mat4.multiply(_matShadowViewProjAtlas, csmLayer.matShadowViewProj, _mat4Atlas);
             Mat4.copy(csmLayer.matShadowViewProjAtlas, _matShadowViewProjAtlas);
         }
 
@@ -338,29 +366,9 @@ export class CSMLayers {
             Frustum.copy(this._specialLayer.validFrustum, this._layers[0].validFrustum);
         } else {
             this._getCameraWorldMatrix(_mat4Trans, camera);
-            Frustum.split(_splitFrustum, camera, _mat4Trans, 0.1, dirLight.shadowDistance);
-            Frustum.copy(_lightViewFrustum, _splitFrustum);
-
-            // view matrix with range back
-            Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _focus);
-            Mat4.invert(_matShadowView, _matShadowTrans);
-            _lightViewFrustum.transform(_matShadowView);
-
-            // bounding box in light space
-            AABB.fromPoints(_castLightViewBoundingBox, _maxVec3, _minVec3);
-            _castLightViewBoundingBox.mergeFrustum(_lightViewFrustum);
-            const orthoSize = Vec3.distance(_lightViewFrustum.vertices[0], _lightViewFrustum.vertices[6]);
-
-            const r = _castLightViewBoundingBox.halfExtents.z;
-            const shadowCameraFar = r * 2 + invisibleOcclusionRange;
-            const center = _castLightViewBoundingBox.center;
-            _shadowPos.set(center.x, center.y, center.z + r + invisibleOcclusionRange);
-            Vec3.transformMat4(_shadowPos, _shadowPos, _matShadowTrans);
-
-            Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _shadowPos);
-            Mat4.invert(_matShadowView, _matShadowTrans);
-
-            Frustum.createOrtho(this._specialLayer.validFrustum, orthoSize, orthoSize, 0.1,  shadowCameraFar, _matShadowTrans);
+            Frustum.split(this._specialLayer.splitFrustum, camera, _mat4Trans, 0.1, dirLight.shadowDistance);
+            Frustum.copy(this._specialLayer.lightViewFrustum, this._specialLayer.splitFrustum);
+            this._specialLayer.createMatrix(device, dirLight, shadowMapWidth, true);
         }
     }
 
