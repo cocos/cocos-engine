@@ -32,9 +32,10 @@ import { ForwardStagePriority } from '../enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
-import { Light } from '../../renderer/scene/light';
+import { Light, LightType } from '../../renderer/scene/light';
 import { ShadowFlow } from './shadow-flow';
 import { Camera } from '../../renderer/scene';
+import { ShadowTransformInfo } from './csm-layers';
 
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 
@@ -55,8 +56,8 @@ export class ShadowStage extends RenderStage {
     };
 
     /**
-     * @en Sets the frame buffer for shadow map
-     * @zh 设置阴影渲染的 FrameBuffer
+     * @en Sets the render shadow map info
+     * @zh 设置阴影渲染信息
      * @param light
      * @param shadowFrameBuffer
      */
@@ -66,11 +67,22 @@ export class ShadowStage extends RenderStage {
         this._shadowFrameBuffer = shadowFrameBuffer;
     }
 
+    /**
+     * @en Sets the CSM layer
+     * @zh 设置 CSM 层级
+     * @param light
+     * @param shadowFrameBuffer
+     */
+    public setLayer (layer: ShadowTransformInfo) {
+        this._layer = layer;
+    }
+
     private _additiveShadowQueue!: RenderShadowMapBatchedQueue;
     private _shadowFrameBuffer: Framebuffer | null = null;
     private _renderArea = new Rect();
     private _light: Light | null = null;
     private _globalDS: DescriptorSet | null = null;
+    private _layer: ShadowTransformInfo | null = null;
 
     public destroy () {
         this._shadowFrameBuffer = null;
@@ -102,7 +114,11 @@ export class ShadowStage extends RenderStage {
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
         this._pipeline.pipelineUBO.updateShadowUBOLight(descriptorSet, this._light);
-        this._additiveShadowQueue.gatherLightPasses(descriptorSet, camera, this._light, cmdBuff);
+        if (this._light.type === LightType.DIRECTIONAL) {
+            this._additiveShadowQueue.gatherDirLightPasses(camera, this._light, this._layer!, cmdBuff);
+        } else {
+            this._additiveShadowQueue.gatherLightPasses(camera, this._light, cmdBuff);
+        }
 
         const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
