@@ -237,8 +237,7 @@ export class DynamicAtlasManager {
     public packToDynamicAtlas (comp, frame) {
         if (EDITOR) return;
 
-        const tex = frame.texture;
-        if (frame && !frame._original && frame.packable && tex && tex.width > 0 && tex.height > 0) {
+        if (frame && !frame._original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {
             const packedFrame = this.insertSpriteFrame(frame);
             if (packedFrame) {
                 frame._setDynamicAtlasFrame(packedFrame);
