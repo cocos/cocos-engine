@@ -431,7 +431,6 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this.emit(PipelineEventType.RENDER_FRAME_END, cameras);
         this._commandBuffers[0].end();
         this._device.queue.submit(this._commandBuffers);
-        this._geometryRenderer.reset();
     }
 
     /**
