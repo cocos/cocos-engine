@@ -68,7 +68,7 @@ AudioEngine::ProfileHelper *                                AudioEngine::sDefaul
 std::unordered_map<int, AudioEngine::AudioInfo>             AudioEngine::sAudioIDInfoMap;
 AudioEngineImpl *                                           AudioEngine::sAudioEngineImpl = nullptr;
 
-float            AudioEngine::sVolumeFactor = 1.0f;
+float            AudioEngine::sVolumeFactor = 1.0F;
 uint32_t         AudioEngine::sOnPauseListenerID  = 0;
 uint32_t         AudioEngine::sOnResumeListenerID = 0;
 std::vector<int> AudioEngine::sBreakAudioID;
@@ -283,10 +283,16 @@ void AudioEngine::setVolume(int audioID, float volume) {
 }
 
 void AudioEngine::setVolumeFactor(float factor) {
+    if (factor > 1.0F) {
+        factor = 1.0F;
+    }
+    if (factor < 0) {
+        factor = 0.0F;
+    }
     sVolumeFactor = factor;
     auto itEnd = sAudioIDInfoMap.end();
-    for (auto it = sAudioIDInfoMap.begin(); it != itEnd; ++it) {
-        sAudioEngineImpl->setVolume(it->first, it->second.volume * sVolumeFactor);
+    for (auto& item : sAudioIDInfoMap) {
+        sAudioEngineImpl->setVolume(item.first, item.second.volume * sVolumeFactor);
     }
 }
 

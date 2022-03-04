@@ -1,3 +1,28 @@
+/****************************************************************************
+ Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
 package com.cocos.lib;
 
 import android.content.Context;
@@ -10,7 +35,7 @@ import android.util.Log;
 class CocosAudioFocusManager {
 
     private static final String _TAG = "CocosAudioFocusManager";
-    private static boolean bLossAudioFocus = true;
+    private static boolean isAudioFocusLost = true;
 
     private final static AudioManager.OnAudioFocusChangeListener sAfChangeListener = focusChange -> {
         Log.d(_TAG, "onAudioFocusChange: " + focusChange + ", thread: " + Thread.currentThread().getName());
@@ -19,23 +44,23 @@ class CocosAudioFocusManager {
             // Permanent loss of audio focus
             // Pause playback immediately
             Log.d(_TAG, "Pause music by AUDIOFOCUS_LOSS");
-            bLossAudioFocus = true;
+            isAudioFocusLost = true;
             CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(0));
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
             // Pause playback
             Log.d(_TAG, "Pause music by AUDIOFOCUS_LOSS_TRANSILENT");
-            bLossAudioFocus = true;
+            isAudioFocusLost = true;
             CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(0));
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
             // Lower the volume, keep playing
             Log.d(_TAG, "Lower the volume, keep playing by AUDIOFOCUS_LOSS_TRANSILENT_CAN_DUCK");
-            bLossAudioFocus = false;
+            isAudioFocusLost = false;
             CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(0.1f));
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             // Your app has been granted audio focus again
             // Raise volume to normal, restart playback if necessary
             Log.d(_TAG, "Resume music by AUDIOFOCUS_GAIN");
-            bLossAudioFocus = false;
+            isAudioFocusLost = false;
             CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(1.0f));
         }
     };
@@ -69,7 +94,7 @@ class CocosAudioFocusManager {
 
         if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             Log.d(_TAG, "requestAudioFocus succeed");
-            bLossAudioFocus = false;
+            isAudioFocusLost = false;
             CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(1.0f));
             return;
         }
@@ -89,7 +114,7 @@ class CocosAudioFocusManager {
     }
 
     static boolean isAudioFocusLoss() {
-        return bLossAudioFocus;
+        return isAudioFocusLost;
     }
 
     private static native void nativeSetAudioVolumeFactor(float focus);
