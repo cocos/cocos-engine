@@ -95,11 +95,12 @@ export class RenderShadowMapBatchedQueue {
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            const dirShadowObjects = pipelineSceneData.dirShadowObjects;
-            const castShadowObjects = pipelineSceneData.castShadowObjects;
+            const dirShadowObjects = pipelineSceneData.csmLayers.specialLayer._shadowObjects;
+            const castShadowObjects = pipelineSceneData.csmLayers.castShadowObjects;
 
             switch (light.type) {
             case LightType.DIRECTIONAL:
+                if (!dirShadowObjects || dirShadowObjects.length === 0) { return; }
                 for (let i = 0; i < dirShadowObjects.length; i++) {
                     const ro = dirShadowObjects[i];
                     const model = ro.model;

@@ -338,6 +338,13 @@ export class Frustum {
         Plane.fromPoints(this.planes[5], this.vertices[7], this.vertices[5], this.vertices[6]);
     }
 
+    public zero () {
+        for (let i = 0; i < 8; i++) {
+            this.vertices[i].set(0.0, 0.0, 0.0);
+        }
+        this.updatePlanes();
+    }
+
     public updatePlanes () {
         // left plane
         Plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[6], this.vertices[5]);
