@@ -132,12 +132,10 @@ function updateExternal( repo, tag, cb ) {
         },
 
         function ( next ) {
-            if (!fetch) return next();
             exec(['fetch', '--all'], dir, next );
         },
 
         function ( next ) {
-            if (!fetch) return next();
             exec(['stash'], dir, next );
         },
 
