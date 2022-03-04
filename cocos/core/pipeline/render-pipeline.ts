@@ -651,6 +651,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return super.destroy();
     }
 
+    public onGlobalPipelineStateChanged () {
+        // do nothing
+    }
+
     protected _generateConstantMacros () {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.getFormatFeatures(Format.RGBA32F)

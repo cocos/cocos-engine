@@ -15,7 +15,7 @@ void DeferredPipelineSceneData::activate(gfx::Device *device, RenderPipeline *pi
     initPipelinePassInfo();
 }
 
-void DeferredPipelineSceneData::onGlobalPipelineStateChanged() {
+void DeferredPipelineSceneData::updatePipelineSceneData() {
     updatePipelinePassInfo();
 }
 

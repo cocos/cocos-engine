@@ -48,6 +48,7 @@ public:
     bool destroy() override;
     bool activate(gfx::Swapchain *swapchain) override;
     void render(const vector<scene::Camera *> &cameras) override;
+    void onGlobalPipelineStateChanged() override;
 
     inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
     inline const LightList &      getValidLights() const { return _validLights; }

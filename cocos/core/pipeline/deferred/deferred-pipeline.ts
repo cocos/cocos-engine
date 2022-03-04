@@ -120,6 +120,10 @@ export class DeferredPipeline extends RenderPipeline {
         return super.destroy();
     }
 
+    public onGlobalPipelineStateChanged () {
+        (this.pipelineSceneData as DeferredPipelineSceneData).updatePipelineSceneData();
+    }
+
     public getPipelineRenderData (): DeferredRenderData {
         if (!this._pipelineRenderData) {
             this._generateDeferredRenderData();
