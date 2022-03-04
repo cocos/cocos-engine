@@ -40,6 +40,11 @@ ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
   names(alloc),
   descs(alloc),
   traits(alloc),
+  states(alloc),
+  resources(alloc),
+  buffers(alloc),
+  textures(alloc),
+  swapchains(alloc),
   valueIndex(alloc) {}
 
 ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
@@ -47,6 +52,11 @@ ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
   names(std::move(rhs.names), alloc),
   descs(std::move(rhs.descs), alloc),
   traits(std::move(rhs.traits), alloc),
+  states(std::move(rhs.states), alloc),
+  resources(std::move(rhs.resources), alloc),
+  buffers(std::move(rhs.buffers), alloc),
+  textures(std::move(rhs.textures), alloc),
+  swapchains(std::move(rhs.swapchains), alloc),
   valueIndex(std::move(rhs.valueIndex), alloc) {}
 
 ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc)
@@ -54,6 +64,11 @@ ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& all
   names(rhs.names, alloc),
   descs(rhs.descs, alloc),
   traits(rhs.traits, alloc),
+  states(rhs.states, alloc),
+  resources(rhs.resources, alloc),
+  buffers(rhs.buffers, alloc),
+  textures(rhs.textures, alloc),
+  swapchains(rhs.swapchains, alloc),
   valueIndex(rhs.valueIndex, alloc) {}
 
 // ContinuousContainer
@@ -62,6 +77,7 @@ void ResourceGraph::reserve(vertices_size_type sz) {
     names.reserve(sz);
     descs.reserve(sz);
     traits.reserve(sz);
+    states.reserve(sz);
 }
 
 ResourceGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
@@ -70,11 +86,13 @@ ResourceGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
 
 ResourceGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
 : outEdges(std::move(rhs.outEdges), alloc),
-  inEdges(std::move(rhs.inEdges), alloc) {}
+  inEdges(std::move(rhs.inEdges), alloc),
+  handle(std::move(rhs.handle)) {}
 
 ResourceGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
-  inEdges(rhs.inEdges, alloc) {}
+  inEdges(rhs.inEdges, alloc),
+  handle(rhs.handle) {}
 
 RasterView::RasterView(const allocator_type& alloc) noexcept
 : slotName(alloc) {}

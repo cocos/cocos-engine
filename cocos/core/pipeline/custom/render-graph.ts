@@ -31,26 +31,8 @@
 /* eslint-disable max-len */
 import * as impl from './graph';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, ClearFlagBit, Color, Format, LoadOp, SampleCount, Sampler, StoreOp, Texture } from '../../gfx';
-import { QueueHint, ResourceDimension, ResourceResidency } from './types';
-
-export const enum ResourceFlags {
-    NONE = 0,
-    ALLOW_RENDER_TARGET = 0x1,
-    ALLOW_DEPTH_STENCIL = 0x2,
-    ALLOW_UNORDERED_ACCESS = 0x4,
-    DENY_SHADER_RESOURCE = 0x8,
-    ALLOW_CROSS_ADAPTER = 0x10,
-    ALLOW_SIMULTANEOUS_ACCESS = 0x20,
-    VIDEO_DECODE_REFERENCE_ONLY = 0x40,
-}
-
-export const enum TextureLayout {
-    UNKNOWN,
-    ROW_MAJOR,
-    UNDEFINED_SWIZZLE,
-    STANDARD_SWIZZLE,
-}
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
+import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency } from './types';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -61,7 +43,7 @@ export class ResourceDesc {
     mipLevels = 0;
     format: Format = Format.UNKNOWN;
     sampleCount: SampleCount = SampleCount.ONE;
-    layout: TextureLayout = TextureLayout.UNKNOWN;
+    textureFlags: TextureFlagBit = TextureFlagBit.NONE;
     flags: ResourceFlags = ResourceFlags.NONE;
 }
 
@@ -72,15 +54,64 @@ export class ResourceTraits {
     residency: ResourceResidency;
 }
 
+export class RenderSwapchain {
+    constructor (swapchain: Swapchain) {
+        this.swapchain = swapchain;
+    }
+    readonly swapchain: Swapchain;
+    currentID = 0;
+    numBackBuffers = 0;
+}
+
+export class ResourceStates {
+    states: AccessFlagBit = AccessFlagBit.NONE;
+}
+
+export class ManagedResource {
+    unused = 0;
+}
+
 //=================================================================
 // ResourceGraph
 //=================================================================
+// PolymorphicGraph Concept
+export const enum ResourceGraphValue {
+    Managed,
+    PersistentBuffer,
+    PersistentTexture,
+    Swapchain,
+}
+
+interface ResourceGraphValueType {
+    [ResourceGraphValue.Managed]: ManagedResource
+    [ResourceGraphValue.PersistentBuffer]: Buffer
+    [ResourceGraphValue.PersistentTexture]: Texture
+    [ResourceGraphValue.Swapchain]: RenderSwapchain
+}
+
+export interface ResourceGraphVisitor {
+    managed(value: ManagedResource): unknown;
+    persistentBuffer(value: Buffer): unknown;
+    persistentTexture(value: Texture): unknown;
+    swapchain(value: RenderSwapchain): unknown;
+}
+
+type ResourceGraphObject = ManagedResource | Buffer | Texture | RenderSwapchain;
+
+//-----------------------------------------------------------------
 // Graph Concept
 export class ResourceGraphVertex {
-    constructor () {
+    constructor (
+        readonly id: ResourceGraphValue,
+        readonly object: ResourceGraphObject,
+    ) {
+        this._id = id;
+        this._object = object;
     }
     readonly _outEdges: impl.OutE[] = [];
     readonly _inEdges: impl.OutE[] = [];
+    readonly _id: ResourceGraphValue;
+    readonly _object: ResourceGraphObject;
 }
 
 //-----------------------------------------------------------------
@@ -115,24 +146,37 @@ export class ResourceGraphTraitsMap implements impl.PropertyMap {
     readonly _traits: ResourceTraits[];
 }
 
+export class ResourceGraphStatesMap implements impl.PropertyMap {
+    constructor (readonly states: ResourceStates[]) {
+        this._states = states;
+    }
+    get (v: number): ResourceStates {
+        return this._states[v];
+    }
+    readonly _states: ResourceStates[];
+}
+
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum ResourceGraphComponent {
     Name,
     Desc,
     Traits,
+    States,
 }
 
 interface ResourceGraphComponentType {
     [ResourceGraphComponent.Name]: string;
     [ResourceGraphComponent.Desc]: ResourceDesc;
     [ResourceGraphComponent.Traits]: ResourceTraits;
+    [ResourceGraphComponent.States]: ResourceStates;
 }
 
 interface ResourceGraphComponentPropertyMap {
     [ResourceGraphComponent.Name]: ResourceGraphNameMap;
     [ResourceGraphComponent.Desc]: ResourceGraphDescMap;
     [ResourceGraphComponent.Traits]: ResourceGraphTraitsMap;
+    [ResourceGraphComponent.States]: ResourceGraphStatesMap;
 }
 
 //-----------------------------------------------------------------
@@ -144,6 +188,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
 , impl.PropertyGraph
 , impl.NamedGraph
 , impl.ComponentGraph
+, impl.PolymorphicGraph
 , impl.UuidGraph<string> {
     //-----------------------------------------------------------------
     // Graph
@@ -208,17 +253,21 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
-    addVertex (
+    addVertex<T extends ResourceGraphValue> (
+        id: ResourceGraphValue,
+        object: ResourceGraphValueType[T],
         name: string,
         desc: ResourceDesc,
         traits: ResourceTraits,
+        states: ResourceStates,
     ): number {
-        const vert = new ResourceGraphVertex();
+        const vert = new ResourceGraphVertex(id, object);
         const v = this._vertices.length;
         this._vertices.push(vert);
         this._names.push(name);
         this._descs.push(desc);
         this._traits.push(traits);
+        this._states.push(states);
         // UuidGraph
         this._valueIndex.set(name, v);
         return v;
@@ -263,6 +312,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         this._names.splice(u, 1);
         this._descs.splice(u, 1);
         this._traits.splice(u, 1);
+        this._states.splice(u, 1);
 
         const sz = this._vertices.length;
         if (u === sz) {
@@ -333,7 +383,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap {
+    get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap | ResourceGraphStatesMap {
         switch (tag) {
         // Components
         case 'Name':
@@ -342,6 +392,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return new ResourceGraphDescMap(this._descs);
         case 'Traits':
             return new ResourceGraphTraitsMap(this._traits);
+        case 'States':
+            return new ResourceGraphStatesMap(this._states);
         default:
             throw Error('property map not found');
         }
@@ -356,6 +408,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return this._descs[v] as ResourceGraphComponentType[T];
         case ResourceGraphComponent.Traits:
             return this._traits[v] as ResourceGraphComponentType[T];
+        case ResourceGraphComponent.States:
+            return this._states[v] as ResourceGraphComponentType[T];
         default:
             throw Error('component not found');
         }
@@ -368,6 +422,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return new ResourceGraphDescMap(this._descs) as ResourceGraphComponentPropertyMap[T];
         case ResourceGraphComponent.Traits:
             return new ResourceGraphTraitsMap(this._traits) as ResourceGraphComponentPropertyMap[T];
+        case ResourceGraphComponent.States:
+            return new ResourceGraphStatesMap(this._states) as ResourceGraphComponentPropertyMap[T];
         default:
             throw Error('component map not found');
         }
@@ -380,6 +436,105 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     getTraits (v: number): ResourceTraits {
         return this._traits[v];
+    }
+    getStates (v: number): ResourceStates {
+        return this._states[v];
+    }
+    //-----------------------------------------------------------------
+    // PolymorphicGraph
+    holds (id: ResourceGraphValue, v: number): boolean {
+        return this._vertices[v]._id === id;
+    }
+    id (v: number): ResourceGraphValue {
+        return this._vertices[v]._id;
+    }
+    object (v: number): ResourceGraphObject {
+        return this._vertices[v]._object;
+    }
+    value<T extends ResourceGraphValue> (id: T, v: number): ResourceGraphValueType[T] {
+        if (this._vertices[v]._id === id) {
+            return this._vertices[v]._object as ResourceGraphValueType[T];
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    tryValue<T extends ResourceGraphValue> (id: T, v: number): ResourceGraphValueType[T] | null {
+        if (this._vertices[v]._id === id) {
+            return this._vertices[v]._object as ResourceGraphValueType[T];
+        } else {
+            return null;
+        }
+    }
+    visitVertex (visitor: ResourceGraphVisitor, v: number): unknown {
+        const vert = this._vertices[v];
+        switch (vert._id) {
+        case ResourceGraphValue.Managed:
+            return visitor.managed(vert._object as ManagedResource);
+        case ResourceGraphValue.PersistentBuffer:
+            return visitor.persistentBuffer(vert._object as Buffer);
+        case ResourceGraphValue.PersistentTexture:
+            return visitor.persistentTexture(vert._object as Texture);
+        case ResourceGraphValue.Swapchain:
+            return visitor.swapchain(vert._object as RenderSwapchain);
+        default:
+            throw Error('polymorphic type not found');
+        }
+    }
+    getManaged (v: number): ManagedResource {
+        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
+            return this._vertices[v]._object as ManagedResource;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getPersistentBuffer (v: number): Buffer {
+        if (this._vertices[v]._id === ResourceGraphValue.PersistentBuffer) {
+            return this._vertices[v]._object as Buffer;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getPersistentTexture (v: number): Texture {
+        if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
+            return this._vertices[v]._object as Texture;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getSwapchain (v: number): RenderSwapchain {
+        if (this._vertices[v]._id === ResourceGraphValue.Swapchain) {
+            return this._vertices[v]._object as RenderSwapchain;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    tryGetManaged (v: number): ManagedResource | null {
+        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
+            return this._vertices[v]._object as ManagedResource;
+        } else {
+            return null;
+        }
+    }
+    tryGetPersistentBuffer (v: number): Buffer | null {
+        if (this._vertices[v]._id === ResourceGraphValue.PersistentBuffer) {
+            return this._vertices[v]._object as Buffer;
+        } else {
+            return null;
+        }
+    }
+    tryGetPersistentTexture (v: number): Texture | null {
+        if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
+            return this._vertices[v]._object as Texture;
+        } else {
+            return null;
+        }
+    }
+    tryGetSwapchain (v: number): RenderSwapchain | null {
+        if (this._vertices[v]._id === ResourceGraphValue.Swapchain) {
+            return this._vertices[v]._object as RenderSwapchain;
+        } else {
+            return null;
+        }
     }
     //-----------------------------------------------------------------
     // UuidGraph
@@ -395,11 +550,12 @@ export class ResourceGraph implements impl.BidirectionalGraph
         return v;
     }
 
-    readonly components: string[] = ['Name', 'Desc', 'Traits'];
+    readonly components: string[] = ['Name', 'Desc', 'Traits', 'States'];
     readonly _vertices: ResourceGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descs: ResourceDesc[] = [];
     readonly _traits: ResourceTraits[] = [];
+    readonly _states: ResourceStates[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
 }
 

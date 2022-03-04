@@ -27,8 +27,8 @@
 import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
-import { QueueHint, ResourceDimension, ResourceResidency } from './types';
-import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, ResourceDesc, ResourceFlags, ResourceGraph, ResourceTraits, SceneData } from './render-graph';
+import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency } from './types';
+import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { RenderScene } from '../../renderer/scene';
@@ -38,6 +38,7 @@ import { RenderDependencyGraph } from './render-dependency-graph';
 import { DeviceResourceGraph } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
+import { assert } from '../../platform';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -297,6 +298,11 @@ export class WebCopyPassBuilder extends CopyPassBuilder {
     private readonly _pass: CopyPass;
 }
 
+function isManaged (residency: ResourceResidency): boolean {
+    return residency === ResourceResidency.MANAGED
+    || residency === ResourceResidency.MEMORYLESS;
+}
+
 export class WebPipeline extends Pipeline {
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
         const desc = new ResourceDesc();
@@ -306,11 +312,26 @@ export class WebPipeline extends Pipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
-        desc.flags = ResourceFlags.ALLOW_RENDER_TARGET | ResourceFlags.ALLOW_UNORDERED_ACCESS;
+        desc.flags = ResourceFlags.COLOR_ATTACHMENT;
+
         if (renderWindow.swapchain === null) {
-            return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.EXTERNAL));
+            assert(renderWindow.framebuffer.colorTextures.length === 1
+                && renderWindow.framebuffer.colorTextures[0] !== null);
+            return this._resourceGraph.addVertex<ResourceGraphValue.PersistentTexture>(
+                ResourceGraphValue.PersistentTexture,
+                renderWindow.framebuffer.colorTextures[0]!,
+                name, desc,
+                new ResourceTraits(ResourceResidency.EXTERNAL),
+                new ResourceStates(),
+            );
         } else {
-            return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.BACKBUFFER));
+            return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
+                ResourceGraphValue.Swapchain,
+                new RenderSwapchain(renderWindow.swapchain),
+                name, desc,
+                new ResourceTraits(ResourceResidency.BACKBUFFER),
+                new ResourceStates(),
+            );
         }
     }
     addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
@@ -321,8 +342,16 @@ export class WebPipeline extends Pipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
-        desc.flags = ResourceFlags.ALLOW_RENDER_TARGET | ResourceFlags.ALLOW_UNORDERED_ACCESS;
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits(residency));
+        desc.flags = ResourceFlags.COLOR_ATTACHMENT;
+
+        assert(isManaged(residency));
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name, desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+        );
     }
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
         const desc = new ResourceDesc();
@@ -332,8 +361,14 @@ export class WebPipeline extends Pipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
-        desc.flags = ResourceFlags.ALLOW_DEPTH_STENCIL;
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits(residency));
+        desc.flags = ResourceFlags.DEPTH_STENCIL_ATTACHMENT;
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name, desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+        );
     }
     beginFrame (pplScene: PipelineSceneData) {
         this._renderGraph = new RenderGraph();

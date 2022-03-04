@@ -7,8 +7,8 @@ import { AccessFlagBit, Color, ColorAttachment, CommandBuffer, DepthStencilAttac
 import { legacyCC } from '../../global-exports';
 import { LayoutGraph, LayoutGraphData } from './layout-graph';
 import { AccessType, AttachmentType, ComputeView, RasterView, RenderGraph, RenderGraphValue,
-    ResourceDesc, ResourceFlags, ResourceGraph, ResourceTraits, SceneData } from './render-graph';
-import { QueueHint, ResourceDimension, ResourceResidency } from './types';
+    ResourceDesc, ResourceGraph, ResourceTraits, SceneData } from './render-graph';
+import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency } from './types';
 
 export class RenderResource {
     protected _type: ResourceDimension = ResourceDimension.TEXTURE2D;

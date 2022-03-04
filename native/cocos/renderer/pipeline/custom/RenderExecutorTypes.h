@@ -35,6 +35,7 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "cocos/base/Ptr.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXTexture.h"
@@ -132,8 +133,8 @@ struct DeviceResourceGraph {
 
     // PolymorphicGraph
     using VertexTag         = boost::variant2::variant<BufferTag, TextureTag>;
-    using VertexValue       = boost::variant2::variant<std::unique_ptr<gfx::Buffer>*, std::unique_ptr<gfx::Texture>*>;
-    using VertexConstValue = boost::variant2::variant<const std::unique_ptr<gfx::Buffer>*, const std::unique_ptr<gfx::Texture>*>;
+    using VertexValue       = boost::variant2::variant<IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*>;
+    using VertexConstValue = boost::variant2::variant<const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*>;
     using VertexHandle      = boost::variant2::variant<
         impl::ValueHandle<BufferTag, vertex_descriptor>,
         impl::ValueHandle<TextureTag, vertex_descriptor>>;
@@ -173,8 +174,8 @@ struct DeviceResourceGraph {
     boost::container::pmr::vector<std::string> names;
     boost::container::pmr::vector<int32_t>     refCounts;
     // PolymorphicGraph
-    boost::container::pmr::vector<std::unique_ptr<gfx::Buffer>>  buffers;
-    boost::container::pmr::vector<std::unique_ptr<gfx::Texture>> textures;
+    boost::container::pmr::vector<IntrusivePtr<gfx::Buffer>>  buffers;
+    boost::container::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
 };
 
 } // namespace render
