@@ -21,35 +21,37 @@
   #include <cc-local>
 #endif
 
-#define CCGetWorldMatrix(matWorld)                \
-  #if USE_INSTANCING                              \
-    matWorld = mat4(                              \
-      vec4(a_matWorld0.xyz, 0.0),                 \
-      vec4(a_matWorld1.xyz, 0.0),                 \
-      vec4(a_matWorld2.xyz, 0.0),                 \
-      vec4(a_matWorld0.w, a_matWorld1.w, a_matWorld2.w, 1.0) \
-    );                                            \
-  #elif USE_BATCHING                              \
-    matWorld = cc_matWorlds[int(a_dyn_batch_id)]; \
-  #else                                           \
-    matWorld = cc_matWorld;                       \
-  #endif                                          \
-  #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+void CCGetWorldMatrix(out mat4 matWorld)
+{
+  #if USE_INSTANCING
+    matWorld = mat4(
+      vec4(a_matWorld0.xyz, 0.0),
+      vec4(a_matWorld1.xyz, 0.0),
+      vec4(a_matWorld2.xyz, 0.0),
+      vec4(a_matWorld0.w, a_matWorld1.w, a_matWorld2.w, 1.0)
+    );
+  #elif USE_BATCHING
+    matWorld = cc_matWorlds[int(a_dyn_batch_id)];
+  #else
+    matWorld = cc_matWorld;
+  #endif
+}
 
-#define CCGetWorldMatrixFull(matWorld, matWorldIT) \
-  #if USE_INSTANCING                               \
-    matWorld = mat4(                               \
-      vec4(a_matWorld0.xyz, 0.0),                  \
-      vec4(a_matWorld1.xyz, 0.0),                  \
-      vec4(a_matWorld2.xyz, 0.0),                  \
-      vec4(a_matWorld0.w, a_matWorld1.w, a_matWorld2.w, 1.0) \
-    );                                             \
-    matWorldIT = matWorld;                         \
-  #elif USE_BATCHING                               \
-    matWorld = cc_matWorlds[int(a_dyn_batch_id)];  \
-    matWorldIT = matWorld;                         \
-  #else                                            \
-    matWorld = cc_matWorld;                        \
-    matWorldIT = cc_matWorldIT;                    \
-  #endif                                           \
-  #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+void CCGetWorldMatrixFull(out mat4 matWorld, out mat4 matWorldIT)
+{
+  #if USE_INSTANCING
+    matWorld = mat4(
+      vec4(a_matWorld0.xyz, 0.0),
+      vec4(a_matWorld1.xyz, 0.0),
+      vec4(a_matWorld2.xyz, 0.0),
+      vec4(a_matWorld0.w, a_matWorld1.w, a_matWorld2.w, 1.0)
+    );
+    matWorldIT = matWorld;
+  #elif USE_BATCHING
+    matWorld = cc_matWorlds[int(a_dyn_batch_id)];
+    matWorldIT = matWorld;
+  #else
+    matWorld = cc_matWorld;
+    matWorldIT = cc_matWorldIT;
+  #endif
+}

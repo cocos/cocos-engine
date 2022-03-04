@@ -28,16 +28,15 @@
  * @module gfx
  */
 
-import { Device } from './device';
 import { RenderPass } from './render-pass';
 import { Texture } from './texture';
-import { Obj, ObjectType, FramebufferInfo } from './define';
+import { GFXObject, ObjectType, FramebufferInfo } from './define';
 
 /**
  * @en GFX frame buffer.
  * @zh GFX 帧缓冲。
  */
-export abstract class Framebuffer extends Obj {
+export abstract class Framebuffer extends GFXObject {
     /**
      * @en Get current render pass.
      * @zh GFX 渲染过程。
@@ -62,20 +61,15 @@ export abstract class Framebuffer extends Obj {
         return this._depthStencilTexture;
     }
 
-    protected _device: Device;
-
     protected _renderPass: RenderPass | null = null;
-
     protected _colorTextures: (Texture | null)[] = [];
-
     protected _depthStencilTexture: Texture | null = null;
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.FRAMEBUFFER);
-        this._device = device;
     }
 
-    public abstract initialize (info: FramebufferInfo): boolean;
+    public abstract initialize (info: FramebufferInfo): void;
 
     public abstract destroy (): void;
 }

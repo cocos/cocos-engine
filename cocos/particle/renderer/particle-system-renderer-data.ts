@@ -26,17 +26,18 @@
 import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Mesh } from '../../3d';
 import { Material, Texture2D } from '../../core/assets';
-import { RenderMode } from '../enum';
+import { AlignmentSpace, RenderMode, Space } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
-import { Device, Feature } from '../../core/gfx';
+import { Device, Feature, Format, FormatFeatureBit } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { errorID } from '../../core';
 
 function isSupportGPUParticle () {
     const device: Device = director.root!.device;
-    if (device.capabilities.maxVertexTextureUnits >= 8 && device.hasFeature(Feature.TEXTURE_FLOAT)) {
+    if (device.capabilities.maxVertexTextureUnits >= 8 && (device.getFormatFeatures(Format.RGBA32F)
+        & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))) {
         return true;
     }
 
@@ -202,6 +203,27 @@ export default class ParticleSystemRenderer {
         this._switchProcessor();
     }
 
+    /**
+     * @en Particle alignment space option. Includes world, local and view.
+     * @zh 粒子对齐空间选择。包括世界空间，局部空间和视角空间。
+     */
+    @type(AlignmentSpace)
+    @displayOrder(10)
+    @tooltip('i18n:particle_system.alignSpace')
+    public get alignSpace () {
+        return this._alignSpace;
+    }
+
+    public set alignSpace (val) {
+        this._alignSpace = val;
+        this._particleSystem.processor.updateAlignSpace(this._alignSpace);
+    }
+
+    @serializable
+    private _alignSpace = AlignmentSpace.View;
+
+    public static AlignmentSpace = AlignmentSpace;
+
     private _particleSystem: any = null!; // ParticleSystem
 
     create (ps) {
@@ -219,6 +241,7 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem.processor) {
             const useGPU = this._useGPU && isSupportGPUParticle();
             this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+            this._particleSystem.processor.updateAlignSpace(this.alignSpace);
             this._particleSystem.processor.onInit(ps);
         } else {
             errorID(6034);
@@ -235,6 +258,7 @@ export default class ParticleSystemRenderer {
             this._particleSystem.processor = null!;
         }
         this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        this._particleSystem.processor.updateAlignSpace(this.alignSpace);
         this._particleSystem.processor.onInit(this._particleSystem);
         this._particleSystem.processor.onEnable();
         this._particleSystem.bindModule();

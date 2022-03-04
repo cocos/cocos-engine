@@ -26,7 +26,7 @@
 import { ShaderInfo } from '../base/define';
 import { Shader } from '../base/shader';
 import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
-import { WebGLDevice } from './webgl-device';
+import { WebGLDeviceManager } from './webgl-define';
 import { IWebGLGPUShader, IWebGLGPUShaderStage } from './webgl-gpu-objects';
 
 export class WebGLShader extends Shader {
@@ -36,7 +36,7 @@ export class WebGLShader extends Shader {
 
     private _gpuShader: IWebGLGPUShader | null = null;
 
-    public initialize (info: ShaderInfo): boolean {
+    public initialize (info: ShaderInfo) {
         this._name = info.name;
         this._stages = info.stages;
         this._attributes = info.attributes;
@@ -45,8 +45,9 @@ export class WebGLShader extends Shader {
 
         this._gpuShader = {
             name: info.name,
-            blocks: info.blocks,
-            samplerTextures: info.samplerTextures,
+            blocks: info.blocks.slice(),
+            samplerTextures: info.samplerTextures.slice(),
+            subpassInputs: info.subpassInputs.slice(),
 
             gpuStages: new Array<IWebGLGPUShaderStage>(info.stages.length),
             glProgram: null,
@@ -65,14 +66,12 @@ export class WebGLShader extends Shader {
             };
         }
 
-        WebGLCmdFuncCreateShader(this._device as WebGLDevice, this._gpuShader);
-
-        return true;
+        WebGLCmdFuncCreateShader(WebGLDeviceManager.instance, this._gpuShader);
     }
 
     public destroy () {
         if (this._gpuShader) {
-            WebGLCmdFuncDestroyShader(this._device as WebGLDevice, this._gpuShader);
+            WebGLCmdFuncDestroyShader(WebGLDeviceManager.instance, this._gpuShader);
             this._gpuShader = null;
         }
     }

@@ -1,10 +1,11 @@
 /**
  * @packageDocumentation
- * @hidden
  */
 
 import { EDITOR } from 'internal:constants';
+import { Filter } from '../../../core/assets/asset-enum';
 import { legacyCC } from '../../../core/global-exports';
+import { js } from '../../../core/utils/js';
 import { Atlas } from './atlas';
 
 export class DynamicAtlasManager {
@@ -20,6 +21,13 @@ export class DynamicAtlasManager {
 
     private _enabled = false;
 
+    /**
+     * @en
+     * Enable or disable the dynamic atlas.
+     *
+     * @zh
+     * 开启或关闭动态图集。
+     */
     get enabled () {
         return this._enabled;
     }
@@ -37,6 +45,13 @@ export class DynamicAtlasManager {
         this._enabled = value;
     }
 
+    /**
+     * @en
+     * The maximum number of atlases that can be created.
+     *
+     * @zh
+     * 可以创建的最大图集数量。
+     */
     get maxAtlasCount () {
         return this._maxAtlasCount;
     }
@@ -44,10 +59,24 @@ export class DynamicAtlasManager {
         this._maxAtlasCount = value;
     }
 
+    /**
+     * @en
+     * Get the current created atlas count.
+     *
+     * @zh
+     * 获取当前已经创建的图集数量。
+     */
     get atlasCount () {
         return this._atlases.length;
     }
 
+    /**
+     * @en
+     * Whether to enable textureBleeding.
+     *
+     * @zh
+     * 是否开启 textureBleeding。
+     */
     get textureBleeding () {
         return this._textureBleeding;
     }
@@ -55,6 +84,13 @@ export class DynamicAtlasManager {
         this._textureBleeding = enable;
     }
 
+    /**
+     * @en
+     * The size of the created atlas.
+     *
+     * @zh
+     * 创建的图集的宽高。
+     */
     get textureSize () {
         return this._textureSize;
     }
@@ -62,6 +98,13 @@ export class DynamicAtlasManager {
         this._textureSize = value;
     }
 
+    /**
+     * @en
+     * The maximum size of the picture that can be added to the atlas.
+     *
+     * @zh
+     * 可以添加进图集的图片的最大尺寸。
+     */
     get maxFrameSize () {
         return this._maxFrameSize;
     }
@@ -83,10 +126,14 @@ export class DynamicAtlasManager {
     }
 
     /**
-     * @en Append a sprite frame into the dynamic atlas.
-     * @zh 添加碎图进入动态图集。
+     * @en
+     * Append a sprite frame into the dynamic atlas.
+     *
+     * @zh
+     * 添加碎图进入动态图集。
+     *
      * @method insertSpriteFrame
-     * @param {SpriteFrame} spriteFrame
+     * @param spriteFrame  the sprite frame that will be inserted in the atlas.
      */
     public insertSpriteFrame (spriteFrame) {
         if (EDITOR) return null;
@@ -94,6 +141,12 @@ export class DynamicAtlasManager {
             || !spriteFrame || spriteFrame._original) return null;
 
         if (!spriteFrame.packable) return null;
+
+        // hack for pixel game,should pack to different sampler atlas
+        const sampler = spriteFrame.texture.getSamplerInfo();
+        if (sampler.minFilter !== Filter.LINEAR || sampler.magFilter !== Filter.LINEAR || sampler.mipFilter !== Filter.NONE) {
+            return null;
+        }
 
         let atlas = this._atlases[this._atlasIndex];
         if (!atlas) {
@@ -109,8 +162,12 @@ export class DynamicAtlasManager {
     }
 
     /**
-     * @en Resets all dynamic atlas, and the existing ones will be destroyed.
-     * @zh 重置所有动态图集，已有的动态图集会被销毁。
+     * @en
+     * Reset all dynamic atlases, and all existing ones will be destroyed.
+     *
+     * @zh
+     * 重置所有动态图集，已有的动态图集会被销毁。
+     *
      * @method reset
     */
     public reset () {
@@ -121,13 +178,38 @@ export class DynamicAtlasManager {
         this._atlasIndex = -1;
     }
 
+    /**
+     * @en
+     * Delete a sprite from the atlas.
+     *
+     * @zh
+     * 从动态图集中删除某张碎图。
+     *
+     * @method deleteAtlasSpriteFrame
+     * @param spriteFrame  the sprite frame that will be removed from the atlas.
+     */
     public deleteAtlasSpriteFrame (spriteFrame) {
         if (!spriteFrame._original) return;
 
+        let atlas;
+        for (let i = this._atlases.length - 1; i >= 0; i--) {
+            atlas = this._atlases[i];
+            js.array.fastRemove(atlas._innerSpriteFrames, spriteFrame);
+        }
         const texture = spriteFrame._original._texture;
         this.deleteAtlasTexture(texture);
     }
 
+    /**
+     * @en
+     * Delete a texture from the atlas.
+     *
+     * @zh
+     * 从动态图集中删除某张纹理。
+     *
+     * @method deleteAtlasTexture
+     * @param texture  the texture that will be removed from the atlas.
+     */
     public deleteAtlasTexture (texture) {
         if (texture) {
             for (let i = this._atlases.length - 1; i >= 0; i--) {
@@ -142,10 +224,20 @@ export class DynamicAtlasManager {
         }
     }
 
+    /**
+     * @en
+     * Pack the sprite in the dynamic atlas and update the atlas information of the sprite frame.
+     *
+     * @zh
+     * 将图片打入动态图集，并更新该图片的图集信息。
+     *
+     * @method packToDynamicAtlas
+     * @param frame  the sprite frame that will be packed in the dynamic atlas.
+     */
     public packToDynamicAtlas (comp, frame) {
         if (EDITOR) return;
 
-        if (!frame._original && frame.packable) {
+        if (frame && !frame._original && frame.packable) {
             const packedFrame = this.insertSpriteFrame(frame);
             if (packedFrame) {
                 frame._setDynamicAtlasFrame(packedFrame);

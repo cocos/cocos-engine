@@ -29,28 +29,24 @@
  */
 
 import { DescriptorSetLayout } from './descriptor-set-layout';
-import { Device } from './device';
-import { Obj, ObjectType, PipelineLayoutInfo } from './define';
+import { GFXObject, ObjectType, PipelineLayoutInfo } from './define';
 
 /**
  * @en GFX pipeline layout.
  * @zh GFX 管线布局。
  */
-export abstract class PipelineLayout extends Obj {
+export abstract class PipelineLayout extends GFXObject {
     get setLayouts () {
         return this._setLayouts;
     }
 
-    protected _device: Device;
-
     protected _setLayouts: DescriptorSetLayout[] = [];
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.PIPELINE_LAYOUT);
-        this._device = device;
     }
 
-    public abstract initialize (info: PipelineLayoutInfo): boolean;
+    public abstract initialize (info: PipelineLayoutInfo): void;
 
     public abstract destroy (): void;
 }

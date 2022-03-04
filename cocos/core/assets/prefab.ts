@@ -112,6 +112,10 @@ export class Prefab extends Asset {
     @editable
     public optimizationPolicy = OptimizationPolicy.AUTO;
 
+    @serializable
+    @editable
+    public persistent = false;
+
     // Cache function to optimize instance creation.
     private _createFunction: ((...arg: any[]) => Node) | null;
     private _instantiatedTimes: number;
@@ -195,6 +199,12 @@ export class Prefab extends Asset {
 
     public validate () {
         return !!this.data;
+    }
+
+    public onLoaded () {
+        const rootNode = this.data as Node;
+        utils.expandNestedPrefabInstanceNode(rootNode);
+        utils.applyTargetOverrides(rootNode);
     }
 }
 

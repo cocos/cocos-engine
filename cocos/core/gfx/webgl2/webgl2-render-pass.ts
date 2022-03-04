@@ -34,12 +34,10 @@ export class WebGL2RenderPass extends RenderPass {
 
     private _gpuRenderPass: IWebGL2GPURenderPass | null = null;
 
-    public initialize (info: RenderPassInfo): boolean {
+    public initialize (info: RenderPassInfo) {
         this._colorInfos = info.colorAttachments;
         this._depthStencilInfo = info.depthStencilAttachment;
-        if (info.subpasses) {
-            this._subpasses = info.subpasses;
-        }
+        this._subpasses = info.subpasses;
 
         this._gpuRenderPass = {
             colorAttachments: this._colorInfos,
@@ -47,8 +45,6 @@ export class WebGL2RenderPass extends RenderPass {
         };
 
         this._hash = this.computeHash();
-
-        return true;
     }
 
     public destroy () {

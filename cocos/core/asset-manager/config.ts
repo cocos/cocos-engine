@@ -83,7 +83,7 @@ const isMatchByWord = (path: string, test: string): boolean => {
 };
 
 const processOptions = (options: IConfigOption) => {
-    if (EDITOR) { return; }
+    if (EDITOR || TEST) { return; }
     let uuids = options.uuids;
     const paths = options.paths;
     const types = options.types;

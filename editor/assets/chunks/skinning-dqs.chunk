@@ -4,14 +4,16 @@
 #if CC_USE_BAKED_ANIMATION
   #if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
     void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
-      CCGetJointTextureCoords(3.0, i, j, x, y, invSize);
+      highp float x, y, invSize;
+      CCGetJointTextureCoords(3.0, i, x, y, invSize);
       Qr = texture(cc_jointTexture, vec2((x + 0.5) * invSize, y));
       Qt = texture(cc_jointTexture, vec2((x + 1.5) * invSize, y));
       S = texture(cc_jointTexture, vec2((x + 2.5) * invSize, y)).xyz;
     }
   #else
     void getJointDQ (float i, out vec4 Qr, out vec4 Qt, out vec3 S) {
-      CCGetJointTextureCoords(12.0, i, j, x, y, invSize);
+      highp float x, y, invSize;
+      CCGetJointTextureCoords(12.0, i, x, y, invSize);
       Qr = vec4(
         decode32(texture(cc_jointTexture, vec2((x + 0.5) * invSize, y))),
         decode32(texture(cc_jointTexture, vec2((x + 1.5) * invSize, y))),

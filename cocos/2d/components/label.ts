@@ -30,16 +30,17 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
+import { director } from '../../core/director';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -192,6 +193,15 @@ ccenum(CacheMode);
 @executionOrder(110)
 @menu('2D/Label')
 export class Label extends Renderable2D {
+    public static HorizontalAlign = HorizontalTextAlignment;
+    public static VerticalAlign = VerticalTextAlignment;
+    public static Overflow = Overflow;
+    public static CacheMode = CacheMode;
+    /**
+     * @internal
+     */
+    public static _canvasPool = CanvasPool.getInstance();
+
     /**
      * @en
      * Content string of label.
@@ -206,11 +216,12 @@ export class Label extends Renderable2D {
         return this._string;
     }
     set string (value) {
-        if (value) {
-            value += '';
-        } else {
+        if (value === null || value === undefined) {
             value = '';
+        } else {
+            value = value.toString();
         }
+
         if (this._string === value) {
             return;
         }
@@ -232,7 +243,6 @@ export class Label extends Renderable2D {
     get horizontalAlign () {
         return this._horizontalAlign;
     }
-
     set horizontalAlign (value) {
         if (this._horizontalAlign === value) {
             return;
@@ -255,7 +265,6 @@ export class Label extends Renderable2D {
     get verticalAlign () {
         return this._verticalAlign;
     }
-
     set verticalAlign (value) {
         if (this._verticalAlign === value) {
             return;
@@ -275,7 +284,6 @@ export class Label extends Renderable2D {
     get actualFontSize () {
         return this._actualFontSize;
     }
-
     set actualFontSize (value) {
         this._actualFontSize = value;
     }
@@ -292,7 +300,6 @@ export class Label extends Renderable2D {
     get fontSize () {
         return this._fontSize;
     }
-
     set fontSize (value) {
         if (this._fontSize === value) {
             return;
@@ -315,7 +322,6 @@ export class Label extends Renderable2D {
     get fontFamily () {
         return this._fontFamily;
     }
-
     set fontFamily (value) {
         if (this._fontFamily === value) {
             return;
@@ -348,18 +354,41 @@ export class Label extends Renderable2D {
 
     /**
      * @en
+     * The spacing between text characters, only available in BMFont.
+     *
+     * @zh
+     * 文本字符之间的间距。仅在使用 BMFont 位图字体时生效。
+     */
+    @visible(function (this: Label) {
+        return !this._isSystemFontUsed && this._font instanceof BitmapFont;
+    })
+    @displayOrder(9)
+    @tooltip('i18n:label.spacing_x')
+    get spacingX () {
+        return this._spacingX;
+    }
+    set spacingX (value) {
+        if (this._spacingX === value) {
+            return;
+        }
+
+        this._spacingX = value;
+        this.updateRenderData();
+    }
+
+    /**
+     * @en
      * Overflow of label.
      *
      * @zh
      * 文字显示超出范围时的处理方式。
      */
     @type(Overflow)
-    @displayOrder(9)
+    @displayOrder(10)
     @tooltip('i18n:label.overflow')
     get overflow () {
         return this._overflow;
     }
-
     set overflow (value) {
         if (this._overflow === value) {
             return;
@@ -376,7 +405,7 @@ export class Label extends Renderable2D {
      * @zh
      * 是否自动换行。
      */
-    @displayOrder(10)
+    @displayOrder(11)
     @tooltip('i18n:label.wrap')
     get enableWrapText () {
         return this._enableWrapText;
@@ -398,14 +427,13 @@ export class Label extends Renderable2D {
      * 文本字体。
      */
     @type(Font)
-    @displayOrder(11)
+    @displayOrder(12)
     @visible(function (this: Label) { return !this._isSystemFontUsed; })
     @tooltip('i18n:label.font')
     get font () {
         // return this._N$file;
         return this._font;
     }
-
     set font (value) {
         if (this._font === value) {
             return;
@@ -439,12 +467,11 @@ export class Label extends Renderable2D {
      * @zh
      * 是否使用系统字体。
      */
-    @displayOrder(12)
+    @displayOrder(13)
     @tooltip('i18n:label.system_font')
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
-
     set useSystemFont (value) {
         if (this._isSystemFontUsed === value) {
             return;
@@ -477,12 +504,11 @@ export class Label extends Renderable2D {
      * 文本缓存模式, 该模式只支持系统字体。
      */
     @type(CacheMode)
-    @displayOrder(13)
+    @displayOrder(14)
     @tooltip('i18n:label.cache_mode')
     get cacheMode () {
         return this._cacheMode;
     }
-
     set cacheMode (value) {
         if (this._cacheMode === value) {
             return;
@@ -490,22 +516,21 @@ export class Label extends Renderable2D {
 
         if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
             this._ttfSpriteFrame._resetDynamicAtlasFrame();
+            // macro.UI_GPU_DRIVEN
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = true;
+            }
         }
-
         if (this._cacheMode === CacheMode.CHAR) {
             this._ttfSpriteFrame = null;
+            // macro.UI_GPU_DRIVEN
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
         }
 
         this._cacheMode = value;
         this.updateRenderData(true);
-    }
-
-    get spriteFrame () {
-        return this._texture;
-    }
-
-    get ttfSpriteFrame () {
-        return this._ttfSpriteFrame;
     }
 
     /**
@@ -520,7 +545,6 @@ export class Label extends Renderable2D {
     get isBold () {
         return this._isBold;
     }
-
     set isBold (value) {
         if (this._isBold === value) {
             return;
@@ -542,7 +566,6 @@ export class Label extends Renderable2D {
     get isItalic () {
         return this._isItalic;
     }
-
     set isItalic (value) {
         if (this._isItalic === value) {
             return;
@@ -564,7 +587,6 @@ export class Label extends Renderable2D {
     get isUnderline () {
         return this._isUnderline;
     }
-
     set isUnderline (value) {
         if (this._isUnderline === value) {
             return;
@@ -580,14 +602,23 @@ export class Label extends Renderable2D {
      */
     @visible(function (this: Label) { return this._isUnderline; })
     @editable
+    @displayOrder(18)
+    @tooltip('i18n:label.underline_height')
     public get underlineHeight () {
         return this._underlineHeight;
     }
-
     public set underlineHeight (value) {
         if (this._underlineHeight === value) return;
         this._underlineHeight = value;
         this.updateRenderData();
+    }
+
+    get spriteFrame () {
+        return this._texture;
+    }
+
+    get ttfSpriteFrame () {
+        return this._ttfSpriteFrame;
     }
 
     get assemblerData () {
@@ -602,19 +633,9 @@ export class Label extends Renderable2D {
         this._fontAtlas = value;
     }
 
-    get spacingX () {
-        return this._spacingX;
-    }
-
-    set spacingX (value) {
-        if (this._spacingX === value) {
-            return;
-        }
-
-        this._spacingX = value;
-        this.updateRenderData();
-    }
-
+    /**
+     * @legacyPublic
+     */
     get _bmFontOriginalSize () {
         if (this._font instanceof BitmapFont) {
             return this._font.fontSize;
@@ -622,12 +643,6 @@ export class Label extends Renderable2D {
             return -1;
         }
     }
-
-    public static HorizontalAlign = HorizontalTextAlignment;
-    public static VerticalAlign = VerticalTextAlignment;
-    public static Overflow = Overflow;
-    public static CacheMode = CacheMode;
-    public static _canvasPool = CanvasPool.getInstance();
 
     @serializable
     protected _string = 'label';
@@ -651,6 +666,7 @@ export class Label extends Renderable2D {
     protected _font: Font | null = null;
     @serializable
     protected _isSystemFontUsed = true;
+    @serializable
     protected _spacingX = 0;
     @serializable
     protected _isItalic = false;
@@ -675,6 +691,9 @@ export class Label extends Renderable2D {
 
     constructor () {
         super();
+        if (UI_GPU_DRIVEN) {
+            this._canDrawByFourVertex = true;
+        }
         if (EDITOR) {
             this._userDefinedFont = null;
         }
@@ -697,10 +716,6 @@ export class Label extends Renderable2D {
         this._applyFontTexture();
     }
 
-    public onDisable () {
-        super.onDisable();
-    }
-
     public onDestroy () {
         if (this._assembler && this._assembler.resetAssemblerData) {
             this._assembler.resetAssemblerData(this._assemblerData!);
@@ -708,8 +723,10 @@ export class Label extends Renderable2D {
 
         this._assemblerData = null;
         if (this._ttfSpriteFrame) {
+            this._ttfSpriteFrame._resetDynamicAtlasFrame();
             const tex = this._ttfSpriteFrame.texture;
-            if (tex && this._ttfSpriteFrame.original === null) {
+            this._ttfSpriteFrame.destroy();
+            if (tex) {
                 const tex2d = tex as Texture2D;
                 if (tex2d.image) {
                     tex2d.image.destroy();
@@ -730,7 +747,8 @@ export class Label extends Renderable2D {
 
         if (force) {
             this._flushAssembler();
-            // Hack: Fixed the bug that richText wants to get the label length by _measureText, _assembler.updateRenderData will update the content size immediately.
+            // Hack: Fixed the bug that richText wants to get the label length by _measureText,
+            // _assembler.updateRenderData will update the content size immediately.
             if (this.renderData) this.renderData.vertDirty = true;
             this._applyFontTexture();
             if (this._assembler) {
@@ -739,17 +757,14 @@ export class Label extends Renderable2D {
         }
     }
 
-    protected _render (render: Batcher2D) {
-        render.commitComp(this, this._texture, this._assembler!, null);
+    protected _render (render: IBatcher) {
+        render.commitComp(this, this.renderData, this._texture, this._assembler!, null);
     }
 
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
     protected _updateColor () {
-        this._updateWorldAlpha();
-        if (this._colorDirty) {
-            this.updateRenderData(false);
-            this._colorDirty = false;
-        }
+        super._updateColor();
+        this.updateRenderData(false);
     }
 
     protected _canRender () {
@@ -764,13 +779,16 @@ export class Label extends Renderable2D {
             if (!spriteFrame || !spriteFrame.texture) {
                 return false;
             }
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
         }
 
         return true;
     }
 
     protected _flushAssembler () {
-        const assembler = Label.Assembler!.getAssembler(this);
+        const assembler = Label.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
@@ -792,15 +810,26 @@ export class Label extends Renderable2D {
             const spriteFrame = font.spriteFrame;
             if (spriteFrame && spriteFrame.texture) {
                 this._texture = spriteFrame;
+                if (this.renderData) {
+                    this.renderData.textureDirty = true;
+                }
                 this.changeMaterialForDefine();
                 if (this._assembler) {
                     this._assembler.updateRenderData(this);
                 }
             }
+            // macro.UI_GPU_DRIVEN
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
         } else {
             if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler!.getAssemblerData();
                 this._texture = this._letterTexture;
+                // macro.UI_GPU_DRIVEN
+                if (UI_GPU_DRIVEN) {
+                    this._canDrawByFourVertex = false;
+                }
             } else if (!this._ttfSpriteFrame) {
                 this._ttfSpriteFrame = new SpriteFrame();
                 this._assemblerData = this._assembler!.getAssemblerData();
@@ -813,6 +842,10 @@ export class Label extends Renderable2D {
             if (this.cacheMode !== CacheMode.CHAR) {
                 // this._frame._refreshTexture(this._texture);
                 this._texture = this._ttfSpriteFrame;
+                // macro.UI_GPU_DRIVEN
+                if (UI_GPU_DRIVEN) {
+                    this._canDrawByFourVertex = true;
+                }
             }
             this.changeMaterialForDefine();
         }

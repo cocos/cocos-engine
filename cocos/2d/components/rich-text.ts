@@ -32,7 +32,8 @@
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
-import { assert, EventTouch, warnID } from '../../core/platform';
+import { EventTouch } from '../../input/types';
+import { assert, warnID } from '../../core/platform';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';
@@ -41,10 +42,9 @@ import { Node } from '../../core/scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
 import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
-import { UIComponent, UITransform } from '../framework';
+import { UITransform } from '../framework';
 import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
-import assetManager from '../../core/asset-manager/asset-manager';
 import { CCObject } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
@@ -151,7 +151,7 @@ interface ISegment {
 @executionOrder(110)
 @menu('2D/RichText')
 @executeInEditMode
-export class RichText extends UIComponent {
+export class RichText extends Component {
     /**
      * @en
      * Content string of RichText.
@@ -304,7 +304,7 @@ export class RichText extends UIComponent {
      * 文本缓存模式, 该模式只支持系统字体。
      */
     @type(CacheMode)
-    @tooltip('i18n:richtext')
+    @tooltip('i18n:richtext.cache_mode')
     get cacheMode () {
         return this._cacheMode;
     }
@@ -658,8 +658,8 @@ export class RichText extends UIComponent {
         labelSegment.lineCount = this._lineCount;
         labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
         labelSegment.node.layer = this.node.layer;
-        this._applyTextAttribute(labelSegment);
         this.node.addChild(labelSegment.node);
+        this._applyTextAttribute(labelSegment);
         this._segments.push(labelSegment);
 
         return labelSegment;
@@ -780,16 +780,19 @@ export class RichText extends UIComponent {
             const sprite = segment.comp;
             switch (style.imageAlign) {
             case 'top':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
                 break;
             case 'center':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
                 break;
             default:
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
                 break;
             }
 
+            if (style.imageOffset) {
+                segment.imageOffset = style.imageOffset;
+            }
             segment.node.layer = this.node.layer;
             this.node.addChild(segment.node);
             this._segments.push(segment);
@@ -1043,6 +1046,7 @@ export class RichText extends UIComponent {
         if (!label) {
             return;
         }
+        this._resetLabelState(label);
 
         const index = labelSeg.styleIndex;
 
@@ -1080,8 +1084,6 @@ export class RichText extends UIComponent {
                 labelSeg.clickHandler = event.click || '';
                 labelSeg.clickParam = event.param || '';
             }
-        } else {
-            label.fontSize = this._fontSize;
         }
 
         label.cacheMode = this._cacheMode;
@@ -1108,5 +1110,13 @@ export class RichText extends UIComponent {
         for (const seg of this._segments) {
             seg.node.layer = this.node.layer;
         }
+    }
+
+    protected _resetLabelState (label: Label) {
+        label.fontSize = this._fontSize;
+        label.color = Color.WHITE;
+        label.isBold = false;
+        label.isItalic = false;
+        label.isUnderline = false;
     }
 }

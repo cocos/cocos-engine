@@ -1,3 +1,6 @@
+// some interfaces might be overridden
+/* eslint-disable import/no-mutable-exports */
+
 /**
  * API for jsb module
  * Author: haroel
@@ -126,6 +129,44 @@ declare namespace jsb {
          */
         export function callStaticMethod (className: string, methodName: string, methodSignature: string, ...parameters:any): any;
     }
+    export namespace bridge{
+        /**
+         * send to native with at least one argument.
+         */
+        export function sendToNative(arg0: string, arg1?: string): void;
+        /**
+         * save your own callback controller with a js function,
+         * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
+         * @param args : received from native
+         */
+        export function onNative(arg0: string, arg1?: string|null): void;
+    }
+    /**
+     * Listener for jsbBridgeWrapper's event.
+     * It takes one argument as string which is transferred by jsbBridge.
+     */
+    export type OnNativeEventListener = (arg: string) => void;
+    export namespace jsbBridgeWrapper {
+        /** If there's no event registered, the wrapper will create one  */
+        export function addNativeEventListener(eventName: string, listener: OnNativeEventListener);
+        /**
+         * Dispatch the event registered on Objective-C, Java etc.
+         * No return value in JS to tell you if it works.
+         */
+        export function dispatchEventToNative(eventName: string, arg?: string);
+        /**
+         * Remove all listeners relative.
+         */
+        export function removeAllListenersForEvent(eventName: string);
+        /**
+         * Remove the listener specified
+         */
+        export function removeNativeEventListener(eventName: string, listener: OnNativeEventListener);
+        /**
+         * Remove all events, use it carefully!
+         */
+        export function removeAllListeners();
+    }
     /**
      * 下载任务对象
      */
@@ -145,7 +186,8 @@ declare namespace jsb {
 
         setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
 
-        setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number, totalBytesReceived: number, totalBytesExpected: number) => void): void;
+        setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
+            totalBytesReceived: number, totalBytesExpected: number) => void): void;
 
         setOnTaskError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
     }
@@ -191,7 +233,8 @@ declare namespace jsb {
         static UPDATE_FAILED: number;
         static ERROR_DECOMPRESS: number;
 
-        constructor (eventName: string, manager: AssetsManager, eventCode: number, assetId?: string, message?: string, curleCode?: number, curlmCode?: number);
+        constructor (eventName: string, manager: AssetsManager, eventCode: number,
+            assetId?: string, message?: string, curleCode?: number, curlmCode?: number);
         getAssetsManagerEx (): AssetsManager;
         isResuming (): boolean;
 
@@ -322,7 +365,8 @@ declare namespace jsb {
 
         If the new file can't be found on the file system, it will return the parameter filename directly.
 
-        This method was added to simplify multiplatform support. Whether you are using cocos2d-js or any cross-compilation toolchain like StellaSDK or Apportable,
+        This method was added to simplify multiplatform support.
+        Whether you are using cocos2d-js or any cross-compilation toolchain like StellaSDK or Apportable,
         you might need to load different resources for a given file in the different platforms.
 
         @since v2.1
@@ -535,7 +579,7 @@ declare namespace jsb {
          *  Purges full path caches.
          */
         export function purgeCachedEntries ():void;
-            /**
+        /**
          *  Gets full path from a file name and the path of the relative file.
          *  @param filename The file name.
          *  @param relativeFile The path of the relative file.

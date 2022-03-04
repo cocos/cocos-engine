@@ -437,6 +437,9 @@ export class Collider extends Eventify(Component) {
 
     protected onDestroy () {
         if (this._shape) {
+            this._needTriggerEvent = false;
+            this._needCollisionEvent = false;
+            this._shape.updateEventListener();
             if (this._material) this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
             this._shape.onDestroy!();
         }

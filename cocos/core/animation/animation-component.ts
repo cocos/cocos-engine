@@ -31,7 +31,7 @@
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Component } from '../components/component';
-import { Eventify } from '../event/eventify';
+import { Eventify } from '../event';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
 import { createMap } from '../utils/js-typed';
@@ -220,8 +220,7 @@ export class Animation extends Eventify(Component) {
         this._hasBeenPlayed = true;
         const state = this._nameToState[name];
         if (state) {
-            this._crossFade.play();
-            this._crossFade.crossFade(state, duration);
+            this.doPlayOrCrossFade(state, duration);
         }
     }
 
@@ -451,18 +450,13 @@ export class Animation extends Eventify(Component) {
         return state;
     }
 
-    private _getStateByNameOrDefaultClip (name?: string) {
-        if (!name) {
-            if (!this._defaultClip) {
-                return null;
-            }
-            name = this._defaultClip.name;
-        }
-        const state = this._nameToState[name];
-        if (state) {
-            return state;
-        }
-        return null;
+    /**
+     *
+     * @internal This method only friends to skeletal animation component.
+     */
+    protected doPlayOrCrossFade (state: AnimationState, duration: number) {
+        this._crossFade.play();
+        this._crossFade.crossFade(state, duration);
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {

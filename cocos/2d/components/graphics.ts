@@ -36,7 +36,7 @@ import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { scene } from '../../core/renderer';
 import { IAssembler } from '../renderer/base';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { RenderingSubMesh } from '../../core/assets';
@@ -73,6 +73,7 @@ export class Graphics extends Renderable2D {
      * 当前线条宽度。
      */
     @editable
+    @tooltip('i18n:graphics.lineWidth')
     get lineWidth () {
         return this._lineWidth;
     }
@@ -606,7 +607,7 @@ export class Graphics extends Renderable2D {
         }
     }
 
-    protected _uploadData (render: Batcher2D) {
+    protected _uploadData () {
         const impl = this.impl;
         if (!impl) {
             return;
@@ -628,18 +629,17 @@ export class Graphics extends Renderable2D {
             const vb = new Float32Array(renderData.vData.buffer, 0, renderData.vertexStart * componentPerVertex);
             ia.vertexBuffers[0].update(vb);
             ia.vertexCount = renderData.vertexStart;
-            const ib = new Uint16Array(renderData.iData.buffer, 0, renderData.indicesStart);
+            const ib = new Uint16Array(renderData.iData.buffer, 0, renderData.indexStart);
             ia.indexBuffer!.update(ib);
-            ia.indexCount = renderData.indicesStart;
+            ia.indexCount = renderData.indexStart;
             renderData.lastFilledVertex = renderData.vertexStart;
-            renderData.lastFilledIndices = renderData.indicesStart;
+            renderData.lastFilledIndex = renderData.indexStart;
         }
 
-        render.removeUploadBuffersFunc(this);
         this._isNeedUploadData = false;
     }
 
-    protected _render (render: Batcher2D) {
+    protected _render (render: IBatcher) {
         if (this._isNeedUploadData) {
             if (this.impl) {
                 const renderDataList = this.impl.getRenderDataList();
@@ -650,14 +650,14 @@ export class Graphics extends Renderable2D {
                     }
                 }
             }
-            render.addUploadBuffersFunc(this, this._uploadData);
+            this._uploadData();
         }
 
         render.commitModel(this, this.model, this.getMaterialInstance(0));
     }
 
     protected _flushAssembler () {
-        const assembler = Graphics.Assembler!.getAssembler(this);
+        const assembler = Graphics.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;

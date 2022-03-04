@@ -36,10 +36,10 @@ import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from './assets';
 import System from './components/system';
 import { CCObject } from './data/object';
-import { EventTarget } from './event/event-target';
+import { EventTarget } from './event';
+import { input } from '../input';
 import { game, Game } from './game';
 import { v2, Vec2 } from './math';
-import { eventManager } from './platform/event-manager/event-manager';
 import { Root } from './root';
 import { Node, Scene } from './scene-graph';
 import { ComponentScheduler } from './scene-graph/component-scheduler';
@@ -48,7 +48,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, assertID, warnID } from './platform/debug';
-import inputManager from './platform/event-manager/input-manager';
+import { containerManager } from './memop/container-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -201,7 +201,13 @@ export class Director extends EventTarget {
 
     public static instance: Director;
 
+    /**
+     * @legacyPublic
+     */
     public _compScheduler: ComponentScheduler;
+    /**
+     * @legacyPublic
+     */
     public _nodeActivator: NodeActivator;
     private _invalid: boolean;
     private _paused: boolean;
@@ -249,50 +255,6 @@ export class Director extends EventTarget {
     public calculateDeltaTime (now) {}
 
     /**
-     * @en
-     * Converts a view coordinate to an WebGL coordinate<br/>
-     * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
-     * Implementation can be found in directorWebGL.
-     * @zh 将触摸点的屏幕坐标转换为 WebGL View 下的坐标。
-     * @deprecated since v2.0
-     */
-    public convertToGL (uiPoint: Vec2) {
-        const container = game.container as Element;
-        const view = legacyCC.view;
-        const box = container.getBoundingClientRect();
-        const left = box.left + window.pageXOffset - container.clientLeft;
-        const top = box.top + window.pageYOffset - container.clientTop;
-        const x = view._devicePixelRatio * (uiPoint.x - left);
-        const y = view._devicePixelRatio * (top + box.height - uiPoint.y);
-        return view._isRotated ? v2(view._viewportRect.width - y, x) : v2(x, y);
-    }
-
-    /**
-     * @en
-     * Converts an OpenGL coordinate to a view coordinate<br/>
-     * Useful to convert node points to window points for calls such as glScissor<br/>
-     * Implementation can be found in directorWebGL.
-     * @zh 将触摸点的 WebGL View 坐标转换为屏幕坐标。
-     * @deprecated since v2.0
-     */
-    public convertToUI (glPoint: Vec2) {
-        const container = game.container as Element;
-        const view = legacyCC.view;
-        const box = container.getBoundingClientRect();
-        const left = box.left + window.pageXOffset - container.clientLeft;
-        const top = box.top + window.pageYOffset - container.clientTop;
-        const uiPoint = v2(0, 0);
-        if (view._isRotated) {
-            uiPoint.x = left + glPoint.y / view._devicePixelRatio;
-            uiPoint.y = top + box.height - (view._viewportRect.width - glPoint.x) / view._devicePixelRatio;
-        } else {
-            uiPoint.x = left + glPoint.x * view._devicePixelRatio;
-            uiPoint.y = top + box.height - glPoint.y * view._devicePixelRatio;
-        }
-        return uiPoint;
-    }
-
-    /**
      * @en End the life of director in the next frame
      * @zh 执行完当前帧后停止 director 的执行
      */
@@ -330,11 +292,6 @@ export class Director extends EventTarget {
 
         this._nodeActivator.reset();
 
-        // Disable event dispatching
-        if (eventManager) {
-            eventManager.setEnabled(false);
-        }
-
         if (!EDITOR) {
             if (legacyCC.isValid(this._scene)) {
                 this._scene!.destroy();
@@ -356,10 +313,6 @@ export class Director extends EventTarget {
         this.purgeDirector();
 
         this.emit(Director.EVENT_RESET);
-
-        if (eventManager) {
-            eventManager.setEnabled(true);
-        }
 
         this.startAnimation();
     }
@@ -524,11 +477,11 @@ export class Director extends EventTarget {
 
     /**
      * @en
-     * Pre-loads the scene to reduces loading time. You can call this method at any time you want.<br>
+     * Pre-loads the scene asset to reduces loading time. You can call this method at any time you want.<br>
      * After calling this method, you still need to launch the scene by `director.loadScene`.<br>
      * It will be totally fine to call `director.loadScene` at any time even if the preloading is not<br>
      * yet finished, the scene will be launched after loaded automatically.
-     * @zh 预加载场景，你可以在任何时候调用这个方法。
+     * @zh 预加载场景资源，你可以在任何时候调用这个方法。
      * 调用完后，你仍然需要通过 `director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `director.loadScene`，加载完成后场景就会启动。
      * @param sceneName 场景名称。
@@ -735,7 +688,8 @@ export class Director extends EventTarget {
         if (!this._invalid) {
             this.emit(Director.EVENT_BEGIN_FRAME);
             if (!EDITOR) {
-                inputManager.frameDispatchEvents();
+                // @ts-expect-error _frameDispatchEvents is a private method.
+                input._frameDispatchEvents();
             }
             // Update
             if (!this._paused) {
@@ -762,13 +716,12 @@ export class Director extends EventTarget {
             }
 
             this.emit(Director.EVENT_BEFORE_DRAW);
-            // The test environment does not currently support the renderer
-            if (!TEST) this._root!.frameMove(dt);
+            this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
-            eventManager.frameUpdateListeners();
             Node.resetHasChangedFlags();
             Node.clearNodeArray();
+            containerManager.update(dt);
             this.emit(Director.EVENT_END_FRAME);
             this._totalFrames++;
         }
@@ -778,11 +731,6 @@ export class Director extends EventTarget {
         this._totalFrames = 0;
         this._paused = false;
 
-        // Event manager
-        if (eventManager) {
-            eventManager.setEnabled(true);
-        }
-
         // Scheduler
         // TODO: have a solid organization of priority and expose to user
         this.registerSystem(Scheduler.ID, this._scheduler, 200);
@@ -791,15 +739,9 @@ export class Director extends EventTarget {
     }
 
     private _init () {
-        // The test environment does not currently support the renderer
-        if (TEST) return Promise.resolve();
-        // @ts-expect-error internal api usage
-        this._root = new Root(game._gfxDevice);
+        this._root = new Root(game._gfxDevice!);
         const rootInfo = {};
-        return this._root.initialize(rootInfo).catch((error) => {
-            errorID(1217);
-            return Promise.reject(error);
-        });
+        this._root.initialize(rootInfo);
     }
 }
 

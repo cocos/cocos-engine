@@ -9,6 +9,7 @@ uniform Constants {
   vec4 mainTiling_Offset;
   vec4 frameTile_velLenScale;
   vec4 scale;
+  vec4 nodeRotation;
 };
 
 #include <cc-global>

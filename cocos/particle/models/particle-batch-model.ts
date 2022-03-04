@@ -35,6 +35,7 @@ import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
 import { Material, RenderingSubMesh } from '../../core/assets';
+import { JSB } from '../../core/default-constants';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -63,6 +64,9 @@ export default class ParticleBatchModel extends scene.Model {
 
     constructor () {
         super();
+        if (JSB) {
+            (this as any)._registerListeners();
+        }
 
         this.type = scene.ModelType.PARTICLE_BATCH;
         this._capacity = 0;
@@ -115,6 +119,7 @@ export default class ParticleBatchModel extends scene.Model {
             this._vertCount = this._mesh.struct.vertexBundles[this._mesh.struct.primitives[0].vertexBundelIndices[0]].view.count;
             this._indexCount = this._mesh.struct.primitives[0].indexView!.count;
         }
+
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
@@ -122,7 +127,7 @@ export default class ParticleBatchModel extends scene.Model {
             this._vertSize,
         ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * this._capacity * this._vertCount);
-        if (this._mesh) {
+        if (this._mesh && this._capacity > 0) {
             let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
             let vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD3);
@@ -145,7 +150,7 @@ export default class ParticleBatchModel extends scene.Model {
         vertexBuffer.update(vBuffer);
 
         const indices: Uint16Array = new Uint16Array(this._capacity * this._indexCount);
-        if (this._mesh) {
+        if (this._mesh && this._capacity > 0) {
             this._mesh.copyIndices(0, indices);
             for (let i = 1; i < this._capacity; i++) {
                 for (let j = 0; j < this._indexCount; j++) {
@@ -167,7 +172,7 @@ export default class ParticleBatchModel extends scene.Model {
 
         const indexBuffer: Buffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
@@ -308,6 +313,9 @@ export default class ParticleBatchModel extends scene.Model {
     }
 
     public updateIA (count: number) {
+        if (count <= 0) {
+            return;
+        }
         const ia = this._subModels[0].inputAssembler;
         ia.vertexBuffers[0].update(this._vdataF32!);
         this._iaInfo.drawInfos[0].firstIndex = 0;

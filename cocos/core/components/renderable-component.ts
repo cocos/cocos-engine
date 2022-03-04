@@ -224,6 +224,9 @@ export class RenderableComponent extends Component {
         return this._materialInstances[index] || this._materials[index];
     }
 
+    /**
+     * @legacyPublic
+     */
     public _collectModels (): scene.Model[] {
         return this._models;
     }

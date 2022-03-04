@@ -1,0 +1,52 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  hideInEditor: true
+  techniques:
+  - name: transparent
+    passes:
+    - vert: terrain-brush-vs:vert
+      frag: terrain-brush-fs:frag
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+}%
+
+CCProgram terrain-brush-vs %{
+  precision mediump float;
+  #include <cc-global>
+  #include <cc-local>
+
+  in vec3 a_position;
+
+  vec4 vert () {
+    vec3 worldPos;
+    worldPos.x = cc_matWorld[3][0] + a_position.x;
+    worldPos.y = cc_matWorld[3][1] + a_position.y;
+    worldPos.z = cc_matWorld[3][2] + a_position.z;
+    worldPos.y += 0.01; // offset
+
+    vec4 pos = vec4(worldPos, 1);
+    pos = cc_matViewProj * pos;
+
+    return pos;
+  }
+}%
+
+CCProgram terrain-brush-fs %{
+  precision mediump float;
+  #include <output>
+
+  vec4 frag () {
+    vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+    color.rgb = vec3(100, 100, 135) / 255.0;
+    color.a = 0.5;
+
+    return CCFragOutput(color);
+  }
+}%

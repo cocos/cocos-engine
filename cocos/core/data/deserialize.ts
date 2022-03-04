@@ -750,7 +750,17 @@ function parseCustomClass (data: IFileData, owner: any, key: string, value: ICus
 }
 
 function parseValueTypeCreated (data: IFileData, owner: any, key: string, value: IValueTypeData) {
-    BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](owner[key], value);
+    /**BuiltinValueTypes index: Vec2=0, Vec3=1, Vec4=2, Quat=3, Color=4, Size=5, Rect=6, Mat4=7
+       The native layer type corresponding to the BuiltinValueTypes has not been exported exclude Color,
+       so we need to set to native after value changed
+     * */
+    if (JSB) {
+        const tmp = owner[key];
+        BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](tmp, value);
+        owner[key] = tmp;
+    } else {
+        BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](owner[key], value);
+    }
 }
 
 function parseValueType (data: IFileData, owner: any, key: string, value: IValueTypeData) {

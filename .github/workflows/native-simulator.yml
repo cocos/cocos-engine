@@ -1,0 +1,86 @@
+name: <Native> Simulator
+
+on: [pull_request]
+
+jobs:
+  win_gen_simulator:
+    # windows 2019, Visual Studio Enterprise 2019
+    # windows 2016, Visual Studio Enterprise 2017
+    #runs-on: windows-latest
+    runs-on: windows-2016
+    name: Windows
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/native
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: npm install
+        run: |
+          npm install
+      - name: download external libraries
+        run: |
+          node ./utils/download-deps.js
+      - name: install vulkan-sdk
+        run: |
+          choco install vulkan-sdk
+      - name: pip install
+        run: |
+          python -m pip install PyYAML==5.4.1 Cheetah3
+      - name: generate bindings glue codes
+        shell: bash
+        run: |
+          python -V
+          cd ./tools/tojs
+          echo "Create auto-generated jsbinding glue codes."
+          python ./genbindings.py
+          rm userconf.ini
+      - name: gen simulator
+        run: |
+          gulp gen-simulator-release
+      - name: check result
+        run: |
+          Get-ChildItem ./simulator/Debug -Name SimulatorApp-Win32.exe
+          if(Test-Path ./simulator/Debug/SimulatorApp-Win32.exe) {exit 0} else {exit 1}
+  # mac_gen_simulator:
+  #   runs-on: macos-latest
+  #   name: MacOS
+  #   defaults:
+  #     run:
+  #       working-directory: ${{github.workspace}}/native
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-python@v2
+  #       with:
+  #         python-version: "3.x"
+  #     - name: npm install
+  #       run: |
+  #         npm install
+  #         npm install gulp -g
+  #     - name: download external libraries
+  #       run: |
+  #         node ./utils/download-deps.js
+  #     - name: pip install
+  #       run: |
+  #         python -m pip install PyYAML Cheetah3
+  #     - name: generate bindings glue codes
+  #       shell: bash
+  #       run: |
+  #         python -V
+  #         cd ${{github.workspace}}/tools/travis-scripts
+  #         echo "Create auto-generated jsbinding glue codes."
+  #         pushd ${{github.workspace}}/tools/tojs
+  #         python ./genbindings.py
+  #         rm userconf.ini
+  #         popd
+  #     - name: gen simulator
+  #       run: |
+  #         gulp gen-simulator-release
+  #     - name: check result
+  #       run: |
+  #         find ./ -name SimulatorApp-Mac
+  #         [ -f ./simulator/Debug/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac ] && exit 0 || exit 1

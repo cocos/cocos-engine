@@ -84,29 +84,51 @@ let _maxLineWidth = 0;
 
 export const bmfontUtils = {
     updateRenderData (comp: Label) {
-        if (!comp.renderData || !comp.renderData.vertDirty) {
+        if (!comp.renderData) {
             return;
         }
 
         if (_comp === comp) { return; }
 
-        _comp = comp;
-        _uiTrans = _comp.node._uiProps.uiTransformComp!;
-        this._updateFontFamily(comp);
-        this._updateProperties(comp);
-        this._updateLabelInfo(comp);
-        this._updateContent();
+        if (comp.renderData.vertDirty) {
+            _comp = comp;
+            _uiTrans = _comp.node._uiProps.uiTransformComp!;
+            this._updateFontFamily(comp);
+            this._updateProperties(comp);
+            this._updateLabelInfo(comp);
+            this._updateContent();
 
-        _comp.actualFontSize = _fontSize;
-        _uiTrans.setContentSize(_contentSize);
+            _comp.actualFontSize = _fontSize;
+            _uiTrans.setContentSize(_contentSize);
+            this.updateUVs(comp);
 
-        _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
-        // fix bmfont run updateRenderData twice bug
-        _comp.markForUpdateRenderData(false);
+            _comp.renderData!.vertDirty = false;
+            // fix bmfont run updateRenderData twice bug
+            _comp.markForUpdateRenderData(false);
 
-        _comp = null;
+            _comp = null;
 
-        this._resetProperties();
+            this._resetProperties();
+        }
+
+        if (comp.spriteFrame) {
+            const renderData = comp.renderData;
+            renderData.updateRenderData(comp, comp.spriteFrame);
+        }
+    },
+
+    updateUVs (label: Label) {
+        const renderData = label.renderData!;
+        const vData = renderData.chunk.vb;
+        const vertexCount = renderData.vertexCount;
+        const dataList = renderData.data;
+        let vertexOffset = 3;
+        for (let i = 0; i < vertexCount; i++) {
+            const vert = dataList[i];
+            vData[vertexOffset] = vert.u;
+            vData[vertexOffset + 1] = vert.v;
+            vertexOffset += 9;
+        }
     },
 
     _updateFontScale () {
@@ -120,6 +142,7 @@ export const bmfontUtils = {
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
 
         dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
+        // TODO update material and uv
     },
 
     _updateLabelInfo (comp) {
@@ -193,7 +216,7 @@ export const bmfontUtils = {
         }
     },
 
-    _multilineTextWrap (nextTokenFunc: Function) {
+    _multilineTextWrap (nextTokenFunc: (arg0: string, arg1: number, arg2: number) => number) {
         const textLen = _string.length;
 
         let lineIndex = 0;
@@ -237,7 +260,7 @@ export const bmfontUtils = {
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
                     console.log(`Can't find letter definition in texture atlas ${
-                     _fntConfig!.atlasName} for letter:${character}`);
+                        _fntConfig!.atlasName} for letter:${character}`);
                     continue;
                 }
 
@@ -390,7 +413,7 @@ export const bmfontUtils = {
         }
 
         _lettersInfo[letterIndex].char = char;
-        _lettersInfo[letterIndex].hash = char.charCodeAt(0) + shareLabelInfo.hash;
+        _lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${shareLabelInfo.hash}`;
         _lettersInfo[letterIndex].valid = false;
     },
 
@@ -401,7 +424,7 @@ export const bmfontUtils = {
         }
 
         const char = character.charCodeAt(0);
-        const key = char + shareLabelInfo.hash;
+        const key = `${char}${shareLabelInfo.hash}`;
 
         _lettersInfo[letterIndex].line = lineIndex;
         _lettersInfo[letterIndex].char = character;
@@ -450,7 +473,7 @@ export const bmfontUtils = {
         }
     },
 
-    _shrinkLabelToContentSize (lambda: Function) {
+    _shrinkLabelToContentSize (lambda: () => boolean) {
         const fontSize = _fontSize;
 
         let left = 0;
@@ -503,7 +526,7 @@ export const bmfontUtils = {
                     continue;
                 }
 
-                const px = letterInfo.x + letterDef.w / 2 * _bmfontScale;
+                const px = letterInfo.x + letterDef.w * _bmfontScale;
                 const lineIndex = letterInfo.line;
                 if (_labelWidth > 0) {
                     if (!_isWrapText) {
@@ -543,7 +566,8 @@ export const bmfontUtils = {
 
         const texture =  _spriteFrame ? _spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
         const renderData = _comp.renderData!;
-        renderData.dataLength = renderData.vertexCount = renderData.indicesCount = 0;
+        renderData.dataLength = 0;
+        renderData.resize(0, 0);
         const anchorPoint = _uiTrans!.anchorPoint;
         const contentSize = _contentSize;
         const appX = anchorPoint.x * contentSize.width;

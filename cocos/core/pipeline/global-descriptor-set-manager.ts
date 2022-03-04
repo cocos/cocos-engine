@@ -28,29 +28,27 @@
  * @module pipeline
  */
 
-import { RenderPipeline } from './render-pipeline';
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
-    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout } from '../gfx';
+    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
-import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
 
-const _samplerLinearInfo = [
+const _samplerLinearInfo = new SamplerInfo(
     Filter.LINEAR,
     Filter.LINEAR,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-];
+);
 
-const _samplerPointInfo = [
+const _samplerPointInfo = new SamplerInfo(
     Filter.POINT,
     Filter.POINT,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-];
+);
 
 export class GlobalDSManager {
     private _device: Device;
@@ -82,14 +80,11 @@ export class GlobalDSManager {
         return this._globalDescriptorSet;
     }
 
-    constructor (pipeline: RenderPipeline) {
-        this._device = pipeline.device;
+    constructor (device: Device) {
+        this._device = device;
 
-        const linearSamplerHash = genSamplerHash(_samplerLinearInfo);
-        this._linearSampler = samplerLib.getSampler(this._device, linearSamplerHash);
-
-        const pointSamplerHash = genSamplerHash(_samplerPointInfo);
-        this._pointSampler = samplerLib.getSampler(this._device, pointSamplerHash);
+        this._linearSampler = this._device.getSampler(_samplerLinearInfo);
+        this._pointSampler = this._device.getSampler(_samplerPointInfo);
 
         const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
         this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
@@ -185,13 +180,13 @@ export class GlobalDSManager {
                 descriptorSet.bindTexture(i, globalDescriptorSet.getTexture(i));
             }
 
-            const shadowBUO = device.createBuffer(new BufferInfo(
+            const shadowUBO = device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 UBOShadow.SIZE,
                 UBOShadow.SIZE,
             ));
-            descriptorSet.bindBuffer(UBOShadow.BINDING, shadowBUO);
+            descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
 
             descriptorSet.update();
         }
@@ -201,7 +196,5 @@ export class GlobalDSManager {
 
     public destroy () {
         this._descriptorSetLayout.destroy();
-        this._linearSampler.destroy();
-        this._pointSampler.destroy();
     }
 }

@@ -29,7 +29,7 @@
  */
 
 import { AudioSource } from './audio-source';
-import { replaceProperty, removeProperty, markAsWarning } from '../core/utils/x-deprecated';
+import { replaceProperty, markAsWarning } from '../core/utils/x-deprecated';
 import { AudioClip } from './audio-clip';
 
 // remove AudioClip static property

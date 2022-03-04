@@ -4,7 +4,8 @@
 #if CC_USE_BAKED_ANIMATION
   #if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
     mat4 getJointMatrix (float i) {
-      CCGetJointTextureCoords(3.0, i, j, x, y, invSize);
+      highp float x, y, invSize;
+      CCGetJointTextureCoords(3.0, i, x, y, invSize);
       vec4 v1 = texture(cc_jointTexture, vec2((x + 0.5) * invSize, y));
       vec4 v2 = texture(cc_jointTexture, vec2((x + 1.5) * invSize, y));
       vec4 v3 = texture(cc_jointTexture, vec2((x + 2.5) * invSize, y));
@@ -12,7 +13,8 @@
     }
   #else
     mat4 getJointMatrix (float i) {
-      CCGetJointTextureCoords(12.0, i, j, x, y, invSize);
+      highp float x, y, invSize;
+      CCGetJointTextureCoords(12.0, i, x, y, invSize);
       vec4 v1 = vec4(
         decode32(texture(cc_jointTexture, vec2((x + 0.5) * invSize, y))),
         decode32(texture(cc_jointTexture, vec2((x + 1.5) * invSize, y))),

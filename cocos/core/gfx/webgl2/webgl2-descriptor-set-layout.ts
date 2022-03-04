@@ -68,8 +68,6 @@ export class WebGL2DescriptorSetLayout extends DescriptorSetLayout {
             descriptorIndices,
             descriptorCount,
         };
-
-        return true;
     }
 
     public destroy () {

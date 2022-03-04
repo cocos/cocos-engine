@@ -40,16 +40,32 @@ import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
 import { SceneGlobals } from './scene-globals';
+import { JSB } from '../default-constants';
+import { SystemEventType } from '../../input/types';
+import { SystemEvent } from '../../input';
+import { NodeUIProperties } from './node-ui-properties';
 
-replaceProperty(BaseNode.prototype, 'BaseNode', [
-    {
-        name: 'childrenCount',
-        newName: 'children.length',
-        customGetter (this: BaseNode) {
-            return this.children.length;
+if (JSB) {
+    replaceProperty(Node.prototype, 'Node', [
+        {
+            name: 'childrenCount',
+            newName: 'children.length',
+            customGetter (this: Node) {
+                return this.children.length;
+            },
         },
-    },
-]);
+    ]);
+} else {
+    replaceProperty(BaseNode.prototype, 'BaseNode', [
+        {
+            name: 'childrenCount',
+            newName: 'children.length',
+            customGetter (this: BaseNode) {
+                return this.children.length;
+            },
+        },
+    ]);
+}
 
 replaceProperty(Node.prototype, 'Node', [
     {
@@ -148,6 +164,39 @@ removeProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     {
         name: 'packing',
     },
+    {
+        name: 'autoAdapt',
+    },
+    {
+        name: 'fixedArea',
+    },
+    {
+        name: 'pcf',
+    },
+    {
+        name: 'bias',
+    },
+    {
+        name: 'normalBias',
+    },
+    {
+        name: 'near',
+    },
+    {
+        name: 'far',
+    },
+    {
+        name: 'shadowDistance',
+    },
+    {
+        name: 'invisibleOcclusionRange',
+    },
+    {
+        name: 'orthoSize',
+    },
+    {
+        name: 'saturation',
+    },
 ]);
 
 removeProperty(Node.prototype, 'Node.prototype', [
@@ -156,6 +205,13 @@ removeProperty(Node.prototype, 'Node.prototype', [
     },
     {
         name: 'removeLayer',
+    },
+]);
+
+replaceProperty(NodeUIProperties.prototype, 'NodeUIProperties', [
+    {
+        name: 'opacityDirty',
+        newName: 'colorDirty',
     },
 ]);
 
@@ -271,5 +327,43 @@ if (EDITOR) {
         Node.prototype._onBatchCreated.call(this, dontSyncChildPrefab);
     };
 }
+
+replaceProperty(SystemEventType, 'SystemEventType', [
+    'MOUSE_ENTER',
+    'MOUSE_LEAVE',
+    'TRANSFORM_CHANGED',
+    'SCENE_CHANGED_FOR_PERSISTS',
+    'SIZE_CHANGED',
+    'ANCHOR_CHANGED',
+    'COLOR_CHANGED',
+    'CHILD_ADDED',
+    'CHILD_REMOVED',
+    'PARENT_CHANGED',
+    'NODE_DESTROYED',
+    'LAYER_CHANGED',
+    'SIBLING_ORDER_CHANGED',
+].map((name: string) => ({
+    name,
+    target: Node.EventType,
+    targetName: 'Node.EventType',
+})));
+
+replaceProperty(Node.EventType, 'Node.EventType', [
+    {
+        name: 'DEVICEMOTION',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+    {
+        name: 'KEY_DOWN',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+    {
+        name: 'KEY_UP',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+]);
 
 legacyCC.PrivateNode = PrivateNode;

@@ -87,7 +87,7 @@ export function parse (task: Task) {
                     if (bundles.has(item.bundle)) {
                         bundles.get(item.bundle)!.config.getDirWithPath(item.dir, item.type, infos);
                         for (const assetInfo of infos) {
-                            input.push({ uuid: assetInfo.uuid, __isNative__: false, ext: '.json', bundle: item.bundle });
+                            input.push({ uuid: assetInfo.uuid, __isNative__: false, ext: assetInfo.extension || '.json', bundle: item.bundle });
                         }
                         infos.length = 0;
                     }
@@ -113,7 +113,7 @@ export function parse (task: Task) {
                         out.uuid = info.uuid;
                         out.info = info;
                     }
-                    out.ext = item.ext || '.json';
+                    out.ext = item.ext || info?.extension || '.json';
                     break;
                 case RequestType.SCENE:
                     if (!item.bundle) {

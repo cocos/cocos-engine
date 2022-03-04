@@ -7,7 +7,8 @@ import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, EventTarget, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
@@ -18,7 +19,7 @@ import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
 import { legacyCC } from '../core/global-exports';
 import { ArmatureSystem } from './ArmatureSystem';
@@ -435,6 +436,9 @@ export class ArmatureDisplay extends Renderable2D {
     protected _debugBones = false;
     /* protected */ _debugDraw: Graphics | null = null;
 
+    /**
+     * @legacyPublic
+     */
     @serializable
     public _enableBatch = false;
 
@@ -512,7 +516,7 @@ export class ArmatureDisplay extends Renderable2D {
         if (arr.length > 0 && arr[arr.length - 1].renderData.vertexCount === 0) {
             return arr[arr.length - 1];
         }
-        const renderData = new MeshRenderData();
+        const renderData = MeshRenderData.add();
         const comb = { renderData, texture: null };
         arr.push(comb);
         return comb;
@@ -520,7 +524,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     public destroyRenderData () {
         if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
+            this._meshRenderDataArray.forEach((rd) => { MeshRenderData.remove(rd.renderData); });
             this._meshRenderDataArray.length = 0;
         }
     }
@@ -544,7 +548,7 @@ export class ArmatureDisplay extends Renderable2D {
             owner: this,
         };
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ USE_LOCAL: false }, 0); // TODO: not supported by ui
+        inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -556,17 +560,22 @@ export class ArmatureDisplay extends Renderable2D {
         return inst;
     }
 
+    /**
+     * @legacyPublic
+     */
     public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: Batcher2D) {
+    protected _render (ui: IBatcher) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 // HACK
                 const mat = this.material;
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                this.material = m.renderData.material;
+                if (m.renderData.material) {
+                    this.material = m.renderData.material;
+                }
                 if (m.texture) {
-                    ui.commitComp(this, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.renderData, m.texture, this._assembler, this.node);
                 }
                 this.material = mat;
             }
@@ -1258,7 +1267,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = ArmatureDisplay.Assembler!.getAssembler(this);
+        const assembler = ArmatureDisplay.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
@@ -1266,7 +1275,6 @@ export class ArmatureDisplay extends Renderable2D {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
-                this._colorDirty = true;
                 this._updateColor();
             }
         }

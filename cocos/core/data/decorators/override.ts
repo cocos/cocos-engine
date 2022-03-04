@@ -29,9 +29,9 @@
  */
 
 import { LegacyPropertyDecorator } from './utils';
-import { property } from './property';
+import { getOrCreatePropertyStash } from './property';
 
-export const override: LegacyPropertyDecorator = (target, propertyKey, descriptor) => property({
-    __noImplicit: true,
-    override: true,
-})(target, propertyKey, descriptor);
+export const override: LegacyPropertyDecorator = (target, propertyKey, descriptor) => {
+    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    propertyStash.override = true;
+};

@@ -68,7 +68,7 @@ export function createIA (device: Device, data: IGeometry) {
 
     const vb = device.createBuffer(new BufferInfo(
         BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-        MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+        MemoryUsageBit.DEVICE,
         verts.length * 4,
         verts.length * 4 / vcount,
     ));
@@ -79,7 +79,7 @@ export function createIA (device: Device, data: IGeometry) {
     if (data.indices) {
         ib = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             data.indices.length * 2,
             2,
         ));

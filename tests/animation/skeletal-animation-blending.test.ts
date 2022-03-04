@@ -134,7 +134,7 @@ describe('Skeletal animation blending', () => {
             expect(Vec3.equals(nodeScale_all.scale, new Vec3(0.2, 0.4, 0.6))).toBe(true);
         });
 
-        test('If sum less than 1, current pose with be blended, with remain weight', () => {
+        test('If sum less than 1, current animation with be blended, with remain weight', () => {
             host1.weight = 0.3;
             host2.weight = 0.5;
             host3.weight = 0.2;

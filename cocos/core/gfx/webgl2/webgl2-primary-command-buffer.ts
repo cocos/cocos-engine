@@ -25,7 +25,7 @@
 
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
-import { BufferUsageBit, BufferTextureCopy, Color, Rect, BufferSource, DrawInfo } from '../base/define';
+import { BufferUsageBit, BufferTextureCopy, Color, Rect, BufferSource, DrawInfo, Viewport } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
 import { Texture } from '../base/texture';
@@ -34,11 +34,11 @@ import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import {
     WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncCopyBuffersToTexture,
     WebGL2CmdFuncDraw, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
-import { WebGL2Device } from './webgl2-device';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
+import { WebGL2DeviceManager } from './webgl2-define';
 
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     public beginRenderPass (
@@ -50,7 +50,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         clearStencil: number,
     ) {
         WebGL2CmdFuncBeginRenderPass(
-            this._device as WebGL2Device,
+            WebGL2DeviceManager.instance,
             (renderPass as WebGL2RenderPass).gpuRenderPass,
             (framebuffer as WebGL2Framebuffer).gpuFramebuffer,
             renderArea, clearColors, clearDepth, clearStencil,
@@ -58,13 +58,15 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         this._isInRenderPass = true;
     }
 
-    public draw (info: DrawInfo | InputAssembler) {
+    public draw (infoOrAssembler: DrawInfo | InputAssembler) {
         if (this._isInRenderPass) {
             if (this._isStateInvalied) {
                 this.bindStates();
             }
 
-            WebGL2CmdFuncDraw(this._device as WebGL2Device, info as DrawInfo);
+            const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
+
+            WebGL2CmdFuncDraw(WebGL2DeviceManager.instance, info as DrawInfo);
 
             ++this._numDrawCalls;
             this._numInstances += info.instanceCount;
@@ -89,6 +91,38 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         }
     }
 
+    public setViewport (viewport: Viewport) {
+        const { stateCache: cache, gl } = WebGL2DeviceManager.instance;
+
+        if (cache.viewport.left !== viewport.left
+            || cache.viewport.top !== viewport.top
+            || cache.viewport.width !== viewport.width
+            || cache.viewport.height !== viewport.height) {
+            gl.viewport(viewport.left, viewport.top, viewport.width, viewport.height);
+
+            cache.viewport.left = viewport.left;
+            cache.viewport.top = viewport.top;
+            cache.viewport.width = viewport.width;
+            cache.viewport.height = viewport.height;
+        }
+    }
+
+    public setScissor (scissor: Rect) {
+        const { stateCache: cache, gl } = WebGL2DeviceManager.instance;
+
+        if (cache.scissorRect.x !== scissor.x
+            || cache.scissorRect.y !== scissor.y
+            || cache.scissorRect.width !== scissor.width
+            || cache.scissorRect.height !== scissor.height) {
+            gl.scissor(scissor.x, scissor.y, scissor.width, scissor.height);
+
+            cache.scissorRect.x = scissor.x;
+            cache.scissorRect.y = scissor.y;
+            cache.scissorRect.width = scissor.width;
+            cache.scissorRect.height = scissor.height;
+        }
+    }
+
     public updateBuffer (buffer: Buffer, data: BufferSource, size?: number) {
         if (!this._isInRenderPass) {
             const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
@@ -102,7 +136,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                     buffSize = (data as ArrayBuffer).byteLength;
                 }
 
-                WebGL2CmdFuncUpdateBuffer(this._device as WebGL2Device, gpuBuffer, data as ArrayBuffer, 0, buffSize);
+                WebGL2CmdFuncUpdateBuffer(WebGL2DeviceManager.instance, gpuBuffer, data as ArrayBuffer, 0, buffSize);
             }
         } else {
             console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
@@ -113,7 +147,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         if (!this._isInRenderPass) {
             const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
-                WebGL2CmdFuncCopyBuffersToTexture(this._device as WebGL2Device, buffers, gpuTexture, regions);
+                WebGL2CmdFuncCopyBuffersToTexture(WebGL2DeviceManager.instance, buffers, gpuTexture, regions);
             }
         } else {
             console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
@@ -124,7 +158,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         for (let i = 0; i < count; ++i) {
             // actually they are secondary buffers, the cast here is only for type checking
             const webGL2CmdBuff = cmdBuffs[i] as WebGL2PrimaryCommandBuffer;
-            WebGL2CmdFuncExecuteCmds(this._device as WebGL2Device, webGL2CmdBuff.cmdPackage);
+            WebGL2CmdFuncExecuteCmds(WebGL2DeviceManager.instance, webGL2CmdBuff.cmdPackage);
             this._numDrawCalls += webGL2CmdBuff._numDrawCalls;
             this._numInstances += webGL2CmdBuff._numInstances;
             this._numTris += webGL2CmdBuff._numTris;
@@ -132,7 +166,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     protected bindStates () {
-        WebGL2CmdFuncBindStates(this._device as WebGL2Device, this._curGPUPipelineState, this._curGPUInputAssembler,
+        WebGL2CmdFuncBindStates(WebGL2DeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
             this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
         this._isStateInvalied = false;
     }

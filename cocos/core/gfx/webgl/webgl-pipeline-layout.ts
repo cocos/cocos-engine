@@ -62,8 +62,6 @@ export class WebGLPipelineLayout extends PipelineLayout {
             dynamicOffsetCount,
             dynamicOffsetOffsets,
         };
-
-        return true;
     }
 
     public destroy () {

@@ -1,6 +1,6 @@
 import { systemInfo } from 'pal/system-info';
 import { AudioType, AudioState, AudioEvent } from '../type';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
@@ -54,8 +54,13 @@ export class AudioPlayer implements OperationQueueable {
     private _id: number = INVALID_AUDIO_ID;
     private _state: AudioState = AudioState.INIT;
 
-    // NOTE: the implemented interface properties need to be public access
+    /**
+     * @legacyPublic
+     */
     public _eventTarget: EventTarget = new EventTarget();
+    /**
+     * @legacyPublic
+     */
     public _operationQueue: OperationInfo[] = [];
 
     // NOTE: we need to cache the state in case the audio id is invalid.
@@ -212,6 +217,7 @@ export class AudioPlayer implements OperationQueueable {
                         this._cachedState.currentTime = 0;
                     }
                     audioEngine.setFinishCallback(this._id, () => {
+                        this._cachedState.currentTime = 0;
                         this._id = INVALID_AUDIO_ID;
                         this._state = AudioState.INIT;
                         this._eventTarget.emit(AudioEvent.ENDED);
@@ -242,6 +248,7 @@ export class AudioPlayer implements OperationQueueable {
             }
             this._state = AudioState.STOPPED;
             this._id = INVALID_AUDIO_ID;
+            this._cachedState.currentTime = 0;
             resolve();
         });
     }

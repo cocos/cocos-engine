@@ -389,7 +389,7 @@ export class VideoPlayer extends Component {
         this._impl.componentEventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
         this._impl.componentEventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
         this._impl.componentEventList.set(EventType.PLAYING, this.onPlaying.bind(this));
-        this._impl.componentEventList.set(EventType.PAUSED, this.onPasued.bind(this));
+        this._impl.componentEventList.set(EventType.PAUSED, this.onPaused.bind(this));
         this._impl.componentEventList.set(EventType.STOPPED, this.onStopped.bind(this));
         this._impl.componentEventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
         this._impl.componentEventList.set(EventType.ERROR, this.onError.bind(this));
@@ -439,7 +439,7 @@ export class VideoPlayer extends Component {
         this.node.emit(EventType.PLAYING, this);
     }
 
-    public onPasued () {
+    public onPaused () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
         this.node.emit(EventType.PAUSED, this);
     }

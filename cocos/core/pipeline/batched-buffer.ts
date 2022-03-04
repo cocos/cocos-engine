@@ -52,15 +52,6 @@ export interface IBatchedItem {
 }
 
 export class BatchedBuffer {
-    private static _buffers = new Map<Pass, Record<number, BatchedBuffer>>();
-
-    public static get (pass: Pass, extraKey = 0) {
-        const buffers = BatchedBuffer._buffers;
-        if (!buffers.has(pass)) buffers.set(pass, {});
-        const record = buffers.get(pass)!;
-        return record[extraKey] || (record[extraKey] = new BatchedBuffer(pass));
-    }
-
     public batches: IBatchedItem[] = [];
     public dynamicOffsets: number[] = [];
     private _device: Device;

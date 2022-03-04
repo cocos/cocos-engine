@@ -1,5 +1,4 @@
-import { SafeAreaEdge } from 'pal/screen-adapter';
-import { systemInfo } from 'pal/system-info';
+import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
@@ -13,25 +12,8 @@ const orientationMap: Record<string, Orientation> = {
 };
 
 class ScreenAdapter extends EventTarget {
-    constructor () {
-        super();
-        this._registerEvent();
-    }
-
-    private _registerEvent () {
-        jsb.onResize = (size) => {
-            if (size.width === 0 || size.height === 0) return;
-            size.width /= systemInfo.pixelRatio;
-            size.height /= systemInfo.pixelRatio;
-
-            // TODO: remove this function calling
-            window.resize(size.width, size.height);
-            this.emit('window-resize');
-        };
-        jsb.onOrientationChanged = (event) => {
-            this.emit('orientation-change');
-        };
-    }
+    public isFrameRotated = false;
+    public handleResizeEvent = true;
 
     public get supportFullScreen (): boolean {
         return false;
@@ -39,21 +21,52 @@ class ScreenAdapter extends EventTarget {
     public get isFullScreen (): boolean {
         return false;
     }
+
+    public get devicePixelRatio () {
+        return jsb.device.getDevicePixelRatio() || 1;
+    }
+
     public get windowSize (): Size {
-        return new Size(window.innerWidth, window.innerHeight);
+        const dpr = this.devicePixelRatio;
+        // NOTE: fix precision issue on Metal render end.
+        const roundWidth = Math.round(window.innerWidth);
+        const roundHeight = Math.round(window.innerHeight);
+        return new Size(roundWidth * dpr, roundHeight * dpr);
     }
     public set windowSize (size: Size) {
         console.warn('Setting window size is not supported yet.');
     }
+
+    public get resolution () {
+        const windowSize = this.windowSize;
+        const resolutionScale = this.resolutionScale;
+        return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
+    }
+    public get resolutionScale () {
+        return this._resolutionScale;
+    }
+    public set resolutionScale (v: number) {
+        if (v === this._resolutionScale) {
+            return;
+        }
+        this._resolutionScale = v;
+        this._cbToUpdateFrameBuffer?.();
+    }
+
     public get orientation (): Orientation {
         return orientationMap[jsb.device.getDeviceOrientation()];
     }
+    public set orientation (value: Orientation) {
+        console.warn('Setting orientation is not supported yet.');
+    }
+
     public get safeAreaEdge (): SafeAreaEdge {
         const nativeSafeArea = jsb.device.getSafeAreaEdge();
-        let topEdge = nativeSafeArea.x;
-        let bottomEdge = nativeSafeArea.z;
-        let leftEdge = nativeSafeArea.y;
-        let rightEdge = nativeSafeArea.w;
+        const dpr = this.devicePixelRatio;
+        let topEdge = nativeSafeArea.x * dpr;
+        let bottomEdge = nativeSafeArea.z * dpr;
+        let leftEdge = nativeSafeArea.y * dpr;
+        let rightEdge = nativeSafeArea.w * dpr;
         const orientation = this.orientation;
         // Make it symmetrical.
         if (orientation === Orientation.PORTRAIT) {
@@ -74,11 +87,45 @@ class ScreenAdapter extends EventTarget {
             right: rightEdge,
         };
     }
+    public get isProportionalToFrame (): boolean {
+        return this._isProportionalToFrame;
+    }
+    public set isProportionalToFrame (v: boolean) { }
+
+    private _cbToUpdateFrameBuffer?: () => void;
+    private _resolutionScale = 1;
+    private _isProportionalToFrame = false;
+
+    constructor () {
+        super();
+        this._registerEvent();
+    }
+
+    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
+        this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
+        this._cbToUpdateFrameBuffer();
+    }
+
     public requestFullScreen (): Promise<void> {
         return Promise.reject(new Error('request fullscreen has not been supported yet on this platform.'));
     }
     public exitFullScreen (): Promise<void> {
         return Promise.reject(new Error('exit fullscreen has not been supported yet on this platform.'));
+    }
+
+    private _registerEvent () {
+        jsb.onResize = (size) => {
+            if (size.width === 0 || size.height === 0) return;
+            size.width /= this.devicePixelRatio;
+            size.height /= this.devicePixelRatio;
+
+            // TODO: remove this function calling
+            window.resize(size.width, size.height);
+            this.emit('window-resize');
+        };
+        jsb.onOrientationChanged = (event) => {
+            this.emit('orientation-change');
+        };
     }
 }
 

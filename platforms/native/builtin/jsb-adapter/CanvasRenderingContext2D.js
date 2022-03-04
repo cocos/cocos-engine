@@ -14,6 +14,10 @@ class Context2DAttribute {
     }
 }
 
+jsb.CanvasRenderingContext2D.prototype._ctor = function () {
+    this.__nativeRefs = {};
+};
+
 class CanvasRenderingContext2D {
     constructor(width, height) {
         this._nativeObj = new jsb.CanvasRenderingContext2D(width, height);

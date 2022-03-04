@@ -8,7 +8,7 @@ CCEffect %{
       properties:
         mainTexture:    { value: grey }
         resolution:     { value: [640, 960], target: u_buffer0.xy }
-        precent:        { value: 0.5, target: u_buffer0.z }
+        percent:        { value: 0.5, target: u_percent }
         scale:          { value: [200, 500], target: u_buffer1.xy }
         translate:       { value: [320, 480], target: u_buffer1.zw }
       depthStencilState:
@@ -28,14 +28,12 @@ CCProgram splash-screen-vs %{
   precision mediump float;
   
   #define u_resolution      u_buffer0.xy
-  #define u_precent         u_buffer0.z
   #define u_worldScale      u_buffer1.xy
   #define u_worldTranslate  u_buffer1.zw
 
   in vec2 a_position;
   in vec2 a_texCoord;
   out vec2 v_uv;
-  out float v_percent;
   uniform Constant {
     vec4 u_buffer0;
     vec4 u_buffer1;
@@ -47,7 +45,6 @@ CCProgram splash-screen-vs %{
     vec2 clipSpace = worldPos / u_resolution * 2.0 - 1.0;
     vec4 screenPos = u_projection * vec4(clipSpace, 0.0, 1.0);
     v_uv = a_texCoord;
-    v_percent = u_precent;
     return screenPos;
   }
 }%
@@ -56,13 +53,15 @@ CCProgram splash-screen-fs %{
   precision mediump float;
 
   in vec2 v_uv;
-  in float v_percent;
+  uniform Factor {
+    float u_percent;
+  };
   uniform sampler2D mainTexture;
 
   vec4 frag () {
     vec4 color = texture(mainTexture, v_uv);
-    float precent = clamp(v_percent, 0.0, 1.0);
-    color.xyz *= precent;
+    float percent = clamp(u_percent, 0.0, 1.0);
+    color.xyz *= percent;
     return color;
   }
 }%

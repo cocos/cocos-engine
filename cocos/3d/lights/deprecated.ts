@@ -34,6 +34,7 @@ import { SphereLight } from './sphere-light-component';
 import { DirectionalLight } from './directional-light-component';
 import { legacyCC } from '../../core/global-exports';
 import { js } from '../../core/utils/js';
+import { replaceProperty } from '../../core/utils/x-deprecated';
 
 /**
  * Alias of [[Light]]
@@ -63,3 +64,42 @@ js.setClassAlias(SphereLight, 'cc.SphereLightComponent');
 export { SpotLight as SpotLightComponent };
 legacyCC.SpotLightComponent = SpotLight;
 js.setClassAlias(SpotLight, 'cc.SpotLightComponent');
+
+replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [
+    {
+        name: 'luminousPower',
+        newName: 'luminousFlux',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return this.luminousFlux;
+        },
+        customSetter (value) {
+            // @ts-expect-error deprecation method
+            this.luminousFlux = value;
+        },
+    },
+]);
+
+replaceProperty(SphereLight.prototype, 'SphereLight.prototype', [
+    {
+        name: 'luminousPower',
+        newName: 'luminousFlux',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return this.luminousFlux;
+        },
+        customSetter (value) {
+            // @ts-expect-error deprecation method
+            this.luminousFlux = value;
+        },
+    },
+]);
+
+replaceProperty(Light.PhotometricTerm, 'Light.PhotometricTerm', [
+    {
+        name: 'LUMINOUS_POWER',
+        newName: 'LUMINOUS_FLUX',
+    },
+]);

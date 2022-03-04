@@ -177,6 +177,9 @@ export default class CurveRange  {
         }
     }
 
+    /**
+     * @legacyPublic
+     */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this.mode];

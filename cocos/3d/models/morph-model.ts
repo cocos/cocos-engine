@@ -43,7 +43,7 @@ export class MorphModel extends Model {
         if (this._morphRenderingInstance) {
             return this._morphRenderingInstance.requiredPatches(subModelIndex);
         } else {
-            return null;
+            return super.getMacroPatches(subModelIndex);
         }
     }
 

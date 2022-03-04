@@ -5,7 +5,7 @@
     if (TestEditorExtends) {
 
         function serializedAs (obj, expect, info) {
-            deepEqual(JSON.parse(EditorExtends.serialize(obj)), expect, info);
+            deepEqual(JSON.parse(Editor.serialize(obj)), expect, info);
         }
 
         test('nativeUrl', function () {
@@ -19,7 +19,9 @@
             var tex = new cc.Texture2D();
             var append = "," + tex._minFilter + "," + tex._magFilter + "," + 
                     tex._wrapS + "," + tex._wrapT + "," + 
-                    (tex._premultiplyAlpha ? 1 : 0);
+                    (tex._premultiplyAlpha ? 1 : 0) + "," + 
+                    (tex._genMipmaps ? 1 : 0) + "," + 
+                    (tex._packable ? 1 : 0);
             var expected = {
                 __type__: 'cc.Texture2D',
                 content: '' + append
@@ -42,7 +44,9 @@
 
                 var append = "," + tex._minFilter + "," + tex._magFilter + "," + 
                         tex._wrapS + "," + tex._wrapT + "," + 
-                        (tex._premultiplyAlpha ? 1 : 0);
+                        (tex._premultiplyAlpha ? 1 : 0) + "," + 
+                        (tex._genMipmaps ? 1 : 0) + "," + 
+                        (tex._packable ? 1 : 0);
 
                 var expected = {
                     __type__: 'cc.Texture2D',
@@ -55,7 +59,6 @@
                 });
                 deserialized._uuid = tex._uuid;
                 strictEqual(deserialized.nativeUrl, tex.nativeUrl, 'nativeUrl should be deserialized');
-                strictEqual(deserialized.url, tex.url, 'url should be deserialized');
             });
         }
         testSerializationOfUrl('.png');

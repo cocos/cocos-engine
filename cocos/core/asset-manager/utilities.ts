@@ -110,7 +110,7 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
             depends.push({ ...info.nativeDep });
         }
     } catch (e) {
-        error(e.message, e.stack);
+        error((e as Error).message, (e as Error).stack);
     }
 }
 

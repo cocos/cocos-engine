@@ -59,6 +59,11 @@ export enum EJoint2DType {
 }
 Enum(EJoint2DType);
 
+export enum PhysicsGroup {
+    DEFAULT = 1,
+}
+Enum(PhysicsGroup);
+
 /**
  * @en Enum for ERaycast2DType.
  * @zh 射线检测类型

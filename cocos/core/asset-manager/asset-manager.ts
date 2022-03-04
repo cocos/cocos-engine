@@ -33,7 +33,7 @@ import { error } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { basename, extname } from '../utils/path';
 import Bundle from './bundle';
-import Cache from './cache';
+import Cache, { ICache } from './cache';
 import CacheManager from './cache-manager';
 import dependUtil from './depend-util';
 import downloader from './downloader';
@@ -161,7 +161,7 @@ export class AssetManager {
      * 已加载 bundle 的集合， 你能通过 {{#crossLink "AssetManager/removeBundle:method"}}{{/crossLink}} 来移除缓存
      *
      */
-    public bundles: Cache<Bundle> = bundles;
+    public bundles: ICache<Bundle> = bundles;
 
     /**
      * @en
@@ -170,7 +170,7 @@ export class AssetManager {
      * @zh
      * 已加载资源的集合， 你能通过 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} 来移除缓存
      */
-    public assets: Cache<Asset> = assets;
+    public assets: ICache<Asset> = assets;
 
     public generalImportBase = '';
     public generalNativeBase = '';

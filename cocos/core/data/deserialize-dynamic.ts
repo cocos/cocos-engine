@@ -654,6 +654,36 @@ class _Deserializer {
             deserialize = klass.__deserialize__ as CompiledDeserializeFn;
         } else {
             deserialize = compileDeserialize(this, klass);
+
+            // DEBUG: Check MissingScript data for issue 9878
+            try {
+                if (klass === MissingScript) {
+                    const props: string[] = klass.__values__;
+                    if (props.length === 0 || props[props.length - 1] !== '_$erialized') {
+                        error(`The '_$erialized' prop of MissingScript is missing. Will force the raw data to be save.`);
+                        error(`    Error props: ['${props}']. Please contact jare.`);
+                        // props.push('_$erialized');
+                    }
+
+                    const rawDeserialize: CompiledDeserializeFn = deserialize;
+                    deserialize = function (deserializer: _Deserializer,
+                                            object: Record<string, unknown>,
+                                            deserialized: Record<string, unknown>,
+                                            constructor: AnyFunction) {
+                        try {
+                            if (!JSON.parse(JSON.stringify(deserialized._$erialized))) {
+                                error(`Unable to load previously serialized data. ${JSON.stringify(deserialized)}`);
+                            }
+                        } catch (e) {
+                            error(`Error when checking MissingScript 7, ${e}`);
+                        }
+                        rawDeserialize(deserializer, object, deserialized, constructor);
+                    };
+                }
+            } catch (e) {
+                error(`Error when checking MissingScript 6, ${e}`);
+            }
+
             js.value(klass, '__deserialize__', deserialize, true);
         }
         deserialize(this, obj, serialized, klass);

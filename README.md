@@ -21,8 +21,8 @@
         <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&colorB=4183c4"
              alt="license">
     </a>
-    <a href="https://twitter.com/cocos2dx">
-        <img src="https://img.shields.io/twitter/follow/cocos2dx.svg?logo=twitter&label=follow&style=flat-square&colorB=4183c4"
+    <a href="https://twitter.com/CocosEngine">
+        <img src="https://img.shields.io/twitter/follow/CocosEngine.svg?logo=twitter&label=follow&style=flat-square&colorB=4183c4"
              alt="twitter">
     </a>
 </p>

@@ -36,10 +36,11 @@ import { Material } from '../../core/assets';
 import { Skeleton } from '../assets/skeleton';
 import { Node } from '../../core/scene-graph/node';
 import { MeshRenderer } from '../framework/mesh-renderer';
-import { SkeletalAnimation } from '../skeletal-animation';
+import type { SkeletalAnimation } from '../skeletal-animation';
 import { legacyCC } from '../../core/global-exports';
 import { SkinningModel } from '../models/skinning-model';
 import { BakedSkinningModel } from '../models/baked-skinning-model';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 
 /**
  * @en The skinned mesh renderer component.
@@ -85,9 +86,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     set skinningRoot (value) {
-        if (value === this._skinningRoot) { return; }
         this._skinningRoot = value;
-        this._updateModelType();
+        this._tryBindAnimation();
+        if (value === this._skinningRoot) { return; }
         this._update();
     }
 
@@ -95,13 +96,28 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         return this._model as SkinningModel | BakedSkinningModel | null;
     }
 
+    /**
+     * Set associated animation.
+     * @internal This method only friends to skeletal animation component.
+     */
+    public associatedAnimation: SkeletalAnimation | null = null;
+
     constructor () {
         super();
         this._modelType = BakedSkinningModel;
     }
 
-    public __preload () {
-        this._updateModelType();
+    public onLoad () {
+        this._tryBindAnimation();
+    }
+
+    public onDestroy () {
+        if (this.associatedAnimation) {
+            this.associatedAnimation.notifySkinnedMeshRemoved(this);
+            assertIsTrue(this.associatedAnimation === null);
+        }
+
+        super.onDestroy();
     }
 
     public uploadAnimation (clip: AnimationClip | null) {
@@ -111,6 +127,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 
+    /**
+     * Set if bake mode should be used.
+     * @internal This method only friends to skeletal animation component.
+     */
     public setUseBakedAnimation (val = true, force = false) {
         const modelType = val ? BakedSkinningModel : SkinningModel;
         if (!force && this._modelType === modelType) { return; }
@@ -139,10 +159,29 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         super._updateModelParams();
     }
 
-    private _updateModelType () {
-        if (!this._skinningRoot) { return; }
-        const comp = this._skinningRoot.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
-        if (comp) { this.setUseBakedAnimation(comp.useBakedAnimation); } else { this.setUseBakedAnimation(false); }
+    private _tryBindAnimation () {
+        const { _skinningRoot: skinningRoot } = this;
+        if (!skinningRoot) {
+            return;
+        }
+
+        let skinningRootIsParent = false;
+        for (let current: Node | null = this.node; current; current = current.parent) {
+            if (current === skinningRoot) {
+                skinningRootIsParent = true;
+                break;
+            }
+        }
+        if (!skinningRootIsParent) {
+            return;
+        }
+
+        const animation = skinningRoot.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
+        if (animation) {
+            animation.notifySkinnedMeshAdded(this);
+        } else {
+            this.setUseBakedAnimation(false);
+        }
     }
 
     private _update () {

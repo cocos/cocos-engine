@@ -26,7 +26,7 @@ if ($env:GITHUB_BASE_REF) {
 
 Write-Host "Diff files: $diffFiles"
 if (-not $diffFiles) {
-    Write-Error "Seems like we got zero diffs?"
+    #Write-Error "Seems like we got zero diffs?"
     return
 }
 

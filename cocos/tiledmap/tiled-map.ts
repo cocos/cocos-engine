@@ -605,13 +605,13 @@ export class TiledMap extends Component {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';
             if (JSB) texture._image.destroy();
-        } else if (sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
+        } else if (sys.hasFeature(sys.Feature.IMAGE_BITMAP) && texture._image instanceof ImageBitmap) {
             if (texture._image.close) texture._image.close();
         }
         texture._image = null;
     }
 
-    update (dt: number) {
+    lateUpdate (dt: number) {
         const animations = this._animations;
         const texGrids = this._texGrids;
         for (const aniGID of animations.keys()) {
@@ -629,8 +629,10 @@ export class TiledMap extends Component {
             }
             texGrids.set(aniGID, frame.grid!);
         }
-        for (const layer of this.getLayers()) {
-            if (layer.hasAnimation()) {
+        const layers = this.getLayers();
+        for (let i = 0, l = layers.length; i < l; i++) {
+            const layer = layers[i];
+            if (layer.hasAnimation() || layer.node.hasChangedFlags) {
                 layer.markForUpdateRenderData();
             }
         }

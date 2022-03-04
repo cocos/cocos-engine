@@ -31,7 +31,8 @@
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { PlaneCollider } from '../../framework';
 import { IPlaneShape } from '../../spec/i-physics-shape';
-import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
+import { getTempTransform, PX, _trans } from '../physx-adapter';
+import { PhysXInstance } from '../physx-instance';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
@@ -68,9 +69,8 @@ export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
 
     onComponentSet (): void {
         const co = this.collider;
-        const physics = this._sharedBody.wrappedWorld.physics;
         const pxmat = this.getSharedMaterial(co.sharedMaterial!);
-        this._impl = physics.createShape(PhysXPlaneShape.PLANE_GEOMETRY, pxmat, true, this._flags);
+        this._impl = PhysXInstance.physics.createShape(PhysXPlaneShape.PLANE_GEOMETRY, pxmat, true, this._flags);
         this.setCenter();
     }
 

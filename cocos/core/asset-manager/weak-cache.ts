@@ -1,17 +1,16 @@
 import { js } from '../utils/js';
-import Cache from './cache';
+import { ICache } from './cache';
 
 declare class WeakRef<T> {
     constructor (obj: T);
     deref (): T | null;
 }
 
-export default class WeakCache<T> extends Cache<T> {
+export default class WeakCache<T> implements ICache<T> {
     protected _weakMap: Record<string, WeakRef<T>> = {};
 
     constructor (map?: Record<string, T>) {
-        super();
-        this._map = null;
+        if (typeof window.WeakRef === 'undefined') throw new Error('this platform does not support WeakRef!');
         if (map) {
             for (const key in map) {
                 this._weakMap[key] = new WeakRef(map[key]);

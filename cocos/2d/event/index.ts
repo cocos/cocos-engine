@@ -1,0 +1,1 @@
+import './pointer-event-dispatcher';

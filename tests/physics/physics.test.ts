@@ -1,10 +1,10 @@
 import { director, Node, Scene } from "../../cocos/core";
 import { physics, PhysicsSystem } from "../../exports/physics-framework";
+import "../../exports/physics-physx";
 import "../../exports/physics-builtin";
 import waitForAmmoInstantiation from "../../exports/wait-for-ammo-instantiation";
 waitForAmmoInstantiation(null);
 import "../../exports/physics-ammo";
-import "../../exports/physics-physx";
 import "../../exports/physics-cannon";
 
 import EventTest from "./event";
@@ -17,6 +17,12 @@ import DynamicTest from "./dynamic";
 
 // Manually construct and register the system
 PhysicsSystem.constructAndRegister();
+
+test(`physics test | selector`, done => {
+    physics.selector.switchTo('builtin');
+    expect(physics.selector.id).toBe('builtin');
+    done();
+});
 
 for (const id in physics.selector.backend) {
     test(`physics test | ${id}`, done => {

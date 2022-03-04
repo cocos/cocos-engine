@@ -37,7 +37,9 @@ import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { debug } from '../platform/debug';
+import { SkeletonMask } from './skeleton-mask';
 import { PoseOutput } from './pose-output';
+import { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 
 /**
  * @en The event type supported by Animation
@@ -293,7 +295,7 @@ export class AnimationState extends Playable {
     private _playbackDuration = 0.0;
     private _invDuration = 1.0;
     private _poseOutput: PoseOutput | null = null;
-    private _weight = 0.0;
+    private _weight = 1.0;
     private _clipEval: ReturnType<AnimationClip['createEvaluator']> | undefined;
     private _clipEventEval: ReturnType<AnimationClip['createEventEvaluator']> | undefined;
     /**
@@ -322,7 +324,7 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: Node) {
+    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: SkeletonMask) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         if (this._poseOutput) {
@@ -352,7 +354,7 @@ export class AnimationState extends Playable {
         }
 
         if (!this._doNotCreateEval) {
-            const pose = legacyCC.director.getAnimationManager()?.blendState ?? null;
+            const pose = blendStateBuffer ?? legacyCC.director.getAnimationManager()?.blendState ?? null;
             if (pose) {
                 this._poseOutput = new PoseOutput(pose);
             }
@@ -439,6 +441,7 @@ export class AnimationState extends Playable {
 
     /**
      * This method is used for internal purpose only.
+     * @legacyPublic
      */
     public _setEventTarget (target) {
         this._target = target;
@@ -487,7 +490,7 @@ export class AnimationState extends Playable {
     }
 
     protected onPlay () {
-        this.setTime(0.0);
+        this.setTime(this._getPlaybackStart());
         this._delayTime = this._delay;
         this._onReplayOrResume();
         this.emit(EventType.PLAY, this);
@@ -610,6 +613,8 @@ export class AnimationState extends Playable {
 
         let stopped = false;
         const repeatCount = this.repeatCount;
+
+        time -= playbackStart;
 
         let currentIterations = time > 0 ? (time / playbackDuration) : -(time / playbackDuration);
         if (currentIterations >= repeatCount) {

@@ -27,7 +27,7 @@ import { InputAssemblerInfo } from '../base/define';
 import { InputAssembler } from '../base/input-assembler';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CmdFuncCreateInputAssember, WebGL2CmdFuncDestroyInputAssembler } from './webgl2-commands';
-import { WebGL2Device } from './webgl2-device';
+import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUInputAssembler, IWebGL2GPUBuffer } from './webgl2-gpu-objects';
 
 export class WebGL2InputAssembler extends InputAssembler {
@@ -37,10 +37,10 @@ export class WebGL2InputAssembler extends InputAssembler {
 
     private _gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
 
-    public initialize (info: InputAssemblerInfo): boolean {
+    public initialize (info: InputAssemblerInfo) {
         if (info.vertexBuffers.length === 0) {
             console.error('InputAssemblerInfo.vertexBuffers is null.');
-            return false;
+            return;
         }
 
         this._attributes = info.attributes;
@@ -49,16 +49,16 @@ export class WebGL2InputAssembler extends InputAssembler {
 
         if (info.indexBuffer) {
             this._indexBuffer = info.indexBuffer;
-            this._indexCount = this._indexBuffer.size / this._indexBuffer.stride;
-            this._firstIndex = 0;
+            this._drawInfo.indexCount = this._indexBuffer.size / this._indexBuffer.stride;
+            this._drawInfo.firstIndex = 0;
         } else {
             const vertBuff = this._vertexBuffers[0];
-            this._vertexCount = vertBuff.size / vertBuff.stride;
-            this._firstVertex = 0;
-            this._vertexOffset = 0;
+            this._drawInfo.vertexCount = vertBuff.size / vertBuff.stride;
+            this._drawInfo.firstVertex = 0;
+            this._drawInfo.vertexOffset = 0;
         }
-        this._instanceCount = 0;
-        this._firstInstance = 0;
+        this._drawInfo.instanceCount = 0;
+        this._drawInfo.firstInstance = 0;
 
         this._indirectBuffer = info.indirectBuffer || null;
 
@@ -102,15 +102,13 @@ export class WebGL2InputAssembler extends InputAssembler {
             glVAOs: new Map<WebGLProgram, WebGLVertexArrayObject>(),
         };
 
-        WebGL2CmdFuncCreateInputAssember(this._device as WebGL2Device, this._gpuInputAssembler);
-
-        return true;
+        WebGL2CmdFuncCreateInputAssember(WebGL2DeviceManager.instance, this._gpuInputAssembler);
     }
 
     public destroy () {
-        const webgl2Dev = this._device as WebGL2Device;
-        if (this._gpuInputAssembler && webgl2Dev.useVAO) {
-            WebGL2CmdFuncDestroyInputAssembler(webgl2Dev, this._gpuInputAssembler);
+        const device = WebGL2DeviceManager.instance;
+        if (this._gpuInputAssembler && device.extensions.useVAO) {
+            WebGL2CmdFuncDestroyInputAssembler(device, this._gpuInputAssembler);
         }
         this._gpuInputAssembler = null;
     }

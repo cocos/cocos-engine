@@ -70,7 +70,7 @@ export interface IGeometricInfo {
      * @en The bounding box
      * @zh 此几何体的轴对齐包围盒。
      */
-    boundingBox: { max: Readonly<Vec3>; min: Readonly<Vec3> };
+    boundingBox: { max: Vec3 | Readonly<Vec3>; min: Vec3 | Readonly<Vec3> };
 }
 
 /**
@@ -114,9 +114,6 @@ export class RenderingSubMesh {
 
     private _iaInfo: InputAssemblerInfo;
 
-    private _init () {
-    }
-
     constructor (
         vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
         indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
@@ -127,7 +124,6 @@ export class RenderingSubMesh {
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
         this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
-        this._init();
     }
 
     /**

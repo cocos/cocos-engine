@@ -22,20 +22,25 @@ CCProgram sky-vs %{
     CCDecode(viewDir);
 
     mat4 matViewRotOnly = mat4(mat3(cc_matView));
-    mat4 matProj = cc_matProj;
-    
+    vec4 pos = matViewRotOnly * viewDir;
+
     // orthographic projection adaptation
-    if (matProj[3].w > 0.0) {
+    if (cc_matProj[3].w > 0.0) {
       // default ortho height 10 approximate to default FOV 45
       // stretch x by 2 to remedy perspective effect
+      mat4 matProj = cc_matProj;
       vec2 scale = vec2(48.0, 24.0);
       matProj[0].xy *= scale;
       matProj[1].xy *= scale;
       matProj[2].zw = vec2(-1.0);
       matProj[3].zw = vec2(0.0);
+      // position is modified inside branches to work around a vk driver bug seen in
+      // low-end Qualcomm devices (Adreno 512, Oppo R11, cocos-creator/3d-tasks#9236)
+      pos = matProj * pos;
+    } else {
+      pos = cc_matProj * pos;
     }
 
-    vec4 pos = matProj * matViewRotOnly * viewDir;
     pos.z = 0.99999 * pos.w;
     return pos;
   }

@@ -2,7 +2,14 @@
 
 #include <cc-fog-base>
 
+#if !CC_USE_ACCURATE_FOG
 out float v_fog_factor;
+#endif
 
 #define CC_FOG_FACTOR v_fog_factor
-#define CC_TRANSFER_FOG(pos) CC_TRANSFER_FOG_BASE(pos, v_fog_factor)
+
+void CC_TRANSFER_FOG(vec4 pos) {
+#if !CC_USE_ACCURATE_FOG
+    CC_TRANSFER_FOG_BASE(pos, CC_FOG_FACTOR);
+#endif
+}

@@ -33,7 +33,7 @@ import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, s
 import { EDITOR } from 'internal:constants';
 import { Component, EventHandler } from '../core/components';
 import { UITransform } from '../2d/framework';
-import { EventTouch, Touch } from '../core/platform';
+import { EventTouch, Touch } from '../input/types';
 import { Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { clamp01 } from '../core/math/utils';

@@ -28,6 +28,18 @@
  */
 import { js } from '../utils/js';
 
+export interface ICache<T> {
+    add (key: string, val: T): T;
+    get (key: string): T | undefined | null;
+    has (key: string): boolean;
+    remove (key: string): T | undefined | null;
+    clear (): void;
+    forEach (func: (val: T, key: string) => void): void;
+    find (predicate: (val: T, key: string) => boolean): T | null;
+    readonly count: number;
+    destroy (): void;
+}
+
 /**
  * @en
  * use to cache something
@@ -36,7 +48,7 @@ import { js } from '../utils/js';
  * 用于缓存某些内容
  *
  */
-export default class Cache<T = any> {
+export default class Cache<T = any> implements ICache<T> {
     protected _map: Record<string, T> | null = null;
     protected _count = 0;
 

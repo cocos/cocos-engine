@@ -22,17 +22,6 @@ CCEffect %{
         lightMap:     { value: grey }
     - vert: terrain-vs
       frag: terrain-fs
-      phase: deferred
-      propertyIndex: 0
-      blendState:
-        targets:
-        - blend: false
-        - blend: false
-        - blend: false
-        - blend: false
-      properties: *props
-    - vert: terrain-vs
-      frag: terrain-fs
       phase: forward-add
       propertyIndex: 0
       embeddedMacros: { CC_FORWARD_ADD: true }
@@ -187,7 +176,7 @@ CCProgram terrain-fs %{
       baseColor = texture(detailMap0, uv0);
     #endif
 
-    s.position = v_position;
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
     #if USE_NORMALMAP
       vec4 baseNormal = vec4(0, 0, 0, 0);
       #if LAYERS == 1

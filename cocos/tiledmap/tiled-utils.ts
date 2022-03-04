@@ -105,10 +105,10 @@ export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextur
                 grid._name = spFrame.name;
                 const lm = spFrame.unbiasUV[0];
                 const bm = spFrame.rotated ? spFrame.unbiasUV[1] : spFrame.unbiasUV[5];
-                grid.l = lm + (grid.x + 0.5) / texWidth;
-                grid.t = bm + (grid.y + 0.5) / texHeight;
-                grid.r = lm + (grid.x + grid.width - 0.5) / texWidth;
-                grid.b = bm + (grid.y + grid.height - 0.5) / texHeight;
+                grid.l = lm + grid.x / texWidth;
+                grid.t = bm + grid.y / texHeight;
+                grid.r = lm + (grid.x + grid.width) / texWidth;
+                grid.b = bm + (grid.y + grid.height) / texHeight;
                 grid._rect = new Rect(grid.x, grid.y, grid.width, grid.height);
             } else {
                 grid.l = grid.x / texWidth;

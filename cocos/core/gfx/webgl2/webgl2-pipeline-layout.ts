@@ -62,8 +62,6 @@ export class WebGL2PipelineLayout extends PipelineLayout {
             dynamicOffsetCount,
             dynamicOffsetOffsets,
         };
-
-        return true;
     }
 
     public destroy () {

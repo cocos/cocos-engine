@@ -29,6 +29,8 @@ CCProgram unlit-fs %{
   #include <cc-fog-fs>
 
   in vec2 v_uv;
+  in vec3 v_position;
+
   uniform sampler2D mainTexture;
 
   uniform Constant {
@@ -37,7 +39,7 @@ CCProgram unlit-fs %{
 
   vec4 frag () {
     vec4 col = mainColor * texture(mainTexture, v_uv);
-    CC_APPLY_FOG(col);
+    CC_APPLY_FOG(col, v_position);
     return CCFragOutput(col);
   }
 }%
