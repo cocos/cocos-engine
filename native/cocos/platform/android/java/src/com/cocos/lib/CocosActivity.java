@@ -218,6 +218,9 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         if (!mDestroyed) {
             onWindowFocusChangedNative(hasFocus);
         }
+        if (hasFocus && CocosAudioFocusManager.isAudioFocusLoss()) {
+            CocosAudioFocusManager.registerAudioFocusListener(this);
+        }
     }
 
     @Override
