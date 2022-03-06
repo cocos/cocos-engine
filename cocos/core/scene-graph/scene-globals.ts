@@ -326,7 +326,9 @@ export class SkyboxInfo {
 
         // Switch UI to and from LDR/HDR textures depends on HDR state
         if (this._resource) {
-            this.envmap = this._resource.envmap;
+            if (this._resource.envmap) {
+                this.envmap = this._resource.envmap;
+            }
             this.diffuseMap = this._resource.diffuseMap;
 
             if (this.diffuseMap == null) {
@@ -355,9 +357,11 @@ export class SkyboxInfo {
         } else {
             this._envmapLDR = val;
         }
-
-        if (!this._envmapHDR) {
+        if (!val) {
             this._diffuseMapHDR = null;
+            this._diffuseMapLDR = null;
+            this._envmapHDR = null;
+            this._envmapLDR = null;
             this.applyDiffuseMap = false;
             this.useIBL = false;
             this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
