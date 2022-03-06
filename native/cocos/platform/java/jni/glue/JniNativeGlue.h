@@ -35,6 +35,7 @@
 
 using ResourceManagerType = AAssetManager;
 using NativeWindowType    = ANativeWindow;
+using NativeActivity      = void*; //jobject
 
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
     #include <native_layer.h>
@@ -67,6 +68,9 @@ public:
 
     void              setWindowHandler(NativeWindowType* window);
     NativeWindowType* getWindowHandler();
+
+    void  setActivity(void* activity);
+    void* getActivity();
 
     void                 setResourceManager(ResourceManagerType* resourceManager);
     ResourceManagerType* getResourceManager();
@@ -121,6 +125,7 @@ private:
     ResourceManagerType*         _resourceManager{nullptr};
     NativeWindowType*            _window{nullptr};
     NativeWindowType*            _pendingWindow{nullptr};
+    NativeActivity               _activity{nullptr};
     JniCommand                   _appState{JniCommand::JNI_CMD_UNKNOW};
     IEventDispatch*              _eventDispatcher{nullptr};
     std::unique_ptr<MessagePipe> _messagePipe{nullptr};

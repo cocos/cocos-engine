@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "GLES3GPUObjects.h"
+#include "swappy/swappyGL.h"
 
 #define FORCE_DISABLE_VALIDATION 1
 
@@ -301,6 +302,7 @@ void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
         }
         _eglCurrentInterval = swapchain->eglSwapInterval;
     }
+    //SwappyGL_swap(eglDisplay, swapchain->eglSurface);
     EGL_CHECK(eglSwapBuffers(eglDisplay, swapchain->eglSurface));
 }
 

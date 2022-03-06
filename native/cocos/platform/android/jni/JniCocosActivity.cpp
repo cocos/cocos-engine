@@ -56,6 +56,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *e
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceCreatedNative(JNIEnv *env, jobject obj, jobject surface) {
     JNI_NATIVE_GLUE()->setWindowHandler(ANativeWindow_fromSurface(env, surface));
+    JNI_NATIVE_GLUE()->setActivity(obj);
 }
 
 //NOLINTNEXTLINE

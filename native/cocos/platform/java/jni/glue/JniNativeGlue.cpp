@@ -62,6 +62,14 @@ void JniNativeGlue::setWindowHandler(NativeWindowType* window) {
     }
 }
 
+void JniNativeGlue::setActivity(void *activity) {
+    _activity = activity;
+}
+
+void* JniNativeGlue::getActivity() {
+    return _activity;
+}
+
 void JniNativeGlue::setResourceManager(ResourceManagerType* resourceManager) {
     _resourceManager = resourceManager;
 }

@@ -27,7 +27,8 @@
 #include "GLES3Device.h"
 #include "GLES3GPUObjects.h"
 #include "GLES3Texture.h"
-
+#include "swappy/swappyGL.h"
+#include "swappy/swappyGL_extra.h"
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
@@ -60,7 +61,10 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
 
     auto width  = static_cast<int32_t>(info.width);
     auto height = static_cast<int32_t>(info.height);
-
+//    SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+    SwappyGL_setAutoSwapInterval(true);
+    SwappyGL_setAutoPipelineMode(true);
+    SwappyGL_setWindow(window);
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
     #elif CC_PLATFORM == CC_PLATFORM_OHOS
