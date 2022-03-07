@@ -29,7 +29,7 @@
  */
 
 import { DEV, EDITOR, TEST } from 'internal:constants';
-import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
+import { CCString, CCInteger, CCFloat, CCBoolean, Self } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache, BabelPropertyDecoratorDescriptor } from './utils';
 import { warnID, errorID } from '../../platform/debug';
@@ -37,7 +37,7 @@ import { js } from '../../utils/js';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 
-export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
+export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean | typeof Self;
 
 export type PropertyType = SimplePropertyType | SimplePropertyType[];
 

@@ -515,16 +515,13 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
                 onAfterProps_ET.push(attributeUtils.getTypeChecker_ET(primitiveType, `cc.${type}`));
             }
+        } else if (type === attributeUtils.Self) {
+            (attrs || initAttrs())[`${propertyNamePrefix}type`] = constructor;
         } else if (type === 'Object') {
             if (DEV) {
                 errorID(3644, className, propertyName);
             }
-        }
-        // else if (type === Attr.ScriptUuid) {
-        //     (attrs || initAttrs())[propertyNamePrefix + 'type'] = 'Script';
-        //     attrs[propertyNamePrefix + 'ctor'] = cc.ScriptAsset;
-        // }
-        else if (typeof type === 'object') {
+        } else if (typeof type === 'object') {
             if (Enum.isEnum(type)) {
                 (attrs || initAttrs())[`${propertyNamePrefix}type`] = 'Enum';
                 attrs![`${propertyNamePrefix}enumList`] = Enum.getList(type);

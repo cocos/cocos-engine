@@ -110,6 +110,8 @@ export class PrimitiveType<T> {
     }
 }
 
+export const Self = Symbol('[[Self]]');
+
 /**
  * 指定编辑器以整数形式对待该属性或数组元素。
  * 例如：

@@ -11,6 +11,7 @@ import {
 } from '../../cocos/core/data/decorators';
 import { CCClass } from '../../cocos/core/data/class';
 import { property } from '../../cocos/core/data/decorators/property';
+import { Self } from '../../cocos/core/data/utils/attribute';
 
 describe(`Decorators`, () => {
     test('@uniquelyReferenced', () => {
@@ -192,5 +193,51 @@ describe(`Decorators`, () => {
         expect(CCClass.Attr.attr(Foo, 'noInit')).not.toHaveProperty('default');
         expect(CCClass.Attr.attr(Foo, 'noInitButHasObjectTypeSpecified')).not.toHaveProperty('default');
         expect(CCClass.Attr.attr(Foo, 'noInitButHasPrimitiveTypeSpecified')).not.toHaveProperty('default');
+    });
+
+    test('Type: Self', () => {
+        @ccclass
+        class Foo {
+            @property(Self)
+            refByProperty: Foo | null = null;
+
+            @property([Self])
+            refsByProperty: Foo[] = [];
+
+            @type(Self)
+            refByType: Foo | null = null;
+
+            @type([Self])
+            refsByType: Foo[] = [];
+
+            @property(Self)
+            get accessorRefByProperty() {
+                return this.refByProperty;
+            }
+
+            @property([Self])
+            get accessorRefsByProperty() {
+                return this.refsByProperty;
+            }
+
+            @type(Self)
+            get accessorRefByType() {
+                return this.refByType;
+            }
+
+            @type([Self])
+            get accessorRefsByType() {
+                return this.refsByType;
+            }
+        }
+
+        expect(CCClass.attr(Foo, 'refByProperty').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'refsByProperty').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'refByType').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'refsByType').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'accessorRefByProperty').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'accessorRefsByProperty').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'accessorRefByType').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'accessorRefsByType').type).toBe(Foo);
     });
 });

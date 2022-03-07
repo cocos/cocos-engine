@@ -27,7 +27,7 @@
 import { DEV, EDITOR, TEST } from 'internal:constants';
 import { error, errorID, warn, warnID } from '../../platform/debug';
 import * as js from '../../utils/js';
-import { PrimitiveType } from './attribute';
+import { PrimitiveType, Self } from './attribute';
 import { legacyCC } from '../../global-exports';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
@@ -156,7 +156,7 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[]) {
+function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[] | typeof Self | [typeof Self]) {
     const res: {
         default?: any,
         _short?: boolean,
@@ -178,6 +178,8 @@ export function getFullFormOfProperty (options, isGetset) {
             return _wrapOptions(isGetset, js.isChildClassOf(type, legacyCC.ValueType) ? new type() : null, type);
         } else if (options instanceof PrimitiveType) {
             return _wrapOptions(isGetset, options.default);
+        } else if (options === Self) {
+            return _wrapOptions(isGetset, options.default, options);
         } else {
             return _wrapOptions(isGetset, options);
         }
