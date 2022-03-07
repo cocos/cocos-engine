@@ -29,7 +29,7 @@
 #include <vector>
 #include "IOTypedArray.h"
 #include "MiddlewareManager.h"
-#include "base/Map.h"
+#include "base/RefMap.h"
 #include "base/RefCounted.h"
 #include "bindings/event/EventDispatcher.h"
 #include "dragonbones-creator-support/CCSlot.h"
@@ -82,7 +82,7 @@ public:
     /**
      * @inheritDoc
      */
-    void dispose(bool disposeProxy) override;
+    void dispose() override;
     /**
      * @inheritDoc
      */

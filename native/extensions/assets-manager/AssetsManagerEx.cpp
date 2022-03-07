@@ -32,6 +32,7 @@
 #include "base/DeferredReleasePool.h"
 #include "base/Log.h"
 #include "base/UTF8.h"
+#include "base/memory/Memory.h"
 
 #ifdef MINIZIP_FROM_SYSTEM
     #include <minizip/unzip.h>

@@ -31,7 +31,7 @@
 #include <string>
 #include <unordered_map>
 #include "base/Macros.h"
-#include "base/Map.h"
+#include "base/RefMap.h"
 
 /**
  * @addtogroup network
@@ -144,7 +144,7 @@ private:
 
     static SocketIO *inst;
 
-    cc::Map<std::string, SIOClientImpl *> _sockets;
+    cc::RefMap<std::string, SIOClientImpl *> _sockets;
 
     SIOClientImpl *getSocket(const std::string &uri);
     void           addSocket(const std::string &uri, SIOClientImpl *socket);
@@ -152,8 +152,7 @@ private:
 
     friend class SIOClientImpl;
 
-    CC_DISABLE_COPY_SEMANTICS(SocketIO)
-    CC_DISABLE_MOVE_SEMANTICS(SocketIO)
+    CC_DISALLOW_COPY_MOVE_ASSIGN(SocketIO)
 };
 
 //c++11 style callbacks entities will be created using CC_CALLBACK (which uses std::bind)

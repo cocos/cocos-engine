@@ -5,6 +5,7 @@ import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
 import { builtinResMgr } from './builtin';
+import { createCustomPipeline } from './pipeline/custom';
 
 declare const nr: any;
 declare const jsb: any;
@@ -163,5 +164,10 @@ rootProto.setRenderPipeline = function (pipeline) {
     }
     this._pipeline = pipeline;
     this._pipeline.geometryRenderer.activate(this._device, this._pipeline);
+
+    if (!this._customPipeline) {
+        this._customPipeline = createCustomPipeline();
+    }
+
     return oldSetPipeline.call(this, pipeline);
 }

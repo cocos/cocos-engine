@@ -89,13 +89,7 @@ export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
 // For optimize getPosition, getRotation, getScale
-export const _tempFloatArray = new Float32Array([
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0
-]);
+export const _tempFloatArray = new Float32Array(jsb.createExternalArrayBuffer(20 * 4));
 //
 
 Node._setTempFloatArray(_tempFloatArray.buffer);
@@ -1302,8 +1296,9 @@ nodeProto._ctor = function (name?: string) {
     this._components = [];
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
-    this._activeInHierarchyArr = new Uint8Array([0]);
-    this._layerArr = new Uint32Array([Layers.Enum.DEFAULT]);
+    this._activeInHierarchyArr = new Uint8Array(jsb.createExternalArrayBuffer(1));
+    this._layerArr = new Uint32Array(jsb.createExternalArrayBuffer(4));
+    this._layerArr[0] = Layers.Enum.DEFAULT;
     this._scene = null;
     this._prefab = null;
     // record scene's id when set this node as persist node

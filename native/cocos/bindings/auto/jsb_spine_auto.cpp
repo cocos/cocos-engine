@@ -14963,15 +14963,6 @@ static bool js_spine_SkeletonAnimation_constructor(se::State& s) // NOLINT(reada
 }
 SE_BIND_CTOR(js_spine_SkeletonAnimation_constructor, __jsb_spine_SkeletonAnimation_class, js_spine_SkeletonAnimation_finalize)
 
-static bool js_spine_SkeletonAnimation_ctor(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(spine::SkeletonAnimation);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_SUB_CLS_CTOR(js_spine_SkeletonAnimation_ctor, __jsb_spine_SkeletonAnimation_class, js_spine_SkeletonAnimation_finalize)
-
-    
 static bool js_spine_SkeletonAnimation_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
@@ -15006,7 +14997,6 @@ bool js_register_spine_SkeletonAnimation(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("setTrackEventListener", _SE(js_spine_SkeletonAnimation_setTrackEventListener));
     cls->defineFunction("setTrackInterruptListener", _SE(js_spine_SkeletonAnimation_setTrackInterruptListener));
     cls->defineFunction("setTrackStartListener", _SE(js_spine_SkeletonAnimation_setTrackStartListener));
-    cls->defineFunction("ctor", _SE(js_spine_SkeletonAnimation_ctor));
     cls->defineStaticFunction("create", _SE(js_spine_SkeletonAnimation_create_static));
     cls->defineStaticFunction("createWithBinaryFile", _SE(js_spine_SkeletonAnimation_createWithBinaryFile_static));
     cls->defineStaticFunction("createWithJsonFile", _SE(js_spine_SkeletonAnimation_createWithJsonFile_static));
@@ -15018,7 +15008,6 @@ bool js_register_spine_SkeletonAnimation(se::Object* obj) // NOLINT(readability-
     __jsb_spine_SkeletonAnimation_proto = cls->getProto();
     __jsb_spine_SkeletonAnimation_class = cls;
 
-    jsb_set_extend_property("spine", "SkeletonAnimation");
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

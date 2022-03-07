@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "ConfigParser.h"
 #include "Runtime.h"
 #include "cocos/base/Log.h"
+#include "cocos/base/memory/Memory.h"
 #include "cocos/platform/FileUtils.h"
 #include "zlib.h"
 

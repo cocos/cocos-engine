@@ -26,6 +26,7 @@
 
 #include "WebView.h"
 #include "platform/FileUtils.h"
+#include "base/memory/Memory.h"
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
     #include "WebViewImpl-ios.h"

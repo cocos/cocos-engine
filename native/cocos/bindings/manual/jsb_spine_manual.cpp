@@ -47,7 +47,7 @@
 using namespace cc;
 
 static spine::Cocos2dTextureLoader                    textureLoader;
-static cc::Map<std::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
+static cc::RefMap<std::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
 static middleware::Texture2D *                        _getPreloadedAtlasTexture(const char *path) {
     assert(_preloadedAtlasTextures);
     auto it = _preloadedAtlasTextures->find(path);
@@ -83,7 +83,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     ok = sevalue_to_native(args[2], &atlasText);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid atlas content!");
 
-    cc::Map<std::string, middleware::Texture2D *> textures;
+    cc::RefMap<std::string, middleware::Texture2D *> textures;
     ok = seval_to_Map_string_key(args[3], &textures);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid textures!");
 

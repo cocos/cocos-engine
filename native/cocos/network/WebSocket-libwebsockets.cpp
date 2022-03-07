@@ -32,6 +32,7 @@
 
 // clang-format off
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 #include "uv.h"
 // clang-format on
 

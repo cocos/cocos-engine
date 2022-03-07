@@ -34,7 +34,7 @@
 #include "MiddlewareManager.h"
 #include "Object.h"
 #include "base/Macros.h"
-#include "base/Map.h"
+#include "base/RefMap.h"
 #include "base/RefCounted.h"
 #include "middleware-adapter.h"
 #include "spine-creator-support/VertexEffectDelegate.h"

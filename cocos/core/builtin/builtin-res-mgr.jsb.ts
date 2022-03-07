@@ -81,7 +81,7 @@ builtinResMgrProto.initBuiltinRes = function (device: Device): Promise<void> {
     }
 
     return Promise.resolve().then(() => {
-        oldInitBuiltinRes.call(device);
+        oldInitBuiltinRes.call(this, device);
     }).then(() => this._preloadAssets());
 };
 

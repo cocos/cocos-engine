@@ -21,6 +21,7 @@ defaultSections = [
     'network',
     'gfx',
     'pipeline',
+    'render',
     'spine',
     'editor_support',
     'dragonbones',

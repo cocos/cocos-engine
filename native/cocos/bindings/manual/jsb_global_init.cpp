@@ -210,15 +210,5 @@ bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, b
 
     auto *se = se::ScriptEngine::getInstance();
     se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
-
-    // For debugger main loop
-    class SimpleRunLoop {
-    public:
-        void update(float dt) { //NOLINT
-            se::ScriptEngine::getInstance()->mainLoopUpdate();
-        }
-    };
-    //    static SimpleRunLoop runLoop;
-    //cjh IDEA:    Director::getInstance()->getScheduler()->scheduleUpdate(&runLoop, 0, false);
     return true;
 }

@@ -11,6 +11,7 @@ set(ENGINE_NAME cocos_engine)
 ################################# options ############################################
 # default fallback options
 cc_set_if_undefined(USE_SE_V8                ON)
+cc_set_if_undefined(USE_SE_SM                OFF)
 cc_set_if_undefined(USE_V8_DEBUGGER          ON)
 cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
@@ -101,6 +102,7 @@ cc_inspect_values(
     CC_USE_VULKAN
     USE_SE_V8
     USE_V8_DEBUGGER
+    USE_SE_SM
     USE_SOCKET
     USE_AUDIO
     USE_EDIT_BOX
@@ -111,8 +113,6 @@ cc_inspect_values(
     USE_DRAGONBONES
     USE_SPINE
     USE_WEBSOCKET_SERVER
-    USE_SE_V8
-    USE_V8_DEBUGGER
     USE_PHYSICS_PHYSX
     USE_JOB_SYSTEM_TBB
     USE_JOB_SYSTEM_TASKFLOW
@@ -300,13 +300,14 @@ cocos_source_files(
     cocos/base/IndexHandle.h
     cocos/base/Locked.h
     cocos/base/Macros.h
-    cocos/base/Map.h
     cocos/base/Object.h
     cocos/base/Optional.h
     cocos/base/Ptr.h
     cocos/base/Random.h
     cocos/base/RefCounted.cpp
     cocos/base/RefCounted.h
+    cocos/base/RefMap.h
+    cocos/base/RefVector.h
     cocos/base/Scheduler.cpp
     cocos/base/Scheduler.h
     cocos/base/StringHandle.cpp
@@ -318,7 +319,6 @@ cocos_source_files(
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
     cocos/base/Variant.h
-    cocos/base/Vector.h
 )
 
 ############ application
@@ -614,15 +614,9 @@ cocos_source_files(MODULE ccunzip
 cocos_source_files(
                  cocos/base/memory/AllocatedObj.cpp
                  cocos/base/memory/AllocatedObj.h
-                 cocos/base/memory/JeAlloc.cpp
-                 cocos/base/memory/JeAlloc.h
                  cocos/base/memory/MemDef.h
                  cocos/base/memory/Memory.cpp
                  cocos/base/memory/Memory.h
-                 cocos/base/memory/MemTracker.cpp
-                 cocos/base/memory/MemTracker.h
-                 cocos/base/memory/NedPooling.cpp
-                 cocos/base/memory/NedPooling.h
                  cocos/base/memory/StdAlloc.h
                  cocos/base/memory/StlAlloc.h
                  cocos/base/memory/MemoryHook.cpp
@@ -1147,6 +1141,69 @@ cocos_source_files(
                  cocos/renderer/pipeline/GeometryRenderer.cpp
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
+                 cocos/renderer/pipeline/custom/LayoutGraphFwd.h
+                 cocos/renderer/pipeline/custom/LayoutGraphGraphs.h
+                 cocos/renderer/pipeline/custom/LayoutGraphJsb.cpp
+                 cocos/renderer/pipeline/custom/LayoutGraphJsb.h
+                 cocos/renderer/pipeline/custom/LayoutGraphNames.h
+                 cocos/renderer/pipeline/custom/LayoutGraphReflection.cpp
+                 cocos/renderer/pipeline/custom/LayoutGraphReflection.h
+                 cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
+                 cocos/renderer/pipeline/custom/LayoutGraphTypes.h
+                 cocos/renderer/pipeline/custom/NativePipelineFwd.h
+                 cocos/renderer/pipeline/custom/NativePipelineGraphs.h
+                 cocos/renderer/pipeline/custom/NativePipelineImpl.cpp
+                 cocos/renderer/pipeline/custom/NativePipelineNames.h
+                 cocos/renderer/pipeline/custom/NativePipelineReflection.cpp
+                 cocos/renderer/pipeline/custom/NativePipelineReflection.h
+                 cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
+                 cocos/renderer/pipeline/custom/NativePipelineTypes.h
+                 cocos/renderer/pipeline/custom/RenderCommonFwd.h
+                 cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
+                 cocos/renderer/pipeline/custom/RenderCommonJsb.h
+                 cocos/renderer/pipeline/custom/RenderCommonNames.h
+                 cocos/renderer/pipeline/custom/RenderCommonReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderCommonReflection.h
+                 cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderCommonTypes.h
+                 cocos/renderer/pipeline/custom/RenderCompilerFwd.h
+                 cocos/renderer/pipeline/custom/RenderCompilerGraphs.h
+                 cocos/renderer/pipeline/custom/RenderCompilerImpl.cpp
+                 cocos/renderer/pipeline/custom/RenderCompilerNames.h
+                 cocos/renderer/pipeline/custom/RenderCompilerReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderCompilerReflection.h
+                 cocos/renderer/pipeline/custom/RenderCompilerTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderCompilerTypes.h
+                 cocos/renderer/pipeline/custom/RenderExampleFwd.h
+                 cocos/renderer/pipeline/custom/RenderExampleGraphs.h
+                 cocos/renderer/pipeline/custom/RenderExampleImpl.cpp
+                 cocos/renderer/pipeline/custom/RenderExampleNames.h
+                 cocos/renderer/pipeline/custom/RenderExampleReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderExampleReflection.h
+                 cocos/renderer/pipeline/custom/RenderExampleTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderExampleTypes.h
+                 cocos/renderer/pipeline/custom/RenderExecutorFwd.h
+                 cocos/renderer/pipeline/custom/RenderExecutorGraphs.h
+                 cocos/renderer/pipeline/custom/RenderExecutorJsb.cpp
+                 cocos/renderer/pipeline/custom/RenderExecutorJsb.h
+                 cocos/renderer/pipeline/custom/RenderExecutorNames.h
+                 cocos/renderer/pipeline/custom/RenderExecutorReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderExecutorReflection.h
+                 cocos/renderer/pipeline/custom/RenderExecutorTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderExecutorTypes.h
+                 cocos/renderer/pipeline/custom/RenderGraphFwd.h
+                 cocos/renderer/pipeline/custom/RenderGraphGraphs.h
+                 cocos/renderer/pipeline/custom/RenderGraphJsb.cpp
+                 cocos/renderer/pipeline/custom/RenderGraphJsb.h
+                 cocos/renderer/pipeline/custom/RenderGraphNames.h
+                 cocos/renderer/pipeline/custom/RenderGraphReflection.cpp
+                 cocos/renderer/pipeline/custom/RenderGraphReflection.h
+                 cocos/renderer/pipeline/custom/RenderGraphTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderGraphTypes.h
+                 cocos/renderer/pipeline/custom/RenderInterfaceFwd.h
+                 cocos/renderer/pipeline/custom/RenderInterfaceImpl.cpp
+                 cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
+                 cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
 )
 
 ##### terrain
@@ -1894,6 +1951,8 @@ cocos_source_files(
                             cocos/bindings/auto/jsb_assets_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_geometry_auto.cpp
                             cocos/bindings/auto/jsb_geometry_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_render_auto.cpp
+                            cocos/bindings/auto/jsb_render_auto.h
 )
 
 if(USE_AUDIO)
@@ -2368,6 +2427,23 @@ if(USE_SE_JSC)
     )
 endif()
 
+if(USE_SE_SM)
+    cocos_source_files(MODULE ccbindings
+                    cocos/bindings/jswrapper/sm/Base.h
+        NO_WERROR   cocos/bindings/jswrapper/sm/Class.cpp
+                    cocos/bindings/jswrapper/sm/Class.h
+                    cocos/bindings/jswrapper/sm/HelperMacros.h
+        NO_WERROR   cocos/bindings/jswrapper/sm/HelperMacros.cpp
+        NO_WERROR   cocos/bindings/jswrapper/sm/Object.cpp
+                    cocos/bindings/jswrapper/sm/Object.h
+        NO_WERROR   cocos/bindings/jswrapper/sm/ScriptEngine.cpp
+                    cocos/bindings/jswrapper/sm/ScriptEngine.h
+                    cocos/bindings/jswrapper/sm/SeApi.h
+        NO_WERROR   cocos/bindings/jswrapper/sm/Utils.cpp
+                    cocos/bindings/jswrapper/sm/Utils.h
+    )
+endif()
+
 cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/config.cpp
                  cocos/bindings/jswrapper/config.h
@@ -2530,19 +2606,22 @@ list(APPEND COCOS_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 ### generate source files
 
 
-macro(compile_ts file_without_ext)
+function(compile_ts input_file_ts output_file)
+    get_filename_component(outdir ${output_file} DIRECTORY)
+    get_filename_component(from_ts ${input_file_ts} NAME)
     add_custom_command(
-        OUTPUT ${file_without_ext}.js
-        COMMAND ${TSC_EXECUTABLE} --module commonjs ${file_without_ext}.ts
-        DEPENDS ${file_without_ext}.ts
+        OUTPUT ${output_file}
+        COMMAND ${CMAKE_COMMAND} -E echo " transform ${from_ts} file ${output_file}"
+        COMMAND ${TSC_EXECUTABLE} --module commonjs ${input_file_ts} --outDir ${outdir}
+        DEPENDS ${input_file_ts}
         VERBATIM USES_TERMINAL
     )
-endmacro()
+endfunction()
 
-compile_ts(${CWD}/cocos/core/builtin/effects)
-compile_ts(${CWD}/cocos/core/builtin/shader-sources/glsl1)
-compile_ts(${CWD}/cocos/core/builtin/shader-sources/glsl3)
-compile_ts(${CWD}/cocos/core/builtin/shader-sources/glsl4)
+compile_ts(${CWD}/../cocos/core/builtin/effects.ts ${CWD}/cocos/core/builtin/effects.js)
+compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl1.ts ${CWD}/cocos/core/builtin/shader-sources/glsl1.js)
+compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl3.ts ${CWD}/cocos/core/builtin/shader-sources/glsl3.js)
+compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl4.ts ${CWD}/cocos/core/builtin/shader-sources/glsl4.js)
 
 set(CC_GENERATED_FILES
     ${CWD}/cocos/core/builtin/Effects.cpp
@@ -2740,6 +2819,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,USE_PHYSICS_PHYSX=1,USE_PHYSICS_PHYSX=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
         $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
+        $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
         $<$<CONFIG:Debug>:CC_DEBUG=1>
     )
 endfunction()

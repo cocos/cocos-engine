@@ -29,7 +29,6 @@ import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
     Format, Sampler, Filter, Address, Shader, SamplerInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
-import { ForwardPipeline } from '../../pipeline';
 import { errorID } from '../../platform/debug';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
@@ -130,8 +129,8 @@ export class SubModel {
         this._inputAssembler = this._device.createInputAssembler(subMesh.iaInfo);
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
 
-        const pipeline = legacyCC.director.root.pipeline;
-        const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass();
+        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass()!;
         const occlusionDSInfo = new DescriptorSetInfo(null!);
         occlusionDSInfo.layout = occlusionPass.localSetLayout;
         this._worldBoundDescriptorSet = this._device.createDescriptorSet(occlusionDSInfo);
@@ -186,7 +185,7 @@ export class SubModel {
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
     public initPlanarShadowShader () {
-        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const pipeline = (legacyCC.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         this._planarShader = shadowInfo.getPlanarShader(this._patches);
     }
@@ -194,7 +193,7 @@ export class SubModel {
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
     public initPlanarShadowInstanceShader () {
-        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const pipeline = (legacyCC.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
     }

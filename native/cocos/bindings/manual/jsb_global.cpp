@@ -812,6 +812,33 @@ SE_BIND_FUNC(JSB_hideInputBox)
 
 #endif
 
+static bool jsb_createExternalArrayBuffer(se::State& s) {
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        uint32_t byteLength{0};
+        ok &= sevalue_to_native(args[0], &byteLength, s.thisObject());
+        SE_PRECONDITION2(ok, false, "jsb_createExternalArrayBuffer : Error processing arguments");
+        if (byteLength > 0) {
+            void *buffer = malloc(byteLength);
+            memset(buffer, 0x00, byteLength);
+            se::HandleObject arrayBuffer{se::Object::createExternalArrayBufferObject(buffer, byteLength, [](void* contents, size_t /*byteLength*/, void*/* userData */){
+                if (contents != nullptr) {
+                    free(contents);
+                }
+            })};
+            s.rval().setObject(arrayBuffer);
+        } else {
+            s.rval().setNull();
+        }
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(jsb_createExternalArrayBuffer)
+
 bool jsb_register_global_variables(se::Object *global) { //NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
@@ -819,9 +846,6 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
     global->defineFunction("requireModule", _SE(moduleRequire));
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
-
-    auto glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
-    glContextCls->install();
 
     __jsbObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
@@ -837,6 +861,8 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
 #endif
     __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
     __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
+    __jsbObj->defineFunction("createExternalArrayBuffer", _SE(jsb_createExternalArrayBuffer));
+
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
     global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));

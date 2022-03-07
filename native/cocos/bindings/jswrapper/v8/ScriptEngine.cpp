@@ -60,8 +60,6 @@ std::map<std::string, unsigned> jsbFunctionInvokedRecords;
 
 namespace se {
 
-Class *__jsb_CCPrivateData_class = nullptr; //NOLINT(readability-identifier-naming)
-
 namespace {
 ScriptEngine *gSriptEngineInstance = nullptr;
 
@@ -552,11 +550,6 @@ bool ScriptEngine::postInit() {
     } else {
         _gcFunc = nullptr;
     }
-
-    __jsb_CCPrivateData_class = Class::create("__PrivateData", _globalObj, nullptr, nullptr);
-    __jsb_CCPrivateData_class->defineFinalizeFunction(privateDataFinalize);
-    __jsb_CCPrivateData_class->setCreateProto(false);
-    __jsb_CCPrivateData_class->install();
 
     _isValid = true;
 

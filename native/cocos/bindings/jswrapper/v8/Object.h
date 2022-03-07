@@ -131,6 +131,10 @@ public:
          */
     static Object *createArrayBufferObject(const void *data, size_t byteLength);
 
+    using BufferContentsFreeFunc = void (*)(void* contents, size_t byteLength, void* userData);
+    static Object *createExternalArrayBufferObject(void* contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void* freeUserData = nullptr);
+
+
     /**
          *  @brief Creates a JavaScript Object from a JSON formatted string.
          *  @param[in] jsonStr The utf-8 string containing the JSON string to be parsed.

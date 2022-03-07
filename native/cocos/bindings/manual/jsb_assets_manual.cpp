@@ -52,16 +52,6 @@ static bool js_assets_Asset_getNativeDep(se::State &s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_GET(js_assets_Asset_getNativeDep) // NOLINT(readability-identifier-naming)
 
-static bool js_assets_ImageAsset_getData(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::ImageAsset>(s);
-    SE_PRECONDITION2(cobj, false, "js_assets_ImageAsset_getData : Invalid Native Object");
-
-    s.rval().setUint64(reinterpret_cast<intptr_t>(cobj->getData()));
-    return false;
-}
-SE_BIND_PROP_GET(js_assets_ImageAsset_getData) // NOLINT(readability-identifier-naming)
-
 static bool js_assets_ImageAsset_setData(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::ImageAsset>(s);

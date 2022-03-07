@@ -83,7 +83,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
     protected declare _postprocessMaterial: Material;
 
-    public onGlobalPipelineStateChanged () {
+    public updatePipelineSceneData () {
         this.updatePipelinePassInfo();
     }
 

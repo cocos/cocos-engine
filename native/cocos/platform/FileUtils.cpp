@@ -28,13 +28,6 @@
 #include <cstring>
 #include <stack>
 
-#include "base/Data.h"
-#include "base/Log.h"
-#include "platform/SAXParser.h"
-
-#include "tinydir/tinydir.h"
-#include "tinyxml2/tinyxml2.h"
-
 #include <cerrno>
 #include <cstring>
 #include <iostream>
@@ -46,6 +39,14 @@
 #endif
 #include <sys/stat.h>
 #include <regex>
+
+#include "base/memory/Memory.h"
+#include "base/Data.h"
+#include "base/Log.h"
+#include "platform/SAXParser.h"
+
+#include "tinydir/tinydir.h"
+#include "tinyxml2/tinyxml2.h"
 
 namespace cc {
 
