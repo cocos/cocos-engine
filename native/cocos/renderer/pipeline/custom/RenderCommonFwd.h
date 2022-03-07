@@ -53,6 +53,8 @@ enum class ResourceFlags : uint32_t;
 struct BufferTag;
 struct TextureTag;
 
+enum class TaskType;
+
 } // namespace render
 
 } // namespace cc

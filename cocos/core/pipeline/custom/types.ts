@@ -78,3 +78,8 @@ export const enum ResourceFlags {
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
 }
+
+export const enum TaskType {
+    SYNC,
+    ASYNC,
+}
