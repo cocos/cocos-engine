@@ -1266,14 +1266,13 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
 
         uint32_t destOffset = 0;
         uint32_t buffOffset = region.buffOffset;
-        uint32_t stepheight = 0;
 
         for (uint32_t l = 0; l < layerCount; l++) {
             buffOffset = region.buffOffset;
             // upload in chunks
             for (uint32_t h = 0U; h < regionHeight; h += chunkHeight) {
                 auto heightOffset = static_cast<int32_t>(h);
-                stepheight        = std::min(chunkHeight, regionHeight - h);
+                auto stepheight   = std::min(chunkHeight, regionHeight - h);
 
                 CCVKGPUBuffer stagingBuffer;
                 stagingBuffer.size = destRowSize * stepheight;
