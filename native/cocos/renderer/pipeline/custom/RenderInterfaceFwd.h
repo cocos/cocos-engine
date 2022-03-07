@@ -47,6 +47,9 @@ class ComputeQueueBuilder;
 class ComputePassBuilder;
 class MovePassBuilder;
 class CopyPassBuilder;
+class SceneVisitor;
+class SceneTask;
+class SceneTransversal;
 class Pipeline;
 class Factory;
 

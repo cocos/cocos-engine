@@ -54,6 +54,8 @@ public:
     MovePassBuilder    *addMovePass(const std::string& name) override;
     CopyPassBuilder    *addCopyPass(const std::string& name) override;
     void                addPresentPass(const std::string& name, const std::string& swapchainName) override;
+
+    SceneTransversal *createSceneTransversal(const scene::RenderScene *scene) override;
 };
 
 } // namespace render

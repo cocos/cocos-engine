@@ -57,6 +57,7 @@ class PipelineSceneData;
 namespace scene {
 
 class Model;
+class RenderScene;
 class RenderWindow;
 
 } // namespace scene
@@ -225,6 +226,57 @@ public:
 
 inline CopyPassBuilder::~CopyPassBuilder() noexcept = default;
 
+class SceneVisitor {
+public:
+    SceneVisitor() noexcept = default;
+    SceneVisitor(SceneVisitor&& rhs)      = delete;
+    SceneVisitor(SceneVisitor const& rhs) = delete;
+    SceneVisitor& operator=(SceneVisitor&& rhs) = delete;
+    SceneVisitor& operator=(SceneVisitor const& rhs) = delete;
+
+    virtual ~SceneVisitor() noexcept = 0;
+
+    virtual void bindPipelineState(gfx::PipelineState* pso) = 0;
+    virtual void bindDescriptorSet(uint32_t set, gfx::DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) = 0;
+    virtual void bindInputAssembler(gfx::InputAssembler *ia) = 0;
+    virtual void updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) = 0;
+    virtual void draw(const gfx::DrawInfo &info) = 0;
+};
+
+inline SceneVisitor::~SceneVisitor() noexcept = default;
+
+class SceneTask {
+public:
+    SceneTask() noexcept = default;
+    SceneTask(SceneTask&& rhs)      = delete;
+    SceneTask(SceneTask const& rhs) = delete;
+    SceneTask& operator=(SceneTask&& rhs) = delete;
+    SceneTask& operator=(SceneTask const& rhs) = delete;
+
+    virtual ~SceneTask() noexcept = 0;
+
+    virtual TaskType getTaskType() const noexcept = 0;
+    virtual void     start() = 0;
+    virtual void     join() = 0;
+};
+
+inline SceneTask::~SceneTask() noexcept = default;
+
+class SceneTransversal {
+public:
+    SceneTransversal() noexcept = default;
+    SceneTransversal(SceneTransversal&& rhs)      = delete;
+    SceneTransversal(SceneTransversal const& rhs) = delete;
+    SceneTransversal& operator=(SceneTransversal&& rhs) = delete;
+    SceneTransversal& operator=(SceneTransversal const& rhs) = delete;
+
+    virtual ~SceneTransversal() noexcept = 0;
+
+    virtual SceneTask* transverse(SceneVisitor *visitor) const = 0;
+};
+
+inline SceneTransversal::~SceneTransversal() noexcept = default;
+
 class Pipeline {
 public:
     Pipeline() noexcept = default;
@@ -247,6 +299,8 @@ public:
     virtual MovePassBuilder    *addMovePass(const std::string& name) = 0;
     virtual CopyPassBuilder    *addCopyPass(const std::string& name) = 0;
     virtual void                addPresentPass(const std::string& name, const std::string& swapchainName) = 0;
+
+    virtual SceneTransversal *createSceneTransversal(const scene::RenderScene *scene) = 0;
 };
 
 inline Pipeline::~Pipeline() noexcept = default;

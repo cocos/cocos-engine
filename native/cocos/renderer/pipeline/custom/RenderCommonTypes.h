@@ -119,6 +119,11 @@ constexpr bool any(ResourceFlags e) noexcept {
 struct BufferTag {};
 struct TextureTag {};
 
+enum class TaskType {
+    SYNC,
+    ASYNC,
+};
+
 } // namespace render
 
 } // namespace cc

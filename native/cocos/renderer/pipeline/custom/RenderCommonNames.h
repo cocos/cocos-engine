@@ -92,6 +92,13 @@ inline const char* getName(ResourceDimension e) noexcept {
 }
 inline const char* getName(const BufferTag& /*v*/) noexcept { return "Buffer"; }
 inline const char* getName(const TextureTag& /*v*/) noexcept { return "Texture"; }
+inline const char* getName(TaskType e) noexcept {
+    switch (e) {
+        case TaskType::SYNC: return "SYNC";
+        case TaskType::ASYNC: return "ASYNC";
+    }
+    return "";
+}
 
 } // namespace render
 
