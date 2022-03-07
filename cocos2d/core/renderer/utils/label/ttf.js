@@ -67,6 +67,8 @@ let _shadowColor = cc.Color.BLACK;
 let _canvasPadding = cc.rect();
 let _contentSizeExtend = cc.Size.ZERO;
 let _nodeContentSize = cc.Size.ZERO;
+// label 原始大小
+let _originalSize = cc.Size.ZERO;
 
 let _enableBold = false;
 let _enableItalic = false;
@@ -99,7 +101,7 @@ export default class TTFAssembler extends Assembler2D {
 
     updateRenderData (comp) {
         super.updateRenderData(comp);
-        
+
         if (!comp._vertsDirty) return;
 
         this._updateProperties(comp);
@@ -110,6 +112,7 @@ export default class TTFAssembler extends Assembler2D {
 
         comp._actualFontSize = _fontSize;
         comp.node.setContentSize(_nodeContentSize);
+        comp.originalSize = _originalSize;
 
         this.updateVerts(comp);
 
@@ -165,6 +168,7 @@ export default class TTFAssembler extends Assembler2D {
         _canvasSize.width = comp.node.width;
         _canvasSize.height = comp.node.height;
         _nodeContentSize = comp.node.getContentSize();
+        _originalSize = _nodeContentSize;
         _lineHeight = comp._lineHeight;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
@@ -262,7 +266,7 @@ export default class TTFAssembler extends Assembler2D {
         if (_shadowComp) {
             this._setupShadow();
         }
-        
+
         if (_outlineComp) {
             this._setupOutline();
         }
@@ -412,7 +416,7 @@ export default class TTFAssembler extends Assembler2D {
 
     _calculateShrinkFont (paragraphedStrings) {
         let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
-        
+
         let i = 0;
         let totalHeight = 0;
         let maxLength = 0;
@@ -505,21 +509,25 @@ export default class TTFAssembler extends Assembler2D {
         _fontDesc = this._getFontDesc();
         _context.font = _fontDesc;
 
+        let canvasSizeX = 0;
+        let canvasSizeY = 0;
+
+        // calculate Overflow.NONE original size
+        for (let i = 0; i < paragraphedStrings.length; ++i) {
+            let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
+            canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
+        }
+        canvasSizeY = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
+        let rawWidth = parseFloat(canvasSizeX.toFixed(2));
+        let rawHeight = parseFloat(canvasSizeY.toFixed(2));
+        _originalSize.width = rawWidth + _contentSizeExtend.width;
+        _originalSize.height = rawHeight + _contentSizeExtend.height;
+
         switch (_overflow) {
             case Overflow.NONE: {
-                let canvasSizeX = 0;
-                let canvasSizeY = 0;
-                for (let i = 0; i < paragraphedStrings.length; ++i) {
-                    let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
-                    canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
-                }
-                canvasSizeY = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
-                let rawWidth = parseFloat(canvasSizeX.toFixed(2));
-                let rawHeight = parseFloat(canvasSizeY.toFixed(2));
                 _canvasSize.width = rawWidth + _canvasPadding.width;
                 _canvasSize.height = rawHeight + _canvasPadding.height;
-                _nodeContentSize.width = rawWidth + _contentSizeExtend.width;
-                _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
+                _nodeContentSize = _originalSize;
                 break;
             }
             case Overflow.SHRINK: {
@@ -537,6 +545,7 @@ export default class TTFAssembler extends Assembler2D {
                 _canvasSize.height = rawHeight + _canvasPadding.height;
                 // set node height
                 _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
+                _originalSize.height = _nodeContentSize.height;
                 break;
             }
         }
