@@ -70,6 +70,14 @@ void* JniNativeGlue::getActivity() {
     return _activity;
 }
 
+void JniNativeGlue::setEnv(void *env) {
+    _env = env;
+}
+
+void* JniNativeGlue::getEnv() {
+    return _env;
+}
+
 void JniNativeGlue::setResourceManager(ResourceManagerType* resourceManager) {
     _resourceManager = resourceManager;
 }

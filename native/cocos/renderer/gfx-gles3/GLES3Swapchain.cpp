@@ -27,10 +27,11 @@
 #include "GLES3Device.h"
 #include "GLES3GPUObjects.h"
 #include "GLES3Texture.h"
-#include "swappy/swappyGL.h"
-#include "swappy/swappyGL_extra.h"
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
+    #include "platform/UniversalPlatform.h"
+    #include "swappy/swappyGL.h"
+    #include "swappy/swappyGL_extra.h"
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include <native_layer.h>
     #include <native_layer_jni.h>
@@ -61,11 +62,14 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
 
     auto width  = static_cast<int32_t>(info.width);
     auto height = static_cast<int32_t>(info.height);
-//    SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+    #if CC_PLATFORM == CC_PLATFORM_ANDROID
+    SwappyGL_init(UniversalPlatform::getEnv(), UniversalPlatform::getActivity());
+    //60 fps or whatever
+    //SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+    // 60fps or 45 or 30 or 20 or 15 ... in average
     SwappyGL_setAutoSwapInterval(true);
     SwappyGL_setAutoPipelineMode(true);
     SwappyGL_setWindow(window);
-    #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
     #elif CC_PLATFORM == CC_PLATFORM_OHOS
     NativeLayerHandle(window, NativeLayerOps::SET_WIDTH_AND_HEIGHT, width, height);
