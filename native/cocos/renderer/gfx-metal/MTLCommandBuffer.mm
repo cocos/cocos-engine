@@ -662,54 +662,82 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         return;
     }
 
-    uint                            totalSize = 0;
-    vector<uint>                    bufferSize(count);
-    vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
-    auto                            format          = texture->getFormat();
-    auto *                          mtlTexture      = static_cast<CCMTLTexture *>(texture);
-    auto                            convertedFormat = mtlTexture->getConvertedFormat();
+    auto  format          = texture->getFormat();
+    auto *mtlTexture      = static_cast<CCMTLTexture *>(texture);
+    auto  convertedFormat = mtlTexture->getConvertedFormat();
 
-    for (size_t i = 0; i < count; i++) {
-        const auto &region                = regions[i];
-        auto &      stagingRegion         = stagingRegions[i];
-        auto        w                     = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
-        auto        h                     = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
-        bufferSize[i]                     = w * h;
-        stagingRegion.sourceBytesPerRow   = mu::getBytesPerRow(convertedFormat, w);
-        stagingRegion.sourceBytesPerImage = formatSize(convertedFormat, w, h, region.texExtent.depth);
-        stagingRegion.sourceSize          = {w, h, region.texExtent.depth};
-        stagingRegion.destinationSlice    = region.texSubres.baseArrayLayer;
-        stagingRegion.destinationLevel    = region.texSubres.mipLevel;
-        stagingRegion.destinationOrigin   = {
-            static_cast<uint>(region.texOffset.x),
-            static_cast<uint>(region.texOffset.y),
-            static_cast<uint>(region.texOffset.z)};
-        totalSize += stagingRegion.sourceBytesPerImage;
-    }
-
-    size_t                    offset         = 0;
     id<MTLBlitCommandEncoder> encoder        = [getMTLCommandBuffer() blitCommandEncoder];
     id<MTLTexture>            dstTexture     = mtlTexture->getMTLTexture();
     const bool                isArrayTexture = mtlTexture->isArray();
-    for (size_t i = 0; i < count; i++) {
-        const auto &stagingRegion       = stagingRegions[i];
-        const auto *convertedData       = mu::convertData(buffers[i], bufferSize[i], format);
-        const auto  sourceBytesPerImage = isArrayTexture ? stagingRegion.sourceBytesPerImage : 0;
-        MTLRegion   region              = {stagingRegion.destinationOrigin, stagingRegion.sourceSize};
-        auto        bytesPerRow         = mtlTexture->isPVRTC() ? 0 : stagingRegion.sourceBytesPerRow;
-        auto        bytesPerImage       = mtlTexture->isPVRTC() ? 0 : sourceBytesPerImage;
-        [dstTexture replaceRegion:region
-                      mipmapLevel:stagingRegion.destinationLevel
-                            slice:stagingRegion.destinationSlice
-                        withBytes:convertedData
-                      bytesPerRow:bytesPerRow
-                    bytesPerImage:bytesPerImage];
 
-        offset += stagingRegion.sourceBytesPerImage;
-        if (convertedData != buffers[i]) {
-            CC_FREE(convertedData);
+    uint      buffCount         = 0;
+    MTLOrigin destinationOrigin = {0, 0, 0};
+
+    for (size_t i = 0; i < count; i++) {
+        const auto &region    = regions[i];
+        auto        width     = region.texExtent.width;
+        auto        height    = region.texExtent.height;
+        auto        depth     = region.texExtent.depth;
+        auto        chunkSize = formatSize(convertedFormat, width, 1, region.texExtent.depth);
+        auto        texSize   = formatSize(convertedFormat, width, height, region.texExtent.depth);
+
+        uint buffStride = region.buffStride > 0 ? region.buffStride : width;
+        uint strideSize = formatSize(convertedFormat, buffStride, 1, region.texExtent.depth);
+        uint bufferSize = buffStride * region.texExtent.height;
+
+        uint layerCount       = region.texSubres.layerCount;
+        uint baseLayer        = region.texSubres.baseArrayLayer;
+        uint bytesPerRow      = mtlTexture->isPVRTC() ? 0 : chunkSize;
+        uint bytesPerImage    = mtlTexture->isPVRTC() ? 0 : texSize;
+        uint destinationLevel = region.texSubres.mipLevel;
+
+        MTLOrigin destinationOrigin = {
+            static_cast<uint>(region.texOffset.x),
+            static_cast<uint>(region.texOffset.y),
+            static_cast<uint>(region.texOffset.z),
+        };
+
+        uint chunkOffset = 0;
+        uint buffOffset  = 0;
+
+        for (size_t l = 0; l < layerCount; l++) {
+            const auto *buffptr       = buffers[buffCount] + region.buffOffset;
+            const auto *convertedData = mu::convertData(buffptr, bufferSize, format);
+
+            chunkOffset = 0;
+            buffOffset  = 0;
+
+            CCMTLGPUBuffer stagingBuffer;
+            stagingBuffer.size = texSize;
+            _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
+
+            if (strideSize == chunkSize) {
+                memcpy(stagingBuffer.mappedData, convertedData, stagingBuffer.size);
+            } else {
+                for (size_t j = 0; j < height; j++) {
+                    memcpy(stagingBuffer.mappedData + chunkOffset, convertedData + buffOffset, chunkSize);
+                    chunkOffset += chunkSize;
+                    buffOffset += strideSize;
+                }
+            }
+
+            [encoder copyFromBuffer:stagingBuffer.mtlBuffer
+                       sourceOffset:stagingBuffer.startOffset
+                  sourceBytesPerRow:bytesPerRow
+                sourceBytesPerImage:bytesPerImage
+                         sourceSize:MTLSizeMake(width, height, depth)
+                          toTexture:dstTexture
+                   destinationSlice:l + baseLayer
+                   destinationLevel:destinationLevel
+                  destinationOrigin:destinationOrigin];
+
+            if (convertedData != buffptr) {
+                CC_FREE(convertedData);
+            }
+            buffCount++;
         }
     }
+
     if (hasFlag(static_cast<CCMTLTexture *>(texture)->textureInfo().flags, TextureFlags::GEN_MIPMAP) && mu::pixelFormatIsColorRenderable(convertedFormat)) {
         [encoder generateMipmapsForTexture:dstTexture];
     }

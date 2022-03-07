@@ -207,8 +207,7 @@ public:
             uint mbNeeds = mu::roundUp(gpuBuffer->size, MegaBytesToBytes);
             mbNeeds      = cc::utils::nextPOT(mbNeeds);
 #ifdef CC_DEBUG
-            float realNeeds = gpuBuffer->size / static_cast<float>(MegaBytesToBytes);
-            assert(mbNeeds > realNeeds);
+            assert(mbNeeds * MegaBytesToBytes >= gpuBuffer->size);
 #endif
             _pool.resize(bufferCount + 1);
             buffer = &_pool.back();

@@ -2643,7 +2643,7 @@ function pixelBufferPick (buffer : ArrayBufferView,
     let bufferOffset = offset;
     for (let j = 0; j < height; j++) {
         stagingBuffer.subarray(chunkOffset, chunkOffset + chunkSize).set(
-            new Uint8Array(buffer.buffer, bufferOffset, chunkSize),
+            new Uint8Array(buffer.buffer, buffer.byteOffset +  bufferOffset, chunkSize),
         );
         chunkOffset += chunkSize;
         bufferOffset += strideSize;
@@ -2680,12 +2680,12 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             w = region.texExtent.width;
             h = region.texExtent.height;
 
-            let pixels = buffers[n++];
-
+            let pixels : ArrayBufferView;
+            const temp = buffers[n++];
             if (region.buffStride > 0) {
-                pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo, region.buffStride);
+                pixels = pixelBufferPick(temp, bufferOffset, w, h, fmtInfo, region.buffStride);
             } else {
-                pixels = new ArrayBufferCtor(pixels.buffer, bufferOffset);
+                pixels = new ArrayBufferCtor(temp.buffer, temp.byteOffset + bufferOffset);
             }
 
             if (!isCompressed) {
@@ -2715,11 +2715,12 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                 bufferOffset = region.buffOffset;
 
-                let pixels = buffers[n++];
+                let pixels : ArrayBufferView;
+                const temp = buffers[n++];
                 if (region.buffStride > 0) {
-                    pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo, region.buffStride);
+                    pixels = pixelBufferPick(temp, bufferOffset, w, h, fmtInfo, region.buffStride);
                 } else {
-                    pixels = new ArrayBufferCtor(pixels.buffer, bufferOffset);
+                    pixels = new ArrayBufferCtor(temp.buffer, temp.byteOffset + bufferOffset);
                 }
 
                 if (!isCompressed) {

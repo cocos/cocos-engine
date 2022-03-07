@@ -2693,7 +2693,7 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
     }
 }
 
-let stagingBuffer = new Int8Array(1);
+let stagingBuffer = new Uint8Array(1);
 function pixelBufferPick (buffer : ArrayBufferView,
     offset: number,
     width: number,
@@ -2706,14 +2706,14 @@ function pixelBufferPick (buffer : ArrayBufferView,
     const ArrayBufferCtor : TypedArrayConstructor = getTypedArrayConstructor(formatInfo);
 
     if (stagingBuffer.byteLength < bufferSize) {
-        stagingBuffer = new Int8Array(bufferSize);
+        stagingBuffer = new Uint8Array(bufferSize);
     }
 
     let chunkOffset = 0;
     let bufferOffset = offset;
     for (let j = 0; j < height; j++) {
         stagingBuffer.subarray(chunkOffset, chunkOffset + chunkSize).set(
-            new Int8Array(buffer.buffer, bufferOffset, chunkSize),
+            new Uint8Array(buffer.buffer, buffer.byteOffset +  bufferOffset, chunkSize),
         );
         chunkOffset += chunkSize;
         bufferOffset += strideSize;
@@ -2751,11 +2751,12 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             h = region.texExtent.height;
             // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);
 
-            let pixels = buffers[n++];
+            let pixels : ArrayBufferView;
+            const temp = buffers[n++];
             if (region.buffStride > 0) {
-                pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo, region.buffStride);
+                pixels = pixelBufferPick(temp, bufferOffset, w, h, fmtInfo, region.buffStride);
             } else {
-                pixels = new ArrayBufferCtor(pixels.buffer, bufferOffset);
+                pixels = new ArrayBufferCtor(temp.buffer, temp.byteOffset + bufferOffset);
             }
 
             if (!isCompressed) {
@@ -2784,11 +2785,12 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 h = region.texExtent.height;
                 // console.debug('Copying buffer to texture cube: ' + w + ' x ' + h);
 
-                let pixels = buffers[n++];
+                let pixels : ArrayBufferView;
+                const temp = buffers[n++];
                 if (region.buffStride > 0) {
-                    pixels = pixelBufferPick(pixels, bufferOffset, w, h, fmtInfo, region.buffStride);
+                    pixels = pixelBufferPick(temp, bufferOffset, w, h, fmtInfo, region.buffStride);
                 } else {
-                    pixels = new ArrayBufferCtor(pixels.buffer, bufferOffset);
+                    pixels = new ArrayBufferCtor(temp.buffer, temp.byteOffset + bufferOffset);
                 }
 
                 if (!isCompressed) {
