@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.8)
 
 set(APP_NAME "CocosGame" CACHE STRING "Project Name")
 project(${APP_NAME} CXX)
-
+if(${CMAKE_SIZEOF_VOID_P} STREQUAL "4")
+        message(FETAL_ERROR "Win32 architecture is no more supported!!!")
+endif()
 include(${CMAKE_CURRENT_LIST_DIR}/../common/CMakeLists.txt)
 
 set(LIB_NAME ${APP_NAME})
@@ -64,7 +66,5 @@ if(MSVC)
         )
     endforeach()
     target_link_options(${LIB_NAME} PRIVATE /SUBSYSTEM:WINDOWS /IGNORE:4099)
-    if(${CMAKE_SIZEOF_VOID_P} STREQUAL "4")
-        message(FETAL_ERROR "Win32 architecture is no more supported!!!")
-    endif()
+    
 endif()
