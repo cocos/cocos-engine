@@ -2752,11 +2752,11 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);
 
             let pixels : ArrayBufferView;
-            const temp = buffers[n++];
+            const buffer = buffers[n++];
             if (region.buffStride > 0) {
-                pixels = pixelBufferPick(temp, bufferOffset, w, h, fmtInfo, region.buffStride);
+                pixels = pixelBufferPick(buffer, bufferOffset, w, h, fmtInfo, region.buffStride);
             } else {
-                pixels = new ArrayBufferCtor(temp.buffer, temp.byteOffset + bufferOffset);
+                pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + bufferOffset);
             }
 
             if (!isCompressed) {
@@ -2786,11 +2786,11 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 // console.debug('Copying buffer to texture cube: ' + w + ' x ' + h);
 
                 let pixels : ArrayBufferView;
-                const temp = buffers[n++];
+                const buffer = buffers[n++];
                 if (region.buffStride > 0) {
-                    pixels = pixelBufferPick(temp, bufferOffset, w, h, fmtInfo, region.buffStride);
+                    pixels = pixelBufferPick(buffer, bufferOffset, w, h, fmtInfo, region.buffStride);
                 } else {
-                    pixels = new ArrayBufferCtor(temp.buffer, temp.byteOffset + bufferOffset);
+                    pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + bufferOffset);
                 }
 
                 if (!isCompressed) {

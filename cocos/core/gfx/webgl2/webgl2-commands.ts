@@ -2681,11 +2681,11 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             h = region.texExtent.height;
 
             let pixels : ArrayBufferView;
-            const temp = buffers[n++];
+            const buffer = buffers[n++];
             if (region.buffStride > 0) {
-                pixels = pixelBufferPick(temp, bufferOffset, w, h, fmtInfo, region.buffStride);
+                pixels = pixelBufferPick(buffer, bufferOffset, w, h, fmtInfo, region.buffStride);
             } else {
-                pixels = new ArrayBufferCtor(temp.buffer, temp.byteOffset + bufferOffset);
+                pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + bufferOffset);
             }
 
             if (!isCompressed) {
@@ -2716,11 +2716,11 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 bufferOffset = region.buffOffset;
 
                 let pixels : ArrayBufferView;
-                const temp = buffers[n++];
+                const buffer = buffers[n++];
                 if (region.buffStride > 0) {
-                    pixels = pixelBufferPick(temp, bufferOffset, w, h, fmtInfo, region.buffStride);
+                    pixels = pixelBufferPick(buffer, bufferOffset, w, h, fmtInfo, region.buffStride);
                 } else {
-                    pixels = new ArrayBufferCtor(temp.buffer, temp.byteOffset + bufferOffset);
+                    pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + bufferOffset);
                 }
 
                 if (!isCompressed) {
