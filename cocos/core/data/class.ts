@@ -515,8 +515,6 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
                 onAfterProps_ET.push(attributeUtils.getTypeChecker_ET(primitiveType, `cc.${type}`));
             }
-        } else if (type === attributeUtils.Self) {
-            (attrs || initAttrs())[`${propertyNamePrefix}type`] = constructor;
         } else if (type === 'Object') {
             if (DEV) {
                 errorID(3644, className, propertyName);
@@ -531,13 +529,14 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
             } else if (DEV) {
                 errorID(3645, className, propertyName, type);
             }
-        } else if (typeof type === 'function') {
+        } else if (typeof type === 'function' || type === attributeUtils.Self) {
             // Do not warn missing-default if the type is object
             warnOnNoDefault = false;
+            const classConstructor = type === attributeUtils.Self ? constructor : type;
             (attrs || initAttrs())[`${propertyNamePrefix}type`] = 'Object';
-            attrs![`${propertyNamePrefix}ctor`] = type;
+            attrs![`${propertyNamePrefix}ctor`] = classConstructor;
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
-                onAfterProps_ET.push(attributeUtils.getObjTypeChecker_ET(type));
+                onAfterProps_ET.push(attributeUtils.getObjTypeChecker_ET(classConstructor));
             }
         } else if (DEV) {
             errorID(3646, className, propertyName, type);

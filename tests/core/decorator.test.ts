@@ -255,17 +255,22 @@ describe(`Decorators`, () => {
             }
         }
 
-        expect(CCClass.attr(Foo, 'refByProperty').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'refsByProperty').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'refByPropertyFullForm').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'refsByPropertyFullForm').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'refByType').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'refsByType').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'accessorRefByProperty').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'accessorRefsByProperty').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'accessorRefByPropertyFullForm').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'accessorRefsByPropertyFullForm').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'accessorRefByType').type).toBe(Foo);
-        expect(CCClass.attr(Foo, 'accessorRefsByType').type).toBe(Foo);
+        const expectFieldType = (fieldName: string) => {
+            expect(CCClass.attr(Foo, fieldName)).toHaveProperty('type', 'Object');
+            expect(CCClass.attr(Foo, fieldName)).toHaveProperty('ctor', Foo);
+        };
+
+        expectFieldType('refByProperty');
+        expectFieldType('refsByProperty');
+        expectFieldType('refByPropertyFullForm');
+        expectFieldType('refsByPropertyFullForm');
+        expectFieldType('refByType');
+        expectFieldType('refsByType');
+        expectFieldType('accessorRefByProperty');
+        expectFieldType('accessorRefsByProperty');
+        expectFieldType('accessorRefByPropertyFullForm');
+        expectFieldType('accessorRefsByPropertyFullForm');
+        expectFieldType('accessorRefByType');
+        expectFieldType('accessorRefsByType');
     });
 });
