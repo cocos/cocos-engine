@@ -26,12 +26,13 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "base/RefCounted.h"
 #include "base/Utils.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL Queue : public GFXObject {
+class CC_DLL Queue : public GFXObject, public RefCounted {
 public:
     Queue();
     ~Queue() override;

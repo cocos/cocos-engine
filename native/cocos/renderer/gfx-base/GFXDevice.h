@@ -44,11 +44,12 @@
 #include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
 #include "states/GFXTextureBarrier.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL Device : public Object {
+class CC_DLL Device : public Object, public RefCounted {
 public:
     static Device *getInstance();
 
