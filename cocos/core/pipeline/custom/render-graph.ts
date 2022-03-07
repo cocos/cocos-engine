@@ -55,10 +55,10 @@ export class ResourceTraits {
 }
 
 export class RenderSwapchain {
-    constructor (swapchain: Swapchain) {
+    constructor (swapchain: Swapchain | null) {
         this.swapchain = swapchain;
     }
-    readonly swapchain: Swapchain;
+    swapchain: Swapchain | null;
     currentID = 0;
     numBackBuffers = 0;
 }
