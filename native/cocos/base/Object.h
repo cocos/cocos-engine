@@ -25,11 +25,12 @@
 
 #pragma once
 
-#include "base/memory/AllocatedObj.h"
-
 namespace cc {
 
-// Now define all the base classes for each allocation
-using Object = AllocatedObject;
+class Object {
+public:
+    Object() = default;
+    virtual ~Object() = default;
+};
 
 } // namespace cc

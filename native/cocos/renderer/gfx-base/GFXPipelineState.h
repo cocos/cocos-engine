@@ -26,11 +26,12 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL PipelineState : public GFXObject {
+class CC_DLL PipelineState : public GFXObject, public RefCounted {
 public:
     PipelineState();
     ~PipelineState() override;
