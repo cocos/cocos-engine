@@ -28,16 +28,19 @@ import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceResidency } from './types';
-import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, MovePair, MovePass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, ResourceDesc, ResourceFlags, ResourceGraph, ResourceTraits, SceneData } from './render-graph';
+import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, ResourceDesc, ResourceFlags, ResourceGraph, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { RenderScene } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
+import { RenderDependencyGraph } from './render-dependency-graph';
+import { DeviceResourceGraph } from './executor';
+import { WebImplExample } from './web-pipeline-impl';
+import { RenderWindow } from '../../renderer/core/render-window';
 
-export class WebSetter extends Setter {
+export class WebSetter {
     constructor (data: RenderData) {
-        super();
         this._data = data;
     }
     public setMat4 (name: string, mat: Mat4): void {}
@@ -295,7 +298,7 @@ export class WebCopyPassBuilder extends CopyPassBuilder {
 }
 
 export class WebPipeline extends Pipeline {
-    addRenderTexture (name: string, format: Format, width: number, height: number) {
+    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -304,10 +307,13 @@ export class WebPipeline extends Pipeline {
         desc.mipLevels = 1;
         desc.format = format;
         desc.flags = ResourceFlags.ALLOW_RENDER_TARGET | ResourceFlags.ALLOW_UNORDERED_ACCESS;
-
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.Persistent));
+        if (renderWindow.swapchain === null) {
+            return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.EXTERNAL));
+        } else {
+            return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.BACKBUFFER));
+        }
     }
-    addRenderTarget (name: string, format: Format, width: number, height: number) {
+    addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -316,9 +322,9 @@ export class WebPipeline extends Pipeline {
         desc.mipLevels = 1;
         desc.format = format;
         desc.flags = ResourceFlags.ALLOW_RENDER_TARGET | ResourceFlags.ALLOW_UNORDERED_ACCESS;
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits());
+        return this._resourceGraph.addVertex(name, desc, new ResourceTraits(residency));
     }
-    addDepthStencil (name: string, format: Format, width: number, height: number) {
+    addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -327,15 +333,26 @@ export class WebPipeline extends Pipeline {
         desc.mipLevels = 1;
         desc.format = format;
         desc.flags = ResourceFlags.ALLOW_DEPTH_STENCIL;
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits());
+        return this._resourceGraph.addVertex(name, desc, new ResourceTraits(residency));
     }
     beginFrame (pplScene: PipelineSceneData) {
         this._renderGraph = new RenderGraph();
         this._pipelineSceneData = pplScene;
     }
     endFrame () {
+        this.build();
         this._renderGraph = null;
         this._pipelineSceneData = null;
+    }
+    build () {
+        if (!this._renderGraph) {
+            throw new Error('RenderGraph cannot be built without being created');
+        }
+        if (!this._renderDependencyGraph) {
+            this._renderDependencyGraph = new RenderDependencyGraph(this._renderGraph, this._resourceGraph, this._layoutGraph);
+        }
+        this._renderDependencyGraph.reset();
+        this._renderDependencyGraph.build();
     }
     addRasterPass (width: number, height: number, layoutName: string, name = 'Raster'): RasterPassBuilder {
         const pass = new RasterPass();
@@ -365,6 +382,10 @@ export class WebPipeline extends Pipeline {
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', new RenderData());
         return new WebCopyPassBuilder(this._renderGraph!, vertID, pass);
     }
+    addPresentPass (name: string, swapchainName: string): void {
+        const pass = new PresentPass(swapchainName);
+        this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, name, '', new RenderData());
+    }
     get renderGraph () {
         return this._renderGraph;
     }
@@ -383,4 +404,5 @@ export class WebPipeline extends Pipeline {
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
     private _renderGraph: RenderGraph | null = null;
     private _pipelineSceneData: PipelineSceneData | null = null;
+    private _renderDependencyGraph: RenderDependencyGraph | null = null;
 }

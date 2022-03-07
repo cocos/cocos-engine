@@ -26,6 +26,7 @@
 #pragma once
 
 #include "Define.h"
+#include "base/RefCounted.h"
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
 
@@ -47,14 +48,14 @@ namespace pipeline {
 
 class RenderPipeline;
 
-class CC_DLL PipelineSceneData : public Object {
+class CC_DLL PipelineSceneData : public RefCounted {
 public:
     PipelineSceneData();
     ~PipelineSceneData() override;
     virtual void activate(gfx::Device *device, RenderPipeline *pipeline);
     void         destroy();
 
-    virtual void onGlobalPipelineStateChanged() {}
+    virtual void updatePipelineSceneData() {}
 
     inline void                                                                setShadowFramebuffer(const scene::Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap.emplace(light, framebuffer); }
     inline const std::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }

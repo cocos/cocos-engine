@@ -31,11 +31,30 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
+import { Buffer, DescriptorSetLayout, Format, Sampler, Texture } from '../../gfx';
+import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
+import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint } from './types';
+import { QueueHint, ResourceResidency } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
+import { RenderWindow } from '../../renderer/core/render-window';
+import { Model } from '../../renderer/scene';
+import { PipelineEventType } from '../pipeline-event';
+
+export abstract class PipelineRuntime {
+    public abstract get macros(): MacroRecord;
+    public abstract get globalDSManager(): GlobalDSManager;
+    public abstract get descriptorSetLayout(): DescriptorSetLayout;
+    public abstract get pipelineSceneData(): PipelineSceneData;
+    public abstract get constantMacros(): string;
+    public abstract get profiler(): Model | null;
+    public abstract set profiler(profiler: Model | null);
+    public abstract onGlobalPipelineStateChanged(): void;
+
+    public abstract on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback;
+    public abstract off (type: PipelineEventType, callback?: any, target?: any): void;
+}
 
 export abstract class DescriptorHierarchy {
     public abstract addEffect(asset: EffectAsset): void;
@@ -55,7 +74,7 @@ export abstract class Setter {
     public abstract setSampler(name: string, sampler: Sampler): void;
 }
 
-export abstract class RasterQueueBuilder {
+export abstract class RasterQueueBuilder extends Setter {
     public abstract addSceneOfCamera(camera: Camera, name: string): void;
     public abstract addSceneOfCamera(camera: Camera): void;
     public abstract addScene(name: string): void;
@@ -63,7 +82,7 @@ export abstract class RasterQueueBuilder {
     public abstract addFullscreenQuad(shader: string): void;
 }
 
-export abstract class RasterPassBuilder {
+export abstract class RasterPassBuilder extends Setter {
     public abstract addRasterView(name: string, view: RasterView): void;
     public abstract addComputeView(name: string, view: ComputeView): void;
     public abstract addQueue(hint: QueueHint, layoutName: string, name: string): RasterQueueBuilder;
@@ -74,13 +93,13 @@ export abstract class RasterPassBuilder {
     public abstract addFullscreenQuad(shader: string): void;
 }
 
-export abstract class ComputeQueueBuilder {
+export abstract class ComputeQueueBuilder extends Setter {
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string, name: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
-export abstract class ComputePassBuilder {
+export abstract class ComputePassBuilder extends Setter {
     public abstract addComputeView(name: string, view: ComputeView): void;
     public abstract addQueue(layoutName: string, name: string): ComputeQueueBuilder;
     public abstract addQueue(layoutName: string): ComputeQueueBuilder;
@@ -99,9 +118,9 @@ export abstract class CopyPassBuilder {
 }
 
 export abstract class Pipeline {
-    public abstract addRenderTexture(name: string, format: Format, width: number, height: number): number;
-    public abstract addRenderTarget(name: string, format: Format, width: number, height: number): number;
-    public abstract addDepthStencil(name: string, format: Format, width: number, height: number): number;
+    public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
+    public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    public abstract addDepthStencil(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     public abstract beginFrame(pplScene: PipelineSceneData): void;
     public abstract endFrame(): void;
     public abstract addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
@@ -110,4 +129,8 @@ export abstract class Pipeline {
     public abstract addComputePass(layoutName: string): ComputePassBuilder;
     public abstract addMovePass(name: string): MovePassBuilder;
     public abstract addCopyPass(name: string): CopyPassBuilder;
+    public abstract addPresentPass(name: string, swapchainName: string): void;
+}
+
+export class Factory {
 }

@@ -29,7 +29,7 @@
 
 #pragma once
 #include "SkeletonCache.h"
-#include "base/Map.h"
+#include "base/RefMap.h"
 
 namespace spine {
 
@@ -54,7 +54,7 @@ public:
 
 private:
     static SkeletonCacheMgr *instance;
-    cc::Map<std::string, SkeletonCache *> _caches;
+    cc::RefMap<std::string, SkeletonCache *> _caches;
 };
 
 } // namespace spine

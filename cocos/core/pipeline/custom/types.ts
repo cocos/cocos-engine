@@ -38,11 +38,11 @@ export const enum UpdateFrequency {
 }
 
 export const enum ParameterType {
-    Constants,
+    CONSTANTS,
     CBV,
     UAV,
     SRV,
-    Table,
+    TABLE,
     SSV,
 }
 
@@ -97,10 +97,11 @@ export const enum ValueType {
 }
 
 export const enum ResourceResidency {
-    Managed,
-    Persistent,
-    Backbuffer,
-    Memoryless,
+    MANAGED,
+    MEMORYLESS,
+    PERSISTENT,
+    EXTERNAL,
+    BACKBUFFER,
 }
 
 export const enum QueueHint {
@@ -108,7 +109,6 @@ export const enum QueueHint {
     RENDER_OPAQUE,
     RENDER_CUTOUT,
     RENDER_TRANSPARENT,
-    COUNT,
 }
 
 export const enum ResourceDimension {

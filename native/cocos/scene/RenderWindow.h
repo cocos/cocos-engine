@@ -26,7 +26,7 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/Vector.h"
+#include "base/RefVector.h"
 #include "cocos/base/Optional.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 
@@ -125,7 +125,7 @@ private:
     IntrusivePtr<gfx::Texture>        _depthStencilTexture;
     IntrusivePtr<gfx::Framebuffer>    _frameBuffer;
     std::vector<IntrusivePtr<Camera>> _cameras;
-    Vector<gfx::Texture *>            _colorTextures;
+    RefVector<gfx::Texture *>         _colorTextures;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderWindow);
 };

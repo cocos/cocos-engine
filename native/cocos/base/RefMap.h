@@ -26,16 +26,7 @@
 
 #pragma once
 
-#define USE_STD_UNORDERED_MAP 1
-
-#include <vector>
-
-#if USE_STD_UNORDERED_MAP
-    #include <unordered_map>
-#else
-    #include <map>
-#endif
-
+#include <unordered_map>
 #include "base/Log.h"
 #include "base/Random.h"
 #include "base/RefCounted.h"
@@ -44,28 +35,20 @@ namespace cc {
 
 /**
  * Similar to std::unordered_map, but it will manage reference count automatically internally.
- * Which means it will invoke Ref::retain() when adding an element, and invoke Ref::release() when removing an element.
- * @warning The element should be `Ref` or its sub-class.
- * @js NA
- * @lua NA
+ * Which means it will invoke RefCounted::addRef() when adding an element, and invoke RefCounted::release() when removing an element.
+ * @warning The element should be `RefCounted` or its sub-class.
  */
 template <class K, class V>
-class Map {
+class RefMap {
 public:
-#if USE_STD_UNORDERED_MAP
-    using RefMap = std::unordered_map<K, V>;
-#else
-    typedef std::map<K, V> RefMap;
-#endif
-
     // ------------------------------------------
     // Iterators
     // ------------------------------------------
 
     /** Iterator, can be used to loop the Map. */
-    using iterator = typename RefMap::iterator;
+    using iterator = typename std::unordered_map<K, V>::iterator;
     /** Const iterator, can be used to loop the Map. */
-    using const_iterator = typename RefMap::const_iterator;
+    using const_iterator = typename std::unordered_map<K, V>::const_iterator;
 
     /** Return iterator to beginning. */
     iterator begin() { return _data.begin(); }
@@ -83,27 +66,27 @@ public:
     const_iterator cend() const { return _data.cend(); }
 
     /** Default constructor */
-    Map<K, V>()
+    RefMap<K, V>()
     : _data() {
         static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
     }
 
     /** Constructor with capacity. */
-    explicit Map<K, V>(ssize_t capacity)
+    explicit RefMap<K, V>(ssize_t capacity)
     : _data() {
         static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
         _data.reserve(capacity);
     }
 
     /** Copy constructor. */
-    Map<K, V>(const Map<K, V> &other) {
+    RefMap<K, V>(const RefMap<K, V> &other) {
         static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
         _data = other._data;
         addRefForAllObjects();
     }
 
     /** Move constructor. */
-    Map<K, V>(Map<K, V> &&other) noexcept {
+    RefMap<K, V>(RefMap<K, V> &&other) noexcept {
         static_assert(std::is_convertible<V, RefCounted *>::value, "Invalid Type for cc::Map<K, V>!");
         _data = std::move(other._data);
     }
@@ -112,42 +95,28 @@ public:
      * Destructor.
      * It will release all objects in map.
      */
-    ~Map<K, V>() {
+    ~RefMap<K, V>() {
         clear();
     }
 
     /** Sets capacity of the map. */
     void reserve(ssize_t capacity) {
-#if USE_STD_UNORDERED_MAP
         _data.reserve(capacity);
-#endif
     }
 
     /** Returns the number of buckets in the Map container. */
     ssize_t bucketCount() const {
-#if USE_STD_UNORDERED_MAP
         return _data.bucket_count();
-#else
-        return 0;
-#endif
     }
 
     /** Returns the number of elements in bucket n. */
     ssize_t bucketSize(ssize_t n) const {
-#if USE_STD_UNORDERED_MAP
         return _data.bucket_size(n);
-#else
-        return 0;
-#endif
     }
 
     /** Returns the bucket number where the element with key k is located. */
     ssize_t bucket(const K &k) const {
-#if USE_STD_UNORDERED_MAP
         return _data.bucket(k);
-#else
-        return 0;
-#endif
     }
 
     /** The number of elements in the map. */
@@ -310,7 +279,7 @@ public:
     }
 
     /** Copy assignment operator. */
-    Map<K, V> &operator=(const Map<K, V> &other) {
+    RefMap<K, V> &operator=(const RefMap<K, V> &other) {
         if (this != &other) {
             clear();
             _data = other._data;
@@ -320,7 +289,7 @@ public:
     }
 
     /** Move assignment operator. */
-    Map<K, V> &operator=(Map<K, V> &&other) noexcept {
+    RefMap<K, V> &operator=(RefMap<K, V> &&other) noexcept {
         if (this != &other) {
             clear();
             _data = std::move(other._data);
@@ -328,7 +297,7 @@ public:
         return *this;
     }
 
-protected:
+private:
     /** Retains all the objects in the map */
     void addRefForAllObjects() {
         for (auto iter = _data.begin(); iter != _data.end(); ++iter) {
@@ -336,7 +305,7 @@ protected:
         }
     }
 
-    RefMap _data;
+    std::unordered_map<K, V> _data;
 };
 
 } // namespace cc

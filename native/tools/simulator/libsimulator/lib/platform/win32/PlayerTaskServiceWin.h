@@ -28,7 +28,7 @@
 #define __PLAYER_TASK_SERVICE_WIN_H_
 
 #include <sstream>
-#include "cocos/base/Map.h"
+#include "cocos/base/RefMap.h"
 
 #include "PlayerTaskServiceProtocol.h"
 
@@ -83,7 +83,7 @@ public:
 
 protected:
     HWND _hwnd;
-    cc::Map<std::string, PlayerTaskWin*> _tasks;
+    cc::RefMap<std::string, PlayerTaskWin*> _tasks;
 };
 
 PLAYER_NS_END

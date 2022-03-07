@@ -151,7 +151,7 @@ export class PipelineSceneData {
         return null;
     }
 
-    public onGlobalPipelineStateChanged () {
+    public updatePipelineSceneData () {
     }
 
     public destroy () {
