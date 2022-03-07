@@ -320,7 +320,9 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
 * But if no reject handler is added, then "unhandledRejectedPromise" exception will be called again, but the stacktrace this time become empty
 * LastStackTrace is used to store it.
 */
-std::string lastStackTrace;
+namespace{
+    std::string lastStackTrace;
+}
 void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char* event, const char *stackTrace) {
     using element_type = decltype(_promiseArray)::value_type;
     element_type *current;
