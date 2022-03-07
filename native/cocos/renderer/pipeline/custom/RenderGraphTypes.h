@@ -82,12 +82,12 @@ struct ResourceTraits {
 
 struct RenderSwapchain {
     RenderSwapchain() = default;
-    RenderSwapchain(IntrusivePtr<gfx::Swapchain> swapchainIn) noexcept // NOLINT
-    : swapchain(std::move(swapchainIn)) {}
+    RenderSwapchain(gfx::Swapchain* swapchainIn) noexcept // NOLINT
+    : swapchain(swapchainIn) {}
 
-    IntrusivePtr<gfx::Swapchain> swapchain;
-    uint32_t                     currentID{0};
-    uint32_t                     numBackBuffers{0};
+    gfx::Swapchain* swapchain{nullptr};
+    uint32_t        currentID{0};
+    uint32_t        numBackBuffers{0};
 };
 
 struct ResourceStates {
