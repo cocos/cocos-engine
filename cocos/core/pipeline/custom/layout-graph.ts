@@ -592,25 +592,28 @@ export class LayoutGraph implements impl.BidirectionalGraph
 }
 
 export class UniformData {
-    constructor (type: Type = Type.UNKNOWN, valueID = 0xFFFFFFFF) {
-        this.type = type;
-        this.valueID = valueID;
+    constructor (uniformID = 0xFFFFFFFF, uniformType: Type = Type.UNKNOWN, offset = 0) {
+        this.uniformID = uniformID;
+        this.uniformType = uniformType;
+        this.offset = offset;
     }
-    type: Type;
-    valueID: number;
+    uniformID: number;
+    uniformType: Type;
+    offset: number;
+    size = 0;
 }
 
 export class UniformBlockData {
-    size = 0;
-    readonly values: UniformData[] = [];
+    bufferSize = 0;
+    readonly uniforms: UniformData[] = [];
 }
 
 export class DescriptorData {
-    constructor (id = 0xFFFFFFFF, type: Type = Type.UNKNOWN) {
-        this.id = id;
+    constructor (descriptorID = 0xFFFFFFFF, type: Type = Type.UNKNOWN) {
+        this.descriptorID = descriptorID;
         this.type = type;
     }
-    id: number;
+    descriptorID: number;
     type: Type;
     count = 1;
 }
@@ -623,17 +626,17 @@ export class DescriptorBlockData {
     type: DescriptorIndex;
     capacity: number;
     readonly descriptors: DescriptorData[] = [];
+    readonly uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
 }
 
 export class DescriptorTableData {
-    constructor (slot = 0xFFFFFFFF, capacity = 0) {
-        this.slot = slot;
+    constructor (tableID = 0xFFFFFFFF, capacity = 0) {
+        this.tableID = tableID;
         this.capacity = capacity;
     }
-    slot: number;
+    tableID: number;
     capacity: number;
     readonly descriptorBlocks: DescriptorBlockData[] = [];
-    readonly uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
 }
 
 export class DescriptorSetData {
