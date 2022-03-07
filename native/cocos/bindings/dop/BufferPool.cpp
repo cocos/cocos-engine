@@ -43,8 +43,8 @@ BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
 
 BufferPool::~BufferPool() = default;
 
-Object *BufferPool::allocateNewChunk() {
-    Object *jsObj = _allocator.alloc(static_cast<uint>(_chunks.size()), _bytesPerChunk);
+se::Object *BufferPool::allocateNewChunk() {
+    se::Object *jsObj = _allocator.alloc(static_cast<uint>(_chunks.size()), _bytesPerChunk);
 
     uint8_t *realPtr = nullptr;
     size_t   len     = 0;

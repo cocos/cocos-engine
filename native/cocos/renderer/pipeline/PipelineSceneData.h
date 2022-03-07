@@ -26,6 +26,7 @@
 #pragma once
 
 #include "Define.h"
+#include "base/RefCounted.h"
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
 
@@ -47,7 +48,7 @@ namespace pipeline {
 
 class RenderPipeline;
 
-class CC_DLL PipelineSceneData : public Object {
+class CC_DLL PipelineSceneData : public RefCounted {
 public:
     PipelineSceneData();
     ~PipelineSceneData() override;
