@@ -204,6 +204,16 @@ describe(`Decorators`, () => {
             @property([Self])
             refsByProperty: Foo[] = [];
 
+            @property({
+                type: Self,
+            })
+            refByPropertyFullForm: Foo | null = null;
+
+            @property({
+                type: [Self],
+            })
+            refsByPropertyFullForm: Foo[] = [];
+
             @type(Self)
             refByType: Foo | null = null;
 
@@ -220,6 +230,20 @@ describe(`Decorators`, () => {
                 return this.refsByProperty;
             }
 
+            @property({
+                type: Self,
+            })
+            get accessorRefByPropertyFullForm() {
+                return this.refByPropertyFullForm;
+            }
+
+            @property({
+                type: [Self],
+            })
+            get accessorRefsByPropertyFullForm() {
+                return this.refsByPropertyFullForm;
+            }
+
             @type(Self)
             get accessorRefByType() {
                 return this.refByType;
@@ -233,10 +257,14 @@ describe(`Decorators`, () => {
 
         expect(CCClass.attr(Foo, 'refByProperty').type).toBe(Foo);
         expect(CCClass.attr(Foo, 'refsByProperty').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'refByPropertyFullForm').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'refsByPropertyFullForm').type).toBe(Foo);
         expect(CCClass.attr(Foo, 'refByType').type).toBe(Foo);
         expect(CCClass.attr(Foo, 'refsByType').type).toBe(Foo);
         expect(CCClass.attr(Foo, 'accessorRefByProperty').type).toBe(Foo);
         expect(CCClass.attr(Foo, 'accessorRefsByProperty').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'accessorRefByPropertyFullForm').type).toBe(Foo);
+        expect(CCClass.attr(Foo, 'accessorRefsByPropertyFullForm').type).toBe(Foo);
         expect(CCClass.attr(Foo, 'accessorRefByType').type).toBe(Foo);
         expect(CCClass.attr(Foo, 'accessorRefsByType').type).toBe(Foo);
     });
