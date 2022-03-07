@@ -28,6 +28,7 @@
 #include "Define.h"
 #include "scene/Model.h"
 #include "scene/Pass.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
@@ -54,7 +55,7 @@ struct CC_DLL InstancedItem {
 using InstancedItemList = vector<InstancedItem>;
 using DynamicOffsetList = vector<uint>;
 
-class InstancedBuffer : public Object {
+class InstancedBuffer : public Object, public RefCounted {
 public:
     static constexpr uint   INITIAL_CAPACITY = 32;
     static constexpr uint   MAX_CAPACITY     = 1024;

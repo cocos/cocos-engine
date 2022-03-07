@@ -27,6 +27,7 @@
 
 #include <array>
 #include "Define.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace scene {
@@ -53,7 +54,7 @@ struct CC_DLL BatchedItem {
 using BatchedItemList   = vector<BatchedItem>;
 using DynamicOffsetList = vector<uint>;
 
-class CC_DLL BatchedBuffer : public Object {
+class CC_DLL BatchedBuffer : public Object, public RefCounted {
 public:
     static BatchedBuffer *get(scene::Pass *pass);
     static BatchedBuffer *get(scene::Pass *pass, uint extraKey);

@@ -30,29 +30,13 @@
 #include "jsb_global_init.h"
 
 template <typename T, class... Args>
-inline typename std::enable_if<std::is_base_of<cc::Object, T>::value, T>::type *
-jsb_override_new(Args &&...args) { //NOLINT(readability-identifier-naming)
-    //create object in gfx way
-    return CC_NEW(T(std::forward<Args>(args)...));
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_base_of<cc::Object, T>::value, void>::type
-jsb_override_delete(T *arg) { //NOLINT(readability-identifier-naming)
-    //create object in gfx way
-    CC_DELETE(arg);
-}
-
-template <typename T, class... Args>
-inline typename std::enable_if<!std::is_base_of<cc::Object, T>::value, T>::type *
-jsb_override_new(Args &&...args) { //NOLINT(readability-identifier-naming)
+T *jsb_override_new(Args &&...args) { //NOLINT(readability-identifier-naming)
     //create object in the default way
     return new T(std::forward<Args>(args)...);
 }
 
 template <typename T>
-inline typename std::enable_if<!std::is_base_of<cc::Object, T>::value, void>::type
-jsb_override_delete(T *arg) { //NOLINT(readability-identifier-naming)
+void jsb_override_delete(T *arg) { //NOLINT(readability-identifier-naming)
     //create object in gfx way
     delete (arg);
 }
