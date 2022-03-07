@@ -52,6 +52,7 @@ import { ObjectTrack } from './tracks/object-track';
 import type { ExoticAnimation } from './exotic-animation/exotic-animation';
 import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
+import { getGlobalAnimationManager } from './global-animation-manager';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -1159,7 +1160,7 @@ class EventEvaluator {
 
     private _doFire (eventIndex: number, delay: boolean) {
         if (delay) {
-            legacyCC.director.getAnimationManager().pushDelayEvent(this._checkAndFire, this, [eventIndex]);
+            getGlobalAnimationManager().pushDelayEvent(this._checkAndFire, this, [eventIndex]);
         } else {
             this._checkAndFire(eventIndex);
         }

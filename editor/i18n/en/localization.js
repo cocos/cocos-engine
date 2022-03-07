@@ -767,6 +767,10 @@ module.exports = {
                 label: '3D',
                 description: '3D',
             },
+            animation: {
+                label: 'Animation',
+                description: 'Animation System.',
+            },
         },
         core: {
             label: "Core",
@@ -883,6 +887,14 @@ module.exports = {
         dragon_bones: {
             label: "DragonBones",
             description: "DragonBones support.",
+        },
+        animation: {
+            label: "Basic Animation",
+            description: "Basic animation support.",
+        },
+        skeletal_animation: {
+            label: "Skeletal Animation",
+            description: "Skeletal animation support.",
         },
     },
     renderable_2d: {
