@@ -58,10 +58,7 @@ void EmptyCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descript
 void EmptyCommandBuffer::bindInputAssembler(InputAssembler *ia) {
 }
 
-void EmptyCommandBuffer::setViewport(const Viewport &vp) {
-}
-
-void EmptyCommandBuffer::setScissor(const Rect &rect) {
+void setViewports(const Rect *vp, uint32_t count) {
 }
 
 void EmptyCommandBuffer::setLineWidth(float width) {

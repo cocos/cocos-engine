@@ -169,6 +169,11 @@ void GLES3CommandBuffer::bindInputAssembler(InputAssembler *ia) {
     _isStateInvalid      = true;
 }
 
+void setViewports(const Rect *vp, uint32_t count) {
+    for (size_t i = 0; i < count; i++) {
+    }
+}
+
 void GLES3CommandBuffer::setViewport(const Viewport &vp) {
     if ((_curDynamicStates.viewport.left != vp.left) ||
         (_curDynamicStates.viewport.top != vp.top) ||
@@ -178,16 +183,6 @@ void GLES3CommandBuffer::setViewport(const Viewport &vp) {
         math::IsNotEqualF(_curDynamicStates.viewport.maxDepth, vp.maxDepth)) {
         _curDynamicStates.viewport = vp;
         _isStateInvalid            = true;
-    }
-}
-
-void GLES3CommandBuffer::setScissor(const Rect &rect) {
-    if ((_curDynamicStates.scissor.x != rect.x) ||
-        (_curDynamicStates.scissor.y != rect.y) ||
-        (_curDynamicStates.scissor.width != rect.width) ||
-        (_curDynamicStates.scissor.height != rect.height)) {
-        _curDynamicStates.scissor = rect;
-        _isStateInvalid           = true;
     }
 }
 

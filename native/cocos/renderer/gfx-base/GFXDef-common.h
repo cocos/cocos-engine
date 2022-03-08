@@ -169,6 +169,7 @@ enum class Feature : uint32_t {
     // the max number of attachment limit(4) situation for many devices, and shader
     // sources inside this kind of subpass must match this behavior.
     INPUT_ATTACHMENT_BENEFIT,
+    MULTIVIEW,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);
@@ -1150,7 +1151,7 @@ struct SubpassInfo {
     ResolveMode stencilResolveMode{ResolveMode::NONE};
 
     // which views rendering is broadcast to
-    uint32_t viewMask = INVALID_BINDING;
+    uint32_t viewMask{INVALID_BINDING};
 };
 
 using SubpassInfoList = vector<SubpassInfo>;
@@ -1163,7 +1164,7 @@ struct ALIGNAS(8) SubpassDependency {
     uint32_t _padding{0};
 #endif
     // which views in the source subpass the views in the destination subpass depend on
-    uint32_t viewOffset = 0U;
+    uint32_t viewOffset{0U};
 };
 
 using SubpassDependencyList = vector<SubpassDependency>;
@@ -1299,7 +1300,7 @@ struct PipelineStateInfo {
     uint32_t          subpass{0};
 
     // number of viewports
-    uint32_t viewports = 1U;
+    uint32_t viewports{1U};
 };
 
 struct CommandBufferInfo {

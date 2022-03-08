@@ -256,7 +256,7 @@ void CommandBufferAgent::bindInputAssembler(InputAssembler *ia) {
 
 void CommandBufferAgent::setViewports(const Rect *vp, uint32_t count) {
     ENQUEUE_MESSAGE_3(
-        _messageQueue, CommandBufferSetViewport,
+        _messageQueue, CommandBufferSetViewports,
         actor, getActor(),
         vp, vp,
         count, count,
