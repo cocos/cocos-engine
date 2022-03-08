@@ -264,6 +264,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @type(FillType)
+    @displayOrder(6)
     @tooltip('i18n:sprite.fill_type')
     get fillType () {
         return this._fillType;
@@ -295,6 +296,7 @@ export class Sprite extends Renderable2D {
      * sprite.fillCenter = new Vec2(0, 0);
      * ```
      */
+    @displayOrder(6)
     @tooltip('i18n:sprite.fill_center')
     get fillCenter () {
         return this._fillCenter;
@@ -321,6 +323,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @range([0, 1, 0.1])
+    @displayOrder(6)
     @tooltip('i18n:sprite.fill_start')
     get fillStart () {
         return this._fillStart;
@@ -348,6 +351,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @range([-1, 1, 0.1])
+    @displayOrder(6)
     @tooltip('i18n:sprite.fill_range')
     get fillRange () {
         return this._fillRange;
@@ -394,6 +398,7 @@ export class Sprite extends Renderable2D {
     }
 
     @editable
+    @displayOrder(5)
     @tooltip('i18n:sprite.gray_scale')
     get grayscale () {
         return this._useGrayscale;
@@ -421,7 +426,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @type(SizeMode)
-    @displayOrder(7)
+    @displayOrder(5)
     @tooltip('i18n:sprite.size_mode')
     get sizeMode () {
         return this._sizeMode;
