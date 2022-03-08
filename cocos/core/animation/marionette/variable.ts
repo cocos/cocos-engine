@@ -1,3 +1,5 @@
+import { TriggerResetMode } from "./animation-graph";
+
 export type Value = number | string | boolean;
 
 export enum VariableType {
@@ -8,12 +10,12 @@ export enum VariableType {
     TRIGGER,
 
     INTEGER,
-
-    AUTO_TRIGGER,
 }
 
 export class VarInstance {
     public type: VariableType;
+
+    public resetMode: TriggerResetMode = TriggerResetMode.AFTER_CONSUMED;
 
     constructor (type: VariableType, value: Value) {
         this.type = type;

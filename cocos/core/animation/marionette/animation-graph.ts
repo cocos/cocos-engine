@@ -521,18 +521,41 @@ export enum LayerBlending {
     additive,
 }
 
-@ccclass('cc.animation.Variable')
-export class Variable {
+/**
+ * @zh 布尔类型变量的重置模式，指示在哪些情况下将变量重置为 `false`。
+ */
+export enum TriggerResetMode {
+    /**
+     * @zh 在该变量被动画过渡消耗后自动重置。
+     */
+    AFTER_CONSUMED,
+
+    /**
+     * @zh 下一帧自动重置；在该变量被动画过渡消耗后也会自动重置。
+     */
+    NEXT_FRAME_OR_AFTER_CONSUMED,
+}
+
+const BOOLEAN_VARIABLE_FLAG_VALUE_START = 0;
+const BOOLEAN_VARIABLE_FLAG_VALUE_MASK = 1;
+
+const BOOLEAN_VARIABLE_FLAG_RESET_MODE_START = 1;
+const BOOLEAN_VARIABLE_FLAG_RESET_MODE_MASK = 6; // 0b110
+
+type PlainVariableType = VariableType.FLOAT | VariableType.INTEGER | VariableType.BOOLEAN;
+
+@ccclass('cc.animation.PlainVariable')
+class PlainVariable {
     // TODO: we should not specify type here but due to de-serialization limitation
     // See: https://github.com/cocos-creator/3d-tasks/issues/7909
     @serializable
-    private _type: VariableType = VariableType.FLOAT;
+    private _type: PlainVariableType = VariableType.FLOAT;
 
     // Same as `_type`
     @serializable
     private _value: Value = 0.0;
 
-    constructor (type?: VariableType) {
+    constructor (type?: PlainVariableType) {
         if (typeof type === 'undefined') {
             return;
         }
@@ -548,8 +571,6 @@ export class Variable {
             this._value = 0.0;
             break;
         case VariableType.BOOLEAN:
-        case VariableType.TRIGGER:
-        case VariableType.AUTO_TRIGGER:
             this._value = false;
             break;
         }
@@ -575,8 +596,6 @@ export class Variable {
                 assertIsTrue(Number.isInteger(value));
                 break;
             case VariableType.BOOLEAN:
-            case VariableType.TRIGGER:
-            case VariableType.AUTO_TRIGGER:
                 assertIsTrue(typeof value === 'boolean');
                 break;
             }
@@ -585,9 +604,61 @@ export class Variable {
     }
 }
 
+@ccclass('cc.animation.TriggerVariable')
+class TriggerVariable implements BasicVariableDescription<VariableType.TRIGGER> {
+    get type () {
+        return VariableType.TRIGGER as const;
+    }
+
+    get value () {
+        return !!((this._flags & BOOLEAN_VARIABLE_FLAG_VALUE_MASK) >> BOOLEAN_VARIABLE_FLAG_VALUE_START);
+    }
+
+    set value (value) {
+        if (value) {
+            this._flags |= (1 << BOOLEAN_VARIABLE_FLAG_VALUE_START);
+        } else {
+            this._flags &= ~(1 << BOOLEAN_VARIABLE_FLAG_VALUE_START);
+        }
+    }
+
+    get resetMode () {
+        return ((this._flags & BOOLEAN_VARIABLE_FLAG_RESET_MODE_MASK) >> BOOLEAN_VARIABLE_FLAG_RESET_MODE_START);
+    }
+
+    set resetMode (value: TriggerResetMode) {
+        this._flags &= ~(BOOLEAN_VARIABLE_FLAG_RESET_MODE_MASK << BOOLEAN_VARIABLE_FLAG_RESET_MODE_START);
+        this._flags |= (value << BOOLEAN_VARIABLE_FLAG_RESET_MODE_START);
+    }
+
+    // l -> h
+    // value(1 bits) | reset_mode(2 bits)
+    @serializable
+    private _flags =
+    0 // value: false
+        | TriggerResetMode.AFTER_CONSUMED << BOOLEAN_VARIABLE_FLAG_RESET_MODE_START
+    ;
+}
+
 export interface AnimationGraphRunTime {
     readonly __brand: 'AnimationGraph';
 }
+
+interface BasicVariableDescription<TType> {
+    readonly type: TType;
+
+    value: TType extends VariableType.FLOAT ? number :
+        TType extends VariableType.INTEGER ? number :
+            TType extends VariableType.BOOLEAN ? boolean :
+                TType extends VariableType.TRIGGER ? boolean :
+                    never;
+}
+
+export type VariableDescription =
+    | BasicVariableDescription<VariableType.FLOAT>
+    | BasicVariableDescription<VariableType.INTEGER>
+    | BasicVariableDescription<VariableType.BOOLEAN>
+    | TriggerVariable;
 
 @ccclass('cc.animation.AnimationGraph')
 export class AnimationGraph extends Asset implements AnimationGraphRunTime {
@@ -597,7 +668,7 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
     private _layers: Layer[] = [];
 
     @serializable
-    private _variables: Record<string, Variable> = {};
+    private _variables: Record<string, VariableDescription> = {};
 
     constructor () {
         super();
@@ -616,7 +687,7 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
         return this._layers;
     }
 
-    get variables (): Iterable<[string, { type: VariableType, value: Value }]> {
+    get variables (): Iterable<[string, VariableDescription]> {
         return Object.entries(this._variables);
     }
 
@@ -647,11 +718,49 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
         move(this._layers, index, newIndex);
     }
 
-    public addVariable (name: string, type: VariableType, value?: Value) {
-        const variable = new Variable(type);
-        if (typeof value !== 'undefined') {
-            variable.value = value;
-        }
+    /**
+     * Adds a boolean variable.
+     * @param name The variable's name.
+     * @param value The variable's default value.
+     */
+    public addBoolean (name: string, value = false) {
+        const variable = new PlainVariable(VariableType.BOOLEAN);
+        variable.value = value;
+        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.BOOLEAN>;
+    }
+
+    /**
+     * Adds a floating variable.
+     * @param name The variable's name.
+     * @param value The variable's default value.
+     */
+    public addFloat (name: string, value = 0.0) {
+        const variable = new PlainVariable(VariableType.FLOAT);
+        variable.value = value;
+        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.FLOAT>;
+    }
+
+    /**
+     * Adds an integer variable.
+     * @param name The variable's name.
+     * @param value The variable's default value.
+     */
+    public addInteger (name: string, value = 0) {
+        const variable = new PlainVariable(VariableType.INTEGER);
+        variable.value = value;
+        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.INTEGER>;
+    }
+
+    /**
+     * Adds a trigger variable.
+     * @param name The variable's name.
+     * @param value The variable's default value.
+     * @param resetMode The trigger's reset mode.
+     */
+    public addTrigger (name: string, value = false, resetMode = TriggerResetMode.AFTER_CONSUMED) {
+        const variable = new TriggerVariable();
+        variable.resetMode = resetMode;
+        variable.value = value;
         this._variables[name] = variable;
     }
 
@@ -659,7 +768,7 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
         delete this._variables[name];
     }
 
-    public getVariable (name: string) {
-        return this._variables[name];
+    public getVariable (name: string): VariableDescription | undefined {
+        return this._variables[name] as VariableDescription | undefined;
     }
 }

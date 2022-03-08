@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import {
     AnimationGraph, Layer, StateMachine, State, isAnimationTransition,
-    SubStateMachine, EmptyState, EmptyStateTransition,
+    SubStateMachine, EmptyState, EmptyStateTransition, TriggerResetMode,
 } from './animation-graph';
 import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
@@ -40,10 +40,14 @@ export class AnimationGraphEval {
             }
         }
 
-        for (const [name, { type, value }] of graph.variables) {
-            this._varInstances[name] = new VarInstance(type, value);
-            if (type === VariableType.AUTO_TRIGGER) {
-                this._hasAutoTrigger = true;
+        for (const [name, variable] of graph.variables) {
+            const varInstance = this._varInstances[name] = new VarInstance(variable.type, variable.value);
+            if (variable.type === VariableType.TRIGGER) {
+                const { resetMode } = variable;
+                varInstance.resetMode = resetMode;
+                if (resetMode === TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED) {
+                    this._hasAutoTrigger = true;
+                }
             }
         }
 
@@ -95,7 +99,8 @@ export class AnimationGraphEval {
             const { _varInstances: varInstances } = this;
             for (const varName in varInstances) {
                 const varInstance = varInstances[varName];
-                if (varInstance.type === VariableType.AUTO_TRIGGER && varInstance.value) {
+                if (varInstance.type === VariableType.TRIGGER &&
+                    varInstance.resetMode === TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED) {
                     varInstance.value = false;
                 }
             }

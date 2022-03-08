@@ -157,7 +157,7 @@ export function validateVariableTypeNumeric (type: VariableType, name: string) {
 }
 
 export function validateVariableTypeTriggerLike (type: VariableType, name: string) {
-    if (type !== VariableType.TRIGGER && type !== VariableType.AUTO_TRIGGER) {
+    if (type !== VariableType.TRIGGER) {
         throw new VariableTypeMismatchedError(name, 'trigger');
     }
 }
