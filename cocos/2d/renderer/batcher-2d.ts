@@ -204,6 +204,7 @@ export class Batcher2D implements IBatcher {
             this._pOpacity = 1;
             this.walk(screen.node);
             this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
 
             let batchPriority = 0;
             if (this._batches.length > offset) {

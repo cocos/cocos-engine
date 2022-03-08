@@ -396,6 +396,7 @@ export class SkyboxInfo {
     @editable
     @readOnly
     @type(TextureCube)
+    @displayOrder(100)
     set diffuseMap (val : TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -463,6 +464,7 @@ export class FogInfo {
      */
     @editable
     @tooltip('i18n:fog.enabled')
+    @displayOrder(0)
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
@@ -484,6 +486,7 @@ export class FogInfo {
      */
     @editable
     @tooltip('i18n:fog.accurate')
+    @displayOrder(0)
     set accurate (val: boolean) {
         if (this._accurate === val) return;
         this._accurate = val;
@@ -520,6 +523,7 @@ export class FogInfo {
      */
     @editable
     @type(FogType)
+    @displayOrder(1)
     @tooltip('i18n:fog.type')
     get type () {
         return this._type;
@@ -541,7 +545,6 @@ export class FogInfo {
     @range([0, 1])
     @rangeStep(0.01)
     @slide
-    @displayOrder(3)
     @tooltip('i18n:fog.fogDensity')
     get fogDensity () {
         return this._fogDensity;
@@ -559,7 +562,6 @@ export class FogInfo {
     @visible(function (this: FogInfo) { return this._type !== FogType.LAYERED; })
     @type(CCFloat)
     @rangeStep(0.01)
-    @displayOrder(4)
     @tooltip('i18n:fog.fogStart')
     get fogStart () {
         return this._fogStart;
@@ -577,7 +579,6 @@ export class FogInfo {
     @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
     @type(CCFloat)
     @rangeStep(0.01)
-    @displayOrder(5)
     @tooltip('i18n:fog.fogEnd')
     get fogEnd () {
         return this._fogEnd;
@@ -596,7 +597,6 @@ export class FogInfo {
     @type(CCFloat)
     @rangeMin(0.01)
     @rangeStep(0.01)
-    @displayOrder(6)
     @tooltip('i18n:fog.fogAtten')
     get fogAtten () {
         return this._fogAtten;
@@ -614,7 +614,6 @@ export class FogInfo {
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
     @type(CCFloat)
     @rangeStep(0.01)
-    @displayOrder(7)
     @tooltip('i18n:fog.fogTop')
     get fogTop () {
         return this._fogTop;
@@ -632,7 +631,6 @@ export class FogInfo {
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
     @type(CCFloat)
     @rangeStep(0.01)
-    @displayOrder(8)
     @tooltip('i18n:fog.fogRange')
     get fogRange () {
         return this._fogRange;
