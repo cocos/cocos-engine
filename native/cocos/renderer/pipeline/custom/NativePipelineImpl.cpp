@@ -26,6 +26,8 @@
 #include "NativePipelineTypes.h"
 #include "pipeline/custom/GslUtils.h"
 #include "pipeline/custom/RenderCommonTypes.h"
+#include "pipeline/custom/RenderInterfaceFwd.h"
+#include "scene/RenderScene.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {
@@ -92,6 +94,11 @@ CopyPassBuilder* NativePipeline::addCopyPass(const std::string& name) {
 // NOLINTNEXTLINE
 void NativePipeline::addPresentPass(const std::string& name, const std::string& swapchainName) {
 
+}
+
+// NOLINTNEXTLINE
+SceneTransversal* NativePipeline::createSceneTransversal(const scene::RenderScene* scene) {
+    return nullptr;
 }
 
 } // namespace render

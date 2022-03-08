@@ -1126,6 +1126,218 @@ bool js_register_render_CopyPassBuilder(se::Object* obj) // NOLINT(readability-i
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_render_SceneVisitor_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_SceneVisitor_class = nullptr;  // NOLINT
+
+static bool js_render_SceneVisitor_bindDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneVisitor>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneVisitor_bindDescriptorSet : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        HolderType<const unsigned int*, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_SceneVisitor_bindDescriptorSet : Error processing arguments");
+        cobj->bindDescriptorSet(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_render_SceneVisitor_bindDescriptorSet)
+
+static bool js_render_SceneVisitor_bindInputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneVisitor>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneVisitor_bindInputAssembler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::InputAssembler*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_SceneVisitor_bindInputAssembler : Error processing arguments");
+        cobj->bindInputAssembler(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_SceneVisitor_bindInputAssembler)
+
+static bool js_render_SceneVisitor_bindPipelineState(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneVisitor>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneVisitor_bindPipelineState : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::PipelineState*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_SceneVisitor_bindPipelineState : Error processing arguments");
+        cobj->bindPipelineState(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_SceneVisitor_bindPipelineState)
+
+static bool js_render_SceneVisitor_draw(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneVisitor>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneVisitor_draw : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::DrawInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_SceneVisitor_draw : Error processing arguments");
+        cobj->draw(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_SceneVisitor_draw)
+
+bool js_register_render_SceneVisitor(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("SceneVisitor", obj, nullptr, nullptr);
+
+    cls->defineFunction("bindDescriptorSet", _SE(js_render_SceneVisitor_bindDescriptorSet));
+    cls->defineFunction("bindInputAssembler", _SE(js_render_SceneVisitor_bindInputAssembler));
+    cls->defineFunction("bindPipelineState", _SE(js_render_SceneVisitor_bindPipelineState));
+    cls->defineFunction("draw", _SE(js_render_SceneVisitor_draw));
+    cls->install();
+    JSBClassType::registerClass<cc::render::SceneVisitor>(cls);
+
+    __jsb_cc_render_SceneVisitor_proto = cls->getProto();
+    __jsb_cc_render_SceneVisitor_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_render_SceneTask_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_SceneTask_class = nullptr;  // NOLINT
+
+static bool js_render_SceneTask_getTaskType(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneTask>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneTask_getTaskType : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        auto result = static_cast<int>(cobj->getTaskType());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_SceneTask_getTaskType : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_SceneTask_getTaskType)
+
+static bool js_render_SceneTask_join(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneTask>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneTask_join : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->join();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_SceneTask_join)
+
+static bool js_render_SceneTask_start(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneTask>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneTask_start : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->start();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_SceneTask_start)
+
+bool js_register_render_SceneTask(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("SceneTask", obj, nullptr, nullptr);
+
+    cls->defineProperty("taskType", _SE(js_render_SceneTask_getTaskType_asGetter), nullptr);
+    cls->defineFunction("join", _SE(js_render_SceneTask_join));
+    cls->defineFunction("start", _SE(js_render_SceneTask_start));
+    cls->install();
+    JSBClassType::registerClass<cc::render::SceneTask>(cls);
+
+    __jsb_cc_render_SceneTask_proto = cls->getProto();
+    __jsb_cc_render_SceneTask_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_render_SceneTransversal_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_render_SceneTransversal_class = nullptr;  // NOLINT
+
+static bool js_render_SceneTransversal_transverse(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneTransversal>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneTransversal_transverse : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::render::SceneVisitor*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_SceneTransversal_transverse : Error processing arguments");
+        cc::render::SceneTask* result = cobj->transverse(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_SceneTransversal_transverse : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_SceneTransversal_transverse)
+
+bool js_register_render_SceneTransversal(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("SceneTransversal", obj, nullptr, nullptr);
+
+    cls->defineFunction("transverse", _SE(js_render_SceneTransversal_transverse));
+    cls->install();
+    JSBClassType::registerClass<cc::render::SceneTransversal>(cls);
+
+    __jsb_cc_render_SceneTransversal_proto = cls->getProto();
+    __jsb_cc_render_SceneTransversal_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_render_Pipeline_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_Pipeline_class = nullptr;  // NOLINT
 
@@ -1401,6 +1613,28 @@ static bool js_render_Pipeline_beginFrame(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_render_Pipeline_beginFrame)
 
+static bool js_render_Pipeline_createSceneTransversal(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_Pipeline_createSceneTransversal : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<const cc::scene::RenderScene*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_Pipeline_createSceneTransversal : Error processing arguments");
+        cc::render::SceneTransversal* result = cobj->createSceneTransversal(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_Pipeline_createSceneTransversal : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_Pipeline_createSceneTransversal)
+
 static bool js_render_Pipeline_endFrame(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::Pipeline>(s);
@@ -1429,6 +1663,7 @@ bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("addRenderTarget", _SE(js_render_Pipeline_addRenderTarget));
     cls->defineFunction("addRenderTexture", _SE(js_render_Pipeline_addRenderTexture));
     cls->defineFunction("beginFrame", _SE(js_render_Pipeline_beginFrame));
+    cls->defineFunction("createSceneTransversal", _SE(js_render_Pipeline_createSceneTransversal));
     cls->defineFunction("endFrame", _SE(js_render_Pipeline_endFrame));
     cls->install();
     JSBClassType::registerClass<cc::render::Pipeline>(cls);
@@ -1522,6 +1757,9 @@ bool register_all_render(se::Object* obj)    // NOLINT
     js_register_render_PipelineRuntime(ns);
     js_register_render_RasterPassBuilder(ns);
     js_register_render_RasterQueueBuilder(ns);
+    js_register_render_SceneTask(ns);
+    js_register_render_SceneTransversal(ns);
+    js_register_render_SceneVisitor(ns);
     return true;
 }
 
