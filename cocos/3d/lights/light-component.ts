@@ -28,7 +28,7 @@
  * @module component/light
  */
 
-import { ccclass, tooltip, range, slide, type, serializable, editable } from 'cc.decorator';
+import { ccclass, tooltip, range, slide, type, displayOrder, serializable, editable } from 'cc.decorator';
 import { Component } from '../../core/components/component';
 import { Color, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
@@ -190,6 +190,7 @@ export class Light extends Component {
      * 静态灯光设置。
      */
     @type(StaticLightSettings)
+    @displayOrder(50)
     get staticSettings () {
         return this._staticSettings;
     }

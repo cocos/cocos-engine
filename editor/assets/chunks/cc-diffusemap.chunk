@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
-#pragma define CC_USE_DIFFUSEMAP range([0, 2])
+#pragma define-meta CC_USE_DIFFUSEMAP range([0, 2])
 
 #pragma builtin(global)
 layout(set = 0, binding = 6) uniform samplerCube cc_diffuseMap;

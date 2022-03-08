@@ -62,6 +62,14 @@ typedef SSIZE_T ssize_t;
                         "assert %{public}s function:%{public}s line:%{public}d", \
                         __FILE__, __FUNCTION__, __LINE__);                       \
         }
+#elif (CC_PLATFORM == CC_PLATFORM_EMSCRIPTEN)
+    #include <assert.h>
+    #include <cstdarg>
+    #include <cstddef>
+    #define CC_ASSERT(cond) \
+        if (!(cond)) {      \
+            assert(cond);   \
+        }
 #else
     #include <assert.h>
     #define CC_ASSERT(cond) assert(cond)

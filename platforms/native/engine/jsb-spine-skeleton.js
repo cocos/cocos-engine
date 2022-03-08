@@ -886,6 +886,9 @@ const cacheManager = require('./jsb-cache-manager');
     // assembler
     const assembler = cc.internal.SpineAssembler;
 
+    assembler.createData = function (comp) {
+    };
+
     assembler.updateRenderData = function () {
     };
 

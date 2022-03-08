@@ -479,5 +479,13 @@ void Model::setInstancedAttributesViewData(index_t viewIdx, index_t arrIdx, floa
     cc::get<Float32Array>(_instanceAttributeBlock.views[viewIdx])[arrIdx] = value;
 }
 
+void Model::updateLocalShadowBias() {
+    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 0] = _shadowBias;
+    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 1] = _shadowNormalBias;
+    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2] = 0;
+    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3] = 0;
+    _localDataUpdated = true;
+}
+
 } // namespace scene
 } // namespace cc
