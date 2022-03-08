@@ -29,7 +29,7 @@
  */
 
 import { DirectionalLight, Camera, Shadows, CSMLevel } from '../../renderer/scene';
-import { Mat4, Vec3, Vec2 } from '../../math';
+import { Mat4, Vec3, Vec2, Quat } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { RenderPipeline } from '..';
 import { IRenderObject } from '../define';
@@ -38,12 +38,10 @@ import { Device } from '../../gfx';
 const SHADOW_CSM_LAMBDA = 0.75;
 
 const _mat4Trans = new Mat4();
-const _mat4Atlas = new Mat4();
 const _matShadowTrans = new Mat4();
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
 const _matShadowViewProj = new Mat4();
-const _matShadowViewProjAtlas = new Mat4();
 const _matShadowViewProjArbitaryPos = new Mat4();
 const _matShadowViewProjArbitaryPosInv = new Mat4();
 
@@ -55,11 +53,13 @@ const _snap = new Vec3();
 const _maxVec3 = new Vec3(10000000, 10000000, 10000000);
 const _minVec3 = new Vec3(-10000000, -10000000, -10000000);
 const _shadowPos = new Vec3();
+const _bias = new Vec3();
+const _scale = new Vec3();
 
 export class ShadowTransformInfo {
     public _shadowObjects: IRenderObject[] = [];
 
-    protected _shadowCameraFar: number;
+    protected _shadowCameraFar = 0;
 
     protected _matShadowView: Mat4 = new Mat4();
     protected _matShadowProj: Mat4 = new Mat4();
@@ -73,7 +73,6 @@ export class ShadowTransformInfo {
     protected _castLightViewBoundingBox: AABB = new AABB();
 
     constructor () {
-        this._shadowCameraFar = 0.0;
         this._validFrustum.accurate = true;
         this._splitFrustum.accurate = true;
         this._lightViewFrustum.accurate = true;
@@ -189,17 +188,18 @@ export class ShadowTransformInfo {
 export class CSMLayerInfo extends ShadowTransformInfo {
     // Level is a vector, Indicates the location.
     protected _level: number;
-    protected _splitCameraNear: number;
-    protected _splitCameraFar: number;
+    protected _splitCameraNear = 0;
+    protected _splitCameraFar = 0;
 
+    protected _matShadowAtlas: Mat4 = new Mat4();
     protected _matShadowViewProjAtlas: Mat4 = new Mat4();
 
     constructor (level: number) {
         super();
         this._level = level;
-        this._splitCameraNear = 0.0;
-        this._splitCameraFar = 0.0;
     }
+
+    get level () { return this._level; }
 
     get splitCameraNear () {
         return this._splitCameraNear;
@@ -213,6 +213,13 @@ export class CSMLayerInfo extends ShadowTransformInfo {
     }
     set splitCameraFar (val) {
         this._splitCameraFar = val;
+    }
+
+    get matShadowAtlas () {
+        return this._matShadowAtlas;
+    }
+    set matShadowViewAtlas (val) {
+        this._matShadowAtlas = val;
     }
 
     get matShadowViewProjAtlas () {
@@ -238,6 +245,7 @@ export class CSMLayers {
     // LevelCount is a scalar, Indicates the number.
     protected _levelCount = 0;
     protected _specialLayer: ShadowTransformInfo = new ShadowTransformInfo();
+    protected _shadowDistance = 0;
 
     get layers () {
         return this._layers;
@@ -252,7 +260,8 @@ export class CSMLayers {
         this._dirLight = dirLight;
         this._camera = camera;
         this._shadowInfo = shadowInfo;
-        this._levelCount = dirLight.shadowCSMLevel;
+        const levelCount = dirLight.shadowCSMLevel;
+        const shadowDistance = dirLight.shadowDistance;
 
         if (!this._shadowInfo.enabled || !dirLight.shadowEnabled) { return; }
 
@@ -260,15 +269,18 @@ export class CSMLayers {
             this._updateFixedArea();
         } else {
             let isRecalculate = false;
-            for (let i = 0; i < this._levelCount; i++) {
-                if (!this._layers[i]) {
+            for (let i = 0; i < levelCount; i++) {
+                if (!this._layers[i] || this._layers[i].shadowCameraFar === undefined) {
                     this._layers[i] = new CSMLayerInfo(i);
+                    this._calculateAtlas(this._layers[i]);
                     isRecalculate = true;
                 }
             }
 
-            if (dirLight.shadowCSMValueDirty || isRecalculate) {
+            if (this._levelCount !== levelCount || isRecalculate || this._shadowDistance !== shadowDistance) {
                 this._splitFrustumLevels();
+                this._levelCount = levelCount;
+                this._shadowDistance = shadowDistance;
             }
 
             this._calculateCSM();
@@ -332,8 +344,17 @@ export class CSMLayers {
         }
         // numbers of level - 1
         this._layers[level - 1].splitCameraFar = fd;
+    }
 
-        this._dirLight.shadowCSMValueDirty = false;
+    private _calculateAtlas (layer: CSMLayerInfo) {
+        if (!this._pipeline) { return; }
+        const level = 0;//layer.level;
+        const clipSpaceSignY = this._pipeline.device.capabilities.clipSpaceSignY;
+        const x = level % 2 - 0.5;
+        const y = (Math.floor(level / 2) - 0.5) * clipSpaceSignY;
+        _bias.set(x, y, 0);
+        _scale.set(0.5, 0.5, 1);
+        Mat4.fromRTS(layer.matShadowAtlas, Quat.IDENTITY, _bias, _scale);
     }
 
     private _calculateCSM () {
@@ -352,11 +373,11 @@ export class CSMLayers {
             const near = csmLayer.splitCameraNear;
             const far = csmLayer.splitCameraFar;
             this._getCameraWorldMatrix(_mat4Trans, camera);
-            Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, near, far);
+            //Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, near, far);
+            Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, 0.1, dirLight.shadowDistance);
             csmLayer.createMatrix(device, csmLayer.splitFrustum, dirLight, shadowMapWidth, false);
 
-            Mat4.multiply(_matShadowViewProjAtlas, csmLayer.matShadowViewProj, _mat4Atlas);
-            Mat4.copy(csmLayer.matShadowViewProjAtlas, _matShadowViewProjAtlas);
+            Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowViewProj, csmLayer.matShadowAtlas);
         }
 
         if (level === CSMLevel.level_1) {

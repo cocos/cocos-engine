@@ -3,6 +3,7 @@
 #include <common>
 #include <cc-global>
 #include <cc-shadow>
+#include <cc-csm>
 #include <packing>
 #include <cc-local>
 
@@ -85,7 +86,7 @@ float CCGetViewSpaceDepth(float depthHS)
   }
   
   float CCGetShadowFactorHard (vec4 shadowPos, float bias) {
-    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, bias);
+    vec4 clipPosNew = shadowPos;//ApplyShadowDepthBias_Orthographic(shadowPos, bias);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -344,7 +345,7 @@ float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
 float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 {
   float realtimeShadow = 1.0;
-  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y);
+  vec4 pos = shadowPos;//ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y);
   
   float pcf = cc_shadowWHPBInfo.z;
   if (pcf > 1.9) { 
@@ -358,4 +359,20 @@ float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 }
 #endif
 
-#pragma define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) shadowPos = cc_matLightViewProj * pos
+#pragma define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) shadowPos = CCGetShadowPos(pos);
+
+vec4 CCGetShadowPos(vec4 pos) {
+  int levels = int(cc_shadowLPNNInfo.w);
+  if (levels > 1) {
+    for (int i = 0; i < MAX_CSM_LEVLE_COUNT; i++){
+      if(i >= levels) break;
+      // pos = cc_matLightViewProjAtlas_levels[i] * pos;
+      pos = cc_matLightViewProj_levels[i] * pos;
+      pos.xy = pos.xy * 0.5 + vec2(-0.5, 0.5);
+    return pos;
+    }
+  } else {
+    return cc_matLightViewProj * pos;
+  }
+}
+

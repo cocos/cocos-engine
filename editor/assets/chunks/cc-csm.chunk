@@ -4,6 +4,7 @@
 #pragma builtin(global)
 layout(set = 0, binding = 3) uniform CCCSM {
   highp mat4 cc_matShadowView_levels[MAX_CSM_LEVLE_COUNT];
+  highp mat4 cc_matLightViewProj_levels[MAX_CSM_LEVLE_COUNT];
   highp mat4 cc_matLightViewProjAtlas_levels[MAX_CSM_LEVLE_COUNT];
   highp vec4 cc_shadowProjDepthInfo_levels[MAX_CSM_LEVLE_COUNT];
   highp vec4 cc_shadowProjInfo_levels[MAX_CSM_LEVLE_COUNT];

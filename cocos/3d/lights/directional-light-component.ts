@@ -219,7 +219,6 @@ export class DirectionalLight extends Light {
         this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
         if (this._light) {
             this._light.shadowDistance = this._shadowDistance;
-            this._light.shadowCSMValueDirty = true;
         }
     }
 
@@ -267,7 +266,6 @@ export class DirectionalLight extends Light {
         this._shadowCSMLevel = val;
         if (this._light) {
             this._light.shadowCSMLevel = this._shadowCSMLevel;
-            this._light.shadowCSMValueDirty = true;
         }
     }
 

@@ -289,7 +289,8 @@ globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 export class UBOCSM {
     public static readonly CSM_LEVEL_COUNT = 4;
     public static readonly MAT_SHADOW_VIEW_LEVELS_OFFSET = 0;
-    public static readonly MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly SHADOW_PROJ_INFO_LEVELS_OFFSET = UBOCSM.SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly CSM_FAR = UBOCSM.SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
@@ -301,6 +302,7 @@ export class UBOCSM {
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCSM.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCSM.BINDING, UBOCSM.NAME, [
         new Uniform('cc_matShadowView_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_matLightViewProj_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_matLightViewProjAtlas_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_shadowProjDepthInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_shadowProjInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
