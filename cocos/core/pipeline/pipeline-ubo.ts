@@ -217,6 +217,9 @@ export class PipelineUBO {
                         const matShadowView = csmLayers.layers[i].matShadowView;
                         Mat4.toArray(cv, matShadowView, UBOCSM.MAT_SHADOW_VIEW_LEVELS_OFFSET + 16 * i);
 
+                        const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
+                        Mat4.toArray(cv, matShadowViewProj, UBOCSM.MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET + 16 * i);
+
                         const matShadowViewProjAtlas = csmLayers.layers[i].matShadowViewProjAtlas;
                         Mat4.toArray(cv, matShadowViewProjAtlas, UBOCSM.MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * i);
 
@@ -303,6 +306,9 @@ export class PipelineUBO {
 
                             const matShadowView = csmLayers.layers[i].matShadowView;
                             Mat4.toArray(cv, matShadowView, UBOCSM.MAT_SHADOW_VIEW_LEVELS_OFFSET + 16 * i);
+
+                            const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
+                            Mat4.toArray(cv, matShadowViewProj, UBOCSM.MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET + 16 * i);
 
                             const matShadowViewProjAtlas = csmLayers.layers[i].matShadowViewProjAtlas;
                             Mat4.toArray(cv, matShadowViewProjAtlas, UBOCSM.MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * i);

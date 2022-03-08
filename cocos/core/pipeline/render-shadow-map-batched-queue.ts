@@ -94,7 +94,7 @@ export class RenderShadowMapBatchedQueue {
 
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
-        if ((light && light.type === LightType.DIRECTIONAL) && (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap)) {
+        if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
             const dirLight = light as DirectionalLight;
             if (dirLight.shadowEnabled) {
                 shadowCulling(this._pipeline, camera, layer);

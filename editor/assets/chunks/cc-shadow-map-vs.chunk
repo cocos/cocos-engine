@@ -6,7 +6,7 @@ out highp vec4 v_shadowPos;
 #include <cc-shadow-map-base>
 
 #pragma define CC_SHADOW_POSITION v_shadowPos
-#pragma define CC_TRANSFER_SHADOW(worldPos) CC_TRANSFER_SHADOW_BASE(worldPos, v_shadowPos)
+#pragma define CC_TRANSFER_SHADOW(worldPos) CC_TRANSFER_SHADOW_BASE(worldPos, v_shadowPos) 
 
 #if CC_RECEIVE_SHADOW
 vec2 CCGetShadowBias()

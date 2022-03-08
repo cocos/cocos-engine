@@ -50,7 +50,6 @@ export class DirectionalLight extends Light {
     protected _shadowDistance = 100;
     protected _shadowInvisibleOcclusionRange = 200;
     protected _shadowCSMLevel = CSMLevel.level_3;
-    protected _shadowCSMValueDirty = false;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -216,16 +215,6 @@ export class DirectionalLight extends Light {
         this._shadowCSMLevel = val;
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setShadowCSMLevel(val);
-        }
-    }
-
-    get shadowCSMValueDirty () {
-        return this._shadowCSMValueDirty;
-    }
-    set shadowCSMValueDirty (val) {
-        this._shadowCSMValueDirty = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowCSMValueDirty(val);
         }
     }
 

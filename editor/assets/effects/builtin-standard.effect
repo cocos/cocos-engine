@@ -304,6 +304,7 @@ CCProgram shadow-caster-vs %{
   #include <cc-local-batch>
   #include <shared-ubos>
   #include <cc-shadow>
+  #include <cc-csm>
 
   #if HAS_SECOND_UV || USE_LIGHTMAP
     in vec2 a_texCoord1;
@@ -323,7 +324,16 @@ CCProgram shadow-caster-vs %{
     CCGetWorldMatrixFull(matWorld, matWorldIT);
 
     v_worldPos = matWorld * In.position;
-    vec4 clipPos = cc_matLightViewProj * v_worldPos;
+    vec4 clipPos = vec4(1.0);
+    int levels = int(cc_shadowLPNNInfo.w);
+    if (levels > 1){
+      for (int i = 0; i < MAX_CSM_LEVLE_COUNT; i++){
+        if(i >= levels) break;
+        clipPos = cc_matLightViewProj_levels[i] * v_worldPos;
+      }
+    } else {
+      clipPos = cc_matLightViewProj * v_worldPos;
+    }
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
     #if HAS_SECOND_UV
