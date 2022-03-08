@@ -328,11 +328,10 @@ export default class NativeTTF {
         this.setContentSize(node.getContentSize().width, node.getContentSize().height);
         this.setAnchorPoint(node.anchorX, node.anchorY);
         let self = this;
-        let memoryNativeLabelOpacity = null;
+        let memoryNativeLabelOpacity = node.opacity;
         let getTrueOpacityByParent = function (node, comp) {
             let parent = node.parent;
             if (parent) {
-                if (memoryNativeLabelOpacity === null) memoryNativeLabelOpacity = comp.node.opacity;
                 memoryNativeLabelOpacity = parent.opacity / 255 * memoryNativeLabelOpacity;
                 getTrueOpacityByParent(parent, comp);
             } else {
@@ -348,8 +347,6 @@ export default class NativeTTF {
                 self._updateTTFMaterial(comp, memoryNativeLabelOpacity);
 
                 layout.render();
-
-                memoryNativeLabelOpacity = null;
                 //comp._vertsDirty = false;
             }
         };
