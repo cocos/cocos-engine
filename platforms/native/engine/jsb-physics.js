@@ -12,7 +12,7 @@ jsbPhy.OBJECT = {
     ptrToObj: {},
     raycastOptions: {
         origin: null,
-unitDir: null,
+        unitDir: null,
         distance: 0,
         mask: 0,
         queryTrigger: true,
@@ -482,9 +482,9 @@ function getTriangleMesh (v) {
         const world = cc.PhysicsSystem.instance.physicsWorld.impl;
         const trimesh = {
             positions: new Float32Array(posArr),
-positionLength: posArr.length / 3,
+            positionLength: posArr.length / 3,
             triangles: new Uint16Array(indArr),
-triangleLength: indArr.length / 3,
+            triangleLength: indArr.length / 3,
             isU16: true,
         };
         jsbPhy.CACHE.trimesh[v._uuid] = world.createTrimesh(trimesh);
