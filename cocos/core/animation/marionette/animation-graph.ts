@@ -536,11 +536,19 @@ export enum TriggerResetMode {
     NEXT_FRAME_OR_AFTER_CONSUMED,
 }
 
-const BOOLEAN_VARIABLE_FLAG_VALUE_START = 0;
-const BOOLEAN_VARIABLE_FLAG_VALUE_MASK = 1;
+const TRIGGER_VARIABLE_FLAG_VALUE_START = 0;
+const TRIGGER_VARIABLE_FLAG_VALUE_MASK = 1;
+const TRIGGER_VARIABLE_FLAG_RESET_MODE_START = 1;
+const TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK = 6; // 0b110
 
-const BOOLEAN_VARIABLE_FLAG_RESET_MODE_START = 1;
-const BOOLEAN_VARIABLE_FLAG_RESET_MODE_MASK = 6; // 0b110
+// DO NOT CHANGE TO THIS VALUE. This is related to V3.5 migration.
+const TRIGGER_VARIABLE_DEFAULT_FLAGS = 0;
+
+// Let's ensure `0`'s meaning: `value: false, resetMode: TriggerSwitchMode: TriggerResetMode.AFTER_CONSUMED`
+assertIsTrue((
+    (0 << TRIGGER_VARIABLE_FLAG_VALUE_START)
+    | (TriggerResetMode.AFTER_CONSUMED << TRIGGER_VARIABLE_FLAG_RESET_MODE_START)
+) === TRIGGER_VARIABLE_DEFAULT_FLAGS);
 
 type PlainVariableType = VariableType.FLOAT | VariableType.INTEGER | VariableType.BOOLEAN;
 
@@ -611,33 +619,30 @@ class TriggerVariable implements BasicVariableDescription<VariableType.TRIGGER> 
     }
 
     get value () {
-        return !!((this._flags & BOOLEAN_VARIABLE_FLAG_VALUE_MASK) >> BOOLEAN_VARIABLE_FLAG_VALUE_START);
+        return !!((this._flags & TRIGGER_VARIABLE_FLAG_VALUE_MASK) >> TRIGGER_VARIABLE_FLAG_VALUE_START);
     }
 
     set value (value) {
         if (value) {
-            this._flags |= (1 << BOOLEAN_VARIABLE_FLAG_VALUE_START);
+            this._flags |= (1 << TRIGGER_VARIABLE_FLAG_VALUE_START);
         } else {
-            this._flags &= ~(1 << BOOLEAN_VARIABLE_FLAG_VALUE_START);
+            this._flags &= ~(1 << TRIGGER_VARIABLE_FLAG_VALUE_START);
         }
     }
 
     get resetMode () {
-        return ((this._flags & BOOLEAN_VARIABLE_FLAG_RESET_MODE_MASK) >> BOOLEAN_VARIABLE_FLAG_RESET_MODE_START);
+        return ((this._flags & TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK) >> TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
     }
 
     set resetMode (value: TriggerResetMode) {
-        this._flags &= ~(BOOLEAN_VARIABLE_FLAG_RESET_MODE_MASK << BOOLEAN_VARIABLE_FLAG_RESET_MODE_START);
-        this._flags |= (value << BOOLEAN_VARIABLE_FLAG_RESET_MODE_START);
+        this._flags &= ~(TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
+        this._flags |= (value << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
     }
 
     // l -> h
     // value(1 bits) | reset_mode(2 bits)
     @serializable
-    private _flags =
-    0 // value: false
-        | TriggerResetMode.AFTER_CONSUMED << BOOLEAN_VARIABLE_FLAG_RESET_MODE_START
-    ;
+    private _flags = TRIGGER_VARIABLE_DEFAULT_FLAGS;
 }
 
 export interface AnimationGraphRunTime {
