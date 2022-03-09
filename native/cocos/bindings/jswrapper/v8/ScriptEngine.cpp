@@ -320,9 +320,6 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
 * But if no reject handler is added, then "unhandledRejectedPromise" exception will be called again, but the stacktrace this time become empty
 * LastStackTrace is used to store it.
 */
-namespace{
-    std::string lastStackTrace;
-}
 void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char* event, const char *stackTrace) {
     using element_type = decltype(_promiseArray)::value_type;
     element_type *current;
@@ -343,7 +340,7 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
     if (std::strcmp(event,"handlerAddedAfterPromiseRejected") == 0) {
         for (int i = 0; i < exceptions.size(); i++) {
             if (exceptions[i].event == "unhandledRejectedPromise") {
-                lastStackTrace = exceptions[i].stackTrace;
+                _lastStackTrace = exceptions[i].stackTrace;
                 exceptions.erase(exceptions.begin() + i);
                 return;
             }
@@ -364,7 +361,7 @@ void ScriptEngine::handlePromiseExceptions() {
         std::get<0>(exceptionsPair).get()->Reset();
     }
     _promiseArray.clear();
-    lastStackTrace.clear();
+    _lastStackTrace.clear();
 }
 
 void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
@@ -437,7 +434,7 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
     auto stackStr = getInstance()->getCurrentStackTrace();
     ss << "stacktrace: " << std::endl;
     if (stackStr.empty()) {
-        ss << lastStackTrace << std::endl;
+        ss << getInstance()->_lastStackTrace << std::endl;
     } else {
         ss << stackStr << std::endl;
     }
