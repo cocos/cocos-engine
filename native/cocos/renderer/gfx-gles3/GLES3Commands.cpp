@@ -1478,11 +1478,12 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device * 
         if (gpuColorTexture) {
             if (gpuColorTexture->glTexture) {
                 GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                                gpuColorTexture->glTarget, gpuColorTexture->glTexture, gpuColorTextureView->baseLevel)));
+                                                gpuColorTexture->glTarget, gpuColorTexture->glTexture, gpuColorTextureView->baseLevel));
             } else {
                 GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
                                                    gpuColorTexture->glTarget, gpuColorTexture->glRenderbuffer));
             }
+        }
         res.width  = std::min(res.width, gpuColorTexture->width);
         res.height = std::min(res.height, gpuColorTexture->height);
     }

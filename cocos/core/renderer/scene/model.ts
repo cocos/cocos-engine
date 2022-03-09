@@ -127,9 +127,6 @@ export class Model {
 
     set shadowBias (val) {
         this._shadowBias = val;
-        if (JSB) {
-            this._nativeObj!.setShadowBias(val);
-        }
     }
 
     get shadowNormalBias () {
@@ -138,9 +135,6 @@ export class Model {
 
     set shadowNormalBias (val) {
         this._shadowNormalBias = val;
-        if (JSB) {
-            this._nativeObj!.setShadowNormalBias(val);
-        }
     }
 
     get receiveShadow () {
@@ -255,8 +249,6 @@ export class Model {
             this._worldBoundBuffer.destroy();
             this._worldBoundBuffer = null;
         }
-        this._worldBounds?.destroy();
-        this._modelBounds?.destroy();
         this._worldBounds = null;
         this._modelBounds = null;
         this._subModels.length = 0;
