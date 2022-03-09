@@ -41,7 +41,7 @@ export class WebGL2Buffer extends Buffer {
 
     private _gpuBuffer: IWebGL2GPUBuffer | null = null;
 
-    public initialize (info: BufferInfo | BufferViewInfo) {
+    public initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>) {
         if ('buffer' in info) { // buffer view
             this._isBufferView = true;
 
@@ -122,7 +122,7 @@ export class WebGL2Buffer extends Buffer {
         }
     }
 
-    public update (buffer: BufferSource, size?: number) {
+    public update (buffer: Readonly<BufferSource>, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
@@ -140,7 +140,7 @@ export class WebGL2Buffer extends Buffer {
         WebGL2CmdFuncUpdateBuffer(
             WebGL2DeviceManager.instance,
             this._gpuBuffer!,
-            buffer,
+            buffer as BufferSource,
             0,
             buffSize,
         );

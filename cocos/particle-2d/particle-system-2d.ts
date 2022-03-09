@@ -29,7 +29,7 @@
  * @module particle2d
  */
 
-import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
+import { ccclass, editable, type, displayOrder, menu, executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Color, Vec2 } from '../core/math';
@@ -197,6 +197,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @zh 是否自定义粒子属性。
      */
     @editable
+    @displayOrder(6)
     @tooltip('i18n:particle_system.custom')
     public get custom () {
         return this._custom;
@@ -217,6 +218,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @zh plist 格式的粒子配置文件。
      */
     @type(ParticleAsset)
+    @displayOrder(5)
     @tooltip('i18n:particle_system.file')
     public get file (): ParticleAsset | null {
         return this._file;
@@ -522,6 +524,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @ch 查看粒子效果
      */
     @editable
+    @displayOrder(2)
     @tooltip('i18n:particle_system.preview')
     public get preview () {
         return this._preview;
@@ -709,6 +712,7 @@ export class ParticleSystem2D extends Renderable2D {
      */
     @serializable
     @editable
+    @displayOrder(3)
     @tooltip('i18n:particle_system.playOnLoad')
     public playOnLoad = true;
 
@@ -718,6 +722,7 @@ export class ParticleSystem2D extends Renderable2D {
      */
     @serializable
     @editable
+    @displayOrder(4)
     @tooltip('i18n:particle_system.autoRemoveOnFinish')
     public autoRemoveOnFinish = false;
 

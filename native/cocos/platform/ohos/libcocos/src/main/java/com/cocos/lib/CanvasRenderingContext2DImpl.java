@@ -91,6 +91,7 @@ public class CanvasRenderingContext2DImpl {
     public boolean mIsSmallCapsFontVariant = false;
     public String mLineCap = "butt";
     public String mLineJoin = "miter";
+    private PixelMap mPixelMap;
 
 
     public class Point {
@@ -202,8 +203,8 @@ public class CanvasRenderingContext2DImpl {
         initializationOptions.editable = true; // allow writePixels
         initializationOptions.size = new ohos.media.image.common.Size((int) Math.ceil(w), (int) Math.ceil(h));
 
-        PixelMap pixelMap = PixelMap.create(initializationOptions);
-        mTexture = new Texture(pixelMap);
+        mPixelMap = PixelMap.create(initializationOptions);
+        mTexture = new Texture(mPixelMap);
         // NOTE: PixelMap.resetConfig does not change pixel data or nor reallocate memory for pixel data
 
         mCanvas.setTexture(mTexture);
@@ -473,16 +474,7 @@ public class CanvasRenderingContext2DImpl {
     }
 
     @SuppressWarnings("unused")
-    public byte[] getDataRef() {
-        if (mTexture != null && mTexture.getPixelMap() != null) {
-            final int len = mTexture.getWidth() * mTexture.getHeight() * 4;
-            final byte[] pixels = new byte[len];
-            final ByteBuffer buf = ByteBuffer.wrap(pixels);
-            buf.order(ByteOrder.nativeOrder());
-            mTexture.getPixelMap().readPixels(buf);
-            return pixels;
-        }
-        HiLog.error(LABEL, "getDataRef return null");
-        return null;
+    private PixelMap getBitmap() {
+        return mPixelMap;
     }
 }

@@ -93,6 +93,7 @@ public:
     virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count)        = 0;
     virtual void getQueryPoolResults(QueryPool *queryPool)                                                                           = 0;
 
+    inline void copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions);
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
     inline void flushCommands(const vector<CommandBuffer *> &cmdBuffs);
     inline void acquire(const vector<Swapchain *> &swapchains);
@@ -284,6 +285,10 @@ PipelineState *Device::createPipelineState(const PipelineStateInfo &info) {
 
 void Device::copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
     copyBuffersToTexture(buffers.data(), dst, regions.data(), utils::toUint(regions.size()));
+}
+
+void Device::copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions) {
+    copyTextureToBuffers(src, buffers.data(), regions.data(), utils::toUint(regions.size()));
 }
 
 void Device::flushCommands(const vector<CommandBuffer *> &cmdBuffs) {

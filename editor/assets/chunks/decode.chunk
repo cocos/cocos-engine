@@ -1,5 +1,5 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 #include <decode-base>
 
-#define CCDecode(position) \
+#pragma define CCDecode(position) \
   position = vec4(a_position, 1.0)

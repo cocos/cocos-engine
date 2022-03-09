@@ -1,10 +1,9 @@
 import { Pool } from './memop';
 import { warnID } from './platform';
-import { IBatcher } from '../2d/renderer/i-batcher';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
-import { builtinResMgr } from './builtin';
 import { createCustomPipeline } from './pipeline/custom';
 
 declare const nr: any;
@@ -32,7 +31,7 @@ const rootProto: any = Root.prototype;
 Object.defineProperty(rootProto, 'batcher2D', {
     configurable: true,
     enumerable: true,
-    get(): IBatcher {
+    get(): Batcher2D {
         return this._batcher;
     },
 });
@@ -133,8 +132,8 @@ rootProto.destroyLight = function (l) {
 
 rootProto._onBatch2DInit = function () {
     if (!this._batcher && legacyCC.internal.Batcher2D) {
-        this._batcher = new legacyCC.internal.Batcher2D(this) as IBatcher;
-        if (!this._batcher.initialize()) {
+        this._batcher = new legacyCC.internal.Batcher2D(this);
+        if (!this._batcher!.initialize()) {
             this.destroy();
             return false;
         }

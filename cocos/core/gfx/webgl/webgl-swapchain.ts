@@ -25,7 +25,8 @@
 
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { macro, warnID, warn, debug } from '../../platform';
+import { macro } from '../../platform/macro';
+import { warnID, warn, debug } from '../../platform/debug';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
@@ -219,7 +220,7 @@ export class WebGLSwapchain extends Swapchain {
     private _webGLContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGLExtensions | null = null;
 
-    public initialize (info: SwapchainInfo) {
+    public initialize (info: Readonly<SwapchainInfo>) {
         this._canvas = info.windowHandle;
 
         this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);

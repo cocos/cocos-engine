@@ -100,8 +100,8 @@ module.exports = {
     },
     shadow: {
         enabled: 'Enable or disable real time shadows.',
-        normal: 'The normal of the plane which receives shadow.',
-        distance: 'The distance from coordinate origin to the receiving plane.',
+        planeDirection: 'The normal vector of the plane which receives shadow.',
+        planeHeight: 'The height from the origin of the plane which receives shadow.',
         saturation: 'Shadow saturation. This value should be 1.0, we recommend that you\'d rather increase ambient lighting than modify this value. ',
         pcf: 'Enable soft shadows.',
         bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows. The more the value, the more the light leakage.',
@@ -113,6 +113,7 @@ module.exports = {
         orthoSize: 'Fix area size, the larger value, the lower precision of shadows.',
         invisibleOcclusionRange: 'If some shadow near the camera is missing, increase this value (world space unit) to fix it.',
         shadowDistance: 'Shadows do not appear beyond this distance (world space unit).',
+        maxReceived: 'Number of the effective light sources that produce shadows.',
     },
     animation: {
         default_clip: 'When checking, the default animation clip is automatically played.',

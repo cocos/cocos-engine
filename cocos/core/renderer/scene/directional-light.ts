@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
@@ -173,9 +172,9 @@ export class DirectionalLight extends Light {
     }
 
     /**
-       * @en get or set fixed area shadow
-       * @zh 是否是固定区域阴影
-       */
+      * @en get or set fixed area shadow
+      * @zh 是否是固定区域阴影
+      */
     get shadowFixedArea () {
         return this._shadowFixedArea;
     }
@@ -184,9 +183,9 @@ export class DirectionalLight extends Light {
     }
 
     /**
-       * @en get or set shadow camera near
-       * @zh 获取或者设置阴影相机近裁剪面
-       */
+      * @en get or set shadow camera near
+      * @zh 获取或者设置阴影相机近裁剪面
+      */
     get shadowNear () {
         return this._shadowNear;
     }
@@ -195,9 +194,9 @@ export class DirectionalLight extends Light {
     }
 
     /**
-       * @en get or set shadow camera far
-       * @zh 获取或者设置阴影相机远裁剪面
-       */
+      * @en get or set shadow camera far
+      * @zh 获取或者设置阴影相机远裁剪面
+      */
     get shadowFar () {
         return this._shadowFar;
     }
@@ -206,9 +205,9 @@ export class DirectionalLight extends Light {
     }
 
     /**
-       * @en get or set shadow camera orthoSize
-       * @zh 获取或者设置阴影相机正交大小
-       */
+      * @en get or set shadow camera orthoSize
+      * @zh 获取或者设置阴影相机正交大小
+      */
     get shadowOrthoSize () {
         return this._shadowOrthoSize;
     }

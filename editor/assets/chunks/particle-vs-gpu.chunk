@@ -4,24 +4,24 @@ precision mediump float;
 #include <particle-common>
 #include <cc-local>
 
-#define CURVE_MODE_FIX 1
-#define CURVE_MODE_BLEND 2
+#pragma define CURVE_MODE_FIX 1
+#pragma define CURVE_MODE_BLEND 2
 
-#define GRADIENT_MODE_FIX 1
-#define GRADIENT_MODE_BLEND 2
+#pragma define GRADIENT_MODE_FIX 1
+#pragma define GRADIENT_MODE_BLEND 2
 
-#define SIMULATE_SPACE_LOCAL 0
-#define SIMULATE_SPACE_WORLD 1
+#pragma define SIMULATE_SPACE_LOCAL 0
+#pragma define SIMULATE_SPACE_WORLD 1
 
-#define ANIMATION_MODE_WHOLE_SHEET 0
-#define ANIMATION_MODE_SINGLE_ROW 1
+#pragma define ANIMATION_MODE_WHOLE_SHEET 0
+#pragma define ANIMATION_MODE_SINGLE_ROW 1
 
-#define COLOR_OVERTIME_RAND_OFFSET 91041.
-#define FORCE_OVERTIME_RAND_OFFSET 212165.
-#define ROTATION_OVERTIME_RAND_OFFSET 125292.
-#define SIZE_OVERTIME_RAND_OFFSET 39825.
-#define TEXTURE_ANIMATION_RAND_OFFSET 90794.
-#define VELOCITY_OVERTIME_RAND_OFFSET 197866.
+#pragma define COLOR_OVERTIME_RAND_OFFSET 91041.
+#pragma define FORCE_OVERTIME_RAND_OFFSET 212165.
+#pragma define ROTATION_OVERTIME_RAND_OFFSET 125292.
+#pragma define SIZE_OVERTIME_RAND_OFFSET 39825.
+#pragma define TEXTURE_ANIMATION_RAND_OFFSET 90794.
+#pragma define VELOCITY_OVERTIME_RAND_OFFSET 197866.
 
 uniform SampleConstants {
   vec4 u_sampleInfo;
@@ -154,7 +154,7 @@ float random (float seed) {
   return fract(q);
 }
 
-#define INDENTIFY_NEG_QUAT 10.0
+#pragma define INDENTIFY_NEG_QUAT 10.0
 
 vec4 toQuat(vec3 rotation) {
   vec3 rotTmp = rotation;

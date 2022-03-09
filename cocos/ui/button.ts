@@ -291,6 +291,7 @@ export class Button extends Component {
      * @zh
      * 普通状态下按钮所显示的颜色。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.normal_color')
     // @constget
     get normalColor (): Readonly<Color> {
@@ -313,6 +314,7 @@ export class Button extends Component {
      * @zh
      * 按下状态时按钮所显示的颜色。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.pressed_color')
     // @constget
     get pressedColor (): Readonly<Color> {
@@ -334,6 +336,7 @@ export class Button extends Component {
      * @zh
      * 悬停状态下按钮所显示的颜色。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.hover_color')
     // @constget
     get hoverColor (): Readonly<Color> {
@@ -354,6 +357,7 @@ export class Button extends Component {
      * @zh
      * 禁用状态下按钮所显示的颜色。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.disabled_color')
     // @constget
     get disabledColor (): Readonly<Color> {
@@ -378,6 +382,7 @@ export class Button extends Component {
      */
     @rangeMin(0)
     @rangeMax(10)
+    @displayOrder(4)
     @tooltip('i18n:button.duration')
     get duration () {
         return this._duration;
@@ -403,6 +408,7 @@ export class Button extends Component {
      * 注意：不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件。
      * 如果你需要这么做，你应该把 target 设置为另一个背景节点，而不是按钮节点。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.zoom_scale')
     get zoomScale () {
         return this._zoomScale;
@@ -425,6 +431,7 @@ export class Button extends Component {
      * 普通状态下按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
+    @displayOrder(3)
     @tooltip('i18n:button.normal_sprite')
     get normalSprite () {
         return this._normalSprite;
@@ -452,6 +459,7 @@ export class Button extends Component {
      * 按下状态时按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
+    @displayOrder(3)
     @tooltip('i18n:button.pressed_sprite')
     get pressedSprite () {
         return this._pressedSprite;
@@ -474,6 +482,7 @@ export class Button extends Component {
      * 悬停状态下按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
+    @displayOrder(3)
     @tooltip('i18n:button.hover_sprite')
     get hoverSprite () {
         return this._hoverSprite;
@@ -496,6 +505,7 @@ export class Button extends Component {
      * 禁用状态下按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
+    @displayOrder(3)
     @tooltip('i18n:button.disabled_sprite')
     get disabledSprite () {
         return this._disabledSprite;
@@ -975,3 +985,5 @@ export class Button extends Component {
         }
     }
 }
+
+legacyCC.Button = Button;
