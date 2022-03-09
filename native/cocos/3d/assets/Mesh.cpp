@@ -1027,7 +1027,8 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
         geometry::AABB::fromPoints(minPos, maxPos, &box);
         dynamic.bounds[primitiveIndex] = box;
 
-        Vec3 subMin, subMax;
+        Vec3 subMin;
+        Vec3 subMax;
         for (const auto &bound : dynamic.bounds) {
             if (bound.isValid()) {
                 bound.getBoundary(&subMin, &subMax);
