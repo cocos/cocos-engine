@@ -168,7 +168,7 @@ export default class TTFAssembler extends Assembler2D {
         _canvasSize.width = comp.node.width;
         _canvasSize.height = comp.node.height;
         _nodeContentSize = comp.node.getContentSize();
-        _originalSize = _nodeContentSize;
+        _originalSize = _nodeContentSize.clone();
         _lineHeight = comp._lineHeight;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
