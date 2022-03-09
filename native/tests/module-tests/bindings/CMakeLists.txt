@@ -11,7 +11,7 @@ target_include_directories(test-bindings PRIVATE
 )
 
 if(MSVC)
-    foreach(item ${WIN32_DLLS})
+    foreach(item ${WINDOWS_DLLS})
         get_filename_component(filename ${item} NAME)
         get_filename_component(abs ${item} ABSOLUTE)
         add_custom_command(TARGET ${LIB_NAME} POST_BUILD
