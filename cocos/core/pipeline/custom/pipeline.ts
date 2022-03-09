@@ -31,7 +31,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Sampler, Texture } from '../../gfx';
+import { Buffer, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
@@ -119,6 +119,8 @@ export abstract class CopyPassBuilder {
 }
 
 export abstract class SceneVisitor {
+    public abstract setViewport(vp: Viewport): void;
+    public abstract setScissor(rect: Rect): void;
     public abstract bindPipelineState(pso: PipelineState): void;
     public abstract bindDescriptorSet(set: number, descriptorSet: DescriptorSet, dynamicOffsetCount: number, dynamicOffsets: number): void;
     public abstract bindInputAssembler(ia: InputAssembler): void;
