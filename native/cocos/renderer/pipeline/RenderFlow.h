@@ -43,10 +43,10 @@ struct CC_DLL RenderFlowInfo {
     RenderStageList stages;
 };
 
-class CC_DLL RenderFlow : public Object {
+class CC_DLL RenderFlow {
 public:
     RenderFlow();
-    ~RenderFlow() override;
+    virtual ~RenderFlow();
 
     virtual bool initialize(const RenderFlowInfo &info);
     virtual void activate(RenderPipeline *pipeline);

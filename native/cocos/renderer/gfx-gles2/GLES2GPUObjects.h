@@ -34,8 +34,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES2GPUConstantRegistry {
-public:
+struct GLES2GPUConstantRegistry {
     size_t currentBoundThreadID{0U};
 
     MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
@@ -48,8 +47,8 @@ public:
 };
 
 class GLES2GPUStateCache;
-class GLES2GPUSwapchain;
-class GLES2GPUContext final : public Object {
+struct GLES2GPUSwapchain;
+class GLES2GPUContext final {
 public:
     bool initialize(GLES2GPUStateCache *stateCache, GLES2GPUConstantRegistry *constantRegistry);
     void destroy();
@@ -92,8 +91,7 @@ private:
     StringArray _extensions;
 };
 
-class GLES2GPUBuffer final : public Object {
-public:
+struct GLES2GPUBuffer {
     BufferUsage  usage    = BufferUsage::NONE;
     MemoryUsage  memUsage = MemoryUsage::NONE;
     uint32_t     size     = 0;
@@ -106,15 +104,13 @@ public:
 };
 using GLES2GPUBufferList = vector<GLES2GPUBuffer *>;
 
-class GLES2GPUBufferView final : public Object {
-public:
+struct GLES2GPUBufferView {
     GLES2GPUBuffer *gpuBuffer = nullptr;
     uint32_t        offset    = 0U;
     uint32_t        range     = 0U;
 };
 
-class GLES2GPUTexture final : public Object {
-public:
+struct GLES2GPUTexture {
     TextureType        type{TextureType::TEX2D};
     Format             format{Format::UNKNOWN};
     TextureUsage       usage{TextureUsageBit::NONE};
@@ -145,16 +141,14 @@ public:
 
 using GLES2GPUTextureList = vector<GLES2GPUTexture *>;
 
-class GLES2GPUSwapchain final : public Object {
-public:
+struct GLES2GPUSwapchain {
     EGLSurface       eglSurface{EGL_NO_SURFACE};
     EGLint           eglSwapInterval{0};
     GLuint           glFramebuffer{0};
     GLES2GPUTexture *gpuColorTexture{nullptr};
 };
 
-class GLES2GPUSampler final : public Object {
-public:
+struct GLES2GPUSampler {
     Filter  minFilter   = Filter::NONE;
     Filter  magFilter   = Filter::NONE;
     Filter  mipFilter   = Filter::NONE;
@@ -168,7 +162,7 @@ public:
     GLenum  glWrapR     = 0;
 };
 
-struct GLES2GPUInput final {
+struct GLES2GPUInput {
     uint32_t binding = 0;
     String   name;
     Type     type   = Type::UNKNOWN;
@@ -180,7 +174,7 @@ struct GLES2GPUInput final {
 };
 using GLES2GPUInputList = vector<GLES2GPUInput>;
 
-struct GLES2GPUUniform final {
+struct GLES2GPUUniform {
     uint32_t        binding = INVALID_BINDING;
     String          name;
     Type            type   = Type::UNKNOWN;
@@ -194,7 +188,7 @@ struct GLES2GPUUniform final {
 };
 using GLES2GPUUniformList = vector<GLES2GPUUniform>;
 
-struct GLES2GPUUniformBlock final {
+struct GLES2GPUUniformBlock {
     uint32_t            set     = 0;
     uint32_t            binding = 0;
     uint32_t            idx     = 0;
@@ -206,7 +200,7 @@ struct GLES2GPUUniformBlock final {
 };
 using GLES2GPUUniformBlockList = vector<GLES2GPUUniformBlock>;
 
-struct GLES2GPUUniformSamplerTexture final {
+struct GLES2GPUUniformSamplerTexture {
     uint32_t set     = 0;
     uint32_t binding = 0;
     String   name;
@@ -219,15 +213,14 @@ struct GLES2GPUUniformSamplerTexture final {
 };
 using GLES2GPUUniformSamplerTextureList = vector<GLES2GPUUniformSamplerTexture>;
 
-struct GLES2GPUShaderStage final {
+struct GLES2GPUShaderStage {
     ShaderStageFlagBit type = ShaderStageFlagBit::NONE;
     String             source;
     GLuint             glShader = 0;
 };
 using GLES2GPUShaderStageList = vector<GLES2GPUShaderStage>;
 
-class GLES2GPUShader final : public Object {
-public:
+struct GLES2GPUShader {
     String                            name;
     UniformBlockList                  blocks;
     UniformSamplerTextureList         samplerTextures;
@@ -239,7 +232,7 @@ public:
     GLES2GPUUniformSamplerTextureList glSamplerTextures;
 };
 
-struct GLES2GPUAttribute final {
+struct GLES2GPUAttribute {
     String   name;
     GLuint   glBuffer       = 0;
     GLenum   glType         = 0;
@@ -253,8 +246,7 @@ struct GLES2GPUAttribute final {
 };
 using GLES2GPUAttributeList = vector<GLES2GPUAttribute>;
 
-class GLES2GPUInputAssembler final : public Object {
-public:
+struct GLES2GPUInputAssembler {
     AttributeList                 attributes;
     GLES2GPUBufferList            gpuVertexBuffers;
     GLES2GPUBuffer *              gpuIndexBuffer    = nullptr;
@@ -264,8 +256,7 @@ public:
     unordered_map<size_t, GLuint> glVAOs;
 };
 
-class GLES2GPURenderPass final : public Object {
-public:
+struct GLES2GPURenderPass {
     struct AttachmentStatistics {
         uint32_t loadSubpass{SUBPASS_EXTERNAL};
         uint32_t storeSubpass{SUBPASS_EXTERNAL};
@@ -279,7 +270,7 @@ public:
 };
 
 class GLES2GPUFramebufferCacheMap;
-class GLES2GPUFramebuffer final : public Object {
+class GLES2GPUFramebuffer final {
 public:
     GLES2GPURenderPass *gpuRenderPass{nullptr};
     GLES2GPUTextureList gpuColorTextures;
@@ -335,8 +326,7 @@ public:
     uint32_t uberFinalOutput{INVALID_BINDING};
 };
 
-class GLES2GPUDescriptorSetLayout final : public Object {
-public:
+struct GLES2GPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
     vector<uint32_t>               dynamicBindings;
 
@@ -346,8 +336,7 @@ public:
 };
 using GLES2GPUDescriptorSetLayoutList = vector<GLES2GPUDescriptorSetLayout *>;
 
-class GLES2GPUPipelineLayout final : public Object {
-public:
+struct GLES2GPUPipelineLayout {
     GLES2GPUDescriptorSetLayoutList setLayouts;
 
     // helper storages
@@ -357,8 +346,7 @@ public:
     uint32_t            dynamicOffsetCount = 0U;
 };
 
-class GLES2GPUPipelineState final : public Object {
-public:
+struct GLES2GPUPipelineState {
     GLenum                  glPrimitive = GL_TRIANGLES;
     GLES2GPUShader *        gpuShader   = nullptr;
     RasterizerState         rs;
@@ -370,7 +358,7 @@ public:
     GLES2GPUPipelineLayout *gpuPipelineLayout = nullptr;
 };
 
-struct GLES2GPUDescriptor final {
+struct GLES2GPUDescriptor {
     DescriptorType      type          = DescriptorType::UNKNOWN;
     GLES2GPUBuffer *    gpuBuffer     = nullptr;
     GLES2GPUBufferView *gpuBufferView = nullptr;
@@ -379,17 +367,16 @@ struct GLES2GPUDescriptor final {
 };
 using GLES2GPUDescriptorList = vector<GLES2GPUDescriptor>;
 
-class GLES2GPUDescriptorSet final : public Object {
-public:
+struct GLES2GPUDescriptorSet {
     GLES2GPUDescriptorList  gpuDescriptors;
     const vector<uint32_t> *descriptorIndices = nullptr;
 };
 
-class GLES2GPUFence final : public Object {
+class GLES2GPUFence final {
 public:
 };
 
-struct GLES2ObjectCache final {
+struct GLES2ObjectCache {
     uint32_t                subpassIdx        = 0U;
     GLES2GPURenderPass *    gpuRenderPass     = nullptr;
     GLES2GPUFramebuffer *   gpuFramebuffer    = nullptr;
@@ -402,7 +389,7 @@ struct GLES2ObjectCache final {
     uint32_t                clearStencil = 0U;
 };
 
-class GLES2GPUStateCache final : public Object {
+class GLES2GPUStateCache {
 public:
     GLuint                          glArrayBuffer        = 0;
     GLuint                          glElementArrayBuffer = 0;
@@ -462,7 +449,7 @@ public:
     }
 };
 
-class GLES2GPUBlitManager final : public Object {
+class GLES2GPUBlitManager final {
 public:
     void initialize();
     void destroy();
@@ -484,7 +471,7 @@ private:
     float                  _uniformBuffer[8];
 };
 
-class GLES2GPUFramebufferCacheMap final : public Object {
+class GLES2GPUFramebufferCacheMap final {
 public:
     explicit GLES2GPUFramebufferCacheMap(GLES2GPUStateCache *cache) : _cache(cache) {}
 
@@ -583,7 +570,7 @@ private:
     CacheMap _textureMap;      // texture -> framebuffer
 };
 
-class GLES2GPUFramebufferHub final : public Object {
+class GLES2GPUFramebufferHub final {
 public:
     void connect(GLES2GPUTexture *texture, GLES2GPUFramebuffer *framebuffer) {
         _framebuffers[texture].push_back(framebuffer);

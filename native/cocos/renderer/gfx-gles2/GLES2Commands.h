@@ -126,8 +126,7 @@ public:
     }
 };
 
-class GLES2CmdPackage final : public Object {
-public:
+struct GLES2CmdPackage {
     CachedArray<GLESCmdType>                   cmds;
     CachedArray<GLES2CmdBeginRenderPass *>     beginRenderPassCmds;
     CachedArray<GLES2CmdBindStates *>          bindStatesCmds;
@@ -137,7 +136,7 @@ public:
     CachedArray<GLES2CmdBlitTexture *>         blitTextureCmds;
 };
 
-class GLES2GPUCommandAllocator final : public Object {
+class GLES2GPUCommandAllocator final {
 public:
     CommandPool<GLES2CmdBeginRenderPass>     beginRenderPassCmdPool;
     CommandPool<GLES2CmdBindStates>          bindStatesCmdPool;

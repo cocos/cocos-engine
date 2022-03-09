@@ -35,7 +35,7 @@
 namespace cc {
 namespace pipeline {
 
-struct CC_DLL UBOBloom : public Object {
+struct CC_DLL UBOBloom {
     static constexpr uint TEXTURE_SIZE_OFFSET = 0;
     static constexpr uint COUNT               = UBOBloom::TEXTURE_SIZE_OFFSET + 4;
     static constexpr uint SIZE                = UBOBloom::COUNT * 4;

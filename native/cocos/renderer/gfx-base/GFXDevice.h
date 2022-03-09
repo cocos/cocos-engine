@@ -49,7 +49,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL Device : public Object, public RefCounted {
+class CC_DLL Device : public RefCounted {
 public:
     static Device *getInstance();
 
