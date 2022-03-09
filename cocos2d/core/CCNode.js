@@ -26,6 +26,7 @@
 'use strict';
 
 import { Mat4, Vec2, Vec3, Quat, Trs } from './value-types';
+import { approx } from './value-types/utils'
 
 const BaseNode = require('./utils/base-node');
 const PrefabHelper = require('./utils/prefab-helper');
@@ -1761,8 +1762,7 @@ let NodeDefines = {
         if (this._parent) {
             this._parent._delaySort();
         }
-        this._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
-        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
+        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
         this._onHierarchyChangedBase(oldParent);
         if (cc._widgetManager) {
             cc._widgetManager._nodesOrderDirty = true;
@@ -2882,7 +2882,7 @@ let NodeDefines = {
         var locContentSize = this._contentSize;
         var clone;
         if (height === undefined) {
-            if ((size.width === locContentSize.width) && (size.height === locContentSize.height))
+            if (approx(size.width, locContentSize.width) && approx(size.height, locContentSize.height))
                 return;
             if (CC_EDITOR) {
                 clone = cc.size(locContentSize.width, locContentSize.height);
@@ -2890,7 +2890,7 @@ let NodeDefines = {
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
-            if ((size === locContentSize.width) && (height === locContentSize.height))
+            if (approx(size, locContentSize.width) && approx(height, locContentSize.height))
                 return;
             if (CC_EDITOR) {
                 clone = cc.size(locContentSize.width, locContentSize.height);

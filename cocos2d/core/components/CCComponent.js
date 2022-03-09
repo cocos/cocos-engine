@@ -196,6 +196,10 @@ var Component = cc.Class({
          */
         enabledInHierarchy: {
             get () {
+                if (CC_EDITOR) {
+                    // _activeInHierarchy will not be updated before node's onRestore
+                    return this._enabled && this.node?._active && this.node?._parent?._activeInHierarchy;
+                }
                 return this._enabled && this.node && this.node._activeInHierarchy;
             },
             visible: false

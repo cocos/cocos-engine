@@ -552,6 +552,7 @@ var Layout = cc.Class({
             if (!child.activeInHierarchy) {
                 continue;
             }
+
             //for resizing children
             if (this._resize === ResizeMode.CHILDREN) {
                 child.width = newChildWidth / childScaleX;
@@ -776,7 +777,6 @@ var Layout = cc.Class({
                 if (tempFinalPositionX > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
-
             }
 
             nextY += topBoundaryOfChild;
@@ -939,7 +939,6 @@ var Layout = cc.Class({
     },
 
     _doLayout: function () {
-
         if (this.type === Type.HORIZONTAL) {
             var newWidth = this._getHorizontalBaseWidth(this.node.children);
 
@@ -991,8 +990,11 @@ var Layout = cc.Class({
      */
     updateLayout: function () {
         if (this._layoutDirty && this.node.children.length > 0) {
-            this._doLayout();
-            this._layoutDirty = false;
+            var activeChild = this.node.children.find((node) => node.activeInHierarchy);
+            if(activeChild) {
+                this._doLayout();
+                this._layoutDirty = false;
+            }
         }
     }
 });
