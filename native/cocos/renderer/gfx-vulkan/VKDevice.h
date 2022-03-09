@@ -99,6 +99,8 @@ public:
     CCVKGPUStagingBufferPool *gpuStagingBufferPool();
     void                      waitAllFences();
 
+    void updateBackBufferCount(uint32_t backBufferCount);
+
 protected:
     static CCVKDevice *instance;
 

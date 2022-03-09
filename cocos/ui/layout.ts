@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable, visible, displayName } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, displayOrder, serializable, visible, displayName } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { Rect, Size, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
@@ -38,6 +38,7 @@ import { director, Director } from '../core/director';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { Node, warn } from '../core';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en Layout type.
@@ -272,6 +273,7 @@ export class Layout extends Component {
      * 布局类型。
      */
     @type(Type)
+    @displayOrder(0)
     @tooltip('i18n:layout.layout_type')
     get type () {
         return this._layoutType;
@@ -1157,3 +1159,5 @@ export class Layout extends Component {
         return num;
     }
 }
+
+legacyCC.Layout = Layout;

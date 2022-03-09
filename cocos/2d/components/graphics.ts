@@ -269,8 +269,6 @@ export class Graphics extends Renderable2D {
     }
 
     public onDestroy () {
-        super.onDestroy();
-
         this._sceneGetter = null;
         if (this.model) {
             director.root!.destroyModel(this.model);
@@ -285,13 +283,13 @@ export class Graphics extends Renderable2D {
             this._graphicsUseSubMeshes.length = 0;
         }
 
-        if (!this.impl) {
-            return;
+        if (this.impl) {
+            this._isDrawing = false;
+            this.impl.clear();
+            this.impl = null;
         }
 
-        this._isDrawing = false;
-        this.impl.clear();
-        this.impl = null;
+        super.onDestroy();
     }
 
     /**
@@ -672,3 +670,5 @@ export class Graphics extends Renderable2D {
         return !!this.model && this._isDrawing;
     }
 }
+
+legacyCC.Graphics = Graphics;

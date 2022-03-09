@@ -285,6 +285,7 @@ public:
     GLES2GPUTextureList gpuColorTextures;
     GLES2GPUTexture *   gpuDepthStencilTexture{nullptr};
     bool                usesFBF{false};
+    uint32_t            lodLevel{0};
 
     struct GLFramebufferInfo {
         GLuint   glFramebuffer{0U};

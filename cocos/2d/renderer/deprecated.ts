@@ -29,6 +29,7 @@ import { DrawBatch2D } from './draw-batch';
 import { markAsWarning, replaceProperty, removeProperty } from '../../core/utils/x-deprecated';
 import { MeshBuffer } from './mesh-buffer';
 import { MeshRenderData } from './render-data';
+import { warnID } from '../../core';
 
 export { VertexFormat as UIVertexFormat };
 
@@ -92,3 +93,10 @@ replaceProperty(MeshRenderData.prototype, 'MeshRenderData', [
         newName: 'indexStart',
     },
 ]);
+
+export class QuadRenderData extends MeshRenderData {
+    constructor (vertexFormat) {
+        super(vertexFormat);
+        warnID(9006);
+    }
+}

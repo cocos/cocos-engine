@@ -1,9 +1,9 @@
-#pragma define CC_RENDER_MODE range([0, 4])
-#define RENDER_MODE_BILLBOARD 0
-#define RENDER_MODE_STRETCHED_BILLBOARD 1
-#define RENDER_MODE_HORIZONTAL_BILLBOARD 2
-#define RENDER_MODE_VERTICAL_BILLBOARD 3
-#define RENDER_MODE_MESH 4
+#pragma define-meta CC_RENDER_MODE range([0, 4])
+#pragma define RENDER_MODE_BILLBOARD 0
+#pragma define RENDER_MODE_STRETCHED_BILLBOARD 1
+#pragma define RENDER_MODE_HORIZONTAL_BILLBOARD 2
+#pragma define RENDER_MODE_VERTICAL_BILLBOARD 3
+#pragma define RENDER_MODE_MESH 4
 
 uniform Constants {
   vec4 mainTiling_Offset;

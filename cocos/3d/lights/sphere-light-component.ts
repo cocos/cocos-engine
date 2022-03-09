@@ -27,7 +27,7 @@
  * @module component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, type, unit, serializable, formerlySerializedAs } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs } from 'cc.decorator';
 import { scene } from '../../core/renderer';
 import { Light, PhotometricTerm } from './light-component';
 import { legacyCC } from '../../core/global-exports';
@@ -58,6 +58,7 @@ export class SphereLight extends Light {
      * @en Luminous flux of the light.
      * @zh 光通量。
      */
+    @displayOrder(-1)
     @tooltip('i18n:lights.luminous_flux')
     get luminousFlux () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
@@ -84,6 +85,7 @@ export class SphereLight extends Light {
      * @en Luminance of the light.
      * @zh 光亮度。
      */
+    @displayOrder(-1)
     @tooltip('i18n:lights.luminance')
     get luminance () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
@@ -109,6 +111,7 @@ export class SphereLight extends Light {
      * @zh 当前使用的光度学计量单位。
      */
     @type(PhotometricTerm)
+    @displayOrder(-2)
     @tooltip('i18n:lights.term')
     get term (): number {
         return this._term;
