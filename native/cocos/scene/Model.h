@@ -96,7 +96,7 @@ public:
     virtual void updateTransform(uint32_t stamp);
     virtual void updateUBOs(uint32_t stamp);
     void         updateWorldBoundUBOs();
-    void updateLocalShadowBias();
+    void         updateLocalShadowBias();
 
     inline void attachToScene(RenderScene *scene) {
         _scene            = scene;

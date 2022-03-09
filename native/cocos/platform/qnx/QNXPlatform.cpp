@@ -189,8 +189,8 @@ int32_t QnxPlatform::loop() {
     onResume();
     while (!_quit) {
         curTime         = getCurrentMillSecond();
-		desiredInterval = static_cast<long>(1000.0 / getFps());
-		
+        desiredInterval = static_cast<long>(1000.0 / getFps());
+
         // pollEvent();
         actualInterval = curTime - lastTime;
         if (actualInterval >= desiredInterval) {

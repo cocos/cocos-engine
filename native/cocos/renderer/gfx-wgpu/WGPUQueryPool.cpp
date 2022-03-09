@@ -39,8 +39,8 @@ CCWGPUQueryPool::~CCWGPUQueryPool() {
     destroy();
 }
 
-void CCWGPUQueryPool::doInit(const QueryPoolInfo& /*info*/) {
-    CCWGPUDevice* device           = CCWGPUDevice::getInstance();
+void CCWGPUQueryPool::doInit(const QueryPoolInfo & /*info*/) {
+    CCWGPUDevice *device           = CCWGPUDevice::getInstance();
     _gpuQueryPool                  = CC_NEW(CCWGPUQueryPoolObject);
     _gpuQueryPool->type            = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;

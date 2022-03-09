@@ -50,16 +50,16 @@ namespace cc {
 namespace gfx {
 
 struct BufferMapData {
-    Semaphore*       semaphore = nullptr;
+    Semaphore *      semaphore = nullptr;
     WGPUBuffer       buffer    = wgpuDefaultHandle;
-    emscripten::val* retBuffer = nullptr;
+    emscripten::val *retBuffer = nullptr;
     uint64_t         size      = 0;
     bool             finished  = false;
 };
 
-CCWGPUDevice* CCWGPUDevice::instance = nullptr;
+CCWGPUDevice *CCWGPUDevice::instance = nullptr;
 
-CCWGPUDevice* CCWGPUDevice::getInstance() {
+CCWGPUDevice *CCWGPUDevice::getInstance() {
     // if JS
     if (!instance) {
         instance = new CCWGPUDevice();
@@ -83,7 +83,7 @@ CCWGPUDevice::~CCWGPUDevice() {
     delete this;
 }
 
-bool CCWGPUDevice::doInit(const DeviceInfo& info) {
+bool CCWGPUDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj             = CC_NEW(CCWGPUDeviceObject);
     _gpuDeviceObj->wgpuDevice = emscripten_webgpu_get_device();
     _gpuDeviceObj->wgpuQueue  = wgpuDeviceGetQueue(_gpuDeviceObj->wgpuDevice);
@@ -110,62 +110,62 @@ bool CCWGPUDevice::doInit(const DeviceInfo& info) {
 void CCWGPUDevice::doDestroy() {
 }
 
-Swapchain* CCWGPUDevice::createSwapchain() {
+Swapchain *CCWGPUDevice::createSwapchain() {
     return new CCWGPUSwapchain(this);
 }
 
-Queue* CCWGPUDevice::createQueue() {
+Queue *CCWGPUDevice::createQueue() {
     return CC_NEW(CCWGPUQueue);
 }
 
-Buffer* CCWGPUDevice::createBuffer() {
+Buffer *CCWGPUDevice::createBuffer() {
     return CC_NEW(CCWGPUBuffer);
 }
 
-Texture* CCWGPUDevice::createTexture() {
+Texture *CCWGPUDevice::createTexture() {
     return CC_NEW(CCWGPUTexture);
 }
 
-Shader* CCWGPUDevice::createShader() {
+Shader *CCWGPUDevice::createShader() {
     return CC_NEW(CCWGPUShader);
 }
 
-InputAssembler* CCWGPUDevice::createInputAssembler() {
+InputAssembler *CCWGPUDevice::createInputAssembler() {
     return CC_NEW(CCWGPUInputAssembler);
 }
 
-RenderPass* CCWGPUDevice::createRenderPass() {
+RenderPass *CCWGPUDevice::createRenderPass() {
     return CC_NEW(CCWGPURenderPass);
 }
 
-Framebuffer* CCWGPUDevice::createFramebuffer() {
+Framebuffer *CCWGPUDevice::createFramebuffer() {
     return CC_NEW(CCWGPUFramebuffer);
 }
 
-DescriptorSet* CCWGPUDevice::createDescriptorSet() {
+DescriptorSet *CCWGPUDevice::createDescriptorSet() {
     return CC_NEW(CCWGPUDescriptorSet);
 }
 
-DescriptorSetLayout* CCWGPUDevice::createDescriptorSetLayout() {
+DescriptorSetLayout *CCWGPUDevice::createDescriptorSetLayout() {
     return CC_NEW(CCWGPUDescriptorSetLayout);
 }
 
-PipelineLayout* CCWGPUDevice::createPipelineLayout() {
+PipelineLayout *CCWGPUDevice::createPipelineLayout() {
     return CC_NEW(CCWGPUPipelineLayout);
 }
 
-PipelineState* CCWGPUDevice::createPipelineState() {
+PipelineState *CCWGPUDevice::createPipelineState() {
     return CC_NEW(CCWGPUPipelineState);
 }
 
-CommandBuffer* CCWGPUDevice::createCommandBuffer(const CommandBufferInfo& info, bool hasAgent) {
+CommandBuffer *CCWGPUDevice::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     return CC_NEW(CCWGPUCommandBuffer);
 }
 
-void CCWGPUDevice::copyBuffersToTexture(const uint8_t* const* buffers, Texture* dst, const BufferTextureCopy* regions, uint count) {
+void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
     Format   dstFormat = dst->getFormat();
     uint32_t pxSize    = GFX_FORMAT_INFOS[static_cast<uint>(dstFormat)].size;
-    auto*    texture   = static_cast<CCWGPUTexture*>(dst);
+    auto *   texture   = static_cast<CCWGPUTexture *>(dst);
 
     for (size_t i = 0; i < count; i++) {
         uint32_t bufferSize = pxSize * regions[i].texExtent.width * regions[i].texExtent.height;
@@ -212,16 +212,16 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t* const* buffers, Texture* 
     }
 }
 
-void onQueueDone(WGPUQueueWorkDoneStatus status, void* userdata) {
+void onQueueDone(WGPUQueueWorkDoneStatus status, void *userdata) {
     printf("Q done beg\n");
     if (status == WGPUQueueWorkDoneStatus_Success) {
         printf("Q done beg0\n");
-        auto* bufferMapData = static_cast<BufferMapData*>(userdata);
+        auto *bufferMapData = static_cast<BufferMapData *>(userdata);
         printf("Q done beg1\n");
         // auto* mappedBuffer        = wgpuBufferGetMappedRange(bufferMapData->buffer, 0, bufferMapData->size);
-        auto* mappedBuffer = (uint8_t*)malloc(static_cast<uint32_t>(bufferMapData->size));
+        auto *mappedBuffer = (uint8_t *)malloc(static_cast<uint32_t>(bufferMapData->size));
         printf("Q done beg2\n");
-        *bufferMapData->retBuffer = emscripten::val(emscripten::typed_memory_view(bufferMapData->size, static_cast<uint8_t*>(mappedBuffer)));
+        *bufferMapData->retBuffer = emscripten::val(emscripten::typed_memory_view(bufferMapData->size, static_cast<uint8_t *>(mappedBuffer)));
         printf("Q suc %d\n", bufferMapData->size);
         bufferMapData->finished = true;
         // memcpy(bufferMapData->dst, mappedBuffer, bufferMapData->size);
@@ -229,13 +229,13 @@ void onQueueDone(WGPUQueueWorkDoneStatus status, void* userdata) {
     printf("Q done\n");
 }
 
-emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture* src, const BufferTextureCopyList& regions) {
-    auto*    texture            = static_cast<CCWGPUTexture*>(src);
+emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture *src, const BufferTextureCopyList &regions) {
+    auto *   texture            = static_cast<CCWGPUTexture *>(src);
     Format   dstFormat          = src->getFormat();
     uint32_t pxSize             = GFX_FORMAT_INFOS[static_cast<uint>(dstFormat)].size;
     auto     wgpuCommandEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
 
-    uint64_t size = std::accumulate(regions.begin(), regions.end(), 0, [pxSize](uint64_t initVal, const BufferTextureCopy& in) {
+    uint64_t size = std::accumulate(regions.begin(), regions.end(), 0, [pxSize](uint64_t initVal, const BufferTextureCopy &in) {
         uint32_t bytesPerRow = (pxSize * in.texExtent.width + 255) / 256 * 256;
         uint32_t bufferSize  = bytesPerRow * in.texExtent.height * in.texExtent.depth;
         return initVal + bufferSize;
@@ -288,7 +288,7 @@ emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture* src, const BufferTex
     wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &wgpuCommandBuffer);
     printf("Q submit\n");
     Semaphore      sem{0};
-    BufferMapData* bufferMapData = new BufferMapData{
+    BufferMapData *bufferMapData = new BufferMapData{
         &sem,
         buffer,
         nullptr,
@@ -305,33 +305,33 @@ emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture* src, const BufferTex
     return *bufferMapData->retBuffer;
 }
 
-void CCWGPUDevice::copyTextureToBuffers(Texture* src, uint8_t* const* buffers, const BufferTextureCopy* region, uint count) {
+void CCWGPUDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
 }
 
-void CCWGPUDevice::acquire(Swapchain* const* swapchains, uint32_t count) {
-    for (auto* swapchain : _swapchains) {
+void CCWGPUDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
+    for (auto *swapchain : _swapchains) {
         swapchain->update();
     }
 }
 
-Shader* CCWGPUDevice::createShader(const SPVShaderInfoInstance& info) {
-    CCWGPUShader* shader = CC_NEW(CCWGPUShader);
+Shader *CCWGPUDevice::createShader(const SPVShaderInfoInstance &info) {
+    CCWGPUShader *shader = CC_NEW(CCWGPUShader);
     shader->initialize(info);
     return shader;
 }
 
-QueryPool* CCWGPUDevice::createQueryPool() {
+QueryPool *CCWGPUDevice::createQueryPool() {
     return CC_NEW(CCWGPUQueryPool);
 }
 
-Sampler* CCWGPUDevice::createSampler(const SamplerInfo& info) {
+Sampler *CCWGPUDevice::createSampler(const SamplerInfo &info) {
     return new CCWGPUSampler(info);
 }
 
 void CCWGPUDevice::present() {
 }
 
-void CCWGPUDevice::getQueryPoolResults(QueryPool* queryPool) {
+void CCWGPUDevice::getQueryPoolResults(QueryPool *queryPool) {
     // _cmdBuff->getQueryPoolResults(queryPool);
 }
 

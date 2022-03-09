@@ -68,8 +68,8 @@ void GLES3Texture::doInit(const TextureInfo & /*info*/) {
     createTextureView();
 }
 
-void GLES3Texture::doInit(const TextureViewInfo& /*info*/) {
-    _gpuTexture = static_cast<GLES3Texture*>(_viewInfo.texture)->gpuTexture();
+void GLES3Texture::doInit(const TextureViewInfo & /*info*/) {
+    _gpuTexture = static_cast<GLES3Texture *>(_viewInfo.texture)->gpuTexture();
 
     CCASSERT(_viewInfo.texture->getFormat() == _viewInfo.format, "Invalid TextureView fromat");
 
@@ -140,7 +140,7 @@ void GLES3Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     _gpuTexture->size       = _size;
     _gpuTexture->memoryless = true;
     _gpuTexture->swapchain  = static_cast<GLES3Swapchain *>(_swapchain)->gpuSwapchain();
-    _gpuTextureView = CC_NEW(GLES3GPUTextureView);
+    _gpuTextureView         = CC_NEW(GLES3GPUTextureView);
     createTextureView();
 }
 
