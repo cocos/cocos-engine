@@ -39,13 +39,13 @@ public:
     CCWGPUTexture();
     ~CCWGPUTexture() = default;
 
-    inline CCWGPUTextureObject* gpuTextureObject() { return _gpuTextureObj; }
+    inline CCWGPUTextureObject *gpuTextureObject() { return _gpuTextureObj; }
 
-    static CCWGPUTexture* defaultCommonTexture();
+    static CCWGPUTexture *defaultCommonTexture();
 
-    static CCWGPUTexture* defaultStorageTexture();
+    static CCWGPUTexture *defaultStorageTexture();
 
-    CCWGPUSwapchain* swapchain();
+    CCWGPUSwapchain *swapchain();
 
     // stamp current state
     void stamp();
@@ -54,14 +54,14 @@ public:
     inline bool internalChanged() const { return _internalChanged; }
 
 protected:
-    void doInit(const TextureInfo& info) override;
-    void doInit(const TextureViewInfo& info) override;
+    void doInit(const TextureInfo &info) override;
+    void doInit(const TextureViewInfo &info) override;
     void doDestroy() override;
     void doResize(uint32_t width, uint32_t height, uint32_t size) override;
 
-    void doInit(const SwapchainTextureInfo& info) override;
+    void doInit(const SwapchainTextureInfo &info) override;
 
-    CCWGPUTextureObject* _gpuTextureObj = nullptr;
+    CCWGPUTextureObject *_gpuTextureObj = nullptr;
 
     bool _internalChanged = false;
 };

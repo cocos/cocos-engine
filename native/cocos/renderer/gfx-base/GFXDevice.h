@@ -41,10 +41,10 @@
 #include "GFXShader.h"
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
+#include "base/RefCounted.h"
 #include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
 #include "states/GFXTextureBarrier.h"
-#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {

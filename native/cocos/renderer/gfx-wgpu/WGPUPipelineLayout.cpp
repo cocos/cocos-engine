@@ -37,15 +37,15 @@ using namespace emscripten;
 CCWGPUPipelineLayout::CCWGPUPipelineLayout() : wrapper<PipelineLayout>(val::object()) {
 }
 
-void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo& info) {
+void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     _gpuPipelineLayoutObj = CC_NEW(CCWGPUPipelineLayoutObject);
 }
 
-void CCWGPUPipelineLayout::prepare(const std::set<uint8_t>& setInUse) {
+void CCWGPUPipelineLayout::prepare(const std::set<uint8_t> &setInUse) {
     std::vector<WGPUBindGroupLayout> layouts;
     // _bgLayouts.clear();
     for (size_t i = 0; i < _setLayouts.size(); i++) {
-        auto* descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout*>(_setLayouts[i]);
+        auto *descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout *>(_setLayouts[i]);
         if (setInUse.find(i) == setInUse.end()) {
             // give it default bindgrouplayout if not in use
             layouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));

@@ -42,7 +42,7 @@ public:
     CCWGPUDescriptorSet();
     ~CCWGPUDescriptorSet() = default;
 
-    inline CCWGPUBindGroupObject* gpuBindGroupObject() { return _gpuBindGroupObj; }
+    inline CCWGPUBindGroupObject *gpuBindGroupObject() { return _gpuBindGroupObj; }
 
     void update() override;
 
@@ -50,19 +50,19 @@ public:
 
     void prepare();
 
-    static void* defaultBindGroup();
+    static void *defaultBindGroup();
 
-    inline Pairs& dynamicOffsets() { return _dynamicOffsets; }
+    inline Pairs &dynamicOffsets() { return _dynamicOffsets; }
 
     // void* bgl() const{return _bgl;}
 
     // DescriptorSetLayout* local()const {return _local;}
 
 protected:
-    void doInit(const DescriptorSetInfo& info) override;
+    void doInit(const DescriptorSetInfo &info) override;
     void doDestroy() override;
 
-    CCWGPUBindGroupObject* _gpuBindGroupObj = nullptr;
+    CCWGPUBindGroupObject *_gpuBindGroupObj = nullptr;
 
     // seperate combined sampler-texture index
     std::map<uint8_t, uint8_t> _textureIdxMap;

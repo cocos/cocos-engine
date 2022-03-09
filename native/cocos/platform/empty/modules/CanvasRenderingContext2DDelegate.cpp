@@ -34,7 +34,7 @@ namespace {
 namespace cc {
 //static const char gdefaultFontName[] = "-*-helvetica-medium-o-*-*-24-*-*-*-*-*-iso8859-*";
 //static const char gdefaultFontName[] = "lucidasanstypewriter-bold-24";
-static const char gdefaultFontName[]  = "lucidasans-24";
+static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
 }

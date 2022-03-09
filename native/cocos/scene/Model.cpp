@@ -484,7 +484,7 @@ void Model::updateLocalShadowBias() {
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 1] = _shadowNormalBias;
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2] = 0;
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3] = 0;
-    _localDataUpdated = true;
+    _localDataUpdated                                     = true;
 }
 
 } // namespace scene

@@ -38,18 +38,18 @@ public:
     CCWGPUPipelineLayout();
     ~CCWGPUPipelineLayout() = default;
 
-    inline CCWGPUPipelineLayoutObject* gpuPipelineLayoutObject() { return _gpuPipelineLayoutObj; }
+    inline CCWGPUPipelineLayoutObject *gpuPipelineLayoutObject() { return _gpuPipelineLayoutObj; }
 
     //bindgroup not ready yet so delay creation
-    void prepare(const std::set<uint8_t>& setInUse);
+    void prepare(const std::set<uint8_t> &setInUse);
 
     // const std::vector<void*> & layouts()const{return _bgLayouts;}
 
 protected:
-    void doInit(const PipelineLayoutInfo& info) override;
+    void doInit(const PipelineLayoutInfo &info) override;
     void doDestroy() override;
 
-    CCWGPUPipelineLayoutObject* _gpuPipelineLayoutObj = nullptr;
+    CCWGPUPipelineLayoutObject *_gpuPipelineLayoutObj = nullptr;
 
     // std::vector<void*> _bgLayouts;
 };
