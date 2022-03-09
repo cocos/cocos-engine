@@ -28,7 +28,7 @@ else
     ANDOIR_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
 fi
 
-cmake -B build-win32 -A win32 
+cmake -B build-win64 -A x64
 
 
 if ! [ -x "$(command -v ninja)" ]; then
@@ -51,13 +51,13 @@ fi
 for target in test-log test-bindings test-math test-fs 
 do
 cmake --build build-android --target $target -- -j 4
-cmake --build build-win32 --target $target --config Release --  /verbosity:minimal
+cmake --build build-win64 --target $target --config Release --  /verbosity:minimal
 done
 
-TEST_LOG_EXE=./build-win32/log/Release/test-log.exe
-TESTS_MATH_EXE=./build-win32/math/Release/test-math.exe
-TEST_BINDINGS_EXE=./build-win32/bindings/Release/test-bindings.exe
-TEST_FS_EXE=./build-win32/filesystem/Release/test-fs.exe
+TEST_LOG_EXE=./build-win64/log/Release/test-log.exe
+TESTS_MATH_EXE=./build-win64/math/Release/test-math.exe
+TEST_BINDINGS_EXE=./build-win64/bindings/Release/test-bindings.exe
+TEST_FS_EXE=./build-win64/filesystem/Release/test-fs.exe
 
 for exe in $TEST_LOG_EXE $TESTS_MATH_EXE $TEST_BINDINGS_EXE $TEST_FS_EXE
 do
