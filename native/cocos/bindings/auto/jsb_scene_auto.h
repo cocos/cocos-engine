@@ -691,4 +691,4 @@ SE_DECLARE_FUNC(js_scene_Octree_setMaxPos);
 SE_DECLARE_FUNC(js_scene_Octree_setMinPos);
 SE_DECLARE_FUNC(js_scene_Octree_update);
 SE_DECLARE_FUNC(js_scene_Octree_Octree);
-    // clang-format on
+// clang-format on
