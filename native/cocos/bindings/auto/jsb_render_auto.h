@@ -113,6 +113,8 @@ SE_DECLARE_FUNC(js_render_SceneVisitor_bindDescriptorSet);
 SE_DECLARE_FUNC(js_render_SceneVisitor_bindInputAssembler);
 SE_DECLARE_FUNC(js_render_SceneVisitor_bindPipelineState);
 SE_DECLARE_FUNC(js_render_SceneVisitor_draw);
+SE_DECLARE_FUNC(js_render_SceneVisitor_setScissor);
+SE_DECLARE_FUNC(js_render_SceneVisitor_setViewport);
 
 extern se::Object *__jsb_cc_render_SceneTask_proto; // NOLINT
 extern se::Class * __jsb_cc_render_SceneTask_class; // NOLINT
