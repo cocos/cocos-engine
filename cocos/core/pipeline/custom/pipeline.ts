@@ -31,7 +31,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Texture, Viewport } from '../../gfx';
+import { Buffer, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
@@ -41,9 +41,11 @@ import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { Model } from '../../renderer/scene';
-import { PipelineEventType } from '../pipeline-event';
 
 export abstract class PipelineRuntime {
+    public abstract activate(swapchain: Swapchain): boolean;
+    public abstract destroy(): boolean;
+    public abstract render(cameras: Camera[]): void;
     public abstract get macros(): MacroRecord;
     public abstract get globalDSManager(): GlobalDSManager;
     public abstract get descriptorSetLayout(): DescriptorSetLayout;
@@ -52,9 +54,6 @@ export abstract class PipelineRuntime {
     public abstract get profiler(): Model | null;
     public abstract set profiler(profiler: Model | null);
     public abstract onGlobalPipelineStateChanged(): void;
-
-    public abstract on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback;
-    public abstract off (type: PipelineEventType, callback?: any, target?: any): void;
 }
 
 export abstract class DescriptorHierarchy {

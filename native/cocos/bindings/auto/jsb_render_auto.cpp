@@ -19,6 +19,47 @@
 se::Object* __jsb_cc_render_PipelineRuntime_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_PipelineRuntime_class = nullptr;  // NOLINT
 
+static bool js_render_PipelineRuntime_activate(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_activate : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Swapchain*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_activate : Error processing arguments");
+        bool result = cobj->activate(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_activate : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_activate)
+
+static bool js_render_PipelineRuntime_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->destroy();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_destroy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_destroy)
+
 static bool js_render_PipelineRuntime_getConstantMacros(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
@@ -148,6 +189,25 @@ static bool js_render_PipelineRuntime_onGlobalPipelineStateChanged(se::State& s)
 }
 SE_BIND_FUNC(js_render_PipelineRuntime_onGlobalPipelineStateChanged)
 
+static bool js_render_PipelineRuntime_render(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_render : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::vector<const cc::scene::Camera *>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_render : Error processing arguments");
+        cobj->render(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_render)
+
 static bool js_render_PipelineRuntime_setProfiler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
@@ -177,7 +237,10 @@ bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-i
     cls->defineProperty("pipelineSceneData", _SE(js_render_PipelineRuntime_getPipelineSceneData_asGetter), nullptr);
     cls->defineProperty("constantMacros", _SE(js_render_PipelineRuntime_getConstantMacros_asGetter), nullptr);
     cls->defineProperty("profiler", _SE(js_render_PipelineRuntime_getProfiler_asGetter), _SE(js_render_PipelineRuntime_setProfiler_asSetter));
+    cls->defineFunction("activate", _SE(js_render_PipelineRuntime_activate));
+    cls->defineFunction("destroy", _SE(js_render_PipelineRuntime_destroy));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_render_PipelineRuntime_onGlobalPipelineStateChanged));
+    cls->defineFunction("render", _SE(js_render_PipelineRuntime_render));
     cls->install();
     JSBClassType::registerClass<cc::render::PipelineRuntime>(cls);
 
