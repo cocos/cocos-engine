@@ -995,6 +995,7 @@ static bool JSB_isGZipBuffer(se::State &s) { //NOLINT
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
         bool flag = ZipUtils::isGZipBuffer(arg0, static_cast<ssize_t>(arg1));
         s.rval().setBoolean(flag);
+        return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
@@ -1109,6 +1110,7 @@ static bool JSB_isCCZBuffer(se::State &s) { //NOLINT
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
         bool flag = ZipUtils::isCCZBuffer(arg0, static_cast<ssize_t>(arg1));
         s.rval().setBoolean(flag);
+        return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
