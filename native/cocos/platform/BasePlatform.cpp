@@ -46,7 +46,7 @@ namespace cc {
 BasePlatform::BasePlatform()  = default;
 BasePlatform::~BasePlatform() = default;
 
-BasePlatform* BasePlatform::getPlatform() {
+BasePlatform *BasePlatform::getPlatform() {
 #if defined(CC_SERVER_MODE)
     static EmptyPlatform platform;
 #elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)

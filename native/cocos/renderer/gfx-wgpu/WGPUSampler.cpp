@@ -33,12 +33,12 @@ namespace cc {
 namespace gfx {
 
 namespace anoymous {
-CCWGPUSampler* defaultSampler = nullptr;
+CCWGPUSampler *defaultSampler = nullptr;
 }
 
 using namespace emscripten;
 
-CCWGPUSampler::CCWGPUSampler(const SamplerInfo& info) : wrapper<Sampler>(val::object(), info) {
+CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : wrapper<Sampler>(val::object(), info) {
     WGPUSamplerDescriptor descriptor = {
         .nextInChain   = nullptr,
         .label         = nullptr,
@@ -54,7 +54,7 @@ CCWGPUSampler::CCWGPUSampler(const SamplerInfo& info) : wrapper<Sampler>(val::ob
         .maxAnisotropy = static_cast<uint16_t>(info.maxAnisotropy),
     };
 
-    auto* device = CCWGPUDevice::getInstance();
+    auto *device = CCWGPUDevice::getInstance();
     _wgpuSampler = wgpuDeviceCreateSampler(device->gpuDeviceObject()->wgpuDevice, &descriptor);
 }
 
@@ -62,7 +62,7 @@ CCWGPUSampler::~CCWGPUSampler() {
     wgpuSamplerRelease(_wgpuSampler);
 }
 
-CCWGPUSampler* CCWGPUSampler::defaultSampler() {
+CCWGPUSampler *CCWGPUSampler::defaultSampler() {
     if (!anoymous::defaultSampler) {
         SamplerInfo info = {
             .minFilter     = Filter::LINEAR,

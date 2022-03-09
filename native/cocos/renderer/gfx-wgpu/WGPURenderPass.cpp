@@ -36,7 +36,7 @@ using namespace emscripten;
 
 class CCWGPURenderPassHelper {
 public:
-    explicit CCWGPURenderPassHelper(const RenderPassInfo& info) {
+    explicit CCWGPURenderPassHelper(const RenderPassInfo &info) {
         SampleCount samples = SampleCount::ONE;
         for (size_t i = 0; i < info.colorAttachments.size(); i++) {
             colors[i].loadOp     = toWGPULoadOp(info.colorAttachments[i].loadOp);
@@ -77,14 +77,14 @@ public:
 
     std::array<WGPURenderPassColorAttachment, CC_WGPU_MAX_ATTACHMENTS>        colors;
     std::array<WGPURenderPassDepthStencilAttachment, CC_WGPU_MAX_ATTACHMENTS> depthStencils;
-    WGPURenderPassDescriptor*                                                 renderPassDesc = nullptr;
+    WGPURenderPassDescriptor *                                                renderPassDesc = nullptr;
     int                                                                       sampleCount    = 1;
 };
 
 CCWGPURenderPass::CCWGPURenderPass() : wrapper<RenderPass>(val::object()) {
 }
 
-void CCWGPURenderPass::doInit(const RenderPassInfo& info) {
+void CCWGPURenderPass::doInit(const RenderPassInfo &info) {
     _renderPassObject                     = new CCWGPURenderPassObject();
     _rpHelper                             = new CCWGPURenderPassHelper(info);
     _renderPassObject->wgpuRenderPassDesc = _rpHelper->renderPassDesc;

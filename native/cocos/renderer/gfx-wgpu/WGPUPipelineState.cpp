@@ -42,31 +42,31 @@ using namespace emscripten;
 CCWGPUPipelineState::CCWGPUPipelineState() : wrapper<PipelineState>(val::object()) {
 }
 
-void CCWGPUPipelineState::doInit(const PipelineStateInfo& info) {
+void CCWGPUPipelineState::doInit(const PipelineStateInfo &info) {
     _gpuPipelineStateObj = CC_NEW(CCWGPUPipelineStateObject);
 }
 
-void CCWGPUPipelineState::check(RenderPass* renderPass) {
+void CCWGPUPipelineState::check(RenderPass *renderPass) {
     if (_renderPass != renderPass) {
         _renderPass  = renderPass;
         _forceUpdate = true;
     }
 }
 
-void CCWGPUPipelineState::prepare(const std::set<uint8_t>& setInUse) {
-    auto* pipelineLayout = static_cast<CCWGPUPipelineLayout*>(_pipelineLayout);
+void CCWGPUPipelineState::prepare(const std::set<uint8_t> &setInUse) {
+    auto *pipelineLayout = static_cast<CCWGPUPipelineLayout *>(_pipelineLayout);
 
-    const DepthStencilAttachment& dsAttachment = _renderPass->getDepthStencilAttachment();
+    const DepthStencilAttachment &dsAttachment = _renderPass->getDepthStencilAttachment();
     if (_bindPoint == PipelineBindPoint::GRAPHICS) {
         if (_gpuPipelineStateObj->wgpuRenderPipeline && !_forceUpdate) {
             return;
         }
 
-        auto maxStreamAttr = std::max_element(_inputState.attributes.begin(), _inputState.attributes.end(), [&](const Attribute& lhs, const Attribute& rhs) {
+        auto maxStreamAttr = std::max_element(_inputState.attributes.begin(), _inputState.attributes.end(), [&](const Attribute &lhs, const Attribute &rhs) {
             return lhs.stream < rhs.stream;
         });
 
-        auto    longestAttr         = std::max_element(_inputState.attributes.begin(), _inputState.attributes.end(), [&](const Attribute& lhs, const Attribute& rhs) {
+        auto    longestAttr         = std::max_element(_inputState.attributes.begin(), _inputState.attributes.end(), [&](const Attribute &lhs, const Attribute &rhs) {
             return GFX_FORMAT_INFOS[static_cast<uint>(lhs.format)].size < GFX_FORMAT_INFOS[static_cast<uint>(rhs.format)].size;
         });
         uint8_t mostToleranceStream = (*longestAttr).stream;
@@ -76,7 +76,7 @@ void CCWGPUPipelineState::prepare(const std::set<uint8_t>& setInUse) {
         std::vector<WGPUVertexBufferLayout>           vbLayouts(streamCount);
         std::vector<std::vector<WGPUVertexAttribute>> wgpuAttrsVec(streamCount);
 
-        const AttributeList& attrs       = _shader->getAttributes();
+        const AttributeList &attrs       = _shader->getAttributes();
         uint64_t             offset[256] = {0};
         // std::vector<WGPUVertexAttribute> wgpuAttrs;
         bool    isInstance = attrs.empty() ? false : attrs[0].isInstanced;
@@ -85,7 +85,7 @@ void CCWGPUPipelineState::prepare(const std::set<uint8_t>& setInUse) {
         // wgpuAttrsVec[0] ∪ wgpuAttrsVec[1] ∪ ... ∪ wgpuAttrsVec[n] == shader.attrs
         for (size_t i = 0; i < attrs.size(); i++) {
             String attrName = attrs[i].name;
-            auto   iter     = std::find_if(_inputState.attributes.begin(), _inputState.attributes.end(), [attrName](const Attribute& attr) {
+            auto   iter     = std::find_if(_inputState.attributes.begin(), _inputState.attributes.end(), [attrName](const Attribute &attr) {
                 return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
             });
 
@@ -123,8 +123,8 @@ void CCWGPUPipelineState::prepare(const std::set<uint8_t>& setInUse) {
         // input state has attr which shader hasnt.
         for (size_t i = 0; i < _inputState.attributes.size(); ++i) {
             String      attrName  = _inputState.attributes[i].name;
-            const auto& attribute = _inputState.attributes[i];
-            auto        iter      = std::find_if(attrs.begin(), attrs.end(), [attrName](const Attribute& attr) {
+            const auto &attribute = _inputState.attributes[i];
+            auto        iter      = std::find_if(attrs.begin(), attrs.end(), [attrName](const Attribute &attr) {
                 return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
             });
             if (iter == attrs.end()) {
@@ -156,7 +156,7 @@ void CCWGPUPipelineState::prepare(const std::set<uint8_t>& setInUse) {
 
         WGPUVertexState vertexState = {
             .nextInChain = nullptr,
-            .module      = static_cast<CCWGPUShader*>(_shader)->gpuShaderObject()->wgpuShaderVertexModule,
+            .module      = static_cast<CCWGPUShader *>(_shader)->gpuShaderObject()->wgpuShaderVertexModule,
             .entryPoint  = "main",
             .bufferCount = vbLayouts.size(),
             .buffers     = vbLayouts.data(),
@@ -203,12 +203,12 @@ void CCWGPUPipelineState::prepare(const std::set<uint8_t>& setInUse) {
         };
 
         WGPUMultisampleState msState = {
-            .count                  = static_cast<CCWGPURenderPass*>(_renderPass)->gpuRenderPassObject()->sampleCount,
+            .count                  = static_cast<CCWGPURenderPass *>(_renderPass)->gpuRenderPassObject()->sampleCount,
             .mask                   = 0xFFFFFFFF,
             .alphaToCoverageEnabled = _blendState.isA2C != 0,
         };
 
-        const ColorAttachmentList&        colors = _renderPass->getColorAttachments();
+        const ColorAttachmentList &       colors = _renderPass->getColorAttachments();
         std::vector<WGPUColorTargetState> colorTargetStates(colors.size());
 
         std::vector<WGPUBlendState> blendState(colors.size());
@@ -233,7 +233,7 @@ void CCWGPUPipelineState::prepare(const std::set<uint8_t>& setInUse) {
         }
 
         WGPUFragmentState fragmentState = {
-            .module      = static_cast<CCWGPUShader*>(_shader)->gpuShaderObject()->wgpuShaderFragmentModule,
+            .module      = static_cast<CCWGPUShader *>(_shader)->gpuShaderObject()->wgpuShaderFragmentModule,
             .entryPoint  = "main",
             .targetCount = colorTargetStates.size(),
             .targets     = colorTargetStates.data(),
@@ -266,7 +266,7 @@ void CCWGPUPipelineState::prepare(const std::set<uint8_t>& setInUse) {
         if (_gpuPipelineStateObj->wgpuComputePipeline)
             return;
         WGPUProgrammableStageDescriptor psDesc = {
-            .module     = static_cast<CCWGPUShader*>(_shader)->gpuShaderObject()->wgpuShaderComputeModule,
+            .module     = static_cast<CCWGPUShader *>(_shader)->gpuShaderObject()->wgpuShaderComputeModule,
             .entryPoint = "main",
         };
         pipelineLayout->prepare(setInUse);

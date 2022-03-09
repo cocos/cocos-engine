@@ -97,7 +97,7 @@ void NativePipeline::addPresentPass(const std::string& name, const std::string& 
 }
 
 // NOLINTNEXTLINE
-SceneTransversal* NativePipeline::createSceneTransversal(const scene::RenderScene* scene) {
+SceneTransversal* NativePipeline::createSceneTransversal(const scene::Camera* camera, const scene::RenderScene* scene) {
     return nullptr;
 }
 

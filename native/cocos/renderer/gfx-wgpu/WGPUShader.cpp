@@ -37,9 +37,9 @@ using namespace emscripten;
 CCWGPUShader::CCWGPUShader() : wrapper<Shader>(val::object()) {
 }
 
-void CCWGPUShader::initialize(const SPVShaderInfoInstance& spvInfo) {
+void CCWGPUShader::initialize(const SPVShaderInfoInstance &spvInfo) {
     _gpuShaderObject       = CC_NEW(CCWGPUShaderObject);
-    const ShaderInfo& info = spvInfo.info;
+    const ShaderInfo &info = spvInfo.info;
 
     _name            = info.name;
     _stages          = info.stages;
@@ -54,8 +54,8 @@ void CCWGPUShader::initialize(const SPVShaderInfoInstance& spvInfo) {
 
     _gpuShaderObject->name = info.name;
     for (size_t i = 0; i < spvInfo.stages.size(); i++) {
-        const auto& stage   = spvInfo.stages[i];
-        auto*       spvData = spvInfo.stages[i].spv.data();
+        const auto &stage   = spvInfo.stages[i];
+        auto *      spvData = spvInfo.stages[i].spv.data();
         size_t      size    = spvInfo.stages[i].spv.size();
 
         WGPUShaderModuleSPIRVDescriptor spv = {};
@@ -63,7 +63,7 @@ void CCWGPUShader::initialize(const SPVShaderInfoInstance& spvInfo) {
         spv.codeSize                        = size;
         spv.code                            = spvData;
         WGPUShaderModuleDescriptor desc     = {};
-        desc.nextInChain                    = reinterpret_cast<WGPUChainedStruct*>(&spv);
+        desc.nextInChain                    = reinterpret_cast<WGPUChainedStruct *>(&spv);
         desc.label                          = nullptr;
         if (stage.stage == ShaderStageFlagBit::VERTEX) {
             _gpuShaderObject->wgpuShaderVertexModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
@@ -77,7 +77,7 @@ void CCWGPUShader::initialize(const SPVShaderInfoInstance& spvInfo) {
     }
 }
 
-void CCWGPUShader::doInit(const ShaderInfo& info) {
+void CCWGPUShader::doInit(const ShaderInfo &info) {
 }
 
 void CCWGPUShader::doDestroy() {

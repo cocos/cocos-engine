@@ -39,7 +39,7 @@ using namespace emscripten;
 CCWGPUQueue::CCWGPUQueue() : wrapper<Queue>(val::object()) {
 }
 
-void CCWGPUQueue::doInit(const QueueInfo& info) {
+void CCWGPUQueue::doInit(const QueueInfo &info) {
     _gpuQueueObject            = CC_NEW(CCWGPUQueueObject);
     _gpuQueueObject->type      = info.type;
     _gpuQueueObject->wgpuQueue = wgpuDeviceGetQueue(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice);
@@ -54,7 +54,7 @@ void CCWGPUQueue::doDestroy() {
     }
 }
 
-void CCWGPUQueue::submit(CommandBuffer* const* cmdBuffs, uint count) {
+void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     // std::vector<WGPUCommandBuffer> commandBuffs(count);
     // for (size_t i = 0; i < count; i++) {
     //     auto* commandBuff = static_cast<CCWGPUCommandBuffer*>(cmdBuffs[i]);

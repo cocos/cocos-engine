@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-CCWGPUSwapchain::CCWGPUSwapchain(CCWGPUDevice* device) {
+CCWGPUSwapchain::CCWGPUSwapchain(CCWGPUDevice *device) {
     _device = device;
 }
 
@@ -39,13 +39,13 @@ CCWGPUSwapchain::~CCWGPUSwapchain() {
     _device = nullptr;
 }
 
-void CCWGPUSwapchain::doInit(const SwapchainInfo& info) {
+void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
     WGPUSurfaceDescriptorFromCanvasHTMLSelector canvDesc = {};
     canvDesc.chain.sType                                 = WGPUSType_SurfaceDescriptorFromCanvasHTMLSelector;
     canvDesc.selector                                    = "canvas";
 
     WGPUSurfaceDescriptor surfDesc = {};
-    surfDesc.nextInChain           = reinterpret_cast<WGPUChainedStruct*>(&canvDesc);
+    surfDesc.nextInChain           = reinterpret_cast<WGPUChainedStruct *>(&canvDesc);
     WGPUSurface surface            = wgpuInstanceCreateSurface(nullptr, &surfDesc);
 
     WGPUPresentMode presentMode;
@@ -69,7 +69,7 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo& info) {
             presentMode = WGPUPresentMode_Fifo;
     }
 
-    auto*                   device = CCWGPUDevice::getInstance();
+    auto *                  device = CCWGPUDevice::getInstance();
     WGPUSwapChainDescriptor swapChainDesc;
     swapChainDesc.nextInChain = nullptr;
     swapChainDesc.label       = "defaultSwapChain";
@@ -79,7 +79,7 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo& info) {
     swapChainDesc.height      = info.height;
     swapChainDesc.presentMode = presentMode;
 
-    CCWGPUDeviceObject* gpuDeviceObj = device->gpuDeviceObject();
+    CCWGPUDeviceObject *gpuDeviceObj = device->gpuDeviceObject();
     WGPUSwapChain       swapChain    = wgpuDeviceCreateSwapChain(gpuDeviceObj->wgpuDevice, surface, &swapChainDesc);
     _gpuSwapchainObj                 = CC_NEW(CCWGPUSwapchainObject);
     _gpuSwapchainObj->wgpuSwapChain  = swapChain;
@@ -119,22 +119,22 @@ void CCWGPUSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform
     _depthStencilTexture->resize(height, height);
 }
 
-CCWGPUTexture* CCWGPUSwapchain::getColorTexture() {
-    return static_cast<CCWGPUTexture*>(_colorTexture);
+CCWGPUTexture *CCWGPUSwapchain::getColorTexture() {
+    return static_cast<CCWGPUTexture *>(_colorTexture);
 }
 
-CCWGPUTexture* CCWGPUSwapchain::getDepthStencilTexture() {
-    return static_cast<CCWGPUTexture*>(_depthStencilTexture);
+CCWGPUTexture *CCWGPUSwapchain::getDepthStencilTexture() {
+    return static_cast<CCWGPUTexture *>(_depthStencilTexture);
 }
 
 void CCWGPUSwapchain::update() {
-    static_cast<CCWGPUTexture*>(_colorTexture)->gpuTextureObject()->selfView = wgpuSwapChainGetCurrentTextureView(_gpuSwapchainObj->wgpuSwapChain);
+    static_cast<CCWGPUTexture *>(_colorTexture)->gpuTextureObject()->selfView = wgpuSwapChainGetCurrentTextureView(_gpuSwapchainObj->wgpuSwapChain);
 }
 
 void CCWGPUSwapchain::doDestroySurface() {
 }
 
-void CCWGPUSwapchain::doCreateSurface(void* windowHandle) {
+void CCWGPUSwapchain::doCreateSurface(void *windowHandle) {
 }
 
 } // namespace gfx

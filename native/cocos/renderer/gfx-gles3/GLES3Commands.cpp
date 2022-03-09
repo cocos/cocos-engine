@@ -1027,7 +1027,6 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
                 return;
             }
         }
-
         GL_CHECK(gpuStage.glShader = glCreateShader(glShaderStage));
         uint32_t    version      = device->constantRegistry()->glMinorVersion ? 310 : 300;
         String      shaderSource = StringUtil::format("#version %u es\n", version) + gpuStage.source;

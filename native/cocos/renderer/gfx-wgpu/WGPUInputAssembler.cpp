@@ -33,7 +33,7 @@ namespace gfx {
 CCWGPUInputAssembler::CCWGPUInputAssembler() : wrapper<InputAssembler>(val::object()) {
 }
 
-void CCWGPUInputAssembler::doInit(const InputAssemblerInfo& info) {
+void CCWGPUInputAssembler::doInit(const InputAssemblerInfo &info) {
     _gpuInputAssemblerObj = CC_NEW(CCWGPUInputAssemblerObject);
     // // typedef struct WGPUVertexState {
     // //     WGPUChainedStruct const * nextInChain;
@@ -50,7 +50,7 @@ void CCWGPUInputAssembler::doInit(const InputAssemblerInfo& info) {
 void CCWGPUInputAssembler::doDestroy() {
 }
 
-void CCWGPUInputAssembler::update(const DrawInfo& info) {
+void CCWGPUInputAssembler::update(const DrawInfo &info) {
     _drawInfo = info;
 }
 
