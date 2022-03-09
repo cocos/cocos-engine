@@ -111,7 +111,6 @@ void GLES3Swapchain::doDestroy() {
 
     CC_SAFE_DESTROY(_depthStencilTexture)
     CC_SAFE_DESTROY(_colorTexture)
-
     doDestroySurface();
     CC_SAFE_DELETE(_gpuSwapchain);
 }
