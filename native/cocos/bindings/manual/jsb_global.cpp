@@ -845,7 +845,7 @@ static bool jsb_createExternalArrayBuffer(se::State &s) {
 }
 SE_BIND_FUNC(jsb_createExternalArrayBuffer)
 
-static bool JSB_inflateMemory(se::State &s) { //NOLINT
+static bool JSB_zipUtils_inflateMemory(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -900,9 +900,9 @@ static bool JSB_inflateMemory(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(JSB_inflateMemory)
+SE_BIND_FUNC(JSB_zipUtils_inflateMemory)
 
-static bool JSB_inflateGZipFile(se::State &s) { //NOLINT
+static bool JSB_zipUtils_inflateGZipFile(se::State &s) { //NOLINT
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
@@ -922,9 +922,9 @@ static bool JSB_inflateGZipFile(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(JSB_inflateGZipFile)
+SE_BIND_FUNC(JSB_zipUtils_inflateGZipFile)
 
-static bool JSB_isGZipFile(se::State &s) { //NOLINT
+static bool JSB_zipUtils_isGZipFile(se::State &s) { //NOLINT
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
@@ -937,9 +937,9 @@ static bool JSB_isGZipFile(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(JSB_isGZipFile)
+SE_BIND_FUNC(JSB_zipUtils_isGZipFile)
 
-static bool JSB_isGZipBuffer(se::State &s) { //NOLINT
+static bool JSB_zipUtils_isGZipBuffer(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -972,9 +972,9 @@ static bool JSB_isGZipBuffer(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(JSB_isGZipBuffer)
+SE_BIND_FUNC(JSB_zipUtils_isGZipBuffer)
 
-static bool JSB_inflateCCZFile(se::State &s) { //NOLINT
+static bool JSB_zipUtils_inflateCCZFile(se::State &s) { //NOLINT
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
@@ -994,9 +994,9 @@ static bool JSB_inflateCCZFile(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(JSB_inflateCCZFile)
+SE_BIND_FUNC(JSB_zipUtils_inflateCCZFile)
 
-static bool JSB_inflateCCZBuffer(se::State &s) { //NOLINT
+static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -1036,9 +1036,9 @@ static bool JSB_inflateCCZBuffer(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(JSB_inflateCCZBuffer)
+SE_BIND_FUNC(JSB_zipUtils_inflateCCZBuffer)
 
-static bool JSB_isCCZFile(se::State &s) { //NOLINT
+static bool JSB_zipUtils_isCCZFile(se::State &s) { //NOLINT
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
@@ -1052,9 +1052,9 @@ static bool JSB_isCCZFile(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(JSB_isCCZFile)
+SE_BIND_FUNC(JSB_zipUtils_isCCZFile)
 
-static bool JSB_isCCZBuffer(se::State &s) { //NOLINT
+static bool JSB_zipUtils_isCCZBuffer(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -1087,9 +1087,9 @@ static bool JSB_isCCZBuffer(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(JSB_isCCZBuffer)
+SE_BIND_FUNC(JSB_zipUtils_isCCZBuffer)
 
-static bool JSB_setPvrEncryptionKeyPart(se::State &s) { //NOLINT
+static bool JSB_zipUtils_setPvrEncryptionKeyPart(se::State &s) { //NOLINT
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 2) {
@@ -1102,9 +1102,9 @@ static bool JSB_setPvrEncryptionKeyPart(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(JSB_setPvrEncryptionKeyPart)
+SE_BIND_FUNC(JSB_zipUtils_setPvrEncryptionKeyPart)
 
-static bool JSB_setPvrEncryptionKey(se::State &s) { //NOLINT
+static bool JSB_zipUtils_setPvrEncryptionKey(se::State &s) { //NOLINT
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 4) {
@@ -1119,7 +1119,7 @@ static bool JSB_setPvrEncryptionKey(se::State &s) { //NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
-SE_BIND_FUNC(JSB_setPvrEncryptionKey)
+SE_BIND_FUNC(JSB_zipUtils_setPvrEncryptionKey)
 
 bool jsb_register_global_variables(se::Object *global) { //NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
@@ -1145,16 +1145,19 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
     __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
     __jsbObj->defineFunction("createExternalArrayBuffer", _SE(jsb_createExternalArrayBuffer));
 
-    __jsbObj->defineFunction("inflateMemory", _SE(JSB_inflateMemory));
-    __jsbObj->defineFunction("inflateGZipFile", _SE(JSB_inflateGZipFile));
-    __jsbObj->defineFunction("isGZipFile", _SE(JSB_isGZipFile));
-    __jsbObj->defineFunction("isGZipBuffer", _SE(JSB_isGZipBuffer));
-    __jsbObj->defineFunction("inflateCCZFile", _SE(JSB_inflateCCZFile));
-    __jsbObj->defineFunction("inflateCCZBuffer", _SE(JSB_inflateCCZBuffer));
-    __jsbObj->defineFunction("isCCZFile", _SE(JSB_isCCZFile));
-    __jsbObj->defineFunction("isCCZBuffer", _SE(JSB_isCCZBuffer));
-    __jsbObj->defineFunction("setPvrEncryptionKeyPart", _SE(JSB_setPvrEncryptionKeyPart));
-    __jsbObj->defineFunction("setPvrEncryptionKey", _SE(JSB_setPvrEncryptionKey));
+    se::HandleObject zipUtils(se::Object::createPlainObject());
+    zipUtils->defineFunction("inflateMemory", _SE(JSB_zipUtils_inflateMemory));
+    zipUtils->defineFunction("inflateGZipFile", _SE(JSB_zipUtils_inflateGZipFile));
+    zipUtils->defineFunction("isGZipFile", _SE(JSB_zipUtils_isGZipFile));
+    zipUtils->defineFunction("isGZipBuffer", _SE(JSB_zipUtils_isGZipBuffer));
+    zipUtils->defineFunction("inflateCCZFile", _SE(JSB_zipUtils_inflateCCZFile));
+    zipUtils->defineFunction("inflateCCZBuffer", _SE(JSB_zipUtils_inflateCCZBuffer));
+    zipUtils->defineFunction("isCCZFile", _SE(JSB_zipUtils_isCCZFile));
+    zipUtils->defineFunction("isCCZBuffer", _SE(JSB_zipUtils_isCCZBuffer));
+    zipUtils->defineFunction("setPvrEncryptionKeyPart", _SE(JSB_zipUtils_setPvrEncryptionKeyPart));
+    zipUtils->defineFunction("setPvrEncryptionKey", _SE(JSB_zipUtils_setPvrEncryptionKey));
+
+    __jsbObj->setProperty("zipUtils", se::Value(zipUtils));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
