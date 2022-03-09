@@ -53,6 +53,8 @@ export abstract class PipelineRuntime {
     public abstract get constantMacros(): string;
     public abstract get profiler(): Model | null;
     public abstract set profiler(profiler: Model | null);
+    public abstract get shadingScale(): number;
+    public abstract set shadingScale(scale: number);
     public abstract onGlobalPipelineStateChanged(): void;
 }
 

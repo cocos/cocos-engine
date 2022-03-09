@@ -89,7 +89,11 @@ public:
     virtual const std::string           &getConstantMacros() const = 0;
     virtual scene::Model                *getProfiler() const = 0;
     virtual void                         setProfiler(scene::Model *profiler) const = 0;
-    virtual void                         onGlobalPipelineStateChanged() = 0;
+
+    virtual float getShadingScale() const = 0;
+    virtual void  setShadingScale(float scale) = 0;
+
+    virtual void onGlobalPipelineStateChanged() = 0;
 };
 
 inline PipelineRuntime::~PipelineRuntime() noexcept = default;
