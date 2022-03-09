@@ -227,26 +227,26 @@ function _safeSubstring (targetString, startIndex, endIndex?) {
     return targetString.substring(newStartIndex, newEndIndex) as string;
 }
 /**
-* @internal
+* @engineInternal
 */
 export function isEnglishWordPartAtFirst (stringToken: string) {
     return FIRST_ENGLISH_REG.test(stringToken);
 }
 /**
-* @internal
+* @engineInternal
 */
 export function isEnglishWordPartAtLast (stringToken: string) {
     return LAST_ENGLISH_REG.test(stringToken);
 }
 /**
-* @internal
+* @engineInternal
 */
 export function getEnglishWordPartAtFirst (stringToken: string) {
     const result = FIRST_ENGLISH_REG.exec(stringToken);
     return result;
 }
 /**
-* @internal
+* @engineInternal
 */
 export function getEnglishWordPartAtLast (stringToken: string) {
     const result = LAST_ENGLISH_REG.exec(stringToken);
