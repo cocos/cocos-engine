@@ -26,7 +26,7 @@
 import { Mesh } from '../assets/mesh';
 import { AttributeName, Format, FormatInfos, PrimitiveMode, Attribute } from '../../core/gfx';
 import { Vec3 } from '../../core/math';
-import { IGeometry } from '../../primitive/define';
+import { IGeometry, IDynamicGeometry, ICreateMeshOptions, ICreateDynamicMeshOptions } from '../../primitive/define';
 import { writeBuffer } from './buffer';
 import { BufferBlob } from './buffer-blob';
 
@@ -39,7 +39,7 @@ const _defAttrs: Attribute[] = [
 ];
 
 const v3_1 = new Vec3();
-export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMesh.IOptions) {
+export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
     options = options || {};
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: Attribute[] = [];
@@ -261,8 +261,165 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
     return out;
 }
 
+function getPadding (length: number, align: number): number {
+    if (align > 0) {
+        const remainder = length % align;
+        if (remainder !== 0) {
+            const padding = align - remainder;
+            return padding;
+        }
+    }
+
+    return 0;
+}
+
+export function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
+    options = options || { maxSubMeshes: 1, maxVertices: 1024, maxIndices: 1024 };
+
+    const attributes: Attribute[] = [];
+    let stream = 0;
+
+    if (geometry.positions.length > 0) {
+        attributes.push(new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, stream++, false, 0));
+    }
+
+    if (geometry.normals && geometry.normals.length > 0) {
+        attributes.push(new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, stream++, false, 0));
+    }
+
+    if (geometry.uvs && geometry.uvs.length > 0) {
+        attributes.push(new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F, false, stream++, false, 0));
+    }
+
+    if (geometry.tangents && geometry.tangents.length > 0) {
+        attributes.push(new Attribute(AttributeName.ATTR_TANGENT, Format.RGBA32F, false, stream++, false, 0));
+    }
+
+    if (geometry.colors && geometry.colors.length > 0) {
+        attributes.push(new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F, false, stream++, false, 0));
+    }
+
+    if (geometry.customAttributes) {
+        for (const ca of geometry.customAttributes) {
+            const attr = new Attribute();
+            attr.copy(ca.attr);
+            attr.stream = stream++;
+            attributes.push(attr);
+        }
+    }
+
+    const vertexBundles: Mesh.IVertexBundle[] = [];
+    const primitives: Mesh.ISubMesh[] = [];
+    let dataSize = 0;
+
+    for (let i = 0; i < options.maxSubMeshes; i++) {
+        const primitive: Mesh.ISubMesh = {
+            vertexBundelIndices: [],
+            primitiveMode: geometry.primitiveMode || PrimitiveMode.TRIANGLE_LIST,
+        };
+
+        // add vertex buffers
+        for (const attr of attributes) {
+            const formatInfo = FormatInfos[attr.format];
+            const vertexBufferSize = options.maxVertices * formatInfo.size;
+
+            const vertexView: Mesh.IBufferView = {
+                offset: dataSize,
+                length: vertexBufferSize,
+                count: 0,
+                stride: formatInfo.size,
+            };
+
+            const vertexBundle: Mesh.IVertexBundle = {
+                view: vertexView,
+                attributes: [attr],
+            };
+
+            const vertexBundleIndex = vertexBundles.length;
+            primitive.vertexBundelIndices.push(vertexBundleIndex);
+            vertexBundles.push(vertexBundle);
+            dataSize += vertexBufferSize;
+        }
+
+        // add index buffer
+        let stride = 0;
+        if (geometry.indices16 && geometry.indices16.length > 0) {
+            stride = 2;
+        } else if (geometry.indices32 && geometry.indices32.length > 0) {
+            stride = 4;
+        }
+
+        if (stride > 0) {
+            dataSize += getPadding(dataSize, stride);
+            const indexBufferSize = options.maxIndices * stride;
+
+            const indexView: Mesh.IBufferView = {
+                offset: dataSize,
+                length: indexBufferSize,
+                count: 0,
+                stride,
+            };
+
+            primitive.indexView = indexView;
+            dataSize += indexBufferSize;
+        }
+
+        primitives.push(primitive);
+    }
+
+    const dynamicInfo: Mesh.IDynamicInfo = {
+        maxSubMeshes: options.maxSubMeshes,
+        maxVertices: options.maxVertices,
+        maxIndices: options.maxIndices,
+    };
+
+    const dynamicStruct: Mesh.IDynamicStruct = {
+        info: dynamicInfo,
+        bounds: [],
+    };
+    dynamicStruct.bounds.length = options.maxSubMeshes;
+
+    const meshStruct: Mesh.IStruct = {
+        vertexBundles,
+        primitives,
+        dynamic: dynamicStruct,
+    };
+
+    const createInfo: Mesh.ICreateInfo = {
+        struct: meshStruct,
+        data: new Uint8Array(dataSize),
+    };
+
+    if (!out) {
+        out = new Mesh();
+    }
+
+    out.reset(createInfo);
+    out.init();
+    out.updateSubMesh(primitiveIndex, geometry);
+
+    return out;
+}
+
+export class MeshUtils {
+    static createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
+        return createMesh(geometry, out, options);
+    }
+
+    static createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
+        return createDynamicMesh(primitiveIndex, geometry, out, options);
+    }
+}
+
 export declare namespace createMesh {
+    /**
+     * @deprecated
+     */
     export interface IOptions {
+        /**
+         * @en calculate mesh's aabb or not
+         * @zh 是否计算模型的包围盒。
+         */
         calculateBounds?: boolean;
     }
 }

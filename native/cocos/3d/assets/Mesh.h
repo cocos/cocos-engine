@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <vector>
 #include "3d/assets/MorphRendering.h"
 #include "3d/assets/Types.h"
 #include "cocos/base/Optional.h"
@@ -32,6 +33,7 @@
 #include "core/geometry/AABB.h"
 #include "math/Mat4.h"
 #include "math/Vec3.h"
+#include "primitive/PrimitiveDefine.h"
 #include "renderer/gfx-base/GFXDef.h"
 
 namespace cc {
@@ -103,6 +105,40 @@ public:
         cc::optional<uint32_t> jointMapIndex;
     };
 
+    struct IDynamicInfo {
+        /**
+         * @en max submesh count
+         * @zh 最大子模型个数。
+         */
+        uint32_t maxSubMeshes{0U};
+
+        /**
+         * @en max submesh vertex count
+         * @zh 子模型最大顶点个数。
+         */
+        uint32_t maxVertices{0U};
+
+        /**
+         * @en max submesh index count
+         * @zh 子模型最大索引个数。
+         */
+        uint32_t maxIndices{0U};
+    };
+
+    struct IDynamicStruct {
+        /**
+         * @en dynamic mesh info
+         * @zh 动态模型信息。
+         */
+        IDynamicInfo info;
+
+        /**
+         * @en dynamic submesh bounds
+         * @zh 动态子模型包围盒。
+         */
+        std::vector<geometry::AABB> bounds;
+    };
+
     /**
      * @en The structure of the mesh
      * @zh 描述了网格的结构。
@@ -144,6 +180,12 @@ public:
          * @zh 网格的形变数据
          */
         cc::optional<Morph> morph;
+
+        /**
+         * @en The specific data of the dynamic mesh
+         * @zh 动态网格特有数据
+         */
+        cc::optional<IDynamicStruct> dynamic;
     };
 
     struct ICreateInfo {
@@ -365,6 +407,20 @@ public:
      * @returns Return false if failed to access the indices data, return true otherwise.
      */
     bool copyIndices(index_t primitiveIndex, TypedArray &outputArray);
+
+    /**
+     * @en dynamic mesh init
+     * @zh 初始化动态网格
+     */
+    void init();
+
+    /**
+     * @en update dynamic sub mesh geometry
+     * @zh 更新动态子网格的几何数据
+     * @param primitiveIndex: sub mesh index
+     * @param geometry: sub mesh geometry data
+     */
+    void updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometry);
 
 private:
     using AccessorType = std::function<void(const IVertexBundle &vertexBundle, int32_t iAttribute)>;

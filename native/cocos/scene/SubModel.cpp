@@ -216,6 +216,18 @@ void SubModel::onMacroPatchesStateChanged(const std::vector<IMacroPatch> &patche
     flushPassInfo();
 }
 
+void SubModel::onGeometryChanged() {
+    if (!_subMesh) {
+        return;
+    }
+
+    // update draw info
+    const auto &drawInfo = _subMesh->getDrawInfo();
+    if (drawInfo.has_value()) {
+        _inputAssembler->setDrawInfo(drawInfo.value());
+    }
+}
+
 void SubModel::flushPassInfo() {
     const auto &passes = *_passes;
     if (passes.empty()) return;

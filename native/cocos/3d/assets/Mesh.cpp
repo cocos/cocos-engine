@@ -27,12 +27,11 @@
 #include "3d/assets/Morph.h"
 #include "3d/assets/Skeleton.h"
 #include "3d/misc/BufferBlob.h"
+#include "boost/container_hash/hash.hpp"
 #include "core/DataView.h"
 #include "core/assets/RenderingSubMesh.h"
 #include "core/platform/Debug.h"
 #include "math/Quaternion.h"
-
-#include "boost/container_hash/hash.hpp"
 #include "renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
@@ -705,6 +704,11 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
 }
 
 bool Mesh::validateMergingMesh(Mesh *mesh) {
+    // dynamic mesh is not allowed to merge.
+    if (_struct.dynamic.has_value() || mesh->_struct.dynamic.has_value()) {
+        return false;
+    }
+
     // validate vertex bundles
     if (_struct.vertexBundles.size() != mesh->_struct.vertexBundles.size()) {
         return false;
@@ -873,6 +877,170 @@ bool Mesh::copyIndices(index_t primitiveIndex, TypedArray &outputArray) {
         setTypedArrayValue(outputArray, i, element);
     }
     return true;
+}
+
+void Mesh::init() {
+    if (!_struct.dynamic.has_value()) {
+        return;
+    }
+
+    if (_initialized) {
+        return;
+    }
+
+    _initialized           = true;
+    auto *          device = gfx::Device::getInstance();
+    gfx::BufferList vertexBuffers;
+
+    for (const auto &vertexBundle : _struct.vertexBundles) {
+        auto *vertexBuffer = device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+                                                   gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
+                                                   vertexBundle.view.length,
+                                                   vertexBundle.view.stride});
+        vertexBuffers.emplace_back(vertexBuffer);
+    }
+
+    for (auto i = 0U; i < _struct.primitives.size(); i++) {
+        const auto & primitive   = _struct.primitives[i];
+        const auto & indexView   = primitive.indexView;
+        gfx::Buffer *indexBuffer = nullptr;
+
+        if (indexView.has_value()) {
+            indexBuffer = device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
+                                                gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
+                                                indexView.value().length,
+                                                indexView.value().stride});
+        }
+
+        gfx::BufferList subVBs;
+        subVBs.reserve(primitive.vertexBundelIndices.size());
+        for (const auto &idx : primitive.vertexBundelIndices) {
+            subVBs.emplace_back(vertexBuffers[idx]);
+        }
+
+        gfx::AttributeList attributes;
+        for (const auto idx : primitive.vertexBundelIndices) {
+            const auto &vertexBundle = _struct.vertexBundles[idx];
+            for (const auto &attr : vertexBundle.attributes) {
+                attributes.emplace_back(attr);
+            }
+        }
+
+        auto *subMesh = new RenderingSubMesh(subVBs, attributes, primitive.primitiveMode, indexBuffer);
+        subMesh->setDrawInfo(gfx::DrawInfo());
+        subMesh->setMesh(this);
+        subMesh->setSubMeshIdx(static_cast<uint32_t>(i));
+
+        _renderingSubMeshes.emplace_back(subMesh);
+    }
+}
+
+void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometry) {
+    if (!_struct.dynamic.has_value()) {
+        return;
+    }
+
+    if (primitiveIndex >= _struct.primitives.size()) {
+        return;
+    }
+
+    std::vector<const Float32Array *> buffers;
+    if (!geometry.positions.empty()) {
+        buffers.push_back(&geometry.positions);
+    }
+
+    if (geometry.normals.has_value() && !geometry.normals.value().empty()) {
+        buffers.push_back(&geometry.normals.value());
+    }
+
+    if (geometry.uvs.has_value() && !geometry.uvs.value().empty()) {
+        buffers.push_back(&geometry.uvs.value());
+    }
+
+    if (geometry.tangents.has_value() && !geometry.tangents.value().empty()) {
+        buffers.push_back(&geometry.tangents.value());
+    }
+
+    if (geometry.colors.has_value() && !geometry.colors.value().empty()) {
+        buffers.push_back(&geometry.colors.value());
+    }
+
+    if (geometry.customAttributes.has_value()) {
+        for (const auto &ca : geometry.customAttributes.value()) {
+            buffers.push_back(&ca.values);
+        }
+    }
+
+    auto &dynamic   = _struct.dynamic.value();
+    auto &info      = dynamic.info;
+    auto &primitive = _struct.primitives[primitiveIndex];
+    auto &subMesh   = _renderingSubMeshes[primitiveIndex];
+    auto &drawInfo  = subMesh->getDrawInfo().value();
+
+    // update _data & buffer
+    for (auto index = 0U; index < buffers.size(); index++) {
+        const auto &vertices     = *buffers[index];
+        auto &      bundle       = _struct.vertexBundles[primitive.vertexBundelIndices[index]];
+        const auto  stride       = bundle.view.stride;
+        const auto  vertexCount  = vertices.byteLength() / stride;
+        const auto  updateSize   = vertices.byteLength();
+        auto *      dstBuffer    = _data.buffer()->getData() + bundle.view.offset;
+        const auto *srcBuffer    = vertices.buffer()->getData() + vertices.byteOffset();
+        auto *      vertexBuffer = subMesh->getVertexBuffers()[index];
+        CCASSERT(vertexCount <= info.maxVertices, "Too many vertices.");
+
+        if (updateSize > 0U) {
+            std::memcpy(dstBuffer, srcBuffer, updateSize);
+            vertexBuffer->update(srcBuffer, updateSize);
+        }
+
+        bundle.view.count    = vertexCount;
+        drawInfo.vertexCount = vertexCount;
+    }
+
+    if (primitive.indexView.has_value()) {
+        auto &      indexView   = primitive.indexView.value();
+        const auto &stride      = indexView.stride;
+        const auto  indexCount  = (stride == sizeof(uint16_t)) ? geometry.indices16.value().length() : geometry.indices32.value().length();
+        const auto  updateSize  = indexCount * stride;
+        auto *      dstBuffer   = _data.buffer()->getData() + indexView.offset;
+        const auto *srcBuffer   = (stride == sizeof(uint16_t)) ? geometry.indices16.value().buffer()->getData() + geometry.indices16.value().byteOffset()
+                                                               : geometry.indices32.value().buffer()->getData() + geometry.indices32.value().byteOffset();
+        auto *      indexBuffer = subMesh->getIndexBuffer();
+        CCASSERT(indexCount <= info.maxIndices, "Too many indices.");
+
+        if (updateSize > 0U) {
+            std::memcpy(dstBuffer, srcBuffer, updateSize);
+            indexBuffer->update(srcBuffer, updateSize);
+        }
+
+        indexView.count     = indexCount;
+        drawInfo.indexCount = indexCount;
+    }
+
+    // update bound
+    if (geometry.minPos.has_value() && geometry.maxPos.has_value()) {
+        Vec3 minPos = geometry.minPos.value();
+        Vec3 maxPos = geometry.maxPos.value();
+
+        geometry::AABB box;
+        geometry::AABB::fromPoints(minPos, maxPos, &box);
+        dynamic.bounds[primitiveIndex] = box;
+
+        Vec3 subMin, subMax;
+        for (const auto &bound : dynamic.bounds) {
+            if (bound.isValid()) {
+                bound.getBoundary(&subMin, &subMax);
+                Vec3::min(minPos, subMin, &minPos);
+                Vec3::max(maxPos, subMax, &maxPos);
+            }
+        }
+
+        _struct.minPosition = minPos;
+        _struct.maxPosition = maxPos;
+    }
+
+    subMesh->invalidateGeometricInfo();
 }
 
 void Mesh::accessAttribute(index_t primitiveIndex, const char *attributeName, const AccessorType &accessor) {

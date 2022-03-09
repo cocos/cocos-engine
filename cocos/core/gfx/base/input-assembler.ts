@@ -154,7 +154,11 @@ export abstract class InputAssembler extends GFXObject {
         return this._drawInfo.firstInstance;
     }
 
-    get drawInfo (): Readonly<DrawInfo> {
+    set drawInfo (info: DrawInfo) {
+        this._drawInfo = info;
+    }
+
+    get drawInfo (): DrawInfo {
         return this._drawInfo;
     }
 

@@ -30,6 +30,8 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from '../../core/assets/asset';
+import { IDynamicGeometry } from '../../primitive/define';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 import { BufferBlob } from '../misc/buffer-blob';
 import { Skeleton } from './skeleton';
 import { AABB } from '../../core/geometry';
@@ -40,7 +42,7 @@ import { warnID } from '../../core/platform/debug';
 import { RenderingSubMesh } from '../../core/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
-    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor,
+    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo,
 } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { Morph, MorphRendering, createMorphRendering } from './morph';
@@ -115,6 +117,40 @@ export declare namespace Mesh {
         jointMapIndex?: number;
     }
 
+    export interface IDynamicInfo {
+        /**
+         * @en max submesh count
+         * @zh 最大子模型个数。
+         */
+        maxSubMeshes: number;
+
+        /**
+          * @en max submesh vertex count
+          * @zh 子模型最大顶点个数。
+          */
+        maxVertices: number;
+
+        /**
+          * @en max submesh index count
+          * @zh 子模型最大索引个数。
+          */
+        maxIndices: number;
+    }
+
+    export interface IDynamicStruct {
+        /**
+          * @en dynamic mesh info
+          * @zh 动态模型信息。
+          */
+        info: IDynamicInfo;
+
+        /**
+          * @en dynamic submesh bounds
+          * @zh 动态子模型包围盒。
+          */
+        bounds: AABB[];
+    }
+
     /**
      * @en The structure of the mesh
      * @zh 描述了网格的结构。
@@ -156,6 +192,12 @@ export declare namespace Mesh {
          * @zh 网格的形变数据
          */
         morph?: Morph;
+
+        /**
+         * @en The specific data of the dynamic mesh
+         * @zh 动态网格特有数据
+         */
+        dynamic?: IDynamicStruct;
     }
 
     export interface ICreateInfo {
@@ -368,6 +410,193 @@ export class Mesh extends Asset {
         if (this._struct.morph) {
             this.morphRendering = createMorphRendering(this, gfxDevice);
         }
+    }
+
+    /**
+     * @en dynamic mesh init
+     * @zh 初始化动态网格
+     */
+    public init () {
+        if (!this._struct.dynamic) {
+            return;
+        }
+
+        if (this._initialized) {
+            return;
+        }
+
+        this._initialized = true;
+        const device: Device = legacyCC.director.root.device;
+        const vertexBuffers: Buffer[] = [];
+        const subMeshes: RenderingSubMesh[] = [];
+
+        for (let i = 0; i < this._struct.vertexBundles.length; i++) {
+            const vertexBundle = this._struct.vertexBundles[i];
+            const vertexBuffer = device.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+                vertexBundle.view.length,
+                vertexBundle.view.stride,
+            ));
+
+            vertexBuffers.push(vertexBuffer);
+        }
+
+        for (let i = 0; i < this._struct.primitives.length; i++) {
+            const primitive = this._struct.primitives[i];
+            const indexView = primitive.indexView;
+            let indexBuffer: Buffer | null = null;
+
+            if (indexView) {
+                indexBuffer = device.createBuffer(new BufferInfo(
+                    BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+                    indexView.length,
+                    indexView.stride,
+                ));
+            }
+
+            const subVBs: Buffer[] = [];
+            for (const idx of primitive.vertexBundelIndices) {
+                subVBs.push(vertexBuffers[idx]);
+            }
+
+            const attributes: Attribute[] = [];
+            for (const idx of primitive.vertexBundelIndices) {
+                const vertexBundle = this._struct.vertexBundles[idx];
+                for (const attr of vertexBundle.attributes) {
+                    const attribute = new Attribute();
+                    attribute.copy(attr);
+                    attributes.push(attribute);
+                }
+            }
+
+            const subMesh = new RenderingSubMesh(subVBs, attributes, primitive.primitiveMode, indexBuffer);
+            subMesh.drawInfo = new DrawInfo();
+            subMesh.mesh = this;
+            subMesh.subMeshIdx = i;
+
+            subMeshes.push(subMesh);
+        }
+
+        this._renderingSubMeshes = subMeshes;
+    }
+
+    /**
+     * @en update dynamic sub mesh geometry
+     * @zh 更新动态子网格的几何数据
+     * @param primitiveIndex: sub mesh index
+     * @param geometry: sub mesh geometry data
+     */
+    public updateSubMesh (primitiveIndex: number, geometry: IDynamicGeometry) {
+        if (!this._struct.dynamic) {
+            return;
+        }
+
+        if (primitiveIndex >= this._struct.primitives.length) {
+            return;
+        }
+
+        const buffers: Float32Array[] = [];
+        if (geometry.positions.length > 0) {
+            buffers.push(geometry.positions);
+        }
+
+        if (geometry.normals && geometry.normals.length > 0) {
+            buffers.push(geometry.normals);
+        }
+
+        if (geometry.uvs && geometry.uvs.length > 0) {
+            buffers.push(geometry.uvs);
+        }
+
+        if (geometry.tangents && geometry.tangents.length > 0) {
+            buffers.push(geometry.tangents);
+        }
+
+        if (geometry.colors && geometry.colors.length > 0) {
+            buffers.push(geometry.colors);
+        }
+
+        if (geometry.customAttributes) {
+            for (const ca of geometry.customAttributes) {
+                buffers.push(ca.values);
+            }
+        }
+
+        const dynamic = this._struct.dynamic;
+        const info = dynamic.info;
+        const primitive = this._struct.primitives[primitiveIndex];
+        const subMesh = this._renderingSubMeshes![primitiveIndex];
+        const drawInfo = subMesh.drawInfo!;
+
+        // update _data & buffer
+        for (let index = 0; index < buffers.length; index++) {
+            const vertices = buffers[index];
+            const bundle = this._struct.vertexBundles[primitive.vertexBundelIndices[index]];
+            const stride = bundle.view.stride;
+            const vertexCount = vertices.byteLength / stride;
+            const updateSize  = vertices.byteLength;
+            const dstBuffer   = new Uint8Array(this._data.buffer, bundle.view.offset, updateSize);
+            const srcBuffer    = new Uint8Array(vertices.buffer, vertices.byteOffset, updateSize);
+            const vertexBuffer = subMesh.vertexBuffers[index];
+            assertIsTrue(vertexCount <= info.maxVertices, 'Too many vertices.');
+
+            if (updateSize > 0) {
+                dstBuffer.set(srcBuffer);
+                vertexBuffer.update(srcBuffer, updateSize);
+            }
+
+            bundle.view.count = vertexCount;
+            drawInfo.vertexCount = vertexCount;
+        }
+
+        if (primitive.indexView) {
+            const indexView = primitive.indexView;
+            const stride       = indexView.stride;
+            const indexCount   = (stride === 2) ? geometry.indices16!.length : geometry.indices32!.length;
+            const updateSize   = indexCount * stride;
+            const dstBuffer   = new Uint8Array(this._data.buffer, indexView.offset, updateSize);
+            const srcBuffer    = (stride === 2) ? new Uint8Array(geometry.indices16!.buffer, geometry.indices16!.byteOffset, updateSize)
+                : new Uint8Array(geometry.indices32!.buffer, geometry.indices32!.byteOffset, updateSize);
+            const indexBuffer  = subMesh.indexBuffer!;
+            assertIsTrue(indexCount <= info.maxIndices, 'Too many indices.');
+
+            if (updateSize > 0) {
+                dstBuffer.set(srcBuffer);
+                indexBuffer.update(srcBuffer, updateSize);
+            }
+
+            indexView.count     = indexCount;
+            drawInfo.indexCount = indexCount;
+        }
+
+        // update bound
+        if (geometry.minPos && geometry.maxPos) {
+            const minPos = new Vec3(geometry.minPos.x, geometry.minPos.y, geometry.minPos.z);
+            const maxPos = new Vec3(geometry.maxPos.x, geometry.maxPos.y, geometry.maxPos.z);
+
+            if (!dynamic.bounds[primitiveIndex]) {
+                dynamic.bounds[primitiveIndex] = new AABB();
+            }
+
+            AABB.fromPoints(dynamic.bounds[primitiveIndex], minPos, maxPos);
+
+            const subMin = new Vec3();
+            const subMax = new Vec3();
+            for (const bound of dynamic.bounds) {
+                if (bound) {
+                    bound.getBoundary(subMin, subMax);
+                    Vec3.min(minPos, subMin, minPos);
+                    Vec3.max(maxPos, subMax, maxPos);
+                }
+            }
+
+            this._struct.minPosition = new Vec3(minPos.x, minPos.y, minPos.z);
+            this._struct.maxPosition = new Vec3(maxPos.x, maxPos.y, maxPos.z);
+        }
+
+        subMesh.invalidateGeometricInfo();
     }
 
     /**
@@ -785,6 +1014,11 @@ export class Mesh extends Asset {
      * @param mesh The other mesh to be validated
      */
     public validateMergingMesh (mesh: Mesh) {
+        // dynamic mesh is not allowed to merge.
+        if (this._struct.dynamic || mesh._struct.dynamic) {
+            return false;
+        }
+
         // validate vertex bundles
         if (this._struct.vertexBundles.length !== mesh._struct.vertexBundles.length) {
             return false;

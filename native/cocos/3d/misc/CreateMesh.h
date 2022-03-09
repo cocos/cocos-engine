@@ -32,10 +32,50 @@
 namespace cc {
 
 struct ICreateMeshOptions {
+    /**
+     * @en calculate mesh's aabb or not
+     * @zh 是否计算模型的包围盒。
+     */
     cc::optional<bool> calculateBounds;
 };
 
-Mesh *            createMesh(const IGeometry &geometry, const ICreateMeshOptions &options = {});
+struct ICreateDynamicMeshOptions {
+    /**
+     * @en max submesh count
+     * @zh 最大子模型个数。
+     */
+    uint32_t maxSubMeshes{1U};
+
+    /**
+     * @en max submesh vertex count
+     * @zh 子模型最大顶点个数。
+     */
+    uint32_t maxVertices{1024U};
+
+    /**
+     * @en max submesh index count
+     * @zh 子模型最大索引个数。
+     */
+    uint32_t maxIndices{1024U};
+};
+
+// create static mesh
+Mesh *            createMesh(const IGeometry &geometry, Mesh *out = nullptr, const ICreateMeshOptions &options = {});
 Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOptions &options = {});
+
+// create dynamic mesh
+Mesh *            createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out = nullptr, const ICreateDynamicMeshOptions &options = {});
+Mesh::ICreateInfo createDynamicMeshInfo(const IDynamicGeometry &geometry, const ICreateDynamicMeshOptions &options = {});
+
+class MeshUtils {
+public:
+    static Mesh *createMesh(const IGeometry &geometry, Mesh *out = nullptr, const ICreateMeshOptions &options = {}) {
+        return cc::createMesh(geometry, out, options);
+    }
+
+    static Mesh *createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out = nullptr, const ICreateDynamicMeshOptions &options = {}) {
+        return cc::createDynamicMesh(primitiveIndex, geometry, out, options);
+    }
+};
 
 } // namespace cc
