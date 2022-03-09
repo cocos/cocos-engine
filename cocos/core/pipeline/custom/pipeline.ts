@@ -41,7 +41,6 @@ import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { Model } from '../../renderer/scene';
-import { PipelineEventType } from '../pipeline-event';
 
 export abstract class PipelineRuntime {
     public abstract get macros(): MacroRecord;
@@ -52,9 +51,6 @@ export abstract class PipelineRuntime {
     public abstract get profiler(): Model | null;
     public abstract set profiler(profiler: Model | null);
     public abstract onGlobalPipelineStateChanged(): void;
-
-    public abstract on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback;
-    public abstract off (type: PipelineEventType, callback?: any, target?: any): void;
 }
 
 export abstract class DescriptorHierarchy {
