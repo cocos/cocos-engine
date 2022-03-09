@@ -342,7 +342,7 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
     auto &exceptions = std::get<1>(*current);
     if (std::strcmp(event,"handlerAddedAfterPromiseRejected") == 0) {
         for (int i = 0; i < exceptions.size(); i++) {
-            if (std::strcmp(exceptions[i].event.c_str(),"unhandledRejectedPromise") == 0) {
+            if (exceptions[i].event == "unhandledRejectedPromise") {
                 lastStackTrace = exceptions[i].stackTrace;
                 exceptions.erase(exceptions.begin() + i);
                 return;
@@ -364,6 +364,7 @@ void ScriptEngine::handlePromiseExceptions() {
         std::get<0>(exceptionsPair).get()->Reset();
     }
     _promiseArray.clear();
+    lastStackTrace.clear();
 }
 
 void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
