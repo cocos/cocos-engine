@@ -428,7 +428,7 @@ export class WebPipeline extends Pipeline {
         const pass = new PresentPass(swapchainName);
         this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, name, '', new RenderData());
     }
-    createSceneTransversal (scene: RenderScene): SceneTransversal {
+    createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         return new Web3DSceneTransversal(scene);
     }
     get renderGraph () {
