@@ -843,7 +843,7 @@ static bool JSB_inflateMemory(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
-    if (argc == 1) {
+    if (argc > 0) {
         unsigned char *arg0 = nullptr;
         size_t         arg1 = 0;
         if (args[0].isString()) {
@@ -865,8 +865,23 @@ static bool JSB_inflateMemory(se::State &s) { //NOLINT
             ok = false;
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
-        unsigned char *  arg2 = nullptr;
-        int32_t          len  = ZipUtils::inflateMemory(arg0, static_cast<ssize_t>(arg1), &arg2);
+        unsigned char *arg2 = nullptr;
+        int32_t        len  = 0;
+        if (argc == 1) {
+            len = ZipUtils::inflateMemory(arg0, static_cast<ssize_t>(arg1), &arg2);
+        } else if (argc == 2) {
+            SE_PRECONDITION2(args[1].isNumber(), false, "outLengthHint is invalid!");
+            int32_t outLengthHint = 0;
+            if (!args[1].isUndefined()) {
+                outLengthHint = args[1].toInt32();
+                len           = ZipUtils::inflateMemoryWithHint(arg0, static_cast<ssize_t>(arg1), &arg2, outLengthHint);
+            } else {
+                ok = false;
+            }
+        } else {
+            ok = false;
+        }
+        SE_PRECONDITION2(ok, false, "args number is not as expected!");
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg2, len));
         if (!seObj.isEmpty() && len > 0) {
             s.rval().setObject(seObj);
@@ -880,55 +895,6 @@ static bool JSB_inflateMemory(se::State &s) { //NOLINT
     return false;
 }
 SE_BIND_FUNC(JSB_inflateMemory)
-
-static bool JSB_inflateMemoryWithHint(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
-    if (argc == 2) {
-        unsigned char *arg0 = nullptr;
-        size_t         arg1 = 0;
-        if (args[0].isString()) {
-            const std::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
-        } else if (args[0].isObject()) {
-            se::Object *obj = args[0].toObject();
-            if (obj->isArrayBuffer()) {
-                ok &= obj->getArrayBufferData(&arg0, &arg1);
-                SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
-            } else if (obj->isTypedArray()) {
-                ok &= obj->getTypedArrayData(&arg0, &arg1);
-                SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
-            } else {
-                ok = false;
-            }
-        } else {
-            ok = false;
-        }
-        SE_PRECONDITION2(args[1].isNumber(), false, "outLengthHint is invalid!");
-        int32_t hintLength = 0;
-        if (!args[1].isUndefined()) {
-            hintLength = args[1].toInt32();
-        } else {
-            ok = false;
-        }
-        SE_PRECONDITION2(ok, false, "args is not as expected!");
-        unsigned char *  arg2 = nullptr;
-        int32_t          len  = ZipUtils::inflateMemoryWithHint(arg0, static_cast<ssize_t>(arg1), &arg2, static_cast<ssize_t>(hintLength));
-        se::HandleObject seObj(se::Object::createArrayBufferObject(arg2, len));
-        if (!seObj.isEmpty() && len > 0) {
-            s.rval().setObject(seObj);
-        } else {
-            s.rval().setNull();
-        }
-        free(arg2);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(JSB_inflateMemoryWithHint)
 
 static bool JSB_inflateGZipFile(se::State &s) { //NOLINT
     const auto &args = s.args();
@@ -1174,7 +1140,6 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
     __jsbObj->defineFunction("createExternalArrayBuffer", _SE(jsb_createExternalArrayBuffer));
 
     __jsbObj->defineFunction("inflateMemory", _SE(JSB_inflateMemory));
-    __jsbObj->defineFunction("inflateMemoryWithHint", _SE(JSB_inflateMemoryWithHint));
     __jsbObj->defineFunction("inflateGZipFile", _SE(JSB_inflateGZipFile));
     __jsbObj->defineFunction("isGZipFile", _SE(JSB_isGZipFile));
     __jsbObj->defineFunction("isGZipBuffer", _SE(JSB_isGZipBuffer));

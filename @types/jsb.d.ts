@@ -655,18 +655,12 @@ declare namespace jsb {
      * It will allocate 256k for the destination buffer.
      * If it is not enough it will multiply the previous buffer size per 2, until there is enough memory.
      *
-     * @return The deflated buffer.
-     */
-    export function inflateMemory(input:string | ArrayBuffer | TypedArray): ArrayBuffer | null;
-
-    /**
-     * Inflates either zlib or gzip deflated memory. The inflated memory is expected to be freed by the caller.
+     * @param outLengthHint It is assumed to be the needed room to allocate the inflated buffer, which is optional.
      *
-     * @param outLengthHint It is assumed to be the needed room to allocate the inflated buffer.
      *
      * @return The deflated buffer.
      */
-    export function inflateMemoryWithHint(input:string | ArrayBuffer | TypedArray, outLengthHint: number): ArrayBuffer | null;
+    export function inflateMemory(input:string | ArrayBuffer | TypedArray, outLengthHint?: number): ArrayBuffer | null;
 
     /**
      * Inflates a GZip file into memory.
