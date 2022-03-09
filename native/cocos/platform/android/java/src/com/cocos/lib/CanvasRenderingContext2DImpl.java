@@ -487,19 +487,8 @@ public class CanvasRenderingContext2DImpl {
         return ret;
     }
 
-    private byte[] getDataRef() {
-        // Log.d(TAG, "this: " + this + ", getDataRef ...");
-        if (mBitmap != null) {
-            final int len = mBitmap.getWidth() * mBitmap.getHeight() * 4;
-            final byte[] pixels = new byte[len];
-            final ByteBuffer buf = ByteBuffer.wrap(pixels);
-            buf.order(ByteOrder.nativeOrder());
-            mBitmap.copyPixelsToBuffer(buf);
-
-            return pixels;
-        }
-
-        Log.e(TAG, "getDataRef return null");
-        return null;
+    @SuppressWarnings("unused")
+    private Bitmap getBitmap() {
+        return mBitmap;
     }
 }

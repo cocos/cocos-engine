@@ -3081,6 +3081,10 @@ Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too 
 
 BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 * 9 * 4 / 1024 = 2304KB)
 
+### 9006
+
+QuadRenderData is removed, please use MeshRenderData instead.
+
 ### 9100
 
 texture size exceeds current device limits %d/%d

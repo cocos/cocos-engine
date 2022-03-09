@@ -2,11 +2,11 @@
 
 #include <cc-global>
 
-#pragma define CC_USE_FOG range([0, 4])
-#define CC_FOG_LINEAR 0
-#define CC_FOG_EXP 1
-#define CC_FOG_EXP_SQUARED 2
-#define CC_FOG_LAYERED 3
+#pragma define-meta CC_USE_FOG range([0, 4])
+#pragma define CC_FOG_LINEAR 0
+#pragma define CC_FOG_EXP 1
+#pragma define CC_FOG_EXP_SQUARED 2
+#pragma define CC_FOG_LAYERED 3
 
 float LinearFog(vec4 pos) {
   vec4 wPos = pos;

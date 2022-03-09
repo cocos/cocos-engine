@@ -79,6 +79,7 @@ class Context;
 
 using TextureBarrierList = vector<TextureBarrier *>;
 using BufferDataList     = vector<const uint8_t *>;
+using BufferSrcList      = vector<uint8_t *>;
 using CommandBufferList  = vector<CommandBuffer *>;
 using QueryPoolList      = vector<QueryPool *>;
 using IndexList          = vector<uint32_t>;
@@ -152,6 +153,7 @@ enum class Feature : uint32_t {
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
+    MEMORY_ALIASING,
     COMPUTE_SHADER,
     // This flag indicates whether the device can benefit from subpass-style usages.
     // Specifically, this only differs on the GLES backends: the Framebuffer Fetch

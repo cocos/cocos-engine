@@ -71,6 +71,10 @@ bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
+    _formatFeatures.fill(static_cast<FormatFeature>(-1)); // allow all usages for all formats
+    _formatFeatures[toNumber(Format::UNKNOWN)] = FormatFeature::NONE;
+    _formatFeatures[toNumber(Format::COUNT)] = FormatFeature::NONE;
+
     CC_LOG_INFO("Empty device initialized.");
 
     return true;
