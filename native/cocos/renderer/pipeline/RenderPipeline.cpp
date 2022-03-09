@@ -80,7 +80,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _globalDSManager->activate(_device);
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
-    _pipelineSceneData->activate(_device, this);
+    _pipelineSceneData->activate(_device);
 
     CC_ASSERT(_geometryRenderer != nullptr);
     _geometryRenderer->activate(_device, this);

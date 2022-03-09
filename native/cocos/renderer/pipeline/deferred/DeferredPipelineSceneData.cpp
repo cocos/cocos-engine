@@ -10,8 +10,8 @@ namespace pipeline {
 DeferredPipelineSceneData::DeferredPipelineSceneData()  = default;
 DeferredPipelineSceneData::~DeferredPipelineSceneData() = default;
 
-void DeferredPipelineSceneData::activate(gfx::Device *device, RenderPipeline *pipeline) {
-    PipelineSceneData::activate(device, pipeline);
+void DeferredPipelineSceneData::activate(gfx::Device *device) {
+    PipelineSceneData::activate(device);
     initPipelinePassInfo();
 }
 
@@ -138,7 +138,9 @@ void DeferredPipelineSceneData::updateDeferredLightPass() {
 
     // It's temporary solution for main light shadowmap
     if (_shadow->isEnabled()) {
-        _pipeline->setValue("CC_RECEIVE_SHADOW", 1);
+        if (RenderPipeline::getInstance()){
+            RenderPipeline::getInstance()->setValue("CC_RECEIVE_SHADOW", 1);
+        }
     }
 
     _lightPass = (*_lightingMaterial->getPasses())[0];
