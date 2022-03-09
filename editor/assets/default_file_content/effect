@@ -1,4 +1,4 @@
-// Effect Syntax Guide: https://github.com/cocos-creator/docs-3d/blob/master/zh/material-system/effect-syntax.md
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
 
 CCEffect %{
   techniques:
