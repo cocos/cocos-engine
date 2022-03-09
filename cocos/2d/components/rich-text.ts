@@ -29,11 +29,7 @@
  * @module ui
  */
 
-<<<<<<< HEAD
-import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable, string } from 'cc.decorator';
-=======
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
->>>>>>> 0027a64f8d60ffeec411a0ef3671984c27519def
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
