@@ -162,7 +162,7 @@ let inputManager = {
             touchID = selTouch.getID();
 
             index = locTouchesIntDict[touchID];
-            if (index == null) {
+            if (index === undefined) {
                 let unusedIndex = this._getUnUsedIndex();
                 if (unusedIndex === -1) {
                     cc.logID(2300, unusedIndex);
@@ -206,7 +206,7 @@ let inputManager = {
             touchID = selTouch.getID();
 
             index = locTouchesIntDict[touchID];
-            if (index == null) {
+            if (index === undefined) {
                 //cc.log("if the index doesn't exist, it is an error");
                 continue;
             }
@@ -274,7 +274,7 @@ let inputManager = {
             touchID = selTouch.getID();
             index = locTouchesIntDict[touchID];
 
-            if (index == null) {
+            if (index === undefined) {
                 continue;  //cc.log("if the index doesn't exist, it is an error");
             }
 
