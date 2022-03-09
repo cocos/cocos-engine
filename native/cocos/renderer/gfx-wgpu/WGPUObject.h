@@ -54,13 +54,13 @@ class CCWGPUDescriptorSet;
 class CCWGPUInputAssembler;
 
 struct CCWGPUResource {
-    CCWGPUBuffer* uniformBuffer = nullptr;
-    CCWGPUBuffer* storageBuffer = nullptr;
+    CCWGPUBuffer *uniformBuffer = nullptr;
+    CCWGPUBuffer *storageBuffer = nullptr;
 
-    CCWGPUTexture* commonTexture  = nullptr;
-    CCWGPUTexture* storageTexture = nullptr;
+    CCWGPUTexture *commonTexture  = nullptr;
+    CCWGPUTexture *storageTexture = nullptr;
 
-    CCWGPUSampler* sampler = nullptr;
+    CCWGPUSampler *sampler = nullptr;
 };
 
 struct CCWGPUDeviceObject {
@@ -75,15 +75,15 @@ struct CCWGPUSwapchainObject {
     WGPUSurface   wgpuSurface   = wgpuDefaultHandle;
     WGPUInstance  wgpuInstance  = wgpuDefaultHandle;
 
-    CCWGPUTexture* swapchainColor        = nullptr;
-    CCWGPUTexture* swapchainDepthStencil = nullptr;
+    CCWGPUTexture *swapchainColor        = nullptr;
+    CCWGPUTexture *swapchainDepthStencil = nullptr;
 };
 
 struct CCWGPURenderPassObject {
     RenderPassInfo            info;
     String                    label;
     uint8_t                   sampleCount        = 1;
-    WGPURenderPassDescriptor* wgpuRenderPassDesc = wgpuDefaultHandle;
+    WGPURenderPassDescriptor *wgpuRenderPassDesc = wgpuDefaultHandle;
 };
 
 struct CCWGPUTextureObject {
@@ -189,9 +189,9 @@ struct CCWGPUQueueObject {
 
 struct CCWGPUDescriptorSetObject {
     uint32_t             index              = 0;
-    CCWGPUDescriptorSet* descriptorSet      = nullptr;
+    CCWGPUDescriptorSet *descriptorSet      = nullptr;
     uint32_t             dynamicOffsetCount = 0;
-    const uint32_t*      dynamicOffsets     = nullptr;
+    const uint32_t *     dynamicOffsets     = nullptr;
 };
 
 struct CCWGPUStencilMasks {
@@ -201,8 +201,8 @@ struct CCWGPUStencilMasks {
 };
 
 struct CCWGPUStateCache {
-    CCWGPUPipelineState*  pipelineState  = nullptr;
-    CCWGPUInputAssembler* inputAssembler = nullptr;
+    CCWGPUPipelineState * pipelineState  = nullptr;
+    CCWGPUInputAssembler *inputAssembler = nullptr;
 
     float depthBiasConstant = 0.0f;
     float depthBiasClamp    = 0.0f;
@@ -228,12 +228,12 @@ struct CCWGPUCommandBufferObject {
     WGPURenderPassEncoder  wgpuRenderPassEncoder = wgpuDefaultHandle;
     WGPUComputePassEncoder wgpuComputeEncoder    = wgpuDefaultHandle;
     CommandBufferType      type                  = CommandBufferType::PRIMARY;
-    CCWGPUQueue*           queue                 = nullptr;
+    CCWGPUQueue *          queue                 = nullptr;
 
     WGPURenderPassDescriptor renderPassDescriptor;
     CCWGPUStateCache         stateCache;
 
-    std::map<uint32_t, CCWGPUBuffer*> redundantVertexBufferMap;
+    std::map<uint32_t, CCWGPUBuffer *> redundantVertexBufferMap;
 };
 
 struct CCWGPUQueryPoolObject {

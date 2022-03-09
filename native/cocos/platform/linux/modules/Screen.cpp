@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "platform/linux/modules/Screen.h"
+#include <X11/Xlib.h>
 #include "base/Macros.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
-#include <X11/Xlib.h>
 
 namespace cc {
 
