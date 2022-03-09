@@ -53,6 +53,14 @@ Object.defineProperty(rootProto, 'pipeline', {
     }
 });
 
+Object.defineProperty(rootProto, 'pipelineEvent', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._pipeline;
+    }
+});
+
 rootProto._ctor = function (device: Device) {
     this._device = device;
     this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;

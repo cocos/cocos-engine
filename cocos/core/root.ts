@@ -44,6 +44,7 @@ import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Devic
 import { warnID } from './platform/debug';
 import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
 import { createCustomPipeline } from './pipeline/custom';
+import { IPipelineEvent } from './pipeline/pipeline-event';
 
 /**
  * @zh
@@ -119,6 +120,14 @@ export class Root {
      * 渲染管线
      */
     public get pipeline (): PipelineRuntime {
+        return this._pipeline!;
+    }
+
+    /**
+     * @zh
+     * 渲染管线事件
+     */
+    public get pipelineEvent (): IPipelineEvent {
         return this._pipeline!;
     }
 

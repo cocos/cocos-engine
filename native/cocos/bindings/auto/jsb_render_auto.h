@@ -29,7 +29,10 @@ extern se::Class * __jsb_cc_render_PipelineRuntime_class; // NOLINT
 
 bool js_register_cc_render_PipelineRuntime(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_render_PipelineRuntime_activate);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_destroy);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_onGlobalPipelineStateChanged);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_render);
 
 extern se::Object *__jsb_cc_render_DescriptorHierarchy_proto; // NOLINT
 extern se::Class * __jsb_cc_render_DescriptorHierarchy_class; // NOLINT
