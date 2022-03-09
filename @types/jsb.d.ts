@@ -673,7 +673,7 @@ declare namespace jsb {
      *
      * @return The deflated buffer.
      */
-    export function inflateGZipFile(path:string): ArrayBuffer|null;
+    export function inflateGZipFile(path:string): ArrayBuffer | null;
 
     /**
      * Test a file is a GZip format file or not.
