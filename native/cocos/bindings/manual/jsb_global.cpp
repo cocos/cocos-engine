@@ -812,10 +812,10 @@ SE_BIND_FUNC(JSB_hideInputBox)
 
 #endif
 
-static bool jsb_createExternalArrayBuffer(se::State& s) {
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+static bool jsb_createExternalArrayBuffer(se::State &s) {
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         uint32_t byteLength{0};
         ok &= sevalue_to_native(args[0], &byteLength, s.thisObject());
@@ -823,7 +823,7 @@ static bool jsb_createExternalArrayBuffer(se::State& s) {
         if (byteLength > 0) {
             void *buffer = malloc(byteLength);
             memset(buffer, 0x00, byteLength);
-            se::HandleObject arrayBuffer{se::Object::createExternalArrayBufferObject(buffer, byteLength, [](void* contents, size_t /*byteLength*/, void*/* userData */){
+            se::HandleObject arrayBuffer{se::Object::createExternalArrayBufferObject(buffer, byteLength, [](void *contents, size_t /*byteLength*/, void * /* userData */) {
                 if (contents != nullptr) {
                     free(contents);
                 }
@@ -838,6 +838,314 @@ static bool jsb_createExternalArrayBuffer(se::State& s) {
     return false;
 }
 SE_BIND_FUNC(jsb_createExternalArrayBuffer)
+
+static bool JSB_inflateMemory(se::State &s) { //NOLINT
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
+    if (argc == 1) {
+        unsigned char *arg0 = nullptr;
+        size_t         arg1 = 0;
+        if (args[0].isString()) {
+            const std::string &str = args[0].toString();
+            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                   = str.size();
+        } else if (args[0].isObject()) {
+            se::Object *obj = args[0].toObject();
+            if (obj->isArrayBuffer()) {
+                ok &= obj->getArrayBufferData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+            } else if (obj->isTypedArray()) {
+                ok &= obj->getTypedArrayData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+            } else {
+                ok = false;
+            }
+        } else {
+            ok = false;
+        }
+        SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
+        unsigned char *  arg2 = nullptr;
+        int32_t          len  = ZipUtils::inflateMemory(arg0, static_cast<ssize_t>(arg1), &arg2);
+        se::HandleObject seObj(se::Object::createArrayBufferObject(arg2, len));
+        if (!seObj.isEmpty() && len > 0) {
+            s.rval().setObject(seObj);
+        } else {
+            s.rval().setNull();
+        }
+        free(arg2);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_inflateMemory)
+
+static bool JSB_inflateMemoryWithHint(se::State &s) { //NOLINT
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
+    if (argc == 2) {
+        unsigned char *arg0 = nullptr;
+        size_t         arg1 = 0;
+        if (args[0].isString()) {
+            const std::string &str = args[0].toString();
+            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                   = str.size();
+        } else if (args[0].isObject()) {
+            se::Object *obj = args[0].toObject();
+            if (obj->isArrayBuffer()) {
+                ok &= obj->getArrayBufferData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+            } else if (obj->isTypedArray()) {
+                ok &= obj->getTypedArrayData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+            } else {
+                ok = false;
+            }
+        } else {
+            ok = false;
+        }
+        SE_PRECONDITION2(args[1].isNumber(), false, "outLengthHint is invalid!");
+        int32_t hintLength = 0;
+        if (!args[1].isUndefined()) {
+            hintLength = args[1].toInt32();
+        } else {
+            ok = false;
+        }
+        SE_PRECONDITION2(ok, false, "args is not as expected!");
+        unsigned char *  arg2 = nullptr;
+        int32_t          len  = ZipUtils::inflateMemoryWithHint(arg0, static_cast<ssize_t>(arg1), &arg2, static_cast<ssize_t>(hintLength));
+        se::HandleObject seObj(se::Object::createArrayBufferObject(arg2, len));
+        if (!seObj.isEmpty() && len > 0) {
+            s.rval().setObject(seObj);
+        } else {
+            s.rval().setNull();
+        }
+        free(arg2);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(JSB_inflateMemoryWithHint)
+
+static bool JSB_inflateGZipFile(se::State &s) { //NOLINT
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc == 1) {
+        SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
+        std::string      arg0 = args[0].toString();
+        unsigned char *  arg1 = nullptr;
+        int32_t          len  = ZipUtils::inflateGZipFile(arg0.c_str(), &arg1);
+        se::HandleObject seObj(se::Object::createArrayBufferObject(arg1, len));
+        if (!seObj.isEmpty() && len > 0) {
+            s.rval().setObject(seObj);
+        } else {
+            s.rval().setNull();
+        }
+        free(arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_inflateGZipFile)
+
+static bool JSB_isGZipFile(se::State &s) { //NOLINT
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc == 1) {
+        SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
+        std::string arg0 = args[0].toString();
+        bool        flag = ZipUtils::isGZipFile(arg0.c_str());
+        s.rval().setBoolean(flag);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_isGZipFile)
+
+static bool JSB_isGZipBuffer(se::State &s) { //NOLINT
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
+    if (argc == 1) {
+        unsigned char *arg0 = nullptr;
+        size_t         arg1 = 0;
+        if (args[0].isString()) {
+            const std::string &str = args[0].toString();
+            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                   = str.size();
+        } else if (args[0].isObject()) {
+            se::Object *obj = args[0].toObject();
+            if (obj->isArrayBuffer()) {
+                ok &= obj->getArrayBufferData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+            } else if (obj->isTypedArray()) {
+                ok &= obj->getTypedArrayData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+            } else {
+                ok = false;
+            }
+        } else {
+            ok = false;
+        }
+        SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
+        bool flag = ZipUtils::isGZipBuffer(arg0, static_cast<ssize_t>(arg1));
+        s.rval().setBoolean(flag);
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_isGZipBuffer)
+
+static bool JSB_inflateCCZFile(se::State &s) { //NOLINT
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc == 1) {
+        SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
+        std::string      arg0 = args[0].toString();
+        unsigned char *  arg1 = nullptr;
+        int32_t          len  = ZipUtils::inflateCCZFile(arg0.c_str(), &arg1);
+        se::HandleObject seObj(se::Object::createArrayBufferObject(arg1, len));
+        if (!seObj.isEmpty() && len > 0) {
+            s.rval().setObject(seObj);
+        } else {
+            s.rval().setNull();
+        }
+        free(arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_inflateCCZFile)
+
+static bool JSB_inflateCCZBuffer(se::State &s) { //NOLINT
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
+    if (argc == 1) {
+        unsigned char *arg0 = nullptr;
+        size_t         arg1 = 0;
+        if (args[0].isString()) {
+            const std::string &str = args[0].toString();
+            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                   = str.size();
+        } else if (args[0].isObject()) {
+            se::Object *obj = args[0].toObject();
+            if (obj->isArrayBuffer()) {
+                ok &= obj->getArrayBufferData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+            } else if (obj->isTypedArray()) {
+                ok &= obj->getTypedArrayData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+            } else {
+                ok = false;
+            }
+        } else {
+            ok = false;
+        }
+        SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
+        unsigned char *  arg2 = nullptr;
+        int32_t          len  = ZipUtils::inflateCCZBuffer(arg0, static_cast<ssize_t>(arg1), &arg2);
+        se::HandleObject seObj(se::Object::createArrayBufferObject(arg2, len));
+        if (!seObj.isEmpty() && len > 0) {
+            s.rval().setObject(seObj);
+        } else {
+            s.rval().setNull();
+        }
+        free(arg2);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_inflateCCZBuffer)
+
+static bool JSB_isCCZFile(se::State &s) { //NOLINT
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc == 1) {
+        std::string arg0;
+        SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
+        arg0      = args[0].toString();
+        bool flag = ZipUtils::isCCZFile(arg0.c_str());
+        s.rval().setBoolean(flag);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_isCCZFile)
+
+static bool JSB_isCCZBuffer(se::State &s) { //NOLINT
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
+    if (argc == 1) {
+        unsigned char *arg0 = nullptr;
+        size_t         arg1 = 0;
+        if (args[0].isString()) {
+            const std::string &str = args[0].toString();
+            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                   = str.size();
+        } else if (args[0].isObject()) {
+            se::Object *obj = args[0].toObject();
+            if (obj->isArrayBuffer()) {
+                ok &= obj->getArrayBufferData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+            } else if (obj->isTypedArray()) {
+                ok &= obj->getTypedArrayData(&arg0, &arg1);
+                SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+            } else {
+                ok = false;
+            }
+        } else {
+            ok = false;
+        }
+        SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
+        bool flag = ZipUtils::isCCZBuffer(arg0, static_cast<ssize_t>(arg1));
+        s.rval().setBoolean(flag);
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_isCCZBuffer)
+
+static bool JSB_setPvrEncryptionKeyPart(se::State &s) { //NOLINT
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc == 2) {
+        SE_PRECONDITION2(args[0].isNumber() && args[1].isNumber(), false, "args is not as expected");
+        int32_t  arg0 = args[0].toInt32();
+        uint32_t arg1 = args[1].toUint32();
+        ZipUtils::setPvrEncryptionKeyPart(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(JSB_setPvrEncryptionKeyPart)
+
+static bool JSB_setPvrEncryptionKey(se::State &s) { //NOLINT
+    const auto &args = s.args();
+    size_t      argc = args.size();
+    if (argc == 4) {
+        SE_PRECONDITION2(args[0].isNumber() && args[1].isNumber(), false, "args is not as expected");
+        uint32_t arg0 = args[0].toUint32();
+        uint32_t arg1 = args[1].toUint32();
+        uint32_t arg2 = args[2].toUint32();
+        uint32_t arg3 = args[3].toUint32();
+        ZipUtils::setPvrEncryptionKey(arg0, arg1, arg2, arg3);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(JSB_setPvrEncryptionKey)
 
 bool jsb_register_global_variables(se::Object *global) { //NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
@@ -862,6 +1170,18 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
     __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
     __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
     __jsbObj->defineFunction("createExternalArrayBuffer", _SE(jsb_createExternalArrayBuffer));
+
+    __jsbObj->defineFunction("inflateMemory", _SE(JSB_inflateMemory));
+    __jsbObj->defineFunction("inflateMemoryWithHint", _SE(JSB_inflateMemoryWithHint));
+    __jsbObj->defineFunction("inflateGZipFile", _SE(JSB_inflateGZipFile));
+    __jsbObj->defineFunction("isGZipFile", _SE(JSB_isGZipFile));
+    __jsbObj->defineFunction("isGZipBuffer", _SE(JSB_isGZipBuffer));
+    __jsbObj->defineFunction("inflateCCZFile", _SE(JSB_inflateCCZFile));
+    __jsbObj->defineFunction("inflateCCZBuffer", _SE(JSB_inflateCCZBuffer));
+    __jsbObj->defineFunction("isCCZFile", _SE(JSB_isCCZFile));
+    __jsbObj->defineFunction("isCCZBuffer", _SE(JSB_isCCZBuffer));
+    __jsbObj->defineFunction("setPvrEncryptionKeyPart", _SE(JSB_setPvrEncryptionKeyPart));
+    __jsbObj->defineFunction("setPvrEncryptionKey", _SE(JSB_setPvrEncryptionKey));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
