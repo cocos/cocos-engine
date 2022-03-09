@@ -174,6 +174,25 @@ static bool js_render_PipelineRuntime_getProfiler(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getProfiler)
 
+static bool js_render_PipelineRuntime_getShadingScale(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_getShadingScale : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getShadingScale();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_getShadingScale : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getShadingScale)
+
 static bool js_render_PipelineRuntime_onGlobalPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
@@ -227,6 +246,25 @@ static bool js_render_PipelineRuntime_setProfiler(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC_AS_PROP_SET(js_render_PipelineRuntime_setProfiler)
 
+static bool js_render_PipelineRuntime_setShadingScale(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_PipelineRuntime_setShadingScale : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_render_PipelineRuntime_setShadingScale : Error processing arguments");
+        cobj->setShadingScale(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_render_PipelineRuntime_setShadingScale)
+
 bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("PipelineRuntime", obj, nullptr, nullptr);
@@ -237,6 +275,7 @@ bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-i
     cls->defineProperty("pipelineSceneData", _SE(js_render_PipelineRuntime_getPipelineSceneData_asGetter), nullptr);
     cls->defineProperty("constantMacros", _SE(js_render_PipelineRuntime_getConstantMacros_asGetter), nullptr);
     cls->defineProperty("profiler", _SE(js_render_PipelineRuntime_getProfiler_asGetter), _SE(js_render_PipelineRuntime_setProfiler_asSetter));
+    cls->defineProperty("shadingScale", _SE(js_render_PipelineRuntime_getShadingScale_asGetter), _SE(js_render_PipelineRuntime_setShadingScale_asSetter));
     cls->defineFunction("activate", _SE(js_render_PipelineRuntime_activate));
     cls->defineFunction("destroy", _SE(js_render_PipelineRuntime_destroy));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_render_PipelineRuntime_onGlobalPipelineStateChanged));

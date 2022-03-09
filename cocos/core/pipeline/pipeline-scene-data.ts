@@ -29,7 +29,6 @@ import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, Buffer
     BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
-import { PipelineEventType } from './pipeline-event';
 import { Material } from '../assets';
 import { Pass } from '../renderer/core/pass';
 
@@ -53,10 +52,7 @@ export class PipelineSceneData {
     }
 
     public set shadingScale (val: number) {
-        if (this._shadingScale !== val) {
-            this._shadingScale = val;
-            this._pipeline.emit(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, val);
-        }
+        this._shadingScale = val;
     }
 
     public fog: Fog = new Fog();
@@ -93,7 +89,7 @@ export class PipelineSceneData {
     protected _shadingScale = 1.0;
 
     constructor () {
-        this.shadingScale = 1.0;
+        this._shadingScale = 1.0;
     }
 
     public activate (device: Device, pipeline: RenderPipeline) {
