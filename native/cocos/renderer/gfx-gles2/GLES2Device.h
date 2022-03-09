@@ -34,11 +34,11 @@ namespace cc {
 namespace gfx {
 
 class GLES2GPUContext;
-class GLES2GPUSwapchain;
+struct GLES2GPUSwapchain;
 class GLES2GPUStateCache;
 class GLES2GPUBlitManager;
 class GLES2GPUFramebufferHub;
-class GLES2GPUConstantRegistry;
+struct GLES2GPUConstantRegistry;
 class GLES2GPUFramebufferCacheMap;
 
 class CC_GLES2_API GLES2Device final : public Device {

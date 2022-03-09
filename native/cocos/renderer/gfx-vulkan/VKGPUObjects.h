@@ -297,7 +297,7 @@ struct CCVKGPUDescriptor {
     CCVKGPUSampler *        gpuSampler     = nullptr;
 };
 
-class CCVKGPUDescriptorSetLayout;
+struct CCVKGPUDescriptorSetLayout;
 struct CCVKGPUDescriptorSet {
     vector<CCVKGPUDescriptor> gpuDescriptors;
 
