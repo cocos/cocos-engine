@@ -403,7 +403,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         // update global defines in advance here for deferred pipeline may tryCompile shaders.
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
         this._generateConstantMacros();
-        this._pipelineSceneData.activate(this._device, this);
+        this._pipelineSceneData.activate(this._device);
         this._geometryRenderer.activate(this._device, this);
 
         for (let i = 0; i < this._flows.length; i++) {
