@@ -152,7 +152,7 @@ export abstract class Pipeline {
     public abstract addMovePass(name: string): MovePassBuilder;
     public abstract addCopyPass(name: string): CopyPassBuilder;
     public abstract addPresentPass(name: string, swapchainName: string): void;
-    public abstract createSceneTransversal(scene: RenderScene): SceneTransversal;
+    public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
 }
 
 export class Factory {
