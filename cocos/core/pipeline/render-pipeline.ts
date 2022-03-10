@@ -376,6 +376,17 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return out;
     }
 
+    public get shadingScale () {
+        return this._pipelineSceneData.shadingScale;
+    }
+
+    public set shadingScale (val: number) {
+        if (this._pipelineSceneData.shadingScale !== val) {
+            this._pipelineSceneData.shadingScale = val;
+            this.emit(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, val);
+        }
+    }
+
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow

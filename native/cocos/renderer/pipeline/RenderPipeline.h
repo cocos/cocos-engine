@@ -110,6 +110,9 @@ public:
     void                    ensureEnoughSize(const vector<scene::Camera *> &cameras);
     bool                    createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA);
 
+    float getShadingScale() const;
+    void  setShadingScale(float scale);
+
     inline scene::Model *getProfiler() const { return _profiler; }
     inline void          setProfiler(scene::Model *value) { _profiler = value; }
 

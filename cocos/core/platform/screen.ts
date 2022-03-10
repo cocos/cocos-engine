@@ -46,7 +46,7 @@ class Screen {
                 warnID(1220);
                 return;
             }
-            director.root.pipeline.pipelineSceneData.shadingScale = screenAdapter.resolutionScale;
+            director.root.pipeline.shadingScale = screenAdapter.resolutionScale;
         });
     }
 

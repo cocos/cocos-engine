@@ -258,6 +258,14 @@ gfx::Rect RenderPipeline::getRenderArea(scene::Camera *camera) {
     };
 }
 
+float RenderPipeline::getShadingScale() const {
+    return _pipelineSceneData->getShadingScale();
+}
+
+void RenderPipeline::setShadingScale(float scale) {
+    _pipelineSceneData->setShadingScale(scale);
+}
+
 void RenderPipeline::genQuadVertexData(const Vec4 &viewport, float *vbData) {
     auto minX = static_cast<float>(viewport.x);
     auto maxX = static_cast<float>(viewport.x + viewport.z);
