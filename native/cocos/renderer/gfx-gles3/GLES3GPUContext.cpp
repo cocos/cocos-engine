@@ -299,7 +299,9 @@ void GLES3GPUContext::makeCurrent(const GLES3GPUSwapchain *drawSwapchain, const 
 }
 
 void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
-#if !SWAPPY_ENABLED
+#if SWAPPY_ENABLED && CC_PLATFORM == CC_PLATFORM_ANDROID
+    SwappyGL_swap(eglDisplay, swapchain->eglSurface);
+#else
     if (_eglCurrentInterval != swapchain->eglSwapInterval) {
         if (!eglSwapInterval(eglDisplay, swapchain->eglSwapInterval)) {
             CC_LOG_ERROR("eglSwapInterval() - FAILED.");
@@ -308,8 +310,6 @@ void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
         _eglCurrentInterval = swapchain->eglSwapInterval;
     }
     EGL_CHECK(eglSwapBuffers(eglDisplay, swapchain->eglSurface));
-#elif CC_PLATFORM == CC_PLATFORM_ANDROID
-    SwappyGL_swap(eglDisplay, swapchain->eglSurface);
 #endif
 }
 
