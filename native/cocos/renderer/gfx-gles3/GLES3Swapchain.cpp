@@ -31,7 +31,6 @@
     #include "android/native_window.h"
     #include "platform/UniversalPlatform.h"
     #include "swappy/swappyGL.h"
-    #include "swappy/swappyGL_extra.h"
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include <native_layer.h>
     #include <native_layer_jni.h>
@@ -63,12 +62,13 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
     auto width  = static_cast<int32_t>(info.width);
     auto height = static_cast<int32_t>(info.height);
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    SwappyGL_init(UniversalPlatform::getEnv(), UniversalPlatform::getActivity());
-    //60 fps or whatever
-    //SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
-    // 60fps or 45 or 30 or 20 or 15 ... in average
-    SwappyGL_setAutoSwapInterval(true);
-    SwappyGL_setAutoPipelineMode(true);
+    auto* platform = static_cast<UniversalPlatform*>(cc::BasePlatform::getPlatform());
+    SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity())); // swappy init needs to run in main thread
+    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
+    if (!fps)
+        SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+    else
+        SwappyGL_setSwapIntervalNS(1000000000L / fps); //ns
     SwappyGL_setWindow(window);
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
     #elif CC_PLATFORM == CC_PLATFORM_OHOS
@@ -112,6 +112,10 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
 
 void GLES3Swapchain::doDestroy() {
     if (!_gpuSwapchain) return;
+
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    SwappyGL_destroy();
+#endif
 
     CC_SAFE_DESTROY(_depthStencilTexture)
     CC_SAFE_DESTROY(_colorTexture)

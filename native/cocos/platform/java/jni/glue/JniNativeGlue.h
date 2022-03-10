@@ -27,6 +27,7 @@
 
 #include <future>
 #include <memory>
+#include <functional>
 #include "platform/java/jni/glue/MessagePipe.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
@@ -71,10 +72,10 @@ public:
     void              setWindowHandler(NativeWindowType* window);
     NativeWindowType* getWindowHandler();
 
-    void  setActivity(void* activity);
+    void  setActivityGetter(std::function<NativeActivity(void)>);
     void* getActivity();
 
-    void  setEnv(void* env);
+    void  setEnvGetter(std::function<NativeEnv(void)>);
     void* getEnv();
 
     void                 setResourceManager(ResourceManagerType* resourceManager);
@@ -130,11 +131,12 @@ private:
     ResourceManagerType*         _resourceManager{nullptr};
     NativeWindowType*            _window{nullptr};
     NativeWindowType*            _pendingWindow{nullptr};
-    NativeActivity               _activity{nullptr};
-    NativeEnv                    _env{nullptr};
     JniCommand                   _appState{JniCommand::JNI_CMD_UNKNOW};
     IEventDispatch*              _eventDispatcher{nullptr};
     std::unique_ptr<MessagePipe> _messagePipe{nullptr};
+
+    std::function<NativeEnv(void)>          _envGetter;
+    std::function<NativeActivity (void)>    _activityGetter;
 };
 
 } // namespace cc

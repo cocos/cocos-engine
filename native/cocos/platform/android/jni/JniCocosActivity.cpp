@@ -51,13 +51,14 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *e
     JNI_NATIVE_GLUE()->setResourceManager(AAssetManager_fromJava(env, assetMgr));
     cc::FileUtilsAndroid::setassetmanager(AAssetManager_fromJava(env, assetMgr));
     JNI_NATIVE_GLUE()->start(0, nullptr);
+
+    JNI_NATIVE_GLUE()->setEnvGetter(cc::JniHelper::getEnv);
+    JNI_NATIVE_GLUE()->setActivityGetter(cc::JniHelper::getActivity);
 }
 
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceCreatedNative(JNIEnv *env, jobject obj, jobject surface) {
     JNI_NATIVE_GLUE()->setWindowHandler(ANativeWindow_fromSurface(env, surface));
-    JNI_NATIVE_GLUE()->setEnv(env);
-    JNI_NATIVE_GLUE()->setActivity(obj);
 }
 
 //NOLINTNEXTLINE
