@@ -138,7 +138,7 @@ void DeferredPipelineSceneData::updateDeferredLightPass() {
 
     // It's temporary solution for main light shadowmap
     if (_shadow->isEnabled()) {
-        if (RenderPipeline::getInstance()){
+        if (RenderPipeline::getInstance()) {
             RenderPipeline::getInstance()->setValue("CC_RECEIVE_SHADOW", 1);
         }
     }

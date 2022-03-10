@@ -110,7 +110,7 @@ protected:
     std::vector<scene::Pass *>          _geometryRendererPasses;  // weak reference
     std::vector<gfx::Shader *>          _geometryRendererShaders; // weak reference
 
-    gfx::Device *   _device{nullptr};
+    gfx::Device *_device{nullptr};
 
     scene::Fog *    _fog{nullptr};
     scene::Ambient *_ambient{nullptr};

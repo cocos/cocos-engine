@@ -57,7 +57,7 @@ PipelineSceneData::~PipelineSceneData() {
 }
 
 void PipelineSceneData::activate(gfx::Device *device) {
-    _device   = device;
+    _device = device;
     initGeometryRendererMaterials();
     initOcclusionQuery();
 }
