@@ -128,7 +128,7 @@ export class Root {
      * 渲染管线事件
      */
     public get pipelineEvent (): IPipelineEvent {
-        return this._pipeline!;
+        return this._pipelineEvent!;
     }
 
     /**
@@ -220,6 +220,7 @@ export class Root {
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
+    private _pipelineEvent: IPipelineEvent | null = null;
     private _customPipeline: Pipeline | null = null;
     private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
@@ -282,6 +283,7 @@ export class Root {
         if (this._pipeline) {
             this._pipeline.destroy();
             this._pipeline = null;
+            this._pipelineEvent = null;
         }
 
         if (this._batcher) {
@@ -319,6 +321,7 @@ export class Root {
             isCreateDefaultPipeline = true;
         }
         this._pipeline = rppl;
+        this._pipelineEvent = rppl;
         // now cluster just enabled in deferred pipeline
         if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
             // disable cluster
@@ -331,6 +334,7 @@ export class Root {
                 this._pipeline.destroy();
             }
             this._pipeline = null;
+            this._pipelineEvent = null;
 
             return false;
         }
