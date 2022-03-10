@@ -60,7 +60,7 @@ Object.defineProperty(rootProto, 'pipelineEvent', {
     }
 });
 
-class DymmyPipelineEvent {
+class DummyPipelineEvent {
     on (type: any, callback: any, target?: any, once?: boolean) {}
     once (type: any, callback: any, target?: any) {}
     off (type: any, callback?: any, target?: any) {}
@@ -77,7 +77,7 @@ rootProto._ctor = function (device: Device) {
     this._lightPools = new Map();
     this._batcher = null;
     this._pipeline = null;
-    this._pipelineEvent = new DymmyPipelineEvent();
+    this._pipelineEvent = new DummyPipelineEvent();
     this._registerListeners();
 };
 
