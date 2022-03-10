@@ -116,6 +116,10 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
+    inline bool isSurfaceReady() {return _isSurfaceReady;}
+
+    inline void setSurfaceReady(bool ready) { _isSurfaceReady = ready;}
+
 protected:
     static Device *instance;
 
@@ -166,6 +170,7 @@ protected:
     std::array<bool, static_cast<size_t>(Feature::COUNT)>         _features;
     std::array<FormatFeature, static_cast<size_t>(Format::COUNT)> _formatFeatures;
 
+    bool _isSurfaceReady{false};
     Queue *        _queue{nullptr};
     QueryPool *    _queryPool{nullptr};
     CommandBuffer *_cmdBuff{nullptr};
