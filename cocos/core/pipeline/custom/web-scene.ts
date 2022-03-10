@@ -17,6 +17,9 @@ export class WebSceneTask extends SceneTask {
     public join (): void {
         // for web-pipeline, do nothing
     }
+    public submit (): void {
+        // do nothing
+    }
     private _scene: RenderScene;
     private _visitor: SceneVisitor;
 }
