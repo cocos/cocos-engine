@@ -123,10 +123,9 @@ export abstract class SceneVisitor {
     public abstract setViewport(vp: Viewport): void;
     public abstract setScissor(rect: Rect): void;
     public abstract bindPipelineState(pso: PipelineState): void;
-    public abstract bindDescriptorSet(set: number, descriptorSet: DescriptorSet, dynamicOffsetCount: number, dynamicOffsets: number): void;
+    public abstract bindDescriptorSet(set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
     public abstract bindInputAssembler(ia: InputAssembler): void;
-    public abstract draw(info: DrawInfo): void;
-
+    public abstract draw(info: Readonly<DrawInfo> | Readonly<InputAssembler>): void;
     public abstract updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
 }
 
@@ -134,6 +133,7 @@ export abstract class SceneTask {
     public abstract get taskType(): TaskType;
     public abstract start(): void;
     public abstract join(): void;
+    public abstract submit(): void;
 }
 
 export abstract class SceneTransversal {
