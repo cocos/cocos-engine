@@ -294,7 +294,7 @@ export class GeometryRenderer {
         }
 
         // reset all geometry data for next frame
-        this.reset();
+        // this.reset();
     }
 
     public destroy () {
