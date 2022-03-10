@@ -302,9 +302,9 @@ const Elements = {
                 }
 
                 // 支持多选脚本拖入
-                const { additional, value, type } = JSON.parse(JSON.stringify(Editor.UI.DragArea.currentDragInfo)) || {};
+                const { additional = [], value, type } = JSON.parse(JSON.stringify(Editor.UI.DragArea.currentDragInfo)) || {};
 
-                if (additional.every(v => v.value !== value)) {
+                if (value && additional.every(v => v.value !== value)) {
                     additional.push({ value, type });
                 }
 
