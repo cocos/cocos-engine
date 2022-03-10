@@ -32,13 +32,14 @@ namespace cc {
 namespace gfx {
 
 class GLES3GPUTexture;
-
+class GLES3GPUTextureView;
 class CC_GLES3_API GLES3Texture final : public Texture {
 public:
     GLES3Texture();
     ~GLES3Texture() override;
 
-    inline GLES3GPUTexture *gpuTexture() const { return _gpuTexture; }
+    inline GLES3GPUTexture *    gpuTexture() const { return _gpuTexture; }
+    inline GLES3GPUTextureView *gpuTextureView() const { return _gpuTextureView; }
 
 protected:
     void doInit(const TextureInfo &info) override;
@@ -47,7 +48,10 @@ protected:
     void doResize(uint32_t width, uint32_t height, uint32_t size) override;
     void doInit(const SwapchainTextureInfo &info) override;
 
-    GLES3GPUTexture *_gpuTexture = nullptr;
+    void createTextureView();
+
+    GLES3GPUTexture *    _gpuTexture     = nullptr;
+    GLES3GPUTextureView *_gpuTextureView = nullptr;
 };
 
 } // namespace gfx

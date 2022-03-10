@@ -1368,6 +1368,7 @@ nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
 template <typename T>
 inline typename std::enable_if<!std::is_enum<T>::value && !std::is_pointer<T>::value && !is_jsb_object_v<T>, bool>::type
 nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
+    // static_assert(!std::is_const<T>::value, "nativevalue_to_se for type T is not implemented!";
     return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
 }
 
@@ -1505,6 +1506,23 @@ inline bool nativevalue_to_se(const bool &from, se::Value &to, se::Object * /*ct
     to.setBoolean(from);
     return true;
 }
+
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+template<>
+inline bool nativevalue_to_se(const unsigned long &from, se::Value &to,  se::Object * /*ctx*/) {
+    // on mac: unsiged long  === uintptr_t
+    CC_STATIC_ASSERT(sizeof(from) == 8);
+    to.setDouble(static_cast<double>(from));
+    return true;
+}
+template<>
+inline bool nativevalue_to_se(const long &from, se::Value &to,  se::Object * /*ctx*/) {
+    // on mac: unsiged long  === uintptr_t
+    CC_STATIC_ASSERT(sizeof(from) == 8);
+    to.setDouble(static_cast<double>(from));
+    return true;
+}
+#endif
 
 template <typename R, typename... Args>
 inline bool nativevalue_to_se(std::function<R(Args...)> & /*from*/, se::Value & /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)

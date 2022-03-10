@@ -153,7 +153,7 @@ export class WebGL2Swapchain extends Swapchain {
     private _webGL2ContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGL2Extensions | null = null;
 
-    public initialize (info: SwapchainInfo) {
+    public initialize (info: Readonly<SwapchainInfo>) {
         this._canvas = info.windowHandle;
 
         this._webGL2ContextLostHandler = this._onWebGLContextLost.bind(this);

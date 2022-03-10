@@ -35,7 +35,7 @@ import {
     spriteAssembler,
     earcut,
 } from './assembler';
-import { RenderData, MeshRenderData, QuadRenderData } from './renderer/render-data';
+import { RenderData, MeshRenderData } from './renderer/render-data';
 import { MeshBuffer } from './renderer/mesh-buffer';
 import { StencilManager } from './renderer/stencil-manager';
 import { legacyCC } from '../core/global-exports';
@@ -68,5 +68,4 @@ legacyCC.UI = {
     labelAssembler,
     RenderData,
     MeshRenderData,
-    QuadRenderData,
 };

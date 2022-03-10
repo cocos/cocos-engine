@@ -39,3 +39,5 @@ platforms/runtime/platforms/qtt/ral.min.js
 platforms/runtime/platforms/vivo-mini-game/ral.js
 platforms/runtime/platforms/vivo-mini-game/ral.min.js
 scripts/runtime-web-adapter
+
+native/external/

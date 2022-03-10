@@ -116,7 +116,9 @@ void GLES2Swapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform 
     _colorTexture->resize(width, height);
     _depthStencilTexture->resize(width, height);
 
-    doCreateSurface(_windowHandle);
+    if (_windowHandle) {
+        doCreateSurface(_windowHandle);
+    }
 }
 
 void GLES2Swapchain::doDestroySurface() {
@@ -124,7 +126,7 @@ void GLES2Swapchain::doDestroySurface() {
         auto* context = GLES2Device::getInstance()->context();
         eglDestroySurface(context->eglDisplay, _gpuSwapchain->eglSurface);
         _gpuSwapchain->eglSurface = EGL_NO_SURFACE;
-        context->bindContext(false);
+        context->bindContext(true);
     }
 }
 

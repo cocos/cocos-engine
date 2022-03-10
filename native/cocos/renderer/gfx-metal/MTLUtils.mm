@@ -970,21 +970,21 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
 
-        uint nameHash = static_cast<uint>(std::hash<String>{}(ubo.name));
-        if (gpuShader->blocks.find(nameHash) == gpuShader->blocks.end()) {
+        uint fakeHash = set * 128 + binding;
+        if (gpuShader->blocks.find(fakeHash) == gpuShader->blocks.end()) {
             auto mappedBinding = gpuShader->bufferIndex;
             newBinding.desc_set = set;
             newBinding.binding = binding;
             newBinding.msl_buffer = mappedBinding;
             msl.add_msl_resource_binding(newBinding);
-            gpuShader->blocks[nameHash] = {ubo.name, set, binding, mappedBinding, shaderType, size};
+            gpuShader->blocks[fakeHash] = {ubo.name, set, binding, mappedBinding, shaderType, size};
         } else {
-            auto mappedBinding = gpuShader->blocks[nameHash].mappedBinding;
+            auto mappedBinding = gpuShader->blocks[fakeHash].mappedBinding;
             newBinding.desc_set = set;
             newBinding.binding = binding;
             newBinding.msl_buffer = mappedBinding;
             msl.add_msl_resource_binding(newBinding);
-            gpuShader->blocks[nameHash].stages |= shaderType;
+            gpuShader->blocks[fakeHash].stages |= shaderType;
         }
         //msl.set_decoration(ubo.id, spv::DecorationLocation, gpuShader->blocks[nameHash].mappedBinding);
         ++gpuShader->bufferIndex;
@@ -998,22 +998,22 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         if (binding >= maxBufferBindingIndex) {
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
-
-        uint nameHash = static_cast<uint>(std::hash<String>{}(ubo.name));
-        if (gpuShader->blocks.find(nameHash) == gpuShader->blocks.end()) {
+        
+        uint fakeHash = set * 128 + binding;
+        if (gpuShader->blocks.find(fakeHash) == gpuShader->blocks.end()) {
             auto mappedBinding = gpuShader->bufferIndex;
             newBinding.desc_set = set;
             newBinding.binding = binding;
             newBinding.msl_buffer = mappedBinding;
             msl.add_msl_resource_binding(newBinding);
-            gpuShader->blocks[nameHash] = {ubo.name, set, binding, mappedBinding, shaderType, size};
+            gpuShader->blocks[fakeHash] = {ubo.name, set, binding, mappedBinding, shaderType, size};
         } else {
-            auto mappedBinding = gpuShader->blocks[nameHash].mappedBinding;
+            auto mappedBinding = gpuShader->blocks[fakeHash].mappedBinding;
             newBinding.desc_set = set;
             newBinding.binding = binding;
             newBinding.msl_buffer = mappedBinding;
             msl.add_msl_resource_binding(newBinding);
-            gpuShader->blocks[nameHash].stages |= shaderType;
+            gpuShader->blocks[fakeHash].stages |= shaderType;
         }
         //msl.set_decoration(ubo.id, spv::DecorationLocation, gpuShader->blocks[nameHash].mappedBinding);
         ++gpuShader->bufferIndex;

@@ -186,6 +186,17 @@ removeProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     },
 ]);
 
+replaceProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
+    {
+        name: 'distance',
+        newName: 'planeHeight',
+    },
+    {
+        name: 'normal',
+        newName: 'planeDirection',
+    },
+]);
+
 removeProperty(Node.prototype, 'Node.prototype', [
     {
         name: 'addLayer',

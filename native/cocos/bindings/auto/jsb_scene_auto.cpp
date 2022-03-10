@@ -2369,6 +2369,44 @@ static bool js_scene_Model_getReceiveShadow(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Model_getReceiveShadow)
 
+static bool js_scene_Model_getShadowBias(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_getShadowBias : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getShadowBias();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Model_getShadowBias : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_getShadowBias)
+
+static bool js_scene_Model_getShadowNormalBias(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_getShadowNormalBias : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getShadowNormalBias();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Model_getShadowNormalBias : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_getShadowNormalBias)
+
 static bool js_scene_Model_getSubModels(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -2635,6 +2673,44 @@ static bool js_scene_Model_setReceiveShadow(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Model_setReceiveShadow)
 
+static bool js_scene_Model_setShadowBias(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_setShadowBias : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Model_setShadowBias : Error processing arguments");
+        cobj->setShadowBias(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_setShadowBias)
+
+static bool js_scene_Model_setShadowNormalBias(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_setShadowNormalBias : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Model_setShadowNormalBias : Error processing arguments");
+        cobj->setShadowNormalBias(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_setShadowNormalBias)
+
 static bool js_scene_Model_setSubModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -2810,6 +2886,8 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("getLocalData", _SE(js_scene_Model_getLocalData));
     cls->defineFunction("getNode", _SE(js_scene_Model_getNode));
     cls->defineFunction("getReceiveShadow", _SE(js_scene_Model_getReceiveShadow));
+    cls->defineFunction("getShadowBias", _SE(js_scene_Model_getShadowBias));
+    cls->defineFunction("getShadowNormalBias", _SE(js_scene_Model_getShadowNormalBias));
     cls->defineFunction("getSubModels", _SE(js_scene_Model_getSubModels));
     cls->defineFunction("getTransform", _SE(js_scene_Model_getTransform));
     cls->defineFunction("getTransformUpdated", _SE(js_scene_Model_getTransformUpdated));
@@ -2824,6 +2902,8 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("setLocalBuffer", _SE(js_scene_Model_setLocalBuffer));
     cls->defineFunction("setNode", _SE(js_scene_Model_setNode));
     cls->defineFunction("setReceiveShadow", _SE(js_scene_Model_setReceiveShadow));
+    cls->defineFunction("setShadowBias", _SE(js_scene_Model_setShadowBias));
+    cls->defineFunction("setShadowNormalBias", _SE(js_scene_Model_setShadowNormalBias));
     cls->defineFunction("setSubModel", _SE(js_scene_Model_setSubModel));
     cls->defineFunction("setTransform", _SE(js_scene_Model_setTransform));
     cls->defineFunction("setWorldBoundBuffer", _SE(js_scene_Model_setWorldBoundBuffer));

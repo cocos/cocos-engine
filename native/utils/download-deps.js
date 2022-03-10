@@ -15,7 +15,7 @@ function main() {
     const externalPath = ps.join(workDir, 'external');
     (async () => {
         await downloadDepsThroughGit(
-            ps.join(externalPath, 'config.json'),
+            ps.join(workDir, 'external-config.json'),
             externalPath,
         );
     })();
