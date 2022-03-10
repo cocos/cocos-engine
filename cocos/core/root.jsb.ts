@@ -56,9 +56,19 @@ Object.defineProperty(rootProto, 'pipelineEvent', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._pipeline;
+        return this._pipelineEvent;
     }
 });
+
+class DymmyPipelineEvent {
+    on (type: any, callback: any, target?: any, once?: boolean) {}
+    once (type: any, callback: any, target?: any) {}
+    off (type: any, callback?: any, target?: any) {}
+    emit (type: any, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
+    targetOff (typeOrTarget: any) {}
+    removeAll (typeOrTarget: any) {}
+    hasEventListener (type: any, callback?: any, target?: any): boolean { return false; }
+}
 
 rootProto._ctor = function (device: Device) {
     this._device = device;
@@ -67,6 +77,7 @@ rootProto._ctor = function (device: Device) {
     this._lightPools = new Map();
     this._batcher = null;
     this._pipeline = null;
+    this._pipelineEvent = new DymmyPipelineEvent();
     this._registerListeners();
 };
 
