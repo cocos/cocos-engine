@@ -46,7 +46,6 @@ export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;
     public abstract destroy(): boolean;
     public abstract render(cameras: Camera[]): void;
-    public abstract get macros(): MacroRecord;
     public abstract get globalDSManager(): GlobalDSManager;
     public abstract get descriptorSetLayout(): DescriptorSetLayout;
     public abstract get pipelineSceneData(): PipelineSceneData;
@@ -56,6 +55,8 @@ export abstract class PipelineRuntime {
     public abstract get shadingScale(): number;
     public abstract set shadingScale(scale: number);
     public abstract onGlobalPipelineStateChanged(): void;
+
+    public abstract get macros(): MacroRecord;
 }
 
 export abstract class DescriptorHierarchy {
@@ -141,7 +142,7 @@ export abstract class SceneTransversal {
     public abstract transverse(visitor: SceneVisitor): SceneTask;
 }
 
-export abstract class Pipeline {
+export abstract class Pipeline extends PipelineRuntime {
     public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     public abstract addDepthStencil(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;

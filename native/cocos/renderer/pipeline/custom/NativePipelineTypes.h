@@ -30,6 +30,8 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/Ptr.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderCompilerTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
@@ -56,6 +58,30 @@ public:
     void                addPresentPass(const std::string& name, const std::string& swapchainName) override;
 
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
+
+    bool activate(gfx::Swapchain * swapchain) override;
+    bool destroy() noexcept override;
+    void render(const std::vector<const scene::Camera*>& cameras) override;
+
+    const MacroRecord           &getMacros() const override;
+    pipeline::GlobalDSManager   *getGlobalDSManager() const override;
+    gfx::DescriptorSetLayout    *getDescriptorSetLayout() const override;
+    pipeline::PipelineSceneData *getPipelineSceneData() const override;
+    const std::string           &getConstantMacros() const override;
+    scene::Model                *getProfiler() const override;
+    void                         setProfiler(scene::Model *profiler) override;
+
+    float getShadingScale() const override;
+    void  setShadingScale(float scale) override;
+
+    void onGlobalPipelineStateChanged() override;
+
+    gfx::Device*                              device{nullptr};
+    MacroRecord                               macros;
+    std::string                               constantMacros;
+    pipeline::GlobalDSManager*                globalDSManager{nullptr};
+    scene::Model*                             profiler{nullptr};
+    IntrusivePtr<pipeline::PipelineSceneData> pipelineSceneData;
 };
 
 } // namespace render
