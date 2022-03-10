@@ -317,4 +317,4 @@ SE_DECLARE_FUNC(js_physics_World_step);
 SE_DECLARE_FUNC(js_physics_World_syncSceneToPhysics);
 SE_DECLARE_FUNC(js_physics_World_syncSceneWithCheck);
 SE_DECLARE_FUNC(js_physics_World_World);
-    // clang-format on
+// clang-format on

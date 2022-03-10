@@ -446,4 +446,4 @@ extern se::Class * __jsb_dragonBones_CCTextureData_class; // NOLINT
 bool js_register_dragonBones_CCTextureData(se::Object *obj); // NOLINT
 
 #endif //#if USE_DRAGONBONES > 0
-    // clang-format on
+// clang-format on
