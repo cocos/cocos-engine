@@ -28,10 +28,10 @@
  * @hidden
  */
 
-import { Frustum, intersect, Sphere } from '../geometry';
+import { intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Vec3, Mat4 } from '../math';
+import { Vec3, Mat4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
@@ -43,8 +43,6 @@ const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
-const dirShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
-const castShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
 function getRenderObject (model: Model, camera: Camera) {
     let depth = 0;
@@ -53,30 +51,6 @@ function getRenderObject (model: Model, camera: Camera) {
         depth = Vec3.dot(_tempVec3, camera.forward);
     }
     const ro = roPool.alloc();
-    ro.model = model;
-    ro.depth = depth;
-    return ro;
-}
-
-function getDirShadowRenderObject (model: Model, camera: Camera) {
-    let depth = 0;
-    if (model.node) {
-        Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
-        depth = Vec3.dot(_tempVec3, camera.forward);
-    }
-    const ro = dirShadowPool.alloc();
-    ro.model = model;
-    ro.depth = depth;
-    return ro;
-}
-
-function getCastShadowRenderObject (model: Model, camera: Camera) {
-    let depth = 0;
-    if (model.node) {
-        Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
-        depth = Vec3.dot(_tempVec3, camera.forward);
-    }
-    const ro = castShadowPool.alloc();
     ro.model = model;
     ro.depth = depth;
     return ro;
@@ -213,7 +187,7 @@ export function shadowCulling (pipeline: RenderPipeline, camera: Camera, layer: 
     const dirLightFrustum = layer.validFrustum;
 
     const dirShadowObjects = layer._shadowObjects;
-    dirShadowPool.freeArray(dirShadowObjects); dirShadowObjects.length = 0;
+    dirShadowObjects.length = 0;
 
     const visibility = camera.visibility;
     for (let i = 0; i < castShadowObjects.length; i++) {
@@ -247,7 +221,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
     const castShadowObjects = csmLayers.castShadowObjects;
-    castShadowPool.freeArray(castShadowObjects); castShadowObjects.length = 0;
+    castShadowObjects.length = 0;
 
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
@@ -255,6 +229,24 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             // update CSM layers
             if (mainLight && mainLight.node) {
                 csmLayers.update(pipeline, camera, mainLight, shadows);
+                if (camera.node.name === 'Main Camera') {
+                    if (mainLight.shadowCSMLevel >= 1) {
+                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[0].splitFrustum, Color.WHITE);
+                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[0].validFrustum, Color.YELLOW);
+                    }
+                    if (mainLight.shadowCSMLevel >= 2) {
+                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[1].splitFrustum, Color.WHITE);
+                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[1].validFrustum, Color.GREEN);
+                    }
+                    if (mainLight.shadowCSMLevel >= 3) {
+                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[2].splitFrustum, Color.WHITE);
+                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[2].validFrustum, Color.RED);
+                    }
+                    if (mainLight.shadowCSMLevel >= 4) {
+                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[3].splitFrustum, Color.WHITE);
+                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[3].validFrustum, Color.YELLOW);
+                    }
+                }
             }
         }
     }
@@ -278,7 +270,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         // filter model by view visibility
         if (model.enabled) {
             if (model.castShadow) {
-                castShadowObjects.push(getCastShadowRenderObject(model, camera));
+                castShadowObjects.push(getRenderObject(model, camera));
             }
 
             if (model.node && ((visibility & model.node.layer) === model.node.layer)

@@ -132,7 +132,7 @@ export class ShadowStage extends RenderStage {
                 this._renderArea.width = shadowMapSize.x;
                 this._renderArea.height = shadowMapSize.y;
             } else {
-                const level = 0;//(this._layer as CSMLayerInfo).level;
+                const level = (this._layer as CSMLayerInfo).level;
                 this._renderArea.x = level % 2 * 0.5 * shadowMapSize.x;
                 this._renderArea.y = (1 - Math.floor(level / 2)) * 0.5 * shadowMapSize.y;
                 this._renderArea.width = 0.5 * shadowMapSize.x;

@@ -132,6 +132,10 @@ export class ShadowTransformInfo {
         this._castLightViewBoundingBox = val;
     }
 
+    public destroy () {
+        this._shadowObjects.length = 0;
+    }
+
     public createMatrix (device: Device, splitFrustum: Frustum, dirLight: DirectionalLight,
         shadowMapWidth: number, onlyForCulling: boolean) {
         const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
@@ -194,9 +198,10 @@ export class CSMLayerInfo extends ShadowTransformInfo {
     protected _matShadowAtlas: Mat4 = new Mat4();
     protected _matShadowViewProjAtlas: Mat4 = new Mat4();
 
-    constructor (level: number) {
+    constructor (pipeline: RenderPipeline, level: number) {
         super();
         this._level = level;
+        this._calculateAtlas(pipeline, level);
     }
 
     get level () { return this._level; }
@@ -228,6 +233,19 @@ export class CSMLayerInfo extends ShadowTransformInfo {
     set matShadowViewProjAtlas (val) {
         this._matShadowViewProjAtlas = val;
     }
+
+    public destroy () {
+        super.destroy();
+    }
+
+    private _calculateAtlas (pipeline: RenderPipeline, level: number) {
+        const clipSpaceSignY = pipeline.device.capabilities.clipSpaceSignY;
+        const x = level % 2 - 0.5;
+        const y = (0.5 - Math.floor(level / 2)) * clipSpaceSignY;
+        _bias.set(x, y, 0);
+        _scale.set(0.5, 0.5, 1);
+        Mat4.fromRTS(this._matShadowAtlas, Quat.IDENTITY, _bias, _scale);
+    }
 }
 
 /**
@@ -237,10 +255,6 @@ export class CSMLayerInfo extends ShadowTransformInfo {
 export class CSMLayers {
     public castShadowObjects: IRenderObject[] = [];
 
-    protected _pipeline: RenderPipeline | null = null;
-    protected _dirLight: DirectionalLight | null = null;
-    protected _camera: Camera | null = null;
-    protected _shadowInfo: Shadows | null = null;
     protected _layers: CSMLayerInfo[] = [];
     // LevelCount is a scalar, Indicates the number.
     protected _levelCount = 0;
@@ -256,58 +270,50 @@ export class CSMLayers {
     }
 
     public update (pipeline: RenderPipeline, camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
-        this._pipeline = pipeline;
-        this._dirLight = dirLight;
-        this._camera = camera;
-        this._shadowInfo = shadowInfo;
         const levelCount = dirLight.shadowCSMLevel;
         const shadowDistance = dirLight.shadowDistance;
 
-        if (!this._shadowInfo.enabled || !dirLight.shadowEnabled) { return; }
+        if (!shadowInfo.enabled || !dirLight.shadowEnabled) { return; }
 
         if (dirLight.shadowFixedArea) {
-            this._updateFixedArea();
+            this._updateFixedArea(pipeline, dirLight);
         } else {
             let isRecalculate = false;
             for (let i = 0; i < levelCount; i++) {
                 if (!this._layers[i] || this._layers[i].shadowCameraFar === undefined) {
-                    this._layers[i] = new CSMLayerInfo(i);
-                    this._calculateAtlas(this._layers[i]);
+                    this._layers[i] = new CSMLayerInfo(pipeline, i);
                     isRecalculate = true;
                 }
             }
 
             if (this._levelCount !== levelCount || isRecalculate || this._shadowDistance !== shadowDistance) {
-                this._splitFrustumLevels();
+                this._splitFrustumLevels(dirLight);
                 this._levelCount = levelCount;
                 this._shadowDistance = shadowDistance;
             }
 
-            this._calculateCSM();
+            this._calculateCSM(pipeline, camera, dirLight, shadowInfo);
         }
     }
 
-    public shadowFrustumItemToConsole () {
-        for (let i = 0; i < this._levelCount; i++) {
-            console.warn(this._dirLight?.node!.name, '._shadowCSMLayers[',
-                i, '] = (', this._layers[i].splitCameraNear, ', ', this._layers[i].splitCameraFar, ')');
-            console.warn(this._camera?.node!.name, '._validFrustum[', i, '] =', this._layers[i].validFrustum?.toString());
-        }
-    }
+    // public shadowFrustumItemToConsole () {
+    //     for (let i = 0; i < this._levelCount; i++) {
+    //         console.warn(this._dirLight?.node!.name, '._shadowCSMLayers[',
+    //             i, '] = (', this._layers[i].splitCameraNear, ', ', this._layers[i].splitCameraFar, ')');
+    //         console.warn(this._camera?.node!.name, '._validFrustum[', i, '] =', this._layers[i].validFrustum?.toString());
+    //     }
+    // }
 
     public destroy () {
-        this._pipeline = null;
-        this._dirLight = null;
-        this._camera = null;
-        this._shadowInfo = null;
+        this.castShadowObjects.length = 0;
+        for (let i = 0; i < this._layers.length; i++) {
+            this._layers[i].destroy();
+        }
         this._layers.length = 0;
     }
 
-    private _updateFixedArea () {
-        if (!this._pipeline || !this._dirLight) { return; }
-
-        const dirLight = this._dirLight;
-        const device = this._pipeline.device;
+    private _updateFixedArea (pipeline: RenderPipeline, dirLight: DirectionalLight) {
+        const device = pipeline.device;
         const x = dirLight.shadowOrthoSize;
         const y = dirLight.shadowOrthoSize;
         const near = dirLight.shadowNear;
@@ -324,13 +330,11 @@ export class CSMLayers {
         Frustum.createOrtho(this._specialLayer.validFrustum, x * 2.0, y * 2.0, near,  far, _matShadowTrans);
     }
 
-    private _splitFrustumLevels () {
-        if (!this._dirLight) return;
-
+    private _splitFrustumLevels (dirLight: DirectionalLight) {
         const nd = 0.1;
-        const fd = this._dirLight.shadowDistance;
+        const fd = dirLight.shadowDistance;
         const ratio = fd / nd;
-        const level = this._dirLight.shadowCSMLevel;
+        const level = dirLight.shadowCSMLevel;
         this._layers[0].splitCameraNear = nd;
         for (let i = 1; i < level; i++) {
             // i ÷ numbers of level
@@ -346,25 +350,10 @@ export class CSMLayers {
         this._layers[level - 1].splitCameraFar = fd;
     }
 
-    private _calculateAtlas (layer: CSMLayerInfo) {
-        if (!this._pipeline) { return; }
-        const level = 0;//layer.level;
-        const clipSpaceSignY = this._pipeline.device.capabilities.clipSpaceSignY;
-        const x = level % 2 - 0.5;
-        const y = (Math.floor(level / 2) - 0.5) * clipSpaceSignY;
-        _bias.set(x, y, 0);
-        _scale.set(0.5, 0.5, 1);
-        Mat4.fromRTS(layer.matShadowAtlas, Quat.IDENTITY, _bias, _scale);
-    }
-
-    private _calculateCSM () {
-        if (!this._pipeline || !this._dirLight || !this._camera || !this._shadowInfo) { return; }
-
-        const device = this._pipeline.device;
-        const dirLight = this._dirLight;
+    private _calculateCSM (pipeline: RenderPipeline, camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
+        const device = pipeline.device;
         const level = dirLight.shadowCSMLevel;
-        const camera = this._camera;
-        const shadowMapWidth = this._shadowInfo.size.x;
+        const shadowMapWidth = shadowInfo.size.x;
 
         if (shadowMapWidth < 0.0) { return; }
 
@@ -373,8 +362,8 @@ export class CSMLayers {
             const near = csmLayer.splitCameraNear;
             const far = csmLayer.splitCameraFar;
             this._getCameraWorldMatrix(_mat4Trans, camera);
-            //Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, near, far);
-            Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, 0.1, dirLight.shadowDistance);
+            Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, near, far);
+            // Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, 0.1, dirLight.shadowDistance);
             csmLayer.createMatrix(device, csmLayer.splitFrustum, dirLight, shadowMapWidth, false);
 
             Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowViewProj, csmLayer.matShadowAtlas);
