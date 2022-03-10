@@ -4,6 +4,8 @@
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
         "3d": { "modules": [ "3d" ] },
+        "animation": { "modules": ["animation"] },
+        "skeletal-animation": { "modules": ["animation", "skeletal-animation"] },
         "2d": { "modules": [ "2d" ] },
         "ui": { "modules": [ "ui", "2d" ] },
         "particle": { "modules": [ "particle" ] },

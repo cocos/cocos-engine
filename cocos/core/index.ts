@@ -60,5 +60,4 @@ export * from './asset-manager';
 export * from './scene-graph';
 export * from './components';
 export * from './builtin';
-export * from './animation';
 export * from './curves';
