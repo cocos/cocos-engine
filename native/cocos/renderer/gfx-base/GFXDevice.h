@@ -115,7 +115,7 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    inline bool isSurfaceReady() {return _isSurfaceReady;}
+    inline bool isSurfaceReady() const {return _isSurfaceReady;}
 
     inline void setSurfaceReady(bool ready) { _isSurfaceReady = ready;}
 
