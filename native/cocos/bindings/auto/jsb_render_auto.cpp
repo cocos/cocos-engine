@@ -1231,31 +1231,6 @@ bool js_register_render_CopyPassBuilder(se::Object* obj) // NOLINT(readability-i
 se::Object* __jsb_cc_render_SceneVisitor_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_render_SceneVisitor_class = nullptr;  // NOLINT
 
-static bool js_render_SceneVisitor_bindDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::render::SceneVisitor>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_SceneVisitor_bindDescriptorSet : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        HolderType<unsigned int, false> arg0 = {};
-        HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
-        HolderType<unsigned int, false> arg2 = {};
-        HolderType<const unsigned int*, false> arg3 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_SceneVisitor_bindDescriptorSet : Error processing arguments");
-        cobj->bindDescriptorSet(arg0.value(), arg1.value(), arg2.value(), arg3.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_render_SceneVisitor_bindDescriptorSet)
-
 static bool js_render_SceneVisitor_bindInputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::SceneVisitor>(s);
@@ -1355,7 +1330,6 @@ bool js_register_render_SceneVisitor(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("SceneVisitor", obj, nullptr, nullptr);
 
-    cls->defineFunction("bindDescriptorSet", _SE(js_render_SceneVisitor_bindDescriptorSet));
     cls->defineFunction("bindInputAssembler", _SE(js_render_SceneVisitor_bindInputAssembler));
     cls->defineFunction("bindPipelineState", _SE(js_render_SceneVisitor_bindPipelineState));
     cls->defineFunction("draw", _SE(js_render_SceneVisitor_draw));
@@ -1423,6 +1397,21 @@ static bool js_render_SceneTask_start(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_render_SceneTask_start)
 
+static bool js_render_SceneTask_submit(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneTask>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneTask_submit : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->submit();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_SceneTask_submit)
+
 bool js_register_render_SceneTask(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("SceneTask", obj, nullptr, nullptr);
@@ -1430,6 +1419,7 @@ bool js_register_render_SceneTask(se::Object* obj) // NOLINT(readability-identif
     cls->defineProperty("taskType", _SE(js_render_SceneTask_getTaskType_asGetter), nullptr);
     cls->defineFunction("join", _SE(js_render_SceneTask_join));
     cls->defineFunction("start", _SE(js_render_SceneTask_start));
+    cls->defineFunction("submit", _SE(js_render_SceneTask_submit));
     cls->install();
     JSBClassType::registerClass<cc::render::SceneTask>(cls);
 

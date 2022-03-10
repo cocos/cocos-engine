@@ -268,6 +268,7 @@ public:
     virtual TaskType getTaskType() const noexcept = 0;
     virtual void     start() = 0;
     virtual void     join() = 0;
+    virtual void     submit() = 0;
 };
 
 inline SceneTask::~SceneTask() noexcept = default;
