@@ -27,7 +27,6 @@ import { Octree } from '../renderer/scene/octree';
 import { IRenderObject } from './define';
 import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
-import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
 import { Material } from '../assets';
 import { Pass } from '../renderer/core/pass';
@@ -76,7 +75,6 @@ export class PipelineSceneData {
     public dirShadowObjects: IRenderObject[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected declare _device: Device;
-    protected declare _pipeline: RenderPipeline;
     protected _geometryRendererMaterials: Material[] = [];
     protected _geometryRendererPasses: Pass[] = [];
     protected _geometryRendererShaders: Shader[] = [];
@@ -92,9 +90,8 @@ export class PipelineSceneData {
         this._shadingScale = 1.0;
     }
 
-    public activate (device: Device, pipeline: RenderPipeline) {
+    public activate (device: Device) {
         this._device = device;
-        this._pipeline = pipeline;
 
         this.initGeometryRendererMaterials();
         this.initOcclusionQuery();
