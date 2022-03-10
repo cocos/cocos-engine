@@ -54,7 +54,6 @@ export class AttachUtil {
 
         const sockets = this._armatureDisplay!.sockets;
         const socketNodes = this._armatureDisplay!.socketNodes;
-        const scale = new Vec3();
 
         const matrixHandle = (node: NodeExt, boneMat: Matrix) => {
             const tm = _tempMat4;
@@ -64,13 +63,7 @@ export class AttachUtil {
             tm.m05 = -boneMat.d;
             tm.m12 = boneMat.tx;
             tm.m13 = boneMat.ty;
-            if (!node._oldScale) {
-                // back origin scale info
-                node._oldScale = node.scale.clone();
-            }
-            scale.set(node._oldScale);
             node.matrix = _tempMat4;
-            node.scale = scale.multiply(this._armatureNode!.scale);
         };
 
         const bones = this._armature!.getBones();
