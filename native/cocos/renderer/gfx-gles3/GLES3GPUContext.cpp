@@ -24,7 +24,10 @@
 ****************************************************************************/
 
 #include "GLES3GPUObjects.h"
-#include "swappy/swappyGL.h"
+
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include "swappy/swappyGL.h"
+#endif
 
 #define FORCE_DISABLE_VALIDATION 1
 

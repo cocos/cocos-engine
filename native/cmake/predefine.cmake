@@ -132,9 +132,10 @@ endfunction()
 ################################# cc_set_if_undefined ###################################
 macro(cc_set_if_undefined varname value)
     if(NOT DEFINED ${varname})
-        set(${varname} ${value} CACHE INTERNAL "")
+        set(${varname} ${value})
     endif()
 endmacro()
+
 
 ################################# cocos_source_files ###################################
 macro(cocos_source_files)
