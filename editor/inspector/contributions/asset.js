@@ -395,9 +395,6 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
     panel.renderMap = renderMap;
     panel.dropConfig = dropConfig;
 
-    console.log(panel.renderMap);
-    console.log(panel.dropConfig);
-
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.update) {
