@@ -26,6 +26,7 @@
 #pragma once
 
 #include "Define.h"
+#include "base/RefCounted.h"
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
 
@@ -45,16 +46,14 @@ class Light;
 } // namespace scene
 namespace pipeline {
 
-class RenderPipeline;
-
-class CC_DLL PipelineSceneData : public Object {
+class CC_DLL PipelineSceneData : public RefCounted {
 public:
     PipelineSceneData();
     ~PipelineSceneData() override;
-    virtual void activate(gfx::Device *device, RenderPipeline *pipeline);
+    virtual void activate(gfx::Device *device);
     void         destroy();
 
-    virtual void onGlobalPipelineStateChanged() {}
+    virtual void updatePipelineSceneData() {}
 
     inline void                                                                setShadowFramebuffer(const scene::Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap.emplace(light, framebuffer); }
     inline const std::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
@@ -111,7 +110,6 @@ protected:
     std::vector<scene::Pass *>          _geometryRendererPasses;  // weak reference
     std::vector<gfx::Shader *>          _geometryRendererShaders; // weak reference
 
-    RenderPipeline *_pipeline{nullptr};
     gfx::Device *   _device{nullptr};
 
     scene::Fog *    _fog{nullptr};

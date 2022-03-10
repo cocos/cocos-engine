@@ -56,9 +56,8 @@ PipelineSceneData::~PipelineSceneData() {
     CC_SAFE_DELETE(_octree);
 }
 
-void PipelineSceneData::activate(gfx::Device *device, RenderPipeline *pipeline) {
+void PipelineSceneData::activate(gfx::Device *device) {
     _device   = device;
-    _pipeline = pipeline;
     initGeometryRendererMaterials();
     initOcclusionQuery();
 }

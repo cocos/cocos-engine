@@ -37,17 +37,15 @@ namespace cc {
 
 namespace render {
 
-inline const char* getName(TextureLayout e) noexcept {
-    switch (e) {
-        case TextureLayout::UNKNOWN: return "UNKNOWN";
-        case TextureLayout::ROW_MAJOR: return "ROW_MAJOR";
-        case TextureLayout::UNDEFINED_SWIZZLE: return "UNDEFINED_SWIZZLE";
-        case TextureLayout::STANDARD_SWIZZLE: return "STANDARD_SWIZZLE";
-    }
-    return "";
-}
 inline const char* getName(const ResourceDesc& /*v*/) noexcept { return "ResourceDesc"; }
 inline const char* getName(const ResourceTraits& /*v*/) noexcept { return "ResourceTraits"; }
+inline const char* getName(const RenderSwapchain& /*v*/) noexcept { return "RenderSwapchain"; }
+inline const char* getName(const ResourceStates& /*v*/) noexcept { return "ResourceStates"; }
+inline const char* getName(const ManagedResource& /*v*/) noexcept { return "ManagedResource"; }
+inline const char* getName(const ManagedTag& /*v*/) noexcept { return "Managed"; }
+inline const char* getName(const PersistentBufferTag& /*v*/) noexcept { return "PersistentBuffer"; }
+inline const char* getName(const PersistentTextureTag& /*v*/) noexcept { return "PersistentTexture"; }
+inline const char* getName(const SwapchainTag& /*v*/) noexcept { return "Swapchain"; }
 inline const char* getName(const ResourceGraph& /*v*/) noexcept { return "ResourceGraph"; }
 inline const char* getName(AttachmentType e) noexcept {
     switch (e) {

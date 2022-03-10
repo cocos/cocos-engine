@@ -35,8 +35,10 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/range/irange.hpp>
+#include "cocos/base/Ptr.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/renderer/gfx-base/GFXSwapchain.h"
 #include "cocos/renderer/gfx-base/GFXTexture.h"
 #include "cocos/renderer/gfx-base/states/GFXSampler.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
@@ -51,59 +53,17 @@ namespace cc {
 
 namespace render {
 
-enum class ResourceFlags : uint32_t {
-    NONE = 0,
-    ALLOW_RENDER_TARGET = 0x1,
-    ALLOW_DEPTH_STENCIL = 0x2,
-    ALLOW_UNORDERED_ACCESS = 0x4,
-    DENY_SHADER_RESOURCE = 0x8,
-    ALLOW_CROSS_ADAPTER = 0x10,
-    ALLOW_SIMULTANEOUS_ACCESS = 0x20,
-    VIDEO_DECODE_REFERENCE_ONLY = 0x40,
-};
-
-constexpr ResourceFlags operator|(const ResourceFlags lhs, const ResourceFlags rhs) noexcept {
-    return static_cast<ResourceFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-}
-
-constexpr ResourceFlags operator&(const ResourceFlags lhs, const ResourceFlags rhs) noexcept {
-    return static_cast<ResourceFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-}
-
-constexpr ResourceFlags& operator|=(ResourceFlags& lhs, const ResourceFlags rhs) noexcept {
-    return lhs = lhs | rhs;
-}
-
-constexpr ResourceFlags& operator&=(ResourceFlags& lhs, const ResourceFlags rhs) noexcept {
-    return lhs = lhs & rhs;
-}
-
-constexpr bool operator!(ResourceFlags e) noexcept {
-    return e == static_cast<ResourceFlags>(0);
-}
-
-constexpr bool any(ResourceFlags e) noexcept {
-    return !!e;
-}
-
-enum class TextureLayout {
-    UNKNOWN,
-    ROW_MAJOR,
-    UNDEFINED_SWIZZLE,
-    STANDARD_SWIZZLE,
-};
-
 struct ResourceDesc {
-    ResourceDimension dimension{ResourceDimension::BUFFER};
-    uint32_t          alignment{0};
-    uint32_t          width{0};
-    uint32_t          height{0};
-    uint16_t          depthOrArraySize{0};
-    uint16_t          mipLevels{0};
-    gfx::Format       format{gfx::Format::UNKNOWN};
-    gfx::SampleCount  sampleCount{gfx::SampleCount::ONE};
-    TextureLayout     layout{TextureLayout::UNKNOWN};
-    ResourceFlags     flags{ResourceFlags::NONE};
+    ResourceDimension   dimension{ResourceDimension::BUFFER};
+    uint32_t            alignment{0};
+    uint32_t            width{0};
+    uint32_t            height{0};
+    uint16_t            depthOrArraySize{0};
+    uint16_t            mipLevels{0};
+    gfx::Format         format{gfx::Format::UNKNOWN};
+    gfx::SampleCount    sampleCount{gfx::SampleCount::ONE};
+    gfx::TextureFlagBit textureFlags{gfx::TextureFlagBit::NONE};
+    ResourceFlags       flags{ResourceFlags::NONE};
 };
 
 struct ResourceTraits {
@@ -119,6 +79,29 @@ struct ResourceTraits {
 
     ResourceResidency residency{ResourceResidency::MANAGED};
 };
+
+struct RenderSwapchain {
+    RenderSwapchain() = default;
+    RenderSwapchain(gfx::Swapchain* swapchainIn) noexcept // NOLINT
+    : swapchain(swapchainIn) {}
+
+    gfx::Swapchain* swapchain{nullptr};
+    uint32_t        currentID{0};
+    uint32_t        numBackBuffers{0};
+};
+
+struct ResourceStates {
+    gfx::AccessFlagBit states{gfx::AccessFlagBit::NONE};
+};
+
+struct ManagedResource {
+    uint32_t unused{0};
+};
+
+struct ManagedTag {};
+struct PersistentBufferTag {};
+struct PersistentTextureTag {};
+struct SwapchainTag {};
 
 struct ResourceGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -207,6 +190,16 @@ struct ResourceGraph {
     using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, ResourceGraph>;
     using edges_size_type = uint32_t;
 
+    // PolymorphicGraph
+    using VertexTag         = boost::variant2::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, SwapchainTag>;
+    using VertexValue       = boost::variant2::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, RenderSwapchain*>;
+    using VertexConstValue = boost::variant2::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const RenderSwapchain*>;
+    using VertexHandle      = boost::variant2::variant<
+        impl::ValueHandle<ManagedTag, vertex_descriptor>,
+        impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
+        impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
+        impl::ValueHandle<SwapchainTag, vertex_descriptor>>;
+
     // ContinuousContainer
     void reserve(vertices_size_type sz);
 
@@ -228,6 +221,7 @@ struct ResourceGraph {
 
         boost::container::pmr::vector<OutEdge> outEdges;
         boost::container::pmr::vector<InEdge>  inEdges;
+        VertexHandle                           handle;
     };
 
     struct NameTag {
@@ -236,6 +230,8 @@ struct ResourceGraph {
     } static constexpr Desc{}; // NOLINT
     struct TraitsTag {
     } static constexpr Traits{}; // NOLINT
+    struct StatesTag {
+    } static constexpr States{}; // NOLINT
 
     // Vertices
     boost::container::pmr::vector<Vertex> vertices;
@@ -243,6 +239,12 @@ struct ResourceGraph {
     boost::container::pmr::vector<PmrString>      names;
     boost::container::pmr::vector<ResourceDesc>   descs;
     boost::container::pmr::vector<ResourceTraits> traits;
+    boost::container::pmr::vector<ResourceStates> states;
+    // PolymorphicGraph
+    boost::container::pmr::vector<ManagedResource>            resources;
+    boost::container::pmr::vector<IntrusivePtr<gfx::Buffer>>  buffers;
+    boost::container::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
+    boost::container::pmr::vector<RenderSwapchain>            swapchains;
     // UuidGraph
     PmrUnorderedMap<PmrString, vertex_descriptor> valueIndex;
 };

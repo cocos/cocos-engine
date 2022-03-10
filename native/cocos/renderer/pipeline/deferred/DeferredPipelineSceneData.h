@@ -21,8 +21,8 @@ public:
     DeferredPipelineSceneData();
     ~DeferredPipelineSceneData() override;
 
-    void activate(gfx::Device *device, RenderPipeline *pipeline) override;
-    void onGlobalPipelineStateChanged() override;
+    void activate(gfx::Device *device) override;
+    void updatePipelineSceneData() override;
 
     void initPipelinePassInfo();
 

@@ -17,6 +17,9 @@ JSB_REGISTER_OBJECT_TYPE(cc::render::ComputeQueueBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::ComputePassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::MovePassBuilder);
 JSB_REGISTER_OBJECT_TYPE(cc::render::CopyPassBuilder);
+JSB_REGISTER_OBJECT_TYPE(cc::render::SceneVisitor);
+JSB_REGISTER_OBJECT_TYPE(cc::render::SceneTask);
+JSB_REGISTER_OBJECT_TYPE(cc::render::SceneTransversal);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);
 JSB_REGISTER_OBJECT_TYPE(cc::render::Factory);
 
@@ -26,6 +29,10 @@ extern se::Class * __jsb_cc_render_PipelineRuntime_class; // NOLINT
 
 bool js_register_cc_render_PipelineRuntime(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_render_PipelineRuntime_activate);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_destroy);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_onGlobalPipelineStateChanged);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_render);
 
 extern se::Object *__jsb_cc_render_DescriptorHierarchy_proto; // NOLINT
 extern se::Class * __jsb_cc_render_DescriptorHierarchy_class; // NOLINT
@@ -100,6 +107,33 @@ bool js_register_cc_render_CopyPassBuilder(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_render_CopyPassBuilder_addPair);
 
+extern se::Object *__jsb_cc_render_SceneVisitor_proto; // NOLINT
+extern se::Class * __jsb_cc_render_SceneVisitor_class; // NOLINT
+
+bool js_register_cc_render_SceneVisitor(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_SceneVisitor_bindDescriptorSet);
+SE_DECLARE_FUNC(js_render_SceneVisitor_bindInputAssembler);
+SE_DECLARE_FUNC(js_render_SceneVisitor_bindPipelineState);
+SE_DECLARE_FUNC(js_render_SceneVisitor_draw);
+SE_DECLARE_FUNC(js_render_SceneVisitor_setScissor);
+SE_DECLARE_FUNC(js_render_SceneVisitor_setViewport);
+
+extern se::Object *__jsb_cc_render_SceneTask_proto; // NOLINT
+extern se::Class * __jsb_cc_render_SceneTask_class; // NOLINT
+
+bool js_register_cc_render_SceneTask(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_SceneTask_join);
+SE_DECLARE_FUNC(js_render_SceneTask_start);
+
+extern se::Object *__jsb_cc_render_SceneTransversal_proto; // NOLINT
+extern se::Class * __jsb_cc_render_SceneTransversal_class; // NOLINT
+
+bool js_register_cc_render_SceneTransversal(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_render_SceneTransversal_transverse);
+
 extern se::Object *__jsb_cc_render_Pipeline_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Pipeline_class; // NOLINT
 
@@ -114,6 +148,7 @@ SE_DECLARE_FUNC(js_render_Pipeline_addRasterPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTarget);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTexture);
 SE_DECLARE_FUNC(js_render_Pipeline_beginFrame);
+SE_DECLARE_FUNC(js_render_Pipeline_createSceneTransversal);
 SE_DECLARE_FUNC(js_render_Pipeline_endFrame);
 
 extern se::Object *__jsb_cc_render_Factory_proto; // NOLINT

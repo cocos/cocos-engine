@@ -37,13 +37,14 @@ import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
-import { IBatcher } from '../2d/renderer/i-batcher';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
 import { warnID } from './platform/debug';
 import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
 import { createCustomPipeline } from './pipeline/custom';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IPipelineEvent } from './pipeline/pipeline-event';
 
 /**
  * @zh
@@ -124,11 +125,19 @@ export class Root {
 
     /**
      * @zh
+     * 渲染管线事件
+     */
+    public get pipelineEvent (): IPipelineEvent {
+        return this._pipeline!;
+    }
+
+    /**
+     * @zh
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
-    public get batcher2D (): IBatcher {
-        return this._batcher as IBatcher;
+    public get batcher2D (): Batcher2D {
+        return this._batcher as Batcher2D;
     }
 
     /**
@@ -212,7 +221,7 @@ export class Root {
     private _tempWindow: RenderWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
     private _customPipeline: Pipeline | null = null;
-    private _batcher: IBatcher | null = null;
+    private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
@@ -333,8 +342,8 @@ export class Root {
 
         this.onGlobalPipelineStateChanged();
         if (!this._batcher && legacyCC.internal.Batcher2D) {
-            this._batcher = new legacyCC.internal.Batcher2D(this) as IBatcher;
-            if (!this._batcher.initialize()) {
+            this._batcher = new legacyCC.internal.Batcher2D(this);
+            if (!this._batcher!.initialize()) {
                 this.destroy();
                 return false;
             }
@@ -353,7 +362,7 @@ export class Root {
             this._scenes[i].onGlobalPipelineStateChanged();
         }
 
-        this._pipeline!.pipelineSceneData.onGlobalPipelineStateChanged();
+        this._pipeline!.onGlobalPipelineStateChanged();
     }
 
     /**

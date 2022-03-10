@@ -50,8 +50,14 @@ struct RenderStageTag;
 struct RenderPhaseTag;
 struct RenderPhase;
 struct LayoutGraph;
+
+using UniformID = uint32_t;
+
 struct UniformData;
 struct UniformBlockData;
+
+using DescriptorID = uint32_t;
+
 struct DescriptorData;
 struct DescriptorBlockData;
 struct DescriptorTableData;

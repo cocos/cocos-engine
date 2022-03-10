@@ -80,7 +80,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _globalDSManager->activate(_device);
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
-    _pipelineSceneData->activate(_device, this);
+    _pipelineSceneData->activate(_device);
 
     CC_ASSERT(_geometryRenderer != nullptr);
     _geometryRenderer->activate(_device, this);
@@ -105,6 +105,10 @@ void RenderPipeline::render(const vector<scene::Camera *> &cameras) {
     }
 
     RenderPipeline::framegraphGC();
+}
+
+void RenderPipeline::onGlobalPipelineStateChanged() {
+    // do nothing
 }
 
 void RenderPipeline::destroyQuadInputAssembler() {
@@ -252,6 +256,14 @@ gfx::Rect RenderPipeline::getRenderArea(scene::Camera *camera) {
         static_cast<uint32_t>(vp.z * w),
         static_cast<uint32_t>(vp.w * h),
     };
+}
+
+float RenderPipeline::getShadingScale() const {
+    return _pipelineSceneData->getShadingScale();
+}
+
+void RenderPipeline::setShadingScale(float scale) {
+    _pipelineSceneData->setShadingScale(scale);
 }
 
 void RenderPipeline::genQuadVertexData(const Vec4 &viewport, float *vbData) {

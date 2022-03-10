@@ -42,18 +42,20 @@ class NativePipeline final : public Pipeline {
 public:
     NativePipeline() noexcept;
 
-    uint32_t addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
-    uint32_t addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    uint32_t addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    void beginFrame(pipeline::PipelineSceneData* pplScene) override;
-    void endFrame() override;
-    RasterPassBuilder* addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) override;
-    RasterPassBuilder* addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) override;
-    ComputePassBuilder* addComputePass(const std::string& layoutName, const std::string& name) override;
-    ComputePassBuilder* addComputePass(const std::string& layoutName) override;
-    MovePassBuilder* addMovePass(const std::string& name) override;
-    CopyPassBuilder* addCopyPass(const std::string& name) override;
-    void addPresentPass(const std::string& name, const std::string& swapchainName) override;
+    uint32_t            addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
+    uint32_t            addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    uint32_t            addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    void                beginFrame(pipeline::PipelineSceneData* pplScene) override;
+    void                endFrame() override;
+    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) override;
+    RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) override;
+    ComputePassBuilder *addComputePass(const std::string& layoutName, const std::string& name) override;
+    ComputePassBuilder *addComputePass(const std::string& layoutName) override;
+    MovePassBuilder    *addMovePass(const std::string& name) override;
+    CopyPassBuilder    *addCopyPass(const std::string& name) override;
+    void                addPresentPass(const std::string& name, const std::string& swapchainName) override;
+
+    SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
 };
 
 } // namespace render

@@ -30,6 +30,7 @@
 #include "GLES3DescriptorSet.h"
 #include "GLES3DescriptorSetLayout.h"
 #include "GLES3Texture.h"
+#include "gfx-gles3/GLES3GPUObjects.h"
 #include "states/GLES3Sampler.h"
 
 namespace cc {
@@ -77,7 +78,7 @@ void GLES3DescriptorSet::update() {
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
                 if (_textures[i]) {
-                    descriptors[i].gpuTexture = static_cast<GLES3Texture *>(_textures[i])->gpuTexture();
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuTextureView = static_cast<GLES3Texture *>(_textures[i])->gpuTextureView();
                 }
                 if (_samplers[i]) {
                     descriptors[i].gpuSampler = static_cast<GLES3Sampler *>(_samplers[i])->gpuSampler();
