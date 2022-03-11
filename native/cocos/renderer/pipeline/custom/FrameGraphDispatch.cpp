@@ -110,6 +110,10 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             assert(fromIter != fromStatus.end());
             assert(toIter != toStatus.end());
 
+            if ((*fromIter).access.visibility == (*toIter).access.visibility && (*fromIter).access.access == (*toIter).access.access) {
+                continue;
+            }
+
             auto srcBarrierIter = std::find_if(srcRearBarriers.begin(), srcRearBarriers.end(),
                                                [resourceID](const BarrierNode &node) { return resourceID == node.resourceID; });
 
