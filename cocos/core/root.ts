@@ -117,6 +117,14 @@ export class Root {
 
     /**
      * @zh
+     * 启用自定义渲染管线
+     */
+    public get usesCustomPipeline (): boolean {
+        return this._usesCustomPipeline;
+    }
+
+    /**
+     * @zh
      * 渲染管线
      */
     public get pipeline (): PipelineRuntime {
@@ -219,8 +227,10 @@ export class Root {
     private _mainWindow: RenderWindow | null = null;
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
-    private _pipeline: RenderPipeline | null = null;
+    private _usesCustomPipeline = false;
+    private _pipeline: PipelineRuntime | null = null;
     private _pipelineEvent: IPipelineEvent | null = null;
+    private _classicPipeline: RenderPipeline | null = null;
     private _customPipeline: Pipeline | null = null;
     private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
@@ -311,6 +321,9 @@ export class Root {
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
+        //-----------------------------------------------
+        // prepare classic pipeline
+        //-----------------------------------------------
         if (rppl instanceof DeferredPipeline) {
             this._useDeferredPipeline = true;
         }
@@ -320,25 +333,42 @@ export class Root {
             rppl = createDefaultPipeline();
             isCreateDefaultPipeline = true;
         }
-        this._pipeline = rppl;
-        this._pipelineEvent = rppl;
+
         // now cluster just enabled in deferred pipeline
         if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
             // disable cluster
-            this._pipeline.clusterEnabled = false;
+            rppl.clusterEnabled = false;
         }
-        this._pipeline.bloomEnabled = false;
+        rppl.bloomEnabled = false;
+
+        //-----------------------------------------------
+        // choose pipeline
+        //-----------------------------------------------
+        if (this.usesCustomPipeline) {
+            this._customPipeline = createCustomPipeline();
+            isCreateDefaultPipeline = true;
+            this._pipeline = this._customPipeline!;
+        } else {
+            this._classicPipeline = rppl;
+            this._pipeline = this._classicPipeline;
+            this._pipelineEvent = this._classicPipeline;
+        }
 
         if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
             if (isCreateDefaultPipeline) {
                 this._pipeline.destroy();
             }
+            this._classicPipeline = null;
+            this._customPipeline = null;
             this._pipeline = null;
             this._pipelineEvent = null;
 
             return false;
         }
 
+        //-----------------------------------------------
+        // pipeline initialization completed
+        //-----------------------------------------------
         const scene = legacyCC.director.getScene();
         if (scene) {
             scene.globals.activate();
@@ -351,11 +381,6 @@ export class Root {
                 this.destroy();
                 return false;
             }
-        }
-
-        // TODO: refactor custom pipeline initialization
-        if (!this._customPipeline) {
-            this._customPipeline = createCustomPipeline();
         }
 
         return true;
