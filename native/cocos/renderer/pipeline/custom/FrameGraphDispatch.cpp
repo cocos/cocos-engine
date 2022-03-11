@@ -47,7 +47,7 @@ using defaultVisibility = gfx::ShaderStageFlagBit::NONE;
 
 // execution order BUT NOT LOGICALLY
 bool isPassExecAdjecent(uint32_t passL, uint32_t passR) {
-    return std::abs(passL - passR) < 1;
+    return std::abs(passL - passR) == 1;
 }
 
 // status of resource access
