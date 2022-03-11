@@ -324,11 +324,11 @@ export interface ICreateDynamicMeshOptions {
      * @en max sub mesh vertex count
      * @zh 子模型最大顶点个数。
      */
-    maxVertices: number;
+    maxSubMeshVertices: number;
 
     /**
      * @en max sub mesh index count
      * @zh 子模型最大索引个数。
      */
-    maxIndices: number;
+    maxSubMeshIndices: number;
 }

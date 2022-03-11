@@ -50,13 +50,13 @@ struct ICreateDynamicMeshOptions {
      * @en max submesh vertex count
      * @zh 子模型最大顶点个数。
      */
-    uint32_t maxVertices{1024U};
+    uint32_t maxSubMeshVertices{1024U};
 
     /**
      * @en max submesh index count
      * @zh 子模型最大索引个数。
      */
-    uint32_t maxIndices{1024U};
+    uint32_t maxSubMeshIndices{1024U};
 };
 
 // create static mesh

@@ -116,13 +116,13 @@ public:
          * @en max submesh vertex count
          * @zh 子模型最大顶点个数。
          */
-        uint32_t maxVertices{0U};
+        uint32_t maxSubMeshVertices{0U};
 
         /**
          * @en max submesh index count
          * @zh 子模型最大索引个数。
          */
-        uint32_t maxIndices{0U};
+        uint32_t maxSubMeshIndices{0U};
     };
 
     struct IDynamicStruct {
@@ -407,12 +407,6 @@ public:
      * @returns Return false if failed to access the indices data, return true otherwise.
      */
     bool copyIndices(index_t primitiveIndex, TypedArray &outputArray);
-
-    /**
-     * @en dynamic mesh init
-     * @zh 初始化动态网格
-     */
-    void init();
 
     /**
      * @en update dynamic sub mesh geometry

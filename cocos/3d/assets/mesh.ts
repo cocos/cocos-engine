@@ -128,13 +128,13 @@ export declare namespace Mesh {
           * @en max submesh vertex count
           * @zh 子模型最大顶点个数。
           */
-        maxVertices: number;
+        maxSubMeshVertices: number;
 
         /**
           * @en max submesh index count
           * @zh 子模型最大索引个数。
           */
-        maxIndices: number;
+        maxSubMeshIndices: number;
     }
 
     export interface IDynamicStruct {
@@ -336,150 +336,142 @@ export class Mesh extends Asset {
     }
 
     public initialize () {
-        if (this._initialized) {
-            return;
-        }
-
-        this._initialized = true;
-        const { buffer } = this._data;
-        const gfxDevice: Device = legacyCC.director.root.device;
-        const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
-        const indexBuffers: Buffer[] = [];
-        const subMeshes: RenderingSubMesh[] = [];
-
-        for (let i = 0; i < this._struct.primitives.length; i++) {
-            const prim = this._struct.primitives[i];
-            if (prim.vertexBundelIndices.length === 0) {
-                continue;
+        if (this._struct.dynamic) {
+            if (this._initialized) {
+                return;
             }
-
-            let indexBuffer: Buffer | null = null;
-            let ib: any = null;
-            if (prim.indexView) {
-                const idxView = prim.indexView;
-
-                let dstStride = idxView.stride;
-                let dstSize = idxView.length;
-                if (dstStride === 4 && !gfxDevice.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
-                    const vertexCount = this._struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
-                    if (vertexCount >= 65536) {
-                        warnID(10001, vertexCount, 65536);
-                        continue; // Ignore this primitive
-                    } else {
-                        dstStride >>= 1; // Reduce to short.
-                        dstSize >>= 1;
+    
+            this._initialized = true;
+            const device: Device = legacyCC.director.root.device;
+            const vertexBuffers: Buffer[] = [];
+            const subMeshes: RenderingSubMesh[] = [];
+    
+            for (let i = 0; i < this._struct.vertexBundles.length; i++) {
+                const vertexBundle = this._struct.vertexBundles[i];
+                const vertexBuffer = device.createBuffer(new BufferInfo(
+                    BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+                    vertexBundle.view.length,
+                    vertexBundle.view.stride,
+                ));
+    
+                vertexBuffers.push(vertexBuffer);
+            }
+    
+            for (let i = 0; i < this._struct.primitives.length; i++) {
+                const primitive = this._struct.primitives[i];
+                const indexView = primitive.indexView;
+                let indexBuffer: Buffer | null = null;
+    
+                if (indexView) {
+                    indexBuffer = device.createBuffer(new BufferInfo(
+                        BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                        MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+                        indexView.length,
+                        indexView.stride,
+                    ));
+                }
+    
+                const subVBs: Buffer[] = [];
+                for (const idx of primitive.vertexBundelIndices) {
+                    subVBs.push(vertexBuffers[idx]);
+                }
+    
+                const attributes: Attribute[] = [];
+                for (const idx of primitive.vertexBundelIndices) {
+                    const vertexBundle = this._struct.vertexBundles[idx];
+                    for (const attr of vertexBundle.attributes) {
+                        const attribute = new Attribute();
+                        attribute.copy(attr);
+                        attributes.push(attribute);
                     }
                 }
-
-                indexBuffer = gfxDevice.createBuffer(new BufferInfo(
-                    BufferUsageBit.INDEX,
-                    MemoryUsageBit.DEVICE,
-                    dstSize,
-                    dstStride,
-                ));
-                indexBuffers.push(indexBuffer);
-
-                ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
-                if (idxView.stride !== dstStride) {
-                    ib = getIndexStrideCtor(dstStride).from(ib);
+    
+                const subMesh = new RenderingSubMesh(subVBs, attributes, primitive.primitiveMode, indexBuffer);
+                subMesh.drawInfo = new DrawInfo();
+                subMesh.mesh = this;
+                subMesh.subMeshIdx = i;
+    
+                subMeshes.push(subMesh);
+            }
+    
+            this._renderingSubMeshes = subMeshes;
+        } else {
+            if (this._initialized) {
+                return;
+            }
+    
+            this._initialized = true;
+            const { buffer } = this._data;
+            const gfxDevice: Device = legacyCC.director.root.device;
+            const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
+            const indexBuffers: Buffer[] = [];
+            const subMeshes: RenderingSubMesh[] = [];
+    
+            for (let i = 0; i < this._struct.primitives.length; i++) {
+                const prim = this._struct.primitives[i];
+                if (prim.vertexBundelIndices.length === 0) {
+                    continue;
                 }
-                indexBuffer.update(ib);
-            }
-
-            const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
-
-            const gfxAttributes: Attribute[] = [];
-            if (prim.vertexBundelIndices.length > 0) {
-                const idx = prim.vertexBundelIndices[0];
-                const vertexBundle = this._struct.vertexBundles[idx];
-                const attrs = vertexBundle.attributes;
-                for (let j = 0; j < attrs.length; ++j) {
-                    const attr = attrs[j];
-                    gfxAttributes[j] = new Attribute(attr.name, attr.format, attr.isNormalized, attr.stream, attr.isInstanced, attr.location);
+    
+                let indexBuffer: Buffer | null = null;
+                let ib: any = null;
+                if (prim.indexView) {
+                    const idxView = prim.indexView;
+    
+                    let dstStride = idxView.stride;
+                    let dstSize = idxView.length;
+                    if (dstStride === 4 && !gfxDevice.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
+                        const vertexCount = this._struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
+                        if (vertexCount >= 65536) {
+                            warnID(10001, vertexCount, 65536);
+                            continue; // Ignore this primitive
+                        } else {
+                            dstStride >>= 1; // Reduce to short.
+                            dstSize >>= 1;
+                        }
+                    }
+    
+                    indexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                        BufferUsageBit.INDEX,
+                        MemoryUsageBit.DEVICE,
+                        dstSize,
+                        dstStride,
+                    ));
+                    indexBuffers.push(indexBuffer);
+    
+                    ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
+                    if (idxView.stride !== dstStride) {
+                        ib = getIndexStrideCtor(dstStride).from(ib);
+                    }
+                    indexBuffer.update(ib);
                 }
-            }
-
-            const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
-            subMesh.mesh = this; subMesh.subMeshIdx = i;
-
-            subMeshes.push(subMesh);
-        }
-
-        this._renderingSubMeshes = subMeshes;
-
-        if (this._struct.morph) {
-            this.morphRendering = createMorphRendering(this, gfxDevice);
-        }
-    }
-
-    /**
-     * @en dynamic mesh init
-     * @zh 初始化动态网格
-     */
-    public init () {
-        if (!this._struct.dynamic) {
-            return;
-        }
-
-        if (this._initialized) {
-            return;
-        }
-
-        this._initialized = true;
-        const device: Device = legacyCC.director.root.device;
-        const vertexBuffers: Buffer[] = [];
-        const subMeshes: RenderingSubMesh[] = [];
-
-        for (let i = 0; i < this._struct.vertexBundles.length; i++) {
-            const vertexBundle = this._struct.vertexBundles[i];
-            const vertexBuffer = device.createBuffer(new BufferInfo(
-                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
-                vertexBundle.view.length,
-                vertexBundle.view.stride,
-            ));
-
-            vertexBuffers.push(vertexBuffer);
-        }
-
-        for (let i = 0; i < this._struct.primitives.length; i++) {
-            const primitive = this._struct.primitives[i];
-            const indexView = primitive.indexView;
-            let indexBuffer: Buffer | null = null;
-
-            if (indexView) {
-                indexBuffer = device.createBuffer(new BufferInfo(
-                    BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
-                    indexView.length,
-                    indexView.stride,
-                ));
-            }
-
-            const subVBs: Buffer[] = [];
-            for (const idx of primitive.vertexBundelIndices) {
-                subVBs.push(vertexBuffers[idx]);
-            }
-
-            const attributes: Attribute[] = [];
-            for (const idx of primitive.vertexBundelIndices) {
-                const vertexBundle = this._struct.vertexBundles[idx];
-                for (const attr of vertexBundle.attributes) {
-                    const attribute = new Attribute();
-                    attribute.copy(attr);
-                    attributes.push(attribute);
+    
+                const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
+    
+                const gfxAttributes: Attribute[] = [];
+                if (prim.vertexBundelIndices.length > 0) {
+                    const idx = prim.vertexBundelIndices[0];
+                    const vertexBundle = this._struct.vertexBundles[idx];
+                    const attrs = vertexBundle.attributes;
+                    for (let j = 0; j < attrs.length; ++j) {
+                        const attr = attrs[j];
+                        gfxAttributes[j] = new Attribute(attr.name, attr.format, attr.isNormalized, attr.stream, attr.isInstanced, attr.location);
+                    }
                 }
+    
+                const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
+                subMesh.mesh = this; subMesh.subMeshIdx = i;
+    
+                subMeshes.push(subMesh);
             }
-
-            const subMesh = new RenderingSubMesh(subVBs, attributes, primitive.primitiveMode, indexBuffer);
-            subMesh.drawInfo = new DrawInfo();
-            subMesh.mesh = this;
-            subMesh.subMeshIdx = i;
-
-            subMeshes.push(subMesh);
-        }
-
-        this._renderingSubMeshes = subMeshes;
+    
+            this._renderingSubMeshes = subMeshes;
+    
+            if (this._struct.morph) {
+                this.morphRendering = createMorphRendering(this, gfxDevice);
+            }
+        } 
     }
 
     /**
@@ -540,7 +532,7 @@ export class Mesh extends Asset {
             const dstBuffer   = new Uint8Array(this._data.buffer, bundle.view.offset, updateSize);
             const srcBuffer    = new Uint8Array(vertices.buffer, vertices.byteOffset, updateSize);
             const vertexBuffer = subMesh.vertexBuffers[index];
-            assertIsTrue(vertexCount <= info.maxVertices, 'Too many vertices.');
+            assertIsTrue(vertexCount <= info.maxSubMeshVertices, 'Too many vertices.');
 
             if (updateSize > 0) {
                 dstBuffer.set(srcBuffer);
@@ -560,7 +552,7 @@ export class Mesh extends Asset {
             const srcBuffer    = (stride === 2) ? new Uint8Array(geometry.indices16!.buffer, geometry.indices16!.byteOffset, updateSize)
                 : new Uint8Array(geometry.indices32!.buffer, geometry.indices32!.byteOffset, updateSize);
             const indexBuffer  = subMesh.indexBuffer!;
-            assertIsTrue(indexCount <= info.maxIndices, 'Too many indices.');
+            assertIsTrue(indexCount <= info.maxSubMeshIndices, 'Too many indices.');
 
             if (updateSize > 0) {
                 dstBuffer.set(srcBuffer);

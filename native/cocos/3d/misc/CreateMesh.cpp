@@ -253,7 +253,7 @@ Mesh *createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry
     }
 
     out->reset(createDynamicMeshInfo(geometry, options));
-    out->init();
+    out->initialize();
     out->updateSubMesh(primitiveIndex, geometry);
 
     return out;
@@ -314,7 +314,7 @@ Mesh::ICreateInfo createDynamicMeshInfo(const IDynamicGeometry &geometry, const 
         // add vertex buffers
         for (const auto &attr : attributes) {
             const auto &formatInfo       = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
-            uint32_t    vertexBufferSize = options.maxVertices * formatInfo.size;
+            uint32_t    vertexBufferSize = options.maxSubMeshVertices * formatInfo.size;
 
             Mesh::IBufferView vertexView = {
                 dataSize,
@@ -343,7 +343,7 @@ Mesh::ICreateInfo createDynamicMeshInfo(const IDynamicGeometry &geometry, const 
 
         if (stride > 0U) {
             dataSize += getPadding(dataSize, stride);
-            uint32_t indexBufferSize = options.maxIndices * stride;
+            uint32_t indexBufferSize = options.maxSubMeshIndices * stride;
 
             Mesh::IBufferView indexView = {
                 dataSize,
@@ -359,8 +359,8 @@ Mesh::ICreateInfo createDynamicMeshInfo(const IDynamicGeometry &geometry, const 
     }
 
     Mesh::IDynamicInfo dynamicInfo = {options.maxSubMeshes,
-                                      options.maxVertices,
-                                      options.maxIndices};
+                                      options.maxSubMeshVertices,
+                                      options.maxSubMeshIndices};
 
     Mesh::IDynamicStruct dynamicStruct;
     dynamicStruct.info = dynamicInfo;

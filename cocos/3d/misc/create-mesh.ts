@@ -274,7 +274,7 @@ function getPadding (length: number, align: number): number {
 }
 
 export function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
-    options = options || { maxSubMeshes: 1, maxVertices: 1024, maxIndices: 1024 };
+    options = options || { maxSubMeshes: 1, maxSubMeshVertices: 1024, maxSubMeshIndices: 1024 };
 
     const attributes: Attribute[] = [];
     let stream = 0;
@@ -321,7 +321,7 @@ export function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeo
         // add vertex buffers
         for (const attr of attributes) {
             const formatInfo = FormatInfos[attr.format];
-            const vertexBufferSize = options.maxVertices * formatInfo.size;
+            const vertexBufferSize = options.maxSubMeshVertices * formatInfo.size;
 
             const vertexView: Mesh.IBufferView = {
                 offset: dataSize,
@@ -351,7 +351,7 @@ export function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeo
 
         if (stride > 0) {
             dataSize += getPadding(dataSize, stride);
-            const indexBufferSize = options.maxIndices * stride;
+            const indexBufferSize = options.maxSubMeshIndices * stride;
 
             const indexView: Mesh.IBufferView = {
                 offset: dataSize,
@@ -369,8 +369,8 @@ export function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeo
 
     const dynamicInfo: Mesh.IDynamicInfo = {
         maxSubMeshes: options.maxSubMeshes,
-        maxVertices: options.maxVertices,
-        maxIndices: options.maxIndices,
+        maxSubMeshVertices: options.maxSubMeshVertices,
+        maxSubMeshIndices: options.maxSubMeshIndices,
     };
 
     const dynamicStruct: Mesh.IDynamicStruct = {
@@ -395,7 +395,7 @@ export function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeo
     }
 
     out.reset(createInfo);
-    out.init();
+    out.initialize();
     out.updateSubMesh(primitiveIndex, geometry);
 
     return out;
