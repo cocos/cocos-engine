@@ -31,9 +31,9 @@
 
 namespace cc {
 
-using std::optional;
-using std::nullopt_t;
 using std::nullopt;
+using std::nullopt_t;
+using std::optional;
 
 }; // namespace cc
 #else

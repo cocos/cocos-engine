@@ -31,11 +31,11 @@
 
 namespace cc {
 
-using std::variant;
-using std::monostate;
-using std::holds_alternative;
-using std::get_if;
 using std::get;
+using std::get_if;
+using std::holds_alternative;
+using std::monostate;
+using std::variant;
 using std::visit;
 
 }; // namespace cc
@@ -46,11 +46,11 @@ using std::visit;
 
 namespace cc {
 
-using boost::variant2::variant;
-using boost::variant2::monostate;
-using boost::variant2::holds_alternative;
-using boost::variant2::get_if;
 using boost::variant2::get;
+using boost::variant2::get_if;
+using boost::variant2::holds_alternative;
+using boost::variant2::monostate;
+using boost::variant2::variant;
 using boost::variant2::visit;
 
 }; // namespace cc
