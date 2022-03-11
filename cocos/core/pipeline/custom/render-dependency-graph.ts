@@ -562,9 +562,10 @@ class DeviceSceneTask extends WebSceneTask {
                         this.visitor.bindPipelineState(pso);
                         lastPSO = pso;
                     }
+                    const ia: any = instance.ia;
                     this.visitor.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
-                    this.visitor.bindInputAssembler(instance.ia);
-                    this.visitor.draw(instance.ia);
+                    this.visitor.bindInputAssembler(ia);
+                    this.visitor.draw(ia);
                 }
             }
             res = it.next();
@@ -585,9 +586,10 @@ class DeviceSceneTask extends WebSceneTask {
                     this.visitor.bindDescriptorSet(SetIndex.MATERIAL, batch.pass.descriptorSet);
                     boundPSO = true;
                 }
+                const ia: any = batch.ia;
                 this.visitor.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);
-                this.visitor.bindInputAssembler(batch.ia);
-                this.visitor.draw(batch.ia);
+                this.visitor.bindInputAssembler(ia);
+                this.visitor.draw(ia);
             }
             res = it.next();
         }
