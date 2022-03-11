@@ -108,6 +108,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     public onLoad () {
+        super.onLoad();
         this._tryBindAnimation();
     }
 
