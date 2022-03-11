@@ -41,7 +41,7 @@ namespace pipeline {
 
 class GlobalDSManager final {
 public:
-    GlobalDSManager()           = default;
+    GlobalDSManager()  = default;
     ~GlobalDSManager() = default;
 
     inline std::unordered_map<uint, gfx::DescriptorSet *> getDescriptorSetMap() const { return _descriptorSetMap; }
