@@ -41,5 +41,6 @@ private:
     void waitWindowInitialized();
 
     JniNativeGlue* _jniNativeGlue;
+    bool _renderAvailable{false};
 };
 } // namespace cc

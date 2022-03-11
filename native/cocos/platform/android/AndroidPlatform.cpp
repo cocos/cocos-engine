@@ -63,9 +63,13 @@ void AndroidPlatform::waitWindowInitialized() {
 }
 
 int32_t AndroidPlatform::loop() {
+    bool &renderAvailable = _renderAvailable;
+    cc::gfx::Device::getInstance()->registerOnDeviceStateChangeCallback([&renderAvailable](const cc::gfx::DeviceState &state) {
+        renderAvailable = state == cc::gfx::DeviceState::STATE_RENDER_AVAILABLE;
+    });
     while (_jniNativeGlue->isRunning()) {
         pollEvent();
-        if (cc::gfx::Device::getInstance()->isSurfaceReady()) {
+        if (_renderAvailable) {
             runTask();
         }
     }

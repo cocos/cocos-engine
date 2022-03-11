@@ -48,6 +48,13 @@
 namespace cc {
 namespace gfx {
 
+enum class DeviceState : char {
+    STATE_UNKNOWN = 0,
+    STATE_INITIALIZED,
+    STATE_RENDER_AVAILABLE,
+    STATE_RENDER_UNAVAILABLE,
+};
+
 class CC_DLL Device : public Object {
 public:
     static Device *getInstance();
@@ -115,9 +122,11 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    inline bool isSurfaceReady() const {return _isSurfaceReady;}
+    using DeviceStateChangeCallback = std::function<void(const DeviceState &state)>;
+    // register func called at mainLogic thread
+    void registerOnDeviceStateChangeCallback(const DeviceStateChangeCallback &callback);
 
-    inline void setSurfaceReady(bool ready) { _isSurfaceReady = ready;}
+    void setDeviceState(const DeviceState &state);
 
 protected:
     static Device *instance;
@@ -169,7 +178,6 @@ protected:
     std::array<bool, static_cast<size_t>(Feature::COUNT)>         _features;
     std::array<FormatFeature, static_cast<size_t>(Format::COUNT)> _formatFeatures;
 
-    bool _isSurfaceReady{false};
     Queue *        _queue{nullptr};
     QueryPool *    _queryPool{nullptr};
     CommandBuffer *_cmdBuff{nullptr};
@@ -186,6 +194,8 @@ protected:
 
 private:
     vector<Swapchain *> _swapchains;
+    DeviceState        _deviceState{DeviceState::STATE_UNKNOWN};
+    vector<DeviceStateChangeCallback> _deviceStateChangeCallbacks;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -212,6 +222,13 @@ Swapchain *Device::createSwapchain(const SwapchainInfo &info) {
     Swapchain *res = createSwapchain();
     res->initialize(info);
     _swapchains.push_back(res);
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
+    if (res->getWindowHandle()) {
+        setDeviceState(DeviceState::STATE_RENDER_AVAILABLE);
+    }
+#else
+    setDeviceState(DeviceState::STATE_RENDER_AVAILABLE);
+#endif
     return res;
 }
 

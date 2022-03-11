@@ -74,7 +74,6 @@ void GLES2Swapchain::doInit(const SwapchainInfo& info) {
         CC_LOG_ERROR("Create window surface failed.");
         return;
     }
-    Device::getInstance()->setSurfaceReady(true);
 
     switch (_vsyncMode) {
         case VsyncMode::OFF: _gpuSwapchain->eglSwapInterval = 0; break;

@@ -76,10 +76,11 @@ void Device::destroy() {
     doDestroy();
 
     CC_SAFE_DELETE(_onAcquire);
+    _deviceStateChangeCallbacks.clear();
 }
 
 void Device::destroySurface(void *windowHandle) {
-    _isSurfaceReady = false;
+    setDeviceState(DeviceState::STATE_RENDER_UNAVAILABLE);
     for (auto *swapchain : _swapchains) {
         if (swapchain->getWindowHandle() == windowHandle) {
             swapchain->destroySurface();
@@ -95,7 +96,23 @@ void Device::createSurface(void *windowHandle) {
             break;
         }
     }
-    _isSurfaceReady = true;
+    setDeviceState(DeviceState::STATE_RENDER_AVAILABLE);
+}
+
+void Device::registerOnDeviceStateChangeCallback(const DeviceStateChangeCallback &callback) {
+    _deviceStateChangeCallbacks.emplace_back(callback);
+    if (_deviceState != DeviceState::STATE_UNKNOWN) {
+        callback(_deviceState);
+    }
+}
+
+void Device::setDeviceState(const DeviceState &state) {
+    if (_deviceState != state) {
+        _deviceState = state;
+        for (const auto &callback : _deviceStateChangeCallbacks) {
+            callback(state);
+        }
+    }
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {
