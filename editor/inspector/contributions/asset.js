@@ -388,11 +388,12 @@ exports.methods = {
         }
     },
 };
-exports.update = async function update(uuidList, renderMap) {
+exports.update = async function update(uuidList, renderMap, dropConfig) {
     const panel = this;
 
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
+    panel.dropConfig = dropConfig;
 
     for (const prop in Elements) {
         const element = Elements[prop];
