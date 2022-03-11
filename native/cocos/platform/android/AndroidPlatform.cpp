@@ -27,6 +27,7 @@
 
 #include "platform/android/AndroidPlatform.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
+#include "cocos/renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
 AndroidPlatform::AndroidPlatform() {
@@ -64,7 +65,9 @@ void AndroidPlatform::waitWindowInitialized() {
 int32_t AndroidPlatform::loop() {
     while (_jniNativeGlue->isRunning()) {
         pollEvent();
-        runTask();
+        if (cc::gfx::Device::getInstance()->isSurfaceReady()) {
+            runTask();
+        }
     }
     return 0;
 }
