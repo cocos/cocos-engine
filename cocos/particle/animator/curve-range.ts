@@ -33,7 +33,7 @@ import { EDITOR } from 'internal:constants';
 import { lerp } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { AnimationCurve, constructLegacyCurveAndConvert } from '../../core/geometry/curve';
-import { Texture2D, ImageAsset, RealCurve } from '../../core';
+import { Texture2D, ImageAsset, RealCurve, CCClass } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
 const SerializableTable = [
@@ -57,25 +57,21 @@ export default class CurveRange  {
     /**
      * @zh 曲线类型[[Mode]]。
      */
-    @type(Mode)
     public mode = Mode.Constant;
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    @type(RealCurve)
     public spline = constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
-    @type(RealCurve)
     public splineMin = constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    @type(RealCurve)
     public splineMax = constructLegacyCurveAndConvert();
 
     /**
@@ -120,29 +116,21 @@ export default class CurveRange  {
     /**
      * @zh 当mode为Constant时，曲线的值。
      */
-    @serializable
-    @editable
     public constant = 0;
 
     /**
      * @zh 当mode为TwoConstants时，曲线的上限。
      */
-    @serializable
-    @editable
     public constantMin = 0;
 
     /**
      * @zh 当mode为TwoConstants时，曲线的下限。
      */
-    @serializable
-    @editable
     public constantMax = 0;
 
     /**
      * @zh 应用于曲线插值的系数。
      */
-    @serializable
-    @editable
     public multiplier = 1;
 
     constructor () {
@@ -186,6 +174,42 @@ export default class CurveRange  {
     private _curveMin = new AnimationCurve(this.splineMin);
     private _curveMax = new AnimationCurve(this.splineMax);
 }
+
+CCClass.fastDefine('cc.CurveRange', CurveRange, {
+    multiplier: 1,
+    constantMax: 0,
+    constantMin: 0,
+    constant: 0,
+    mode: Mode.Constant,
+    splineMax: constructLegacyCurveAndConvert(),
+    splineMin: constructLegacyCurveAndConvert(),
+    spline: constructLegacyCurveAndConvert(),
+});
+
+CCClass.Attr.setClassAttr(CurveRange, 'multiplier', 'visible', true);
+CCClass.Attr.setClassAttr(CurveRange, 'multiplier', 'serializable', true);
+CCClass.Attr.setClassAttr(CurveRange, 'constantMax', 'visible', true);
+CCClass.Attr.setClassAttr(CurveRange, 'constantMax', 'serializable', true);
+CCClass.Attr.setClassAttr(CurveRange, 'constantMin', 'visible', true);
+CCClass.Attr.setClassAttr(CurveRange, 'constantMin', 'serializable', true);
+CCClass.Attr.setClassAttr(CurveRange, 'constant', 'visible', true);
+CCClass.Attr.setClassAttr(CurveRange, 'constant', 'serializable', true);
+CCClass.Attr.setClassAttr(CurveRange, 'mode', 'type', 'Enum');
+CCClass.Attr.setClassAttr(CurveRange, 'mode', 'enumList', Enum.getList(Mode));
+CCClass.Attr.setClassAttr(CurveRange, 'mode', 'visible', true);
+CCClass.Attr.setClassAttr(CurveRange, 'mode', 'serializable', true);
+CCClass.Attr.setClassAttr(CurveRange, 'splineMax', 'type', 'Object');
+CCClass.Attr.setClassAttr(CurveRange, 'splineMax', 'ctor', RealCurve);
+CCClass.Attr.setClassAttr(CurveRange, 'splineMax', 'visible', true);
+CCClass.Attr.setClassAttr(CurveRange, 'splineMax', 'serializable', true);
+CCClass.Attr.setClassAttr(CurveRange, 'splineMin', 'type', 'Object');
+CCClass.Attr.setClassAttr(CurveRange, 'splineMin', 'ctor', RealCurve);
+CCClass.Attr.setClassAttr(CurveRange, 'splineMin', 'visible', true);
+CCClass.Attr.setClassAttr(CurveRange, 'splineMin', 'serializable', true);
+CCClass.Attr.setClassAttr(CurveRange, 'spline', 'type', 'Object');
+CCClass.Attr.setClassAttr(CurveRange, 'spline', 'ctor', RealCurve);
+CCClass.Attr.setClassAttr(CurveRange, 'spline', 'visible', true);
+CCClass.Attr.setClassAttr(CurveRange, 'spline', 'serializable', true);
 
 function evaluateCurve (cr: CurveRange, time: number, index: number) {
     switch (cr.mode) {

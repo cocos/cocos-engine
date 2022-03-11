@@ -29,6 +29,7 @@
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
+import { CCClass } from '../../core/data/class';
 import { Color, lerp, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 
@@ -37,66 +38,69 @@ const Mode = Enum({
     Fixed: 1,
 });
 
-@ccclass('cc.ColorKey')
 export class ColorKey {
     /**
      * @en Color value.
      * @zh 颜色值。
      */
-    @serializable
-    @editable
     public color = Color.WHITE.clone();
 
     /**
      * @en Time value.
      * @zh 时间值。
      */
-    @serializable
-    @editable
     public time = 0;
 }
 
-@ccclass('cc.AlphaKey')
+CCClass.fastDefine('cc.ColorKey', ColorKey, {
+    color: Color.WHITE.clone(),
+    time: 0,
+});
+
+CCClass.Attr.setClassAttr(ColorKey, 'color', 'serializable', true);
+CCClass.Attr.setClassAttr(ColorKey, 'color', 'visible', true);
+CCClass.Attr.setClassAttr(ColorKey, 'time', 'serializable', true);
+CCClass.Attr.setClassAttr(ColorKey, 'time', 'visible', true);
+
 export class AlphaKey {
     /**
      * @en Alpha value.
      * @zh 透明度。
      */
-    @serializable
-    @editable
     public alpha = 1;
     /**
      * @en Time.
      * @zh 时间帧。
      */
-    @serializable
-    @editable
     public time = 0;
 }
 
-@ccclass('cc.Gradient')
+CCClass.fastDefine('cc.AlphaKey', AlphaKey, {
+    alpha: 1,
+    time: 0,
+});
+
+CCClass.Attr.setClassAttr(AlphaKey, 'alpha', 'serializable', true);
+CCClass.Attr.setClassAttr(AlphaKey, 'alpha', 'visible', true);
+CCClass.Attr.setClassAttr(AlphaKey, 'time', 'serializable', true);
+CCClass.Attr.setClassAttr(AlphaKey, 'time', 'visible', true);
+
 export default class Gradient {
     public static Mode = Mode;
     /**
      * @en Array of color key.
      * @zh 颜色关键帧列表。
      */
-    @serializable
-    @editable
     public colorKeys = new Array<ColorKey>();
     /**
      * @en Array of alpha key.
      * @zh 透明度关键帧列表。
      */
-    @serializable
-    @editable
     public alphaKeys = new Array<AlphaKey>();
     /**
      * @en Blend mode.
      * @zh 混合模式。
      */
-    @serializable
-    @editable
     public mode = Mode.Blend;
 
     private _color: Color;
@@ -165,7 +169,7 @@ export default class Gradient {
     }
 
     private getAlpha (time: number) {
-        const basicAlpha: number = 0; // default alpha is 0
+        const basicAlpha = 0; // default alpha is 0
         if (this.alphaKeys.length > 1) {
             time = repeat(time, 1);
             for (let i = 1; i < this.alphaKeys.length; ++i) {
@@ -192,3 +196,16 @@ export default class Gradient {
         }
     }
 }
+
+CCClass.fastDefine('cc.Gradient', Gradient, {
+    colorKeys: [],
+    alphaKeys: [],
+    mode: Mode.Blend,
+});
+
+CCClass.Attr.setClassAttr(Gradient, 'colorKeys', 'serializable', true);
+CCClass.Attr.setClassAttr(Gradient, 'alphaKeys', 'serializable', true);
+CCClass.Attr.setClassAttr(Gradient, 'mode', 'serializable', true);
+CCClass.Attr.setClassAttr(Gradient, 'colorKeys', 'visible', true);
+CCClass.Attr.setClassAttr(Gradient, 'alphaKeys', 'visible', true);
+CCClass.Attr.setClassAttr(Gradient, 'mode', 'visible', true);

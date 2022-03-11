@@ -243,7 +243,6 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  * 注意，切线/切线权重/切线权重模式在某些情况下可能是“无意义的”。
  * 无意义意味着这些值可能不会被存储或序列化。
  */
-@ccclass('cc.RealCurve')
 export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
     /**
      * @en
@@ -252,7 +251,6 @@ export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
      * @zh
      * 获取或设置此曲线的前向外推模式。
      */
-    @serializable
     public preExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
@@ -262,7 +260,6 @@ export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
      * @zh
      * 获取或设置此曲线的后向外推模式。
      */
-    @serializable
     public postExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
@@ -494,6 +491,13 @@ export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
         this._values = keyframeValues;
     }
 }
+
+CCClass.fastDefine('cc.RealCurve', RealCurve, {
+    _times: [],
+    _values: [],
+    preExtrapolation: ExtrapolationMode.CLAMP,
+    postExtrapolation: ExtrapolationMode.CLAMP,
+});
 
 const FLAGS_EASING_METHOD_BITS_START = 8;
 const FLAG_EASING_METHOD_MASK = 0xFF << FLAGS_EASING_METHOD_BITS_START; // 8-16 bits
