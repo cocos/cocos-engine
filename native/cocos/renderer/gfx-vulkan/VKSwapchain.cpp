@@ -394,6 +394,9 @@ void CCVKSwapchain::createVkSurface() {
     VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
     surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle);
     VK_CHECK(vkCreateAndroidSurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
+    if (VK_NULL_HANDLE != _gpuSwapchain->vkSurface) {
+        Device::getInstance()->setSurfaceReady(true);
+    }
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
     VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
     surfaceCreateInfo.hinstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
