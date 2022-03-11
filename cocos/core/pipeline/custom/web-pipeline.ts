@@ -24,14 +24,13 @@
 ****************************************************************************/
 
 /* eslint-disable max-len */
-import { Camera } from '../../renderer/scene/camera';
 import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskType } from './types';
 import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { RenderScene } from '../../renderer/scene';
+import { RenderScene, Camera } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { RenderDependencyGraph } from './render-dependency-graph';
@@ -39,7 +38,7 @@ import { DeviceResourceGraph } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { assert } from '../../platform';
-import { Web3DSceneTransversal } from './web-scene';
+import { WebSceneTransversal } from './web-scene';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -429,10 +428,13 @@ export class WebPipeline extends Pipeline {
         this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, name, '', new RenderData());
     }
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
-        return new Web3DSceneTransversal(scene);
+        return new WebSceneTransversal(camera);
     }
     get renderGraph () {
         return this._renderGraph;
+    }
+    get resourceGraph () {
+        return this._resourceGraph;
     }
     protected _updateRasterPassConstants (pass: Setter, width: number, height: number) {
         const shadingWidth = width;
