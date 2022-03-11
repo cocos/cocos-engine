@@ -83,12 +83,12 @@ public:
     virtual void render(const std::vector<const scene::Camera*>& cameras) = 0;
 
     virtual const MacroRecord           &getMacros() const = 0;
-    virtual pipeline::GlobalDSManager   &getGlobalDSManager() const = 0;
-    virtual gfx::DescriptorSetLayout    &getDescriptorSetLayout() const = 0;
-    virtual pipeline::PipelineSceneData &getPipelineSceneData() const = 0;
+    virtual pipeline::GlobalDSManager   *getGlobalDSManager() const = 0;
+    virtual gfx::DescriptorSetLayout    *getDescriptorSetLayout() const = 0;
+    virtual pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
     virtual const std::string           &getConstantMacros() const = 0;
     virtual scene::Model                *getProfiler() const = 0;
-    virtual void                         setProfiler(scene::Model *profiler) const = 0;
+    virtual void                         setProfiler(scene::Model *profiler) = 0;
 
     virtual float getShadingScale() const = 0;
     virtual void  setShadingScale(float scale) = 0;
@@ -288,20 +288,16 @@ public:
 
 inline SceneTransversal::~SceneTransversal() noexcept = default;
 
-class Pipeline {
+class Pipeline : public PipelineRuntime {
 public:
     Pipeline() noexcept = default;
-    Pipeline(Pipeline&& rhs)      = delete;
-    Pipeline(Pipeline const& rhs) = delete;
-    Pipeline& operator=(Pipeline&& rhs) = delete;
-    Pipeline& operator=(Pipeline const& rhs) = delete;
 
-    virtual ~Pipeline() noexcept = 0;
+    ~Pipeline() noexcept override = 0;
 
     virtual uint32_t            addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
     virtual uint32_t            addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     virtual uint32_t            addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
-    virtual void                beginFrame(pipeline::PipelineSceneData* pplScene) = 0;
+    virtual void                beginFrame() = 0;
     virtual void                endFrame() = 0;
     virtual RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) = 0;
     virtual RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) = 0;

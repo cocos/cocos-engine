@@ -53,7 +53,7 @@ uint32_t NativePipeline::addDepthStencil(const std::string& name, gfx::Format fo
     return 0;
 }
 
-void NativePipeline::beginFrame(pipeline::PipelineSceneData* pplScene) {
+void NativePipeline::beginFrame() {
 
 }
 
@@ -99,6 +99,58 @@ void NativePipeline::addPresentPass(const std::string& name, const std::string& 
 // NOLINTNEXTLINE
 SceneTransversal* NativePipeline::createSceneTransversal(const scene::Camera* camera, const scene::RenderScene* scene) {
     return nullptr;
+}
+
+// NOLINTNEXTLINE
+bool NativePipeline::activate(gfx::Swapchain * swapchain) {
+    return true;
+}
+
+bool NativePipeline::destroy() noexcept {
+    return true;
+}
+
+// NOLINTNEXTLINE
+void NativePipeline::render(const std::vector<const scene::Camera*>& cameras) {
+}
+
+const MacroRecord &NativePipeline::getMacros() const {
+    return macros;
+}
+
+pipeline::GlobalDSManager *NativePipeline::getGlobalDSManager() const {
+    return globalDSManager;
+}
+
+gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout() const {
+    return globalDSManager->getDescriptorSetLayout();
+}
+
+pipeline::PipelineSceneData *NativePipeline::getPipelineSceneData() const {
+    return pipelineSceneData;
+}
+
+const std::string &NativePipeline::getConstantMacros() const {
+    return constantMacros;
+}
+
+scene::Model *NativePipeline::getProfiler() const {
+    return profiler;
+}
+
+// NOLINTNEXTLINE
+void NativePipeline::setProfiler(scene::Model *profilerIn) {
+    profiler = profilerIn;
+}
+
+float NativePipeline::getShadingScale() const {
+    return 0;
+}
+
+void NativePipeline::setShadingScale(float scale) {
+}
+
+void NativePipeline::onGlobalPipelineStateChanged() {
 }
 
 } // namespace render
