@@ -46,7 +46,6 @@ export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;
     public abstract destroy(): boolean;
     public abstract render(cameras: Camera[]): void;
-    public abstract get macros(): MacroRecord;
     public abstract get globalDSManager(): GlobalDSManager;
     public abstract get descriptorSetLayout(): DescriptorSetLayout;
     public abstract get pipelineSceneData(): PipelineSceneData;
@@ -56,6 +55,8 @@ export abstract class PipelineRuntime {
     public abstract get shadingScale(): number;
     public abstract set shadingScale(scale: number);
     public abstract onGlobalPipelineStateChanged(): void;
+
+    public abstract get macros(): MacroRecord;
 }
 
 export abstract class DescriptorHierarchy {
@@ -123,10 +124,10 @@ export abstract class SceneVisitor {
     public abstract setViewport(vp: Viewport): void;
     public abstract setScissor(rect: Rect): void;
     public abstract bindPipelineState(pso: PipelineState): void;
-    public abstract bindDescriptorSet(set: number, descriptorSet: DescriptorSet, dynamicOffsetCount: number, dynamicOffsets: number): void;
     public abstract bindInputAssembler(ia: InputAssembler): void;
     public abstract draw(info: DrawInfo): void;
 
+    public abstract bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
     public abstract updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
 }
 
@@ -134,17 +135,18 @@ export abstract class SceneTask {
     public abstract get taskType(): TaskType;
     public abstract start(): void;
     public abstract join(): void;
+    public abstract submit(): void;
 }
 
 export abstract class SceneTransversal {
     public abstract transverse(visitor: SceneVisitor): SceneTask;
 }
 
-export abstract class Pipeline {
+export abstract class Pipeline extends PipelineRuntime {
     public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     public abstract addDepthStencil(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
-    public abstract beginFrame(pplScene: PipelineSceneData): void;
+    public abstract beginFrame(): void;
     public abstract endFrame(): void;
     public abstract addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
     public abstract addRasterPass(width: number, height: number, layoutName: string): RasterPassBuilder;
