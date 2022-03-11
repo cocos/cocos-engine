@@ -31,11 +31,9 @@
 
 namespace cc {
 
-template <class T>
-using optional = std::optional<T>;
-
-using nullopt_t = std::nullopt_t;
-inline constexpr nullopt_t nullopt{nullopt_t::__secret_tag{}, nullopt_t::__secret_tag{}};
+using std::optional;
+using std::nullopt_t;
+using std::nullopt;
 
 }; // namespace cc
 #else
@@ -45,9 +43,7 @@ inline constexpr nullopt_t nullopt{nullopt_t::__secret_tag{}, nullopt_t::__secre
 
 namespace cc {
 
-template <typename T>
-
-using optional  = boost::optional<T>;
+using boost::optional;
 using nullopt_t = boost::none_t;
 
 const nullopt_t nullopt((boost::none_t::init_tag())); // NOLINT // use std style
