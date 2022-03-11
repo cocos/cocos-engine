@@ -70,6 +70,11 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     }
 
     void batchBarriers(Edge e, const Graph &g) {
+        // what we get:
+        // - beginVisibility: not NONE, endVisibility: not NONE ===> full barrier
+        // - beginVisibility: not NONE, endVisibility: NONE     ===> split begin barrier
+        // - beginVisibility: NONE, endVisibility: not NONE     ===> split end barrier
+
         Vertex from = source(e, g);
         Vertex to   = target(e, g);
 
@@ -136,7 +141,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                         defaultAccess,
                     });
                 } else {
-                    // logic adjacent but not exec adjacent
+                    // logic but not exec adjacent
                     // and more adjacent(further from src) than another pass which hold a use of resourceID
                     // replace previous one
 
