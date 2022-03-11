@@ -61,20 +61,19 @@ enum class GLESCmdType : uint8_t {
     COUNT,
 };
 
-class GLESBindingMapping {
-public:
+struct GLESBindingMapping {
     vector<int32_t> blockOffsets;
     vector<int32_t> samplerTextureOffsets;
     uint32_t        flexibleSet{0};
 };
 
-class GLESCmd : public Object {
+class GLESCmd {
 public:
     GLESCmdType type;
     uint32_t    refCount = 0;
 
     explicit GLESCmd(GLESCmdType type) : type(type) {}
-    ~GLESCmd() override = default;
+    virtual ~GLESCmd() = default;
 
     virtual void clear() = 0;
 };

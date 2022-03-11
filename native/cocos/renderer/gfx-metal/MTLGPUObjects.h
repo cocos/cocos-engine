@@ -55,8 +55,7 @@ constexpr size_t MegaBytesToBytes = 1024 * 1024;
 
 constexpr size_t MAX_COLORATTACHMENTS = 16u;
 
-class CCMTLGPUDescriptorSetLayout : public Object {
-public:
+struct CCMTLGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
     vector<uint>                   dynamicBindings;
     vector<uint>                   descriptorIndices;
@@ -65,8 +64,7 @@ public:
 };
 typedef vector<CCMTLGPUDescriptorSetLayout *> MTLGPUDescriptorSetLayoutList;
 
-class CCMTLGPUPipelineLayout : public Object {
-public:
+struct CCMTLGPUPipelineLayout {
     MTLGPUDescriptorSetLayoutList setLayouts;
     vector<vector<int>>           dynamicOffsetIndices;
 };
@@ -98,8 +96,7 @@ struct CCMTLGPUSubpassAttachment {
     uint   binding = INVALID_BINDING;
 };
 
-class CCMTLGPUShader : public Object {
-public:
+struct CCMTLGPUShader {
     unordered_map<uint, CCMTLGPUUniformBlock> blocks;
     unordered_map<uint, CCMTLGPUSamplerBlock> samplers;
 
@@ -148,8 +145,7 @@ struct CCMTLGPUTextureViewObject {
     id<MTLTexture>  mtlTextureView;
 };
 
-class CCMTLGPUInputAssembler : public Object {
-public:
+struct CCMTLGPUInputAssembler {
     id<MTLBuffer>         mtlIndexBuffer    = nil;
     id<MTLBuffer>         mtlIndirectBuffer = nil;
     vector<id<MTLBuffer>> mtlVertexBufers;
@@ -163,13 +159,12 @@ struct CCMTLGPUDescriptor {
 };
 typedef vector<CCMTLGPUDescriptor> MTLGPUDescriptorList;
 
-class CCMTLGPUDescriptorSet : public Object {
-public:
+struct CCMTLGPUDescriptorSet {
     MTLGPUDescriptorList gpuDescriptors;
     const vector<uint> * descriptorIndices = nullptr;
 };
 
-class CCMTLGPUStagingBufferPool : public Object {
+class CCMTLGPUStagingBufferPool final {
 public:
     CCMTLGPUStagingBufferPool(id<MTLDevice> device)
     : _device(device) {}
@@ -288,7 +283,7 @@ struct CCMTLGPUBufferImageCopy {
 };
 
 //destroy GPU resource only, delete the owner object mannually.
-class CCMTLGPUGarbageCollectionPool : public Object {
+class CCMTLGPUGarbageCollectionPool final {
     using GCFunc = std::function<void(void)>;
 
     CCMTLGPUGarbageCollectionPool() = default;

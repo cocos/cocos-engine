@@ -33,8 +33,8 @@ namespace gfx {
 
 class CCVKDevice;
 class CCVKGPUDevice;
-class CCVKGPUSwapchain;
-class CCVKGPUSwapchain;
+struct CCVKGPUSwapchain;
+struct CCVKGPUSwapchain;
 class CCVKGPUSemaphorePool;
 
 class CC_VULKAN_API CCVKSwapchain final : public Swapchain {

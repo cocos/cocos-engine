@@ -34,10 +34,10 @@ namespace cc {
 namespace gfx {
 
 class GLES3GPUContext;
-class GLES3GPUSwapchain;
+struct GLES3GPUSwapchain;
 class GLES3GPUStateCache;
 class GLES3GPUFramebufferHub;
-class GLES3GPUConstantRegistry;
+struct GLES3GPUConstantRegistry;
 class GLES3GPUFramebufferCacheMap;
 
 class CC_GLES3_API GLES3Device final : public Device {

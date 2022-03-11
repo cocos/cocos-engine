@@ -55,7 +55,7 @@ struct CC_DLL InstancedItem {
 using InstancedItemList = vector<InstancedItem>;
 using DynamicOffsetList = vector<uint>;
 
-class InstancedBuffer : public Object, public RefCounted {
+class InstancedBuffer : public RefCounted {
 public:
     static constexpr uint   INITIAL_CAPACITY = 32;
     static constexpr uint   MAX_CAPACITY     = 1024;

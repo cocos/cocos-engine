@@ -172,8 +172,7 @@ public:
     }
 };
 
-class GLES3CmdPackage final : public Object {
-public:
+struct GLES3CmdPackage {
     CachedArray<GLESCmdType>                   cmds;
     CachedArray<GLES3CmdBeginRenderPass *>     beginRenderPassCmds;
     CachedArray<GLES3CmdBindStates *>          bindStatesCmds;
@@ -186,7 +185,7 @@ public:
     CachedArray<GLES3CmdQuery *>               queryCmds;
 };
 
-class GLES3GPUCommandAllocator final : public Object {
+class GLES3GPUCommandAllocator final {
 public:
     CommandPool<GLES3CmdBeginRenderPass>     beginRenderPassCmdPool;
     CommandPool<GLES3CmdBindStates>          bindStatesCmdPool;

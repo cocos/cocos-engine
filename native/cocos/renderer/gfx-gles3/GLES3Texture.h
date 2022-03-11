@@ -31,8 +31,8 @@
 namespace cc {
 namespace gfx {
 
-class GLES3GPUTexture;
-class GLES3GPUTextureView;
+struct GLES3GPUTexture;
+struct GLES3GPUTextureView;
 class CC_GLES3_API GLES3Texture final : public Texture {
 public:
     GLES3Texture();

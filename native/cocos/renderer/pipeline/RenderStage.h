@@ -48,10 +48,10 @@ struct CC_DLL RenderStageInfo {
     RenderQueueDescList renderQueues;
 };
 
-class CC_DLL RenderStage : public Object {
+class CC_DLL RenderStage {
 public:
     RenderStage();
-    ~RenderStage() override;
+    virtual ~RenderStage();
 
     virtual void activate(RenderPipeline *pipeline, RenderFlow *flow);
     virtual bool initialize(const RenderStageInfo &info);
