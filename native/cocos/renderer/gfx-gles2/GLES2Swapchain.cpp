@@ -28,6 +28,11 @@
 #include "GLES2GPUObjects.h"
 #include "GLES2Texture.h"
 
+#if CC_SWAPPY_ENABLED
+    #include "platform/UniversalPlatform.h"
+    #include "swappy/swappyGL.h"
+#endif
+
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
@@ -57,6 +62,17 @@ void GLES2Swapchain::doInit(const SwapchainInfo& info) {
         CC_LOG_ERROR("Getting configuration attributes failed.");
         return;
     }
+
+    #if CC_SWAPPY_ENABLED
+    auto* platform = static_cast<UniversalPlatform*>(cc::BasePlatform::getPlatform());
+    SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
+    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
+    if (!fps)
+        SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+    else
+        SwappyGL_setSwapIntervalNS(1000000000L / fps); //ns
+    SwappyGL_setWindow(window);
+    #endif
 
     auto width  = static_cast<int32_t>(info.width);
     auto height = static_cast<int32_t>(info.height);
@@ -105,6 +121,10 @@ void GLES2Swapchain::doInit(const SwapchainInfo& info) {
 void GLES2Swapchain::doDestroy() {
     if (!_gpuSwapchain) return;
 
+#if CC_SWAPPY_ENABLED
+    SwappyGL_destroy();
+#endif
+
     CC_SAFE_DESTROY(_depthStencilTexture)
     CC_SAFE_DESTROY(_colorTexture)
 
@@ -142,6 +162,11 @@ void GLES2Swapchain::doCreateSurface(void* windowHandle) {
     auto height = static_cast<int>(_colorTexture->getHeight());
     CC_UNUSED_PARAM(width);
     CC_UNUSED_PARAM(height);
+
+#if CC_SWAPPY_ENABLED
+    SwappyGL_setWindow(window);
+#endif
+
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
 #elif CC_PLATFORM == CC_PLATFORM_OHOS

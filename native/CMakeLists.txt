@@ -140,6 +140,10 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 
+if(ANDROID AND SWAPPY_ENABLED)
+    add_definitions(-DCC_SWAPPY_ENABLED)
+endif()
+
 ##### audio
 if(USE_AUDIO)
     cocos_source_files(

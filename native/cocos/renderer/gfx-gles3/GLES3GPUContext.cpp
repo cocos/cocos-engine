@@ -25,7 +25,7 @@
 
 #include "GLES3GPUObjects.h"
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_SWAPPY_ENABLED
     #include "swappy/swappyGL.h"
 #endif
 
@@ -299,7 +299,7 @@ void GLES3GPUContext::makeCurrent(const GLES3GPUSwapchain *drawSwapchain, const 
 }
 
 void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
-#if SWAPPY_ENABLED && CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_SWAPPY_ENABLED
     SwappyGL_swap(eglDisplay, swapchain->eglSurface);
 #else
     if (_eglCurrentInterval != swapchain->eglSwapInterval) {

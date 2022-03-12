@@ -27,10 +27,14 @@
 #include "GLES3Device.h"
 #include "GLES3GPUObjects.h"
 #include "GLES3Texture.h"
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include "android/native_window.h"
+
+#if CC_SWAPPY_ENABLED
     #include "platform/UniversalPlatform.h"
     #include "swappy/swappyGL.h"
+#endif
+
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #include "android/native_window.h"
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include <native_layer.h>
     #include <native_layer_jni.h>
@@ -59,17 +63,21 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
         return;
     }
 
-    auto width  = static_cast<int32_t>(info.width);
-    auto height = static_cast<int32_t>(info.height);
-    #if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #if CC_SWAPPY_ENABLED
     auto* platform = static_cast<UniversalPlatform*>(cc::BasePlatform::getPlatform());
-    SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity())); // swappy init needs to run in main thread
+    SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
     int32_t fps = cc::BasePlatform::getPlatform()->getFps();
     if (!fps)
         SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
     else
         SwappyGL_setSwapIntervalNS(1000000000L / fps); //ns
     SwappyGL_setWindow(window);
+    #endif
+
+    auto width  = static_cast<int32_t>(info.width);
+    auto height = static_cast<int32_t>(info.height);
+
+    #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
     #elif CC_PLATFORM == CC_PLATFORM_OHOS
     NativeLayerHandle(window, NativeLayerOps::SET_WIDTH_AND_HEIGHT, width, height);
@@ -113,7 +121,7 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
 void GLES3Swapchain::doDestroy() {
     if (!_gpuSwapchain) return;
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_SWAPPY_ENABLED
     SwappyGL_destroy();
 #endif
 
@@ -154,6 +162,11 @@ void GLES3Swapchain::doCreateSurface(void* windowHandle) {
     auto height = static_cast<int>(_colorTexture->getHeight());
     CC_UNUSED_PARAM(width);
     CC_UNUSED_PARAM(height);
+
+#if CC_SWAPPY_ENABLED
+    SwappyGL_setWindow(window);
+#endif
+
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
