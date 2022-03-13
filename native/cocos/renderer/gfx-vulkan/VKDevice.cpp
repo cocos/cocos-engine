@@ -49,6 +49,10 @@
 
 #include "gfx-base/SPIRVUtils.h"
 
+#if CC_SWAPPY_ENABLED
+    #include "swappy/swappyVk.h"
+#endif
+
 CC_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
@@ -145,6 +149,27 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     VK_CHECK(vkEnumerateDeviceExtensionProperties(_gpuContext->physicalDevice, nullptr, &availableExtensionCount, nullptr));
     _gpuDevice->extensions.resize(availableExtensionCount);
     VK_CHECK(vkEnumerateDeviceExtensionProperties(_gpuContext->physicalDevice, nullptr, &availableExtensionCount, _gpuDevice->extensions.data()));
+
+#if CC_SWAPPY_ENABLED
+    uint32_t swappyRequiredExtensionCount = 0;
+    SwappyVk_determineDeviceExtensions(_gpuContext->physicalDevice, availableExtensionCount,
+                                       _gpuDevice->extensions.data(), &swappyRequiredExtensionCount, nullptr);
+    auto *swappyRequiredExtensions     = static_cast<char **>(malloc(swappyRequiredExtensionCount * sizeof(char *)));
+    auto *swappyRequiredExtensionsData = (char *)malloc(swappyRequiredExtensionCount * (VK_MAX_EXTENSION_NAME_SIZE + 1));
+    for (uint32_t i = 0; i < swappyRequiredExtensionCount; i++) {
+        swappyRequiredExtensions[i] = &swappyRequiredExtensionsData[i * (VK_MAX_EXTENSION_NAME_SIZE + 1)];
+    }
+    SwappyVk_determineDeviceExtensions(_gpuContext->physicalDevice, availableExtensionCount,
+                                       _gpuDevice->extensions.data(), &swappyRequiredExtensionCount, swappyRequiredExtensions);
+    vector<String> swappyRequiredExtList(swappyRequiredExtensionCount);
+
+    for (size_t i = 0; i < swappyRequiredExtensionCount; ++i) {
+        swappyRequiredExtList[i] = swappyRequiredExtensions[i];
+        requestedExtensions.push_back(swappyRequiredExtList[i].c_str());
+    }
+    free(swappyRequiredExtensions);
+    free(swappyRequiredExtensionsData);
+#endif
 
     // just filter out the unsupported layers & extensions
     for (const char *layer : requestedLayers) {
@@ -637,6 +662,16 @@ void CCVKDevice::present() {
     if (!_gpuTransportHub->empty(false)) _gpuTransportHub->packageForFlight(false);
     if (!_gpuTransportHub->empty(true)) _gpuTransportHub->packageForFlight(true);
 
+#if CC_SWAPPY_ENABLED
+    // tripple buffer?
+    // static vector<uint8_t> queueFmlIdxBuff(_gpuDevice->backBufferCount);
+    // std::iota(std::begin(queueFmlIdxBuff), std::end(queueFmlIdxBuff), 0);
+    SwappyVk_setQueueFamilyIndex(_gpuDevice->vkDevice, queue->gpuQueue()->vkQueue, queue->gpuQueue()->queueFamilyIndex);
+    auto vkCCPresentFunc = SwappyVk_queuePresent;
+#else
+    auto vkCCPresentFunc = vkQueuePresentKHR;
+#endif
+
     if (!vkSwapchains.empty()) { // don't present if not acquired
         VkPresentInfoKHR presentInfo{VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
         presentInfo.waitSemaphoreCount = utils::toUint(queue->gpuQueue()->lastSignaledSemaphores.size());
@@ -645,7 +680,7 @@ void CCVKDevice::present() {
         presentInfo.pSwapchains        = vkSwapchains.data();
         presentInfo.pImageIndices      = vkSwapchainIndices.data();
 
-        VkResult res = vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo);
+        VkResult res = vkCCPresentFunc(queue->gpuQueue()->vkQueue, &presentInfo);
         for (auto *gpuSwapchain : gpuSwapchains) {
             gpuSwapchain->lastPresentResult = res;
         }
