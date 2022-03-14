@@ -122,9 +122,7 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    using DeviceStateChangeCallback = std::function<void(const DeviceState &state)>;
-    // register func called at mainLogic thread
-    void registerOnDeviceStateChangeCallback(const DeviceStateChangeCallback &callback);
+    inline bool isDeviceAvailable() { return _deviceState == DeviceState::STATE_RENDER_AVAILABLE; }
 
     void setDeviceState(const DeviceState &state);
 
@@ -195,7 +193,6 @@ protected:
 private:
     vector<Swapchain *> _swapchains;
     DeviceState        _deviceState{DeviceState::STATE_UNKNOWN};
-    vector<DeviceStateChangeCallback> _deviceStateChangeCallbacks;
 };
 
 //////////////////////////////////////////////////////////////////////////
