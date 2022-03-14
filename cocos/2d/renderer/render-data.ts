@@ -36,7 +36,7 @@ import { Pool, RecyclePool } from '../../core/memop';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Renderable2D } from '../framework/renderable-2d';
-import { StaticVBChunk } from './static-vb-accessor';
+import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { Buffer, BufferInfo, BufferUsageBit, Device, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 import { assertIsTrue } from '../../core/data/utils/asserts';
@@ -69,7 +69,11 @@ export class BaseRenderData {
     get vertexFormat () {
         return this._vertexFormat;
     }
+
+    public vertexAccessor: StaticVBAccessor = null!;
+    
     public chunk: StaticVBChunk = null!;
+    
     public dataHash = 0;
     public isMeshBuffer = false;
 
@@ -92,13 +96,13 @@ export class BaseRenderData {
         this._vc = vertexCount;
         this._ic = indexCount;
         const batcher = director.root!.batcher2D;
-        const accessor = batcher.switchBufferAccessor(this._vertexFormat);
+        this.vertexAccessor = batcher.switchBufferAccessor(this._vertexFormat);
         if (this.chunk) {
-            accessor.recycleChunk(this.chunk);
+            this.vertexAccessor.recycleChunk(this.chunk);
             this.chunk = null!;
         }
         // renderData always have chunk
-        this.chunk = accessor.allocateChunk(vertexCount, indexCount)!;
+        this.chunk = this.vertexAccessor.allocateChunk(vertexCount, indexCount)!;
     }
 }
 

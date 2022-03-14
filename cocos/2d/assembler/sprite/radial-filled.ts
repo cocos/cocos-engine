@@ -365,8 +365,9 @@ export const radialFilled: IAssembler = {
 
         const bid = chunk.bufferId;
         const vid = chunk.vertexOffset;
-        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
-        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        const meshBuffer = chunk.meshBuffer;
+        const ib = chunk.indexBuffer;
+        
         const indexOffset = meshBuffer.indexOffset;
         for (let i = 0; i < renderData.indexCount; i++) {
             ib[indexOffset + i] = vid + i;

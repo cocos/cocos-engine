@@ -124,8 +124,9 @@ export const sliced: IAssembler = {
 
         const bid = chunk.bufferId;
         const vid = chunk.vertexOffset;
-        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
-        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        const meshBuffer = chunk.meshBuffer;
+        const ib = chunk.indexBuffer;
+        
         let indexOffset = meshBuffer.indexOffset;
         for (let r = 0; r < 3; ++r) {
             for (let c = 0; c < 3; ++c) {
