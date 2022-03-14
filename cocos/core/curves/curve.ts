@@ -49,7 +49,7 @@ class RealKeyframeValue extends EditorExtendable {
      * @zh
      * 在执行插值时，当以此关键帧作为起始关键帧时应当使用的插值方式。
      */
-    get interpolationMode () {
+    get interpolationMode (): RealInterpolationMode {
         return (this._flags & REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_MASK) >> REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_START;
     }
 
@@ -66,7 +66,7 @@ class RealKeyframeValue extends EditorExtendable {
      * 当执行三次插值时，此关键帧使用的切线权重模式。
      * 若当前的插值模式不是三次插值时，该字段无意义。
      */
-    get tangentWeightMode () {
+    get tangentWeightMode (): TangentWeightMode {
         return (this._flags & REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_MASK) >> REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_START;
     }
 
@@ -126,7 +126,7 @@ class RealKeyframeValue extends EditorExtendable {
     /**
      * @deprecated Reserved for backward compatibility. Will be removed in future.
      */
-    get easingMethod () {
+    get easingMethod (): EasingMethod {
         return (this._flags & REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_MASK) >> REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_START;
     }
 
