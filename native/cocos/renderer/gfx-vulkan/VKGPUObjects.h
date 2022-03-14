@@ -615,7 +615,7 @@ private:
     uint32_t                      _maxSetsPerPool = 0U;
 };
 
-struct CCVKGPUDescriptorSetLayout{
+struct CCVKGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
     vector<uint32_t>               dynamicBindings;
 

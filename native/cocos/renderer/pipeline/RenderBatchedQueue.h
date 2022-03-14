@@ -34,7 +34,7 @@ class BatchedBuffer;
 
 class CC_DLL RenderBatchedQueue final {
 public:
-    RenderBatchedQueue()           = default;
+    RenderBatchedQueue()  = default;
     ~RenderBatchedQueue() = default;
 
     void clear();

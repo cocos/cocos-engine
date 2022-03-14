@@ -26,9 +26,9 @@
 #pragma once
 
 #include "Define.h"
+#include "base/RefCounted.h"
 #include "scene/Model.h"
 #include "scene/Pass.h"
-#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
