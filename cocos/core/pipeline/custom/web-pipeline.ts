@@ -24,7 +24,8 @@
 ****************************************************************************/
 
 /* eslint-disable max-len */
-import { Buffer, DescriptorSetLayout, Device, Format, Sampler, Swapchain, Texture } from '../../gfx/index';
+import { systemInfo } from 'pal/system-info';
+import { Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture } from '../../gfx/index';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskType } from './types';
 import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
@@ -37,10 +38,11 @@ import { RenderDependencyGraph } from './render-dependency-graph';
 import { DeviceResourceGraph } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
-import { assert } from '../../platform';
+import { assert, macro } from '../../platform';
 import { WebSceneTransversal } from './web-scene';
 import { MacroRecord } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
+import { OS } from '../../../../pal/system-info/enum-type';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -306,13 +308,34 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline extends Pipeline {
+    protected _generateConstantMacros (clusterEnabled: boolean) {
+        let str = '';
+        str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this._device.getFormatFeatures(Format.RGBA32F)
+            & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE) ? 1 : 0}\n`;
+        str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${clusterEnabled ? 1 : 0}\n`;
+        str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this._device.capabilities.maxVertexUniformVectors}\n`;
+        str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this._device.capabilities.maxFragmentUniformVectors}\n`;
+        str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this._device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
+        str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
+        str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
+        this._constantMacros = str;
+    }
+
     public activate (swapchain: Swapchain): boolean {
         this._device = legacyCC.director.root.device;
         this._globalDSManager = new GlobalDSManager(this._device);
+        this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
+        this._generateConstantMacros(false);
+        this._pipelineSceneData.activate(this._device);
         return true;
     }
     public destroy (): boolean {
+        this._globalDSManager?.destroy();
+        this._pipelineSceneData?.destroy();
         return true;
+    }
+    public render (cameras: Camera[]) {
+
     }
     public get macros (): MacroRecord {
         return this._macros;
@@ -428,7 +451,7 @@ export class WebPipeline extends Pipeline {
         this._renderDependencyGraph.build();
     }
 
-    render () {
+    renderContext () {
         if (!this._renderDependencyGraph) { throw new Error('RenderDependencyGraph is not initialized'); }
         this._renderDependencyGraph.render();
     }
