@@ -43,6 +43,7 @@
   layout(location = 0) out vec4 fragColor0;                        \
   layout(location = 1) out vec4 fragColor1;                        \
   layout(location = 2) out vec4 fragColor2;                        \
+  layout(location = 3) out vec4 fragColor3;                        \
                                                                    \
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
@@ -50,7 +51,7 @@
     vec3 position;                                                 \
     HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);         \
     fragColor1 = vec4(position, s.roughness);                      \
-    fragColor1 = vec4(float32x3_to_oct(s.normal), s.roughness, s.metallic); \
+    fragColor2 = vec4(float32x3_to_oct(s.normal), s.roughness, s.metallic); \
     fragColor3 = vec4(s.emissive, s.occlusion);                    \
   }                                                                \
                                                                    \
