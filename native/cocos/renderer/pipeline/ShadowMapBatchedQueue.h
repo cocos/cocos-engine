@@ -40,10 +40,10 @@ class RenderPipeline;
 
 //const uint phaseID(PassPhase::getPhaseID("shadow-caster"));
 
-class CC_DLL ShadowMapBatchedQueue : public Object {
+class CC_DLL ShadowMapBatchedQueue final {
 public:
     explicit ShadowMapBatchedQueue(RenderPipeline *);
-    ~ShadowMapBatchedQueue() override;
+    ~ShadowMapBatchedQueue();
     void destroy();
 
     void clear();

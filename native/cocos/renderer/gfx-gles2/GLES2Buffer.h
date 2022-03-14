@@ -31,8 +31,8 @@
 namespace cc {
 namespace gfx {
 
-class GLES2GPUBuffer;
-class GLES2GPUBufferView;
+struct GLES2GPUBuffer;
+struct GLES2GPUBufferView;
 
 class CC_GLES2_API GLES2Buffer final : public Buffer {
 public:

@@ -31,8 +31,8 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUTexture;
-class CCVKGPUTextureView;
+struct CCVKGPUTexture;
+struct CCVKGPUTextureView;
 
 class CC_VULKAN_API CCVKTexture final : public Texture {
 public:

@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUFramebuffer;
+struct CCVKGPUFramebuffer;
 
 class CC_VULKAN_API CCVKFramebuffer final : public Framebuffer {
 public:

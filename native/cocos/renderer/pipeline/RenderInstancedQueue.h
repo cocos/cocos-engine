@@ -39,10 +39,10 @@ namespace pipeline {
 
 class InstancedBuffer;
 
-class CC_DLL RenderInstancedQueue : public Object {
+class CC_DLL RenderInstancedQueue final {
 public:
-    RenderInstancedQueue()           = default;
-    ~RenderInstancedQueue() override = default;
+    RenderInstancedQueue()  = default;
+    ~RenderInstancedQueue() = default;
 
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void add(InstancedBuffer *instancedBuffer);

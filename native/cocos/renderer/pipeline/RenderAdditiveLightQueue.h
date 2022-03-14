@@ -51,10 +51,10 @@ struct AdditiveLightPass {
     vector<uint>           lights;
 };
 
-class RenderAdditiveLightQueue : public Object {
+class RenderAdditiveLightQueue final {
 public:
     explicit RenderAdditiveLightQueue(RenderPipeline *pipeline);
-    ~RenderAdditiveLightQueue() override;
+    ~RenderAdditiveLightQueue();
 
     void recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void gatherLightPasses(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);

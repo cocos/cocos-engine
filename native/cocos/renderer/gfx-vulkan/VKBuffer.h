@@ -31,8 +31,8 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUBuffer;
-class CCVKGPUBufferView;
+struct CCVKGPUBuffer;
+struct CCVKGPUBufferView;
 
 class CC_VULKAN_API CCVKBuffer final : public Buffer {
 public:

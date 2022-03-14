@@ -39,10 +39,10 @@ class Device;
 } // namespace gfx
 namespace pipeline {
 
-class GlobalDSManager : public Object {
+class GlobalDSManager final {
 public:
-    GlobalDSManager()           = default;
-    ~GlobalDSManager() override = default;
+    GlobalDSManager()  = default;
+    ~GlobalDSManager() = default;
 
     inline std::unordered_map<uint, gfx::DescriptorSet *> getDescriptorSetMap() const { return _descriptorSetMap; }
     inline gfx::Sampler *                                 getLinearSampler() const { return _linearSampler; }

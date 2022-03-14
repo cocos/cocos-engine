@@ -35,7 +35,7 @@ namespace pipeline {
 
 class RenderPipeline;
 
-class CC_DLL RenderQueue : public Object {
+class CC_DLL RenderQueue final {
 public:
     explicit RenderQueue(RenderPipeline *pipeline, RenderQueueCreateInfo desc, bool useOcclusionQuery = false);
 

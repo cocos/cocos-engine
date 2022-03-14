@@ -33,7 +33,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUQueryPool;
+struct CCVKGPUQueryPool;
 
 class CC_VULKAN_API CCVKQueryPool final : public QueryPool {
 public:

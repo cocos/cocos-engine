@@ -34,7 +34,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUContext final : public Object {
+class CCVKGPUContext final {
 public:
     bool initialize();
     void destroy();
@@ -78,8 +78,7 @@ struct CCVKAccessInfo {
     bool                 hasWriteAccess{false};
 };
 
-class CCVKGPUGeneralBarrier final : public Object {
-public:
+struct CCVKGPUGeneralBarrier {
     VkPipelineStageFlags srcStageMask = 0U;
     VkPipelineStageFlags dstStageMask = 0U;
     VkMemoryBarrier      vkBarrier{};
@@ -90,7 +89,7 @@ public:
     ThsvsGlobalBarrier barrier{};
 };
 
-class CCVKGPURenderPass final : public Object {
+class CCVKGPURenderPass final {
 public:
     ColorAttachmentList    colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
@@ -106,10 +105,9 @@ public:
     const CCVKGPUGeneralBarrier *getBarrier(size_t index, CCVKGPUDevice *gpuDevice) const;
 };
 
-class CCVKGPUSwapchain;
-class CCVKGPUFramebuffer;
-class CCVKGPUTexture final : public Object {
-public:
+struct CCVKGPUSwapchain;
+struct CCVKGPUFramebuffer;
+struct CCVKGPUTexture {
     TextureType        type        = TextureType::TEX2D;
     Format             format      = Format::UNKNOWN;
     TextureUsage       usage       = TextureUsageBit::NONE;
@@ -138,8 +136,7 @@ public:
     ThsvsAccessType         transferAccess = THSVS_ACCESS_NONE;
 };
 
-class CCVKGPUTextureView final : public Object {
-public:
+struct CCVKGPUTextureView {
     CCVKGPUTexture *gpuTexture = nullptr;
     TextureType     type       = TextureType::TEX2D;
     Format          format     = Format::UNKNOWN;
@@ -154,8 +151,7 @@ public:
     VkImageView vkImageView = VK_NULL_HANDLE;
 };
 
-class CCVKGPUSampler final : public Object {
-public:
+struct CCVKGPUSampler {
     Filter         minFilter     = Filter::LINEAR;
     Filter         magFilter     = Filter::LINEAR;
     Filter         mipFilter     = Filter::NONE;
@@ -169,8 +165,7 @@ public:
     VkSampler vkSampler;
 };
 
-class CCVKGPUBuffer final : public Object {
-public:
+struct CCVKGPUBuffer {
     BufferUsage usage    = BufferUsage::NONE;
     MemoryUsage memUsage = MemoryUsage::NONE;
     uint32_t    stride   = 0U;
@@ -200,8 +195,7 @@ public:
     }
 };
 
-class CCVKGPUBufferView final : public Object {
-public:
+struct CCVKGPUBufferView {
     CCVKGPUBuffer *gpuBuffer = nullptr;
     uint32_t       offset    = 0U;
     uint32_t       range     = 0U;
@@ -211,8 +205,7 @@ public:
     }
 };
 
-class CCVKGPUFramebuffer final : public Object {
-public:
+struct CCVKGPUFramebuffer {
     CCVKGPURenderPass *          gpuRenderPass = nullptr;
     vector<CCVKGPUTextureView *> gpuColorViews;
     CCVKGPUTextureView *         gpuDepthStencilView = nullptr;
@@ -227,8 +220,7 @@ using FramebufferList        = vector<VkFramebuffer>;
 using FramebufferListMap     = unordered_map<CCVKGPUFramebuffer *, FramebufferList>;
 using FramebufferListMapIter = FramebufferListMap::iterator;
 
-class CCVKGPUSwapchain final : public Object {
-public:
+struct CCVKGPUSwapchain {
     VkSurfaceKHR             vkSurface = VK_NULL_HANDLE;
     VkSwapchainCreateInfoKHR createInfo{VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
 
@@ -242,8 +234,7 @@ public:
     vector<VkImage> swapchainImages;
 };
 
-class CCVKGPUCommandBuffer final : public Object {
-public:
+struct CCVKGPUCommandBuffer {
     VkCommandBuffer                 vkCommandBuffer  = VK_NULL_HANDLE;
     VkCommandBufferLevel            level            = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     uint32_t                        queueFamilyIndex = 0U;
@@ -251,8 +242,7 @@ public:
     mutable unordered_set<VkBuffer> recordedBuffers;
 };
 
-class CCVKGPUQueue final : public Object {
-public:
+struct CCVKGPUQueue {
     QueueType                    type             = QueueType::GRAPHICS;
     VkQueue                      vkQueue          = VK_NULL_HANDLE;
     uint32_t                     queueFamilyIndex = 0U;
@@ -262,8 +252,7 @@ public:
     vector<VkCommandBuffer>      commandBuffers;
 };
 
-class CCVKGPUQueryPool final : public Object {
-public:
+struct CCVKGPUQueryPool {
     QueryType   type{QueryType::OCCLUSION};
     uint32_t    maxQueryObjects{0};
     bool        forceWait{true};
@@ -280,15 +269,13 @@ struct CCVKGPUShaderStage {
     VkShaderModule     vkShader = VK_NULL_HANDLE;
 };
 
-class CCVKGPUShader final : public Object {
-public:
+struct CCVKGPUShader {
     String                     name;
     AttributeList              attributes;
     vector<CCVKGPUShaderStage> gpuStages;
 };
 
-class CCVKGPUInputAssembler final : public Object {
-public:
+struct CCVKGPUInputAssembler {
     AttributeList               attributes;
     vector<CCVKGPUBufferView *> gpuVertexBuffers;
     CCVKGPUBufferView *         gpuIndexBuffer    = nullptr;
@@ -310,9 +297,8 @@ struct CCVKGPUDescriptor {
     CCVKGPUSampler *        gpuSampler     = nullptr;
 };
 
-class CCVKGPUDescriptorSetLayout;
-class CCVKGPUDescriptorSet final : public Object {
-public:
+struct CCVKGPUDescriptorSetLayout;
+struct CCVKGPUDescriptorSet {
     vector<CCVKGPUDescriptor> gpuDescriptors;
 
     // references
@@ -328,8 +314,7 @@ public:
     uint32_t layoutID = 0U;
 };
 
-class CCVKGPUPipelineLayout final : public Object {
-public:
+struct CCVKGPUPipelineLayout {
     vector<CCVKGPUDescriptorSetLayout *> setLayouts;
 
     VkPipelineLayout vkPipelineLayout = VK_NULL_HANDLE;
@@ -339,8 +324,7 @@ public:
     uint32_t         dynamicOffsetCount;
 };
 
-class CCVKGPUPipelineState final : public Object {
-public:
+struct CCVKGPUPipelineState {
     PipelineBindPoint      bindPoint         = PipelineBindPoint::GRAPHICS;
     PrimitiveMode          primitive         = PrimitiveMode::TRIANGLE_LIST;
     CCVKGPUShader *        gpuShader         = nullptr;
@@ -355,8 +339,7 @@ public:
     VkPipeline             vkPipeline    = VK_NULL_HANDLE;
 };
 
-class CCVKGPUTextureBarrier final : public Object {
-public:
+struct CCVKGPUTextureBarrier {
     VkPipelineStageFlags srcStageMask = 0U;
     VkPipelineStageFlags dstStageMask = 0U;
     VkImageMemoryBarrier vkBarrier{};
@@ -369,7 +352,7 @@ public:
 
 class CCVKGPUCommandBufferPool;
 class CCVKGPUDescriptorSetPool;
-class CCVKGPUDevice final : public Object {
+class CCVKGPUDevice final {
 public:
     VkDevice                      vkDevice{VK_NULL_HANDLE};
     vector<VkLayerProperties>     layers;
@@ -416,13 +399,13 @@ private:
 /**
  * A simple pool for reusing fences.
  */
-class CCVKGPUFencePool final : public Object {
+class CCVKGPUFencePool final {
 public:
     explicit CCVKGPUFencePool(CCVKGPUDevice *device)
     : _device(device) {
     }
 
-    ~CCVKGPUFencePool() override {
+    ~CCVKGPUFencePool() {
         for (VkFence fence : _fences) {
             vkDestroyFence(_device->vkDevice, fence, nullptr);
         }
@@ -468,13 +451,13 @@ private:
 /**
  * A simple pool for reusing semaphores.
  */
-class CCVKGPUSemaphorePool final : public Object {
+class CCVKGPUSemaphorePool final {
 public:
     explicit CCVKGPUSemaphorePool(CCVKGPUDevice *device)
     : _device(device) {
     }
 
-    ~CCVKGPUSemaphorePool() override {
+    ~CCVKGPUSemaphorePool() {
         for (VkSemaphore semaphore : _semaphores) {
             vkDestroySemaphore(_device->vkDevice, semaphore, nullptr);
         }
@@ -513,9 +496,9 @@ private:
 /**
  * Unlimited descriptor set pool, based on multiple fix-sized VkDescriptorPools.
  */
-class CCVKGPUDescriptorSetPool final : public Object {
+class CCVKGPUDescriptorSetPool final {
 public:
-    ~CCVKGPUDescriptorSetPool() override {
+    ~CCVKGPUDescriptorSetPool() {
         for (vector<VkDescriptorSet> &market : _fleaMarkets) {
             for (VkDescriptorSet set : market) {
                 for (DescriptorSetPool &pool : _pools) {
@@ -632,8 +615,7 @@ private:
     uint32_t                      _maxSetsPerPool = 0U;
 };
 
-class CCVKGPUDescriptorSetLayout final : public Object {
-public:
+struct CCVKGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
     vector<uint32_t>               dynamicBindings;
 
@@ -653,13 +635,13 @@ public:
 /**
  * Command buffer pool based on VkCommandPools, always try to reuse previous allocations first.
  */
-class CCVKGPUCommandBufferPool final : public Object {
+class CCVKGPUCommandBufferPool final {
 public:
     explicit CCVKGPUCommandBufferPool(CCVKGPUDevice *device)
     : _device(device) {
     }
 
-    ~CCVKGPUCommandBufferPool() override {
+    ~CCVKGPUCommandBufferPool() {
         for (auto &it : _pools) {
             CommandBufferPool &pool = it.second;
             if (pool.vkCommandPool != VK_NULL_HANDLE) {
@@ -756,7 +738,7 @@ private:
 /**
  * Staging buffer pool, based on multiple fix-sized VkBuffer blocks.
  */
-class CCVKGPUStagingBufferPool final : public Object {
+class CCVKGPUStagingBufferPool final {
 public:
     static constexpr size_t CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
 
@@ -764,7 +746,7 @@ public:
     : _device(device) {
     }
 
-    ~CCVKGPUStagingBufferPool() override {
+    ~CCVKGPUStagingBufferPool() {
         for (Buffer &buffer : _pool) {
             vmaDestroyBuffer(_device->memoryAllocator, buffer.vkBuffer, buffer.vmaAllocation);
         }
@@ -828,7 +810,7 @@ private:
 /**
  * Manages descriptor set update events, across all back buffer instances.
  */
-class CCVKGPUDescriptorSetHub final : public Object {
+class CCVKGPUDescriptorSetHub final {
 public:
     explicit CCVKGPUDescriptorSetHub(CCVKGPUDevice *device)
     : _device(device) {
@@ -894,7 +876,7 @@ private:
  * Descriptor data maintenance hub, events like buffer/texture resizing,
  * descriptor set binding change, etc. should all request an update operation here.
  */
-class CCVKGPUDescriptorHub final : public Object {
+class CCVKGPUDescriptorHub final {
 public:
     explicit CCVKGPUDescriptorHub(CCVKGPUDevice * /*device*/) {
     }
@@ -1077,7 +1059,7 @@ private:
  * Recycle bin for GPU resources, clears after vkDeviceWaitIdle every frame.
  * All the destroy events will be postponed to that time.
  */
-class CCVKGPURecycleBin final : public Object {
+class CCVKGPURecycleBin final {
 public:
     explicit CCVKGPURecycleBin(CCVKGPUDevice *device)
     : _device(device) {
@@ -1216,7 +1198,7 @@ private:
  * Record all transfer commands until batched submission.
  */
 //#define ASYNC_BUFFER_UPDATE
-class CCVKGPUTransportHub final : public Object {
+class CCVKGPUTransportHub final {
 public:
     CCVKGPUTransportHub(CCVKGPUDevice *device, CCVKGPUQueue *queue)
     : _device(device),
@@ -1231,7 +1213,7 @@ public:
         VK_CHECK(vkCreateFence(_device->vkDevice, &createInfo, nullptr, &_fence));
     }
 
-    ~CCVKGPUTransportHub() override {
+    ~CCVKGPUTransportHub() {
         if (_fence) {
             vkDestroyFence(_device->vkDevice, _fence, nullptr);
             _fence = VK_NULL_HANDLE;
@@ -1291,7 +1273,7 @@ private:
     VkFence              _fence = VK_NULL_HANDLE;
 };
 
-class CCVKGPUBarrierManager final : public Object {
+class CCVKGPUBarrierManager final {
 public:
     explicit CCVKGPUBarrierManager(CCVKGPUDevice *device)
     : _device(device) {}
@@ -1324,7 +1306,7 @@ private:
 /**
  * Manages buffer update events, across all back buffer instances.
  */
-class CCVKGPUBufferHub final : public Object {
+class CCVKGPUBufferHub final {
 public:
     explicit CCVKGPUBufferHub(CCVKGPUDevice *device)
     : _device(device) {
@@ -1367,7 +1349,7 @@ private:
     CCVKGPUDevice *_device = nullptr;
 };
 
-class CCVKGPUFramebufferHub final : public Object {
+class CCVKGPUFramebufferHub final {
 public:
     void connect(CCVKGPUTexture *texture, CCVKGPUFramebuffer *framebuffer) {
         _framebuffers[texture].push_back(framebuffer);
