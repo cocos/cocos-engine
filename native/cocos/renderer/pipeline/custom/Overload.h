@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #pragma once
-#include <cocos/base/Variant.h>
-#include <boost/mp11/algorithm.hpp>
+
+#include "boost/variant2/variant.hpp"
+#include "boost/mp11/algorithm.hpp"
+
 #include <type_traits>
 #include <utility>
 
