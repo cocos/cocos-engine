@@ -32,10 +32,15 @@ namespace cc {
 
 class EditBox {
 public:
+    enum TextAlignment {
+        LEFT,
+        CENTER,
+        RIGHT
+    };
     struct ShowInfo {
-        std::string defaultValue = "";
-        std::string confirmType  = "";
-        std::string inputType    = "";
+        std::string defaultValue;
+        std::string confirmType;
+        std::string inputType;
         int         maxLength    = 0;
         int         x            = 0;
         int         y            = 0;
@@ -43,6 +48,17 @@ public:
         int         height       = 0;
         bool        confirmHold  = false;
         bool        isMultiline  = false;
+        //NEW PROPERTIES
+        uint32_t fontSize = 20;
+        uint32_t fontColor = 0x00000000;
+        uint32_t backColor = 0x00000000;//font back color
+        uint32_t backgroundColor = 0x00000000;
+        bool isBold = false;
+        bool isItalic = false;
+        bool isUnderline = false;
+        uint32_t underlineColor = 0x00000000;
+        uint32_t textAlignment = LEFT;//By default, override with left, center or right
+        
     };
 
     static void show(const ShowInfo &showInfo);
@@ -53,7 +69,7 @@ public:
     static bool complete();
 
 private:
-    static bool _isShown;
+    static bool _isShown;//NOLINT(readability-identifier-naming)
 };
 
 } // namespace cc

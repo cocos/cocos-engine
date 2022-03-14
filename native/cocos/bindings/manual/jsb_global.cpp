@@ -793,9 +793,61 @@ static bool JSB_showInputBox(se::State &s) { //NOLINT
                 showInfo.height = tmp.toInt32();
             }
         }
-
+        if (obj->getProperty("fontSize", &tmp)) {
+            SE_PRECONDITION2(tmp.isNumber(), false, "fontSize is invalid!");
+            if (!tmp.isUndefined()) {
+                showInfo.fontSize = tmp.toNumber();
+            }
+        }
+        if (obj->getProperty("fontColor", &tmp)) {
+            SE_PRECONDITION2(tmp.isNumber(), false, "fontColor is invalid!");
+            if (!tmp.isUndefined()) {
+                showInfo.fontColor = tmp.toNumber();
+            }
+        }
+        if (obj->getProperty("isBold", &tmp)) {
+            SE_PRECONDITION2(tmp.isBoolean(), false, "isBold is invalid!");
+            if (!tmp.isUndefined()) {
+                showInfo.isBold = tmp.toBoolean();
+            }
+        }
+        if (obj->getProperty("isItalic", &tmp)) {
+            SE_PRECONDITION2(tmp.isBoolean(), false, "isItalic is invalid!");
+            if (!tmp.isUndefined()) {
+                showInfo.isItalic = tmp.toBoolean();
+            }
+        }
+        if (obj->getProperty("isUnderline", &tmp)) {
+            SE_PRECONDITION2(tmp.isBoolean(), false, "isUnderline is invalid!");
+            if (!tmp.isUndefined()) {
+                showInfo.isUnderline = tmp.toBoolean();
+            }
+        }
+        if (obj->getProperty("underlineColor", &tmp)) {
+            SE_PRECONDITION2(tmp.isNumber(), false, "underlinrColor is invalid!");
+            if (!tmp.isUndefined()) {
+                showInfo.underlineColor = tmp.toNumber();
+            }
+        }
+        if (obj->getProperty("backColor", &tmp)) {
+            SE_PRECONDITION2(tmp.isNumber(), false, "backColor is invalid!");
+            if (!tmp.isUndefined()) {
+                showInfo.backColor = tmp.toNumber();
+            }
+        }
+        if (obj->getProperty("backgroundColor", &tmp)) {
+            SE_PRECONDITION2(tmp.isNumber(), false, "backgroundColor is invalid!");
+            if (!tmp.isUndefined()) {
+                showInfo.backgroundColor = tmp.toNumber();
+            }
+        }
+        if (obj->getProperty("textAlignment", &tmp)) {
+            SE_PRECONDITION2(tmp.isNumber(), false, "textAlignment is invalid!");
+            if (!tmp.isUndefined()) {
+                showInfo.textAlignment = tmp.toNumber();
+            }
+        }
         EditBox::show(showInfo);
-
         return true;
     }
 
