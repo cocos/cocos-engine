@@ -513,7 +513,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         }
 
         _planarShadowQueue->recordCommandBuffer(_device, table.getRenderPass(), cmdBuff);
-        _pipeline->getGeometryRenderer()->render(table.getRenderPass(), cmdBuff);
+        _pipeline->getGeometryRenderer()->render(camera, table.getRenderPass(), cmdBuff);
     };
 
     if (!_isTransparentQueueEmpty) {

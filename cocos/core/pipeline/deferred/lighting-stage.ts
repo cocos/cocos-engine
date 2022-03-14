@@ -314,7 +314,7 @@ export class LightingStage extends RenderStage {
             // planarQueue
             this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         }
-        this._pipeline.geometryRenderer.render(renderPass, cmdBuff);
+        this._pipeline.geometryRenderer.render(camera, renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);
         cmdBuff.endRenderPass();
     }
