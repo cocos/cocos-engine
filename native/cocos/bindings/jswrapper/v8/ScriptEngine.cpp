@@ -196,10 +196,10 @@ bool jsbConsoleAssert(State &s) {
 }
 SE_BIND_FUNC(jsbConsoleAssert)
 
-/*
+    /*
         * The unique V8 platform instance
         */
-#if !CC_EDITOR
+    #if !CC_EDITOR
 class ScriptEngineV8Context {
 public:
     ScriptEngineV8Context() {
@@ -210,16 +210,15 @@ public:
         flags.append(" --expose-gc-as=" EXPOSE_GC);
         flags.append(" --no-flush-bytecode --no-lazy"); // for bytecode support
                                                         // flags.append(" --trace-gc"); // v8 trace gc
-    #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+        #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
         flags.append(" --jitless");
-    #endif
+        #endif
         if (!flags.empty()) {
             v8::V8::SetFlagsFromString(flags.c_str(), static_cast<int>(flags.length()));
         }
 
         bool ok = v8::V8::Initialize();
         assert(ok);
-    
     }
 
     ~ScriptEngineV8Context() {
@@ -231,7 +230,7 @@ public:
 };
 
 ScriptEngineV8Context *gSharedV8 = nullptr;
-#endif // CC_EDITOR
+    #endif // CC_EDITOR
 } // namespace
 
 void ScriptEngine::callExceptionCallback(const char *location, const char *message, const char *stack) {
@@ -314,8 +313,13 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
         SE_LOGE("ERROR: __errorHandler has exception\n");
     }
 }
-
-void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char* event, const char *stackTrace) {
+/**
+* Bug in v8 stacktrace:
+* "handlerAddedAfterPromiseRejected" event is triggered if a resolve handler is added.
+* But if no reject handler is added, then "unhandledRejectedPromise" exception will be called again, but the stacktrace this time become empty
+* LastStackTrace is used to store it.
+*/
+void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace) {
     using element_type = decltype(_promiseArray)::value_type;
     element_type *current;
 
@@ -323,7 +327,7 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
         return std::get<0>(e)->Get(_isolate) == promise;
     });
 
-    if (itr == _promiseArray.end()) {//Not found, create one
+    if (itr == _promiseArray.end()) { //Not found, create one
         _promiseArray.emplace_back(std::make_unique<v8::Persistent<v8::Promise>>(), std::vector<PromiseExceptionMsg>{});
         std::get<0>(_promiseArray.back())->Reset(_isolate, promise);
         current = &_promiseArray.back();
@@ -332,9 +336,10 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
     }
 
     auto &exceptions = std::get<1>(*current);
-    if (std::strcmp(event,"handlerAddedAfterPromiseRejected") == 0) {
+    if (std::strcmp(event, "handlerAddedAfterPromiseRejected") == 0) {
         for (int i = 0; i < exceptions.size(); i++) {
-            if (std::strcmp(exceptions[i].event,"unhandledRejectedPromise") == 0) {
+            if (exceptions[i].event == "unhandledRejectedPromise") {
+                _lastStackTrace = exceptions[i].stackTrace;
                 exceptions.erase(exceptions.begin() + i);
                 return;
             }
@@ -347,14 +352,15 @@ void ScriptEngine::handlePromiseExceptions() {
     if (_promiseArray.empty()) {
         return;
     }
-    for (auto& exceptionsPair : _promiseArray) {
-        auto& exceptionVector = std::get<1>(exceptionsPair);
-        for (const auto& exceptions : exceptionVector) {
-            getInstance()->callExceptionCallback("", exceptions.event, exceptions.stackTrace);
+    for (auto &exceptionsPair : _promiseArray) {
+        auto &exceptionVector = std::get<1>(exceptionsPair);
+        for (const auto &exceptions : exceptionVector) {
+            getInstance()->callExceptionCallback("", exceptions.event.c_str(), exceptions.stackTrace.c_str());
         }
         std::get<0>(exceptionsPair).get()->Reset();
     }
     _promiseArray.clear();
+    _lastStackTrace.clear();
 }
 
 void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
@@ -426,16 +432,20 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
 
     auto stackStr = getInstance()->getCurrentStackTrace();
     ss << "stacktrace: " << std::endl;
-    ss << stackStr << std::endl;
+    if (stackStr.empty()) {
+        ss << getInstance()->_lastStackTrace << std::endl;
+    } else {
+        ss << stackStr << std::endl;
+    }
     //Check event immediately, for certain case throw exception.
-    const char* eventName;
+    const char *eventName;
     switch (event) {
         case v8::kPromiseRejectWithNoHandler:
             eventName = "unhandledRejectedPromise";
             getInstance()->pushPromiseExeception(msg.GetPromise(), "unhandledRejectedPromise", ss.str().c_str());
             break;
         case v8::kPromiseHandlerAddedAfterReject:
-            eventName = "handlerAddedAfterPromiseRejected"; 
+            eventName = "handlerAddedAfterPromiseRejected";
             getInstance()->pushPromiseExeception(msg.GetPromise(), "handlerAddedAfterPromiseRejected", ss.str().c_str());
             break;
         case v8::kPromiseRejectAfterResolved:
@@ -491,11 +501,11 @@ ScriptEngine::ScriptEngine()
   _isGarbageCollecting(false),
   _isInCleanup(false),
   _isErrorHandleWorking(false) {
-#if !CC_EDITOR
+    #if !CC_EDITOR
     if (!gSharedV8) {
         gSharedV8 = new ScriptEngineV8Context();
     }
-#endif
+    #endif
 }
 
 ScriptEngine::~ScriptEngine() = default;
@@ -508,7 +518,7 @@ bool ScriptEngine::postInit() {
     _isolate->SetOOMErrorHandler(onOOMErrorCallback);
     _isolate->AddMessageListener(onMessageCallback);
     _isolate->SetPromiseRejectCallback(onPromiseRejectCallback);
-    
+
     NativePtrToObjectMap::init();
     Object::setup();
     Class::setIsolate(_isolate);
@@ -576,9 +586,9 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
         hook();
     }
     _beforeInitHookArray.clear();
-    
+
     if (isolate != nullptr) {
-        _isolate = isolate;
+        _isolate                       = isolate;
         v8::Local<v8::Context> context = _isolate->GetCurrentContext();
         _context.Reset(_isolate, context);
         _context.Get(isolate)->Enter();
@@ -590,7 +600,7 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
         _context.Reset(_isolate, v8::Context::New(_isolate));
         _context.Get(_isolate)->Enter();
     }
- 
+
     return postInit();
 }
 
@@ -698,8 +708,8 @@ void ScriptEngine::addPermanentRegisterCallback(RegisterCallback cb) {
 
 bool ScriptEngine::callRegisteredCallback() {
     se::AutoHandleScope hs;
-    bool ok    = false;
-    _startTime = std::chrono::steady_clock::now();
+    bool                ok = false;
+    _startTime             = std::chrono::steady_clock::now();
 
     for (auto cb : _permRegisterCallbackArray) {
         ok = cb(_globalObj);
@@ -758,7 +768,7 @@ bool ScriptEngine::start(v8::Isolate *isolate) {
 void ScriptEngine::garbageCollect() {
     int objSize = __objectMap ? static_cast<int>(__objectMap->size()) : -1;
     SE_LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), objSize);
-    _gcFunc->call({}, nullptr);    
+    _gcFunc->call({}, nullptr);
     objSize = __objectMap ? static_cast<int>(__objectMap->size()) : -1;
     SE_LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), objSize);
 }

@@ -26,7 +26,7 @@
 import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 
 export class EmptyPipelineState extends PipelineState {
-    public initialize (info: PipelineStateInfo) {
+    public initialize (info: Readonly<PipelineStateInfo>) {
         this._primitive = info.primitive;
         this._shader = info.shader;
         this._pipelineLayout = info.pipelineLayout;

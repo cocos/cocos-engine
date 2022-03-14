@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
@@ -274,6 +274,7 @@ export class RichText extends Component {
      * 是否使用系统字体。
      */
     @tooltip('i18n:richtext.use_system_font')
+    @displayOrder(11)
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
@@ -1120,3 +1121,5 @@ export class RichText extends Component {
         label.isUnderline = false;
     }
 }
+
+legacyCC.RichText = RichText;

@@ -29,7 +29,10 @@ extern se::Class * __jsb_cc_render_PipelineRuntime_class; // NOLINT
 
 bool js_register_cc_render_PipelineRuntime(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_render_PipelineRuntime_activate);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_destroy);
 SE_DECLARE_FUNC(js_render_PipelineRuntime_onGlobalPipelineStateChanged);
+SE_DECLARE_FUNC(js_render_PipelineRuntime_render);
 
 extern se::Object *__jsb_cc_render_DescriptorHierarchy_proto; // NOLINT
 extern se::Class * __jsb_cc_render_DescriptorHierarchy_class; // NOLINT
@@ -109,10 +112,11 @@ extern se::Class * __jsb_cc_render_SceneVisitor_class; // NOLINT
 
 bool js_register_cc_render_SceneVisitor(se::Object *obj); // NOLINT
 
-SE_DECLARE_FUNC(js_render_SceneVisitor_bindDescriptorSet);
 SE_DECLARE_FUNC(js_render_SceneVisitor_bindInputAssembler);
 SE_DECLARE_FUNC(js_render_SceneVisitor_bindPipelineState);
 SE_DECLARE_FUNC(js_render_SceneVisitor_draw);
+SE_DECLARE_FUNC(js_render_SceneVisitor_setScissor);
+SE_DECLARE_FUNC(js_render_SceneVisitor_setViewport);
 
 extern se::Object *__jsb_cc_render_SceneTask_proto; // NOLINT
 extern se::Class * __jsb_cc_render_SceneTask_class; // NOLINT
@@ -121,6 +125,7 @@ bool js_register_cc_render_SceneTask(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_render_SceneTask_join);
 SE_DECLARE_FUNC(js_render_SceneTask_start);
+SE_DECLARE_FUNC(js_render_SceneTask_submit);
 
 extern se::Object *__jsb_cc_render_SceneTransversal_proto; // NOLINT
 extern se::Class * __jsb_cc_render_SceneTransversal_class; // NOLINT
@@ -153,4 +158,4 @@ bool js_register_cc_render_Factory(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_render_Factory_createDescriptorHierarchy);
 SE_DECLARE_FUNC(js_render_Factory_createPipeline);
-    // clang-format on
+// clang-format on

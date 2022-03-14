@@ -24,14 +24,13 @@
 ****************************************************************************/
 
 /* eslint-disable max-len */
-import { Camera } from '../../renderer/scene/camera';
-import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
+import { Buffer, DescriptorSetLayout, Device, Format, Sampler, Swapchain, Texture } from '../../gfx/index';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskType } from './types';
 import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { RenderScene } from '../../renderer/scene';
+import { Model, RenderScene, Camera } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { RenderDependencyGraph } from './render-dependency-graph';
@@ -39,7 +38,9 @@ import { DeviceResourceGraph } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { assert } from '../../platform';
-import { Web3DSceneTransversal } from './web-scene';
+import { WebSceneTransversal } from './web-scene';
+import { MacroRecord } from '../../renderer';
+import { GlobalDSManager } from '../global-descriptor-set-manager';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -305,6 +306,44 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline extends Pipeline {
+    public activate (swapchain: Swapchain): boolean {
+        this._device = legacyCC.director.root.device;
+        this._globalDSManager = new GlobalDSManager(this._device);
+        return true;
+    }
+    public destroy (): boolean {
+        return true;
+    }
+    public get macros (): MacroRecord {
+        return this._macros;
+    }
+    public get globalDSManager (): GlobalDSManager {
+        return this._globalDSManager;
+    }
+    public get descriptorSetLayout (): DescriptorSetLayout {
+        return this._globalDSManager.descriptorSetLayout;
+    }
+    public get pipelineSceneData (): PipelineSceneData {
+        return this._pipelineSceneData;
+    }
+    public get constantMacros (): string {
+        return this._constantMacros;
+    }
+    public get profiler (): Model | null {
+        return this._profiler;
+    }
+    public set profiler (profiler: Model | null) {
+        this._profiler = profiler;
+    }
+    public get shadingScale (): number {
+        return this._pipelineSceneData.shadingScale;
+    }
+    public set shadingScale (scale: number) {
+        this._pipelineSceneData.shadingScale = scale;
+    }
+    public onGlobalPipelineStateChanged (): void {
+        // do nothing
+    }
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
@@ -371,13 +410,11 @@ export class WebPipeline extends Pipeline {
             new ResourceStates(),
         );
     }
-    beginFrame (pplScene: PipelineSceneData) {
+    beginFrame () {
         this._renderGraph = new RenderGraph();
-        this._pipelineSceneData = pplScene;
     }
     endFrame () {
         this._renderGraph = null;
-        this._pipelineSceneData = null;
     }
 
     build () {
@@ -402,7 +439,7 @@ export class WebPipeline extends Pipeline {
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Raster>(
             RenderGraphValue.Raster, pass, name, layoutName, data,
         );
-        const result = new WebRasterPassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData!);
+        const result = new WebRasterPassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height);
         return result;
     }
@@ -412,7 +449,7 @@ export class WebPipeline extends Pipeline {
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Compute>(
             RenderGraphValue.Compute, pass, name, layoutName, new RenderData(),
         );
-        return new WebComputePassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData!);
+        return new WebComputePassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData);
     }
     addMovePass (name = 'Move'): MovePassBuilder {
         const pass = new MovePass();
@@ -428,11 +465,14 @@ export class WebPipeline extends Pipeline {
         const pass = new PresentPass(swapchainName);
         this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, name, '', new RenderData());
     }
-    createSceneTransversal (scene: RenderScene): SceneTransversal {
-        return new Web3DSceneTransversal(scene);
+    createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
+        return new WebSceneTransversal(camera);
     }
     get renderGraph () {
         return this._renderGraph;
+    }
+    get resourceGraph () {
+        return this._resourceGraph;
     }
     protected _updateRasterPassConstants (pass: Setter, width: number, height: number) {
         const shadingWidth = width;
@@ -445,9 +485,16 @@ export class WebPipeline extends Pipeline {
         pass.setVec4('cc_nativeSize',
             new Vec4(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight));
     }
+
+    private _device!: Device;
+    private _globalDSManager!: GlobalDSManager;
+    private readonly _macros: MacroRecord = {};
+    private readonly _pipelineSceneData: PipelineSceneData = new PipelineSceneData();
+    private _constantMacros = '';
+    private _profiler: Model | null = null;
+
     private readonly _layoutGraph: LayoutGraphData = new LayoutGraphData();
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
     private _renderGraph: RenderGraph | null = null;
-    private _pipelineSceneData: PipelineSceneData | null = null;
     private _renderDependencyGraph: RenderDependencyGraph | null = null;
 }

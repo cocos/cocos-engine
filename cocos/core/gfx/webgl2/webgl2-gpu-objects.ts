@@ -30,6 +30,7 @@ import {
     ColorAttachment, DepthStencilAttachment, UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
 } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
+import { WebGL2Device } from './webgl2-device';
 
 export class WebGL2IndirectDrawInfos {
     public counts: Int32Array;
@@ -57,7 +58,7 @@ export class WebGL2IndirectDrawInfos {
         this.instancedDraw = false;
     }
 
-    public setDrawInfo (idx: number, info: DrawInfo) {
+    public setDrawInfo (idx: number, info: Readonly<DrawInfo>) {
         this._ensureCapacity(idx);
         this.drawByIndex = info.indexCount > 0;
         this.instancedDraw = !!info.instanceCount;
@@ -150,6 +151,14 @@ export interface IWebGL2GPUTexture {
     isSwapchainTexture: boolean;
 }
 
+export interface IWebGL2GPUTextureView {
+    gpuTexture: IWebGL2GPUTexture;
+    type: TextureType;
+    format: Format;
+    baseLevel: number;
+    levelCount: number;
+}
+
 export interface IWebGL2GPURenderPass {
     colorAttachments: ColorAttachment[];
     depthStencilAttachment: DepthStencilAttachment | null;
@@ -157,8 +166,8 @@ export interface IWebGL2GPURenderPass {
 
 export interface IWebGL2GPUFramebuffer {
     gpuRenderPass: IWebGL2GPURenderPass;
-    gpuColorTextures: IWebGL2GPUTexture[];
-    gpuDepthStencilTexture: IWebGL2GPUTexture | null;
+    gpuColorViews: IWebGL2GPUTextureView[];
+    gpuDepthStencilView: IWebGL2GPUTextureView | null;
     glFramebuffer: WebGLFramebuffer | null;
     isOffscreen: boolean;
     width: number;
@@ -166,7 +175,8 @@ export interface IWebGL2GPUFramebuffer {
 }
 
 export interface IWebGL2GPUSampler {
-    glSampler: WebGLSampler | null;
+    glSamplers: Map<number, WebGLSampler>;
+
     minFilter: Filter;
     magFilter: Filter;
     mipFilter: Filter;
@@ -179,6 +189,8 @@ export interface IWebGL2GPUSampler {
     glWrapS: GLenum;
     glWrapT: GLenum;
     glWrapR: GLenum;
+
+    getGLSampler (device: WebGL2Device, minLod: number, maxLod: number) : WebGLSampler;
 }
 
 export interface IWebGL2GPUInput {
@@ -277,7 +289,7 @@ export interface IWebGL2GPUPipelineState {
 export interface IWebGL2GPUDescriptor {
     type: DescriptorType;
     gpuBuffer: IWebGL2GPUBuffer | null;
-    gpuTexture: IWebGL2GPUTexture | null;
+    gpuTextureView: IWebGL2GPUTextureView | null;
     gpuSampler: IWebGL2GPUSampler | null;
 }
 

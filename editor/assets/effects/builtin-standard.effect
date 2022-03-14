@@ -103,6 +103,10 @@ CCProgram standard-vs %{
   out vec2 v_uv;
   out vec2 v_uv1;
 
+  #if CC_RECEIVE_SHADOW
+    out vec2 v_shadowBias;
+  #endif
+
   #if USE_NORMAL_MAP
     out vec3 v_tangent;
     out vec3 v_bitangent;
@@ -127,6 +131,10 @@ CCProgram standard-vs %{
 
     v_position = pos.xyz;
     v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+
+    #if CC_RECEIVE_SHADOW
+      v_shadowBias = CCGetShadowBias();
+    #endif
 
     #if USE_TWOSIDE
       vec3 viewDirect = normalize(cc_cameraPos.xyz - v_position);
@@ -179,21 +187,25 @@ CCProgram standard-fs %{
   in vec2 v_uv1;
   in vec3 v_normal;
 
+  #if CC_RECEIVE_SHADOW
+    in vec2 v_shadowBias;
+  #endif
+
   #if USE_VERTEX_COLOR
     in vec4 v_color;
   #endif
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
-    #pragma define ALBEDO_UV options([v_uv, v_uv1])
+    #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
   #if USE_NORMAL_MAP
     in vec3 v_tangent;
     in vec3 v_bitangent;
     uniform sampler2D normalMap;
-    #pragma define NORMAL_UV options([v_uv, v_uv1])
+    #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
   #endif
-  #pragma define PBR_UV options([v_uv, v_uv1])
+  #pragma define-meta PBR_UV options([v_uv, v_uv1])
   #if USE_PBR_MAP
     uniform sampler2D pbrMap;
   #endif
@@ -205,16 +217,16 @@ CCProgram standard-fs %{
   #endif
   #if USE_EMISSIVE_MAP
     uniform sampler2D emissiveMap;
-    #pragma define EMISSIVE_UV options([v_uv, v_uv1])
+    #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
   #endif
 
-  #define OCCLUSION_CHANNEL          r
-  #define ROUGHNESS_CHANNEL          g
-  #define METALLIC_CHANNEL           b
-  #define SPECULAR_INTENSITY_CHANNEL a
+  #pragma define OCCLUSION_CHANNEL          r
+  #pragma define ROUGHNESS_CHANNEL          g
+  #pragma define METALLIC_CHANNEL           b
+  #pragma define SPECULAR_INTENSITY_CHANNEL a
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
   #endif
 
   void surf (out StandardSurface s) {
@@ -242,6 +254,11 @@ CCProgram standard-fs %{
     #endif
 
     s.normal = v_normal;
+
+    #if CC_RECEIVE_SHADOW
+      s.shadowBias = v_shadowBias;
+    #endif
+
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
       s.normal =
@@ -332,11 +349,11 @@ CCProgram shadow-caster-fs %{
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
-    #pragma define ALBEDO_UV options([v_uv, v_uv1])
+    #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
   #endif
 
   vec4 frag () {

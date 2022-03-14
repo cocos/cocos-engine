@@ -31,7 +31,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Sampler, Texture } from '../../gfx';
+import { Buffer, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
@@ -41,20 +41,22 @@ import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { Model } from '../../renderer/scene';
-import { PipelineEventType } from '../pipeline-event';
 
 export abstract class PipelineRuntime {
-    public abstract get macros(): MacroRecord;
+    public abstract activate(swapchain: Swapchain): boolean;
+    public abstract destroy(): boolean;
+    public abstract render(cameras: Camera[]): void;
     public abstract get globalDSManager(): GlobalDSManager;
     public abstract get descriptorSetLayout(): DescriptorSetLayout;
     public abstract get pipelineSceneData(): PipelineSceneData;
     public abstract get constantMacros(): string;
     public abstract get profiler(): Model | null;
     public abstract set profiler(profiler: Model | null);
+    public abstract get shadingScale(): number;
+    public abstract set shadingScale(scale: number);
     public abstract onGlobalPipelineStateChanged(): void;
 
-    public abstract on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback;
-    public abstract off (type: PipelineEventType, callback?: any, target?: any): void;
+    public abstract get macros(): MacroRecord;
 }
 
 export abstract class DescriptorHierarchy {
@@ -119,11 +121,13 @@ export abstract class CopyPassBuilder {
 }
 
 export abstract class SceneVisitor {
+    public abstract setViewport(vp: Viewport): void;
+    public abstract setScissor(rect: Rect): void;
     public abstract bindPipelineState(pso: PipelineState): void;
-    public abstract bindDescriptorSet(set: number, descriptorSet: DescriptorSet, dynamicOffsetCount: number, dynamicOffsets: number): void;
     public abstract bindInputAssembler(ia: InputAssembler): void;
     public abstract draw(info: DrawInfo): void;
 
+    public abstract bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
     public abstract updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
 }
 
@@ -131,17 +135,18 @@ export abstract class SceneTask {
     public abstract get taskType(): TaskType;
     public abstract start(): void;
     public abstract join(): void;
+    public abstract submit(): void;
 }
 
 export abstract class SceneTransversal {
     public abstract transverse(visitor: SceneVisitor): SceneTask;
 }
 
-export abstract class Pipeline {
+export abstract class Pipeline extends PipelineRuntime {
     public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     public abstract addDepthStencil(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
-    public abstract beginFrame(pplScene: PipelineSceneData): void;
+    public abstract beginFrame(): void;
     public abstract endFrame(): void;
     public abstract addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
     public abstract addRasterPass(width: number, height: number, layoutName: string): RasterPassBuilder;
@@ -150,7 +155,7 @@ export abstract class Pipeline {
     public abstract addMovePass(name: string): MovePassBuilder;
     public abstract addCopyPass(name: string): CopyPassBuilder;
     public abstract addPresentPass(name: string, swapchainName: string): void;
-    public abstract createSceneTransversal(scene: RenderScene): SceneTransversal;
+    public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
 }
 
 export class Factory {

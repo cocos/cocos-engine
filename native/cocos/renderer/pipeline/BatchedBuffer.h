@@ -54,7 +54,7 @@ struct CC_DLL BatchedItem {
 using BatchedItemList   = vector<BatchedItem>;
 using DynamicOffsetList = vector<uint>;
 
-class CC_DLL BatchedBuffer : public Object, public RefCounted {
+class CC_DLL BatchedBuffer : public RefCounted {
 public:
     static BatchedBuffer *get(scene::Pass *pass);
     static BatchedBuffer *get(scene::Pass *pass, uint extraKey);

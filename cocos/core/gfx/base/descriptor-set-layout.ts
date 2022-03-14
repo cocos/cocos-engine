@@ -55,7 +55,7 @@ export abstract class DescriptorSetLayout extends GFXObject {
         super(ObjectType.DESCRIPTOR_SET_LAYOUT);
     }
 
-    public abstract initialize (info: DescriptorSetLayoutInfo): void;
+    public abstract initialize (info: Readonly<DescriptorSetLayoutInfo>): void;
 
     public abstract destroy (): void;
 }

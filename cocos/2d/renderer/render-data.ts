@@ -52,6 +52,17 @@ export interface IRenderData {
 
 const DEFAULT_STRIDE = getAttributeStride(vfmtPosUvColor) >> 2;
 
+const _dataPool = new Pool(() => ({
+    x: 0,
+    y: 0,
+    z: 0,
+    u: 0,
+    v: 0,
+    color: Color.WHITE.clone(),
+}), 128);
+
+let _pool: RecyclePool<RenderData> = null!;
+
 export class BaseRenderData {
     public material: Material | null = null;
     get vertexCount () {
@@ -90,27 +101,21 @@ export class BaseRenderData {
     public isValid () {
         return this._ic > 0 && this.chunk.vertexAccessor;
     }
-
-    public resize (vertexCount: number, indexCount: number) {
-        if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
-        this._vc = vertexCount;
-        this._ic = indexCount;
-        const batcher = director.root!.batcher2D;
-        this.vertexAccessor = batcher.switchBufferAccessor(this._vertexFormat);
-        if (this.chunk) {
-            this.vertexAccessor.recycleChunk(this.chunk);
-            this.chunk = null!;
-        }
-        // renderData always have chunk
-        this.chunk = this.vertexAccessor.allocateChunk(vertexCount, indexCount)!;
-    }
 }
 
 export class RenderData extends BaseRenderData {
-    public static add (vertexFormat = vfmtPosUvColor) {
+    public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
+        if (!_pool) {
+            _pool = new RecyclePool(() => new RenderData(), 32);
+        }
         const rd = _pool.add();
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
         rd._vertexFormat = vertexFormat;
+        if (!accessor) {
+            const batcher = director.root!.batcher2D;
+            accessor = batcher.switchBufferAccessor(rd._vertexFormat);
+        }
+        rd._accessor = accessor;
         return rd;
     }
 
@@ -120,7 +125,8 @@ export class RenderData extends BaseRenderData {
             return;
         }
 
-        _pool.data[idx].clear();
+        data.clear();
+        data._accessor = null!;
         _pool.removeAt(idx);
     }
 
@@ -150,14 +156,8 @@ export class RenderData extends BaseRenderData {
         return this._data;
     }
 
+    public indices: Uint16Array | null = null;
     public vertDirty = true;
-
-    private _data: IRenderData[] = [];
-    private _indices: number[] = [];
-    private _pivotX = 0;
-    private _pivotY = 0;
-    private _width = 0;
-    private _height = 0;
 
     public frame;
     public layer = 0;
@@ -169,9 +169,56 @@ export class RenderData extends BaseRenderData {
     public textureDirty = true;
     public hashDirty = true;
 
+    private _data: IRenderData[] = [];
+    private _pivotX = 0;
+    private _pivotY = 0;
+    private _width = 0;
+    private _height = 0;
+    protected _accessor: StaticVBAccessor = null!;
+
+    public constructor (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
+        super(vertexFormat);
+        if (!accessor) {
+            const batcher = director.root!.batcher2D;
+            accessor = batcher.switchBufferAccessor(this._vertexFormat);
+        }
+        this._accessor = accessor;
+    }
+
     public resize (vertexCount: number, indexCount: number) {
-        super.resize(vertexCount, indexCount);
+        if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
+        this._vc = vertexCount;
+        this._ic = indexCount;
+        if (this.chunk) {
+            this._accessor.recycleChunk(this.chunk);
+            this.chunk = null!;
+        }
+        // renderData always have chunk
+        this.chunk = this._accessor.allocateChunk(vertexCount, indexCount)!;
         this.updateHash();
+    }
+
+    public resizeAndCopy (vertexCount: number, indexCount: number) {
+        if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
+        this._vc = vertexCount;
+        this._ic = indexCount;
+        const oldChunk = this.chunk;
+        // renderData always have chunk
+        this.chunk = this._accessor.allocateChunk(vertexCount, indexCount)!;
+        // Copy old chunk data
+        if (oldChunk) {
+            this.chunk.vb.set(oldChunk.vb);
+            this._accessor.recycleChunk(oldChunk);
+        }
+        this.updateHash();
+    }
+
+    public getMeshBuffer () {
+        if (this.chunk && this._accessor) {
+            return this._accessor.getMeshBuffer(this.chunk.bufferId);
+        } else {
+            return null;
+        }
     }
 
     public updateNode (comp: Renderable2D) {
@@ -244,11 +291,11 @@ export class RenderData extends BaseRenderData {
     public clear () {
         this.resize(0, 0);
         this._data.length = 0;
-        this._indices.length = 0;
         this._pivotX = 0;
         this._pivotY = 0;
         this._width = 0;
         this._height = 0;
+        this.indices = null;
         this.vertDirty = true;
         this.material = null;
 
@@ -262,7 +309,6 @@ export class RenderData extends BaseRenderData {
         this.frame = null;
         this.textureHash = 0;
         this.dataHash = 0;
-        this._vertexFormat = vfmtPosUvColor;
     }
 }
 
@@ -340,6 +386,8 @@ export class MeshRenderData extends BaseRenderData {
         this._vc += vertexCount; // vertexOffset
         this._ic += indexCount; // indicesOffset
         this._byteLength = byteOffset; // byteOffset
+        this.vertexRange = this._vc;
+        this.indexRange = this._ic;
         return true;
     }
 
@@ -393,7 +441,7 @@ export class MeshRenderData extends BaseRenderData {
         this._initIAInfo(device);
         const ia = this._iaPool!.add();
         ia.firstIndex = this.indexStart;
-        ia.indexCount = this.indexCount;
+        ia.indexCount = this.indexRange;
         return ia;
     }
 
@@ -493,38 +541,5 @@ export class MeshRenderData extends BaseRenderData {
         }
     }
 }
-
-export class QuadRenderData extends MeshRenderData {
-    private _fillQuadBuffer () {
-        const count = this.iData.length / 6;
-        const buffer = this.iData;
-        for (let i = 0, idx = 0; i < count; i++) {
-            const vId = i * 4;
-            buffer[idx++] = vId;
-            buffer[idx++] = vId + 1;
-            buffer[idx++] = vId + 2;
-            buffer[idx++] = vId + 1;
-            buffer[idx++] = vId + 3;
-            buffer[idx++] = vId + 2;
-        }
-    }
-
-    protected _reallocBuffer (vCount, iCount) {
-        // copy old data
-        super._reallocBuffer(vCount, iCount);
-        this._fillQuadBuffer();
-    }
-}
-
-const _dataPool = new Pool(() => ({
-    x: 0,
-    y: 0,
-    z: 0,
-    u: 0,
-    v: 0,
-    color: Color.WHITE.clone(),
-}), 128);
-
-const _pool = new RecyclePool(() => new RenderData(), 32);
 
 const _meshDataPool: RecyclePool<MeshRenderData> = new RecyclePool(() => new MeshRenderData(), 32);

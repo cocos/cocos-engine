@@ -201,6 +201,9 @@ export const MotionStreakAssembler: IAssembler = {
     updateRenderData (comp: MotionStreak) {
     },
 
+    updateColor (comp: MotionStreak) {
+    },
+
     fillBuffers (comp: MotionStreak, renderer: IBatcher) {
         const renderData = comp.renderData!;
         const chunk = renderData.chunk;
