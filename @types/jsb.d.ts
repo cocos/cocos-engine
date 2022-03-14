@@ -649,4 +649,121 @@ declare namespace jsb {
          */
         export function getWritablePath ():string;
     }
+
+    /**
+     * ZipUtils  Helper class to handle unzip related operations.
+     */
+    export namespace zipUtils{
+        /**
+         * Inflates either zlib or gzip deflated memory. The inflated memory is expected to be freed by the caller.
+         *
+         * It will allocate 256k for the destination buffer.
+         * If it is not enough it will multiply the previous buffer size per 2, until there is enough memory.
+         *
+         * @param outLengthHint It is assumed to be the needed room to allocate the inflated buffer, which is optional.
+         *
+         *
+         * @return The deflated buffer.
+         */
+        export function inflateMemory(input:string | ArrayBuffer | TypedArray, outLengthHint?: number): ArrayBuffer | null;
+
+        /**
+         * Inflates a GZip file into memory.
+         *
+         * @return The deflated buffer.
+         */
+        export function inflateGZipFile(path:string): ArrayBuffer | null;
+
+        /**
+         * Test a file is a GZip format file or not.
+         *
+         * @return True is a GZip format file. false is not.
+         */
+        export function isGZipFile(path:string): boolean;
+
+        /**
+         * Test the buffer is GZip format or not.
+         *
+         * @return True is GZip format. false is not.
+         */
+        export function isGZipBuffer(buffer:string | ArrayBuffer | TypedArray): boolean;
+
+        /**
+         * Inflates a CCZ file into memory.
+         *
+         * @return The deflated buffer.
+         */
+        export function inflateCCZFile(path:string): ArrayBuffer | null;
+
+        /**
+         * Inflates a buffer with CCZ format into memory.
+         *
+         * @return The deflated buffer.
+         */
+        export function inflateCCZBuffer(buffer:string | ArrayBuffer | TypedArray): ArrayBuffer | null;
+
+        /**
+         * Test a file is a CCZ format file or not.
+         *
+         * @return True is a CCZ format file. false is not.
+         */
+        export function isCCZFile(path:string): boolean;
+
+        /**
+         * Test the buffer is CCZ format or not.
+         *
+         * @return True is CCZ format. false is not.
+         */
+        export function isCCZBuffer(buffer:string | ArrayBuffer | TypedArray): boolean;
+
+        /**
+         * Sets the pvr.ccz encryption key parts separately for added security.
+         *
+         * Example: If the key used to encrypt the pvr.ccz file is
+         * 0xaaaaaaaabbbbbbbbccccccccdddddddd you will call this function 4
+         * different times, preferably from 4 different source files, as follows
+         *
+         * setPvrEncryptionKeyPart(0, 0xaaaaaaaa);
+         * setPvrEncryptionKeyPart(1, 0xbbbbbbbb);
+         * setPvrEncryptionKeyPart(2, 0xcccccccc);
+         * setPvrEncryptionKeyPart(3, 0xdddddddd);
+         *
+         * Splitting the key into 4 parts and calling the function from 4 different source
+         * files increases the difficulty to reverse engineer the encryption key.
+         * Be aware that encryption is *never* 100% secure and the key code
+         * can be cracked by knowledgable persons.
+         *
+         * IMPORTANT: Be sure to call setPvrEncryptionKey or
+         * setPvrEncryptionKeyPart with all of the key parts *before* loading
+         * the sprite sheet or decryption will fail and the sprite sheet
+         * will fail to load.
+         *
+         * @param index Part of the key [0..3].
+         * @param value Value of the key part.
+         */
+        export function setPvrEncryptionKeyPart(index:number, value:number): void;
+
+        /**
+         * Sets the pvr.ccz encryption key.
+         *
+         * Example: If the key used to encrypt the pvr.ccz file is
+         * 0xaaaaaaaabbbbbbbbccccccccdddddddd you will call this function with
+         * the key split into 4 parts as follows
+         *
+         * setPvrEncryptionKey(0xaaaaaaaa, 0xbbbbbbbb, 0xcccccccc, 0xdddddddd);
+         *
+         * Note that using this function makes it easier to reverse engineer and discover
+         * the complete key because the key parts are present in one function call.
+         *
+         * IMPORTANT: Be sure to call setPvrEncryptionKey or setPvrEncryptionKeyPart
+         * with all of the key parts *before* loading the spritesheet or decryption
+         * will fail and the sprite sheet will fail to load.
+         *
+         * @param keyPart1 The key value part 1.
+         * @param keyPart2 The key value part 2.
+         * @param keyPart3 The key value part 3.
+         * @param keyPart4 The key value part 4.
+         */
+        export function setPvrEncryptionKey(keyPart1:number, keyPart2:number, keyPart3:number, keyPart4:number): void;
+    }
 }
