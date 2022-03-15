@@ -522,6 +522,7 @@ export class ArmatureDisplay extends Renderable2D {
         this.initFactory();
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
+        this._useVertexOpacity = true;
     }
 
     initFactory () {

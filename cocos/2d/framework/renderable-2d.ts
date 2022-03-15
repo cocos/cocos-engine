@@ -239,6 +239,15 @@ export class Renderable2D extends RenderableComponent {
         return this._blendHash;
     }
 
+    /**
+     * @en Marks for calculating opacity per vertex
+     * @zh 标记组件是否逐顶点计算透明度
+     */
+    protected _useVertexOpacity = false;
+    get useVertexOpacity () {
+        return this._useVertexOpacity;
+    }
+
     public updateBlendHash () {
         const dst = this._blendState.targets[0].blendDst << 4;
         this._blendHash = dst | this._blendState.targets[0].blendSrc;

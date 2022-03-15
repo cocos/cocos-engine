@@ -21,7 +21,6 @@ import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
-import { RenderData } from '../2d';
 
 export const timeScale = 1.0;
 
@@ -614,7 +613,6 @@ export class Skeleton extends Renderable2D {
         this._skeleton = null;
         this._rootBone = null;
         this._listener = null;
-        // this._materialCache = {};
         this._debugRenderer = null;
         this._startSlotIndex = -1;
         this._endSlotIndex = -1;
@@ -623,6 +621,7 @@ export class Skeleton extends Renderable2D {
         this.attachUtil = new AttachUtil();
         setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
+        this._useVertexOpacity = true;
     }
 
     /**
