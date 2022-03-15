@@ -818,10 +818,9 @@ export class RichText extends Component {
 
         // set vertical alignments
         // because horizontal alignment is applied with line offsets in method "_updateRichTextPosition"
-        if (labelSegment.comp instanceof Label) {
-            if (labelSegment.comp.verticalAlign !== this._verticalAlign) {
-                labelSegment.comp.verticalAlign = this._verticalAlign;
-            }
+        const labelComp: Label = labelSegment.comp as Label;
+        if (labelComp.verticalAlign !== this._verticalAlign) {
+            labelComp.verticalAlign = this._verticalAlign;
         }
 
         labelSegment.styleIndex = styleIndex;
