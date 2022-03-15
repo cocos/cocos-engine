@@ -213,10 +213,18 @@ export class RenderingSubMesh {
      */
     public invalidateGeometricInfo () { this._geometricInfo = undefined; }
 
+    /**
+     * @en set the draw range
+     * @zh 设置渲染范围
+     */
     set drawInfo (info: DrawInfo | null | undefined) {
         this._drawInfo = info;
     }
 
+    /**
+     * @en get the draw range
+     * @zh 获取渲染范围
+     */
     get drawInfo (): DrawInfo | null | undefined {
         return this._drawInfo;
     }

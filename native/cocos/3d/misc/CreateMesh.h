@@ -67,12 +67,24 @@ Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOpt
 Mesh *            createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out = nullptr, const ICreateDynamicMeshOptions &options = {});
 Mesh::ICreateInfo createDynamicMeshInfo(const IDynamicGeometry &geometry, const ICreateDynamicMeshOptions &options = {});
 
+/**
+ * @en mesh utility class, use to create mesh.
+ * @zh 网格工具类，用于创建网格。
+ */
 class MeshUtils {
 public:
+    /**
+     * @en create a static mesh.
+     * @zh 创建一个静态网格。
+     */
     static Mesh *createMesh(const IGeometry &geometry, Mesh *out = nullptr, const ICreateMeshOptions &options = {}) {
         return cc::createMesh(geometry, out, options);
     }
 
+    /**
+     * @en create a dynamic mesh.
+     * @zh 创建一个动态网格。
+     */
     static Mesh *createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out = nullptr, const ICreateDynamicMeshOptions &options = {}) {
         return cc::createDynamicMesh(primitiveIndex, geometry, out, options);
     }

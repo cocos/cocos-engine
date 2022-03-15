@@ -218,12 +218,13 @@ const Mesh::JointBufferIndicesType &Mesh::getJointBufferIndices() {
 }
 
 void Mesh::initialize() {
-    if (_struct.dynamic.has_value()) {
-        if (_initialized) {
-            return;
-        }
+    if (_initialized) {
+        return;
+    }
 
-        _initialized           = true;
+    _initialized = true;
+
+    if (_struct.dynamic.has_value()) {
         auto *          device = gfx::Device::getInstance();
         gfx::BufferList vertexBuffers;
 
@@ -269,14 +270,10 @@ void Mesh::initialize() {
             _renderingSubMeshes.emplace_back(subMesh);
         }
     } else {
-        if (_initialized) {
-            return;
-        }
         if (!_data.buffer()) {
             return;
         }
 
-        _initialized                                              = true;
         auto &                                      buffer        = _data;
         gfx::Device *                               gfxDevice     = gfx::Device::getInstance();
         auto                                        vertexBuffers = createVertexBuffers(gfxDevice, buffer.buffer());

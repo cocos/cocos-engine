@@ -336,12 +336,13 @@ export class Mesh extends Asset {
     }
 
     public initialize () {
+        if (this._initialized) {
+            return;
+        }
+
+        this._initialized = true;
+
         if (this._struct.dynamic) {
-            if (this._initialized) {
-                return;
-            }
-    
-            this._initialized = true;
             const device: Device = legacyCC.director.root.device;
             const vertexBuffers: Buffer[] = [];
             const subMeshes: RenderingSubMesh[] = [];
@@ -373,12 +374,14 @@ export class Mesh extends Asset {
                 }
     
                 const subVBs: Buffer[] = [];
-                for (const idx of primitive.vertexBundelIndices) {
+                for (let k = 0; k < primitive.vertexBundelIndices.length; k++) {
+                    const idx = primitive.vertexBundelIndices[k];
                     subVBs.push(vertexBuffers[idx]);
                 }
     
                 const attributes: Attribute[] = [];
-                for (const idx of primitive.vertexBundelIndices) {
+                for (let k = 0; k < primitive.vertexBundelIndices.length; k++) {
+                    const idx = primitive.vertexBundelIndices[k];
                     const vertexBundle = this._struct.vertexBundles[idx];
                     for (const attr of vertexBundle.attributes) {
                         const attribute = new Attribute();
@@ -397,11 +400,6 @@ export class Mesh extends Asset {
     
             this._renderingSubMeshes = subMeshes;
         } else {
-            if (this._initialized) {
-                return;
-            }
-    
-            this._initialized = true;
             const { buffer } = this._data;
             const gfxDevice: Device = legacyCC.director.root.device;
             const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
@@ -482,10 +480,12 @@ export class Mesh extends Asset {
      */
     public updateSubMesh (primitiveIndex: number, geometry: IDynamicGeometry) {
         if (!this._struct.dynamic) {
+            warnID(14200);
             return;
         }
 
         if (primitiveIndex >= this._struct.primitives.length) {
+            warnID(14201);
             return;
         }
 
@@ -511,8 +511,8 @@ export class Mesh extends Asset {
         }
 
         if (geometry.customAttributes) {
-            for (const ca of geometry.customAttributes) {
-                buffers.push(ca.values);
+            for (let k = 0; k < geometry.customAttributes.length; k++) {
+                buffers.push(geometry.customAttributes[k].values);
             }
         }
 

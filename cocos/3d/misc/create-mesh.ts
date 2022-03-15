@@ -161,7 +161,8 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
     }
 
     if (geometry.customAttributes) {
-        for (const ca of geometry.customAttributes) {
+        for (let k = 0; k < geometry.customAttributes.length; k++) {
+            const ca = geometry.customAttributes[k];
             const info = FormatInfos[ca.attr.format];
             attributes.push(ca.attr);
             vertCount = Math.max(vertCount, Math.floor(ca.values.length / info.count));
@@ -300,7 +301,8 @@ export function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeo
     }
 
     if (geometry.customAttributes) {
-        for (const ca of geometry.customAttributes) {
+        for (let k = 0; k < geometry.customAttributes.length; k++) {
+            const ca = geometry.customAttributes[k];
             const attr = new Attribute();
             attr.copy(ca.attr);
             attr.stream = stream++;
@@ -401,11 +403,23 @@ export function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeo
     return out;
 }
 
+/**
+ * @en mesh utility class, use to create mesh.
+ * @zh 网格工具类，用于创建网格。
+ */
 export class MeshUtils {
+    /**
+     * @en create a static mesh.
+     * @zh 创建一个静态网格。
+     */
     static createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
         return createMesh(geometry, out, options);
     }
 
+    /**
+     * @en create a dynamic mesh.
+     * @zh 创建一个动态网格。
+     */
     static createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
         return createDynamicMesh(primitiveIndex, geometry, out, options);
     }

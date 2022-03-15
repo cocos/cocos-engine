@@ -259,7 +259,7 @@ void Skybox::activate() {
             options.width  = 2;
             options.height = 2;
             options.length = 2;
-            skyboxMesh     = createMesh(
+            skyboxMesh     = MeshUtils::createMesh(
                 createGeometry(
                     PrimitiveType::BOX,
                     PrimitiveOptions{options}));
