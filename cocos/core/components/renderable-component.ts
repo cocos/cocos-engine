@@ -82,6 +82,7 @@ export class RenderableComponent extends Component {
         }
     }
 
+    // _materials should be defined after sharedMaterials for Editor reset component reason
     @type([Material])
     protected _materials: (Material | null)[] = [];
 
