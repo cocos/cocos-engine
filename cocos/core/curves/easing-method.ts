@@ -1,4 +1,4 @@
-import * as easing from '../animation/easing';
+import * as easing from '../easing/easing';
 import { assertIsTrue } from '../data/utils/asserts';
 
 export enum EasingMethod {

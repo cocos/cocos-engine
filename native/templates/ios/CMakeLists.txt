@@ -26,6 +26,10 @@ set(UI_RESOURCES
     ${CMAKE_CURRENT_LIST_DIR}/Base.lproj/LaunchScreen.storyboard
 )
 
+list(APPEND PROJ_SOURCES
+    ${UI_RESOURCES}
+)
+
 if(NOT CUSTOM_COPY_RESOURCE_HOOK)
     include_resources(${RES_DIR}/assets)
 endif()

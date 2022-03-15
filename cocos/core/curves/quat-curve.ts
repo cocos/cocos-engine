@@ -7,7 +7,7 @@ import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
 import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
 import { getEasingFn } from './easing-method';
-import { bezierByTime } from '../animation/bezier';
+import { bezierByTime } from './bezier';
 
 /**
  * The method used for interpolation between values of a keyframe and its next keyframe.

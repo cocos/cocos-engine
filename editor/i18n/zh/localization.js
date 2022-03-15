@@ -749,6 +749,10 @@ module.exports = {
                 label: '3D',
                 description: '3D',
             },
+            animation: {
+                label: '动画',
+                description: '动画系统。',
+            },
         },
         core: {
             label: "核心功能",
@@ -865,6 +869,14 @@ module.exports = {
         dragon_bones: {
             label: "DragonBones",
             description: "DragonBones 支持。",
+        },
+        animation: {
+            label: "基础动画功能",
+            description: "基础动画功能支持。",
+        },
+        skeletal_animation: {
+            label: "骨骼动画",
+            description: "骨骼动画支持。",
         },
     },
     renderable_2d: {
