@@ -457,6 +457,10 @@ export class AnimationCache {
         for (let slotIdx = 0, slotCount = skeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
             slot = skeleton.drawOrder[slotIdx];
 
+            if (!slot.bone.active) {
+                continue;
+            }
+
             _vfCount = 0;
             _indexCount = 0;
 
