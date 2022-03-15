@@ -274,7 +274,7 @@ int32_t WindowsPlatform::loop() {
     return 0;
 }
 
-void WindowsPlatform::handleWindowEvent(const SDL_WindowEvent &wevent) {
+void WindowsPlatform::dispatchWindowEvent(const SDL_WindowEvent &wevent) {
     WindowEvent ev;
     switch (wevent.event) {
         case SDL_WINDOWEVENT_SHOWN: {
@@ -336,7 +336,7 @@ void WindowsPlatform::dispatchSDLEvent(const SDL_Event& sdlEvent) {
             break;
         }
         case SDL_WINDOWEVENT: {
-            handleWindowEvent(sdlEvent.window);
+            dispatchWindowEvent(sdlEvent.window);
             break;
         }
         case SDL_MOUSEBUTTONDOWN: {

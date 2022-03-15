@@ -58,7 +58,7 @@ public:
 private:
     void               pollEvent() override;
     void               dispatchSDLEvent(const SDL_Event& sdlEvent);
-    void               handleWindowEvent(const SDL_WindowEvent& wevent);
+    void               dispatchWindowEvent(const SDL_WindowEvent& wevent);
     bool               _inited{false};
     bool               _quit{false};
     struct SDL_Window* _handle{nullptr};
