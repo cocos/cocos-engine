@@ -50,7 +50,6 @@ export const Mode = Enum({
     TwoConstants: 3,
 });
 
-@ccclass('cc.CurveRange')
 export default class CurveRange  {
     public static Mode = Mode;
 

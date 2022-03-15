@@ -159,6 +159,7 @@ export default class Gradient {
                 Color.lerp(this._color, this.colorKeys[lastIndex].color, Color.BLACK, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time));
             }
             // console.warn('something went wrong. can not get gradient color.');
+            return this._color;
         } else if (this.colorKeys.length === 1) {
             this._color.set(this.colorKeys[0].color);
             return this._color;
@@ -189,6 +190,7 @@ export default class Gradient {
             } else if (time > this.alphaKeys[lastIndex].time) {
                 return lerp(this.alphaKeys[lastIndex].alpha, basicAlpha, (time - this.alphaKeys[lastIndex].time) / (1 - this.alphaKeys[lastIndex].time));
             }
+            return 255;
         } else if (this.alphaKeys.length === 1) {
             return this.alphaKeys[0].alpha;
         } else {
