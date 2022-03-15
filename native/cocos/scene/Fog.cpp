@@ -26,6 +26,7 @@
 #include "scene/Fog.h"
 #include "core/Root.h"
 #include "renderer/pipeline/helper/Utils.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
 namespace scene {

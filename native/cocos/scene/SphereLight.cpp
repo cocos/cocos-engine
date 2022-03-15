@@ -26,6 +26,7 @@
 #include "scene/SphereLight.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 namespace cc {
 namespace scene {

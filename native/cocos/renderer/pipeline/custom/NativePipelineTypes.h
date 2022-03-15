@@ -76,6 +76,9 @@ public:
 
     void onGlobalPipelineStateChanged() override;
 
+    void setValue(const std::string& name, int32_t value) override;
+    void setValue(const std::string& name, bool value) override;
+
     gfx::Device*                               device{nullptr};
     MacroRecord                                macros;
     std::string                                constantMacros;

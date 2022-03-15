@@ -154,6 +154,14 @@ void NativePipeline::setShadingScale(float scale) {
 void NativePipeline::onGlobalPipelineStateChanged() {
 }
 
+void NativePipeline::setValue(const std::string &name, int32_t value) {
+    macros[name] = value;
+}
+
+void NativePipeline::setValue(const std::string &name, bool value) {
+    macros[name] = value;
+}
+
 } // namespace render
 
 } // namespace cc
