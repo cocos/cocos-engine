@@ -340,7 +340,7 @@ static bool js_render_Setter_setColor(se::State& s) // NOLINT(readability-identi
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<std::string, true> arg0 = {};
-        HolderType<cc::Color, true> arg1 = {};
+        HolderType<cc::gfx::Color, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_render_Setter_setColor : Error processing arguments");
