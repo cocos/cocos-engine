@@ -31,7 +31,7 @@
 import { DEBUG } from 'internal:constants';
 import { Vec3, Quat, approx } from '../../core/math';
 import { Node } from '../../core/scene-graph';
-import { RuntimeBinding } from '../../core/animation/tracks/track';
+import type { RuntimeBinding } from '../../core/animation/tracks/track';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 
 export class BlendStateBuffer {

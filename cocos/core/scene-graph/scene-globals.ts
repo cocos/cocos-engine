@@ -388,7 +388,7 @@ export class SkyboxInfo {
      * @zh 使用的漫反射卷积图
      */
     @visible(function (this : SkyboxInfo) {
-        if (this.useIBL) {
+        if (this.useIBL && this.applyDiffuseMap) {
             return true;
         }
         return false;
