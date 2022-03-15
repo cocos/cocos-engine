@@ -10,8 +10,30 @@ import { CCClass, deserializeTag, editorExtrasTag, SerializationContext, Seriali
 import { DeserializationContext } from '../data/custom-serializable';
 import { EasingMethod, getEasingFn } from './easing-method';
 import { getOrCreateSerializationMetadata } from '../data/serialization-metadata';
+import { popCount } from '../math/bits';
 
 export { RealInterpolationMode, ExtrapolationMode, TangentWeightMode, EasingMethod };
+
+const REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_START = 0;
+const REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_MASK = 0xFF << REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_START;
+
+const REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_START = 8;
+const REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_MASK = 0xFF << REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_START;
+
+const REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_START = 16;
+const REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_MASK = 0xFF << REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_START;
+
+// The following assertions ensure they're adjacent and non-overlapped.
+
+assertIsTrue(REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_START
+    === REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_START + popCount(REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_MASK));
+
+assertIsTrue(REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_START
+    === REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_START + popCount(REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_MASK));
+
+const REAL_KEYFRAME_VALUE_DEFAULT_FLAGS = (RealInterpolationMode.LINEAR << REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_START)
+    | (TangentWeightMode.NONE << REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_START)
+    | (EasingMethod.LINEAR << REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_START);
 
 /**
  * @en View to a real frame value.
@@ -27,7 +49,14 @@ class RealKeyframeValue extends EditorExtendable {
      * @zh
      * 在执行插值时，当以此关键帧作为起始关键帧时应当使用的插值方式。
      */
-    public interpolationMode = RealInterpolationMode.LINEAR;
+    get interpolationMode (): RealInterpolationMode {
+        return (this._flags & REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_MASK) >> REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_START;
+    }
+
+    set interpolationMode (value) {
+        this._flags &= ~REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_MASK;
+        this._flags |= (value << REAL_KEYFRAME_VALUE_FLAGS_INTERPOLATION_MODE_START);
+    }
 
     /**
      * @en
@@ -37,7 +66,14 @@ class RealKeyframeValue extends EditorExtendable {
      * 当执行三次插值时，此关键帧使用的切线权重模式。
      * 若当前的插值模式不是三次插值时，该字段无意义。
      */
-    public tangentWeightMode = TangentWeightMode.NONE;
+    get tangentWeightMode (): TangentWeightMode {
+        return (this._flags & REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_MASK) >> REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_START;
+    }
+
+    set tangentWeightMode (value) {
+        this._flags &= ~REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_MASK;
+        this._flags |= (value << REAL_KEYFRAME_VALUE_FLAGS_TANGENT_WEIGHT_MODE_START);
+    }
 
     /**
      * @en
@@ -90,7 +126,16 @@ class RealKeyframeValue extends EditorExtendable {
     /**
      * @deprecated Reserved for backward compatibility. Will be removed in future.
      */
-    public easingMethod = EasingMethod.LINEAR;
+    get easingMethod (): EasingMethod {
+        return (this._flags & REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_MASK) >> REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_START;
+    }
+
+    set easingMethod (value) {
+        this._flags &= ~REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_MASK;
+        this._flags |= (value << REAL_KEYFRAME_VALUE_FLAGS_EASING_METHOD_START);
+    }
+
+    private _flags = REAL_KEYFRAME_VALUE_DEFAULT_FLAGS;
 }
 
 CCClass.fastDefine(
