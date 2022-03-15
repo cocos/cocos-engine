@@ -499,31 +499,6 @@ CCClass.fastDefine('cc.RealCurve', RealCurve, {
     postExtrapolation: ExtrapolationMode.CLAMP,
 });
 
-CCClass.Attr.setClassAttr(
-    RealCurve,
-    '_times',
-    'serializable',
-    true,
-);
-CCClass.Attr.setClassAttr(
-    RealCurve,
-    '_values',
-    'serializable',
-    true,
-);
-CCClass.Attr.setClassAttr(
-    RealCurve,
-    'preExtrapolation',
-    'serializable',
-    true,
-);
-CCClass.Attr.setClassAttr(
-    RealCurve,
-    'postExtrapolation',
-    'serializable',
-    true,
-);
-
 const FLAGS_EASING_METHOD_BITS_START = 8;
 const FLAG_EASING_METHOD_MASK = 0xFF << FLAGS_EASING_METHOD_BITS_START; // 8-16 bits
 

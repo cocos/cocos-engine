@@ -36,6 +36,8 @@ import { AnimationCurve, constructLegacyCurveAndConvert } from '../../core/geome
 import { Texture2D, ImageAsset, RealCurve, CCClass } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
+const setClassAttr = CCClass.Attr.setClassAttr;
+
 const SerializableTable = [
     ['mode', 'constant', 'multiplier'],
     ['mode', 'spline', 'multiplier'],
@@ -185,30 +187,22 @@ CCClass.fastDefine('cc.CurveRange', CurveRange, {
     spline: constructLegacyCurveAndConvert(),
 });
 
-CCClass.Attr.setClassAttr(CurveRange, 'multiplier', 'visible', true);
-CCClass.Attr.setClassAttr(CurveRange, 'multiplier', 'serializable', true);
-CCClass.Attr.setClassAttr(CurveRange, 'constantMax', 'visible', true);
-CCClass.Attr.setClassAttr(CurveRange, 'constantMax', 'serializable', true);
-CCClass.Attr.setClassAttr(CurveRange, 'constantMin', 'visible', true);
-CCClass.Attr.setClassAttr(CurveRange, 'constantMin', 'serializable', true);
-CCClass.Attr.setClassAttr(CurveRange, 'constant', 'visible', true);
-CCClass.Attr.setClassAttr(CurveRange, 'constant', 'serializable', true);
-CCClass.Attr.setClassAttr(CurveRange, 'mode', 'type', 'Enum');
-CCClass.Attr.setClassAttr(CurveRange, 'mode', 'enumList', Enum.getList(Mode));
-CCClass.Attr.setClassAttr(CurveRange, 'mode', 'visible', true);
-CCClass.Attr.setClassAttr(CurveRange, 'mode', 'serializable', true);
-CCClass.Attr.setClassAttr(CurveRange, 'splineMax', 'type', 'Object');
-CCClass.Attr.setClassAttr(CurveRange, 'splineMax', 'ctor', RealCurve);
-CCClass.Attr.setClassAttr(CurveRange, 'splineMax', 'visible', true);
-CCClass.Attr.setClassAttr(CurveRange, 'splineMax', 'serializable', true);
-CCClass.Attr.setClassAttr(CurveRange, 'splineMin', 'type', 'Object');
-CCClass.Attr.setClassAttr(CurveRange, 'splineMin', 'ctor', RealCurve);
-CCClass.Attr.setClassAttr(CurveRange, 'splineMin', 'visible', true);
-CCClass.Attr.setClassAttr(CurveRange, 'splineMin', 'serializable', true);
-CCClass.Attr.setClassAttr(CurveRange, 'spline', 'type', 'Object');
-CCClass.Attr.setClassAttr(CurveRange, 'spline', 'ctor', RealCurve);
-CCClass.Attr.setClassAttr(CurveRange, 'spline', 'visible', true);
-CCClass.Attr.setClassAttr(CurveRange, 'spline', 'serializable', true);
+setClassAttr(CurveRange, 'multiplier', 'visible', true);
+setClassAttr(CurveRange, 'constantMax', 'visible', true);
+setClassAttr(CurveRange, 'constantMin', 'visible', true);
+setClassAttr(CurveRange, 'constant', 'visible', true);
+setClassAttr(CurveRange, 'mode', 'type', 'Enum');
+setClassAttr(CurveRange, 'mode', 'enumList', Enum.getList(Mode));
+setClassAttr(CurveRange, 'mode', 'visible', true);
+setClassAttr(CurveRange, 'splineMax', 'type', 'Object');
+setClassAttr(CurveRange, 'splineMax', 'ctor', RealCurve);
+setClassAttr(CurveRange, 'splineMax', 'visible', true);
+setClassAttr(CurveRange, 'splineMin', 'type', 'Object');
+setClassAttr(CurveRange, 'splineMin', 'ctor', RealCurve);
+setClassAttr(CurveRange, 'splineMin', 'visible', true);
+setClassAttr(CurveRange, 'spline', 'type', 'Object');
+setClassAttr(CurveRange, 'spline', 'ctor', RealCurve);
+setClassAttr(CurveRange, 'spline', 'visible', true);
 
 function evaluateCurve (cr: CurveRange, time: number, index: number) {
     switch (cr.mode) {

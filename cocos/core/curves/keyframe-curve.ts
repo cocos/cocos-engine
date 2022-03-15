@@ -211,19 +211,6 @@ CCClass.fastDefine('cc.KeyframeCurve', KeyframeCurve, {
     _values: [],
 });
 
-CCClass.Attr.setClassAttr(
-    KeyframeCurve,
-    '_times',
-    'serializable',
-    true,
-);
-CCClass.Attr.setClassAttr(
-    KeyframeCurve,
-    '_values',
-    'serializable',
-    true,
-);
-
 function isSorted (values: number[]) {
     return values.every(
         (value, index, array) => index === 0

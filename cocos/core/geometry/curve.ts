@@ -351,13 +351,6 @@ CCClass.fastDefine('cc.AnimationCurve', AnimationCurve, {
     _curve: null,
 });
 
-CCClass.Attr.setClassAttr(
-    AnimationCurve,
-    '_curve',
-    'serializable',
-    true,
-);
-
 function fromLegacyWrapMode (legacyWrapMode: WrapModeMask): ExtrapolationMode {
     switch (legacyWrapMode) {
     default:

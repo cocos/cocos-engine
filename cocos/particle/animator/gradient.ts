@@ -57,9 +57,7 @@ CCClass.fastDefine('cc.ColorKey', ColorKey, {
     time: 0,
 });
 
-CCClass.Attr.setClassAttr(ColorKey, 'color', 'serializable', true);
 CCClass.Attr.setClassAttr(ColorKey, 'color', 'visible', true);
-CCClass.Attr.setClassAttr(ColorKey, 'time', 'serializable', true);
 CCClass.Attr.setClassAttr(ColorKey, 'time', 'visible', true);
 
 export class AlphaKey {
@@ -80,9 +78,7 @@ CCClass.fastDefine('cc.AlphaKey', AlphaKey, {
     time: 0,
 });
 
-CCClass.Attr.setClassAttr(AlphaKey, 'alpha', 'serializable', true);
 CCClass.Attr.setClassAttr(AlphaKey, 'alpha', 'visible', true);
-CCClass.Attr.setClassAttr(AlphaKey, 'time', 'serializable', true);
 CCClass.Attr.setClassAttr(AlphaKey, 'time', 'visible', true);
 
 export default class Gradient {
@@ -205,9 +201,6 @@ CCClass.fastDefine('cc.Gradient', Gradient, {
     mode: Mode.Blend,
 });
 
-CCClass.Attr.setClassAttr(Gradient, 'colorKeys', 'serializable', true);
-CCClass.Attr.setClassAttr(Gradient, 'alphaKeys', 'serializable', true);
-CCClass.Attr.setClassAttr(Gradient, 'mode', 'serializable', true);
 CCClass.Attr.setClassAttr(Gradient, 'colorKeys', 'visible', true);
 CCClass.Attr.setClassAttr(Gradient, 'alphaKeys', 'visible', true);
 CCClass.Attr.setClassAttr(Gradient, 'mode', 'visible', true);
