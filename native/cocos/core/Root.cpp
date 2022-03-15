@@ -125,7 +125,7 @@ namespace {
 
 class RenderPipelineBridge final : public render::PipelineRuntime {
 public:
-    RenderPipelineBridge(pipeline::RenderPipeline *pipelineIn)
+    explicit RenderPipelineBridge(pipeline::RenderPipeline *pipelineIn)
     : pipeline(pipelineIn) {}
 
     bool activate(gfx::Swapchain *swapchain) override {
@@ -192,7 +192,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
         }
 
         _pipeline = rppl;
-        _pipelineRuntime.reset(new RenderPipelineBridge(rppl));
+        _pipelineRuntime = std::make_unique<RenderPipelineBridge>(rppl);
 
         // now cluster just enabled in deferred pipeline
         if (!_useDeferredPipeline || !_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) {
@@ -210,7 +210,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             return false;
         }
     } else {
-        _pipelineRuntime.reset(new render::NativePipeline());
+        _pipelineRuntime = std::make_unique<render::NativePipeline>();
         if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();
