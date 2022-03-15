@@ -21,7 +21,6 @@ import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
-import { RenderData } from '../2d';
 
 export const timeScale = 1.0;
 
@@ -1402,6 +1401,16 @@ export class Skeleton extends Renderable2D {
         draw.indexOffset = indexOffset;
         draw.indexCount = indexCount;
         return draw;
+    }
+
+    /**
+     * @en Update component's opacity
+     * Don't call it unless you know what you are doing.
+     * @zh 更新组件的透明度。
+     * 注意：不要手动调用该函数，除非你理解整个流程。
+     */
+    public updateOpacity(opacity:number) {
+        this._assembler!.updateOpacity(this, opacity);
     }
 
     protected _render (batcher: Batcher2D) {

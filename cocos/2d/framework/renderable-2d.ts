@@ -46,6 +46,7 @@ import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { updateOpacity } from '../assembler/utils';
 
 // hack
 ccenum(BlendFactor);
@@ -489,6 +490,16 @@ export class Renderable2D extends RenderableComponent {
         if (this.renderData) {
             this.renderData.textureDirty = true;
         }
+    }
+
+    /**
+     * @en Update component's opacity
+     * Don't call it unless you know what you are doing.
+     * @zh 更新组件的透明度。
+     * 注意：不要手动调用该函数，除非你理解整个流程。
+     */
+    public updateOpacity(opacity:number) {
+        updateOpacity(this._renderData!, opacity);
     }
 }
 

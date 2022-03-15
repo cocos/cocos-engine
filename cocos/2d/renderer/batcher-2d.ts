@@ -48,7 +48,6 @@ import { IBatcher } from './i-batcher';
 import { StaticVBAccessor } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
-import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
@@ -664,7 +663,8 @@ export class Batcher2D implements IBatcher {
         // Update cascaded opacity to vertex buffer
         if (this._opacityDirty && render && render.renderData && render.renderData.vertexCount > 0) {
             // HARD COUPLING
-            updateOpacity(render.renderData, opacity);
+            render.updateOpacity(opacity);
+            //updateOpacity(render.renderData, opacity);
             const buffer = render.renderData.getMeshBuffer();
             if (buffer) {
                 buffer.setDirty();

@@ -238,16 +238,21 @@ export const simple: IAssembler = {
     fillBuffers (comp: Skeleton, renderer: Batcher2D) {
         // Fill indices
     },
+
+    updateOpacity (comp: Skeleton, opacity: number) {
+        const batcher = director.root!.batcher2D;
+        updateComponentRenderData(comp, batcher, opacity);
+    }
 };
 
-function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
+function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D, opacity = 1.0) {
     if (!comp._skeleton) return;
 
     const nodeColor = comp.color;
     _nodeR = nodeColor.r / 255;
     _nodeG = nodeColor.g / 255;
     _nodeB = nodeColor.b / 255;
-    _nodeA = nodeColor.a / 255;
+    _nodeA = opacity;
 
     _useTint = comp.useTint || comp.isAnimationCached();
     // x y u v color1 color2 or x y u v color
