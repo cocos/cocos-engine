@@ -28,6 +28,8 @@ const cacheManager = require('./jsb-cache-manager');
 (function () {
     if (window.spine === undefined || window.middleware === undefined) return;
     if (cc.internal.SpineSkeletonData === undefined) return;
+    const spine = window.spine;
+    const middleware = window.middleware;
 
     middleware.generateGetSet(spine);
 
@@ -145,7 +147,7 @@ const cacheManager = require('./jsb-cache-manager');
 
     skeletonDataProto.getTextureByIndex = function (textureIdx) {
         const texKey = _textureKeyMap[textureIdx];
-        if (!texKey) return;
+        if (!texKey) return null;
         return _textureMap.get(texKey);
     };
 
@@ -173,6 +175,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._target = target;
         this._callback = callback;
 
+        // eslint-disable-next-line no-undef
         const AnimationEventType = legacyCC.internal.SpineAnimationEventType;
 
         this.setStartListener(function (trackEntry) {
@@ -307,7 +310,7 @@ const cacheManager = require('./jsb-cache-manager');
 
         let nativeSkeleton = null;
         if (this.isAnimationCached()) {
-            nativeSkeleton = new spine.SkeletonCacheAnimation(uuid, this._cacheMode == AnimationCacheMode.SHARED_CACHE);
+            nativeSkeleton = new spine.SkeletonCacheAnimation(uuid, this._cacheMode === AnimationCacheMode.SHARED_CACHE);
         } else {
             nativeSkeleton = new spine.SkeletonAnimation();
             try {
@@ -363,7 +366,7 @@ const cacheManager = require('./jsb-cache-manager');
     skeleton.setAnimationStateData = function (stateData) {
         if (this._nativeSkeleton && !this.isAnimationCached()) {
             this._stateData = stateData;
-            return this._nativeSkeleton.setAnimationStateData(stateData);
+            this._nativeSkeleton.setAnimationStateData(stateData);
         }
     };
 
@@ -428,6 +431,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
+    // eslint-disable-next-line no-unused-vars
     skeleton.updateAnimation = function (dt) {
         const nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
@@ -436,7 +440,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (!node) return;
 
         const paramsBuffer = this._paramsBuffer;
-        if (this._renderOrder != middleware.renderOrder) {
+        if (this._renderOrder !== middleware.renderOrder) {
             paramsBuffer[0] = middleware.renderOrder;
             this._renderOrder = middleware.renderOrder;
             middleware.renderOrder++;
@@ -465,9 +469,8 @@ const cacheManager = require('./jsb-cache-manager');
             if (!debugData) return;
             let debugIdx = 0; let debugType = 0; let debugLen = 0;
 
-            while (true) {
-                debugType = debugData[debugIdx++];
-                if (debugType == 0) break;
+            debugType = debugData[debugIdx++];
+            while (debugType !== 0) {
                 debugLen = debugData[debugIdx++];
 
                 switch (debugType) {
@@ -517,6 +520,7 @@ const cacheManager = require('./jsb-cache-manager');
                     default:
                     return;
                 }
+                debugType = debugData[debugIdx++];
             }
         }
     };
@@ -593,6 +597,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._nativeSkeleton && this._nativeSkeleton.setAttachment(slotName, attachmentName);
     };
 
+    // eslint-disable-next-line no-unused-vars
     skeleton.getTextureAtlas = function (regionAttachment) {
         cc.warn('Spine Skeleton getTextureAtlas not support in native');
         return null;
@@ -606,6 +611,8 @@ const cacheManager = require('./jsb-cache-manager');
 
     skeleton.setAnimation = function (trackIndex, name, loop) {
         const strName = name.toString();
+        this._animationName = strName;
+        this._playTimes = loop ? 0 : 1;
         if (this._nativeSkeleton) {
             if (this.isAnimationCached()) {
                 return this._nativeSkeleton.setAnimation(strName, loop);
@@ -836,7 +843,6 @@ const cacheManager = require('./jsb-cache-manager');
                 tm.m12 = attachInfo[matOffset + 12];
                 tm.m13 = attachInfo[matOffset + 13];
                 boneNode.matrix = tm;
-                boneNode.scale = node.scale;
             }
         }
 
@@ -854,7 +860,7 @@ const cacheManager = require('./jsb-cache-manager');
 
         _tempVfmt = vfmt;
 
-        if (matLen == 0) return;
+        if (matLen === 0) return;
 
         for (let index = 0; index < matLen; index++) {
             realTextureIndex = renderInfo[renderInfoOffset + materialIdx++];
@@ -887,9 +893,14 @@ const cacheManager = require('./jsb-cache-manager');
     // assembler
     const assembler = cc.internal.SpineAssembler;
 
+    // eslint-disable-next-line no-unused-vars
+    assembler.createData = function (comp) {
+    };
+
     assembler.updateRenderData = function () {
     };
 
+    // eslint-disable-next-line no-unused-vars
     assembler.fillBuffers = function (comp, renderer) {
     };
 }());

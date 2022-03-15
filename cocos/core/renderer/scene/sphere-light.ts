@@ -132,7 +132,7 @@ export class SphereLight extends Light {
         const size = 0.15;
         this.size = size;
         this.range = 1.0;
-        this.luminance = 1700 / nt2lm(size);
+        this.luminanceHDR = 1700 / nt2lm(size);
         this.luminanceLDR = 1.0;
     }
 

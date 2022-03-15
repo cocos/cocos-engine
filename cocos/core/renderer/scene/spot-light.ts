@@ -281,7 +281,7 @@ export class SpotLight extends Light {
         const size = 0.15;
         this.size = size;
         this.aspect = 1.0;
-        this.luminance = 1700 / nt2lm(size);
+        this.luminanceHDR = 1700 / nt2lm(size);
         this.luminanceLDR = 1.0;
         this.range = Math.cos(Math.PI / 6);
         this._setDirection(new Vec3(1.0, -1.0, -1.0));

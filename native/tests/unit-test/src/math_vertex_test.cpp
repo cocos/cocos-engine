@@ -27,12 +27,12 @@ THE SOFTWARE.
 #include "cocos/math/Vertex.h"
 #include "utils.h"
 #include <math.h>
-#include <vector>
+#include <array>
 
 TEST(mathVertexTest, test8) {
     // ccVertexLineToPolygon
     logLabel = "test the vertex ccVertexLineToPolygon function";
-    cc::Vec2 points[4];
+    std::array<cc::Vec2,4 > points;
     cc::Vec2 p1(1, 1);
     points[0] = p1;
     cc::Vec2 p2(10, 10);
@@ -41,8 +41,8 @@ TEST(mathVertexTest, test8) {
     points[2] = p3;
     cc::Vec2 p4(20, 70);
     points[3] = p4;
-    cc::Vec2 outP[6];
-    cc::ccVertexLineToPolygon(points, 1, outP, 0, 5);
+    std::array<cc::Vec2, points.size() * 2> outP;
+    cc::ccVertexLineToPolygon(points.data(), 1, outP.data(), 0, points.size());
     ExpectEq(IsEqualF(outP[5].x, -0.468942523) && IsEqualF(outP[5].y, -9.82652664), true);
     // ccVertexLineIntersect
     logLabel = "test the vertex ccVertexLineIntersect function";
@@ -51,4 +51,5 @@ TEST(mathVertexTest, test8) {
     ExpectEq(isFind, true);
     
 }
+
 

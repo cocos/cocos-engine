@@ -76,8 +76,7 @@
     "_id": "",
     "__prefab": {
       "__id__": 3
-    },
-    "_illuminanceLDR": null
+    }
   },
   {
     "__type__": "cc.CompPrefabInfo",

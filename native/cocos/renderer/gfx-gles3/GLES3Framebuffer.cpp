@@ -46,16 +46,16 @@ void GLES3Framebuffer::doInit(const FramebufferInfo & /*info*/) {
     _gpuFBO                = CC_NEW(GLES3GPUFramebuffer);
     _gpuFBO->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
 
-    _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
+    _gpuFBO->gpuColorViews.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
-        auto *colorTexture           = static_cast<GLES3Texture *>(_colorTextures[i]);
-        _gpuFBO->gpuColorTextures[i] = colorTexture->gpuTexture();
+        auto *colorTexture        = static_cast<GLES3Texture *>(_colorTextures[i]);
+        _gpuFBO->gpuColorViews[i] = colorTexture->gpuTextureView();
         GLES3Device::getInstance()->framebufferHub()->connect(colorTexture->gpuTexture(), _gpuFBO);
     }
 
     if (_depthStencilTexture) {
-        auto *depthTexture              = static_cast<GLES3Texture *>(_depthStencilTexture);
-        _gpuFBO->gpuDepthStencilTexture = depthTexture->gpuTexture();
+        auto *depthTexture           = static_cast<GLES3Texture *>(_depthStencilTexture);
+        _gpuFBO->gpuDepthStencilView = depthTexture->gpuTextureView();
         GLES3Device::getInstance()->framebufferHub()->connect(depthTexture->gpuTexture(), _gpuFBO);
     }
 

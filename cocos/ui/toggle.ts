@@ -65,7 +65,7 @@ export class Toggle extends Button {
      * @zh
      * 如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。
      */
-    @displayOrder(2)
+    @displayOrder(1)
     @tooltip('i18n:toggle.isChecked')
     get isChecked () {
         return this._isChecked;
@@ -83,7 +83,7 @@ export class Toggle extends Button {
      * Toggle 处于选中状态时显示的图片。
      */
     @type(Sprite)
-    @displayOrder(3)
+    @displayOrder(1)
     @tooltip('i18n:toggle.checkMark')
     get checkMark () {
         return this._checkMark;
@@ -215,3 +215,5 @@ export class Toggle extends Button {
  * @param {Event.EventCustom} event
  * @param {Toggle} toggle - The Toggle component.
  */
+
+legacyCC.Toggle = Toggle;
