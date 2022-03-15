@@ -1006,7 +1006,7 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
     dynamicState.pDynamicStates    = dynamicStates.data();
     createInfo.pDynamicState       = &dynamicState;
 
-    ///////////////////// Viewport State /////////////////////
+    ///////////////////// Rect State /////////////////////
 
     VkPipelineViewportStateCreateInfo viewportState{VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO};
     viewportState.viewportCount = 1; // dynamic by default

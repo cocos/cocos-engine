@@ -218,7 +218,7 @@ void RenderPipeline::ensureEnoughSize(const vector<scene::Camera *> &cameras) {
     }
 }
 
-gfx::Viewport RenderPipeline::getViewport(scene::Camera *camera) {
+gfx::Rect RenderPipeline::getViewport(scene::Camera *camera) {
     auto             scale{_pipelineSceneData->getSharedData()->shadingScale};
     const gfx::Rect &rect = getRenderArea(camera);
     return {

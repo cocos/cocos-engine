@@ -96,7 +96,7 @@ public:
     void                                           setOcclusionQueryEnabled(bool enable) { _occlusionQueryEnabled = enable; }
     bool                                           isEnvmapEnabled() const;
 
-    gfx::Viewport           getViewport(scene::Camera *camera);
+    gfx::Rect           getViewport(scene::Camera *camera);
     gfx::Rect               getScissor(scene::Camera *camera);
     void                    genQuadVertexData(const Vec4 &viewport, float *data);
     uint                    getWidth() const { return _width; }

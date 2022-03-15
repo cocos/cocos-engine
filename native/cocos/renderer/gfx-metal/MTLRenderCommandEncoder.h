@@ -88,11 +88,11 @@ public:
     }
 
     inline void setViewport(const Rect &rect) {
-        Viewport viewport = {rect.x, rect.y, rect.width, rect.height};
+        Rect viewport = {rect.x, rect.y, rect.width, rect.height};
         setViewport(viewport);
     }
 
-    inline void setViewport(const Viewport &vp) {
+    inline void setViewport(const Rect &vp) {
         if (_isViewportSet && _viewport == vp)
             return;
 
@@ -296,7 +296,7 @@ protected:
     MTLWinding                                    _frontFacingWinding    = MTLWindingClockwise;
     CC_UNUSED MTLDepthClipMode                    _depthClipMode         = MTLDepthClipModeClip;
     MTLTriangleFillMode                           _triangleFillMode      = MTLTriangleFillModeFill;
-    Viewport                                      _viewport;
+    Rect                                      _viewport;
     Rect                                          _scissorRect;
     Color                                         _blendColor;
     std::unordered_map<uint, BufferBinding>       _vertexBufferMap;

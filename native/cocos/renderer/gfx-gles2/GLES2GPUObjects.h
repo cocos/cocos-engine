@@ -415,7 +415,7 @@ public:
     GLuint                          glFramebuffer  = 0;
     GLuint                          glRenderbuffer = 0;
     GLuint                          glReadFBO      = 0;
-    Viewport                        viewport;
+    Rect                        viewport;
     Rect                            scissor;
     RasterizerState                 rs;
     DepthStencilState               dss;
@@ -446,7 +446,7 @@ public:
         isCullFaceEnabled    = true;
         isStencilTestEnabled = false;
 
-        viewport = Viewport();
+        viewport = Rect();
         scissor  = Rect();
         rs       = RasterizerState();
         dss      = DepthStencilState();

@@ -644,7 +644,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
     auto compReflectExec = [this, camera](DataCompReflect const &data, const framegraph::DevicePassResourceTable &table) {
         auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
 
-        gfx::Viewport vp    = pipeline->getViewport(camera);
+        gfx::Rect vp    = pipeline->getViewport(camera);
         Vec4          value = Vec4(static_cast<float>(vp.left), static_cast<float>(vp.top),
                           static_cast<float>(vp.width), static_cast<float>(vp.height));
         _reflectionComp->applyTexSize(_ssprTexWidth, _ssprTexHeight, camera->matView, camera->matViewProj,

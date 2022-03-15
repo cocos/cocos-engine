@@ -51,7 +51,7 @@ public:
     void bindPipelineState(PipelineState *pso) override;
     void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) override;
     void bindInputAssembler(InputAssembler *ia) override;
-    void setViewport(const Viewport &vp) override;
+    void setViewport(const Rect &vp) override;
     void setScissor(const Rect &rect) override;
     void setLineWidth(float width) override;
     void setDepthBias(float constant, float clamp, float slope) override;

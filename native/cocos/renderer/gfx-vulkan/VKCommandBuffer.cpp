@@ -35,6 +35,7 @@
 #include "VKQueue.h"
 #include "VKRenderPass.h"
 #include "VKTexture.h"
+#include "gfx-base/GFXDef-common.h"
 #include "states/VKGeneralBarrier.h"
 #include "states/VKTextureBarrier.h"
 
@@ -113,6 +114,9 @@ void CCVKCommandBuffer::end() {
     _curGPUFBO           = nullptr;
     _curGPUInputAssember = nullptr;
 
+    // is it necessary to reset the viewports?
+    // 1. reset viewports at the end, and set all viewports at every drawcall
+    // 2. dont reset viewports at the end, just set viewports when necessary.
     _curDynamicStates.viewports.resize(0);
 
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
@@ -153,6 +157,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         clearValues[attachmentCount].depthStencil = {depth, stencil};
     }
 
+    // offset + size should be smaller than fbo->size ?
     Rect safeArea{
         std::min(renderArea.x, static_cast<int32_t>(_curGPUFBO->width)),
         std::min(renderArea.y, static_cast<int32_t>(_curGPUFBO->height)),
@@ -264,14 +269,12 @@ void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
 void CCVKCommandBuffer::setViewports(const Rect *vp, uint32_t count) {
     int start = -1;
 
-    static vector<VkViewport> vkViewports;
-    static vector<VkRect2D>   vkScissors;
-    vkViewports.resize(count);
-    vkScissors.resize(count);
+    static vector<VkViewport> vkViewports(MAX_VIEWPORTS);
+    static vector<VkRect2D>   vkScissors(MAX_VIEWPORTS);
 
     ViewportList &viewports = _curDynamicStates.viewports;
 
-    viewports.resize(count);
+    viewports.resize(MAX_VIEWPORTS);
 
     for (int i = 0; i < count; i++) {
         if (viewports[i] != vp[i]) {

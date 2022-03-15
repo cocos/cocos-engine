@@ -69,7 +69,7 @@ inline void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdB
         auto *ia       = submodel->getInputAssembler();
         auto *pso      = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
 
-        gfx::Viewport profilerViewport;
+        gfx::Rect profilerViewport;
         gfx::Rect     profilerScissor;
         profilerViewport.width = profilerScissor.width = camera->window->getWidth();
         profilerViewport.height = profilerScissor.height = camera->window->getHeight();

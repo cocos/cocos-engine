@@ -118,7 +118,7 @@ void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
     }
 }
 
-void GLES2PrimaryCommandBuffer::setViewport(const Viewport &vp) {
+void GLES2PrimaryCommandBuffer::setViewport(const Rect &vp) {
     auto *cache = GLES2Device::getInstance()->stateCache();
     if (cache->viewport != vp) {
         cache->viewport = vp;

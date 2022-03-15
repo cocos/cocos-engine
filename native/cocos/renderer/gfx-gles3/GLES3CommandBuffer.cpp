@@ -174,7 +174,7 @@ void setViewports(const Rect *vp, uint32_t count) {
     }
 }
 
-void GLES3CommandBuffer::setViewport(const Viewport &vp) {
+void GLES3CommandBuffer::setViewport(const Rect &vp) {
     if ((_curDynamicStates.viewport.left != vp.left) ||
         (_curDynamicStates.viewport.top != vp.top) ||
         (_curDynamicStates.viewport.width != vp.width) ||
