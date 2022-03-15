@@ -51,7 +51,8 @@ export const Mode = Enum({
     TwoCurves: 2,
     TwoConstants: 3,
 });
-
+// TODO: can not remove ccclass for now, we need ccclass specified deserialization to handle deserialization of RealCurve
+@ccclass('cc.CurveRange')
 export default class CurveRange  {
     public static Mode = Mode;
 
