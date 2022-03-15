@@ -611,6 +611,8 @@ const cacheManager = require('./jsb-cache-manager');
 
     skeleton.setAnimation = function (trackIndex, name, loop) {
         const strName = name.toString();
+        this._animationName = strName;
+        this._playTimes = loop ? 0 : 1;
         if (this._nativeSkeleton) {
             if (this.isAnimationCached()) {
                 return this._nativeSkeleton.setAnimation(strName, loop);
