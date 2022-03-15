@@ -298,7 +298,7 @@ export class RichText extends Component {
      * 是否使用系统字体。
      */
     @tooltip('i18n:richtext.use_system_font')
-    @displayOrder(11)
+    @displayOrder(12)
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
