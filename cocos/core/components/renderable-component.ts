@@ -106,6 +106,7 @@ export class RenderableComponent extends Component {
             for (let i = this._materials.length + dLen; i < this._materials.length; ++i) {
                 this.setMaterial(null, i);
             }
+            this._materials.length = val.length;
         }
         for (let i = 0; i < this._materialInstances.length; i++) {
             // they could be either undefined or null
