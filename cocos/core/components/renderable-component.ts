@@ -48,9 +48,6 @@ const _matInsInfo: IMaterialInstanceInfo = {
 
 @ccclass('cc.RenderableComponent')
 export class RenderableComponent extends Component {
-    @type([Material])
-    protected _materials: (Material | null)[] = [];
-
     @serializable
     protected _visFlags = Layers.Enum.NONE;
 
@@ -85,6 +82,9 @@ export class RenderableComponent extends Component {
         }
     }
 
+    @type([Material])
+    protected _materials: (Material | null)[] = [];
+
     /**
      * @en The materials of the model.
      * @zh 模型材质。
@@ -102,8 +102,8 @@ export class RenderableComponent extends Component {
             this._materials.length = val.length;
             this._materialInstances.length = val.length;
         } else if (dLen < 0) {
-            for (let i = this._materials.length - dLen; i < this._materials.length; ++i) {
-                this.setMaterialInstance(null, i);
+            for (let i = this._materials.length + dLen; i < this._materials.length; ++i) {
+                this.setMaterial(null, i);
             }
         }
         for (let i = 0; i < this._materialInstances.length; i++) {
