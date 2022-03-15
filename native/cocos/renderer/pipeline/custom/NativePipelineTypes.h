@@ -61,7 +61,7 @@ public:
 
     bool activate(gfx::Swapchain * swapchain) override;
     bool destroy() noexcept override;
-    void render(const std::vector<const scene::Camera*>& cameras) override;
+    void render(const std::vector<scene::Camera*>& cameras) override;
 
     const MacroRecord           &getMacros() const override;
     pipeline::GlobalDSManager   *getGlobalDSManager() const override;
@@ -76,12 +76,12 @@ public:
 
     void onGlobalPipelineStateChanged() override;
 
-    gfx::Device*                              device{nullptr};
-    MacroRecord                               macros;
-    std::string                               constantMacros;
-    pipeline::GlobalDSManager*                globalDSManager{nullptr};
-    scene::Model*                             profiler{nullptr};
-    IntrusivePtr<pipeline::PipelineSceneData> pipelineSceneData;
+    gfx::Device*                               device{nullptr};
+    MacroRecord                                macros;
+    std::string                                constantMacros;
+    std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
+    scene::Model*                              profiler{nullptr};
+    IntrusivePtr<pipeline::PipelineSceneData>  pipelineSceneData;
 };
 
 } // namespace render

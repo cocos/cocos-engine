@@ -80,7 +80,7 @@ public:
 
     virtual bool activate(gfx::Swapchain * swapchain) = 0;
     virtual bool destroy() noexcept = 0;
-    virtual void render(const std::vector<const scene::Camera*>& cameras) = 0;
+    virtual void render(const std::vector<scene::Camera*>& cameras) = 0;
 
     virtual const MacroRecord           &getMacros() const = 0;
     virtual pipeline::GlobalDSManager   *getGlobalDSManager() const = 0;
