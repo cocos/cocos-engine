@@ -235,7 +235,7 @@ bool register_all_spine_manual(se::Object *obj) {
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
         // Support Native Spine fo Creator V3.0
         se::Object *seObj = nullptr;
-        auto iter = se::NativePtrToObjectMap::find(spineObj);
+        auto        iter  = se::NativePtrToObjectMap::find(spineObj);
         if (iter != se::NativePtrToObjectMap::end()) {
             // Save se::Object pointer for being used in cleanup method.
             seObj = iter->second;
