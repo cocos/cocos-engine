@@ -44,6 +44,9 @@ namespace gfx {
 class SwapChain;
 class Device;
 } // namespace gfx
+namespace render {
+class PipelineRuntime;
+} // namespace render
 class CallbacksInvoker;
 
 class Root final {
@@ -187,7 +190,7 @@ public:
      * @zh
      * 渲染管线
      */
-    inline pipeline::RenderPipeline *getPipeline() const { return _pipeline.get(); }
+    inline render::PipelineRuntime *getPipeline() const { return _pipelineRuntime.get(); }
 
     /**
      * @zh
@@ -248,6 +251,7 @@ private:
     IntrusivePtr<scene::RenderWindow>              _tempWindow;
     std::vector<IntrusivePtr<scene::RenderWindow>> _windows;
     IntrusivePtr<pipeline::RenderPipeline>         _pipeline{nullptr};
+    std::unique_ptr<render::PipelineRuntime>       _pipelineRuntime;
     scene::DrawBatch2D *                           _batcher2D{nullptr};
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
     std::vector<IntrusivePtr<scene::RenderScene>> _scenes;
@@ -259,6 +263,7 @@ private:
     uint32_t                                      _fps{0};
     uint32_t                                      _fixedFPS{0};
     bool                                          _useDeferredPipeline{false};
+    bool                                          _usesCustomPipeline{false};
     CallbacksInvoker *                            _eventProcessor{nullptr};
 
     // Cache std::vector to avoid allocate every frame in frameMove

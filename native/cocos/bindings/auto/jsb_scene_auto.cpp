@@ -31,6 +31,7 @@
 #include "core/Root.h"
 #include "renderer/core/ProgramLib.h"
 #include "scene/Octree.h"
+#include "cocos/bindings/auto/jsb_render_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
 
@@ -9859,7 +9860,7 @@ static bool js_scene_Root_getPipeline(se::State& s) // NOLINT(readability-identi
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::pipeline::RenderPipeline* result = cobj->getPipeline();
+        cc::render::PipelineRuntime* result = cobj->getPipeline();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_scene_Root_getPipeline : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -17789,7 +17790,7 @@ static bool js_scene_ProgramLib_getGFXShader(se::State& s) // NOLINT(readability
         HolderType<cc::gfx::Device*, false> arg0 = {};
         HolderType<std::string, true> arg1 = {};
         HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg2 = {};
-        HolderType<cc::pipeline::RenderPipeline*, false> arg3 = {};
+        HolderType<cc::render::PipelineRuntime*, false> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
@@ -17805,7 +17806,7 @@ static bool js_scene_ProgramLib_getGFXShader(se::State& s) // NOLINT(readability
         HolderType<cc::gfx::Device*, false> arg0 = {};
         HolderType<std::string, true> arg1 = {};
         HolderType<std::unordered_map<std::string, boost::variant2::variant<int, bool, std::string>>, true> arg2 = {};
-        HolderType<cc::pipeline::RenderPipeline*, false> arg3 = {};
+        HolderType<cc::render::PipelineRuntime*, false> arg3 = {};
         HolderType<std::string*, false> arg4 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());

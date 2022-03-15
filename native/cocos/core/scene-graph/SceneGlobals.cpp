@@ -26,6 +26,7 @@
 #include "core/scene-graph/SceneGlobals.h"
 #include "core/Root.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Ambient.h"
 #include "scene/Fog.h"
 #include "scene/Octree.h"
