@@ -36,6 +36,7 @@
 #include "renderer/core/MaterialInstance.h"
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDevice.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "scene/Ambient.h"
 #include "scene/Model.h"
@@ -288,8 +289,8 @@ void Skybox::updatePipeline() const {
         _model->setSubModelMaterial(0, skyboxMaterial);
     }
 
-    Root *                    root     = Root::getInstance();
-    pipeline::RenderPipeline *pipeline = root->getPipeline();
+    Root * root     = Root::getInstance();
+    auto * pipeline = root->getPipeline();
 
     const bool    useRGBE            = isRGBE();
     const int32_t useIBLValue        = isUseIBL() ? (useRGBE ? 2 : 1) : 0;

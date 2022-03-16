@@ -33,6 +33,7 @@
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
 
@@ -649,7 +650,7 @@ void ProgramLib::destroyShaderByDefines(const MacroRecord &defines) {
 }
 
 gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const std::string &name, MacroRecord &defines,
-                                      pipeline::RenderPipeline *pipeline, std::string *keyOut) {
+                                      render::PipelineRuntime *pipeline, std::string *keyOut) {
     for (const auto &it : pipeline->getMacros()) {
         defines[it.first] = it.second;
     }
