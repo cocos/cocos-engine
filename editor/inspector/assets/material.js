@@ -312,8 +312,7 @@ exports.methods = {
     },
 
     useCache() {
-        const cacheData = JSON.parse(JSON.stringify(this.cacheData));
-
+        const cacheData = this.cacheData;
         this.technique.passes.forEach((pass, i) => {
             if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
                 return;
@@ -328,10 +327,11 @@ exports.methods = {
                     if (name in cacheData) {
                         const { type, value } = cacheData[name];
                         if (prop[name].type === type && JSON.stringify(prop[name].value) !== JSON.stringify(value)) {
-                            prop[name].value = value;
-
-                            // 需求：只保障复用第一个
-                            delete cacheData[name];
+                            if (value && typeof value === 'object') {
+                                prop[name].value = JSON.parse(JSON.stringify(value));
+                            } else {
+                                prop[name].value = value;
+                            }
                         }
                     }
 
