@@ -52,6 +52,8 @@ export class AnimationMask extends Asset {
     }
 }
 
+type JointMaskInfo_ = JointMaskInfo;
+
 export declare namespace AnimationMask {
     export type JointMaskInfo = JointMaskInfo_;
 }
@@ -61,8 +63,6 @@ interface JointMaskInfo {
 
     enabled: boolean;
 }
-
-type JointMaskInfo_ = JointMaskInfo;
 
 @ccclass('cc.JointMask')
 class JointMask {
