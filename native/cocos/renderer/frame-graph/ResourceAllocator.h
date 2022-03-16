@@ -29,6 +29,9 @@
 #include <unordered_map>
 #include "base/memory/Memory.h"
 #include "gfx-base/GFXDef.h"
+#include "base/Log.h"
+#include "gfx-agent/FramebufferAgent.h"
+#include <type_traits>
 
 namespace cc {
 namespace framegraph {
@@ -51,11 +54,12 @@ public:
 
 private:
     using DeviceResourcePool = std::vector<DeviceResourceType *>;
+    using DeviceResourcePair = std::pair<int64_t, DeviceResourceType *>;
 
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator()         = default;
 
-    std::unordered_map<DescriptorType, DeviceResourcePool, gfx::Hasher<DescriptorType>> _pool{};
+    std::unordered_map<size_t, DeviceResourcePool> _pool{};
     std::unordered_map<DeviceResourceType *, int64_t>                                   _ages{};
     uint64_t                                                                            _age{0};
 };
@@ -71,7 +75,8 @@ ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
 DeviceResourceType *ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::alloc(const DescriptorType &desc) noexcept {
-    DeviceResourcePool &pool{_pool[desc]};
+    size_t resourceHash = gfx::Hasher<DescriptorType>()(desc);
+    DeviceResourcePool &pool{_pool[resourceHash]};
 
     DeviceResourceType *resource{nullptr};
     for (DeviceResourceType *res : pool) {

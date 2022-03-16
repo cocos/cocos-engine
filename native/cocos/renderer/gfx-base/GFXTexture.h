@@ -54,6 +54,8 @@ public:
     inline Format   getFormat() const { return _info.format; }
     inline uint32_t getWidth() const { return _info.width; }
     inline uint32_t getHeight() const { return _info.height; }
+    
+    virtual Texture* getRaw() { return this; }
 
 protected:
     friend class Swapchain;

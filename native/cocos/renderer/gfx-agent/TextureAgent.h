@@ -37,6 +37,8 @@ public:
     ~TextureAgent() override;
 
     inline void renounceOwnership() { _ownTheActor = false; }
+    
+    Texture* getRaw() override { return _actor->getRaw(); }
 
 protected:
     friend class SwapchainAgent;

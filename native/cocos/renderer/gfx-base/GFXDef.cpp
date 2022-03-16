@@ -31,6 +31,8 @@
 #include "GFXDef.h"
 #include "GFXTexture.h"
 
+#include "base/Log.h"
+
 namespace cc {
 namespace gfx {
 
@@ -113,9 +115,18 @@ bool operator==(const RenderPassInfo& lhs, const RenderPassInfo& rhs) {
 template <>
 size_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo& info) const {
     // render pass is mostly irrelevant
-    size_t seed = 2;
-    boost::hash_combine(seed, info.colorTextures);
+    size_t seed = (info.colorTextures.size() + 1) * 3;
+    for (size_t i = 0; i < info.colorTextures.size(); ++i) {
+        size_t elemHash = info.colorTextures[i]->getHash();
+        boost::hash_combine(seed, elemHash);
+        boost::hash_combine(seed, info.colorTextures[i]);
+        boost::hash_combine(seed, info.colorTextures[i]->getRaw());
+    }
+    
+    size_t dsHash = info.depthStencilTexture->getHash();
+    boost::hash_combine(seed, dsHash);
     boost::hash_combine(seed, info.depthStencilTexture);
+    boost::hash_combine(seed, info.depthStencilTexture->getRaw());
     return seed;
 }
 
