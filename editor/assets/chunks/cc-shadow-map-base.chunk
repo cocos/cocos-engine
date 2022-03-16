@@ -365,9 +365,9 @@ vec4 CCGetShadowPos(vec4 pos) {
   if (levels > 1) {
     // for (int i = 0; i < MAX_CSM_LEVLE_COUNT; i++){
       // if(i >= levels) break;
-      // pos = cc_matLightViewProjAtlas_levels[i] * pos;
+      pos = cc_matLightViewProjAtlas_levels[3] * pos;
       // pos = cc_matLightViewProj_levels[i] * pos;
-      pos = cc_matLightViewProj_levels[3] * pos;
+      // pos = cc_matLightViewProj_levels[3] * pos;
 
             // top + left
       //pos.xy = pos.xy * 0.5 + vec2(-0.5, 0.5);
@@ -376,7 +376,7 @@ vec4 CCGetShadowPos(vec4 pos) {
             // bottom + left
       //pos.xy = pos.xy * 0.5 + vec2(-0.5, -0.5);
             // bottom + right
-      pos.xy = pos.xy * 0.5 + vec2(0.5, -0.5);
+      //pos.xy = pos.xy * 0.5 + vec2(0.5, -0.5);
     return pos;
     // }
   } else {
