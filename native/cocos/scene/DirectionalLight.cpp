@@ -26,9 +26,9 @@
 #include "scene/DirectionalLight.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
-#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
 namespace scene {

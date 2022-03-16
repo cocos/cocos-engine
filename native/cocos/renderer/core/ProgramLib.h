@@ -60,7 +60,7 @@ struct ITemplateInfo {
     std::vector<gfx::Attribute>                  gfxAttributes;
     gfx::ShaderInfo                              shaderInfo;
     std::vector<int32_t>                         blockSizes;
-    RefVector<gfx::DescriptorSetLayout *>           setLayouts;
+    RefVector<gfx::DescriptorSetLayout *>        setLayouts;
     IntrusivePtr<gfx::PipelineLayout>            pipelineLayout;
     Record<std::string, uint32_t>                handleMap;
     std::vector<gfx::DescriptorSetLayoutBinding> bindings;

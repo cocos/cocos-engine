@@ -25,8 +25,8 @@
 
 #include "scene/Ambient.h"
 #include "core/Root.h"
-#include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace {
@@ -145,12 +145,12 @@ void Ambient::initialize(AmbientInfo *info) {
     // _skyIllum = info->getSkyIllum();
 
     // Init HDR/LDR from serialized data on load
-    _skyColorHDR       = info->getSkyColorHDR();
+    _skyColorHDR = info->getSkyColorHDR();
     _groundAlbedoHDR.set(info->getGroundAlbedoHDR());
-    _skyIllumHDR       = info->getSkyIllumHDR();
-    _skyColorLDR       = info->getSkyColorLDR();
+    _skyIllumHDR = info->getSkyIllumHDR();
+    _skyColorLDR = info->getSkyColorLDR();
     _groundAlbedoLDR.set(info->getGroundAlbedoLDR());
-    _skyIllumLDR       = info->getSkyIllumLDR();
+    _skyIllumLDR = info->getSkyIllumLDR();
 }
 
 Vec4 &Ambient::getSkyColor() {
