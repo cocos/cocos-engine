@@ -183,9 +183,9 @@ CCClass.fastDefine('cc.CurveRange', CurveRange, {
     constantMin: 0,
     constant: 0,
     mode: Mode.Constant,
-    splineMax: constructLegacyCurveAndConvert(),
-    splineMin: constructLegacyCurveAndConvert(),
-    spline: constructLegacyCurveAndConvert(),
+    splineMax: Object.freeze(constructLegacyCurveAndConvert()),
+    splineMin: Object.freeze(constructLegacyCurveAndConvert()),
+    spline: Object.freeze(constructLegacyCurveAndConvert()),
 });
 
 setClassAttr(CurveRange, 'multiplier', 'visible', true);
