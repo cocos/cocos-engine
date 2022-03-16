@@ -344,9 +344,12 @@ void WindowsPlatform::dispatchSDLEvent(const SDL_Event& sdlEvent) {
             mouse.type                  = MouseEvent::Type::DOWN;
             mouse.x                     = static_cast<float>(event.x);
             mouse.y                     = static_cast<float>(event.y);
-            /*if (0 > mouse.x || mouse.x > this->_width || 0 > mouse.y || mouse.y > this->_height) {
-                    break;
-                }*/
+            int width = 0;
+            int height = 0;
+            SDL_GetWindowSize(_handle, &width, &height);
+            if (0 > mouse.x || mouse.x > width || 0 > mouse.y || mouse.y > height) {
+               break;
+            }
             mouse.button = event.button - 1;
             dispatchEvent(mouse);
             break;
