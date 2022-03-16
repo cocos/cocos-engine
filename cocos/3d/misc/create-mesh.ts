@@ -39,6 +39,9 @@ const _defAttrs: Attribute[] = [
 ];
 
 const v3_1 = new Vec3();
+/**
+ * @deprecated
+ */
 export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
     options = options || {};
     // Collect attributes and calculate length of result vertex buffer.
@@ -274,7 +277,7 @@ function getPadding (length: number, align: number): number {
     return 0;
 }
 
-export function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
+function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions) {
     options = options || { maxSubMeshes: 1, maxSubMeshVertices: 1024, maxSubMeshIndices: 1024 };
 
     const attributes: Attribute[] = [];

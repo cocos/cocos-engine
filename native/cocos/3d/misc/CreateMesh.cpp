@@ -18,7 +18,16 @@ gfx::AttributeList defAttrs = {
 };
 } // namespace
 
-Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOptions &options /* = {}*/) {
+Mesh *MeshUtils::createMesh(const IGeometry &geometry, Mesh *out /*= nullptr*/, const ICreateMeshOptions &options /*= {}*/) {
+    if (!out) {
+        out = new Mesh();
+    }
+
+    out->reset(createMeshInfo(geometry, options));
+    return out;
+}
+
+Mesh::ICreateInfo MeshUtils::createMeshInfo(const IGeometry &geometry, const ICreateMeshOptions &options /* = {}*/) {
     // Collect attributes and calculate length of result vertex buffer.
     gfx::AttributeList attributes;
     uint32_t           stride = 0;
@@ -238,28 +247,7 @@ Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOpt
     return createInfo;
 }
 
-Mesh *createMesh(const IGeometry &geometry, Mesh *out /* = nullptr*/, const ICreateMeshOptions &options /* = {}*/) {
-    if (!out) {
-        out = new Mesh();
-    }
-
-    out->reset(createMeshInfo(geometry, options));
-    return out;
-}
-
-Mesh *createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out /* = nullptr*/, const ICreateDynamicMeshOptions &options /* = {}*/) {
-    if (!out) {
-        out = new Mesh();
-    }
-
-    out->reset(createDynamicMeshInfo(geometry, options));
-    out->initialize();
-    out->updateSubMesh(primitiveIndex, geometry);
-
-    return out;
-}
-
-inline uint32_t getPadding(uint32_t length, uint32_t align) {
+static inline uint32_t getPadding(uint32_t length, uint32_t align) {
     if (align > 0U) {
         const uint32_t remainder = length % align;
         if (remainder != 0U) {
@@ -271,7 +259,19 @@ inline uint32_t getPadding(uint32_t length, uint32_t align) {
     return 0U;
 }
 
-Mesh::ICreateInfo createDynamicMeshInfo(const IDynamicGeometry &geometry, const ICreateDynamicMeshOptions &options /* = {}*/) {
+Mesh *MeshUtils::createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out /*= nullptr*/, const ICreateDynamicMeshOptions &options /*= {}*/) {
+    if (!out) {
+        out = new Mesh();
+    }
+
+    out->reset(MeshUtils::createDynamicMeshInfo(geometry, options));
+    out->initialize();
+    out->updateSubMesh(primitiveIndex, geometry);
+
+    return out;
+}
+
+Mesh::ICreateInfo MeshUtils::createDynamicMeshInfo(const IDynamicGeometry &geometry, const ICreateDynamicMeshOptions &options /* = {}*/) {
     gfx::AttributeList attributes;
     uint32_t           stream = 0U;
 

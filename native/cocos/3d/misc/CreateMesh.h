@@ -59,14 +59,6 @@ struct ICreateDynamicMeshOptions {
     uint32_t maxSubMeshIndices{1024U};
 };
 
-// create static mesh
-Mesh *            createMesh(const IGeometry &geometry, Mesh *out = nullptr, const ICreateMeshOptions &options = {});
-Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOptions &options = {});
-
-// create dynamic mesh
-Mesh *            createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out = nullptr, const ICreateDynamicMeshOptions &options = {});
-Mesh::ICreateInfo createDynamicMeshInfo(const IDynamicGeometry &geometry, const ICreateDynamicMeshOptions &options = {});
-
 /**
  * @en mesh utility class, use to create mesh.
  * @zh 网格工具类，用于创建网格。
@@ -77,17 +69,25 @@ public:
      * @en create a static mesh.
      * @zh 创建一个静态网格。
      */
-    static Mesh *createMesh(const IGeometry &geometry, Mesh *out = nullptr, const ICreateMeshOptions &options = {}) {
-        return cc::createMesh(geometry, out, options);
-    }
+    static Mesh *createMesh(const IGeometry &geometry, Mesh *out = nullptr, const ICreateMeshOptions &options = {});
+
+    /**
+     * @en create a static mesh ICreateInfo.
+     * @zh 创建一个静态网格ICreateInfo。
+     */
+    static Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOptions &options = {});
 
     /**
      * @en create a dynamic mesh.
      * @zh 创建一个动态网格。
      */
-    static Mesh *createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out = nullptr, const ICreateDynamicMeshOptions &options = {}) {
-        return cc::createDynamicMesh(primitiveIndex, geometry, out, options);
-    }
+    static Mesh *createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out = nullptr, const ICreateDynamicMeshOptions &options = {});
+
+    /**
+     * @en create a dynamic mesh ICreateInfo.
+     * @zh 创建一个动态网格ICreateInfo。
+     */
+    static Mesh::ICreateInfo createDynamicMeshInfo(const IDynamicGeometry &geometry, const ICreateDynamicMeshOptions &options = {});
 };
 
 } // namespace cc
