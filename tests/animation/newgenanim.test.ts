@@ -1,6 +1,6 @@
 
-import { AnimationClip, Component, lerp, Node, Vec2, Vec3, warnID } from '../../cocos/core';
-import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
+import { Component, lerp, Node, Vec2, Vec3, warnID } from '../../cocos/core';
+import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
 import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TriggerResetMode } from '../../cocos/core/animation/marionette/animation-graph';
 import { createEval } from '../../cocos/core/animation/marionette/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/marionette/errors';
