@@ -129,19 +129,23 @@ bool operator==(const FramebufferInfo& lhs, const FramebufferInfo& rhs) {
     bool res = false;
     res = lhs.colorTextures == rhs.colorTextures;
 
-    if(res)
+    if(res) {
         res = lhs.depthStencilTexture == rhs.depthStencilTexture;
+    }
     
     if(res) {
         for(size_t i = 0; i < lhs.colorTextures.size(); ++i) {
             res = lhs.colorTextures[i]->getRaw() == rhs.colorTextures[i]->getRaw() &&
                   lhs.colorTextures[i]->getHash() == rhs.colorTextures[i]->getHash();
-            if(!res)
+            if(!res) {
                 break;
+            }
         }
-        if(res)
+        if(res) {
             res = lhs.depthStencilTexture->getRaw() == rhs.depthStencilTexture->getRaw() &&
                   lhs.depthStencilTexture->getHash() == rhs.depthStencilTexture->getHash();
+        }
+            
     }
     return res;
 }
