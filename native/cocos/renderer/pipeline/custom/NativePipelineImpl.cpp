@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 #include "NativePipelineTypes.h"
-#include "pipeline/custom/GslUtils.h"
-#include "pipeline/custom/RenderCommonTypes.h"
-#include "pipeline/custom/RenderInterfaceFwd.h"
-#include "scene/RenderScene.h"
-#include "scene/RenderWindow.h"
+#include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
+#include "cocos/renderer/pipeline/custom/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
+#include "cocos/scene/RenderScene.h"
+#include "cocos/scene/RenderWindow.h"
 
 namespace cc {
 
@@ -111,7 +112,7 @@ bool NativePipeline::destroy() noexcept {
 }
 
 // NOLINTNEXTLINE
-void NativePipeline::render(const std::vector<const scene::Camera*>& cameras) {
+void NativePipeline::render(const std::vector<scene::Camera*>& cameras) {
 }
 
 const MacroRecord &NativePipeline::getMacros() const {
@@ -119,7 +120,7 @@ const MacroRecord &NativePipeline::getMacros() const {
 }
 
 pipeline::GlobalDSManager *NativePipeline::getGlobalDSManager() const {
-    return globalDSManager;
+    return globalDSManager.get();
 }
 
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout() const {
