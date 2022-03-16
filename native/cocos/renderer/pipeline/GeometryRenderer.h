@@ -76,7 +76,7 @@ public:
 
     void activate(gfx::Device *device, RenderPipeline *pipeline, const GeometryConfig &config = GeometryConfig());
     void flushFromJSB(uint32_t type, uint32_t index, void *vb, uint32_t vertexCount);
-    void render(scene::Camera* camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
+    void render(scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
     void destroy();
 
     void addDashedLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);

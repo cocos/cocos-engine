@@ -297,7 +297,7 @@ void Skybox::updatePipeline() const {
     const bool    useHDRValue        = isUseHDR();
 
     bool valueChanged = false;
-    auto iter = pipeline->getMacros().find("CC_USE_IBL");
+    auto iter         = pipeline->getMacros().find("CC_USE_IBL");
     if (iter != pipeline->getMacros().end()) {
         const MacroValue &macroIBL    = iter->second;
         const int32_t *   macroIBLPtr = cc::get_if<int32_t>(&macroIBL);
@@ -329,7 +329,7 @@ void Skybox::updatePipeline() const {
 
     if (valueChanged) {
         root->onGlobalPipelineStateChanged();
-    }  
+    }
 }
 
 void Skybox::updateGlobalBinding() {
