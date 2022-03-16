@@ -89,6 +89,7 @@ public:
     virtual void                      setSubModelMaterial(index_t idx, Material *mat);
     void                              onGlobalPipelineStateChanged() const;
     void                              onMacroPatchesStateChanged();
+    void                              onGeometryChanged();
     void                              updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
     virtual std::vector<IMacroPatch> &getMacroPatches(index_t subModelIndex);
     virtual void                      updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, Pass *pass);

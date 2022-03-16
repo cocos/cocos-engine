@@ -89,7 +89,8 @@
                 "cocos/3d/assets/skeleton.ts":"cocos/3d/assets/skeleton.jsb.ts",
                 "cocos/3d/models/morph-model.ts":"cocos/3d/models/morph-model.jsb.ts",
                 "cocos/3d/models/skinning-model.ts":"cocos/3d/models/skinning-model.jsb.ts",
-                "cocos/3d/models/baked-skinning-model.ts":"cocos/3d/models/baked-skinning-model.jsb.ts"
+                "cocos/3d/models/baked-skinning-model.ts":"cocos/3d/models/baked-skinning-model.jsb.ts",
+                "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts"
             }
         },
         {

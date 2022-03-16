@@ -264,8 +264,15 @@ void Model::createBoundingShape(const cc::optional<Vec3> &minPos, const cc::opti
         return;
     }
 
-    _modelBounds = geometry::AABB::fromPoints(minPos.value(), maxPos.value(), new geometry::AABB());
-    _worldBounds = geometry::AABB::fromPoints(minPos.value(), maxPos.value(), new geometry::AABB());
+    if (!_modelBounds) {
+        _modelBounds = new geometry::AABB();
+    }
+    geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _modelBounds);
+
+    if (!_worldBounds) {
+        _worldBounds = new geometry::AABB();
+    }
+    geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _worldBounds);
 }
 
 SubModel *Model::createSubModel() {
@@ -313,6 +320,12 @@ void Model::onGlobalPipelineStateChanged() const {
 void Model::onMacroPatchesStateChanged() {
     for (index_t i = 0; i < _subModels.size(); ++i) {
         _subModels[i]->onMacroPatchesStateChanged(getMacroPatches(i));
+    }
+}
+
+void Model::onGeometryChanged() {
+    for (SubModel *subModel : _subModels) {
+        subModel->onGeometryChanged();
     }
 }
 
