@@ -31,8 +31,6 @@
 #include "GFXDef.h"
 #include "GFXTexture.h"
 
-#include "base/Log.h"
-
 namespace cc {
 namespace gfx {
 

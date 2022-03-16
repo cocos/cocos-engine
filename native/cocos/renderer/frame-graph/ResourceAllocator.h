@@ -29,8 +29,6 @@
 #include <unordered_map>
 #include "base/memory/Memory.h"
 #include "gfx-base/GFXDef.h"
-#include "base/Log.h"
-#include "gfx-agent/FramebufferAgent.h"
 #include <type_traits>
 
 namespace cc {
@@ -54,7 +52,6 @@ public:
 
 private:
     using DeviceResourcePool = std::vector<DeviceResourceType *>;
-    using DeviceResourcePair = std::pair<int64_t, DeviceResourceType *>;
 
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator()         = default;
