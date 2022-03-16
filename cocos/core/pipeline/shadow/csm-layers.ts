@@ -29,7 +29,7 @@
  */
 
 import { DirectionalLight, Camera, Shadows, CSMLevel } from '../../renderer/scene';
-import { Mat4, Vec3, Vec2, Quat } from '../../math';
+import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { RenderPipeline } from '..';
 import { IRenderObject } from '../define';
@@ -366,7 +366,7 @@ export class CSMLayers {
             // Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, 0.1, dirLight.shadowDistance);
             csmLayer.createMatrix(device, csmLayer.splitFrustum, dirLight, shadowMapWidth, false);
 
-            Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowViewProj, csmLayer.matShadowAtlas);
+            Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowAtlas, csmLayer.matShadowViewProj);
         }
 
         if (level === CSMLevel.level_1) {

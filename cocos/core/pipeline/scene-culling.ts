@@ -229,19 +229,19 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 if (camera.node.name === 'Main Camera') {
                     if (mainLight.shadowCSMLevel >= 1) {
                         pipeline.geometryRenderer.addFrustum(csmLayers.layers[0].splitFrustum, Color.WHITE);
-                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[0].validFrustum, Color.YELLOW);
+                        //pipeline.geometryRenderer.addFrustum(csmLayers.layers[0].validFrustum, Color.YELLOW);
                     }
                     if (mainLight.shadowCSMLevel >= 2) {
                         pipeline.geometryRenderer.addFrustum(csmLayers.layers[1].splitFrustum, Color.WHITE);
-                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[1].validFrustum, Color.GREEN);
+                        //pipeline.geometryRenderer.addFrustum(csmLayers.layers[1].validFrustum, Color.GREEN);
                     }
                     if (mainLight.shadowCSMLevel >= 3) {
                         pipeline.geometryRenderer.addFrustum(csmLayers.layers[2].splitFrustum, Color.WHITE);
-                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[2].validFrustum, Color.RED);
+                        //pipeline.geometryRenderer.addFrustum(csmLayers.layers[2].validFrustum, Color.RED);
                     }
                     if (mainLight.shadowCSMLevel >= 4) {
                         pipeline.geometryRenderer.addFrustum(csmLayers.layers[3].splitFrustum, Color.WHITE);
-                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[3].validFrustum, Color.YELLOW);
+                        //pipeline.geometryRenderer.addFrustum(csmLayers.layers[3].validFrustum, Color.YELLOW);
                     }
                 }
             }
