@@ -23,6 +23,7 @@ import { StateMachineComponent } from '../../cocos/core/animation/marionette/sta
 import { VectorTrack } from '../../cocos/core/animation/animation';
 import 'jest-extended';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { AnimationClip } from '../../cocos/core/animation/animation-clip';
 
 describe('NewGen Anim', () => {
     test('Defaults', () => {

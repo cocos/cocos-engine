@@ -434,14 +434,11 @@ bool register_all_dragonbones_manual(se::Object *obj) {
     __jsb_dragonBones_BaseFactory_proto->defineFunction("parseTextureAtlasData", _SE(js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData));
 
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject *obj, int type) {
-        //std::string typeName = typeid(*obj).name();
-
-        //se::Object* seObj = nullptr;
-
+        se::Object* seObj = nullptr;
         auto iter = se::NativePtrToObjectMap::find(obj);
         if (iter != se::NativePtrToObjectMap::end()) {
             // Save se::Object pointer for being used in cleanup method.
-            //seObj = iter->second;
+            seObj = iter->second;
             // Unmap native and js object since native object was destroyed.
             // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
             // since native obj is already released and the new native object may be assigned with
@@ -453,32 +450,31 @@ bool register_all_dragonbones_manual(se::Object *obj) {
             return;
         }
 
-        //std::string typeNameStr = typeName;
-        //auto cleanup = [seObj, typeNameStr](){
+        auto cleanup = [seObj](){
 
-        //    auto se = se::ScriptEngine::getInstance();
-        //    if (!se->isValid() || se->isInCleanup())
-        //        return;
+            auto se = se::ScriptEngine::getInstance();
+            if (!se->isValid() || se->isInCleanup())
+                return;
 
-        //    se::AutoHandleScope hs;
-        //    se->clearException();
+            se::AutoHandleScope hs;
+            se->clearException();
 
-        //    // The mapping of native object & se::Object was cleared in above code.
-        //    // The private data (native object) may be a different object associated with other se::Object.
-        //    // Therefore, don't clear the mapping again.
-        //    seObj->clearPrivateData(false);
-        //    seObj->unroot();
-        //    seObj->decRef();
-        //};
+            // The mapping of native object & se::Object was cleared in above code.
+            // The private data (native object) may be a different object associated with other se::Object.
+            // Therefore, don't clear the mapping again.
+            seObj->clearPrivateData(false);
+            seObj->unroot();
+            seObj->decRef();
+        };
 
-        //if (!se::ScriptEngine::getInstance()->isGarbageCollecting())
-        //{
-        //    cleanup();
-        //}
-        //else
-        //{
-        //    CleanupTask::pushTaskToAutoReleasePool(cleanup);
-        //}
+        if (!se::ScriptEngine::getInstance()->isGarbageCollecting())
+        {
+            cleanup();
+        }
+        else
+        {
+            CleanupTask::pushTaskToAutoReleasePool(cleanup);
+        }
     });
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {

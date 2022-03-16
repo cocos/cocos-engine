@@ -234,13 +234,40 @@ bool register_all_spine_manual(se::Object *obj) {
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
         // Support Native Spine fo Creator V3.0
+        se::Object *seObj = nullptr;
         auto iter = se::NativePtrToObjectMap::find(spineObj);
         if (iter != se::NativePtrToObjectMap::end()) {
+            // Save se::Object pointer for being used in cleanup method.
+            seObj = iter->second;
             // Unmap native and js object since native object was destroyed.
             // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
             // since native obj is already released and the new native object may be assigned with
             // the same address.
             se::NativePtrToObjectMap::erase(iter);
+        } else {
+            return;
+        }
+
+        auto cleanup = [seObj]() {
+            auto se = se::ScriptEngine::getInstance();
+            if (!se->isValid() || se->isInCleanup())
+                return;
+
+            se::AutoHandleScope hs;
+            se->clearException();
+
+            // The mapping of native object & se::Object was cleared in above code.
+            // The private data (native object) may be a different object associated with other se::Object.
+            // Therefore, don't clear the mapping again.
+            seObj->clearPrivateData(false);
+            seObj->unroot();
+            seObj->decRef();
+        };
+
+        if (!se::ScriptEngine::getInstance()->isGarbageCollecting()) {
+            cleanup();
+        } else {
+            CleanupTask::pushTaskToAutoReleasePool(cleanup);
         }
     });
 

@@ -112,7 +112,7 @@ int32_t Engine::init() {
     platform->setHandleEventCallback(
         std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
-    se::ScriptEngine::getInstance()->addPermanentRegisterCallback(setCanvasCallback);
+    se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
     return 0;
 }
 

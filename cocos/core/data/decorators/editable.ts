@@ -321,7 +321,10 @@ export const multiline: LegacyPropertyDecorator = !DEV
  */
 export const disallowAnimation: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
-    : setPropertyStashWithImplicitVisible('animatable', false);
+    : (target, propertyKey, descriptor) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+        propertyStash.animatable = false;
+    };
 
 function setPropertyStashWithImplicitVisible<TKey extends keyof PropertyStash> (
     key: TKey,
