@@ -29,11 +29,12 @@
 #include "GFXInputAssembler.h"
 #include "GFXObject.h"
 #include "base/Utils.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL CommandBuffer : public GFXObject {
+class CC_DLL CommandBuffer : public GFXObject, public RefCounted {
 public:
     CommandBuffer();
     ~CommandBuffer() override;

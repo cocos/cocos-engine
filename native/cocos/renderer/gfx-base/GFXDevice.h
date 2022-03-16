@@ -41,6 +41,7 @@
 #include "GFXShader.h"
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
+#include "base/RefCounted.h"
 #include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
 #include "states/GFXTextureBarrier.h"
@@ -48,7 +49,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL Device : public Object {
+class CC_DLL Device : public RefCounted {
 public:
     static Device *getInstance();
 
@@ -92,6 +93,7 @@ public:
     virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count)        = 0;
     virtual void getQueryPoolResults(QueryPool *queryPool)                                                                           = 0;
 
+    inline void copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions);
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
     inline void flushCommands(const vector<CommandBuffer *> &cmdBuffs);
     inline void acquire(const vector<Swapchain *> &swapchains);
@@ -283,6 +285,10 @@ PipelineState *Device::createPipelineState(const PipelineStateInfo &info) {
 
 void Device::copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
     copyBuffersToTexture(buffers.data(), dst, regions.data(), utils::toUint(regions.size()));
+}
+
+void Device::copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions) {
+    copyTextureToBuffers(src, buffers.data(), regions.data(), utils::toUint(regions.size()));
 }
 
 void Device::flushCommands(const vector<CommandBuffer *> &cmdBuffs) {

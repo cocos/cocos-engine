@@ -121,6 +121,22 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
+    get shadowBias () {
+        return this._shadowBias;
+    }
+
+    set shadowBias (val) {
+        this._shadowBias = val;
+    }
+
+    get shadowNormalBias () {
+        return this._shadowNormalBias;
+    }
+
+    set shadowNormalBias (val) {
+        this._shadowNormalBias = val;
+    }
+
     get receiveShadow () {
         return this._receiveShadow;
     }
@@ -197,6 +213,8 @@ export class Model {
 
     protected _receiveShadow = false;
     protected _castShadow = false;
+    protected _shadowBias = 0;
+    protected _shadowNormalBias = 0;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
 
@@ -385,6 +403,15 @@ export class Model {
                 descriptorSet.update();
             }
         }
+    }
+
+    public updateLocalShadowBias () {
+        const sv = this._localData;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = 0;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
+        this._localDataUpdated = true;
     }
 
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {

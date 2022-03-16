@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUPipelineLayout;
+struct CCVKGPUPipelineLayout;
 
 class CC_VULKAN_API CCVKPipelineLayout final : public PipelineLayout {
 public:

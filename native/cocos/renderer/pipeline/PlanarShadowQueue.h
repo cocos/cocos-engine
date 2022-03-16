@@ -43,10 +43,10 @@ class InstanceBuffer;
 class RenderInstancedQueue;
 class RenderBatchedQueue;
 
-class CC_DLL PlanarShadowQueue : public Object {
+class CC_DLL PlanarShadowQueue final {
 public:
     explicit PlanarShadowQueue(RenderPipeline *pipeline);
-    ~PlanarShadowQueue() override;
+    ~PlanarShadowQueue();
 
     void clear();
     void gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);

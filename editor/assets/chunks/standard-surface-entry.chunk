@@ -6,7 +6,7 @@
 #include <cc-shadow-map-fs>
 
 
-#define CC_STANDARD_SURFACE_ENTRY()                                \
+#pragma define CC_STANDARD_SURFACE_ENTRY()                         \
 #if CC_FORWARD_ADD                                                 \
   #include <shading-standard-additive>                             \
   #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                       \

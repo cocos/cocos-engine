@@ -31,7 +31,7 @@
 #include <string>
 #include <unordered_map>
 #include "base/Macros.h"
-#include "base/Map.h"
+#include "base/RefMap.h"
 
 /**
  * @addtogroup network
@@ -144,7 +144,7 @@ private:
 
     static SocketIO *inst;
 
-    cc::Map<std::string, SIOClientImpl *> _sockets;
+    cc::RefMap<std::string, SIOClientImpl *> _sockets;
 
     SIOClientImpl *getSocket(const std::string &uri);
     void           addSocket(const std::string &uri, SIOClientImpl *socket);

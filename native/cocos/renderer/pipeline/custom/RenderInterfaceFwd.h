@@ -38,6 +38,7 @@ namespace cc {
 
 namespace render {
 
+class PipelineRuntime;
 class DescriptorHierarchy;
 class Setter;
 class RasterQueueBuilder;
@@ -46,7 +47,11 @@ class ComputeQueueBuilder;
 class ComputePassBuilder;
 class MovePassBuilder;
 class CopyPassBuilder;
+class SceneVisitor;
+class SceneTask;
+class SceneTransversal;
 class Pipeline;
+class Factory;
 
 } // namespace render
 

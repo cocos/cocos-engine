@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUQueue;
+struct CCVKGPUQueue;
 
 class CC_VULKAN_API CCVKQueue final : public Queue {
 public:

@@ -2027,7 +2027,7 @@ class Generator(object):
         header = os.path.join(os.path.dirname(__file__), "batch_input.h")
         df = io.open(header, "w", newline="\n")
         for h in self.headers:
-            df.write("#include \"%s\"\n" % (os.path.relpath(h, os.path.dirname(header))))
+            df.write(unicode("#include \"%s\"\n" % (os.path.relpath(h, os.path.dirname(header)))))
             # logger.info("write header %s", h)
         df.close()
         logger.info(">>> parse_header: " + str(len(self.headers)))

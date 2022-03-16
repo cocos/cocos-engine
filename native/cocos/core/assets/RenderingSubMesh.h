@@ -26,7 +26,7 @@
 #pragma once
 
 #include "3d/assets/Types.h"
-#include "base/Vector.h"
+#include "base/RefVector.h"
 #include "cocos/base/Variant.h"
 #include "core/TypedArray.h"
 #include "core/assets/Asset.h"
@@ -183,7 +183,7 @@ private:
     std::vector<IFlatBuffer> _flatBuffers;
 
     // As gfx::InputAssemblerInfo needs the data structure, so not use IntrusivePtr.
-    Vector<gfx::Buffer *> _jointMappedBuffers;
+    RefVector<gfx::Buffer *> _jointMappedBuffers;
 
     std::vector<uint32_t> _jointMappedBufferIndices;
 
@@ -192,7 +192,7 @@ private:
     cc::optional<IGeometricInfo> _geometricInfo;
 
     // As gfx::InputAssemblerInfo needs the data structure, so not use IntrusivePtr.
-    Vector<gfx::Buffer *> _vertexBuffers;
+    RefVector<gfx::Buffer *> _vertexBuffers;
 
     gfx::AttributeList _attributes;
 

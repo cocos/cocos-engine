@@ -31,11 +31,33 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
-import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
+import { Buffer, Color, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
+import { GlobalDSManager } from '../global-descriptor-set-manager';
+import { Mat4, Quat, Vec2, Vec4 } from '../../math';
+import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { QueueHint } from './types';
+import { QueueHint, ResourceResidency, TaskType } from './types';
 import { ComputeView, CopyPair, MovePair, RasterView } from './render-graph';
+import { RenderScene } from '../../renderer/scene/render-scene';
+import { RenderWindow } from '../../renderer/core/render-window';
+import { Model } from '../../renderer/scene';
+
+export abstract class PipelineRuntime {
+    public abstract activate(swapchain: Swapchain): boolean;
+    public abstract destroy(): boolean;
+    public abstract render(cameras: Camera[]): void;
+    public abstract get globalDSManager(): GlobalDSManager;
+    public abstract get descriptorSetLayout(): DescriptorSetLayout;
+    public abstract get pipelineSceneData(): PipelineSceneData;
+    public abstract get constantMacros(): string;
+    public abstract get profiler(): Model | null;
+    public abstract set profiler(profiler: Model | null);
+    public abstract get shadingScale(): number;
+    public abstract set shadingScale(scale: number);
+    public abstract onGlobalPipelineStateChanged(): void;
+
+    public abstract get macros(): MacroRecord;
+}
 
 export abstract class DescriptorHierarchy {
     public abstract addEffect(asset: EffectAsset): void;
@@ -55,7 +77,7 @@ export abstract class Setter {
     public abstract setSampler(name: string, sampler: Sampler): void;
 }
 
-export abstract class RasterQueueBuilder {
+export abstract class RasterQueueBuilder extends Setter {
     public abstract addSceneOfCamera(camera: Camera, name: string): void;
     public abstract addSceneOfCamera(camera: Camera): void;
     public abstract addScene(name: string): void;
@@ -63,7 +85,7 @@ export abstract class RasterQueueBuilder {
     public abstract addFullscreenQuad(shader: string): void;
 }
 
-export abstract class RasterPassBuilder {
+export abstract class RasterPassBuilder extends Setter {
     public abstract addRasterView(name: string, view: RasterView): void;
     public abstract addComputeView(name: string, view: ComputeView): void;
     public abstract addQueue(hint: QueueHint, layoutName: string, name: string): RasterQueueBuilder;
@@ -74,13 +96,13 @@ export abstract class RasterPassBuilder {
     public abstract addFullscreenQuad(shader: string): void;
 }
 
-export abstract class ComputeQueueBuilder {
+export abstract class ComputeQueueBuilder extends Setter {
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string, name: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, layoutName: string): void;
     public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
-export abstract class ComputePassBuilder {
+export abstract class ComputePassBuilder extends Setter {
     public abstract addComputeView(name: string, view: ComputeView): void;
     public abstract addQueue(layoutName: string, name: string): ComputeQueueBuilder;
     public abstract addQueue(layoutName: string): ComputeQueueBuilder;
@@ -98,11 +120,33 @@ export abstract class CopyPassBuilder {
     public abstract addPair(pair: CopyPair): void;
 }
 
-export abstract class Pipeline {
-    public abstract addRenderTexture(name: string, format: Format, width: number, height: number): number;
-    public abstract addRenderTarget(name: string, format: Format, width: number, height: number): number;
-    public abstract addDepthStencil(name: string, format: Format, width: number, height: number): number;
-    public abstract beginFrame(pplScene: PipelineSceneData): void;
+export abstract class SceneVisitor {
+    public abstract setViewport(vp: Viewport): void;
+    public abstract setScissor(rect: Rect): void;
+    public abstract bindPipelineState(pso: PipelineState): void;
+    public abstract bindInputAssembler(ia: InputAssembler): void;
+    public abstract draw(info: DrawInfo): void;
+
+    public abstract bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
+    public abstract updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
+}
+
+export abstract class SceneTask {
+    public abstract get taskType(): TaskType;
+    public abstract start(): void;
+    public abstract join(): void;
+    public abstract submit(): void;
+}
+
+export abstract class SceneTransversal {
+    public abstract transverse(visitor: SceneVisitor): SceneTask;
+}
+
+export abstract class Pipeline extends PipelineRuntime {
+    public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
+    public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    public abstract addDepthStencil(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    public abstract beginFrame(): void;
     public abstract endFrame(): void;
     public abstract addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
     public abstract addRasterPass(width: number, height: number, layoutName: string): RasterPassBuilder;
@@ -110,4 +154,9 @@ export abstract class Pipeline {
     public abstract addComputePass(layoutName: string): ComputePassBuilder;
     public abstract addMovePass(name: string): MovePassBuilder;
     public abstract addCopyPass(name: string): CopyPassBuilder;
+    public abstract addPresentPass(name: string, swapchainName: string): void;
+    public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
+}
+
+export class Factory {
 }

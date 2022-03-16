@@ -68,7 +68,7 @@ out_degree(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& 
 inline std::pair<DeviceResourceGraph::edge_descriptor, bool>
 edge(DeviceResourceGraph::vertex_descriptor u, DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept {
     const auto& outEdgeList = g.getOutEdgeList(u);
-    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), DeviceResourceGraph::out_edge_type(v));
+    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), DeviceResourceGraph::OutEdge(v));
     bool  hasEdge     = (iter != outEdgeList.end());
     return {DeviceResourceGraph::edge_descriptor(u, v), hasEdge};
 }
@@ -258,7 +258,7 @@ inline void clear_vertex(DeviceResourceGraph::vertex_descriptor u, DeviceResourc
     clear_in_edges(u, g);
 }
 
-inline void remove_vertex_value_impl(const DeviceResourceGraph::vertex_handle_type& h, DeviceResourceGraph& g) noexcept { // NOLINT
+inline void remove_vertex_value_impl(const DeviceResourceGraph::VertexHandle& h, DeviceResourceGraph& g) noexcept { // NOLINT
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     cc::visit(
         overload(
@@ -292,18 +292,18 @@ inline void remove_vertex(DeviceResourceGraph::vertex_descriptor u, DeviceResour
 
 // MutablePropertyGraph(Vertex)
 template <class ValueT>
-void add_vertex_impl( // NOLINT
-    ValueT &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, std::unique_ptr<gfx::Buffer>>::value>* dummy = nullptr) { // NOLINT
+void addVertexImpl( // NOLINT
+    ValueT &&val, DeviceResourceGraph &g, DeviceResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Buffer>>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>{
         gsl::narrow_cast<DeviceResourceGraph::vertex_descriptor>(g.buffers.size())};
     g.buffers.emplace_back(std::forward<ValueT>(val));
 }
 
 template <class ValueT>
-void add_vertex_impl( // NOLINT
-    ValueT &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, std::unique_ptr<gfx::Texture>>::value>* dummy = nullptr) { // NOLINT
+void addVertexImpl( // NOLINT
+    ValueT &&val, DeviceResourceGraph &g, DeviceResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Texture>>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>{
         gsl::narrow_cast<DeviceResourceGraph::vertex_descriptor>(g.textures.size())};
     g.textures.emplace_back(std::forward<ValueT>(val));
@@ -311,7 +311,7 @@ void add_vertex_impl( // NOLINT
 
 template <class Component0, class Component1, class ValueT>
 inline DeviceResourceGraph::vertex_descriptor
-add_vertex(Component0&& c0, Component1&& c1, ValueT&& val, DeviceResourceGraph& g) { // NOLINT
+addVertex(Component0&& c0, Component1&& c1, ValueT&& val, DeviceResourceGraph& g) {
     auto v = gsl::narrow_cast<DeviceResourceGraph::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
@@ -321,13 +321,13 @@ add_vertex(Component0&& c0, Component1&& c1, ValueT&& val, DeviceResourceGraph& 
 
     // PolymorphicGraph
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
-    add_vertex_impl(std::forward<ValueT>(val), g, vert);
+    addVertexImpl(std::forward<ValueT>(val), g, vert);
 
     return v;
 }
 
 template <class Tuple>
-void add_vertex_impl(BufferTag /*tag*/, Tuple &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert) { // NOLINT
+void addVertexImpl(BufferTag /*tag*/, Tuple &&val, DeviceResourceGraph &g, DeviceResourceGraph::Vertex &vert) {
     invoke_hpp::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>{
@@ -338,7 +338,7 @@ void add_vertex_impl(BufferTag /*tag*/, Tuple &&val, DeviceResourceGraph &g, Dev
 }
 
 template <class Tuple>
-void add_vertex_impl(TextureTag /*tag*/, Tuple &&val, DeviceResourceGraph &g, DeviceResourceGraph::vertex_type &vert) { // NOLINT
+void addVertexImpl(TextureTag /*tag*/, Tuple &&val, DeviceResourceGraph &g, DeviceResourceGraph::Vertex &vert) {
     invoke_hpp::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>{
@@ -350,7 +350,7 @@ void add_vertex_impl(TextureTag /*tag*/, Tuple &&val, DeviceResourceGraph &g, De
 
 template <class Component0, class Component1, class Tag, class ValueT>
 inline DeviceResourceGraph::vertex_descriptor
-add_vertex(Tag tag, Component0&& c0, Component1&& c1, ValueT&& val, DeviceResourceGraph& g) { // NOLINT
+addVertex(Tag tag, Component0&& c0, Component1&& c1, ValueT&& val, DeviceResourceGraph& g) {
     auto v = gsl::narrow_cast<DeviceResourceGraph::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
@@ -370,7 +370,7 @@ add_vertex(Tag tag, Component0&& c0, Component1&& c1, ValueT&& val, DeviceResour
 
     // PolymorphicGraph
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
-    add_vertex_impl(tag, std::forward<ValueT>(val), g, vert);
+    addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
 
     return v;
 }
@@ -491,7 +491,7 @@ get(DeviceResourceGraph::RefCountTag /*tag*/, DeviceResourceGraph& g) noexcept {
 
 // PolymorphicGraph
 inline DeviceResourceGraph::vertices_size_type
-value_id(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) noexcept { // NOLINT
+id(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) noexcept {
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     return cc::visit(
         overload(
@@ -504,55 +504,55 @@ value_id(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g)
         g.vertices[u].handle);
 }
 
-inline DeviceResourceGraph::vertex_tag_type
+inline DeviceResourceGraph::VertexTag
 tag(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) noexcept {
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     return cc::visit(
         overload(
             [](const impl::ValueHandle<BufferTag, vertex_descriptor>&) {
-                return DeviceResourceGraph::vertex_tag_type{BufferTag{}};
+                return DeviceResourceGraph::VertexTag{BufferTag{}};
             },
             [](const impl::ValueHandle<TextureTag, vertex_descriptor>&) {
-                return DeviceResourceGraph::vertex_tag_type{TextureTag{}};
+                return DeviceResourceGraph::VertexTag{TextureTag{}};
             }),
         g.vertices[u].handle);
 }
 
-inline DeviceResourceGraph::vertex_value_type
+inline DeviceResourceGraph::VertexValue
 value(DeviceResourceGraph::vertex_descriptor u, DeviceResourceGraph& g) noexcept {
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     return cc::visit(
         overload(
             [&](const impl::ValueHandle<BufferTag, vertex_descriptor>& h) {
-                return DeviceResourceGraph::vertex_value_type{&g.buffers[h.value]};
+                return DeviceResourceGraph::VertexValue{&g.buffers[h.value]};
             },
             [&](const impl::ValueHandle<TextureTag, vertex_descriptor>& h) {
-                return DeviceResourceGraph::vertex_value_type{&g.textures[h.value]};
+                return DeviceResourceGraph::VertexValue{&g.textures[h.value]};
             }),
         g.vertices[u].handle);
 }
 
-inline DeviceResourceGraph::vertex_const_value_type
+inline DeviceResourceGraph::VertexConstValue
 value(DeviceResourceGraph::vertex_descriptor u, const DeviceResourceGraph& g) noexcept {
     using vertex_descriptor = DeviceResourceGraph::vertex_descriptor;
     return cc::visit(
         overload(
             [&](const impl::ValueHandle<BufferTag, vertex_descriptor>& h) {
-                return DeviceResourceGraph::vertex_const_value_type{&g.buffers[h.value]};
+                return DeviceResourceGraph::VertexConstValue{&g.buffers[h.value]};
             },
             [&](const impl::ValueHandle<TextureTag, vertex_descriptor>& h) {
-                return DeviceResourceGraph::vertex_const_value_type{&g.textures[h.value]};
+                return DeviceResourceGraph::VertexConstValue{&g.textures[h.value]};
             }),
         g.vertices[u].handle);
 }
 
 template <class Tag>
 inline bool
-holds_tag(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept; // NOLINT
+holds(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept;
 
 template <>
 inline bool
-holds_tag<BufferTag>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
+holds<BufferTag>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept {
     return boost::variant2::holds_alternative<
         impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -560,7 +560,7 @@ holds_tag<BufferTag>(DeviceResourceGraph::vertex_descriptor v, const DeviceResou
 
 template <>
 inline bool
-holds_tag<TextureTag>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
+holds<TextureTag>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept {
     return boost::variant2::holds_alternative<
         impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -572,7 +572,7 @@ holds_alternative(DeviceResourceGraph::vertex_descriptor v, const DeviceResource
 
 template <>
 inline bool
-holds_alternative<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
+holds_alternative<IntrusivePtr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -580,7 +580,7 @@ holds_alternative<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_desc
 
 template <>
 inline bool
-holds_alternative<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
+holds_alternative<IntrusivePtr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -591,8 +591,8 @@ inline ValueT&
 get(DeviceResourceGraph::vertex_descriptor /*v*/, DeviceResourceGraph& /*g*/);
 
 template <>
-inline std::unique_ptr<gfx::Buffer>&
-get<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
+inline IntrusivePtr<gfx::Buffer>&
+get<IntrusivePtr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -600,8 +600,8 @@ get<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, Devi
 }
 
 template <>
-inline std::unique_ptr<gfx::Texture>&
-get<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
+inline IntrusivePtr<gfx::Texture>&
+get<IntrusivePtr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -613,8 +613,8 @@ inline const ValueT&
 get(DeviceResourceGraph::vertex_descriptor /*v*/, const DeviceResourceGraph& /*g*/);
 
 template <>
-inline const std::unique_ptr<gfx::Buffer>&
-get<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
+inline const IntrusivePtr<gfx::Buffer>&
+get<IntrusivePtr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
@@ -622,15 +622,15 @@ get<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, cons
 }
 
 template <>
-inline const std::unique_ptr<gfx::Texture>&
-get<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
+inline const IntrusivePtr<gfx::Texture>&
+get<IntrusivePtr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.textures[handle.value];
 }
 
-inline std::unique_ptr<gfx::Buffer>&
+inline IntrusivePtr<gfx::Buffer>&
 get(BufferTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
@@ -638,7 +638,7 @@ get(BufferTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, DeviceResourceG
     return g.buffers[handle.value];
 }
 
-inline std::unique_ptr<gfx::Texture>&
+inline IntrusivePtr<gfx::Texture>&
 get(TextureTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph& g) {
     auto& handle = boost::variant2::get<
         impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
@@ -646,7 +646,7 @@ get(TextureTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, DeviceResource
     return g.textures[handle.value];
 }
 
-inline const std::unique_ptr<gfx::Buffer>&
+inline const IntrusivePtr<gfx::Buffer>&
 get(BufferTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<BufferTag, DeviceResourceGraph::vertex_descriptor>>(
@@ -654,7 +654,7 @@ get(BufferTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, const DeviceRes
     return g.buffers[handle.value];
 }
 
-inline const std::unique_ptr<gfx::Texture>&
+inline const IntrusivePtr<gfx::Texture>&
 get(TextureTag /*tag*/, DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph& g) {
     const auto& handle = boost::variant2::get<
         impl::ValueHandle<TextureTag, DeviceResourceGraph::vertex_descriptor>>(
@@ -667,9 +667,9 @@ inline ValueT*
 get_if(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph* pGraph) noexcept; // NOLINT
 
 template <>
-inline std::unique_ptr<gfx::Buffer>*
-get_if<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph* pGraph) noexcept { // NOLINT
-    std::unique_ptr<gfx::Buffer>* ptr = nullptr;
+inline IntrusivePtr<gfx::Buffer>*
+get_if<IntrusivePtr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph* pGraph) noexcept { // NOLINT
+    IntrusivePtr<gfx::Buffer>* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -684,9 +684,9 @@ get_if<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, D
 }
 
 template <>
-inline std::unique_ptr<gfx::Texture>*
-get_if<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph* pGraph) noexcept { // NOLINT
-    std::unique_ptr<gfx::Texture>* ptr = nullptr;
+inline IntrusivePtr<gfx::Texture>*
+get_if<IntrusivePtr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, DeviceResourceGraph* pGraph) noexcept { // NOLINT
+    IntrusivePtr<gfx::Texture>* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -705,9 +705,9 @@ inline const ValueT*
 get_if(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph* pGraph) noexcept; // NOLINT
 
 template <>
-inline const std::unique_ptr<gfx::Buffer>*
-get_if<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph* pGraph) noexcept { // NOLINT
-    const std::unique_ptr<gfx::Buffer>* ptr = nullptr;
+inline const IntrusivePtr<gfx::Buffer>*
+get_if<IntrusivePtr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph* pGraph) noexcept { // NOLINT
+    const IntrusivePtr<gfx::Buffer>* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -722,9 +722,9 @@ get_if<std::unique_ptr<gfx::Buffer>>(DeviceResourceGraph::vertex_descriptor v, c
 }
 
 template <>
-inline const std::unique_ptr<gfx::Texture>*
-get_if<std::unique_ptr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph* pGraph) noexcept { // NOLINT
-    const std::unique_ptr<gfx::Texture>* ptr = nullptr;
+inline const IntrusivePtr<gfx::Texture>*
+get_if<IntrusivePtr<gfx::Texture>>(DeviceResourceGraph::vertex_descriptor v, const DeviceResourceGraph* pGraph) noexcept { // NOLINT
+    const IntrusivePtr<gfx::Texture>* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -765,7 +765,7 @@ inline void put(
 template <class Tag>
 inline DeviceResourceGraph::vertex_descriptor
 add_vertex(DeviceResourceGraph& g, Tag t, std::string&& name) { // NOLINT
-    return add_vertex(
+    return addVertex(
         t,
         std::forward_as_tuple(std::move(name)), // names
         std::forward_as_tuple(),                // refCounts
@@ -776,7 +776,7 @@ add_vertex(DeviceResourceGraph& g, Tag t, std::string&& name) { // NOLINT
 template <class Tag>
 inline DeviceResourceGraph::vertex_descriptor
 add_vertex(DeviceResourceGraph& g, Tag t, const char* name) { // NOLINT
-    return add_vertex(
+    return addVertex(
         t,
         std::forward_as_tuple(name), // names
         std::forward_as_tuple(),     // refCounts

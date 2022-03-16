@@ -100,6 +100,7 @@ SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_beginPath);
 SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_clearRect);
 SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_closePath);
 SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_createLinearGradient);
+SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_fetchData);
 SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_fill);
 SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_fillImageData);
 SE_DECLARE_FUNC(js_engine_ICanvasRenderingContext2D_fillRect);
@@ -173,4 +174,4 @@ SE_DECLARE_FUNC(js_engine_CCObject_destroy);
 SE_DECLARE_FUNC(js_engine_CCObject_destroyImmediate);
 SE_DECLARE_FUNC(js_engine_CCObject_toString);
 SE_DECLARE_FUNC(js_engine_CCObject_deferredDestroy);
-    // clang-format on
+// clang-format on

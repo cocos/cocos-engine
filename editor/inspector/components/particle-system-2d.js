@@ -26,29 +26,12 @@ exports.ready = function() {
     ];
 
     this.elements = {
-        customMaterial: {
-            displayOrder: 0,
-        },
-        color: {
-            displayOrder: 1,
-        },
-        preview: {
-            displayOrder: 2,
-        },
-        playOnLoad: {
-            displayOrder: 3,
-        },
-        autoRemoveOnFinish: {
-            displayOrder: 4,
-        },
         file: {
-            displayOrder: 5,
             update(element, dump) {
                 setDisabled(!dump.file.value.uuid, this.$.syncButton);
             },
         },
         custom: {
-            displayOrder: 6,
             ready(element) {
                 const $checkbox = element.querySelector('ui-checkbox[slot="content"]');
 

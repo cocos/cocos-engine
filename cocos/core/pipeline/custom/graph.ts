@@ -418,10 +418,19 @@ export interface ParentGraph extends ReferenceGraph, NamedGraph {
 // AddressableGraph
 //--------------------------------------------------------------------------
 export interface AddressableGraph extends ParentGraph {
-    contains (absPath: string): boolean;
+    addressable (absPath: string): boolean;
     locate (absPath: string): vertex_descriptor | null;
     locateRelative (path: string, start?: vertex_descriptor | null): vertex_descriptor | null;
     path (v: vertex_descriptor) : string;
+}
+
+//--------------------------------------------------------------------------
+// UuidGraph
+//--------------------------------------------------------------------------
+export interface UuidGraph<Key> extends Graph {
+    contains (key: Key): boolean;
+    vertex (key: Key): vertex_descriptor;
+    find (key: Key): vertex_descriptor | null;
 }
 
 //--------------------------------------------------------------------------

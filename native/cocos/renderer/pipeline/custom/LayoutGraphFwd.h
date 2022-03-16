@@ -31,28 +31,40 @@
 // clang-format off
 #pragma once
 #include <boost/variant2/variant.hpp>
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 
 namespace cc {
 
 namespace render {
 
-struct Constant;
-struct ConstantBuffer;
+enum class DescriptorIndex;
 
-using DescriptorType = boost::variant2::variant<CBufferTag, RWBufferTag, RWTextureTag, BufferTag, TextureTag, SamplerTag>;
-
+struct UniformBlockDB;
+struct Descriptor;
 struct DescriptorBlock;
-struct DescriptorArray;
-struct UnboundedDescriptor;
-struct DescriptorTable;
-struct DescriptorSet;
-struct LayoutData;
+struct DescriptorBlockIndex;
+struct DescriptorBlockIndexDx;
+struct DescriptorDB;
+struct RenderStageTag;
+struct RenderPhaseTag;
+struct RenderPhase;
+struct LayoutGraph;
+
+using UniformID = uint32_t;
+
+struct UniformData;
+struct UniformBlockData;
+
+using DescriptorID = uint32_t;
+
+struct DescriptorData;
+struct DescriptorBlockData;
+struct DescriptorTableData;
+struct DescriptorSetData;
+struct PipelineLayoutData;
 struct ShaderProgramData;
-struct GroupNodeData;
-struct ShaderNodeData;
-struct GroupTag;
-struct ShaderTag;
+struct RenderPhaseData;
 struct LayoutGraphData;
 
 } // namespace render

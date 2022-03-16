@@ -38,12 +38,11 @@ class Texture;
 class Device;
 } // namespace gfx
 namespace pipeline {
-class RenderPipeline;
 
-class GlobalDSManager : public Object {
+class GlobalDSManager final {
 public:
-    GlobalDSManager()           = default;
-    ~GlobalDSManager() override = default;
+    GlobalDSManager()  = default;
+    ~GlobalDSManager() = default;
 
     inline std::unordered_map<uint, gfx::DescriptorSet *> getDescriptorSetMap() const { return _descriptorSetMap; }
     inline gfx::Sampler *                                 getLinearSampler() const { return _linearSampler; }
@@ -51,7 +50,7 @@ public:
     inline gfx::DescriptorSetLayout *                     getDescriptorSetLayout() const { return _descriptorSetLayout; }
     inline gfx::DescriptorSet *                           getGlobalDescriptorSet() const { return _globalDescriptorSet; }
 
-    void                activate(gfx::Device *device, RenderPipeline *pipeline);
+    void                activate(gfx::Device *device);
     void                bindBuffer(uint binding, gfx::Buffer *buffer);
     void                bindTexture(uint binding, gfx::Texture *texture);
     void                bindSampler(uint binding, gfx::Sampler *sampler);
@@ -62,7 +61,6 @@ public:
     static void setDescriptorSetLayout();
 
 private:
-    RenderPipeline *                               _pipeline      = nullptr;
     gfx::Device *                                  _device        = nullptr;
     gfx::Sampler *                                 _linearSampler = nullptr;
     gfx::Sampler *                                 _pointSampler  = nullptr;

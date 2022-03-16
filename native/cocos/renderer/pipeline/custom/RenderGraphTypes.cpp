@@ -40,6 +40,11 @@ ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
   names(alloc),
   descs(alloc),
   traits(alloc),
+  states(alloc),
+  resources(alloc),
+  buffers(alloc),
+  textures(alloc),
+  swapchains(alloc),
   valueIndex(alloc) {}
 
 ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
@@ -47,6 +52,11 @@ ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
   names(std::move(rhs.names), alloc),
   descs(std::move(rhs.descs), alloc),
   traits(std::move(rhs.traits), alloc),
+  states(std::move(rhs.states), alloc),
+  resources(std::move(rhs.resources), alloc),
+  buffers(std::move(rhs.buffers), alloc),
+  textures(std::move(rhs.textures), alloc),
+  swapchains(std::move(rhs.swapchains), alloc),
   valueIndex(std::move(rhs.valueIndex), alloc) {}
 
 ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc)
@@ -54,6 +64,11 @@ ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& all
   names(rhs.names, alloc),
   descs(rhs.descs, alloc),
   traits(rhs.traits, alloc),
+  states(rhs.states, alloc),
+  resources(rhs.resources, alloc),
+  buffers(rhs.buffers, alloc),
+  textures(rhs.textures, alloc),
+  swapchains(rhs.swapchains, alloc),
   valueIndex(rhs.valueIndex, alloc) {}
 
 // ContinuousContainer
@@ -62,19 +77,22 @@ void ResourceGraph::reserve(vertices_size_type sz) {
     names.reserve(sz);
     descs.reserve(sz);
     traits.reserve(sz);
+    states.reserve(sz);
 }
 
-ResourceGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
+ResourceGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
 : outEdges(alloc),
   inEdges(alloc) {}
 
-ResourceGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
+ResourceGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
 : outEdges(std::move(rhs.outEdges), alloc),
-  inEdges(std::move(rhs.inEdges), alloc) {}
+  inEdges(std::move(rhs.inEdges), alloc),
+  handle(std::move(rhs.handle)) {}
 
-ResourceGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
+ResourceGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
-  inEdges(rhs.inEdges, alloc) {}
+  inEdges(rhs.inEdges, alloc),
+  handle(rhs.handle) {}
 
 RasterView::RasterView(const allocator_type& alloc) noexcept
 : slotName(alloc) {}
@@ -157,15 +175,15 @@ void SubpassGraph::reserve(vertices_size_type sz) {
     subpasses.reserve(sz);
 }
 
-SubpassGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
+SubpassGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
 : outEdges(alloc),
   inEdges(alloc) {}
 
-SubpassGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
+SubpassGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
 : outEdges(std::move(rhs.outEdges), alloc),
   inEdges(std::move(rhs.inEdges), alloc) {}
 
-SubpassGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
+SubpassGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
@@ -417,28 +435,28 @@ void RenderGraph::reserve(vertices_size_type sz) {
     data.reserve(sz);
 }
 
-RenderGraph::object_type::object_type(const allocator_type& alloc) noexcept
+RenderGraph::Object::Object(const allocator_type& alloc) noexcept
 : children(alloc),
   parents(alloc) {}
 
-RenderGraph::object_type::object_type(object_type&& rhs, const allocator_type& alloc)
+RenderGraph::Object::Object(Object&& rhs, const allocator_type& alloc)
 : children(std::move(rhs.children), alloc),
   parents(std::move(rhs.parents), alloc) {}
 
-RenderGraph::object_type::object_type(object_type const& rhs, const allocator_type& alloc)
+RenderGraph::Object::Object(Object const& rhs, const allocator_type& alloc)
 : children(rhs.children, alloc),
   parents(rhs.parents, alloc) {}
 
-RenderGraph::vertex_type::vertex_type(const allocator_type& alloc) noexcept
+RenderGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
 : outEdges(alloc),
   inEdges(alloc) {}
 
-RenderGraph::vertex_type::vertex_type(vertex_type&& rhs, const allocator_type& alloc)
+RenderGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
 : outEdges(std::move(rhs.outEdges), alloc),
   inEdges(std::move(rhs.inEdges), alloc),
   handle(std::move(rhs.handle)) {}
 
-RenderGraph::vertex_type::vertex_type(vertex_type const& rhs, const allocator_type& alloc)
+RenderGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc),
   handle(rhs.handle) {}

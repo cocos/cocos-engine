@@ -94,17 +94,11 @@ CanvasRenderingContext2D::~CanvasRenderingContext2D() {
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height) {
     //SE_LOGD("CanvasRenderingContext2D::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
-    recreateBufferIfNeeded();
     _delegate->clearRect(x, y, width, height);
 }
 
 void CanvasRenderingContext2D::fillRect(float x, float y, float width, float height) {
-    recreateBufferIfNeeded();
     _delegate->fillRect(x, y, width, height);
-
-    if (_canvasBufferUpdatedCB != nullptr) {
-        _canvasBufferUpdatedCB(_delegate->getDataRef());
-    }
 }
 
 void CanvasRenderingContext2D::fillText(const std::string &text, float x, float y, float maxWidth) {
@@ -113,12 +107,7 @@ void CanvasRenderingContext2D::fillText(const std::string &text, float x, float 
         return;
     }
 
-    recreateBufferIfNeeded();
-
     _delegate->fillText(text, x, y, maxWidth);
-    if (_canvasBufferUpdatedCB != nullptr) {
-        _canvasBufferUpdatedCB(_delegate->getDataRef());
-    }
 }
 
 void CanvasRenderingContext2D::strokeText(const std::string &text, float x, float y, float maxWidth) {
@@ -127,13 +116,7 @@ void CanvasRenderingContext2D::strokeText(const std::string &text, float x, floa
         return;
     }
 
-    recreateBufferIfNeeded();
-
     _delegate->strokeText(text, x, y, maxWidth);
-
-    if (_canvasBufferUpdatedCB != nullptr) {
-        _canvasBufferUpdatedCB(_delegate->getDataRef());
-    }
 }
 
 cc::Size CanvasRenderingContext2D::measureText(const std::string &text) {
@@ -174,10 +157,6 @@ void CanvasRenderingContext2D::lineTo(float x, float y) {
 void CanvasRenderingContext2D::stroke() {
     //SE_LOGD("CanvasRenderingContext2D::stroke\n");
     _delegate->stroke();
-
-    if (_canvasBufferUpdatedCB != nullptr) {
-        _canvasBufferUpdatedCB(_delegate->getDataRef());
-    }
 }
 
 void CanvasRenderingContext2D::restore() {
@@ -187,7 +166,13 @@ void CanvasRenderingContext2D::restore() {
 
 void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback &cb) {
     _canvasBufferUpdatedCB = cb;
-    recreateBufferIfNeeded();
+}
+
+void CanvasRenderingContext2D::fetchData() {
+    _delegate->updateData();
+    if (_canvasBufferUpdatedCB != nullptr) {
+        _canvasBufferUpdatedCB(_delegate->getDataRef());
+    }
 }
 
 void CanvasRenderingContext2D::setWidth(float width) {
@@ -233,10 +218,6 @@ void CanvasRenderingContext2D::fill() {
 
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID
     _delegate->fill();
-
-    if (_canvasBufferUpdatedCB != nullptr) {
-        _canvasBufferUpdatedCB(_delegate->getDataRef());
-    }
 #endif
 }
 
@@ -245,7 +226,6 @@ void CanvasRenderingContext2D::rect(float x, float y, float w, float h) {
     // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID
     // SE_LOGD("CanvasRenderingContext2D::rect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
-    recreateBufferIfNeeded();
     _delegate->rect(x, y, w, h);
 #endif
 }
@@ -428,9 +408,6 @@ void CanvasRenderingContext2D::fillImageData(const Data &imageData, float imageW
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID
     _delegate->fillImageData(imageData, imageWidth, imageHeight, offsetX, offsetY);
-    if (_canvasBufferUpdatedCB != nullptr) {
-        _canvasBufferUpdatedCB(_delegate->getDataRef());
-    }
 #endif
 }
 // transform
@@ -461,9 +438,6 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded() {
         _isBufferSizeDirty = false;
         //SE_LOGD("Recreate buffer %p, w: %f, h:%f\n", this, __width, __height);
         _delegate->recreateBuffer(_width, _height);
-        if (_canvasBufferUpdatedCB != nullptr) {
-            _canvasBufferUpdatedCB(_delegate->getDataRef());
-        }
     }
 }
 

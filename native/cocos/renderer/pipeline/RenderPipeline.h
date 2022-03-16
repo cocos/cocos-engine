@@ -74,6 +74,7 @@ public:
     bool         destroy() override;
     virtual bool initialize(const RenderPipelineInfo &info);
     virtual void render(const vector<scene::Camera *> &cameras);
+    virtual void onGlobalPipelineStateChanged();
 
     inline const RenderFlowList &                  getFlows() const { return _flows; }
     inline uint                                    getTag() const { return _tag; }
@@ -108,6 +109,9 @@ public:
     void                    updateQuadVertexData(const Vec4 &viewport, gfx::Buffer *buffer);
     void                    ensureEnoughSize(const vector<scene::Camera *> &cameras);
     bool                    createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA);
+
+    float getShadingScale() const;
+    void  setShadingScale(float scale);
 
     inline scene::Model *getProfiler() const { return _profiler; }
     inline void          setProfiler(scene::Model *value) { _profiler = value; }

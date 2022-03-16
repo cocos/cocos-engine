@@ -148,6 +148,10 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
     RenderPipeline::framegraphGC();
 }
 
+void DeferredPipeline::onGlobalPipelineStateChanged() {
+    _pipelineSceneData->updatePipelineSceneData();
+}
+
 bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _commandBuffers.push_back(_device->getCommandBuffer());
     _queryPools.push_back(_device->getQueryPool());

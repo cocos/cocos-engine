@@ -302,37 +302,20 @@ const Elements = {
                 }
 
                 // 支持多选脚本拖入
-                const values = [];
-                const { additional, value } = JSON.parse(JSON.stringify(Editor.UI.DragArea.currentDragInfo)) || {};
-                if (additional) {
-                    additional.forEach((info) => {
-                        if (info.type === 'cc.Script') {
-                            values.push(info.value);
-                        }
-                    });
-                }
+                const { additional = [], value, type } = JSON.parse(JSON.stringify(Editor.UI.DragArea.currentDragInfo)) || {};
 
-                if (value && !values.includes(value)) {
-                    values.push(value);
-                }
-
-                if (!values.length) {
-                    return;
+                if (value && additional.every(v => v.value !== value)) {
+                    additional.push({ value, type });
                 }
 
                 Editor.Message.send('scene', 'snapshot');
 
-                for (const value of values) {
-                    const name = await Editor.Message.request('scene', 'query-script-name', value);
-                    if (name) {
-                        for (const dump of panel.dumps) {
-                            Editor.Message.send('scene', 'create-component', {
-                                uuid: dump.uuid.value,
-                                component: name,
-                            });
-                        }
+                additional.forEach(o => {
+                    const config = panel.dropConfig[o.type];
+                    if (config) {
+                        Editor.Message.send(config.package, config.message, o, panel.dumps, panel.uuidList);
                     }
-                }
+                });
             });
         },
         async update() {
@@ -1411,11 +1394,12 @@ exports.methods = {
     },
 };
 
-exports.update = async function update(uuidList, renderMap, typeManager, renderManager) {
+exports.update = async function update(uuidList, renderMap, dropConfig, typeManager, renderManager) {
     const panel = this;
 
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
+    panel.dropConfig = dropConfig;
     panel.typeManager = typeManager;
     panel.renderManager = renderManager;
 

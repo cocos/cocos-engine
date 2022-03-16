@@ -27,6 +27,9 @@ export class TouchInputSource {
         return (event: any) => {
             const handleTouches: Touch[] = [];
             const windowSize = screenAdapter.windowSize;
+            // NOTE: touch position on vivo platform is in physical pixel.
+            // No need to multiply with DPR.
+            const dpr = VIVO ? 1 : screenAdapter.devicePixelRatio;
             const length = event.changedTouches.length;
             for (let i = 0; i < length; ++i) {
                 const changedTouch = event.changedTouches[i];
@@ -34,7 +37,7 @@ export class TouchInputSource {
                 if (touchID === null) {
                     continue;
                 }
-                const location = this._getLocation(changedTouch, windowSize);
+                const location = this._getLocation(changedTouch, windowSize, dpr);
                 const touch = touchManager.getTouch(touchID, location.x, location.y);
                 if (!touch) {
                     continue;
@@ -52,10 +55,7 @@ export class TouchInputSource {
         };
     }
 
-    private _getLocation (touch: globalThis.Touch, windowSize: Size): Vec2 {
-        // NOTE: touch position on vivo platform is in physical pixel.
-        // No need to multiply with DPR.
-        const dpr = VIVO ? 1 : screenAdapter.devicePixelRatio;
+    private _getLocation (touch: globalThis.Touch, windowSize: Size, dpr: number): Vec2 {
         const x = touch.clientX * dpr;
         const y = windowSize.height - touch.clientY * dpr;
         return new Vec2(x, y);

@@ -24,20 +24,28 @@
 ****************************************************************************/
 
 /* eslint-disable max-len */
-import { Camera } from '../../renderer/scene/camera';
-import { Buffer, Format, Sampler, Texture } from '../../gfx/index';
-import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
-import { QueueHint, ResourceDimension, ResourceResidency } from './types';
-import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, MovePair, MovePass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, ResourceDesc, ResourceFlags, ResourceGraph, ResourceTraits, SceneData } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, Setter } from './pipeline';
+import { systemInfo } from 'pal/system-info';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture } from '../../gfx/index';
+import { Mat4, Quat, Vec2, Vec4 } from '../../math';
+import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskType } from './types';
+import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
+import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { RenderScene } from '../../renderer/scene';
+import { Model, RenderScene, Camera } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
+import { RenderDependencyGraph } from './render-dependency-graph';
+import { DeviceResourceGraph } from './executor';
+import { WebImplExample } from './web-pipeline-impl';
+import { RenderWindow } from '../../renderer/core/render-window';
+import { assert, macro } from '../../platform';
+import { WebSceneTransversal } from './web-scene';
+import { MacroRecord } from '../../renderer';
+import { GlobalDSManager } from '../global-descriptor-set-manager';
+import { OS } from '../../../../pal/system-info/enum-type';
 
-export class WebSetter extends Setter {
+export class WebSetter {
     constructor (data: RenderData) {
-        super();
         this._data = data;
     }
     public setMat4 (name: string, mat: Mat4): void {}
@@ -294,20 +302,72 @@ export class WebCopyPassBuilder extends CopyPassBuilder {
     private readonly _pass: CopyPass;
 }
 
-export class WebPipeline extends Pipeline {
-    addRenderTexture (name: string, format: Format, width: number, height: number) {
-        const desc = new ResourceDesc();
-        desc.dimension = ResourceDimension.TEXTURE2D;
-        desc.width = width;
-        desc.height = height;
-        desc.depthOrArraySize = 1;
-        desc.mipLevels = 1;
-        desc.format = format;
-        desc.flags = ResourceFlags.ALLOW_RENDER_TARGET | ResourceFlags.ALLOW_UNORDERED_ACCESS;
+function isManaged (residency: ResourceResidency): boolean {
+    return residency === ResourceResidency.MANAGED
+    || residency === ResourceResidency.MEMORYLESS;
+}
 
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits(ResourceResidency.Persistent));
+export class WebPipeline extends Pipeline {
+    protected _generateConstantMacros (clusterEnabled: boolean) {
+        let str = '';
+        str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this._device.getFormatFeatures(Format.RGBA32F)
+            & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE) ? 1 : 0}\n`;
+        str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${clusterEnabled ? 1 : 0}\n`;
+        str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this._device.capabilities.maxVertexUniformVectors}\n`;
+        str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this._device.capabilities.maxFragmentUniformVectors}\n`;
+        str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this._device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
+        str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
+        str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
+        this._constantMacros = str;
     }
-    addRenderTarget (name: string, format: Format, width: number, height: number) {
+
+    public activate (swapchain: Swapchain): boolean {
+        this._device = legacyCC.director.root.device;
+        this._globalDSManager = new GlobalDSManager(this._device);
+        this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
+        this._generateConstantMacros(false);
+        this._pipelineSceneData.activate(this._device);
+        return true;
+    }
+    public destroy (): boolean {
+        this._globalDSManager?.destroy();
+        this._pipelineSceneData?.destroy();
+        return true;
+    }
+    public render (cameras: Camera[]) {
+
+    }
+    public get macros (): MacroRecord {
+        return this._macros;
+    }
+    public get globalDSManager (): GlobalDSManager {
+        return this._globalDSManager;
+    }
+    public get descriptorSetLayout (): DescriptorSetLayout {
+        return this._globalDSManager.descriptorSetLayout;
+    }
+    public get pipelineSceneData (): PipelineSceneData {
+        return this._pipelineSceneData;
+    }
+    public get constantMacros (): string {
+        return this._constantMacros;
+    }
+    public get profiler (): Model | null {
+        return this._profiler;
+    }
+    public set profiler (profiler: Model | null) {
+        this._profiler = profiler;
+    }
+    public get shadingScale (): number {
+        return this._pipelineSceneData.shadingScale;
+    }
+    public set shadingScale (scale: number) {
+        this._pipelineSceneData.shadingScale = scale;
+    }
+    public onGlobalPipelineStateChanged (): void {
+        // do nothing
+    }
+    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -315,10 +375,29 @@ export class WebPipeline extends Pipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
-        desc.flags = ResourceFlags.ALLOW_RENDER_TARGET | ResourceFlags.ALLOW_UNORDERED_ACCESS;
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits());
+        desc.flags = ResourceFlags.COLOR_ATTACHMENT;
+
+        if (renderWindow.swapchain === null) {
+            assert(renderWindow.framebuffer.colorTextures.length === 1
+                && renderWindow.framebuffer.colorTextures[0] !== null);
+            return this._resourceGraph.addVertex<ResourceGraphValue.PersistentTexture>(
+                ResourceGraphValue.PersistentTexture,
+                renderWindow.framebuffer.colorTextures[0]!,
+                name, desc,
+                new ResourceTraits(ResourceResidency.EXTERNAL),
+                new ResourceStates(),
+            );
+        } else {
+            return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
+                ResourceGraphValue.Swapchain,
+                new RenderSwapchain(renderWindow.swapchain),
+                name, desc,
+                new ResourceTraits(ResourceResidency.BACKBUFFER),
+                new ResourceStates(),
+            );
+        }
     }
-    addDepthStencil (name: string, format: Format, width: number, height: number) {
+    addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -326,24 +405,64 @@ export class WebPipeline extends Pipeline {
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
         desc.format = format;
-        desc.flags = ResourceFlags.ALLOW_DEPTH_STENCIL;
-        return this._resourceGraph.addVertex(name, desc, new ResourceTraits());
+        desc.flags = ResourceFlags.COLOR_ATTACHMENT;
+
+        assert(isManaged(residency));
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name, desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+        );
     }
-    beginFrame (pplScene: PipelineSceneData) {
+    addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
+        const desc = new ResourceDesc();
+        desc.dimension = ResourceDimension.TEXTURE2D;
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = 1;
+        desc.mipLevels = 1;
+        desc.format = format;
+        desc.flags = ResourceFlags.DEPTH_STENCIL_ATTACHMENT;
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name, desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+        );
+    }
+    beginFrame () {
         this._renderGraph = new RenderGraph();
-        this._pipelineSceneData = pplScene;
     }
     endFrame () {
         this._renderGraph = null;
-        this._pipelineSceneData = null;
     }
+
+    build () {
+        if (!this._renderGraph) {
+            throw new Error('RenderGraph cannot be built without being created');
+        }
+        if (!this._renderDependencyGraph) {
+            this._renderDependencyGraph = new RenderDependencyGraph(this._renderGraph, this._resourceGraph, this._layoutGraph);
+        }
+        this._renderDependencyGraph.reset();
+        this._renderDependencyGraph.build();
+    }
+
+    renderContext () {
+        if (!this._renderDependencyGraph) { throw new Error('RenderDependencyGraph is not initialized'); }
+        this._renderDependencyGraph.render();
+    }
+
     addRasterPass (width: number, height: number, layoutName: string, name = 'Raster'): RasterPassBuilder {
         const pass = new RasterPass();
         const data = new RenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Raster>(
             RenderGraphValue.Raster, pass, name, layoutName, data,
         );
-        const result = new WebRasterPassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData!);
+        const result = new WebRasterPassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height);
         return result;
     }
@@ -353,7 +472,7 @@ export class WebPipeline extends Pipeline {
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Compute>(
             RenderGraphValue.Compute, pass, name, layoutName, new RenderData(),
         );
-        return new WebComputePassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData!);
+        return new WebComputePassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData);
     }
     addMovePass (name = 'Move'): MovePassBuilder {
         const pass = new MovePass();
@@ -365,8 +484,18 @@ export class WebPipeline extends Pipeline {
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', new RenderData());
         return new WebCopyPassBuilder(this._renderGraph!, vertID, pass);
     }
+    addPresentPass (name: string, swapchainName: string): void {
+        const pass = new PresentPass(swapchainName);
+        this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, name, '', new RenderData());
+    }
+    createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
+        return new WebSceneTransversal(camera);
+    }
     get renderGraph () {
         return this._renderGraph;
+    }
+    get resourceGraph () {
+        return this._resourceGraph;
     }
     protected _updateRasterPassConstants (pass: Setter, width: number, height: number) {
         const shadingWidth = width;
@@ -379,8 +508,16 @@ export class WebPipeline extends Pipeline {
         pass.setVec4('cc_nativeSize',
             new Vec4(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight));
     }
+
+    private _device!: Device;
+    private _globalDSManager!: GlobalDSManager;
+    private readonly _macros: MacroRecord = {};
+    private readonly _pipelineSceneData: PipelineSceneData = new PipelineSceneData();
+    private _constantMacros = '';
+    private _profiler: Model | null = null;
+
     private readonly _layoutGraph: LayoutGraphData = new LayoutGraphData();
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
     private _renderGraph: RenderGraph | null = null;
-    private _pipelineSceneData: PipelineSceneData | null = null;
+    private _renderDependencyGraph: RenderDependencyGraph | null = null;
 }

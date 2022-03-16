@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUShader;
+struct CCVKGPUShader;
 
 class CC_VULKAN_API CCVKShader final : public Shader {
 public:

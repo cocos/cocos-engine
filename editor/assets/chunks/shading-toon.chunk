@@ -18,6 +18,10 @@ struct ToonSurface {
   float shadeStep;
   float shadeFeather;
   float shadowCover;
+
+  #if CC_RECEIVE_SHADOW
+    vec2 shadowBias;
+  #endif
 };
 
 // Inspired by UTS2, (C)UTJ/UCL
@@ -98,7 +102,7 @@ struct ToonSurface {
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
     if(s.shadowCover < NL && cc_mainLitDir.w > 0.0) {
-        shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N);
+        shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N, s.shadowBias);
     }
     #endif
 

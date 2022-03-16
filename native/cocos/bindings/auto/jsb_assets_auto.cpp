@@ -14774,6 +14774,33 @@ static bool js_assets_TextureCube_fromTexture2DArray_static(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_assets_TextureCube_fromTexture2DArray_static)
 
+static bool js_assets_TextureCube_get_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_get_isRGBE : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->isRGBE, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->isRGBE, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureCube_get_isRGBE)
+
+static bool js_assets_TextureCube_set_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_set_isRGBE : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->isRGBE, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCube_set_isRGBE : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureCube_set_isRGBE)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_TextureCube_finalize)
 
 static bool js_assets_TextureCube_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -14794,6 +14821,7 @@ bool js_register_assets_TextureCube(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("TextureCube", obj, __jsb_cc_SimpleTexture_proto, _SE(js_assets_TextureCube_constructor));
 
+    cls->defineProperty("isRGBE", _SE(js_assets_TextureCube_get_isRGBE), _SE(js_assets_TextureCube_set_isRGBE));
     cls->defineFunction("getGfxTextureCreateInfo", _SE(js_assets_TextureCube_getGfxTextureCreateInfo));
     cls->defineFunction("getImage", _SE(js_assets_TextureCube_getImage));
     cls->defineFunction("getMipmaps", _SE(js_assets_TextureCube_getMipmaps));

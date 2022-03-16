@@ -24,18 +24,15 @@
 ****************************************************************************/
 
 #pragma once
-
 #include "GFXDef.h"
-#include "base/Object.h"
-#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
 
-class GFXObject : public Object {
+class GFXObject {
 public:
     explicit GFXObject(ObjectType type);
-    ~GFXObject() override = default;
+    virtual ~GFXObject() = default;
 
     inline ObjectType getObjectType() const { return _objectType; }
     inline uint32_t   getObjectID() const { return _objectID; }

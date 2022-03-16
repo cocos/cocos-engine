@@ -24,10 +24,11 @@
  */
 
 import { Device } from '../../gfx';
-import { RenderPipeline, MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
+import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { macro } from '../../platform/macro';
+import { legacyCC } from '../../global-exports';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -83,7 +84,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
     protected declare _postprocessMaterial: Material;
 
-    public onGlobalPipelineStateChanged () {
+    public updatePipelineSceneData () {
         this.updatePipelinePassInfo();
     }
 
@@ -178,8 +179,8 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         this.updateDeferredPassInfo();
     }
 
-    public activate (device: Device, pipeline: RenderPipeline) {
-        super.activate(device, pipeline);
+    public activate (device: Device) {
+        super.activate(device);
         this.initPipelinePassInfo();
         return true;
     }
@@ -193,7 +194,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
 
         // It's temporary solution for main light shadowmap
         if (this.shadows.enabled) {
-            this._pipeline.macros.CC_RECEIVE_SHADOW = 1;
+            legacyCC.director.root.pipeline.macros.CC_RECEIVE_SHADOW = 1;
         }
 
         const passLit = this._deferredLightingMaterial.passes[0];

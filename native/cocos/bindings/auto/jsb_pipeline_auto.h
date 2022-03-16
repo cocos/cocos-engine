@@ -106,6 +106,7 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_isClusterEnabled);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_isEnvmapEnabled);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_isOccluded);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_isOcclusionQueryEnabled);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setGeometryRenderer);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setOcclusionQueryEnabled);
@@ -293,11 +294,11 @@ SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryShader);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOctree);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getValidPunctualLights);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_isCastShadowObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setCastShadowObjects);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setDirShadowObjects);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights);
+SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_updatePipelineSceneData);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_PipelineSceneData);
 
 extern se::Object *__jsb_cc_pipeline_BatchedItem_proto; // NOLINT
@@ -330,4 +331,4 @@ extern se::Class * __jsb_cc_pipeline_GeometryRenderer_class; // NOLINT
 bool js_register_cc_pipeline_GeometryRenderer(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
-    // clang-format on
+// clang-format on

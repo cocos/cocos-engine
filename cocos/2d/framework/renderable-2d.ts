@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @module ui
  */
-import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -181,7 +181,7 @@ export class Renderable2D extends RenderableComponent {
      * @en Main color for rendering, it normally multiplies with texture color.
      * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
-    @displayOrder(2)
+    @displayOrder(1)
     @tooltip('i18n:renderable2D.color')
     get color (): Readonly<Color> {
         return this._color;
@@ -231,16 +231,6 @@ export class Renderable2D extends RenderableComponent {
     protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
-
-    // macro.UI_GPU_DRIVEN
-    protected declare _canDrawByFourVertex: boolean;
-
-    constructor () {
-        super();
-        if (UI_GPU_DRIVEN) {
-            this._canDrawByFourVertex = false;
-        }
-    }
 
     /**
      * TODO mark internal
@@ -294,7 +284,6 @@ export class Renderable2D extends RenderableComponent {
                 if (instance) { instance.destroy(); }
             }
         }
-        this._renderData = null;
         if (this._blendState) {
             this._blendState.destroy();
         }
@@ -307,14 +296,14 @@ export class Renderable2D extends RenderableComponent {
      */
     public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
-        if (enable && this._renderFlag) {
+        if (enable) {
             const renderData = this._renderData;
             if (renderData) {
                 renderData.vertDirty = true;
             }
 
             this._renderDataFlag = enable;
-        } else if (!enable) {
+        } else {
             this._renderDataFlag = enable;
         }
     }
@@ -352,7 +341,7 @@ export class Renderable2D extends RenderableComponent {
      */
     public updateAssembler (render: IBatcher) {
         if (this._renderDataFlag) {
-            this._assembler!.updateRenderData(this);
+            this._assembler!.updateRenderData(this, render);
             this._renderDataFlag = false;
         }
         if (this._renderFlag) {
@@ -388,7 +377,6 @@ export class Renderable2D extends RenderableComponent {
 
     protected _postCanRender () {}
 
-    // macro.UI_GPU_DRIVEN
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
@@ -398,9 +386,6 @@ export class Renderable2D extends RenderableComponent {
                 this._renderData.passDirty = true;
             }
             this._blendHash = -1; // a flag to check merge
-            if (UI_GPU_DRIVEN) {
-                this._canDrawByFourVertex = false;
-            }
             return;
         }
         const mat = this._updateBuiltinMaterial();
@@ -413,13 +398,6 @@ export class Renderable2D extends RenderableComponent {
     }
 
     protected _updateColor () {
-        if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
-            if (this.node._uiProps.colorDirty) {
-                this._renderFlag = this._canRender();
-                this.node._uiProps.colorDirty = false;
-            }
-            return;
-        }
         this.node._uiProps.colorDirty = true;
         if (this._assembler) {
             this._assembler.updateColor(this);
@@ -477,30 +455,23 @@ export class Renderable2D extends RenderableComponent {
         super._onMaterialModified(idx, material);
     }
 
-    // macro.UI_GPU_DRIVEN
     protected _updateBuiltinMaterial () : Material {
-        let gpuMat = '';
-        if (UI_GPU_DRIVEN) {
-            if (this._canDrawByFourVertex) {
-                gpuMat = '-gpu';
-            }
-        }
         let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
-            mat = builtinResMgr.get(`ui-base${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-base-material`);
             break;
         case InstanceMaterialType.GRAYSCALE:
-            mat = builtinResMgr.get(`ui-sprite-gray${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-sprite-gray-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED:
-            mat = builtinResMgr.get(`ui-sprite-alpha-sep${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-sprite-alpha-sep-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
-            mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep-material`);
             break;
         default:
-            mat = builtinResMgr.get(`ui-sprite${gpuMat}-material`);
+            mat = builtinResMgr.get(`ui-sprite-material`);
             break;
         }
         return mat;

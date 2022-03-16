@@ -170,7 +170,7 @@ void Root::onGlobalPipelineStateChanged() {
         scene->onGlobalPipelineStateChanged();
     }
 
-    _pipeline->getPipelineSceneData()->onGlobalPipelineStateChanged();
+    _pipeline->onGlobalPipelineStateChanged();
 }
 
 void Root::activeWindow(scene::RenderWindow *window) {

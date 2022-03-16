@@ -34,11 +34,10 @@ namespace cc {
 namespace gfx {
 
 class GLES3GPUContext;
-class GLES3GPUSwapchain;
+struct GLES3GPUSwapchain;
 class GLES3GPUStateCache;
 class GLES3GPUFramebufferHub;
-class GLES3GPUSamplerRegistry;
-class GLES3GPUConstantRegistry;
+struct GLES3GPUConstantRegistry;
 class GLES3GPUFramebufferCacheMap;
 
 class CC_GLES3_API GLES3Device final : public Device {
@@ -74,7 +73,6 @@ public:
     inline GLES3GPUContext *            context() const { return _gpuContext; }
     inline GLES3GPUStateCache *         stateCache() const { return _gpuStateCache; }
     inline GLES3GPUFramebufferHub *     framebufferHub() const { return _gpuFramebufferHub; }
-    inline GLES3GPUSamplerRegistry *    samplerRegistry() const { return _gpuSamplerRegistry; }
     inline GLES3GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
@@ -110,7 +108,7 @@ protected:
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
 
-    Sampler *      createSampler(const SamplerInfo &info) override;
+    Sampler *       createSampler(const SamplerInfo &info) override;
     GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
@@ -124,7 +122,6 @@ protected:
     GLES3GPUContext *            _gpuContext{nullptr};
     GLES3GPUStateCache *         _gpuStateCache{nullptr};
     GLES3GPUFramebufferHub *     _gpuFramebufferHub{nullptr};
-    GLES3GPUSamplerRegistry *    _gpuSamplerRegistry{nullptr};
     GLES3GPUConstantRegistry *   _gpuConstantRegistry{nullptr};
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
 
