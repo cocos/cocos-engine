@@ -38,6 +38,7 @@ import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';
+import { approx, EPSILON } from '../../core/math/utils';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -313,7 +314,7 @@ export class UITransform extends Component {
         let clone: Size;
         if (height === undefined) {
             size = size as Size;
-            if ((size.width === locContentSize.width) && (size.height === locContentSize.height)) {
+            if (approx(size.width, locContentSize.width, EPSILON) && approx(size.height, locContentSize.height, EPSILON)) {
                 return;
             }
 
@@ -324,7 +325,8 @@ export class UITransform extends Component {
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
-            if ((size === locContentSize.width) && (height === locContentSize.height)) {
+            size = size as number;
+            if (approx(size, locContentSize.width, EPSILON) && approx(height, locContentSize.height, EPSILON)) {
                 return;
             }
 
