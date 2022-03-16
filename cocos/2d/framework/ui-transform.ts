@@ -334,7 +334,7 @@ export class UITransform extends Component {
                 clone = new Size(this._contentSize);
             }
 
-            locContentSize.width = size as number;
+            locContentSize.width = size;
             locContentSize.height = height;
         }
 
