@@ -274,7 +274,7 @@ int32_t WindowsPlatform::loop() {
     return 0;
 }
 
-void WindowsPlatform::handleWindowEvent(SDL_WindowEvent &wevent) {
+void WindowsPlatform::dispatchWindowEvent(const SDL_WindowEvent &wevent) {
     WindowEvent ev;
     switch (wevent.event) {
         case SDL_WINDOWEVENT_SHOWN: {
@@ -323,12 +323,7 @@ void WindowsPlatform::handleWindowEvent(SDL_WindowEvent &wevent) {
     }
 }
 
-void WindowsPlatform::pollEvent() {
-    SDL_Event sdlEvent;
-    int       cnt = SDL_PollEvent(&sdlEvent);
-    if (cnt == 0) {
-        return;
-    }
+void WindowsPlatform::dispatchSDLEvent(const SDL_Event& sdlEvent) {
     cc::TouchEvent    touch;
     cc::MouseEvent    mouse;
     cc::KeyboardEvent keyboard;
@@ -341,11 +336,11 @@ void WindowsPlatform::pollEvent() {
             break;
         }
         case SDL_WINDOWEVENT: {
-            handleWindowEvent(sdlEvent.window);
+            dispatchWindowEvent(sdlEvent.window);
             break;
         }
         case SDL_MOUSEBUTTONDOWN: {
-            SDL_MouseButtonEvent &event = sdlEvent.button;
+            const SDL_MouseButtonEvent &event = sdlEvent.button;
             mouse.type                  = MouseEvent::Type::DOWN;
             mouse.x                     = static_cast<float>(event.x);
             mouse.y                     = static_cast<float>(event.y);
@@ -357,7 +352,7 @@ void WindowsPlatform::pollEvent() {
             break;
         }
         case SDL_MOUSEBUTTONUP: {
-            SDL_MouseButtonEvent &event = sdlEvent.button;
+            const SDL_MouseButtonEvent &event = sdlEvent.button;
             mouse.type                  = MouseEvent::Type::UP;
             mouse.x                     = static_cast<float>(event.x);
             mouse.y                     = static_cast<float>(event.y);
@@ -366,7 +361,7 @@ void WindowsPlatform::pollEvent() {
             break;
         }
         case SDL_MOUSEMOTION: {
-            SDL_MouseMotionEvent &event = sdlEvent.motion;
+            const SDL_MouseMotionEvent &event = sdlEvent.motion;
             mouse.type                  = MouseEvent::Type::MOVE;
             mouse.x                     = static_cast<float>(event.x);
             mouse.y                     = static_cast<float>(event.y);
@@ -375,7 +370,7 @@ void WindowsPlatform::pollEvent() {
             break;
         }
         case SDL_MOUSEWHEEL: {
-            SDL_MouseWheelEvent &event = sdlEvent.wheel;
+            const SDL_MouseWheelEvent &event = sdlEvent.wheel;
             mouse.type                 = MouseEvent::Type::WHEEL;
             mouse.x                    = static_cast<float>(event.x);
             mouse.y                    = static_cast<float>(event.y);
@@ -384,28 +379,28 @@ void WindowsPlatform::pollEvent() {
             break;
         }
         case SDL_FINGERUP: {
-            SDL_TouchFingerEvent &event = sdlEvent.tfinger;
+            const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type                  = TouchEvent::Type::ENDED;
             touch.touches               = {TouchInfo(event.x, event.y, (int)event.fingerId)};
             dispatchEvent(touch);
             break;
         }
         case SDL_FINGERDOWN: {
-            SDL_TouchFingerEvent &event = sdlEvent.tfinger;
+            const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type                  = TouchEvent::Type::BEGAN;
             touch.touches               = {TouchInfo(event.x, event.y, (int)event.fingerId)};
             dispatchEvent(touch);
             break;
         }
         case SDL_FINGERMOTION: {
-            SDL_TouchFingerEvent &event = sdlEvent.tfinger;
+            const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type                  = TouchEvent::Type::MOVED;
             touch.touches               = {TouchInfo(event.x, event.y, (int)event.fingerId)};
             dispatchEvent(touch);
             break;
         }
         case SDL_KEYDOWN: {
-            SDL_KeyboardEvent &event = sdlEvent.key;
+            const SDL_KeyboardEvent &event = sdlEvent.key;
             auto               mode  = event.keysym.mod;
             keyboard.action          = KeyboardEvent::Action::PRESS;
             keyboard.key             = sdlKeycodeToCocosCode(event.keysym.sym, mode);
@@ -413,12 +408,11 @@ void WindowsPlatform::pollEvent() {
             keyboard.ctrlKeyActive   = mode & KMOD_CTRL;
             keyboard.shiftKeyActive  = mode & KMOD_SHIFT;
             //CC_LOG_DEBUG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
-            //cc::EventDispatcher::dispatchKeyboardEvent(keyboard);
             dispatchEvent(keyboard);
             break;
         }
         case SDL_KEYUP: {
-            SDL_KeyboardEvent &event = sdlEvent.key;
+            const SDL_KeyboardEvent &event = sdlEvent.key;
             auto               mode  = event.keysym.mod;
             keyboard.action          = KeyboardEvent::Action::RELEASE;
             keyboard.key             = sdlKeycodeToCocosCode(event.keysym.sym, mode);
@@ -426,12 +420,18 @@ void WindowsPlatform::pollEvent() {
             keyboard.ctrlKeyActive   = mode & KMOD_CTRL;
             keyboard.shiftKeyActive  = mode & KMOD_SHIFT;
             dispatchEvent(keyboard);
-            //cc::EventDispatcher::dispatchKeyboardEvent(keyboard);
             break;
         }
         default:
-
             break;
+    }
+}
+
+void WindowsPlatform::pollEvent() {
+    SDL_Event sdlEvent;
+    int       cnt = 0;
+    while ((cnt = SDL_PollEvent(&sdlEvent)) != 0) {
+        dispatchSDLEvent(sdlEvent);
     }
 }
 
