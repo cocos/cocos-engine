@@ -758,6 +758,7 @@ export class Skeleton extends Renderable2D {
     }
 
     public updateAnimation (dt: number) {
+        this.markForUpdateRenderData();
         if (EDITOR) return;
         if (this.paused) return;
 
@@ -1498,7 +1499,6 @@ export class Skeleton extends Renderable2D {
                 this._playCount = 0;
                 this._isAniComplete = true;
                 this._emitCacheCompleteEvent();
-                this.markForUpdateRenderData();
                 return;
             }
             this._accTime = 0;
@@ -1506,7 +1506,6 @@ export class Skeleton extends Renderable2D {
             this._emitCacheCompleteEvent();
         }
         this._curFrame = frames[frameIdx];
-        this.markForUpdateRenderData();
     }
 
     protected _updateRealtime (dt: number) {
@@ -1518,7 +1517,6 @@ export class Skeleton extends Renderable2D {
                 state.update(dt);
                 state.apply(skeleton);
             }
-            this.markForUpdateRenderData();
         }
     }
 
