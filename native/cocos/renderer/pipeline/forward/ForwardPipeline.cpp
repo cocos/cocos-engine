@@ -32,6 +32,7 @@
 #include "../shadow/ShadowFlow.h"
 #include "ForwardFlow.h"
 #include "gfx-base/GFXDevice.h"
+#include "profiler/Profiler.h"
 #include "scene/RenderScene.h"
 
 namespace cc {
@@ -89,6 +90,7 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
 }
 
 void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
+    CC_PROFILE(ForwardPipelineRender);
     auto *     device               = gfx::Device::getInstance();
     const bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {

@@ -36,6 +36,7 @@
 #include "core/scene-graph/Node.h"
 #include "gfx-base/GFXDevice.h"
 #include "math/Quaternion.h"
+#include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/Light.h"
@@ -330,6 +331,7 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
     }
 }
 void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
+    CC_PROFILE(SceneCulling);
     PipelineSceneData *const        sceneData  = pipeline->getPipelineSceneData();
     const scene::Shadows *          shadowInfo = sceneData->getShadows();
     const scene::Skybox *           skyBox     = sceneData->getSkybox();

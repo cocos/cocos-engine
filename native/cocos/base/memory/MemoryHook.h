@@ -59,8 +59,9 @@ public:
      */
     using RecordMap = std::unordered_map<uint64_t, MemoryRecord>;
 
-    void addRecord(uint64_t address, size_t size);
-    void removeRecord(uint64_t address);
+    void   addRecord(uint64_t address, size_t size);
+    void   removeRecord(uint64_t address);
+    size_t getTotalSize() const { return _totalSize; }
 
 private:
     /**
@@ -84,6 +85,7 @@ private:
     std::recursive_mutex _mutex;
     bool                 _hooking{false};
     RecordMap            _records;
+    size_t               _totalSize{0U};
 };
 
 extern MemoryHook GMemoryHook;

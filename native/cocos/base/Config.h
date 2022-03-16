@@ -115,3 +115,7 @@
 #ifndef USE_MEMORY_LEAK_DETECTOR
     #define USE_MEMORY_LEAK_DETECTOR 0
 #endif
+
+#ifndef CC_USE_PROFILER
+    #define CC_USE_PROFILER 0
+#endif

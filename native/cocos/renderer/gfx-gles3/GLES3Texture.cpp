@@ -30,6 +30,7 @@
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
 #include "base/Macros.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -62,6 +63,7 @@ void GLES3Texture::doInit(const TextureInfo & /*info*/) {
 
     if (!_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize += _size;
+        CC_PROFILE_MEMORY_INC(Texture, _size);
     }
 
     _gpuTextureView = CC_NEW(GLES3GPUTextureView);
@@ -94,6 +96,7 @@ void GLES3Texture::doDestroy() {
         if (!_isTextureView) {
             if (!_gpuTexture->memoryless) {
                 GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
+                CC_PROFILE_MEMORY_DEC(Texture, _size);
             }
 
             cmdFuncGLES3DestroyTexture(GLES3Device::getInstance(), _gpuTexture);
@@ -107,6 +110,7 @@ void GLES3Texture::doDestroy() {
 void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     if (!_isTextureView && !_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
+        CC_PROFILE_MEMORY_DEC(Texture, _size);
     }
 
     _gpuTexture->width    = width;
@@ -120,6 +124,7 @@ void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
     if (!_isTextureView && !_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize += size;
+        CC_PROFILE_MEMORY_INC(Texture, size);
     }
 }
 

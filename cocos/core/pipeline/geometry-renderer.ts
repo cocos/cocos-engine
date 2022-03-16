@@ -148,7 +148,7 @@ class GeometryVertexBuffers {
     }
 }
 
-export interface IGeometryConfig {
+export interface IGeometryInfo {
     maxLines: number;
     maxDashedLines: number;
     maxTriangles: number;
@@ -174,7 +174,7 @@ export class GeometryRenderer {
         return this._nativeObj;
     }
 
-    public activate (device: Device, pipeline: RenderPipeline, config?: IGeometryConfig) {
+    public activate (device: Device, pipeline: RenderPipeline, info?: IGeometryInfo) {
         this._device = device;
         this._pipeline = pipeline;
 
@@ -189,9 +189,9 @@ export class GeometryRenderer {
             new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
         ];
 
-        const maxLines = config ? config.maxLines : GEOMETRY_MAX_LINES;
-        const maxDashedLines = config ? config.maxDashedLines : GEOMETRY_MAX_DASHED_LINES;
-        const maxTriangles = config ? config.maxTriangles : GEOMETRY_MAX_TRIANGLES;
+        const maxLines = info ? info.maxLines : GEOMETRY_MAX_LINES;
+        const maxDashedLines = info ? info.maxDashedLines : GEOMETRY_MAX_DASHED_LINES;
+        const maxTriangles = info ? info.maxTriangles : GEOMETRY_MAX_TRIANGLES;
         const lineStride = Float32Array.BYTES_PER_ELEMENT * (Vec3.length + Color.length);
         const triangleStride = Float32Array.BYTES_PER_ELEMENT * (Vec3.length + Vec4.length + Color.length);
 

@@ -2683,9 +2683,9 @@ void cmdFuncGLES3Draw(GLES3Device *device, const DrawInfo &drawInfo) {
                 }
             } else if (drawInfo.vertexCount > 0) {
                 if (drawInfo.instanceCount == 0) {
-                    GL_CHECK(glDrawArrays(glPrimitive, drawInfo.firstIndex, drawInfo.vertexCount));
+                    GL_CHECK(glDrawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount));
                 } else {
-                    GL_CHECK(glDrawArraysInstanced(glPrimitive, drawInfo.firstIndex, drawInfo.vertexCount, drawInfo.instanceCount));
+                    GL_CHECK(glDrawArraysInstanced(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount));
                 }
             }
         } else {
@@ -2703,9 +2703,9 @@ void cmdFuncGLES3Draw(GLES3Device *device, const DrawInfo &drawInfo) {
                     }
                 } else if (draw.vertexCount > 0) {
                     if (draw.instanceCount == 0) {
-                        GL_CHECK(glDrawArrays(glPrimitive, draw.firstIndex, draw.vertexCount));
+                        GL_CHECK(glDrawArrays(glPrimitive, draw.firstVertex, draw.vertexCount));
                     } else {
-                        GL_CHECK(glDrawArraysInstanced(glPrimitive, draw.firstIndex, draw.vertexCount, draw.instanceCount));
+                        GL_CHECK(glDrawArraysInstanced(glPrimitive, draw.firstVertex, draw.vertexCount, draw.instanceCount));
                     }
                 }
             }

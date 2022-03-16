@@ -32,6 +32,8 @@
 #include "pipeline/Define.h"
 #include "pipeline/UIPhase.h"
 #include "pipeline/helper/Utils.h"
+#include "profiler/DebugRenderer.h"
+#include "profiler/Profiler.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "renderer/pipeline/PipelineStateManager.h"
 #include "renderer/pipeline/PipelineUBO.h"
@@ -101,6 +103,7 @@ void PostProcessStage::destroy() {
 }
 
 void PostProcessStage::render(scene::Camera *camera) {
+    CC_PROFILE(PostProcessStageRender);
     static framegraph::StringHandle fgStrHandlePostProcessOutTexture = framegraph::FrameGraph::stringToHandle("postProcessOutputTexture");
     struct RenderData {
         framegraph::TextureHandle outColorTex; // read from lighting output
@@ -225,6 +228,7 @@ void PostProcessStage::render(scene::Camera *camera) {
 
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, pipeline->getProfiler(), camera);
+        ccDebugRenderer->render(renderPass, cmdBuff);
     };
 
     // add pass

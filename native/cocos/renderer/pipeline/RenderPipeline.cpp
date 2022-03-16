@@ -40,6 +40,8 @@
 #include "helper/Utils.h"
 #include "scene/Camera.h"
 #include "scene/Skybox.h"
+#include "profiler/DebugRenderer.h"
+
 namespace cc {
 namespace pipeline {
 
@@ -84,6 +86,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
 
     CC_ASSERT(_geometryRenderer != nullptr);
     _geometryRenderer->activate(_device, this);
+    ccDebugRenderer->activate(_device, this);
 
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
@@ -136,6 +139,7 @@ bool RenderPipeline::destroy() {
     CC_SAFE_DESTROY_AND_DELETE(_pipelineUBO);
     CC_SAFE_DESTROY_NULL(_pipelineSceneData);
     CC_SAFE_DESTROY_NULL(_geometryRenderer);
+    ccDebugRenderer->destroy();
 
     for (auto *const queryPool : _queryPools) {
         queryPool->destroy();

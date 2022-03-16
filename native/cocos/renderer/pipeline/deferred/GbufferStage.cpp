@@ -39,6 +39,7 @@
 #include "frame-graph/Resource.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/Camera.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace pipeline {
@@ -141,6 +142,7 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, scene::Camera *cam
 }
 
 void GbufferStage::render(scene::Camera *camera) {
+    CC_PROFILE(GbufferStageRender);
     struct RenderData {
         framegraph::TextureHandle gbuffer[4];
         framegraph::TextureHandle depth;
