@@ -133,6 +133,12 @@ public:
     const IGeometricInfo &getGeometricInfo();
 
     /**
+     * @en Invalidate the geometric info of the sub mesh after geometry changed.
+     * @zh 网格更新后，设置（用于射线检测的）几何信息为无效，需要重新计算。
+     */
+    inline void invalidateGeometricInfo() { _geometricInfo.reset(); }
+
+    /**
      * @en Primitive mode used by the sub mesh
      * @zh 图元类型。
      */
@@ -149,6 +155,9 @@ public:
 
     inline const gfx::InputAssemblerInfo &getIaInfo() const { return _iaInfo; }
     inline gfx::InputAssemblerInfo &      getIaInfo() { return _iaInfo; }
+
+    inline void                         setDrawInfo(const gfx::DrawInfo &info) { _drawInfo = info; }
+    inline cc::optional<gfx::DrawInfo> &getDrawInfo() { return _drawInfo; }
 
     /**
      * @en The vertex buffer for joint after mapping
@@ -203,6 +212,8 @@ private:
     gfx::PrimitiveMode _primitiveMode{gfx::PrimitiveMode::TRIANGLE_LIST};
 
     gfx::InputAssemblerInfo _iaInfo;
+
+    cc::optional<gfx::DrawInfo> _drawInfo;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderingSubMesh);
 };

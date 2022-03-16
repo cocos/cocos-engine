@@ -78,6 +78,7 @@ public:
     void destroy();
     void onPipelineStateChanged();
     void onMacroPatchesStateChanged(const std::vector<IMacroPatch> &patches);
+    void onGeometryChanged();
 
 protected:
     void flushPassInfo();

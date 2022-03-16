@@ -35,6 +35,8 @@ export declare namespace Mesh {
     }
     export type IVertexBundle = jsb.Mesh.IVertexBundle;
     export type ISubMesh = jsb.Mesh.ISubMesh;
+    export type IDynamicInfo = jsb.Mesh.IDynamicInfo;
+    export type IDynamicStruct = jsb.Mesh.IDynamicStruct;
     export type IStruct = jsb.Mesh.IStruct;
     export type ICreateInfo = jsb.Mesh.ICreateInfo;
 }
