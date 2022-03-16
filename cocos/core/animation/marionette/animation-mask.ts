@@ -35,11 +35,20 @@ export class AnimationMask extends Asset {
     }
 
     public filterDisabledNodes (root: Node) {
-        return this._jointMasks.filter(
-            ({ enabled }) => !enabled,
-        ).map(
-            ({ path }) => root.getChildByPath(path)!,
-        ).filter((node) => !!node);
+        const { _jointMasks: jointMasks } = this;
+        const nJointMasks = jointMasks.length;
+        const disabledNodes = new Set<Node>();
+        for (let iJointMask = 0; iJointMask < nJointMasks; ++iJointMask) {
+            const { path, enabled } = jointMasks[iJointMask];
+            if (enabled) {
+                continue;
+            }
+            const node = root.getChildByPath(path);
+            if (node) {
+                disabledNodes.add(node);
+            }
+        }
+        return disabledNodes;
     }
 }
 

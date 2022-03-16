@@ -61,7 +61,7 @@ export class AnimationGraphEval {
             },
         };
 
-        const layerEvaluations = this._layerEvaluations = Array.from(graph.layers).map((layer) => {
+        const layerEvaluations = this._layerEvaluations = graph.layers.map((layer) => {
             const layerEval = new LayerEval(layer, {
                 ...context,
                 mask: layer.mask ?? undefined,
@@ -74,7 +74,7 @@ export class AnimationGraphEval {
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
             const mask = graph.layers[iLayer].mask;
             if (mask) {
-                const excludeNodes = new Set(mask.filterDisabledNodes(context.node));
+                const excludeNodes = mask.filterDisabledNodes(context.node);
                 this._blendBuffer.setMask(iLayer, excludeNodes);
             }
         }

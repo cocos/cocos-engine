@@ -462,7 +462,7 @@ class LayeredNodeBlendState extends NodeBlendState<LayeredVec3PropertyBlendState
         return new LayeredQuatPropertyBlendState(currentValue);
     }
 
-    private _layerMask = ~0;
+    private _layerMask = (~0 >>> 0);
 }
 
 /**
