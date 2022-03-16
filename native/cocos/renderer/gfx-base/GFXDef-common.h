@@ -169,7 +169,7 @@ enum class Feature : uint32_t {
     // the max number of attachment limit(4) situation for many devices, and shader
     // sources inside this kind of subpass must match this behavior.
     INPUT_ATTACHMENT_BENEFIT,
-    MULTIVIEW,
+    MULTI_VIEWPORT,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);

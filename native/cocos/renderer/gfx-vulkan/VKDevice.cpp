@@ -130,6 +130,10 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     requestedFeatures2.features.samplerAnisotropy          = deviceFeatures.samplerAnisotropy;
     requestedFeatures2.features.depthBounds                = deviceFeatures.depthBounds;
     requestedFeatures2.features.multiDrawIndirect          = deviceFeatures.multiDrawIndirect;
+    requestedFeatures2.features.multiViewport              = deviceFeatures.multiViewport;
+    requestedFeatures2.features.geometryShader             = deviceFeatures.geometryShader;
+
+    _features[toNumber(Feature::MULTI_VIEWPORT)] = deviceFeatures.multiViewport;
 
     if (_gpuContext->validationEnabled) {
         requestedLayers.push_back("VK_LAYER_KHRONOS_validation");

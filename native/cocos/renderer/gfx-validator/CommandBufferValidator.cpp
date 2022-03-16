@@ -263,17 +263,15 @@ void CommandBufferValidator::bindInputAssembler(InputAssembler *ia) {
 void CommandBufferValidator::setViewports(const Rect *vp, uint32_t count) {
     CCASSERT(isInited(), "alread destroyed?");
 
-    CCASSERT(count < MAX_VIEWPORTS, "too many viewports?");
+    CCASSERT(count <= MAX_VIEWPORTS, "too many viewports?");
+
+    CCASSERT(DeviceValidator::getInstance()->hasFeature(Feature::MULTI_VIEWPORT) || count == 1, "multi viewport is not supported!");
 
     ViewportList &viewports = _curStates.viewports;
+
     viewports.resize(count);
 
-    for (int i = 0; i < count; i++) {
-        if (viewports[i] != vp[i]) {
-            copy(&vp[i], &vp[count - 1], viewports.begin() + i);
-            break;
-        }
-    }
+    std::copy(vp, vp + count, viewports.begin());
 
     /////////// execute ///////////
 
