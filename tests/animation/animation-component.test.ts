@@ -1,4 +1,4 @@
-import { AnimationClip } from '../../cocos/core';
+import { AnimationClip } from '../../cocos/core/animation/animation-clip';
 import { Animation } from '../../cocos/core/animation/animation-component';
 
 describe('Animation Component', () => {

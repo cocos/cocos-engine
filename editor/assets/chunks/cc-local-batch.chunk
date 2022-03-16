@@ -3,7 +3,17 @@
 #pragma define-meta USE_INSTANCING editor(elevated: true)
 #pragma define-meta USE_BATCHING editor(elevated: true)
 
-#include <cc-local>
+#if !USE_INSTANCING
+  #if USE_BATCHING
+    #pragma define BATCHING_COUNT 10
+    #pragma builtin(local)
+    layout(set = 2, binding = 0) uniform CCLocalBatched {
+      highp mat4 cc_matWorlds[BATCHING_COUNT];
+    };
+  #else
+    #include <cc-local>
+  #endif
+#endif
 
 void CCGetWorldMatrix(out mat4 matWorld)
 {

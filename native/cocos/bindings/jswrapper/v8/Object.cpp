@@ -475,8 +475,10 @@ void Object::clearPrivateData(bool clearMapping) {
         if (clearMapping) {
             NativePtrToObjectMap::erase(_privateData);
         }
-        internal::clearPrivate(__isolate, _obj);
-        setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(nullptr))));
+        if (!_obj.persistent().IsEmpty()) {
+            internal::clearPrivate(__isolate, _obj);
+            setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(nullptr))));
+        }
         _privateData = nullptr;
     }
 }

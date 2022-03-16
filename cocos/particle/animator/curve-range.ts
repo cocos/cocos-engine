@@ -83,7 +83,7 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `spline` instead.
      */
     get curve () {
-        return this._curve;
+        return this._curve ??= new AnimationCurve(this.spline);
     }
 
     set curve (value) {
@@ -96,7 +96,7 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `splineMin` instead.
      */
     get curveMin () {
-        return this._curveMin;
+        return this._curveMin ??= new AnimationCurve(this.splineMin);
     }
 
     set curveMin (value) {
@@ -109,7 +109,7 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `splineMax` instead.
      */
     get curveMax () {
-        return this._curveMax;
+        return this._curveMax ??= new AnimationCurve(this.splineMax);
     }
 
     set curveMax (value) {
@@ -185,9 +185,9 @@ export default class CurveRange  {
         return SerializableTable[this.mode];
     }
 
-    private _curve = new AnimationCurve(this.spline);
-    private _curveMin = new AnimationCurve(this.splineMin);
-    private _curveMax = new AnimationCurve(this.splineMax);
+    private declare _curve: AnimationCurve | undefined;
+    private declare _curveMin: AnimationCurve | undefined;
+    private declare _curveMax: AnimationCurve | undefined;
 }
 
 function evaluateCurve (cr: CurveRange, time: number, index: number) {
