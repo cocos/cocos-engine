@@ -335,6 +335,8 @@ export class AABB {
      * @zh 将对象返回到AABB对象池
      */
     public destroy () {
-        AABBPool.free(this._aabbHandle);
+        if (JSB) {
+            AABBPool.free(this._aabbHandle);
+        }
     }
 }
