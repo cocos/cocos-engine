@@ -41,7 +41,7 @@ public:
     inline void renounceOwnership() { _ownTheActor = false; }
     inline bool isInited() const { return _inited; }
     
-    Texture* getRaw() override { return _actor->getRaw(); }
+    const Texture* getRaw() const override { return _actor->getRaw(); }
 
 protected:
     friend class SwapchainValidator;

@@ -114,7 +114,7 @@ template <>
 size_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo& info) const {
     // render pass is mostly irrelevant
     size_t seed = (info.colorTextures.size() + 1) * 2;
-    for (auto colorTexture: info.colorTextures) {
+    for (auto* colorTexture: info.colorTextures) {
         boost::hash_combine(seed, colorTexture->getRaw());
         boost::hash_combine(seed, colorTexture->getHash());
     }
