@@ -26,7 +26,7 @@
 import gfx from '../../../renderer/gfx';
 
 let FIX_IOS14_BUFFER;
-if (CC_WECHATGAME) {
+if (cc.sys.platform === cc.sys.WECHAT_GAME) {
     FIX_IOS14_BUFFER = (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_OSX) && GameGlobal?.isIOSHighPerformanceMode && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
 } else {
     FIX_IOS14_BUFFER = (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_OSX) && cc.sys.isBrowser && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
