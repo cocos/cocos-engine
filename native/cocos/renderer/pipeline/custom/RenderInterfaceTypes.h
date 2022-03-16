@@ -246,6 +246,8 @@ public:
 
     virtual ~SceneVisitor() noexcept = 0;
 
+    virtual const pipeline::PipelineSceneData* getPipelineSceneData() const = 0;
+
     virtual void setViewport(const gfx::Viewport &vp) = 0;
     virtual void setScissor(const gfx::Rect &rect) = 0;
     virtual void bindPipelineState(gfx::PipelineState* pso) = 0;

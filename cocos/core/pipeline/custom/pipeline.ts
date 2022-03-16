@@ -121,6 +121,7 @@ export abstract class CopyPassBuilder {
 }
 
 export abstract class SceneVisitor {
+    public abstract get pipelineSceneData(): PipelineSceneData;
     public abstract setViewport(vp: Viewport): void;
     public abstract setScissor(rect: Rect): void;
     public abstract bindPipelineState(pso: PipelineState): void;
