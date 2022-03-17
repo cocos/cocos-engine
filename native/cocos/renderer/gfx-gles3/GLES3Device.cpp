@@ -43,6 +43,7 @@
 #include "GLES3Shader.h"
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
+#include "gfx-base/GFXDef-common.h"
 #include "states/GLES3GeneralBarrier.h"
 #include "states/GLES3Sampler.h"
 
@@ -151,6 +152,10 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         }
     }
 #endif
+
+    if (checkExtension("OES_viewport_array") && checkExtension("geometry_shader")) {
+        _features[toNumber(Feature::MULTI_VIEWPORT)] = true;
+    }
 
     String compressedFmts;
 

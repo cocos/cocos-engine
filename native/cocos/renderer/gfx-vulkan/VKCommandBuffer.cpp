@@ -270,10 +270,16 @@ void CCVKCommandBuffer::setViewports(const Rect *vp, uint32_t count) {
     static vector<VkViewport> vkViewports(MAX_VIEWPORTS);
     static vector<VkRect2D>   vkScissors(MAX_VIEWPORTS);
 
-    transform(vp, vp + count, vkViewports.begin(),
-        [](const Rect &v) { return VkViewport{static_cast<float>(v.x), static_cast<float>(v.y), static_cast<float>(v.width), static_cast<float>(v.height), 0.f, 1.f}; });
-    transform(vp, vp + count, vkScissors.begin(),
-        [](const Rect &v) { return VkRect2D{{v.x, v.y}, {v.width, v.height}}; });
+    auto viewports = _curDynamicStates.viewports;
+
+    viewports.resize(count);
+
+    std::copy(vp, vp + count, viewports.begin());
+
+    std::transform(vp, vp + count, vkViewports.begin(),
+                   [](const Rect &v) { return VkViewport{static_cast<float>(v.x), static_cast<float>(v.y), static_cast<float>(v.width), static_cast<float>(v.height), 0.f, 1.f}; });
+    std::transform(vp, vp + count, vkScissors.begin(),
+                   [](const Rect &v) { return VkRect2D{{v.x, v.y}, {v.width, v.height}}; });
     vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, count, vkViewports.data());
     vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, count, vkScissors.data());
 }

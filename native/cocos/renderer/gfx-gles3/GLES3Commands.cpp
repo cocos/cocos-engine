@@ -1010,6 +1010,15 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
                 shaderStageStr = "Vertex Shader";
                 break;
             }
+            case ShaderStageFlagBit::GEOMETRY: {
+                if (GLES3Device::getInstance()->checkExtension("geometry_shader")) {
+                    glShaderStage  = GL_GEOMETRY_SHADER;
+                    shaderStageStr = "Geometry Shader";
+                } else {
+                    CCASSERT(false, "Geometry Shader is not supported");
+                }
+                break;
+            }
             case ShaderStageFlagBit::FRAGMENT: {
                 glShaderStage  = GL_FRAGMENT_SHADER;
                 shaderStageStr = "Fragment Shader";
@@ -1834,20 +1843,17 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx, GLES3
         }
 
         if (subpassIdx == 0) {
-            if (cache->viewport.left != renderArea->x ||
-                cache->viewport.top != renderArea->y ||
-                cache->viewport.width != renderArea->width ||
-                cache->viewport.height != renderArea->height) {
+            auto &viewport = cache->viewports[0];
+            if (viewport.x != renderArea->x ||
+                viewport.y != renderArea->y ||
+                viewport.width != renderArea->width ||
+                viewport.height != renderArea->height) {
                 GL_CHECK(glViewport(renderArea->x, renderArea->y, renderArea->width, renderArea->height));
-                cache->viewport.left   = renderArea->x;
-                cache->viewport.top    = renderArea->y;
-                cache->viewport.width  = renderArea->width;
-                cache->viewport.height = renderArea->height;
-            }
-
-            if (cache->scissor != *renderArea) {
                 GL_CHECK(glScissor(renderArea->x, renderArea->y, renderArea->width, renderArea->height));
-                cache->scissor = *renderArea;
+                viewport.x      = renderArea->x;
+                viewport.y      = renderArea->y;
+                viewport.width  = renderArea->width;
+                viewport.height = renderArea->height;
             }
         }
 
@@ -1987,16 +1993,26 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx, GLES3
     }
 }
 
-static void ensureScissorRect(GLES3GPUStateCache *cache, int32_t x, int32_t y, uint32_t width, uint32_t height) {
-    if (cache->scissor.x > x ||
-        cache->scissor.y > y ||
-        cache->scissor.width < width ||
-        cache->scissor.height < height) {
-        cache->scissor.x      = std::min(cache->scissor.x, x);
-        cache->scissor.y      = std::min(cache->scissor.y, y);
-        cache->scissor.width  = std::max(cache->scissor.width, width);
-        cache->scissor.height = std::max(cache->scissor.height, height);
-        GL_CHECK(glScissor(cache->scissor.x, cache->scissor.y, cache->scissor.width, cache->scissor.height));
+static void ensureScissorRect(Rect &scissor, const Rect &safeArea) {
+    if (scissor.x > safeArea.x ||
+        scissor.y > safeArea.y ||
+        scissor.width < safeArea.width ||
+        scissor.height < safeArea.height) {
+        scissor.x      = std::min(scissor.x, safeArea.x);
+        scissor.y      = std::min(scissor.y, safeArea.y);
+        scissor.width  = std::max(scissor.width, safeArea.width);
+        scissor.height = std::max(scissor.height, safeArea.height);
+        GL_CHECK(glScissor(scissor.x, scissor.y, scissor.width, scissor.height));
+    }
+}
+
+static void blitFrameBuffers(GLES3GPUStateCache *cache, const Rect &src, const Rect &dst, GLenum mask, GLenum filter) {
+    for (auto &vp : cache->viewports) {
+        ensureScissorRect(vp, dst);
+        GL_CHECK(glBlitFramebuffer(
+            src.x, src.y, src.x + src.width, src.y + src.height,
+            dst.x, dst.y, dst.x + dst.width, dst.y + dst.height,
+            mask, filter));
     }
 }
 
@@ -2084,11 +2100,9 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
                 GLES3GPUTexture *srcTex = gpuFramebuffer->gpuColorTextures[subpass.colors[i]];
                 GLES3GPUTexture *dstTex = gpuFramebuffer->gpuColorTextures[subpass.resolves[i]];
 
-                ensureScissorRect(cache, 0, 0, dstTex->width, dstTex->height);
-                GL_CHECK(glBlitFramebuffer(
-                    0, 0, srcTex->width, srcTex->height,
-                    0, 0, dstTex->width, dstTex->height,
-                    GL_COLOR_BUFFER_BIT, GL_NEAREST));
+                Rect srcSize = {0, 0, srcTex->width, srcTex->height};
+                Rect dstSize = {0, 0, dstTex->width, dstTex->height};
+                blitFrameBuffers(cache, srcSize, dstSize, GL_COLOR_BUFFER_BIT, GL_NEAREST);
             }
         }
 
@@ -2100,11 +2114,9 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
                                           ? gpuFramebuffer->gpuColorTextures[subpass.depthStencilResolve]
                                           : gpuFramebuffer->gpuDepthStencilTexture;
 
-            ensureScissorRect(cache, 0, 0, dstTex->width, dstTex->height);
-            GL_CHECK(glBlitFramebuffer(
-                0, 0, srcTex->width, srcTex->height,
-                0, 0, dstTex->width, dstTex->height,
-                instance.resolveMask & (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT), GL_NEAREST));
+            Rect srcSize = {0, 0, srcTex->width, srcTex->height};
+            Rect dstSize = {0, 0, dstTex->width, dstTex->height};
+            blitFrameBuffers(cache, srcSize, dstSize, instance.resolveMask & (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT), GL_NEAREST);
         }
 
         invalidateTarget = GL_READ_FRAMEBUFFER;
@@ -2999,17 +3011,9 @@ void cmdFuncGLES3BlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc
             cache->glDrawFramebuffer = dstFramebuffer;
         }
 
-        ensureScissorRect(cache, region.dstOffset.x, region.dstOffset.y, region.dstExtent.width, region.dstExtent.height);
-        GL_CHECK(glBlitFramebuffer(
-            region.srcOffset.x,
-            region.srcOffset.y,
-            region.srcOffset.x + region.srcExtent.width,
-            region.srcOffset.y + region.srcExtent.height,
-            region.dstOffset.x,
-            region.dstOffset.y,
-            region.dstOffset.x + region.dstExtent.width,
-            region.dstOffset.y + region.dstExtent.height,
-            mask, GLES3_FILTERS[(uint32_t)filter]));
+        Rect srcSize = {region.srcOffset.x, region.srcOffset.y, region.srcExtent.width, region.srcExtent.height};
+        Rect dstSize = {region.dstOffset.x, region.dstOffset.y, region.dstExtent.width, region.dstExtent.height};
+        blitFrameBuffers(cache, srcSize, dstSize, mask, GLES3_FILTERS[(uint32_t)filter]);
     }
 }
 

@@ -70,8 +70,7 @@ void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuf
     cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
                                 &renderArea, colors, depth, stencil);
 
-    _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor  = renderArea;
+    _curDynamicStates.viewports.emplace_back(renderArea);
 }
 
 void GLES3PrimaryCommandBuffer::endRenderPass() {
@@ -110,19 +109,44 @@ void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
     }
 }
 
-void GLES3PrimaryCommandBuffer::setViewport(const Rect &vp) {
-    auto *cache = GLES3Device::getInstance()->stateCache();
-    if (cache->viewport != vp) {
-        cache->viewport = vp;
-        GL_CHECK(glViewport(vp.left, vp.top, vp.width, vp.height));
-    }
-}
+void GLES3PrimaryCommandBuffer::setViewports(const Rect *vp, uint32_t count) {
+    auto *cache     = GLES3Device::getInstance()->stateCache();
+    auto &viewports = cache->viewports;
+    if (!GLES3Device::getInstance()->hasFeature(Feature::MULTI_VIEWPORT)) {
+        auto &viewport = viewports[0];
+        if (viewport != vp[0]) {
+            viewport = vp[0];
+            GL_CHECK(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
+            GL_CHECK(glScissor(viewport.x, viewport.y, viewport.width, viewport.height));
+        }
+    } else {
+        if (viewports.size() != count) {
+            viewports.resize(count);
+        }
+        std::copy(vp, vp + count, viewports.begin());
+        static float viewportArray[4 * MAX_VIEWPORTS];
+        float *      ptr = viewportArray;
 
-void GLES3PrimaryCommandBuffer::setScissor(const Rect &rect) {
-    auto *cache = GLES3Device::getInstance()->stateCache();
-    if (cache->scissor != rect) {
-        cache->scissor = rect;
-        GL_CHECK(glScissor(rect.x, rect.y, rect.width, rect.height));
+        int32_t  x      = viewports[0].x;
+        int32_t  y      = viewports[0].y;
+        uint32_t width  = viewports[0].width;
+        uint32_t height = viewports[0].height;
+
+        for (int i = 0; i < count; i++) {
+            auto &viewport = viewports[i];
+
+            x      = std::min(x, viewport.x);
+            y      = std::min(y, viewport.y);
+            width  = std::max(width, viewport.width);
+            height = std::max(height, viewport.height);
+
+            *ptr++ = static_cast<float>(viewport.x);
+            *ptr++ = static_cast<float>(viewport.y);
+            *ptr++ = static_cast<float>(viewport.width);
+            *ptr++ = static_cast<float>(viewport.height);
+        }
+        GL_CHECK(glViewportArrayvOES(0, count, viewportArray));
+        GL_CHECK(glScissor(x, y, width, height));
     }
 }
 

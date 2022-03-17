@@ -1536,20 +1536,17 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
         }
 
         if (subpassIdx == 0) {
-            if (cache->viewport.left != renderArea->x ||
-                cache->viewport.top != renderArea->y ||
-                cache->viewport.width != renderArea->width ||
-                cache->viewport.height != renderArea->height) {
+            auto &viewport = cache->viewport;
+            if (viewport.x != renderArea->x ||
+                viewport.y != renderArea->y ||
+                viewport.width != renderArea->width ||
+                viewport.height != renderArea->height) {
                 GL_CHECK(glViewport(renderArea->x, renderArea->y, renderArea->width, renderArea->height));
-                cache->viewport.left   = renderArea->x;
-                cache->viewport.top    = renderArea->y;
-                cache->viewport.width  = renderArea->width;
-                cache->viewport.height = renderArea->height;
-            }
-
-            if (cache->scissor != *renderArea) {
                 GL_CHECK(glScissor(renderArea->x, renderArea->y, renderArea->width, renderArea->height));
-                cache->scissor = *renderArea;
+                viewport.x      = renderArea->x;
+                viewport.y      = renderArea->y;
+                viewport.width  = renderArea->width;
+                viewport.height = renderArea->height;
             }
         }
 
@@ -2899,26 +2896,16 @@ void GLES2GPUBlitManager::destroy() {
 }
 
 static void ensureScissorRect(GLES2GPUStateCache *cache, int32_t x, int32_t y, uint32_t width, uint32_t height) {
-    if (cache->viewport.left > x ||
-        cache->viewport.top > y ||
+    if (cache->viewport.x > x ||
+        cache->viewport.y > y ||
         cache->viewport.width < width ||
         cache->viewport.height < height) {
-        cache->viewport.left   = std::min(cache->viewport.left, x);
-        cache->viewport.top    = std::min(cache->viewport.top, y);
+        cache->viewport.x      = std::min(cache->viewport.x, x);
+        cache->viewport.y      = std::min(cache->viewport.y, y);
         cache->viewport.width  = std::max(cache->viewport.width, width);
         cache->viewport.height = std::max(cache->viewport.height, height);
-        GL_CHECK(glViewport(cache->viewport.left, cache->viewport.top, cache->viewport.width, cache->viewport.height));
-    }
-
-    if (cache->scissor.x > x ||
-        cache->scissor.y > y ||
-        cache->scissor.width < width ||
-        cache->scissor.height < height) {
-        cache->scissor.x      = std::min(cache->scissor.x, x);
-        cache->scissor.y      = std::min(cache->scissor.y, y);
-        cache->scissor.width  = std::max(cache->scissor.width, width);
-        cache->scissor.height = std::max(cache->scissor.height, height);
-        GL_CHECK(glScissor(cache->scissor.x, cache->scissor.y, cache->scissor.width, cache->scissor.height));
+        GL_CHECK(glViewport(cache->viewport.x, cache->viewport.y, cache->viewport.width, cache->viewport.height));
+        GL_CHECK(glScissor(cache->viewport.x, cache->viewport.y, cache->viewport.width, cache->viewport.height));
     }
 }
 

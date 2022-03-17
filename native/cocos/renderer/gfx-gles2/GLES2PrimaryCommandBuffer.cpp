@@ -67,8 +67,7 @@ void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuf
 
     cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
                                 &renderArea, colors, depth, stencil);
-    _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor  = renderArea;
+    _curDynamicStates.viewports.emplace_back(renderArea);
 }
 
 void GLES2PrimaryCommandBuffer::endRenderPass() {
@@ -117,20 +116,13 @@ void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
         }
     }
 }
-
-void GLES2PrimaryCommandBuffer::setViewport(const Rect &vp) {
-    auto *cache = GLES2Device::getInstance()->stateCache();
-    if (cache->viewport != vp) {
-        cache->viewport = vp;
-        GL_CHECK(glViewport(vp.left, vp.top, vp.width, vp.height));
-    }
-}
-
-void GLES2PrimaryCommandBuffer::setScissor(const Rect &rect) {
-    auto *cache = GLES2Device::getInstance()->stateCache();
-    if (cache->scissor != rect) {
-        cache->scissor = rect;
-        GL_CHECK(glScissor(rect.x, rect.y, rect.width, rect.height));
+void GLES2PrimaryCommandBuffer::setViewports(const Rect *vp, uint32_t /**/) {
+    auto *      cache    = GLES2Device::getInstance()->stateCache();
+    const auto &viewport = vp[0];
+    if (cache->viewport != viewport) {
+        cache->viewport = viewport;
+        GL_CHECK(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
+        GL_CHECK(glScissor(viewport.x, viewport.y, viewport.width, viewport.height));
     }
 }
 

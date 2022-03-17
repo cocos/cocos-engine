@@ -475,8 +475,7 @@ public:
     GLuint                          glReadFramebuffer = 0;
     GLuint                          glDrawFramebuffer = 0;
     GLuint                          glRenderbuffer    = 0;
-    Rect                            viewport;
-    Rect                            scissor;
+    vector<Rect>                    viewports;
     RasterizerState                 rs;
     DepthStencilState               dss;
     BlendState                      bs;
@@ -493,6 +492,7 @@ public:
         glTextures.resize(texUnits, 0U);
         glSamplers.resize(texUnits, 0U);
         glImages.resize(imageUnits, 0U);
+        viewports.resize(1);
         glEnabledAttribLocs.resize(vertexAttributes, false);
         glCurrentAttribLocs.resize(vertexAttributes, false);
         _initialized = true;
@@ -524,11 +524,10 @@ public:
         isCullFaceEnabled    = true;
         isStencilTestEnabled = false;
 
-        viewport = Rect();
-        scissor  = Rect();
-        rs       = RasterizerState();
-        dss      = DepthStencilState();
-        bs       = BlendState();
+        viewports.resize(1);
+        rs  = RasterizerState();
+        dss = DepthStencilState();
+        bs  = BlendState();
 
         gfxStateCache.gpuRenderPass     = nullptr;
         gfxStateCache.gpuFramebuffer    = nullptr;

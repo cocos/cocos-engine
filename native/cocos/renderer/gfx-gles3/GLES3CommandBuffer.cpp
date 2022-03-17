@@ -123,8 +123,7 @@ void GLES3CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     _curCmdPackage->beginRenderPassCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
 
-    _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor  = renderArea;
+    _curDynamicStates.viewports.emplace_back(renderArea);
 }
 
 void GLES3CommandBuffer::endRenderPass() {
@@ -169,20 +168,16 @@ void GLES3CommandBuffer::bindInputAssembler(InputAssembler *ia) {
     _isStateInvalid      = true;
 }
 
-void setViewports(const Rect *vp, uint32_t count) {
-    for (size_t i = 0; i < count; i++) {
+void GLES3CommandBuffer::setViewports(const Rect *vp, uint32_t count) {
+    auto viewports = _curDynamicStates.viewports;
+    if (viewports.size() != count) {
+        viewports.resize(count);
+        _isStateInvalid = true;
     }
-}
 
-void GLES3CommandBuffer::setViewport(const Rect &vp) {
-    if ((_curDynamicStates.viewport.left != vp.left) ||
-        (_curDynamicStates.viewport.top != vp.top) ||
-        (_curDynamicStates.viewport.width != vp.width) ||
-        (_curDynamicStates.viewport.height != vp.height) ||
-        math::IsNotEqualF(_curDynamicStates.viewport.minDepth, vp.minDepth) ||
-        math::IsNotEqualF(_curDynamicStates.viewport.maxDepth, vp.maxDepth)) {
-        _curDynamicStates.viewport = vp;
-        _isStateInvalid            = true;
+    if (!std::equal(vp, vp + count, viewports.cbegin())) {
+        _isStateInvalid = true;
+        std::copy(vp, vp + count, viewports.begin());
     }
 }
 

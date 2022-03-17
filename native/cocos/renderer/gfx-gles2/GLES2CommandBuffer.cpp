@@ -122,8 +122,7 @@ void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     cmd->clearStencil = stencil;
     _curCmdPackage->beginRenderPassCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
-    _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor  = renderArea;
+    _curDynamicStates.viewports.emplace_back(renderArea);
 }
 
 void GLES2CommandBuffer::endRenderPass() {
@@ -168,25 +167,14 @@ void GLES2CommandBuffer::bindInputAssembler(InputAssembler *ia) {
     _isStateInvalid      = true;
 }
 
-void GLES2CommandBuffer::setViewport(const Rect &vp) {
-    if ((_curDynamicStates.viewport.left != vp.left) ||
-        (_curDynamicStates.viewport.top != vp.top) ||
-        (_curDynamicStates.viewport.width != vp.width) ||
-        (_curDynamicStates.viewport.height != vp.height) ||
-        math::IsNotEqualF(_curDynamicStates.viewport.minDepth, vp.minDepth) ||
-        math::IsNotEqualF(_curDynamicStates.viewport.maxDepth, vp.maxDepth)) {
-        _curDynamicStates.viewport = vp;
-        _isStateInvalid            = true;
-    }
-}
-
-void GLES2CommandBuffer::setScissor(const Rect &rect) {
-    if ((_curDynamicStates.scissor.x != rect.x) ||
-        (_curDynamicStates.scissor.y != rect.y) ||
-        (_curDynamicStates.scissor.width != rect.width) ||
-        (_curDynamicStates.scissor.height != rect.height)) {
-        _curDynamicStates.scissor = rect;
-        _isStateInvalid           = true;
+void GLES2CommandBuffer::setViewports(const Rect *vp, uint32_t count) {
+    auto &viewport = _curDynamicStates.viewports[0];
+    if ((viewport.x != vp[0].x) ||
+        (viewport.y != vp[0].y) ||
+        (viewport.width != vp[0].width) ||
+        (viewport.height != vp[0].height)) {
+        viewport        = vp[0];
+        _isStateInvalid = true;
     }
 }
 

@@ -255,10 +255,13 @@ void CommandBufferAgent::bindInputAssembler(InputAssembler *ia) {
 }
 
 void CommandBufferAgent::setViewports(const Rect *vp, uint32_t count) {
+    Rect *actorVp = nullptr;
+    actorVp             = _messageQueue->allocate<Rect>(count);
+    memcpy(actorVp, vp, count * sizeof(Rect));
     ENQUEUE_MESSAGE_3(
         _messageQueue, CommandBufferSetViewports,
         actor, getActor(),
-        vp, vp,
+        vp, actorVp,
         count, count,
         {
             actor->setViewports(vp, count);
