@@ -434,6 +434,8 @@ std::unordered_map<int, std::string> debugInfos = {
 { 13104, "Can not decode CCON binary: lack of text decoder." },
 { 14000, "Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame." },
 { 14100, "Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead" },
+{ 14200, "Can not update a static mesh." },
+{ 14201, "The primitiveIndex is out of range." },
 
 };
 }//namespace cc
