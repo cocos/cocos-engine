@@ -293,7 +293,7 @@ final class CocosWebSocket extends WebSocketListener {
         Response response) {
         String msg = "";
         if (t != null) {
-            msg = t.getMessage();
+            msg = t.getMessage() == null ?  t.getClass().getSimpleName() : t.getMessage();
         }
         output("onFailure Error : " + msg);
         synchronized (_wsContext) {
