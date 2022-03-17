@@ -718,8 +718,9 @@ export class Skeleton extends Renderable2D {
                 child.destroy();
             }
         }
-
-        this._updateSkeletonData();
+        if (!this._skeleton) {
+            this._updateSkeletonData();
+        }
         this._updateDebugDraw();
         this._updateUseTint();
         this._indexBoneSockets();
