@@ -762,7 +762,9 @@ export declare namespace Director {
     export type OnLoadSceneProgress = (completedCount: number, totalCount: number, item: any) => void;
 }
 
+legacyCC.Director = Director;
+
 /**
  * 导演类。
  */
-export const director: Director = Director.instance = new Director();
+export const director: Director = Director.instance = legacyCC.director = new Director();
