@@ -35,7 +35,7 @@ using namespace cc;
 
 namespace spine {
 
-float SkeletonCache::FrameTime = 1.0f / 60.0f;
+float SkeletonCache::FrameTime    = 1.0f / 60.0f;
 float SkeletonCache::MaxCacheTime = 120.0f;
 
 SkeletonCache::SegmentData::SegmentData() {
@@ -127,7 +127,7 @@ void SkeletonCache::AnimationData::reset() {
     }
     _frames.clear();
     _isComplete = false;
-    _totalTime = 0.0f;
+    _totalTime  = 0.0f;
 }
 
 bool SkeletonCache::AnimationData::needUpdate(int toFrameIdx) const {
@@ -168,13 +168,13 @@ SkeletonCache::~SkeletonCache() {
 
 SkeletonCache::AnimationData *SkeletonCache::buildAnimationData(const std::string &animationName) {
     AnimationData *aniData = nullptr;
-    auto it = _animationCaches.find(animationName);
+    auto           it      = _animationCaches.find(animationName);
     if (it == _animationCaches.end()) {
         auto animation = findAnimation(animationName);
         if (animation == nullptr) return nullptr;
 
-        aniData = new AnimationData();
-        aniData->_animationName = animationName;
+        aniData                         = new AnimationData();
+        aniData->_animationName         = animationName;
         _animationCaches[animationName] = aniData;
     } else {
         aniData = it->second;
@@ -229,7 +229,7 @@ void SkeletonCache::updateToFrame(const std::string &animationName, int toFrameI
 
 void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
     std::size_t frameIndex = animationData->getFrameCount();
-    FrameData *frameData = animationData->buildFrameData(frameIndex);
+    FrameData * frameData  = animationData->buildFrameData(frameIndex);
 
     if (!_skeleton) return;
 
@@ -244,9 +244,9 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
     Color4F color;
     Color4F darkColor;
 
-    AttachmentVertices *attachmentVertices = nullptr;
-    middleware::IOBuffer &vb = frameData->vb;
-    middleware::IOBuffer &ib = frameData->ib;
+    AttachmentVertices *  attachmentVertices = nullptr;
+    middleware::IOBuffer &vb                 = frameData->vb;
+    middleware::IOBuffer &ib                 = frameData->ib;
 
     // vertex size int bytes with two color
     int vbs2 = sizeof(V2F_T2F_C4F_C4F);
@@ -256,24 +256,24 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
     int vbSize = 0;
     int ibSize = 0;
 
-    int preBlendMode = -1;
+    int preBlendMode    = -1;
     int preTextureIndex = -1;
     int curTextureIndex = -1;
 
     int preISegWritePos = -1;
-    int curISegLen = 0;
-    int curVSegLen = 0;
+    int curISegLen      = 0;
+    int curVSegLen      = 0;
 
-    int materialLen = 0;
-    Slot *slot = nullptr;
+    int   materialLen = 0;
+    Slot *slot        = nullptr;
 
     middleware::Texture2D *texture = nullptr;
 
     auto flush = [&]() {
         // fill pre segment count field
         if (preISegWritePos != -1) {
-            SegmentData *preSegmentData = frameData->buildSegmentData(materialLen - 1);
-            preSegmentData->indexCount = curISegLen;
+            SegmentData *preSegmentData      = frameData->buildSegmentData(materialLen - 1);
+            preSegmentData->indexCount       = curISegLen;
             preSegmentData->vertexFloatCount = curVSegLen;
         }
 
@@ -297,16 +297,16 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
 
     auto &bones = _skeleton->getBones();
     for (std::size_t i = 0, n = bones.size(); i < n; i++) {
-        auto &bone = bones[i];
-        auto boneCount = frameData->getBoneCount();
-        BoneData *boneData = frameData->buildBoneData(boneCount);
-        auto &matm = boneData->globalTransformMatrix.m;
-        matm[0] = bone->getA();
-        matm[1] = bone->getC();
-        matm[4] = bone->getB();
-        matm[5] = bone->getD();
-        matm[12] = bone->getWorldX();
-        matm[13] = bone->getWorldY();
+        auto &    bone      = bones[i];
+        auto      boneCount = frameData->getBoneCount();
+        BoneData *boneData  = frameData->buildBoneData(boneCount);
+        auto &    matm      = boneData->globalTransformMatrix.m;
+        matm[0]             = bone->getA();
+        matm[1]             = bone->getC();
+        matm[4]             = bone->getB();
+        matm[5]             = bone->getD();
+        matm[12]            = bone->getWorldX();
+        matm[13]            = bone->getWorldY();
     }
 
     auto &drawOrder = _skeleton->getDrawOrder();
@@ -332,7 +332,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
 
         if (slot->getAttachment()->getRTTI().isExactly(RegionAttachment::rtti)) {
             RegionAttachment *attachment = (RegionAttachment *)slot->getAttachment();
-            attachmentVertices = (AttachmentVertices *)attachment->getRendererObject();
+            attachmentVertices           = (AttachmentVertices *)attachment->getRendererObject();
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -341,7 +341,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             }
 
             trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-            vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
+            vbSize                      = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
             vb.checkSpace(vbSize, true);
             trianglesTwoColor.verts = (V2F_T2F_C4F_C4F *)vb.getCurBuffer();
             for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
@@ -350,7 +350,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             attachment->computeWorldVertices(slot->getBone(), (float *)trianglesTwoColor.verts, 0, vs2);
 
             trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
-            ibSize = trianglesTwoColor.indexCount * sizeof(unsigned short);
+            ibSize                       = trianglesTwoColor.indexCount * sizeof(unsigned short);
             ib.checkSpace(ibSize, true);
             trianglesTwoColor.indices = (unsigned short *)ib.getCurBuffer();
             memcpy(trianglesTwoColor.indices, attachmentVertices->_triangles->indices, ibSize);
@@ -362,7 +362,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
 
         } else if (slot->getAttachment()->getRTTI().isExactly(MeshAttachment::rtti)) {
             MeshAttachment *attachment = (MeshAttachment *)slot->getAttachment();
-            attachmentVertices = (AttachmentVertices *)attachment->getRendererObject();
+            attachmentVertices         = (AttachmentVertices *)attachment->getRendererObject();
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -371,7 +371,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             }
 
             trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-            vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
+            vbSize                      = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
             vb.checkSpace(vbSize, true);
             trianglesTwoColor.verts = (V2F_T2F_C4F_C4F *)vb.getCurBuffer();
             for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
@@ -380,7 +380,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float *)trianglesTwoColor.verts, 0, vs2);
 
             trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
-            ibSize = trianglesTwoColor.indexCount * sizeof(unsigned short);
+            ibSize                       = trianglesTwoColor.indexCount * sizeof(unsigned short);
             ib.checkSpace(ibSize, true);
             trianglesTwoColor.indices = (unsigned short *)ib.getCurBuffer();
             memcpy(trianglesTwoColor.indices, attachmentVertices->_triangles->indices, ibSize);
@@ -406,9 +406,9 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             continue;
         }
 
-        float red = _skeleton->getColor().r * color.r * 255;
+        float red   = _skeleton->getColor().r * color.r * 255;
         float green = _skeleton->getColor().g * color.g * 255;
-        float blue = _skeleton->getColor().b * color.b * 255;
+        float blue  = _skeleton->getColor().b * color.b * 255;
 
         color.r = red * slot->getColor().r;
         color.g = green * slot->getColor().g;
@@ -426,16 +426,16 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
         darkColor.a = 0;
 
         if (preColor != color || preDarkColor != darkColor) {
-            preColor = color;
-            preDarkColor = darkColor;
+            preColor        = color;
+            preDarkColor    = darkColor;
             auto colorCount = frameData->getColorCount();
             if (colorCount > 0) {
-                ColorData *preColorData = frameData->buildColorData(colorCount - 1);
+                ColorData *preColorData         = frameData->buildColorData(colorCount - 1);
                 preColorData->vertexFloatOffset = (int)vb.getCurPos() / sizeof(float);
             }
-            ColorData *colorData = frameData->buildColorData(colorCount);
+            ColorData *colorData  = frameData->buildColorData(colorCount);
             colorData->finalColor = color;
-            colorData->darkColor = darkColor;
+            colorData->darkColor  = darkColor;
         }
 
         // Two color tint logic
@@ -448,49 +448,49 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             }
 
             trianglesTwoColor.vertCount = (int)_clipper->getClippedVertices().size() >> 1;
-            vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
+            vbSize                      = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
             vb.checkSpace(vbSize, true);
             trianglesTwoColor.verts = (V2F_T2F_C4F_C4F *)vb.getCurBuffer();
 
             trianglesTwoColor.indexCount = (int)_clipper->getClippedTriangles().size();
-            ibSize = trianglesTwoColor.indexCount * sizeof(unsigned short);
+            ibSize                       = trianglesTwoColor.indexCount * sizeof(unsigned short);
             ib.checkSpace(ibSize, true);
             trianglesTwoColor.indices = (unsigned short *)ib.getCurBuffer();
             memcpy(trianglesTwoColor.indices, _clipper->getClippedTriangles().buffer(), sizeof(unsigned short) * _clipper->getClippedTriangles().size());
 
             float *verts = _clipper->getClippedVertices().buffer();
-            float *uvs = _clipper->getClippedUVs().buffer();
+            float *uvs   = _clipper->getClippedUVs().buffer();
 
             for (int v = 0, vn = trianglesTwoColor.vertCount, vv = 0; v < vn; ++v, vv += 2) {
                 V2F_T2F_C4F_C4F *vertex = trianglesTwoColor.verts + v;
-                vertex->vertex.x = verts[vv];
-                vertex->vertex.y = verts[vv + 1];
-                vertex->texCoord.u = uvs[vv];
-                vertex->texCoord.v = uvs[vv + 1];
-                vertex->color.r = color.r / 255.0f;
-                vertex->color.g = color.g / 255.0f;
-                vertex->color.b = color.b / 255.0f;
-                vertex->color.a = color.a / 255.0f;
-                vertex->color2.r = darkColor.r / 255.0f;
-                vertex->color2.g = darkColor.g / 255.0f;
-                vertex->color2.b = darkColor.b / 255.0f;
-                vertex->color2.a = darkColor.a / 255.0f;
+                vertex->vertex.x        = verts[vv];
+                vertex->vertex.y        = verts[vv + 1];
+                vertex->texCoord.u      = uvs[vv];
+                vertex->texCoord.v      = uvs[vv + 1];
+                vertex->color.r         = color.r / 255.0f;
+                vertex->color.g         = color.g / 255.0f;
+                vertex->color.b         = color.b / 255.0f;
+                vertex->color.a         = color.a / 255.0f;
+                vertex->color2.r        = darkColor.r / 255.0f;
+                vertex->color2.g        = darkColor.g / 255.0f;
+                vertex->color2.b        = darkColor.b / 255.0f;
+                vertex->color2.a        = darkColor.a / 255.0f;
             }
         } else {
             for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
                 V2F_T2F_C4F_C4F *vertex = trianglesTwoColor.verts + v;
-                vertex->color.r = color.r / 255.0f;
-                vertex->color.g = color.g / 255.0f;
-                vertex->color.b = color.b / 255.0f;
-                vertex->color.a = color.a / 255.0f;
-                vertex->color2.r = darkColor.r / 255.0f;
-                vertex->color2.g = darkColor.g / 255.0f;
-                vertex->color2.b = darkColor.b / 255.0f;
-                vertex->color2.a = darkColor.a / 255.0f;
+                vertex->color.r         = color.r / 255.0f;
+                vertex->color.g         = color.g / 255.0f;
+                vertex->color.b         = color.b / 255.0f;
+                vertex->color.a         = color.a / 255.0f;
+                vertex->color2.r        = darkColor.r / 255.0f;
+                vertex->color2.g        = darkColor.g / 255.0f;
+                vertex->color2.b        = darkColor.b / 255.0f;
+                vertex->color2.a        = darkColor.a / 255.0f;
             }
         }
 
-        texture = attachmentVertices->_texture;
+        texture         = attachmentVertices->_texture;
         curTextureIndex = attachmentVertices->_texture->getRealTextureIndex();
         // If texture or blendMode change,will change material.
         if (preTextureIndex != curTextureIndex || preBlendMode != slot->getData().getBlendMode()) {
@@ -520,14 +520,14 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
     _clipper->clipEnd();
 
     if (preISegWritePos != -1) {
-        SegmentData *preSegmentData = frameData->buildSegmentData(materialLen - 1);
-        preSegmentData->indexCount = curISegLen;
+        SegmentData *preSegmentData      = frameData->buildSegmentData(materialLen - 1);
+        preSegmentData->indexCount       = curISegLen;
         preSegmentData->vertexFloatCount = curVSegLen;
     }
 
     auto colorCount = frameData->getColorCount();
     if (colorCount > 0) {
-        ColorData *preColorData = frameData->buildColorData(colorCount - 1);
+        ColorData *preColorData         = frameData->buildColorData(colorCount - 1);
         preColorData->vertexFloatOffset = (int)vb.getCurPos() / sizeof(float);
     }
 }
