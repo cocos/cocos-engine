@@ -331,7 +331,9 @@ void Engine::onPause() {
     AppEvent appEv;
     appEv.type = AppEvent::Type::PAUSE;
     dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    cc::EventDispatcher::dispatchDestroyWindowEvent();
+#endif
     cc::EventDispatcher::dispatchEnterBackgroundEvent();
 }
 
@@ -339,7 +341,9 @@ void Engine::onResume() {
     AppEvent appEv;
     appEv.type = AppEvent::Type::RESUME;
     dispatchEventToApp(OSEventType::APP_OSEVENT, appEv);
-
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    cc::EventDispatcher::dispatchRecreateWindowEvent();
+#endif
     cc::EventDispatcher::dispatchEnterForegroundEvent();
 }
 
