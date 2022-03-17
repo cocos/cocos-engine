@@ -7,10 +7,7 @@
 #include "platform/FileUtils.h"
 #include "platform/java/jni/JniHelper.h"
 
-#ifndef JAVA_CLASS_WEBSOCKET
-    #define JAVA_CLASS_WEBSOCKET "com/cocos/lib/websocket/CocosWebSocket"
-#endif
-
+#define JAVA_CLASS_WEBSOCKET "com/cocos/lib/websocket/CocosWebSocket"
 #define HANDLE_TO_WS_OKHTTP3(handler) \
     reinterpret_cast<WebSocketImpl *>(static_cast<uintptr_t>(handler))
 
@@ -132,11 +129,11 @@ WebSocketImpl::~WebSocketImpl() {
 
 bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate, const std::string &url,
                          const std::vector<std::string> *protocols, const std::string &caFilePath) {
-    auto *                   env               = cc::JniHelper::getEnv();
+    auto *                   env               = JniHelper::getEnv();
     auto                     handler           = static_cast<int64_t>(reinterpret_cast<uintptr_t>(this));
     bool                     tcpNoDelay        = false;
     bool                     perMessageDeflate = true;
-    int64_t                  timeout           = 45 * 1000 /*ms*/; //TODO: set timeout
+    int64_t                  timeout           =  60 * 60 * 1000 /*ms*/; //TODO: set timeout
     std::vector<std::string> headers;                              //TODO: allow set headers
     _url      = url;
     _delegate = const_cast<WebSocket::Delegate *>(&delegate);

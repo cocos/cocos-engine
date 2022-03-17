@@ -2,10 +2,8 @@ package com.cocos.lib.websocket;
 
 import android.os.Build;
 import android.util.Log;
-
 import com.cocos.lib.CocosActivity;
 import com.cocos.lib.CocosHelper;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +14,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -25,7 +22,6 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
 import org.cocos2dx.okhttp3.CipherSuite;
 import org.cocos2dx.okhttp3.OkHttpClient;
 import org.cocos2dx.okhttp3.Request;
@@ -46,24 +42,33 @@ final class CocosWebSocket extends WebSocketListener {
         long handlerPtr;
     }
 
-    private final long _timeout;
-    private final boolean _perMessageDeflate;
-    private final boolean _tcpNoDelay;
-    private final String[] _header;
+    private final long              _timeout;
+    private final boolean           _perMessageDeflate;
+    private final boolean           _tcpNoDelay;
+    private final                   String[] _header;
     private final _WebSocketContext _wsContext =
         new _WebSocketContext();
 
     private org.cocos2dx.okhttp3.WebSocket _webSocket;
-    private OkHttpClient _client;
+    private OkHttpClient                   _client;
 
     CocosWebSocket(long ptr, long handler, String[] header, boolean tcpNoDelay,
-                   boolean perMessageDeflate, long timeout) {
+        boolean perMessageDeflate, long timeout) {
         _wsContext.identifier = ptr;
         _wsContext.handlerPtr = handler;
-        _header = header;
-        _tcpNoDelay = tcpNoDelay;
-        _perMessageDeflate = perMessageDeflate;
-        _timeout = timeout;
+        _header               = constructDefaultHeader(header);
+        _tcpNoDelay           = tcpNoDelay;
+        _perMessageDeflate    = perMessageDeflate;
+        _timeout              = timeout;
+    }
+
+    private String[] constructDefaultHeader(String[] header) {
+        if (header == null || header.length == 0) {
+            // Upgrade: websocket
+            // Connection: Upgrade
+            return new String[] {"Package-Name", CocosHelper.getActivity().getApplicationInfo().packageName};
+        }
+        return header;
     }
 
     private void _removeHandler() {
@@ -74,7 +79,7 @@ final class CocosWebSocket extends WebSocketListener {
     }
 
     private void _send(final byte[] msg) {
-//        Log.d(_TAG, "try sending binary msg");
+        //        Log.d(_TAG, "try sending binary msg");
         if (null == _webSocket) {
             Log.e(_TAG, "WebSocket hasn't connected yet");
             return;
@@ -85,7 +90,7 @@ final class CocosWebSocket extends WebSocketListener {
     }
 
     private void _send(final String msg) {
-//        Log.d(_TAG, "try sending string msg: " + msg);
+        //        Log.d(_TAG, "try sending string msg: " + msg);
         if (null == _webSocket) {
             Log.e(_TAG, "WebSocket hasn't connected yet");
             return;
@@ -101,14 +106,14 @@ final class CocosWebSocket extends WebSocketListener {
     private SSLSocketFactory
     defaultSslSocketFactory(X509TrustManager trustManager)
         throws NoSuchAlgorithmException, KeyManagementException {
-        SSLContext sslContext = SSLContext.getInstance("TLS");
+        SSLContext   sslContext = SSLContext.getInstance("TLS");
         SecureRandom random;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             random = SecureRandom.getInstanceStrong();
         } else {
             random = SecureRandom.getInstance("SHA1PRNG");
         }
-        sslContext.init(null, new TrustManager[]{trustManager}, random);
+        sslContext.init(null, new TrustManager[] {trustManager}, random);
         return sslContext.getSocketFactory();
     }
 
@@ -125,7 +130,7 @@ final class CocosWebSocket extends WebSocketListener {
     }
 
     private void _connect(final String url, final String protocols,
-                          final String caFilePath) {
+        final String caFilePath) {
         Log.d(_TAG, "connect ws url: '" + url + "' ,protocols: '" + protocols + "' ,ca_: '" + caFilePath + "'");
         Request.Builder requestBuilder = new Request.Builder().url(url);
         try {
@@ -152,6 +157,7 @@ final class CocosWebSocket extends WebSocketListener {
                 .readTimeout(_timeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(_timeout, TimeUnit.MILLISECONDS)
                 .connectTimeout(_timeout, TimeUnit.MILLISECONDS);
+
         if (_perMessageDeflate) {
             // 开启压缩扩展, 开启 Gzip 压缩
             builder.addInterceptor(new CocosGzipRequestInterceptor());
@@ -164,7 +170,6 @@ final class CocosWebSocket extends WebSocketListener {
                 if (caFilePath.startsWith("assets/")) {
                     caInput = CocosHelper.getActivity().getResources().getAssets().open(caFilePath);
                 } else {
-
                     caInput = new FileInputStream(caFilePath);
                 }
                 if (caFilePath.toLowerCase().endsWith(".pem")) {
@@ -197,25 +202,25 @@ final class CocosWebSocket extends WebSocketListener {
             try {
                 X509TrustManager trustManager =
                     CocosWebSocketUtils.GetTrustManager(keyStore);
-                SSLContext sslContext = SSLContext.getInstance("TLS");
+                SSLContext   sslContext = SSLContext.getInstance("TLS");
                 SecureRandom random;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     random = SecureRandom.getInstanceStrong();
                 } else {
                     random = SecureRandom.getInstance("SHA1PRNG");
                 }
-                sslContext.init(null, new TrustManager[]{trustManager}, random);
+                sslContext.init(null, new TrustManager[] {trustManager}, random);
                 SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
                 SSLSocketFactory customSslSocketFactory =
                     new CocosDelegatingSSLSocketFactory(sslSocketFactory) {
                         @Override
                         protected SSLSocket configureSocket(SSLSocket socket)
-                            throws IOException {
+                            throws          IOException {
                             socket.setTcpNoDelay(_tcpNoDelay);
                             // TLSv1.2 is disabled default below API20----
                             // https://developer.android.com/reference/javax/net/ssl/SSLSocket
                             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
-                                socket.setEnabledProtocols(new String[]{"TLSv1.2"});
+                                socket.setEnabledProtocols(new String[] {"TLSv1.2"});
                             }
                             return socket;
                         }
@@ -233,7 +238,7 @@ final class CocosWebSocket extends WebSocketListener {
                 return;
             }
         }
-        _client = builder.build();
+        _client    = builder.build();
         _webSocket = _client.newWebSocket(request, this);
     }
 
@@ -262,7 +267,7 @@ final class CocosWebSocket extends WebSocketListener {
 
     @Override
     public void onMessage(org.cocos2dx.okhttp3.WebSocket _webSocket, String text) {
-        output("Receiving string msg: " + text);
+        //        output("Receiving string msg: " + text);
         synchronized (_wsContext) {
             nativeOnStringMessage(text, _wsContext.identifier, _wsContext.handlerPtr);
         }
@@ -270,7 +275,7 @@ final class CocosWebSocket extends WebSocketListener {
 
     @Override
     public void onMessage(org.cocos2dx.okhttp3.WebSocket _webSocket, ByteString bytes) {
-        output("Receiving binary msg");
+        //        output("Receiving binary msg");
         synchronized (_wsContext) {
             nativeOnBinaryMessage(bytes.toByteArray(), _wsContext.identifier,
                 _wsContext.handlerPtr);
@@ -279,13 +284,13 @@ final class CocosWebSocket extends WebSocketListener {
 
     @Override
     public void onClosing(org.cocos2dx.okhttp3.WebSocket _webSocket, int code,
-                          String reason) {
+        String reason) {
         output("Closing : " + code + " / " + reason);
     }
 
     @Override
     public void onFailure(org.cocos2dx.okhttp3.WebSocket _webSocket, Throwable t,
-                          Response response) {
+        Response response) {
         String msg = "";
         if (t != null) {
             msg = t.getMessage();
@@ -298,7 +303,7 @@ final class CocosWebSocket extends WebSocketListener {
 
     @Override
     public void onClosed(org.cocos2dx.okhttp3.WebSocket _webSocket, int code,
-                         String reason) {
+        String reason) {
         output("onClosed : " + code + " / " + reason);
         synchronized (_wsContext) {
             nativeOnClosed(code, reason, _wsContext.identifier,
@@ -309,18 +314,18 @@ final class CocosWebSocket extends WebSocketListener {
     private static native void NativeInit();
 
     private native void nativeOnStringMessage(final String msg, long identifier,
-                                              long handler);
+        long handler);
 
     private native void nativeOnBinaryMessage(final byte[] msg, long identifier,
-                                              long handler);
+        long handler);
 
     private native void nativeOnOpen(final String protocol,
-                                     final String headerString, long identifier,
-                                     long handler);
+        final String headerString, long identifier,
+        long handler);
 
     private native void nativeOnClosed(final int code, final String reason,
-                                       long identifier, long handler);
+        long identifier, long handler);
 
     private native void nativeOnError(final String msg, long identifier,
-                                      long handler);
+        long handler);
 }
