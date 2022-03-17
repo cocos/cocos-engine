@@ -52,8 +52,8 @@ struct CC_DLL InstancedItem {
     gfx::DescriptorSet * descriptorSet = nullptr;
     gfx::Texture *       lightingMap   = nullptr;
 };
-using InstancedItemList = vector<InstancedItem>;
-using DynamicOffsetList = vector<uint>;
+using InstancedItemList = ccstd::vector<InstancedItem>;
+using DynamicOffsetList = ccstd::vector<uint>;
 
 class InstancedBuffer : public RefCounted {
 public:

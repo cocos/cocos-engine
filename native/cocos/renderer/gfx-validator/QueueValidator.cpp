@@ -73,7 +73,7 @@ void QueueValidator::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
 
     /////////// execute ///////////
 
-    static vector<CommandBuffer *> cmdBuffActors;
+    static ccstd::vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);
 
     for (uint32_t i = 0U; i < count; ++i) {

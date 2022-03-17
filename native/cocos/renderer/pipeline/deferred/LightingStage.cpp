@@ -389,7 +389,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         // no need to bind localSet in cluster
         if (!_pipeline->isClusterEnabled()) {
-            vector<uint> dynamicOffsets = {0};
+            ccstd::vector<uint> dynamicOffsets = {0};
             cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
         }
 
@@ -499,7 +499,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
 
         // no need to bind localSet in cluster
         if (!_pipeline->isClusterEnabled()) {
-            vector<uint> dynamicOffsets = {0};
+            ccstd::vector<uint> dynamicOffsets = {0};
             cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
         }
 

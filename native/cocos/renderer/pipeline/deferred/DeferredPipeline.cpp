@@ -102,7 +102,7 @@ bool DeferredPipeline::activate(gfx::Swapchain *swapchain) {
     return true;
 }
 
-void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
+void DeferredPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     auto *device               = gfx::Device::getInstance();
     bool  enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {

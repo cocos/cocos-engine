@@ -39,7 +39,7 @@ namespace pipeline {
 
 const scene::Camera *profilerCamera{nullptr};
 
-void decideProfilerCamera(const vector<scene::Camera *> &cameras) {
+void decideProfilerCamera(const ccstd::vector<scene::Camera *> &cameras) {
     for (int i = static_cast<int>(cameras.size() - 1); i >= 0; --i) {
         if (cameras[i]->getWindow()->getSwapchain()) {
             profilerCamera = cameras[i];

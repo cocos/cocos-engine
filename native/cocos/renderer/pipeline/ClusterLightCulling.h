@@ -130,7 +130,7 @@ private:
     std::array<float, (2 * sizeof(Vec4) + 2 * sizeof(Mat4)) / sizeof(float)> _constants{};
     gfx::Buffer *                                                            _constantsBuffer{nullptr};
 
-    vector<scene::Light *> _validLights;
+    ccstd::vector<scene::Light *> _validLights;
     std::vector<float>     _lightBufferData;
 
     gfx::GeneralBarrier *_resetBarrier{nullptr};
@@ -146,7 +146,7 @@ private:
 
     // only rebuild clusters when camera project matrix changed
     bool         _rebuildClusters{false};
-    vector<Mat4> _oldCamProjMats;
+    ccstd::vector<Mat4> _oldCamProjMats;
 
     bool _initialized{false};
 };

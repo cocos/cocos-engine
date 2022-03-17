@@ -72,8 +72,8 @@ protected:
     uint               _bufferViewOffset        = 0;
 
     bool                                              _isDrawIndirectByIndex = false;
-    vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
-    vector<MTLDrawPrimitivesIndirectArguments>        _primitiveIndirectArguments;
+    ccstd::vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
+    ccstd::vector<MTLDrawPrimitivesIndirectArguments>        _primitiveIndirectArguments;
     DrawInfoList                                      _drawInfos;
 
     CCMTLGPUBuffer *_gpuBuffer = nullptr;

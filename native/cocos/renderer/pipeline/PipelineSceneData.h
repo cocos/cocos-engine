@@ -63,8 +63,8 @@ public:
     inline void                                                                setDirShadowObjects(RenderObjectList &&ro) { _dirShadowObjects = std::forward<RenderObjectList>(ro); }
     inline const RenderObjectList &                                            isCastShadowObjects() const { return _castShadowObjects; }
     inline void                                                                setCastShadowObjects(RenderObjectList &&ro) { _castShadowObjects = std::forward<RenderObjectList>(ro); }
-    inline const vector<const scene::Light *> &                                getValidPunctualLights() const { return _validPunctualLights; }
-    inline void                                                                setValidPunctualLights(vector<const scene::Light *> &&validPunctualLights) { _validPunctualLights = std::forward<vector<const scene::Light *>>(validPunctualLights); }
+    inline const ccstd::vector<const scene::Light *> &                                getValidPunctualLights() const { return _validPunctualLights; }
+    inline void                                                                setValidPunctualLights(ccstd::vector<const scene::Light *> &&validPunctualLights) { _validPunctualLights = std::forward<ccstd::vector<const scene::Light *>>(validPunctualLights); }
     inline bool                                                                isHDR() const { return _isHDR; }
     inline void                                                                setHDR(bool val) { _isHDR = val; }
     inline scene::Shadows *                                                    getShadows() const { return _shadow; }
@@ -97,7 +97,7 @@ protected:
     RenderObjectList             _renderObjects;
     RenderObjectList             _dirShadowObjects;
     RenderObjectList             _castShadowObjects;
-    vector<const scene::Light *> _validPunctualLights;
+    ccstd::vector<const scene::Light *> _validPunctualLights;
     gfx::Buffer *                _occlusionQueryVertexBuffer{nullptr};
     gfx::Buffer *                _occlusionQueryIndicesBuffer{nullptr};
     gfx::InputAssembler *        _occlusionQueryInputAssembler{nullptr};

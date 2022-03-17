@@ -199,7 +199,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         }
     } else {
         // TODO: cache state.
-        vector<bool> visited(colorAttachments.size(), false);
+        ccstd::vector<bool> visited(colorAttachments.size(), false);
         for (size_t i = 0; i < subpasses.size(); ++i) {
             for (size_t j = 0; j < subpasses[i].inputs.size(); ++j) {
                 uint32_t input = subpasses[i].inputs[j];
@@ -664,8 +664,8 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     }
 
     uint                            totalSize = 0;
-    vector<uint>                    bufferSize(count);
-    vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
+    ccstd::vector<uint>                    bufferSize(count);
+    ccstd::vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
     auto                            format          = texture->getFormat();
     auto *                          mtlTexture      = static_cast<CCMTLTexture *>(texture);
     auto                            convertedFormat = mtlTexture->getConvertedFormat();

@@ -95,8 +95,8 @@ public:
 
     inline void copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions);
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
-    inline void flushCommands(const vector<CommandBuffer *> &cmdBuffs);
-    inline void acquire(const vector<Swapchain *> &swapchains);
+    inline void flushCommands(const ccstd::vector<CommandBuffer *> &cmdBuffs);
+    inline void acquire(const ccstd::vector<Swapchain *> &swapchains);
 
     inline Queue *           getQueue() const { return _queue; }
     inline QueryPool *       getQueryPool() const { return _queryPool; }
@@ -181,7 +181,7 @@ protected:
     unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
 
 private:
-    vector<Swapchain *> _swapchains; // weak reference
+    ccstd::vector<Swapchain *> _swapchains; // weak reference
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -291,11 +291,11 @@ void Device::copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const Bu
     copyTextureToBuffers(src, buffers.data(), regions.data(), utils::toUint(regions.size()));
 }
 
-void Device::flushCommands(const vector<CommandBuffer *> &cmdBuffs) {
+void Device::flushCommands(const ccstd::vector<CommandBuffer *> &cmdBuffs) {
     flushCommands(cmdBuffs.data(), utils::toUint(cmdBuffs.size()));
 }
 
-void Device::acquire(const vector<Swapchain *> &swapchains) {
+void Device::acquire(const ccstd::vector<Swapchain *> &swapchains) {
     acquire(swapchains.data(), utils::toUint(swapchains.size()));
 }
 

@@ -93,13 +93,13 @@ void CommandRecorder::clear() {
     _drawcallCommands.clear();
 }
 
-vector<uint32_t> CommandRecorder::serialize(const CommandRecorder &recorder) {
-    vector<uint32_t> bytes;
+ccstd::vector<uint32_t> CommandRecorder::serialize(const CommandRecorder &recorder) {
+    ccstd::vector<uint32_t> bytes;
     bytes.push_back(static_cast<uint32_t>(recorder._commands.size()));
     return bytes;
 }
 
-CommandRecorder CommandRecorder::deserialize(const vector<uint32_t> &bytes) {
+CommandRecorder CommandRecorder::deserialize(const ccstd::vector<uint32_t> &bytes) {
     CommandRecorder recorder;
     recorder._commands.resize(bytes[0]);
     return recorder;

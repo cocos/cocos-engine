@@ -80,9 +80,9 @@ IGeometry box(const cc::optional<IBoxOptions> &options) {
         float                  u           = 0;
         float                  v           = 0;
         const auto             offset      = static_cast<uint32_t>(positions.size() / 3);
-        const vector<uint32_t> faceAxe     = FACE_AXES[side];
-        const vector<float>    faceNormal  = FACE_NORMALS[side];
-        const vector<float>    faceTangent = FACE_TANGENTS[side];
+        const ccstd::vector<uint32_t> faceAxe     = FACE_AXES[side];
+        const ccstd::vector<float>    faceNormal  = FACE_NORMALS[side];
+        const ccstd::vector<float>    faceTangent = FACE_TANGENTS[side];
 
         for (index_t iy = 0; iy <= vSegments; ++iy) {
             for (index_t ix = 0; ix <= uSegments; ++ix) {
