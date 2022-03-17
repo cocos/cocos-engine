@@ -37,8 +37,8 @@
 #include <boost/range/irange.hpp>
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/String.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -56,7 +56,6 @@ struct ResourceAccessDesc {
 };
 
 struct ResourceAccessNode {
-    RenderGraph::vertex_descriptor  passID{unInitializeID};
     std::vector<ResourceAccessDesc> attachemntStatus;
 };
 
@@ -167,24 +166,24 @@ struct ResourceAccessGraph {
         boost::container::pmr::vector<InEdge>  inEdges;
     };
 
-    struct NameTag {
-    } static constexpr Name{}; // NOLINT
-    struct AccessNodesTag {
-    } static constexpr AccessNodes{}; // NOLINT
-    struct LeavesTag {
-    } static constexpr Leaves{}; // NOLINT
+    struct PassIDTag {
+    } static constexpr PassID{}; // NOLINT
+    struct AccessNodeTag {
+    } static constexpr AccessNode{}; // NOLINT
 
     // Vertices
     boost::container::pmr::vector<Vertex> vertices;
     // Components
-    boost::container::pmr::vector<PmrString>                      names;
+    boost::container::pmr::vector<RenderGraph::vertex_descriptor> passID;
     boost::container::pmr::vector<ResourceAccessNode>             access;
-    boost::container::pmr::vector<RenderGraph::vertex_descriptor> leaves;
+    // UuidGraph
+    PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
 };
 
 struct Barrier {
     RenderGraph::vertex_descriptor resourceID{unInitializeID};
-    RenderGraph::vertex_descriptor nextPass{unInitializeID};
+    RenderGraph::vertex_descriptor from{unInitializeID};
+    RenderGraph::vertex_descriptor to{unInitializeID};
     gfx::ShaderStageFlagBit        beginVisibility{gfx::ShaderStageFlagBit::NONE};
     gfx::ShaderStageFlagBit        endVisibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit           beginAccess{gfx::MemoryAccessBit::NONE};

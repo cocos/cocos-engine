@@ -259,38 +259,62 @@ inline void clear_vertex(ResourceAccessGraph::vertex_descriptor u, ResourceAcces
 }
 
 inline void remove_vertex(ResourceAccessGraph::vertex_descriptor u, ResourceAccessGraph& g) noexcept { // NOLINT
+    { // UuidGraph
+        const auto& key = g.passID[u];
+        auto num = g.passIndex.erase(key);
+        CC_ENSURES(num == 1);
+        for (auto&& pair : g.passIndex) {
+            auto& v = pair.second;
+            if (v > u) {
+                --v;
+            }
+        }
+    }
     impl::removeVectorVertex(const_cast<ResourceAccessGraph&>(g), u, ResourceAccessGraph::directed_category{});
 
     // remove components
-    g.names.erase(g.names.begin() + std::ptrdiff_t(u));
+    g.passID.erase(g.passID.begin() + std::ptrdiff_t(u));
     g.access.erase(g.access.begin() + std::ptrdiff_t(u));
-    g.leaves.erase(g.leaves.begin() + std::ptrdiff_t(u));
 }
 
 // MutablePropertyGraph(Vertex)
-template <class Component0, class Component1, class Component2>
+template <class Component0, class Component1>
 inline ResourceAccessGraph::vertex_descriptor
-addVertex(Component0&& c0, Component1&& c1, Component2&& c2, ResourceAccessGraph& g) {
+addVertex(Component0&& c0, Component1&& c1, ResourceAccessGraph& g) {
     auto v = gsl::narrow_cast<ResourceAccessGraph::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
-    g.names.emplace_back(std::forward<Component0>(c0));
+
+    { // UuidGraph
+        const auto& uuid = c0;
+        auto res = g.passIndex.emplace(uuid, v);
+        CC_ENSURES(res.second);
+    }
+    g.passID.emplace_back(std::forward<Component0>(c0));
     g.access.emplace_back(std::forward<Component1>(c1));
-    g.leaves.emplace_back(std::forward<Component2>(c2));
 
     return v;
 }
 
-template <class Component0, class Component1, class Component2>
+template <class Component0, class Component1>
 inline ResourceAccessGraph::vertex_descriptor
-addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, Component2&& c2, ResourceAccessGraph& g) {
+addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, ResourceAccessGraph& g) {
     auto v = gsl::narrow_cast<ResourceAccessGraph::vertex_descriptor>(g.vertices.size());
 
     g.vertices.emplace_back();
 
+    { // UuidGraph
+        invoke_hpp::apply(
+            [&](const auto&... args) {
+                auto res = g.passIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
+                CC_ENSURES(res.second);
+            },
+            c0);
+    }
+
     invoke_hpp::apply(
         [&](auto&&... args) {
-            g.names.emplace_back(std::forward<decltype(args)>(args)...);
+            g.passID.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
@@ -299,12 +323,6 @@ addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, 
             g.access.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component1>(c1));
-
-    invoke_hpp::apply(
-        [&](auto&&... args) {
-            g.leaves.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Component2>(c2));
 
     return v;
 }
@@ -324,41 +342,24 @@ struct property_map<cc::render::ResourceAccessGraph, vertex_index_t> {
 
 // Vertex Component
 template <>
-struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessGraph::NameTag> {
+struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessGraph::PassIDTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
-        read_write_property_map_tag,
+        lvalue_property_map_tag,
         const cc::render::ResourceAccessGraph,
-        const container::pmr::vector<cc::PmrString>,
-        boost::string_view,
-        const cc::PmrString&>;
+        const container::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
+        cc::render::RenderGraph::vertex_descriptor,
+        const cc::render::RenderGraph::vertex_descriptor&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
-        read_write_property_map_tag,
+        lvalue_property_map_tag,
         cc::render::ResourceAccessGraph,
-        container::pmr::vector<cc::PmrString>,
-        boost::string_view,
-        cc::PmrString&>;
-};
-
-// Vertex Name
-template <>
-struct property_map<cc::render::ResourceAccessGraph, vertex_name_t> {
-    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
-        read_write_property_map_tag,
-        const cc::render::ResourceAccessGraph,
-        const container::pmr::vector<cc::PmrString>,
-        boost::string_view,
-        const cc::PmrString&>;
-    using type = cc::render::impl::VectorVertexComponentPropertyMap<
-        read_write_property_map_tag,
-        cc::render::ResourceAccessGraph,
-        container::pmr::vector<cc::PmrString>,
-        boost::string_view,
-        cc::PmrString&>;
+        container::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
+        cc::render::RenderGraph::vertex_descriptor,
+        cc::render::RenderGraph::vertex_descriptor&>;
 };
 
 // Vertex Component
 template <>
-struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessGraph::AccessNodesTag> {
+struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessGraph::AccessNodeTag> {
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::ResourceAccessGraph,
@@ -392,23 +393,6 @@ struct property_map<cc::render::ResourceAccessGraph, T cc::render::ResourceAcces
         T cc::render::ResourceAccessNode::*>;
 };
 
-// Vertex Component
-template <>
-struct property_map<cc::render::ResourceAccessGraph, cc::render::ResourceAccessGraph::LeavesTag> {
-    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
-        lvalue_property_map_tag,
-        const cc::render::ResourceAccessGraph,
-        const container::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
-        cc::render::RenderGraph::vertex_descriptor,
-        const cc::render::RenderGraph::vertex_descriptor&>;
-    using type = cc::render::impl::VectorVertexComponentPropertyMap<
-        lvalue_property_map_tag,
-        cc::render::ResourceAccessGraph,
-        container::pmr::vector<cc::render::RenderGraph::vertex_descriptor>,
-        cc::render::RenderGraph::vertex_descriptor,
-        cc::render::RenderGraph::vertex_descriptor&>;
-};
-
 } // namespace boost
 
 namespace cc {
@@ -432,30 +416,24 @@ get(boost::container::pmr::vector<boost::default_color_type>& colors, const Reso
 }
 
 // Vertex Component
-inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::NameTag>::const_type
-get(ResourceAccessGraph::NameTag /*tag*/, const ResourceAccessGraph& g) noexcept {
-    return {g.names};
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::PassIDTag>::const_type
+get(ResourceAccessGraph::PassIDTag /*tag*/, const ResourceAccessGraph& g) noexcept {
+    return {g.passID};
 }
 
-inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::NameTag>::type
-get(ResourceAccessGraph::NameTag /*tag*/, ResourceAccessGraph& g) noexcept {
-    return {g.names};
-}
-
-// Vertex Name
-inline boost::property_map<ResourceAccessGraph, boost::vertex_name_t>::const_type
-get(boost::vertex_name_t /*tag*/, const ResourceAccessGraph& g) noexcept {
-    return {g.names};
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::PassIDTag>::type
+get(ResourceAccessGraph::PassIDTag /*tag*/, ResourceAccessGraph& g) noexcept {
+    return {g.passID};
 }
 
 // Vertex Component
-inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::AccessNodesTag>::const_type
-get(ResourceAccessGraph::AccessNodesTag /*tag*/, const ResourceAccessGraph& g) noexcept {
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::AccessNodeTag>::const_type
+get(ResourceAccessGraph::AccessNodeTag /*tag*/, const ResourceAccessGraph& g) noexcept {
     return {g.access};
 }
 
-inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::AccessNodesTag>::type
-get(ResourceAccessGraph::AccessNodesTag /*tag*/, ResourceAccessGraph& g) noexcept {
+inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::AccessNodeTag>::type
+get(ResourceAccessGraph::AccessNodeTag /*tag*/, ResourceAccessGraph& g) noexcept {
     return {g.access};
 }
 
@@ -470,17 +448,6 @@ template <class T>
 inline typename boost::property_map<ResourceAccessGraph, T ResourceAccessNode::*>::type
 get(T ResourceAccessNode::*memberPointer, ResourceAccessGraph& g) noexcept {
     return {g.access, memberPointer};
-}
-
-// Vertex Component
-inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::LeavesTag>::const_type
-get(ResourceAccessGraph::LeavesTag /*tag*/, const ResourceAccessGraph& g) noexcept {
-    return {g.leaves};
-}
-
-inline typename boost::property_map<ResourceAccessGraph, ResourceAccessGraph::LeavesTag>::type
-get(ResourceAccessGraph::LeavesTag /*tag*/, ResourceAccessGraph& g) noexcept {
-    return {g.leaves};
 }
 
 // Vertex Constant Getter
@@ -506,24 +473,54 @@ inline void put(
     put(get(tag, g), v, std::forward<Args>(args)...);
 }
 
-// MutableGraph(Vertex)
+// UuidGraph
 inline ResourceAccessGraph::vertex_descriptor
-add_vertex(ResourceAccessGraph& g, PmrString&& name) { // NOLINT
-    return addVertex(
-        std::piecewise_construct,
-        std::forward_as_tuple(std::move(name)), // names
-        std::forward_as_tuple(),                // access
-        std::forward_as_tuple(),                // leaves
-        g);
+vertex(const RenderGraph::vertex_descriptor& key, const ResourceAccessGraph& g) {
+    return g.passIndex.at(key);
 }
 
+template <class KeyLike>
 inline ResourceAccessGraph::vertex_descriptor
-add_vertex(ResourceAccessGraph& g, const char* name) { // NOLINT
+vertex(const KeyLike& key, const ResourceAccessGraph& g) {
+    const auto& index = g.passIndex;
+    auto iter = index.find(key);
+    if (iter == index.end()) {
+        throw std::out_of_range("at(key, ResourceAccessGraph) out of range");
+    }
+    return iter->second;
+}
+
+template <class KeyLike>
+inline ResourceAccessGraph::vertex_descriptor
+findVertex(const KeyLike& key, const ResourceAccessGraph& g) noexcept {
+    const auto& index = g.passIndex;
+    auto iter = index.find(key);
+    if (iter == index.end()) {
+        return ResourceAccessGraph::null_vertex();
+    }
+    return iter->second;
+}
+
+inline bool
+contains(const RenderGraph::vertex_descriptor& key, const ResourceAccessGraph& g) noexcept {
+    auto iter = g.passIndex.find(key);
+    return iter != g.passIndex.end();
+}
+
+template <class KeyLike>
+inline bool
+contains(const KeyLike& key, const ResourceAccessGraph& g) noexcept {
+    auto iter = g.passIndex.find(key);
+    return iter != g.passIndex.end();
+}
+
+// MutableGraph(Vertex)
+inline ResourceAccessGraph::vertex_descriptor
+add_vertex(ResourceAccessGraph& g, const RenderGraph::vertex_descriptor& key) { // NOLINT
     return addVertex(
         std::piecewise_construct,
-        std::forward_as_tuple(name), // names
-        std::forward_as_tuple(),     // access
-        std::forward_as_tuple(),     // leaves
+        std::forward_as_tuple(key), // passID
+        std::forward_as_tuple(), // access
         g);
 }
 

@@ -45,17 +45,96 @@ using defaultVisibility = gfx::ShaderStageFlagBit::NONE;
 // void aliasingResource() {
 // }
 
-// execution order BUT NOT LOGICALLY
-bool isPassExecAdjecent(uint32_t passL, uint32_t passR) {
-    return std::abs(passL - passR) == 1;
+void addAccessNode(RenderAcc &     rdg,
+                   RenderPassNode &node, PmrFlatSet<uint32_t> &values,
+                   const PmrString &valueName, AccessType type) {
 }
 
 // status of resource access
-void buildAccessGraph(const RenderGraph &rg, ResourceAccessGraph &rag, AccessTable &rescAcess) {
+void buildAccessGraph(const RenderGraph &rg, const LayoutGraph &lg, ResourceAccessGraph &rag, AccessTable &rescAcess) {
     //what we need:
     // - pass dependency
-    // - initial access of all resource
-    // - leaves
+    // - pass attachment access
+
+    // resouce access status at passID
+    struct ResourceStatus {
+        uint32_t   passID;
+        AccessDesc access;
+    };
+
+    struct ResourceTransition {
+        ResourceStatus lastStatus;
+        ResourceStatus currStatus;
+    };
+
+    std::unordered_map<unt32_t, ResourceTransition> accessRecord;
+
+    size_t numPasses = 1;
+    numPasses += rg.rasterPasses.size();
+    numPasses += rg.computePasses.size();
+    numPasses += rg.copyPasses.size();
+    numPasses += rg.movePasses.size();
+    numPasses += rg.raytracePasses.size();
+
+    rag.reserve(numPasses);
+    rag.valueIndex.reserve(128);
+    rag.valueNames.reserve(128);
+
+    auto startID = add_vertex(rag, 0xFFFFFFFF);
+    CC_EXPECTS(startID == 0);
+
+    auto makeAccessType = [](const boost::container::pmr::vector<ComputeView> &values) {
+        CC_EXPECTS(!values.empty());
+        AccessType type = values[0].accessType;
+        for (uint32_t i = 1; i != values.size(); ++i) {
+            const auto &value = values[i];
+            if (value.isRead()) {
+                if (type == AccessType::WRITE) {
+                    type = AccessType::READ_WRITE;
+                }
+            }
+            if (value.isWrite()) {
+                if (type == AccessType::READ) {
+                    type = AccessType::READ_WRITE;
+                }
+            }
+        }
+        return type;
+    };
+
+    auto getVisibilityByDescName = [&lg](const PmrString &name) {
+        auto                            vis    = gfx::ShaderStageFlagBit::NONE;
+        auto                            vertID = lg.pathIndex[name];
+        const cc::render::DescriptorDB &desc   = get(LayoutGraph::DescriptorsTag, lg, )
+            //...
+
+            return vis;
+    };
+
+    for (const auto passID : makeRange(vertices(rg))) {
+        visitObject(
+            passID, rg,
+            [&](const auto &pass) {
+                auto  vertID = add_vertex(rag, passID);
+                auto &node   = get(RAG::AccessNodesTag, rag);
+                for (const auto &pair : pass.rasterViews) {
+                    const auto &valueName = pair.first;
+                    const auto &value     = pair.second;
+
+                    addPassNodeValue(rag, node, value.accessType);
+                }
+                for (const auto &pair : pass.computeViews) {
+                    const auto &valueName = pair.first;
+                    const auto &values    = pair.second;
+                    addPassNodeValue(rdg, node, valueIDs, valueName, makeAccessType(values));
+                }
+            });
+    }
+}
+
+// execution order BUT NOT LOGICALLY
+bool isPassExecAdjecent(uint32_t passL, uint32_t passR) {
+    return std::abs(passL - passR) == 1;
 }
 
 struct BarrierVisitor : public boost::bfs_visitor<> {
@@ -98,7 +177,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             barrierMap.emplace({from, {}, {}});
         }
 
-        std::vector<Barrier> &srcRearBarriers = barrierMap[from].rearBarriers;
+        std::vector<Barrier> &srcRearBarriers  = barrierMap[from].rearBarriers;
+        std::vector<Barrier> &dstFrontBarriers = barrierMap[to].frontBarriers;
 
         for (uint32_t i = 0; i < commonResources.size(); ++i) {
             const uint32_t resourceID     = commonResources[i].resourceID;
@@ -114,13 +194,17 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                 continue;
             }
 
-            auto srcBarrierIter = std::find_if(srcRearBarriers.begin(), srcRearBarriers.end(),
-                                               [resourceID](const BarrierNode &node) { return resourceID == node.resourceID; });
+            auto findBarrierNodeByResID = [resourceID](const BarrierNode &node) { return resourceID == node.resourceID; };
+
+            auto srcBarrierIter = std::find_if(srcRearBarriers.begin(), srcRearBarriers.end(), findBarrierNodeByResID);
+
+            auto dstBarrierIter = std::find_if(dstFrontBarriers.begin(), dstFrontBarriers.end(), findBarrierNodeByResID);
 
             if (isAdjacent) {
                 if (srcBarrierIter = srcRearBarriers.end()) {
                     srcRearBarriers.emplace_back({
                         resourceID,
+                        from,
                         to, // next use of resc varies between resources
                         (*fromIter).access.visibility,
                         (*toIter).access.visibility,
@@ -128,7 +212,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                         (*toIter).access.access,
                     });
                 } else {
-                    (*srcBarrierIter).nextPass        = to;
+                    (*srcBarrierIter).from            = from;
+                    (*srcBarrierIter).to              = to;
                     (*srcBarrierIter).beginVisibility = (*fromIter).access.visibility;
                     (*srcBarrierIter).endVisibility   = (*toIter).access.visibility;
                     (*srcBarrierIter).beginAccess     = (*fromIter).access.access;
@@ -138,11 +223,38 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                 if (srcBarrierIter = srcRearBarriers.end()) {
                     srcRearBarriers.emplace_back({
                         resourceID,
+                        from,
                         to,
                         (*fromIter).access.visibility,
                         defaultVisibility,
                         (*fromIter).access.access,
                         defaultAccess,
+                    });
+                } else {
+                    if (from > (*srcBarrierIter).from) {
+                        uint32_t siblingPass              = (*srcBarrierIter).from;
+                        (*srcBarrierIter).from            = from;
+                        (*srcBarrierIter).beginVisibility = (*fromIter).access.visibility;
+                        (*srcBarrierIter).beginAccess     = (*fromIter).access.access;
+
+                        auto siblingIter = std::find_if(barrierMap[siblingPass].rearBarriers.begin(), barrierMap[siblingPass].rearBarriers.end(),
+                                                        [resourceID](const Barrier &barrier) {
+                                                            return resourceID == barrier.resourceID;
+                                                        });
+                        assert(siblingIter != barrierMap.end());
+                        barrierMap[siblingPass].rearBarriers.erase(siblingIter);
+                    }
+                }
+
+                if (dstBarrierIter = dstFrontBarriers.end()) {
+                    dstFrontBarriers.emplace_back({
+                        resourceID,
+                        from,
+                        to,
+                        defaultVisibility,
+                        (*toIter).access.visibility,
+                        defaultAccess,
+                        (*toIter).access.access,
                     });
                 } else {
                     // logic but not exec adjacent
@@ -158,38 +270,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                     // 2 and 5 read from ResA, 6 writes to ResA
                     // 5 and 6 logically adjacent but not adjacent in execution order.
                     // barrier for ResA between 2 - 6 can be totally replace by 5 - 6
-
-                    if (to > (*srcBarrierIter).to) {
-                        uint32_t siblingPass              = (*srcBarrierIter).to;
-                        (*srcBarrierIter).to              = to;
-                        (*srcBarrierIter).beginVisibility = (*fromIter).access.visibility;
-                        (*srcBarrierIter).beginAccess     = (*fromIter).access.access;
-
-                        auto siblingIter = std::find_if(barrierMap[siblingPass].rearBarriers.begin(), barrierMap[siblingPass].rearBarriers.end(),
-                                                        [resourceID](const Barrier &barrier) {
-                                                            return resourceID == barrier.resourceID;
-                                                        });
-                        assert(siblingIter != barrierMap.end());
-                        barrierMap[siblingPass].rearBarriers.erase(siblingIter);
-                    }
-                }
-
-                std::vector<Barrier> &dstRearBarriers = barrierMap[to].frontBarriers;
-
-                auto dstBarrierIter = std::find_if(dstRearBarriers.begin(), dstRearBarriers.end(),
-                                                   [resourceID](const BarrierNode &node) { return resourceID == node.resourceID; });
-
-                if (dstBarrierIter = dstRearBarriers.end()) {
-                    dstRearBarriers.emplace_back({
-                        resourceID,
-                        to,
-                        defaultVisibility,
-                        (*toIter).access.visibility,
-                        defaultAccess,
-                        (*toIter).access.access,
-                    });
-                } else {
-                    if (to < (*srcBarrierIter).to) {
+                    if (to < (*dstBarrierIter).to) {
                         uint32_t siblingPass            = (*dstBarrierIter).to;
                         (*dstBarrierIter).to            = to;
                         (*dstBarrierIter).endVisibility = (*toIter).access.visibility;
@@ -215,124 +296,12 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     BarrierMap &barrierMap;
 };
 
-#if 0
-void batchBarriers(const ResourceAccessGraph &rag, BarrierMap &batchedBarriers, AccessTable &rescAcess) {
-    // - beginVisibility: not NONE, endVisibility: not NONE ===> full barrier
-    // - beginVisibility: not NONE, endVisibility: NONE     ===> split begin barrier
-    // - beginVisibility: NONE, endVisibility: not NONE     ===> split end barrier
-
-    using BarrierList = std::vector<Barrier>;
-    BarrierList barrierList;
-    barrierList.reserve(rescAcess.size());
-
-    for (uint32_t pathID = 0; pathID < leaves.size(); ++pathID) {
-    }
-
-
-    using BarrierList = std::vector<Barrier>;
-    BarrierList barrierList;
-    barrierList.reserve(rescAcess.size());
-
-    for (const auto &pair : rescAcess) {
-        const uint32_t    resourceID = pair.first;
-        const AccessDesc &accessDesc = pair.second;
-        barrierList.emplace_back(Barrier{resourceID, {accessDesc.visibility, gfx::ShaderStageFlagBit::NONE, accessDesc.access, gfx::MemoryAccessBit::NONE}, {}});
-    }
-    //initial state
-    batchedBarriers.emplace({0, std::move(barrierList), {}});
-
-    // const ResourceAccessNode &accessNode = get(RAG::AccessNode, rag, 0);
-    // for (uint32_t i = 0; i < accessNode.outStatus.size(); ++i) {
-    //     const uint32_t    resourceID = accessNode.outStatus[i].resourceID;
-    //     const AccessDesc &accessDesc = accessNode.outStatus[i].access;
-
-    //     if (rescAcess[resourceID].visibility != accessDesc.visibility || rescAcess[resourceID].access != accessDesc.access) {
-    //         auto iter = std::find_if(batchedBarriers[0].begin(), batchedBarriers[0].end(), [resourceID](const ResourceAccessDesc &resAccess) { return resAccess.resourceID == resourceID; });
-    //         if (iter != batchedBarriers[0].end()) {
-    //             (*iter).access.endVisibility = accessDesc.visibility;
-    //             (*iter).access.endAccess     = accessDesc.access;
-    //         } else {
-    //         }
-    //         rescAcess[resourceID].visibility = accessDesc.visibility;
-    //         rescAcess[resourceID].access     = accessDesc.access;
-    //     }
-
-    //     // batchedBarriers[0].emplace_back({
-    //     //     gfx::ShaderStageFlagBit::NONE,
-    //     //     accessDesc.visibility,
-    //     //     gfx::MemoryAccessBit::NONE,
-    //     //     accessDesc.access,
-    //     // });
-    // }
-
-    for (uint32_t passID = 1; passID < num_vertices(rag);) {
-        std::vector<ResourceAccessDesc> accessList;
-        const ResourceAccessNode &      accessNode = get(RAG::AccessNode, rag, passID);
-
-        for (uint32_t i = 0; i < accessNode.inStatus.size(); ++i) {
-            uint32_t inDegrees = in_degree(passID, rag);
-            for (uint32_t d = 0; d < inDegrees; ++d) {
-            }
-        }
-
-        // ---------------------------front barrier: prepare for current pass---------------------------
-
-        for (uint32_t i = 0; i < accessNode.outStatus.size(); ++i) {
-            const uint32_t    resourceID = accessNode.inStatus[i].resourceID;
-            const AccessDesc &accessDesc = accessNode.inStatus[i].access;
-            if (rescAcess[resourceID].visibility != accessDesc.visibility || rescAcess[resourceID].access != accessDesc.access) {
-            }
-        }
-
-        for (uint32_t i = 0; i < accessNode.inStatus.size(); ++i) {
-            const uint32_t    resourceID = accessNode.inStatus[i].resourceID;
-            const AccessDesc &accessDesc = accessNode.inStatus[i].access;
-
-            if (rescAcess[resourceID].visibility != accessDesc.visibility || rescAcess[resourceID].access != accessDesc.access) {
-                auto findAccessDescByRescID = [resourceID](const ResourceAccessDesc &resAccess) {
-                    return resAccess.resourceID == resourceID; });
-                auto iter = std::find_if(batchedBarriers[passID].begin(), batchedBarriers[passID].end(), findAccessDescByRescID);
-
-                if (iter != batchedBarriers[passID].end()) {
-                    PmrFlatSet<ResourceAccessDesc> &prevInStatus  = prevPass.inStatus;
-                    PmrFlatSet<ResourceAccessDesc> &prevOutStatus = prevPass.outStatus;
-
-                    auto prevInIter  = std::find_if(prevInStatus.begin(), prevInStatus.end(), findAccessDescByRescID);
-                    auto prevOutIter = std::find_if(prevOutStatus.begin(), prevOutStatus.end(), findAccessDescByRescID);
-
-                    if (prevInIter != prevInStatus.end()) { // resource access changed in adjacent pass
-                        (*prevInIter).access.endVisibility = accessDesc.visibility;
-                        (*prevInIter).access.endAccess     = accessDesc.access;
-                    } else if (prevOutIter != prevOutIter.end()) { // ditto
-                        (*prevOutIter).access.endVisibility = accessDesc.visibility;
-                        (*prevOutIter).access.endAccess     = accessDesc.access;
-                    } else { //resource changed before but not adjacent pass
-                    }
-                } else {
-                    accessList.emplace_back(ResourceAccessDesc{resourceID, {accessDesc.visibility, gfx::ShaderStageFlagBit::NONE, accessDesc.access, gfx::MemoryAccessBit::NONE}});
-                    batchedBarriers[passID]
-                        .emplace
-                }
-                rescAcess[resourceID].visibility = accessDesc.visibility;
-                rescAcess[resourceID].access     = accessDesc.access;
-            }
-
-            // batchedBarriers[0].emplace_back({
-            //     gfx::ShaderStageFlagBit::NONE,
-            //     accessDesc.visibility,
-            //     gfx::MemoryAccessBit::NONE,
-            //     accessDesc.access,
-            // });
-        }
-    }
-
-}
-#endif
 // void passReorder() {
 // }
 
 void run() {
-    ResourceGraph &      rg   = graph;
+    ResourceGraph &rg = graph;
+
     const ResourceGraph &resg = resourceGraph;
 
     {

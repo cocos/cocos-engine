@@ -37,16 +37,15 @@ namespace render {
 
 ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
 : vertices(alloc),
-  names(alloc),
+  passID(alloc),
   access(alloc),
-  leaves(alloc) {}
+  passIndex(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {
     vertices.reserve(sz);
-    names.reserve(sz);
+    passID.reserve(sz);
     access.reserve(sz);
-    leaves.reserve(sz);
 }
 
 ResourceAccessGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
