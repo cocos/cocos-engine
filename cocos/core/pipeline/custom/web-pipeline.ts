@@ -35,7 +35,7 @@ import { Model, RenderScene, Camera } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { RenderDependencyGraph } from './render-dependency-graph';
-import { DeviceResourceGraph } from './executor';
+import { ExecutorExample } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { assert, macro } from '../../platform';
