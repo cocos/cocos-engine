@@ -102,13 +102,29 @@ void buildAccessGraph(const RenderGraph &rg, const LayoutGraph &lg, ResourceAcce
         return type;
     };
 
-    auto getVisibilityByDescName = [&lg](const PmrString &name) {
+    auto getVisibilityByDescName = [&lg](const PmrString &slotName) {
         auto                            vis    = gfx::ShaderStageFlagBit::NONE;
-        auto                            vertID = lg.pathIndex[name];
-        const cc::render::DescriptorDB &desc   = get(LayoutGraph::DescriptorsTag, lg, )
-            //...
 
-            return vis;
+        auto layouts = get(LayoutGraph::LayoutTag, lg);
+        bool found = false;
+
+        auto compare = [](const PmrString& name, const uint32_t slot){
+            return boost::lexical_cast<uin32_t>(name) == slot;
+        }
+
+        for(const auto& layout : layouts) {
+            for(const auto& pair: layout.descriptorSets) {
+                const auto& descriptorSetData = pair.second;
+                uint32_t slot = descriptorSetData.second;
+                if(compare(slotName, slot)) {
+                    found = true;
+                    vis = descriptorSetData.first;
+                }
+            }
+        }
+
+        CC_ENSURES(found);
+        return vis;
     };
 
     for (const auto passID : makeRange(vertices(rg))) {
