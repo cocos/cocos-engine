@@ -34,6 +34,7 @@
 #include "gfx-base/GFXDevice.h"
 #include "platform/FileUtils.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/Device.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/PipelineSceneData.h"
@@ -201,7 +202,7 @@ void Profiler::doIntervalUpdate() {
     const auto *sceneData = pipeline->getPipelineSceneData();
     const auto *shadows   = sceneData->getShadows();
     const auto *window    = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
-    const auto  viewSize  = window->getViewSize();
+    const auto  viewSize  = window->getViewSize() * Device::getDevicePixelRatio();
 
     _coreStats.fps            = root->getFps();
     _coreStats.frameTime      = root->getFrameTime() * 1000.0F;
@@ -228,7 +229,7 @@ void Profiler::doFrameUpdate() {
 void Profiler::printStats() {
     auto *      renderer    = ccDebugRenderer;
     const auto *window      = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
-    const auto  viewSize    = window->getViewSize();
+    const auto  viewSize    = window->getViewSize() * Device::getDevicePixelRatio();
     const auto  width       = viewSize.x;
     const auto  lineHeight  = renderer->getLineHeight();
     const auto  columnWidth = width / 12.0F; // divide column numbers

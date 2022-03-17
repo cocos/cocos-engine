@@ -33,6 +33,7 @@
 #import <CoreVideo/CVPixelBuffer.h>
 #import <CoreVideo/CVMetalTexture.h>
 #import <CoreVideo/CVMetalTextureCache.h>
+#import "profiler/Profiler.h"
 
 // deferred testcase 'camera'
 #define MEMLESS_ON 0
@@ -106,6 +107,7 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
     }
 
     CCMTLDevice::getInstance()->getMemoryStatus().textureSize += _size;
+    CC_PROFILE_MEMORY_INC(Texture, _size);
 }
 
 void CCMTLTexture::doInit(const TextureViewInfo &info) {
@@ -235,6 +237,7 @@ void CCMTLTexture::doDestroy() {
     }
 
     CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+    CC_PROFILE_MEMORY_DEC(Texture, _size);
 
     std::function<void(void)> destroyFunc = [mtlTexure]() {
         if (mtlTexure) {
@@ -275,6 +278,8 @@ void CCMTLTexture::doResize(uint width, uint height, uint size) {
     if(!_swapchain) {
         CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= oldSize;
         CCMTLDevice::getInstance()->getMemoryStatus().textureSize += size;
+        CC_PROFILE_MEMORY_DEC(Texture, oldSize);
+        CC_PROFILE_MEMORY_INC(Texture, size);
     }
     
     if (oldMTLTexture) {

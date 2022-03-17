@@ -33,6 +33,7 @@
 #include "core/assets/FreeTypeFont.h"
 #include "math/Vec2.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/Device.h"
 #include "renderer/gfx-base/GFXDescriptorSet.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
@@ -228,7 +229,7 @@ void DebugRenderer::activate(gfx::Device *device, pipeline::RenderPipeline *pipe
     _buffer->init(_device, info.maxCharacters * DEBUG_VERTICES_PER_CHAR, attributes);
 
     const auto *window   = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
-    const auto  width    = window->getViewSize().x;
+    const auto  width    = window->getViewSize().x * Device::getDevicePixelRatio();
     const auto  fontSize = std::clamp(static_cast<uint32_t>(width / 800.0F * info.fontSize), 10U, 20U);
 
     for (auto i = 0U; i < _fonts.size(); i++) {
