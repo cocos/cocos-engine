@@ -530,7 +530,7 @@ private:
     }
 
     template <typename T>
-    static std::string getJNISignature(std::pair<T *, size_t> x) {
+    static std::string getJNISignature(std::pair<T *, size_t> /*x*/) {
         typename std::remove_pointer<typename std::remove_cv<T>::type>::type m;
         return std::string("[") + getJNISignature(m);
     }

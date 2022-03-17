@@ -7,11 +7,19 @@
 #include "platform/FileUtils.h"
 #include "platform/java/jni/JniHelper.h"
 
+#ifdef JAVA_CLASS_WEBSOCKET
+    #error "JAVA_CLASS_WEBSOCKET is already defined"
+#endif
+#ifdef HANDLE_TO_WS_OKHTTP3
+    #error "HANDLE_TO_WS_OKHTTP3 is already defined"
+#endif
+
 #define JAVA_CLASS_WEBSOCKET "com/cocos/lib/websocket/CocosWebSocket"
 #define HANDLE_TO_WS_OKHTTP3(handler) \
     reinterpret_cast<WebSocketImpl *>(static_cast<uintptr_t>(handler))
 
 namespace {
+//NOLINTNEXTLINE
 void split_string(const std::string &s, std::vector<std::string> &v, const std::string &c) {
     v.clear();
     std::string::size_type pos1;
@@ -34,7 +42,6 @@ using cc::JniHelper;
 using cc::network::WebSocket;
 class WebSocketImpl final {
 public:
-    static jclass                                       classID;
     static const char *                                 connectID;
     static const char *                                 removeHandlerID;
     static const char *                                 sendBinaryID;
@@ -44,15 +51,7 @@ public:
     static std::atomic_int64_t                          idGenerator;
     static std::unordered_map<int64_t, WebSocketImpl *> allConnections;
 
-    static void bindMethods(JNIEnv *env, jclass clazz);
     static void closeAllConnections();
-
-    // override methods
-
-    // void onOpen(WebSocket *ws) override;
-    // void onMessage(WebSocket *ws, const WebSocket::Data &data) override;
-    // void onClose(WebSocket *ws) override;
-    // void onError(WebSocket *ws, const WebSocket::ErrorCode &error) override;
 
     explicit WebSocketImpl(cc::network::WebSocket *websocket);
     ~WebSocketImpl();
@@ -94,7 +93,6 @@ private:
     std::unordered_map<std::string, std::string> _headerMap{};
 };
 
-jclass                                       WebSocketImpl::classID             = nullptr;
 const char *                                 WebSocketImpl::connectID           = "_connect";
 const char *                                 WebSocketImpl::removeHandlerID     = "_removeHander";
 const char *                                 WebSocketImpl::sendBinaryID        = "_send";
@@ -104,11 +102,7 @@ const char *                                 WebSocketImpl::getBufferedAmountID 
 std::atomic_int64_t                          WebSocketImpl::idGenerator{0};
 std::unordered_map<int64_t, WebSocketImpl *> WebSocketImpl::allConnections{};
 
-void WebSocketImpl::bindMethods(JNIEnv *env, jclass clazz) {
-    classID = clazz;
-}
 void WebSocketImpl::closeAllConnections() {
-    //TODO: implement
     std::unordered_map<int64_t, WebSocketImpl *> tmp = std::move(allConnections);
     for (auto &t : tmp) {
         t.second->closeAsync();
@@ -133,8 +127,8 @@ bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate, const
     auto                     handler           = static_cast<int64_t>(reinterpret_cast<uintptr_t>(this));
     bool                     tcpNoDelay        = false;
     bool                     perMessageDeflate = true;
-    int64_t                  timeout           =  60 * 60 * 1000 /*ms*/; //TODO: set timeout
-    std::vector<std::string> headers;                              //TODO: allow set headers
+    int64_t                  timeout           = 60 * 60 * 1000 /*ms*/; //TODO(PatriceJiang): set timeout
+    std::vector<std::string> headers;                                   //TODO(PatriceJiang): allow set headers
     _url      = url;
     _delegate = const_cast<WebSocket::Delegate *>(&delegate);
     if (protocols != nullptr && !protocols->empty()) {
@@ -162,7 +156,6 @@ bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate, const
 
 void WebSocketImpl::send(const std::string &message) {
     if (_readyState == WebSocket::State::OPEN) {
-        auto *env = JniHelper::getEnv();
         JniHelper::callObjectVoidMethod(_javaSocket, sendStringID, message);
     } else {
         CC_LOG_ERROR("Couldn't send message since WebSocket wasn't opened!");
@@ -225,12 +218,12 @@ void WebSocketImpl::onOpen(const std::string &protocol, const std::string &heade
     }
 }
 
-void WebSocketImpl::onClose(int code) {
+void WebSocketImpl::onClose(int /*code*/) {
     _readyState = WebSocket::State::CLOSED; // update state -> CLOSED
     _delegate->onClose(_socket);
 }
 
-void WebSocketImpl::onError(int code, const std::string &reason) {
+void WebSocketImpl::onError(int code, const std::string & /*reason*/) {
     CC_LOG_DEBUG("WebSocket (%p) onError, state: %d ...", this, (int)_readyState);
     if (_readyState != WebSocket::State::CLOSED) {
         _delegate->onError(_socket, static_cast<WebSocket::ErrorCode>(code));
@@ -240,7 +233,7 @@ void WebSocketImpl::onError(int code, const std::string &reason) {
 void WebSocketImpl::onBinaryMessage(const uint8_t *buf, size_t len) {
     WebSocket::Data data;
     data.bytes    = reinterpret_cast<char *>(const_cast<uint8_t *>(buf));
-    data.len      = len;
+    data.len      = static_cast<ssize_t>(len);
     data.isBinary = true;
     _delegate->onMessage(_socket, data);
 }
@@ -248,7 +241,7 @@ void WebSocketImpl::onBinaryMessage(const uint8_t *buf, size_t len) {
 void WebSocketImpl::onStringMessage(const std::string &message) {
     WebSocket::Data data;
     data.bytes    = const_cast<char *>(message.c_str());
-    data.len      = message.length();
+    data.len      = static_cast<ssize_t>(message.length());
     data.isBinary = false;
     _delegate->onMessage(_socket, data);
 }
@@ -322,6 +315,13 @@ WebSocket::Delegate *WebSocket::getDelegate() const {
 } // namespace cc
 
 extern "C" {
+#ifdef JNI_PATH
+    #error "JNI_PATH is already defined"
+#endif
+
+#ifdef RUN_IN_GAMETHREAD
+    #error "RUN_IN_GAMETHREAD is already defined"
+#endif
 
 #define JNI_PATH(methodName) Java_com_cocos_lib_websocket_CocosWebSocket_##methodName
 #define RUN_IN_GAMETHREAD(task)                                               \
@@ -329,17 +329,18 @@ extern "C" {
         task;                                                                 \
     })
 
-JNIEXPORT void JNICALL JNI_PATH(NativeInit)(JNIEnv *env, jclass clazz) {
-    WebSocketImpl::bindMethods(env, clazz);
+JNIEXPORT void JNICALL JNI_PATH(NativeInit)(JNIEnv * /*env*/, jclass /*clazz*/) {
+    // nop
+    // may cache jni objects in the future
 }
 
 JNIEXPORT void JNICALL
 JNI_PATH(nativeOnStringMessage)(JNIEnv * /*env*/,
                                 jobject /*ctx*/,
                                 jstring msg,
-                                jlong   identifier,
-                                jlong   handler) {
-    auto *      wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler);
+                                jlong /*identifier*/,
+                                jlong handler) {
+    auto *      wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     std::string msgStr    = JniHelper::jstring2string(msg);
     RUN_IN_GAMETHREAD(wsOkHttp3->onStringMessage(msgStr));
 }
@@ -348,12 +349,12 @@ JNIEXPORT void JNICALL
 JNI_PATH(nativeOnBinaryMessage)(JNIEnv *env,
                                 jobject /*ctx*/,
                                 jbyteArray msg,
-                                jlong      identifier,
-                                jlong      handler) {
-    auto *  wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler);
+                                jlong /*identifier*/,
+                                jlong handler) {
+    auto *  wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     jobject strongRef = env->NewGlobalRef(msg);
     RUN_IN_GAMETHREAD(do {
-        auto *env = JniHelper::getEnv();
+        auto *   env    = JniHelper::getEnv();
         auto     len    = env->GetArrayLength(static_cast<jbyteArray>(strongRef));
         jboolean isCopy = JNI_FALSE;
         jbyte *  array  = env->GetByteArrayElements(static_cast<jbyteArray>(strongRef), &isCopy);
@@ -367,9 +368,9 @@ JNI_PATH(nativeOnOpen)(JNIEnv * /*env*/,
                        jobject /*ctx*/,
                        jstring protocol,
                        jstring header,
-                       jlong   identifier,
-                       jlong   handler) {
-    auto *wsOkHttp3   = HANDLE_TO_WS_OKHTTP3(handler);
+                       jlong /*identifier*/,
+                       jlong handler) {
+    auto *wsOkHttp3   = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     auto  protocolStr = JniHelper::jstring2string(protocol);
     auto  headerStr   = JniHelper::jstring2string(header);
     RUN_IN_GAMETHREAD(wsOkHttp3->onOpen(protocolStr, headerStr));
@@ -378,11 +379,11 @@ JNI_PATH(nativeOnOpen)(JNIEnv * /*env*/,
 JNIEXPORT void JNICALL
 JNI_PATH(nativeOnClosed)(JNIEnv * /*env*/,
                          jobject /*ctx*/,
-                         jint    code,
-                         jstring reason,
-                         jlong   identifier,
-                         jlong   handler) {
-    auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler);
+                         jint code,
+                         jstring /*reason*/,
+                         jlong /*identifier*/,
+                         jlong handler) {
+    auto *wsOkHttp3 = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     RUN_IN_GAMETHREAD(wsOkHttp3->onClose(static_cast<int>(code)));
 }
 
@@ -390,9 +391,9 @@ JNIEXPORT void JNICALL
 JNI_PATH(nativeOnError)(JNIEnv * /*env*/,
                         jobject /*ctx*/,
                         jstring reason,
-                        jlong   identifier,
-                        jlong   handler) {
-    auto *wsOkHttp3    = HANDLE_TO_WS_OKHTTP3(handler);
+                        jlong /*identifier*/,
+                        jlong handler) {
+    auto *wsOkHttp3    = HANDLE_TO_WS_OKHTTP3(handler); // NOLINT(performance-no-int-to-ptr)
     int   unknownError = static_cast<int>(cc::network::WebSocket::ErrorCode::UNKNOWN);
     auto  errorReason  = JniHelper::jstring2string(reason);
     RUN_IN_GAMETHREAD(wsOkHttp3->onError(unknownError, errorReason));
@@ -400,3 +401,5 @@ JNI_PATH(nativeOnError)(JNIEnv * /*env*/,
 
 #undef JNI_PATH
 }
+
+#undef HANDLE_TO_WS_OKHTTP3
