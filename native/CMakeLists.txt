@@ -1222,15 +1222,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderExampleReflection.h
                  cocos/renderer/pipeline/custom/RenderExampleTypes.cpp
                  cocos/renderer/pipeline/custom/RenderExampleTypes.h
-                 cocos/renderer/pipeline/custom/RenderExecutorFwd.h
-                 cocos/renderer/pipeline/custom/RenderExecutorGraphs.h
-                 cocos/renderer/pipeline/custom/RenderExecutorJsb.cpp
-                 cocos/renderer/pipeline/custom/RenderExecutorJsb.h
-                 cocos/renderer/pipeline/custom/RenderExecutorNames.h
-                 cocos/renderer/pipeline/custom/RenderExecutorReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderExecutorReflection.h
-                 cocos/renderer/pipeline/custom/RenderExecutorTypes.cpp
-                 cocos/renderer/pipeline/custom/RenderExecutorTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
                  cocos/renderer/pipeline/custom/RenderGraphGraphs.h
                  cocos/renderer/pipeline/custom/RenderGraphJsb.cpp
