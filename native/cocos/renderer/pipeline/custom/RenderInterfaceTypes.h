@@ -309,7 +309,7 @@ public:
     virtual ComputePassBuilder *addComputePass(const std::string& layoutName) = 0;
     virtual MovePassBuilder    *addMovePass(const std::string& name) = 0;
     virtual CopyPassBuilder    *addCopyPass(const std::string& name) = 0;
-    virtual void                addPresentPass(const std::string& name, const std::string& swapchainName) = 0;
+    virtual void                presentAll() = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
 };
