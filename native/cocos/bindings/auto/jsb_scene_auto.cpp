@@ -5811,6 +5811,21 @@ static bool js_scene_SubModel_initialize(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_scene_SubModel_initialize)
 
+static bool js_scene_SubModel_onGeometryChanged(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SubModel_onGeometryChanged : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->onGeometryChanged();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_SubModel_onGeometryChanged)
+
 static bool js_scene_SubModel_onMacroPatchesStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
@@ -6088,6 +6103,7 @@ bool js_register_scene_SubModel(se::Object* obj) // NOLINT(readability-identifie
     cls->defineFunction("initPlanarShadowInstanceShader", _SE(js_scene_SubModel_initPlanarShadowInstanceShader));
     cls->defineFunction("initPlanarShadowShader", _SE(js_scene_SubModel_initPlanarShadowShader));
     cls->defineFunction("initialize", _SE(js_scene_SubModel_initialize));
+    cls->defineFunction("onGeometryChanged", _SE(js_scene_SubModel_onGeometryChanged));
     cls->defineFunction("onMacroPatchesStateChanged", _SE(js_scene_SubModel_onMacroPatchesStateChanged));
     cls->defineFunction("onPipelineStateChanged", _SE(js_scene_SubModel_onPipelineStateChanged));
     cls->defineFunction("setOwner", _SE(js_scene_SubModel_setOwner));
@@ -6998,6 +7014,21 @@ static bool js_scene_Model_isReceiveShadow(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isReceiveShadow)
 
+static bool js_scene_Model_onGeometryChanged(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_onGeometryChanged : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->onGeometryChanged();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_onGeometryChanged)
+
 static bool js_scene_Model_onGlobalPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -7737,6 +7768,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("initWorldBoundDescriptors", _SE(js_scene_Model_initWorldBoundDescriptors));
     cls->defineFunction("initialize", _SE(js_scene_Model_initialize));
     cls->defineFunction("isModelImplementedInJS", _SE(js_scene_Model_isModelImplementedInJS));
+    cls->defineFunction("onGeometryChanged", _SE(js_scene_Model_onGeometryChanged));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_scene_Model_onGlobalPipelineStateChanged));
     cls->defineFunction("onMacroPatchesStateChanged", _SE(js_scene_Model_onMacroPatchesStateChanged));
     cls->defineFunction("setBounds", _SE(js_scene_Model_setBounds));

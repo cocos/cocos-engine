@@ -12,6 +12,7 @@
 #include "cocos/3d/assets/Morph.h"
 #include "cocos/3d/assets/MorphRendering.h"
 #include "cocos/3d/assets/Skeleton.h"
+#include "cocos/3d/misc/CreateMesh.h"
 
 bool register_all_assets(se::Object *obj);                   // NOLINT
 
@@ -71,12 +72,21 @@ JSB_REGISTER_OBJECT_TYPE(cc::BuiltinResMgr);
 JSB_REGISTER_OBJECT_TYPE(cc::MorphRendering);
 JSB_REGISTER_OBJECT_TYPE(cc::MorphRenderingInstance);
 JSB_REGISTER_OBJECT_TYPE(cc::StdMorphRendering);
+JSB_REGISTER_OBJECT_TYPE(cc::CustomAttribute);
+JSB_REGISTER_OBJECT_TYPE(cc::IGeometry);
+JSB_REGISTER_OBJECT_TYPE(cc::DynamicCustomAttribute);
+JSB_REGISTER_OBJECT_TYPE(cc::IDynamicGeometry);
 JSB_REGISTER_OBJECT_TYPE(cc::Mesh::IVertexBundle);
 JSB_REGISTER_OBJECT_TYPE(cc::Mesh::ISubMesh);
+JSB_REGISTER_OBJECT_TYPE(cc::Mesh::IDynamicInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::Mesh::IDynamicStruct);
 JSB_REGISTER_OBJECT_TYPE(cc::Mesh::IStruct);
 JSB_REGISTER_OBJECT_TYPE(cc::Mesh::ICreateInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::Mesh);
 JSB_REGISTER_OBJECT_TYPE(cc::Skeleton);
+JSB_REGISTER_OBJECT_TYPE(cc::ICreateMeshOptions);
+JSB_REGISTER_OBJECT_TYPE(cc::ICreateDynamicMeshOptions);
+JSB_REGISTER_OBJECT_TYPE(cc::MeshUtils);
 
 
 extern se::Object *__jsb_cc_Error_proto; // NOLINT
@@ -479,10 +489,13 @@ bool js_register_cc_RenderingSubMesh(se::Object *obj); // NOLINT
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_enableVertexIdChannel);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_genFlatBuffers);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_getAttributes);
+SE_DECLARE_FUNC(js_assets_RenderingSubMesh_getDrawInfo);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_getGeometricInfo);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_getIndexBuffer);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_getVertexBuffers);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_indirectBuffer);
+SE_DECLARE_FUNC(js_assets_RenderingSubMesh_invalidateGeometricInfo);
+SE_DECLARE_FUNC(js_assets_RenderingSubMesh_setDrawInfo);
 SE_DECLARE_FUNC(js_assets_RenderingSubMesh_RenderingSubMesh);
 
 extern se::Object *__jsb_cc_SceneAsset_proto; // NOLINT
@@ -624,6 +637,38 @@ bool js_register_cc_StdMorphRendering(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_assets_StdMorphRendering_StdMorphRendering);
 
+extern se::Object *__jsb_cc_CustomAttribute_proto; // NOLINT
+extern se::Class * __jsb_cc_CustomAttribute_class; // NOLINT
+
+bool js_register_cc_CustomAttribute(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::CustomAttribute *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_IGeometry_proto; // NOLINT
+extern se::Class * __jsb_cc_IGeometry_class; // NOLINT
+
+bool js_register_cc_IGeometry(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::IGeometry *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_DynamicCustomAttribute_proto; // NOLINT
+extern se::Class * __jsb_cc_DynamicCustomAttribute_class; // NOLINT
+
+bool js_register_cc_DynamicCustomAttribute(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::DynamicCustomAttribute *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_IDynamicGeometry_proto; // NOLINT
+extern se::Class * __jsb_cc_IDynamicGeometry_class; // NOLINT
+
+bool js_register_cc_IDynamicGeometry(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::IDynamicGeometry *, se::Object *ctx); //NOLINT
+
 extern se::Object *__jsb_cc_Mesh_IVertexBundle_proto; // NOLINT
 extern se::Class * __jsb_cc_Mesh_IVertexBundle_class; // NOLINT
 
@@ -639,6 +684,22 @@ bool js_register_cc_Mesh_ISubMesh(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::Mesh::ISubMesh *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_Mesh_IDynamicInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_Mesh_IDynamicInfo_class; // NOLINT
+
+bool js_register_cc_Mesh_IDynamicInfo(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::Mesh::IDynamicInfo *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_Mesh_IDynamicStruct_proto; // NOLINT
+extern se::Class * __jsb_cc_Mesh_IDynamicStruct_class; // NOLINT
+
+bool js_register_cc_Mesh_IDynamicStruct(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::Mesh::IDynamicStruct *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_Mesh_IStruct_proto; // NOLINT
 extern se::Class * __jsb_cc_Mesh_IStruct_class; // NOLINT
@@ -673,6 +734,7 @@ SE_DECLARE_FUNC(js_assets_Mesh_readAttribute);
 SE_DECLARE_FUNC(js_assets_Mesh_readIndices);
 SE_DECLARE_FUNC(js_assets_Mesh_reset);
 SE_DECLARE_FUNC(js_assets_Mesh_setStruct);
+SE_DECLARE_FUNC(js_assets_Mesh_updateSubMesh);
 SE_DECLARE_FUNC(js_assets_Mesh_validateMergingMesh);
 SE_DECLARE_FUNC(js_assets_Mesh_Mesh);
 
@@ -685,4 +747,30 @@ SE_DECLARE_FUNC(js_assets_Skeleton_getBindposes);
 SE_DECLARE_FUNC(js_assets_Skeleton_getInverseBindposes);
 SE_DECLARE_FUNC(js_assets_Skeleton_setBindposes);
 SE_DECLARE_FUNC(js_assets_Skeleton_Skeleton);
+
+extern se::Object *__jsb_cc_ICreateMeshOptions_proto; // NOLINT
+extern se::Class * __jsb_cc_ICreateMeshOptions_class; // NOLINT
+
+bool js_register_cc_ICreateMeshOptions(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::ICreateMeshOptions *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_ICreateDynamicMeshOptions_proto; // NOLINT
+extern se::Class * __jsb_cc_ICreateDynamicMeshOptions_class; // NOLINT
+
+bool js_register_cc_ICreateDynamicMeshOptions(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::ICreateDynamicMeshOptions *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_MeshUtils_proto; // NOLINT
+extern se::Class * __jsb_cc_MeshUtils_class; // NOLINT
+
+bool js_register_cc_MeshUtils(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_assets_MeshUtils_createDynamicMesh);
+SE_DECLARE_FUNC(js_assets_MeshUtils_createDynamicMeshInfo);
+SE_DECLARE_FUNC(js_assets_MeshUtils_createMesh);
+SE_DECLARE_FUNC(js_assets_MeshUtils_createMeshInfo);
 // clang-format on
