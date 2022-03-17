@@ -77,6 +77,7 @@ struct RenderQueue;
 struct SceneData;
 struct Dispatch;
 struct Blit;
+struct Present;
 struct PresentPass;
 struct RenderData;
 struct RenderGraph;

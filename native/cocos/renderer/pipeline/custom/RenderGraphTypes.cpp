@@ -361,22 +361,13 @@ Blit::Blit(Blit const& rhs, const allocator_type& alloc)
 : shader(rhs.shader, alloc) {}
 
 PresentPass::PresentPass(const allocator_type& alloc) noexcept
-: resourceName(alloc) {}
-
-PresentPass::PresentPass(PmrString resourceNameIn, uint32_t syncIntervalIn, uint32_t flagsIn, const allocator_type& alloc) noexcept // NOLINT
-: resourceName(std::move(resourceNameIn), alloc),
-  syncInterval(syncIntervalIn),
-  flags(flagsIn) {}
+: presents(alloc) {}
 
 PresentPass::PresentPass(PresentPass&& rhs, const allocator_type& alloc)
-: resourceName(std::move(rhs.resourceName), alloc),
-  syncInterval(rhs.syncInterval),
-  flags(rhs.flags) {}
+: presents(std::move(rhs.presents), alloc) {}
 
 PresentPass::PresentPass(PresentPass const& rhs, const allocator_type& alloc)
-: resourceName(rhs.resourceName, alloc),
-  syncInterval(rhs.syncInterval),
-  flags(rhs.flags) {}
+: presents(rhs.presents, alloc) {}
 
 RenderData::RenderData(const allocator_type& alloc) noexcept
 : constants(alloc),

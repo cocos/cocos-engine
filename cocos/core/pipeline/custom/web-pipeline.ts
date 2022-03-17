@@ -484,9 +484,10 @@ export class WebPipeline extends Pipeline {
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', new RenderData());
         return new WebCopyPassBuilder(this._renderGraph!, vertID, pass);
     }
-    addPresentPass (name: string, swapchainName: string): void {
-        const pass = new PresentPass(swapchainName);
-        this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, name, '', new RenderData());
+    presentAll (): void {
+        const pass = new PresentPass();
+        // TODO: add swapchains to present pass
+        this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, '', '', new RenderData());
     }
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         return new WebSceneTransversal(camera);
