@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos.com
  
@@ -102,8 +102,8 @@ struct DebugBatch {
     }
 
     ~DebugBatch() {
-        CC_SAFE_DESTROY(descriptorSet);
-        CC_SAFE_DESTROY(descriptorSetLayout);
+        CC_SAFE_DESTROY_AND_DELETE(descriptorSet);
+        CC_SAFE_DESTROY_AND_DELETE(descriptorSetLayout);
     }
 
     inline bool match(bool b, bool i, gfx::Texture *tex) {
@@ -154,8 +154,8 @@ public:
             CC_SAFE_DELETE(batch);
         }
 
-        CC_SAFE_DESTROY(_buffer);
-        CC_SAFE_DESTROY(_inputAssembler);
+        CC_SAFE_DESTROY_AND_DELETE(_buffer);
+        CC_SAFE_DESTROY_AND_DELETE(_inputAssembler);
         CC_PROFILE_MEMORY_DEC(DebugVertexBuffer, static_cast<uint32_t>(_maxVertices * sizeof(DebugVertex)));
     }
 
@@ -277,7 +277,7 @@ void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdB
 }
 
 void DebugRenderer::destroy() {
-    CC_SAFE_DESTROY(_buffer);
+    CC_SAFE_DESTROY_AND_DELETE(_buffer);
 
     for (auto &iter : _fonts) {
         CC_SAFE_DELETE(iter.font);

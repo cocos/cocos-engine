@@ -58,7 +58,7 @@ struct FTLibrary {
         }
     }
 
-    FT_Library lib;
+    FT_Library lib{nullptr};
 };
 
 /**

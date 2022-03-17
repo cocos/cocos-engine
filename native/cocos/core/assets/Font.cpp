@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos.com
  
@@ -76,9 +76,8 @@ FontFace::FontFace(Font *font)
 
 FontFace::~FontFace() {
     for (auto *texture : _textures) {
-        CC_SAFE_DESTROY(texture);
+        CC_SAFE_DESTROY_AND_DELETE(texture);
     }
-    _textures.clear();
 }
 
 /**
