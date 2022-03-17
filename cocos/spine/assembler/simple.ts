@@ -504,7 +504,7 @@ function realTimeTraverse (batcher: Batcher2D, worldMat?: Mat4) {
     for (let slotIdx = 0, slotCount = locSkeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
         slot = locSkeleton.drawOrder[slotIdx];
 
-        if (slot === undefined) {
+        if (slot === undefined || !slot.bone.active) {
             continue;
         }
 
