@@ -180,6 +180,28 @@ public:
     }
 
     template <typename... Ts>
+    static jbyteArray callObjectByteArrayMethod(jobject            object,
+                                                const std::string &className,
+                                                const std::string &methodName,
+                                                Ts... xs) {
+        jbyteArray        ret = nullptr;
+        cc::JniMethodInfo t;
+        std::string       signature = "(" + std::string(getJNISignature(xs...)) + ")[B";
+        if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+            LocalRefMapType localRefs;
+            ret = static_cast<jbyteArray>(t.env->CallObjectMethod(object, t.methodID, convert(&localRefs, &t, xs)...));
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
+            CLEAR_EXCEPTON(t.env);
+            deleteLocalRefs(t.env, &localRefs);
+        } else {
+            reportError(className, methodName, signature);
+        }
+        return ret;
+    }
+
+    template <typename... Ts>
     static void callStaticVoidMethod(const std::string &className,
                                      const std::string &methodName,
                                      Ts... xs) {
@@ -383,7 +405,6 @@ private:
 
     static jobject convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::vector<std::string> &x);
 
-
     template <typename T>
     static T convert(LocalRefMapType * /*localRefs*/, cc::JniMethodInfo * /*t*/, T x) {
         return x;
@@ -420,7 +441,7 @@ private:
     }
 
     template <typename T, typename A>
-    static typename std::enable_if<std::is_arithmetic<T>::value,jobject>::type convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::vector<T, A> &data) {
+    static typename std::enable_if<std::is_arithmetic<T>::value, jobject>::type convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::vector<T, A> &data) {
         jobject ret = nullptr;
 
 #define JNI_SET_TYPED_ARRAY(lowercase, camelCase)                                                                    \
