@@ -345,6 +345,8 @@ public class CocosHelper {
         }
     }
 
+    public static Activity getActivity() {return sActivity;}
+
     public static float[] getSafeArea() {
         if (android.os.Build.VERSION.SDK_INT >= 28) {
             do {
