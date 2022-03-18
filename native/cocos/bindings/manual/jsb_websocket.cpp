@@ -180,7 +180,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
             args.push_back(se::Value(jsObj));
             func.toObject()->call(args, wsObj);
         } else {
-            SE_REPORT_ERROR("Can't get onclose function!");
+            SE_LOGD("Can't get onclose function!");
         }
 
         //JS Websocket object now can be GC, since the connection is closed.

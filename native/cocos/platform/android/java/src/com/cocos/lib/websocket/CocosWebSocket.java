@@ -23,6 +23,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.cocos2dx.okhttp3.CipherSuite;
+import org.cocos2dx.okhttp3.Dispatcher;
 import org.cocos2dx.okhttp3.OkHttpClient;
 import org.cocos2dx.okhttp3.Request;
 import org.cocos2dx.okhttp3.Response;
@@ -41,6 +42,7 @@ final class CocosWebSocket extends WebSocketListener {
         long identifier;
         long handlerPtr;
     }
+    private static Dispatcher dispatcher = null;
 
     private final long              _timeout;
     private final boolean           _perMessageDeflate;
@@ -56,19 +58,10 @@ final class CocosWebSocket extends WebSocketListener {
         boolean perMessageDeflate, long timeout) {
         _wsContext.identifier = ptr;
         _wsContext.handlerPtr = handler;
-        _header               = constructDefaultHeader(header);
+        _header               = header;
         _tcpNoDelay           = tcpNoDelay;
         _perMessageDeflate    = perMessageDeflate;
         _timeout              = timeout;
-    }
-
-    private String[] constructDefaultHeader(String[] header) {
-        if (header == null || header.length == 0) {
-            // Upgrade: websocket
-            // Connection: Upgrade
-            return new String[] {"Package-Name", CocosHelper.getActivity().getApplicationInfo().packageName};
-        }
-        return header;
     }
 
     private void _removeHandler() {
@@ -152,8 +145,13 @@ final class CocosWebSocket extends WebSocketListener {
         }
         Request request = requestBuilder.build();
 
+        if(dispatcher == null) {
+            dispatcher = new Dispatcher();
+        }
+
         OkHttpClient.Builder builder =
             new OkHttpClient.Builder()
+                .dispatcher(dispatcher)
                 .readTimeout(_timeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(_timeout, TimeUnit.MILLISECONDS)
                 .connectTimeout(_timeout, TimeUnit.MILLISECONDS);
@@ -244,7 +242,7 @@ final class CocosWebSocket extends WebSocketListener {
 
     private void _close(final int code, final String reason) {
         _webSocket.close(code, reason);
-        _client.dispatcher().executorService().shutdown();
+        // _client.dispatcher().executorService().shutdown();
     }
 
     private long _getBufferedAmountID() {
