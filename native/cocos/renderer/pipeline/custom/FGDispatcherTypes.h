@@ -45,17 +45,34 @@ namespace cc {
 
 namespace render {
 
-struct AccessDesc {
-    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::MemoryAccessBit    access{gfx::MemoryAccessBit::NONE};
+enum class PassType {
+    Raster,
+    Compute,
+    Copy,
+    Move,
+    Raytrace,
+    Present,
+};
+
+struct NullTag {};
+
+struct Range {
+    uint32_t mipLevels{0xFFFFFFFF};
+    uint32_t numSlices{0xFFFFFFFF};
+    uint32_t mostDetailedMip{0xFFFFFFFF};
+    uint32_t firstSlice{0xFFFFFFFF};
+    uint32_t planeSlice{0xFFFFFFFF};
 };
 
 struct ResourceAccessDesc {
-    uint32_t   resourceID{unInitializeID};
-    AccessDesc access;
+    uint32_t                resourceID{unInitializeID};
+    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
+    gfx::MemoryAccessBit    access{gfx::MemoryAccessBit::NONE};
+    Range                   range;
 };
 
 struct ResourceAccessNode {
+    PassType                        passType{PassType::Raster};
     std::vector<ResourceAccessDesc> attachemntStatus;
 };
 
