@@ -28,11 +28,8 @@
 #include "platform/UniversalPlatform.h"
 #include "platform/linux/modules/SystemWindow.h"
 
-struct SDL_WindowEvent;
-struct SDL_Window;
-
 namespace cc {
-
+class SDLHelper;
 class CC_DLL LinuxPlatform : public UniversalPlatform,
                              public SystemWindow::Delegate {
 public:
@@ -53,16 +50,13 @@ public:
                                     int x, int y, int w,
                                     int h, int flags) override;
     uintptr_t          getWindowHandler() const override;
-    struct SDL_Window* getWindow() {
-        return _handle;
-    }
+    uintptr_t          getDisplay() const;
 
 private:
     void               pollEvent() override;
-    void               handleWindowEvent(SDL_WindowEvent& wevent);
     bool               _inited{false};
     bool               _quit{false};
-    struct SDL_Window* _handle{nullptr};
+    std::unique_ptr<SDLHelper> _sdl;
 };
 
 } // namespace cc

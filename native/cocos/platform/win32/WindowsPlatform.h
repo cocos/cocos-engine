@@ -28,12 +28,8 @@
 #include "platform/UniversalPlatform.h"
 #include "platform/win32/modules/SystemWindow.h"
 
-struct SDL_WindowEvent;
-struct SDL_Window;
-union SDL_Event;
-
 namespace cc {
-
+class SDLHelper;
 class CC_DLL WindowsPlatform : public UniversalPlatform,
                                public SystemWindow::Delegate {
 public:
@@ -57,11 +53,8 @@ public:
 
 private:
     void               pollEvent() override;
-    void               dispatchSDLEvent(const SDL_Event& sdlEvent);
-    void               dispatchWindowEvent(const SDL_WindowEvent& wevent);
-    bool               _inited{false};
     bool               _quit{false};
-    struct SDL_Window* _handle{nullptr};
+    std::unique_ptr<SDLHelper> _sdl;
 };
 
 } // namespace cc
