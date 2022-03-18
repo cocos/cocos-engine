@@ -202,7 +202,7 @@ gulp.task('gen-simulator', async function () {
         }
         const newEnv = {};
         Object.assign(newEnv, process.env);
-        Object.keys (newEnv).filter (x => x.toLowerCase().startswith( 'npm_')). forEach(e => delete newEnv[e]);
+        Object.keys (newEnv).filter (x => x.toLowerCase().startsWith( 'npm_')). forEach(e => delete newEnv[e]);
         let buildProcess = spawn(cmakeBin, makeArgs, {
             cwd: simulatorProject,
             env: newEnv,
