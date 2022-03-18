@@ -33,8 +33,8 @@ namespace cc {
  */
 class BitmapFontFace : public FontFace {
 public:
-    BitmapFontFace(Font *font);
-    ~BitmapFontFace()                      = default;
+    explicit BitmapFontFace(Font *font);
+    ~BitmapFontFace() override             = default;
     BitmapFontFace(const BitmapFontFace &) = delete;
     BitmapFontFace(BitmapFontFace &&)      = delete;
     BitmapFontFace &operator=(const BitmapFontFace &) = delete;
@@ -44,8 +44,8 @@ public:
     float            getKerning(uint32_t prevCode, uint32_t nextCode) override;
 
 private:
-    void          doInit(const FontFaceInfo &info) override;
-    gfx::Texture *loadTexture(const std::string &path);
+    void                 doInit(const FontFaceInfo &info) override;
+    static gfx::Texture *loadTexture(const std::string &path);
 
     friend class BitmapFont;
 };
@@ -55,8 +55,8 @@ private:
  */
 class BitmapFont : public Font {
 public:
-    BitmapFont(const std::string &path);
-    ~BitmapFont()                  = default;
+    explicit BitmapFont(const std::string &path);
+    ~BitmapFont() override         = default;
     BitmapFont(const BitmapFont &) = delete;
     BitmapFont(BitmapFont &&)      = delete;
     BitmapFont &operator=(const BitmapFont &) = delete;

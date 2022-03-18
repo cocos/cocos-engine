@@ -78,9 +78,9 @@ struct KerningHash {
  * FontFaceInfo
  */
 struct FontFaceInfo {
-    FontFaceInfo(uint32_t size);
+    explicit FontFaceInfo(uint32_t size);
     FontFaceInfo(uint32_t size, uint32_t width, uint32_t height);
-    FontFaceInfo(uint32_t size, uint32_t width, uint32_t height, const std::vector<uint32_t> &chars);
+    FontFaceInfo(uint32_t size, uint32_t width, uint32_t height, std::vector<uint32_t> chars);
 
     // only used in freetype, for bitmap font, fontSize is determined by file.
     uint32_t              fontSize{1U};
@@ -95,7 +95,7 @@ struct FontFaceInfo {
  */
 class FontFace {
 public:
-    FontFace(Font *font);
+    explicit FontFace(Font *font);
     virtual ~FontFace();
     FontFace(const FontFace &) = delete;
     FontFace(FontFace &&)      = delete;
@@ -132,7 +132,7 @@ protected:
 class Font : public Asset {
 public:
     Font(FontType type, const std::string &path);
-    virtual ~Font();
+    ~Font() override;
     Font(const Font &) = delete;
     Font(Font &&)      = delete;
     Font &operator=(const Font &) = delete;

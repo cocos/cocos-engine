@@ -42,8 +42,8 @@ class GlyphAllocator;
  */
 class FreeTypeFontFace : public FontFace {
 public:
-    FreeTypeFontFace(Font *font);
-    ~FreeTypeFontFace()                        = default;
+    explicit FreeTypeFontFace(Font *font);
+    ~FreeTypeFontFace() override               = default;
     FreeTypeFontFace(const FreeTypeFontFace &) = delete;
     FreeTypeFontFace(FreeTypeFontFace &&)      = delete;
     FreeTypeFontFace &operator=(const FreeTypeFontFace &) = delete;
@@ -71,8 +71,8 @@ private:
  */
 class FreeTypeFont : public Font {
 public:
-    FreeTypeFont(const std::string &path);
-    ~FreeTypeFont()                    = default;
+    explicit FreeTypeFont(const std::string &path);
+    ~FreeTypeFont() override           = default;
     FreeTypeFont(const FreeTypeFont &) = delete;
     FreeTypeFont(FreeTypeFont &&)      = delete;
     FreeTypeFont &operator=(const FreeTypeFont &) = delete;

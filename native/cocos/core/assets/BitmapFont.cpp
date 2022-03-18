@@ -38,7 +38,7 @@ namespace cc {
 BitmapFontFace::BitmapFontFace(Font *font)
 : FontFace(font) {
 }
-void BitmapFontFace::doInit(const FontFaceInfo &info) {
+void BitmapFontFace::doInit(const FontFaceInfo & /*info*/) {
     const auto &fontPath = _font->getPath();
     const auto &fontData = _font->getData();
     if (fontData.empty()) {
@@ -92,10 +92,10 @@ void BitmapFontFace::doInit(const FontFaceInfo &info) {
     _textures.resize(pages, nullptr);
 
     std::string path = fontPath;
-    auto        pos  = fontPath.rfind("/");
+    auto        pos  = fontPath.rfind('/');
 
     if (pos == std::string::npos) {
-        pos = fontPath.rfind("\\");
+        pos = fontPath.rfind('\\');
     }
 
     if (pos != std::string::npos) {
@@ -162,8 +162,8 @@ gfx::Texture *BitmapFontFace::loadTexture(const std::string &path) {
         return nullptr;
     }
 
-    uint32_t width  = static_cast<uint32_t>(image->getWidth());
-    uint32_t height = static_cast<uint32_t>(image->getHeight());
+    auto width  = static_cast<uint32_t>(image->getWidth());
+    auto height = static_cast<uint32_t>(image->getHeight());
 
     auto *device  = gfx::Device::getInstance();
     auto *texture = device->createTexture({gfx::TextureType::TEX2D,

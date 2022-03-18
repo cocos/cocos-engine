@@ -32,15 +32,15 @@
 #include "core/assets/BitmapFont.h"
 #include "core/assets/FreeTypeFont.h"
 #include "math/Vec2.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/Device.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
 #include "renderer/gfx-base/GFXDescriptorSet.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
-#include "renderer/pipeline/PipelineStateManager.h"
-#include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/PipelineStateManager.h"
+#include "renderer/pipeline/RenderPipeline.h"
 
 namespace cc {
 
@@ -230,7 +230,8 @@ void DebugRenderer::activate(gfx::Device *device, pipeline::RenderPipeline *pipe
 
     const auto *window   = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
     const auto  width    = window->getViewSize().x * Device::getDevicePixelRatio();
-    const auto  fontSize = std::clamp(static_cast<uint32_t>(width / 800.0F * info.fontSize), 10U, 20U);
+    auto        fontSize = static_cast<uint32_t>(width / 800.0F * info.fontSize);
+    fontSize             = fontSize < 10U ? 10U : (fontSize > 20U ? 20U : fontSize);
 
     for (auto i = 0U; i < _fonts.size(); i++) {
         _fonts[i].font           = new FreeTypeFont(getFontPath(i));

@@ -62,8 +62,8 @@ FontFaceInfo::FontFaceInfo(uint32_t size, uint32_t width, uint32_t height)
     }
 }
 
-FontFaceInfo::FontFaceInfo(uint32_t size, uint32_t width, uint32_t height, const std::vector<uint32_t> &chars)
-: fontSize(size), textureWidth(width), textureHeight(height), preLoadedCharacters(chars) {
+FontFaceInfo::FontFaceInfo(uint32_t size, uint32_t width, uint32_t height, std::vector<uint32_t> chars)
+: fontSize(size), textureWidth(width), textureHeight(height), preLoadedCharacters(std::move(chars)) {
     CCASSERT(math::IsPowerOfTwo(width) && math::IsPowerOfTwo(height), "Font texture size must be power of 2.");
 }
 

@@ -29,7 +29,6 @@
 #include "FreeTypeFont.h"
 #include <freetype/ft2build.h>
 #include FT_FREETYPE_H
-#include <algorithm>
 #include <cstdint>
 #include "base/Log.h"
 #include "gfx-base/GFXDevice.h"
@@ -152,7 +151,7 @@ void FreeTypeFontFace::doInit(const FontFaceInfo &info) {
         return;
     }
 
-    _fontSize      = std::clamp(info.fontSize, MIN_FONT_SIZE, MAX_FONT_SIZE);
+    _fontSize      = info.fontSize < MIN_FONT_SIZE ? MIN_FONT_SIZE : (info.fontSize > MAX_FONT_SIZE ? MAX_FONT_SIZE : info.fontSize);
     _textureWidth  = info.textureWidth;
     _textureHeight = info.textureHeight;
     _allocator     = std::make_unique<GlyphAllocator>(_textureWidth, _textureHeight);
@@ -249,7 +248,7 @@ const FontGlyph *FreeTypeFontFace::loadGlyph(uint32_t code) {
             }
         }
 
-        uint32_t page = static_cast<uint32_t>(_textures.size() - 1);
+        auto page = static_cast<uint32_t>(_textures.size() - 1);
         updateTexture(page, x, y, glyph.width, glyph.height, face->glyph->bitmap.buffer);
 
         glyph.x    = x;
@@ -273,7 +272,7 @@ void FreeTypeFontFace::createTexture(uint32_t width, uint32_t height) {
     _textures.push_back(texture);
 
     std::vector<uint8_t> empty(width * height, 0);
-    uint32_t             page = static_cast<uint32_t>(_textures.size() - 1);
+    auto                 page = static_cast<uint32_t>(_textures.size() - 1);
     updateTexture(page, 0U, 0U, width, height, empty.data());
 }
 
