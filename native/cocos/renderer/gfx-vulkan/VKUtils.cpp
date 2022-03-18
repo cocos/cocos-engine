@@ -567,7 +567,7 @@ const ThsvsAccessType *getAccessType(AccessFlagBit flag) {
     return &THSVS_ACCESS_TYPES[utils::getBitPosition(toNumber(flag))];
 }
 
-void getAccessTypes(AccessFlags flag, vector<ThsvsAccessType> &v) {
+void getAccessTypes(AccessFlags flag, ccstd::vector<ThsvsAccessType> &v) {
     for (uint32_t mask = toNumber(flag); mask; mask = utils::clearLowestBit(mask)) {
         v.push_back(THSVS_ACCESS_TYPES[utils::getBitPosition(utils::getLowestBit(mask))]);
     }
@@ -577,7 +577,7 @@ VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple) {
     return ((numToRound + multiple - 1) / multiple) * multiple;
 }
 
-bool isLayerSupported(const char *required, const vector<VkLayerProperties> &available) {
+bool isLayerSupported(const char *required, const ccstd::vector<VkLayerProperties> &available) {
     for (const VkLayerProperties &availableLayer : available) {
         if (strcmp(availableLayer.layerName, required) == 0) {
             return true;
@@ -586,7 +586,7 @@ bool isLayerSupported(const char *required, const vector<VkLayerProperties> &ava
     return false;
 }
 
-bool isExtensionSupported(const char *required, const vector<VkExtensionProperties> &available) {
+bool isExtensionSupported(const char *required, const ccstd::vector<VkExtensionProperties> &available) {
     for (const VkExtensionProperties &availableExtension : available) {
         if (strcmp(availableExtension.extensionName, required) == 0) {
             return true;

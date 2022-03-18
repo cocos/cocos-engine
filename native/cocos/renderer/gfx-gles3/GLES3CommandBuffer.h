@@ -87,8 +87,8 @@ protected:
     uint32_t                        _curSubpassIdx       = 0U;
     GLES3GPUPipelineState *         _curGPUPipelineState = nullptr;
     GLES3GPUInputAssembler *        _curGPUInputAssember = nullptr;
-    vector<GLES3GPUDescriptorSet *> _curGPUDescriptorSets;
-    vector<vector<uint32_t>>        _curDynamicOffsets;
+    ccstd::vector<GLES3GPUDescriptorSet *> _curGPUDescriptorSets;
+    ccstd::vector<ccstd::vector<uint32_t>>        _curDynamicOffsets;
     DynamicStates                   _curDynamicStates;
 
     bool _isStateInvalid = false;

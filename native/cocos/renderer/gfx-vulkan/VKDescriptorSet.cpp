@@ -116,7 +116,7 @@ void CCVKDescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
         }
 
         if (!gpuDevice->useDescriptorUpdateTemplate) {
-            vector<VkWriteDescriptorSet> &entries = instance.descriptorUpdateEntries;
+            ccstd::vector<VkWriteDescriptorSet> &entries = instance.descriptorUpdateEntries;
             entries.resize(descriptorCount, {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET});
 
             for (uint32_t i = 0U, j = 0U; i < bindingCount; i++) {

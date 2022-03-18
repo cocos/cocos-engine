@@ -62,8 +62,8 @@ enum class GLESCmdType : uint8_t {
 };
 
 struct GLESBindingMapping {
-    vector<int32_t> blockOffsets;
-    vector<int32_t> samplerTextureOffsets;
+    ccstd::vector<int32_t> blockOffsets;
+    ccstd::vector<int32_t> samplerTextureOffsets;
     uint32_t        flexibleSet{0};
 };
 

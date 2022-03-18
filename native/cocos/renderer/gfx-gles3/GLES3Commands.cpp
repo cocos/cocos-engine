@@ -696,7 +696,7 @@ void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
                 device->stateCache()->glElementArrayBuffer = 0;
             }
         } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::UNIFORM)) {
-            vector<GLuint> &ubo = device->stateCache()->glBindUBOs;
+            ccstd::vector<GLuint> &ubo = device->stateCache()->glBindUBOs;
             for (GLuint i = 0; i < ubo.size(); i++) {
                 if (ubo[i] == gpuBuffer->glBuffer) {
                     GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, i, 0));
@@ -710,7 +710,7 @@ void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             }
         }
         if (hasFlag(gpuBuffer->usage, BufferUsageBit::STORAGE)) {
-            vector<GLuint> &ssbo = device->stateCache()->glBindSSBOs;
+            ccstd::vector<GLuint> &ssbo = device->stateCache()->glBindSSBOs;
             for (GLuint i = 0; i < ssbo.size(); i++) {
                 if (ssbo[i] == gpuBuffer->glBuffer) {
                     GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, i, 0));
@@ -800,7 +800,7 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
 }
 
 void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
-    static vector<GLint> supportedSampleCounts;
+    static ccstd::vector<GLint> supportedSampleCounts;
 
     gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
     gpuTexture->glFormat      = mapGLFormat(gpuTexture->format);
@@ -1216,8 +1216,8 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     }
 
     // texture unit index mapping optimization
-    vector<GLES3GPUUniformSamplerTexture> glActiveSamplerTextures;
-    vector<GLint>                         glActiveSamplerLocations;
+    ccstd::vector<GLES3GPUUniformSamplerTexture> glActiveSamplerTextures;
+    ccstd::vector<GLint>                         glActiveSamplerLocations;
     const GLESBindingMapping &            bindingMappings = device->bindingMappings();
     unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
@@ -1250,7 +1250,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     }
 
     if (!glActiveSamplerTextures.empty()) {
-        vector<bool> usedTexUnits(device->getCapabilities().maxTextureUnits, false);
+        ccstd::vector<bool> usedTexUnits(device->getCapabilities().maxTextureUnits, false);
         // try to reuse existing mappings first
         for (uint32_t i = 0U; i < glActiveSamplerTextures.size(); i++) {
             GLES3GPUUniformSamplerTexture &glSamplerTexture = glActiveSamplerTextures[i];
@@ -1398,7 +1398,7 @@ void cmdFuncGLES3CreateInputAssembler(GLES3Device *device, GLES3GPUInputAssemble
         }
     }
 
-    vector<uint32_t> streamOffsets(device->getCapabilities().maxVertexAttributes, 0U);
+    ccstd::vector<uint32_t> streamOffsets(device->getCapabilities().maxVertexAttributes, 0U);
 
     gpuInputAssembler->glAttribs.resize(gpuInputAssembler->attributes.size());
     for (size_t i = 0; i < gpuInputAssembler->glAttribs.size(); ++i) {
@@ -1437,12 +1437,12 @@ void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembl
 }
 
 static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *                        device,
-                                                                  const vector<GLES3GPUTextureView *> &attachments, const uint32_t *colors, size_t colorCount,
+                                                                  const ccstd::vector<GLES3GPUTextureView *> &attachments, const uint32_t *colors, size_t colorCount,
                                                                   const GLES3GPUTextureView *depthStencilView,
                                                                   const uint32_t *           resolves                = nullptr,
                                                                   const GLES3GPUTextureView *depthStencilResolveView = nullptr,
                                                                   GLbitfield *               resolveMask             = nullptr) {
-    static vector<GLenum>                  drawBuffers;
+    static ccstd::vector<GLenum>                  drawBuffers;
     GLES3GPUStateCache *                   cache = device->stateCache();
     GLES3GPUFramebuffer::GLFramebufferInfo res;
 
@@ -1538,7 +1538,7 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device * 
     return res;
 }
 
-static GLES3GPUSwapchain *getSwapchainIfExists(const vector<GLES3GPUTextureView *> &textureViews, const uint32_t *indices, size_t count) {
+static GLES3GPUSwapchain *getSwapchainIfExists(const ccstd::vector<GLES3GPUTextureView *> &textureViews, const uint32_t *indices, size_t count) {
     GLES3GPUSwapchain *swapchain{nullptr};
     if (indices) {
         size_t offscreenCount{0};
@@ -1555,7 +1555,7 @@ static GLES3GPUSwapchain *getSwapchainIfExists(const vector<GLES3GPUTextureView 
     return swapchain;
 }
 
-static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO, const vector<uint32_t> &colors,
+static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO, const ccstd::vector<uint32_t> &colors,
                                         uint32_t depthStencil, GLES3GPUFramebuffer::Framebuffer *outFBO,
                                         const uint32_t *resolves = nullptr, uint32_t depthStencilResolve = INVALID_BINDING) {
     GLES3GPUSwapchain *swapchain{getSwapchainIfExists(gpuFBO->gpuColorViews, colors.data(), colors.size())};
@@ -1810,7 +1810,7 @@ void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES
 void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx, GLES3GPURenderPass *gpuRenderPass,
                                  GLES3GPUFramebuffer *gpuFramebuffer, const Rect *renderArea,
                                  const Color *clearColors, float clearDepth, uint32_t clearStencil) {
-    static vector<GLenum> invalidAttachments;
+    static ccstd::vector<GLenum> invalidAttachments;
 
     GLES3GPUStateCache *cache         = device->stateCache();
     GLES3ObjectCache &  gfxStateCache = cache->gfxStateCache;
@@ -2010,7 +2010,7 @@ static void ensureScissorRect(GLES3GPUStateCache *cache, int32_t x, int32_t y, u
 }
 
 void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
-    static vector<GLenum> invalidAttachments;
+    static ccstd::vector<GLenum> invalidAttachments;
 
     GLES3GPUStateCache * cache                = device->stateCache();
     GLES3ObjectCache &   gfxStateCache        = cache->gfxStateCache;
@@ -2368,7 +2368,7 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
 
     // bind descriptor sets
     if (gpuPipelineState && gpuPipelineState->gpuShader && gpuPipelineState->gpuPipelineLayout) {
-        const vector<vector<int>> &dynamicOffsetIndices = gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices;
+        const ccstd::vector<ccstd::vector<int>> &dynamicOffsetIndices = gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices;
 
         size_t bufferLen = gpuPipelineState->gpuShader->glBuffers.size();
         for (size_t j = 0; j < bufferLen; j++) {
@@ -2386,7 +2386,7 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
 
             uint32_t offset = gpuDescriptor.gpuBuffer->glOffset;
 
-            const vector<int> &dynamicOffsetSetIndices = dynamicOffsetIndices[glBuffer.set];
+            const ccstd::vector<int> &dynamicOffsetSetIndices = dynamicOffsetIndices[glBuffer.set];
             int                dynamicOffsetIndex      = glBuffer.binding < dynamicOffsetSetIndices.size() ? dynamicOffsetSetIndices[glBuffer.binding] : -1;
             if (dynamicOffsetIndex >= 0) offset += dynamicOffsets[dynamicOffsetIndex];
 
