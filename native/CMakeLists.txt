@@ -372,7 +372,14 @@ elseif(IOS)
     )
 endif()
 
-############ platformex
+if(WINDOWS OR LINUX)
+cocos_source_files(
+    cocos/platform/SDLHelper.h
+    cocos/platform/SDLHelper.cpp
+)
+endif()
+
+############ platform
 cocos_source_files(
     cocos/platform/IEventDispatch.h
     cocos/platform/BasePlatform.cpp
