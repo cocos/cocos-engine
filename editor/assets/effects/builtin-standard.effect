@@ -99,6 +99,7 @@ CCProgram standard-vs %{
   #endif
 
   out vec3 v_position;
+  out vec4 v_glPosition;
   out vec3 v_normal;
   out vec2 v_uv;
   out vec2 v_uv1;
@@ -169,6 +170,7 @@ CCProgram standard-vs %{
     #endif
 
     gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
+    v_glPosition = gl_Position;
   }
 }%
 
@@ -186,6 +188,7 @@ CCProgram standard-fs %{
   in vec2 v_uv;
   in vec2 v_uv1;
   in vec3 v_normal;
+  in vec4 v_glPosition;
 
   #if CC_RECEIVE_SHADOW
     in vec2 v_shadowBias;
@@ -268,6 +271,7 @@ CCProgram standard-fs %{
     #endif
 
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_glPosition, s.glPosition);
 
     vec4 pbr = pbrParams;
     #if USE_PBR_MAP
@@ -324,16 +328,7 @@ CCProgram shadow-caster-vs %{
     CCGetWorldMatrixFull(matWorld, matWorldIT);
 
     v_worldPos = matWorld * In.position;
-    vec4 clipPos = vec4(1.0);
-    int levels = int(cc_shadowLPNNInfo.w);
-    if (levels > 1){
-      for (int i = 0; i < MAX_CSM_LEVLE_COUNT; i++){
-        if(i >= levels) break;
-        clipPos = cc_matLightViewProj_levels[i] * v_worldPos;
-      }
-    } else {
-      clipPos = cc_matLightViewProj * v_worldPos;
-    }
+    vec4 clipPos = cc_matLightViewProj * v_worldPos;
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
     #if HAS_SECOND_UV

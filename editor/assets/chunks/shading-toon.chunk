@@ -8,6 +8,7 @@ struct ToonSurface {
   vec4 specular;
   // these two need to be in the same coordinate system
   HIGHP_VALUE_STRUCT_DEFINE(vec3, position);
+  HIGHP_VALUE_STRUCT_DEFINE(vec4, glPosition);
   vec3 normal;
   // shading params
   vec3 shade1;
@@ -73,11 +74,19 @@ struct ToonSurface {
 #else
   #if CC_RECEIVE_SHADOW
     #include <cc-shadow-map-fs>
+    #include <cc-csm>
+
+    float GetDepth(vec4 clipPos)
+    {
+      return dot(clipPos.zw, cc_depthMode.zw);
+    }
   #endif
 
   vec4 CCToonShading (ToonSurface s) {
     vec3 position;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
+    vec4 glPosition;
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(glPosition, s.glPosition);
     
     vec3 V = normalize(cc_cameraPos.xyz - position);
     vec3 N = normalize(s.normal);
@@ -102,7 +111,11 @@ struct ToonSurface {
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
     if(s.shadowCover < NL && cc_mainLitDir.w > 0.0) {
+      if (cc_shadowLPNNInfo.w > 0.0) {
+        shadow = CCCSMFactorBase(vec4(position, 1.0), GetDepth(glPosition), N, s.shadowBias);
+      } else {
         shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N, s.shadowBias);
+      }
     }
     #endif
 

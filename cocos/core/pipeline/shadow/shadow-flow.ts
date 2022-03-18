@@ -39,10 +39,9 @@ import { RenderPass, LoadOp, StoreOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
-import { CSMLevel, ShadowType } from '../../renderer/scene/shadows';
+import { ShadowType } from '../../renderer/scene/shadows';
 import { Light, LightType } from '../../renderer/scene/light';
 import { Camera } from '../../renderer/scene';
-import { ShadowTransformInfo } from './csm-layers';
 
 const _validLights: Light[] = [];
 
@@ -111,11 +110,11 @@ export class ShadowFlow extends RenderFlow {
             }
 
             const shadowFrameBuffer = shadowFrameBufferMap.get(mainLight);
-            if (mainLight.shadowFixedArea || mainLight.shadowCSMLevel === CSMLevel.level_1) {
-                this._renderDirLightStage(camera, mainLight, csmLayers.specialLayer, shadowFrameBuffer!, globalDS);
+            if (mainLight.shadowFixedArea) {
+                this._renderStage(camera, mainLight, shadowFrameBuffer!, globalDS);
             } else {
                 for (let i = 0; i < mainLight.shadowCSMLevel; i++) {
-                    this._renderDirLightStage(camera, mainLight, csmLayers.layers[i], shadowFrameBuffer!, globalDS);
+                    this._renderStage(camera, mainLight, shadowFrameBuffer!, globalDS, i);
                 }
             }
         }
@@ -219,19 +218,10 @@ export class ShadowFlow extends RenderFlow {
         shadowFrameBufferMap.set(light, shadowFrameBuffer);
     }
 
-    private _renderDirLightStage (camera: Camera, light: Light, layer: ShadowTransformInfo, shadowFrameBuffer: Framebuffer, globalDS: DescriptorSet) {
+    private _renderStage (camera: Camera, light: Light, shadowFrameBuffer: Framebuffer, globalDS: DescriptorSet, level = 0) {
         for (let i = 0; i < this._stages.length; i++) {
             const shadowStage = this._stages[i] as ShadowStage;
-            shadowStage.setUsage(globalDS, light, shadowFrameBuffer);
-            shadowStage.setLayer(layer);
-            shadowStage.render(camera);
-        }
-    }
-
-    private _renderStage (camera: Camera, light: Light, shadowFrameBuffer: Framebuffer, globalDS: DescriptorSet) {
-        for (let i = 0; i < this._stages.length; i++) {
-            const shadowStage = this._stages[i] as ShadowStage;
-            shadowStage.setUsage(globalDS, light, shadowFrameBuffer);
+            shadowStage.setUsage(globalDS, light, shadowFrameBuffer, level);
             shadowStage.render(camera);
         }
     }

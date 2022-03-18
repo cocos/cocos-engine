@@ -106,6 +106,7 @@ CCProgram toon-vs %{
   #include <cc-shadow-map-vs>
 
   out vec3 v_position;
+  out vec4 v_glPosition;
   out vec2 v_uv;
   out vec3 v_normal;
 
@@ -141,7 +142,9 @@ CCProgram toon-vs %{
 
     CC_TRANSFER_SHADOW(pos);
 
-    return cc_matProj * (cc_matView * matWorld) * In.position;
+    vec4 glPosition = cc_matProj * (cc_matView * matWorld) * In.position;
+    v_glPosition = glPosition;
+    return glPosition;
   }
 }%
 
@@ -154,6 +157,7 @@ CCProgram toon-fs %{
   #include <gamma>
 
   in vec3 v_position;
+  in vec4 v_glPosition;
   in vec2 v_uv;
 
   #if CC_RECEIVE_SHADOW
@@ -235,6 +239,7 @@ CCProgram toon-fs %{
     #endif
 
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_glPosition, s.glPosition);
 
     s.specular = specular;
     #if USE_SPECULAR_MAP

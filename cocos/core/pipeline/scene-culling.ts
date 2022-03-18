@@ -186,7 +186,7 @@ export function shadowCulling (pipeline: RenderPipeline, camera: Camera, layer: 
     const castShadowObjects = csmLayers.castShadowObjects;
     const dirLightFrustum = layer.validFrustum;
 
-    const dirShadowObjects = layer._shadowObjects;
+    const dirShadowObjects = layer.shadowObjects;
     dirShadowObjects.length = 0;
 
     const visibility = camera.visibility;
@@ -229,24 +229,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             // update CSM layers
             if (mainLight && mainLight.node) {
                 csmLayers.update(pipeline, camera, mainLight, shadows);
-                if (camera.node.name === 'Main Camera') {
-                    if (mainLight.shadowCSMLevel >= 1) {
-                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[0].splitFrustum, Color.WHITE);
-                        //pipeline.geometryRenderer.addFrustum(csmLayers.layers[0].validFrustum, Color.YELLOW);
-                    }
-                    if (mainLight.shadowCSMLevel >= 2) {
-                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[1].splitFrustum, Color.WHITE);
-                        //pipeline.geometryRenderer.addFrustum(csmLayers.layers[1].validFrustum, Color.GREEN);
-                    }
-                    if (mainLight.shadowCSMLevel >= 3) {
-                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[2].splitFrustum, Color.WHITE);
-                        //pipeline.geometryRenderer.addFrustum(csmLayers.layers[2].validFrustum, Color.RED);
-                    }
-                    if (mainLight.shadowCSMLevel >= 4) {
-                        pipeline.geometryRenderer.addFrustum(csmLayers.layers[3].splitFrustum, Color.WHITE);
-                        //pipeline.geometryRenderer.addFrustum(csmLayers.layers[3].validFrustum, Color.YELLOW);
-                    }
-                }
             }
         }
     }

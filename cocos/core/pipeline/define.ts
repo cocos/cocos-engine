@@ -249,7 +249,7 @@ globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOCamera.BINDING] = UBOCamera.DESCRIPTOR;
 
 /**
- * @en The uniform buffer object for shadow
+ * @en The uniform buffer object for 'cast shadow(fixed || csm)' && 'dir fixed area shadow' && 'spot shadow' && 'sphere shadow' && 'planar shadow'
  * @zh 阴影 UBO。
  */
 export class UBOShadow {
@@ -287,7 +287,7 @@ globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
 /**
- * @en The uniform buffer object for shadow
+ * @en The uniform buffer object only for dir csm shadow(level: 1 ~ 4)
  * @zh 阴影 UBO。
  */
 export class UBOCSM {
@@ -297,8 +297,9 @@ export class UBOCSM {
     public static readonly MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_PROJ_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET = UBOCSM.MAT_SHADOW_VIEW_PROJ_ATLAS_LEVELS_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
     public static readonly SHADOW_PROJ_INFO_LEVELS_OFFSET = UBOCSM.SHADOW_PROJ_DEPTH_INFO_LEVELS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly CSM_FAR = UBOCSM.SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly COUNT: number = UBOCSM.CSM_FAR + 4;
+    public static readonly SHADOW_SPLITS_OFFSET = UBOCSM.SHADOW_PROJ_INFO_LEVELS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly DEPTH_MODE_OFFSET = UBOCSM.SHADOW_SPLITS_OFFSET + 4;
+    public static readonly COUNT: number = UBOCSM.DEPTH_MODE_OFFSET + 4;
     public static readonly SIZE = UBOCSM.COUNT * 4;
 
     public static readonly NAME = 'CCCSM';
@@ -310,7 +311,8 @@ export class UBOCSM {
         new Uniform('cc_matLightViewProjAtlas_levels', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_shadowProjDepthInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_shadowProjInfo_levels', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
-        new Uniform('cc_csm_Far', Type.FLOAT4, 1),
+        new Uniform('cc_shadowSplits', Type.FLOAT4, 1),
+        new Uniform('cc_depthMode', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOCSM.NAME] = UBOCSM.LAYOUT;
