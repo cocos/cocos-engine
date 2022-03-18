@@ -29,7 +29,7 @@
  */
 
 import { DirectionalLight, Camera, Shadows, CSMLevel } from '../../renderer/scene';
-import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
+import { Mat4, Vec3, Vec2, Quat } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { RenderPipeline } from '..';
 import { IRenderObject } from '../define';
@@ -57,7 +57,7 @@ const _bias = new Vec3();
 const _scale = new Vec3();
 
 export class ShadowTransformInfo {
-    public _shadowObjects: IRenderObject[] = [];
+    protected _shadowObjects: IRenderObject[] = [];
 
     protected _shadowCameraFar = 0;
 
@@ -76,6 +76,10 @@ export class ShadowTransformInfo {
         this._validFrustum.accurate = true;
         this._splitFrustum.accurate = true;
         this._lightViewFrustum.accurate = true;
+    }
+
+    get shadowObjects () {
+        return this._shadowObjects;
     }
 
     get shadowCameraFar () {
@@ -253,13 +257,18 @@ export class CSMLayerInfo extends ShadowTransformInfo {
  * @zh CSM阴影图层管理
  */
 export class CSMLayers {
-    public castShadowObjects: IRenderObject[] = [];
+    protected _castShadowObjects: IRenderObject[] = [];
 
     protected _layers: CSMLayerInfo[] = [];
     // LevelCount is a scalar, Indicates the number.
     protected _levelCount = 0;
+    // The ShadowTransformInfo object for 'fixed area shadow' || 'maximum clipping info' || 'CSM layers = 1'.
     protected _specialLayer: ShadowTransformInfo = new ShadowTransformInfo();
     protected _shadowDistance = 0;
+
+    get castShadowObjects () {
+        return this._castShadowObjects;
+    }
 
     get layers () {
         return this._layers;
@@ -305,7 +314,7 @@ export class CSMLayers {
     // }
 
     public destroy () {
-        this.castShadowObjects.length = 0;
+        this._castShadowObjects.length = 0;
         for (let i = 0; i < this._layers.length; i++) {
             this._layers[i].destroy();
         }
@@ -363,7 +372,6 @@ export class CSMLayers {
             const far = csmLayer.splitCameraFar;
             this._getCameraWorldMatrix(_mat4Trans, camera);
             Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, near, far);
-            // Frustum.split(csmLayer.splitFrustum, camera, _mat4Trans, 0.1, dirLight.shadowDistance);
             csmLayer.createMatrix(device, csmLayer.splitFrustum, dirLight, shadowMapWidth, false);
 
             Mat4.multiply(csmLayer.matShadowViewProjAtlas, csmLayer.matShadowAtlas, csmLayer.matShadowViewProj);

@@ -35,7 +35,6 @@ import { SetIndex } from '../define';
 import { Light, LightType } from '../../renderer/scene/light';
 import { ShadowFlow } from './shadow-flow';
 import { Camera, CSMLevel, DirectionalLight } from '../../renderer/scene';
-import { CSMLayerInfo, ShadowTransformInfo } from './csm-layers';
 
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 
@@ -60,21 +59,13 @@ export class ShadowStage extends RenderStage {
      * @zh 设置阴影渲染信息
      * @param light
      * @param shadowFrameBuffer
+     * @param level 层级
      */
-    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer) {
+    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer, level = 0) {
         this._globalDS = globalDS;
         this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
-    }
-
-    /**
-     * @en Sets the CSM layer
-     * @zh 设置 CSM 层级
-     * @param light
-     * @param shadowFrameBuffer
-     */
-    public setLayer (layer: ShadowTransformInfo) {
-        this._layer = layer;
+        this._level = level;
     }
 
     private _additiveShadowQueue!: RenderShadowMapBatchedQueue;
@@ -82,7 +73,7 @@ export class ShadowStage extends RenderStage {
     private _renderArea = new Rect();
     private _light: Light | null = null;
     private _globalDS: DescriptorSet | null = null;
-    private _layer: ShadowTransformInfo | null = null;
+    private _level = 0;
 
     public destroy () {
         this._shadowFrameBuffer = null;
@@ -110,14 +101,11 @@ export class ShadowStage extends RenderStage {
         const shadowInfo = pipelineSceneData.shadows;
         const descriptorSet = this._globalDS!;
         const cmdBuff = pipeline.commandBuffers[0];
+        const level = this._level;
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
-        this._pipeline.pipelineUBO.updateShadowUBOLight(descriptorSet, this._light);
-        if (this._light.type === LightType.DIRECTIONAL) {
-            this._additiveShadowQueue.gatherDirLightPasses(camera, this._light, this._layer!, cmdBuff);
-        } else {
-            this._additiveShadowQueue.gatherLightPasses(camera, this._light, cmdBuff);
-        }
+        this._pipeline.pipelineUBO.updateShadowUBOLight(descriptorSet, this._light, level);
+        this._additiveShadowQueue.gatherLightPasses(camera, this._light, cmdBuff, level);
 
         const shadowMapSize = shadowInfo.size;
         switch (this._light.type) {
@@ -129,7 +117,6 @@ export class ShadowStage extends RenderStage {
                 this._renderArea.width = shadowMapSize.x;
                 this._renderArea.height = shadowMapSize.y;
             } else {
-                const level = (this._layer as CSMLayerInfo).level;
                 this._renderArea.x = level % 2 * 0.5 * shadowMapSize.x;
                 this._renderArea.y = (1 - Math.floor(level / 2)) * 0.5 * shadowMapSize.y;
                 this._renderArea.width = 0.5 * shadowMapSize.x;

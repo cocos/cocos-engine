@@ -345,15 +345,42 @@ float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
 float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 {
   float realtimeShadow = 1.0;
-  vec4 pos = shadowPos;//ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y);
-  
+  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y);
+
   float pcf = cc_shadowWHPBInfo.z;
-  if (pcf > 1.9) { 
+  if (pcf > 1.9) {
     realtimeShadow =  CCGetShadowFactorSoft2X(pos, shadowBias.x);
   }else if (pcf > 0.9) {
     realtimeShadow = CCGetShadowFactorSoft(pos, shadowBias.x);
   }else { 
-    realtimeShadow = CCGetShadowFactorHard(pos, shadowBias.x); 
+    realtimeShadow = CCGetShadowFactorHard(pos, shadowBias.x);
+  }
+  return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
+}
+
+vec4 CCGetCSMPos(vec4 iPos, float depth) {
+  if (depth < cc_shadowSplits.x)
+    return cc_matLightViewProjAtlas_levels[0] * iPos;
+  else if (depth < cc_shadowSplits.y)
+    return cc_matLightViewProjAtlas_levels[1] * iPos;
+  else if (depth < cc_shadowSplits.z)
+    return cc_matLightViewProjAtlas_levels[2] * iPos;
+  else
+    return cc_matLightViewProjAtlas_levels[3] * iPos;
+}
+
+float CCCSMFactorBase(vec4 iPos, float depth, vec3 N, vec2 shadowBias)
+{
+  float realtimeShadow = 1.0;
+  vec4 shadowPos = CCGetCSMPos(iPos, depth);
+
+  float pcf = cc_shadowWHPBInfo.z;
+  if (pcf > 1.9) {
+    realtimeShadow =  CCGetShadowFactorSoft2X(shadowPos, shadowBias.x);
+  }else if (pcf > 0.9) {
+    realtimeShadow = CCGetShadowFactorSoft(shadowPos, shadowBias.x);
+  }else { 
+    realtimeShadow = CCGetShadowFactorHard(shadowPos, shadowBias.x);
   }
   return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
 }
@@ -362,26 +389,5 @@ float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
 #pragma define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) shadowPos = CCGetShadowPos(pos);
 
 vec4 CCGetShadowPos(vec4 pos) {
-  int levels = int(cc_shadowLPNNInfo.w);
-  if (levels > 1) {
-    // for (int i = 0; i < MAX_CSM_LEVLE_COUNT; i++){
-      // if(i >= levels) break;
-      pos = cc_matLightViewProjAtlas_levels[3] * pos;
-      // pos = cc_matLightViewProj_levels[i] * pos;
-      // pos = cc_matLightViewProj_levels[3] * pos;
-
-            // top + left
-      //pos.xy = pos.xy * 0.5 + vec2(-0.5, 0.5);
-            // top + right
-      //pos.xy = pos.xy * 0.5 + vec2(0.5, 0.5);
-            // bottom + left
-      //pos.xy = pos.xy * 0.5 + vec2(-0.5, -0.5);
-            // bottom + right
-      //pos.xy = pos.xy * 0.5 + vec2(0.5, -0.5);
-    return pos;
-    // }
-  } else {
-    return cc_matLightViewProj * pos;
-  }
+  return cc_matLightViewProj * pos;
 }
-

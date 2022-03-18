@@ -41,7 +41,6 @@ import { RenderPipeline } from './render-pipeline';
 import { Camera, DirectionalLight, SpotLight } from '../renderer/scene';
 import { Mat4 } from '../math';
 import { shadowCulling } from './scene-culling';
-import { ShadowTransformInfo } from './shadow/csm-layers';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
@@ -86,31 +85,7 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherDirLightPasses (camera: Camera, light: Light, layer:ShadowTransformInfo, cmdBuff: CommandBuffer) {
-        this.clear();
-
-        const pipelineSceneData = this._pipeline.pipelineSceneData;
-        const shadowInfo = pipelineSceneData.shadows;
-        if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            const dirLight = light as DirectionalLight;
-            if (dirLight.shadowEnabled) {
-                shadowCulling(this._pipeline, camera, layer);
-                const dirShadowObjects = layer._shadowObjects;
-                if (!dirShadowObjects || dirShadowObjects.length === 0) { return; }
-                for (let i = 0; i < dirShadowObjects.length; i++) {
-                    const ro = dirShadowObjects[i];
-                    const model = ro.model;
-                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-                    this.add(model, _shadowPassIndices);
-                }
-
-                this._instancedQueue.uploadBuffers(cmdBuff);
-                this._batchedQueue.uploadBuffers(cmdBuff);
-            }
-        }
-    }
-
-    public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer) {
+    public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0) {
         this.clear();
 
         const pipelineSceneData = this._pipeline.pipelineSceneData;
@@ -118,7 +93,34 @@ export class RenderShadowMapBatchedQueue {
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
             const castShadowObjects = pipelineSceneData.csmLayers.castShadowObjects;
             switch (light.type) {
-            case LightType.SPOT:
+            case LightType.DIRECTIONAL: {
+                if (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
+                    const dirLight = light as DirectionalLight;
+                    if (dirLight.shadowEnabled) {
+                        const csmLayers = pipelineSceneData.csmLayers;
+                        let layer;
+                        if (dirLight.shadowFixedArea) {
+                            layer = csmLayers.specialLayer;
+                        } else {
+                            layer = csmLayers.layers[level];
+                        }
+                        shadowCulling(this._pipeline, camera, layer);
+                        const dirShadowObjects = layer.shadowObjects;
+                        if (!dirShadowObjects || dirShadowObjects.length === 0) { return; }
+                        for (let i = 0; i < dirShadowObjects.length; i++) {
+                            const ro = dirShadowObjects[i];
+                            const model = ro.model;
+                            if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
+                            this.add(model, _shadowPassIndices);
+                        }
+
+                        this._instancedQueue.uploadBuffers(cmdBuff);
+                        this._batchedQueue.uploadBuffers(cmdBuff);
+                    }
+                }
+                break;
+            }
+            case LightType.SPOT: {
                 // eslint-disable-next-line no-case-declarations
                 const spotLight = light as SpotLight;
                 if (spotLight.shadowEnabled) {
@@ -138,6 +140,7 @@ export class RenderShadowMapBatchedQueue {
                     }
                 }
                 break;
+            }
             default:
             }
 
