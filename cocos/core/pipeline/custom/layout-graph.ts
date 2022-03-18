@@ -58,6 +58,7 @@ export class Descriptor {
 export class DescriptorBlock {
     readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
     readonly uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
+    readonly merged: Map<Type, Descriptor> = new Map<Type, Descriptor>();
     capacity = 0;
     start = 0;
     count = 0;
