@@ -170,9 +170,12 @@ gulp.task('gen-simulator', async function () {
             args.push('Xcode');
         }
         args.push(absolutePath('./tools/simulator/frameworks/runtime-src/'));
-        let cmakeProcess = spawn(cmakeBin, args, {
+        const newEnv = {
             cwd: simulatorProject,
-        });
+        };
+        Object.assign(newEnv, process.env);
+        Object.keys (newEnv ).filter (x => x.toLowerCase ().startswith( 'npm ')). forEach(e => delete newEnv[e]);
+        let cmakeProcess = spawn(cmakeBin, args, newEnv);
         cmakeProcess.on('close', () => {
             console.log('cmake finished!');
             resolve();
@@ -196,9 +199,12 @@ gulp.task('gen-simulator', async function () {
         if (!isWin32) {
             makeArgs = makeArgs.concat(['--', '-quiet', '-arch', 'x86_64']);
         }
-        let buildProcess = spawn(cmakeBin, makeArgs, {
+        const newEnv = {
             cwd: simulatorProject,
-        });
+        };
+        Object.assign(newEnv, process.env);
+        Object.keys (newEnv ).filter (x => x.toLowerCase ().startswith( 'npm ')). forEach(e => delete newEnv[e]);
+        let buildProcess = spawn(cmakeBin, makeArgs, newEnv);
         buildProcess.on('close', () => {
             console.log('cmake finished!');
             resolve();
