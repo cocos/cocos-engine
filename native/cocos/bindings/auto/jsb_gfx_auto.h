@@ -812,6 +812,7 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Texture);
 SE_DECLARE_FUNC(js_gfx_Texture_destroy);
+SE_DECLARE_FUNC(js_gfx_Texture_getRaw);
 SE_DECLARE_FUNC(js_gfx_Texture_isTextureView);
 SE_DECLARE_FUNC(js_gfx_Texture_resize);
 SE_DECLARE_FUNC(js_gfx_Texture_computeHash);
