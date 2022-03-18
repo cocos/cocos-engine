@@ -156,6 +156,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
     set dragonAsset (value) {
         this._dragonAsset = value;
+        this.destroyRenderData();
         this._refresh();
         if (EDITOR) {
             this._defaultArmatureIndex = 0;

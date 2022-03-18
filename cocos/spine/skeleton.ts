@@ -183,6 +183,7 @@ export class Skeleton extends Renderable2D {
     set skeletonData (value: SkeletonData) {
         if (value) value.resetEnums();
         if (this._skeletonData !== value) {
+            this.destroyRenderData();
             this._skeletonData = value as any;
             this.defaultSkin = '';
             this.defaultAnimation = '';
