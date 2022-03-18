@@ -170,7 +170,7 @@ void FreeTypeFontFace::doInit(const FontFaceInfo &info) {
     }
 
     _face       = std::make_unique<FTFace>(face);
-    _lineHeight = face->size->metrics.height >> 6;
+    _lineHeight = static_cast<uint32_t>(face->size->metrics.height >> 6);
 
     for (const auto &code : info.preLoadedCharacters) {
         loadGlyph(code);
@@ -226,7 +226,7 @@ const FontGlyph *FreeTypeFontFace::loadGlyph(uint32_t code) {
     glyph.height   = face->glyph->bitmap.rows;
     glyph.bearingX = face->glyph->bitmap_left;
     glyph.bearingY = face->glyph->bitmap_top;
-    glyph.advance  = face->glyph->advance.x >> 6; // advance.x's unit is 1/64 pixels
+    glyph.advance  = static_cast<int32_t>(face->glyph->advance.x >> 6); // advance.x's unit is 1/64 pixels
 
     uint32_t x = 0U;
     uint32_t y = 0U;
