@@ -27,8 +27,9 @@ import { Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, Device, 
     FramebufferInfo,
     PipelineState,
     Rect,
-    RenderPass, RenderPassInfo, Texture, TextureInfo, TextureType, TextureUsageBit, Viewport } from '../../gfx';
+    RenderPass, RenderPassInfo, Swapchain, Texture, TextureInfo, TextureType, TextureUsageBit, Viewport } from '../../gfx';
 import { legacyCC } from '../../global-exports';
+import { warn } from '../../platform/debug';
 import { BatchingSchemes } from '../../renderer';
 import { Camera } from '../../renderer/scene';
 import { BatchedBuffer } from '../batched-buffer';
@@ -37,8 +38,9 @@ import { InstancedBuffer } from '../instanced-buffer';
 import { getPhaseID } from '../pass-phase';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { LayoutGraph, LayoutGraphData, RenderPhase } from './layout-graph';
-import { SceneVisitor } from './pipeline';
+import { Pipeline, SceneVisitor } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, RasterView, RenderGraph, RenderGraphValue,
+    RenderSwapchain,
     ResourceDesc, ResourceGraph, ResourceTraits, SceneData } from './render-graph';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency } from './types';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
@@ -68,15 +70,35 @@ export class RenderResource {
     get readInPasses (): RenderGraphPass[] { return this._readInPasses; }
 }
 
+export class RenderTextureContent {
+    protected _external: Texture | null = null;
+    protected _swapchain: RenderSwapchain | null = null;
+    set external (value: Texture | null) { this._external = value; }
+    get external () { return this._external; }
+    set swapchain (value: RenderSwapchain | null) { this._swapchain = value; }
+    get swapchain () { return this._swapchain; }
+}
+
 export class RenderTextureResource extends RenderResource {
     protected _info: ResourceDesc | null = null;
     protected _trait: ResourceTraits | null = null;
     protected _transient = false;
     protected _deviceTexture: DeviceRenderTextureResource | null = null;
+    // Save texture information in backbuffer or external
+    protected _textureContent: RenderTextureContent | null = null;
     constructor (name: string, desc: ResourceDesc, traits: ResourceTraits) {
         super(name, desc.dimension);
         this.resourceTraits = traits;
         this.attachmentInfo = desc;
+    }
+    get textureContent () { return this._textureContent; }
+    set external (val: Texture) {
+        this._textureContent = new RenderTextureContent();
+        this._textureContent.external = val;
+    }
+    set swapchain (val: RenderSwapchain) {
+        this._textureContent = new RenderTextureContent();
+        this._textureContent.swapchain = val;
     }
     set transientState (enable: boolean) {
         this._transient = enable;
@@ -170,10 +192,16 @@ export class RenderGraphPass {
     // The current pass corresponds to the last pass of the current phase
     protected _currentPhase: RenderGraphPhase | null = null;
     protected _devicePass: DeviceRenderGraphPass | null = null;
+    // Whether the current rendering pass is valid. For example: no scene object can be rendered
+    private _isValid = false;
     constructor (graph: RenderDependencyGraph, graphFlag: RenderGraphValue = RenderGraphValue.Raster) {
         this._graphBuild = graph;
         this._graphFlag = graphFlag;
     }
+    set isValid (val) {
+        this._isValid = val;
+    }
+    get isValid () { return this._isValid; }
     set name (value: string) {
         this._name = value;
     }
@@ -231,6 +259,10 @@ export class RenderGraphPass {
     }
     get inputPhases () { return this._inputPhases; }
     buildDevicePass () {
+        // If the graph pass is invalid, the device pass will not be created
+        if (!this.isValid) {
+            return null;
+        }
         if (!this._devicePass) {
             this._devicePass = new DeviceRenderGraphPass(this);
         }
@@ -289,6 +321,11 @@ export class DeviceRenderTextureResource extends DeviceRenderResource {
     get texture () { return this._texture; }
     constructor (graphResource: RenderTextureResource) {
         super(graphResource);
+        if (graphResource.textureContent) {
+            this._texture = graphResource.textureContent.external
+            || graphResource.textureContent.swapchain!.swapchain!.colorTexture;
+            return;
+        }
         const info = graphResource.attachmentInfo!;
         let type = TextureType.TEX2D;
         switch (info.dimension) {
@@ -335,8 +372,9 @@ export class DeviceRenderGraphQueue {
         this._devicePass = devicePass;
     }
     addSceneTask (scene: SceneData) {
+        const graph = this._graphQueue.pass.graph;
         const task = new DeviceSceneTask(this, scene.camera!,
-            new WebSceneVisitor(this._graphQueue.pass.graph.commandBuffer));
+            new WebSceneVisitor(graph.commandBuffer, graph.pipeline.pipelineSceneData));
         this._sceneTasks.push(task);
     }
     clearTasks () {
@@ -403,6 +441,10 @@ export class DeviceRenderGraphPass {
             const colorAttachment = new ColorAttachment();
             colors.push(colorAttachment);
         }
+        if (colorTexs.length === 0) {
+            const currTex = graphPass.present ? graphPass.present.deviceTexture!.texture : device.createTexture(new TextureInfo());
+            colorTexs.push(currTex);
+        }
         if (!depthTex) {
             depthTex = device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
@@ -424,9 +466,15 @@ export class DeviceRenderGraphPass {
     get deviceQueues () { return this._deviceQueues; }
     // record common buffer
     record () {
+        // PresentPass currently does nothing
+        if (this._graphPass.present) {
+            return;
+        }
         const cmdBuff = this.graphPass.graph.commandBuffer;
         cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, new Rect(),
             this.clearColor, this.clearDepth, this.clearStencil);
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
+            this._graphPass.graph.pipeline.globalDSManager.globalDescriptorSet);
         for (const queue of this._deviceQueues) {
             queue.record();
         }
@@ -628,7 +676,9 @@ export class RenderDependencyGraph {
     protected _presentPass: RenderGraphPass | null = null;
     protected _commandBuffers: CommandBuffer[] = [];
     protected _device: Device;
-    constructor (renderGraph: RenderGraph, resourceGraph: ResourceGraph, layoutGraph: LayoutGraphData) {
+    protected _pipeline: Pipeline;
+    constructor (pipeline: Pipeline, renderGraph: RenderGraph, resourceGraph: ResourceGraph, layoutGraph: LayoutGraphData) {
+        this._pipeline = pipeline;
         this._renderGraph = renderGraph;
         this._resourceGraph = resourceGraph;
         this._layoutGraph = layoutGraph;
@@ -636,6 +686,7 @@ export class RenderDependencyGraph {
         this._device = root.device;
         this._commandBuffers.push(this._device.commandBuffer);
     }
+    get pipeline () { return this._pipeline; }
     get commandBuffer () { return this._commandBuffers[0]; }
     get device () { return this._device; }
     protected _createRenderPass (passIdx: number, renderPass: RenderGraphPass | null = null): RenderGraphPass | null {
@@ -671,6 +722,7 @@ export class RenderDependencyGraph {
             if (!renderPass) {
                 renderPass = new RenderGraphPass(this, RenderGraphValue.Present);
                 renderPass.name = vertName;
+                renderPass.isValid = true;
                 this.addPass(renderPass);
             }
             if (presentPass) {
@@ -718,6 +770,10 @@ export class RenderDependencyGraph {
                                 renderTex = new RenderTextureResource(resName, resDesc, resTraits);
                                 this._resources.push(renderTex);
                             }
+                            const externalTex = this._resourceGraph.tryGetPersistentTexture(resIdx);
+                            const swapchain = this._resourceGraph.tryGetSwapchain(resIdx);
+                            if (externalTex) (renderTex as RenderTextureResource).external = externalTex;
+                            else if (swapchain) (renderTex as RenderTextureResource).swapchain = swapchain;
                             switch (rasterView.accessType) {
                             case AccessType.WRITE:
                                 renderPass.addOutput(renderTex);
@@ -749,7 +805,10 @@ export class RenderDependencyGraph {
                 return null;
             }
             const sceneData = this._renderGraph.tryGetScene(passIdx);
-            if (sceneData) renderPass.addScene(sceneData);
+            if (sceneData) {
+                renderPass.isValid = true;
+                renderPass.addScene(sceneData);
+            }
         }
             break;
         default:
@@ -761,7 +820,10 @@ export class RenderDependencyGraph {
     }
     protected _buildIO () {
         for (const idx of this._renderGraph.vertices()) {
-            this._createRenderPass(idx);
+            const graphPass = this._createRenderPass(idx);
+            if (graphPass && !graphPass.isValid) {
+                warn(`The rendergraph pass named ${graphPass.name} is invalid, please check`);
+            }
         }
     }
     reset () {
@@ -779,6 +841,11 @@ export class RenderDependencyGraph {
                 // The phase contains multiple passes that need to be executed.
                 // Adding a phase is equivalent to adding all the dependent passes.
                 pass.addInputPhase(resTex.name);
+            // presentpass may take MANAGED as input
+            } else if (traits.residency === ResourceResidency.MANAGED) {
+                for (const currPass of resTex.writeInPasses) {
+                    this._buildRenderPhase(phase, currPass);
+                }
             }
         } else {
             for (const res of pass.inputs) {
@@ -877,10 +944,10 @@ export class RenderDependencyGraph {
     }
     protected _renderPasses (passes: RenderGraphPass[]) {
         for (const pass of passes) {
-            pass.devicePass!.record();
+            if (pass.devicePass) pass.devicePass.record();
         }
     }
-    render () {
+    execute () {
         this.commandBuffer.begin();
         for (const pKV of this._phases) {
             this._renderPasses(pKV[1].passes);
