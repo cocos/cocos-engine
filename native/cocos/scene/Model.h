@@ -89,6 +89,7 @@ public:
     virtual void                      setSubModelMaterial(index_t idx, Material *mat);
     void                              onGlobalPipelineStateChanged() const;
     void                              onMacroPatchesStateChanged();
+    void                              onGeometryChanged();
     void                              updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
     virtual std::vector<IMacroPatch> &getMacroPatches(index_t subModelIndex);
     virtual void                      updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, Pass *pass);
@@ -96,6 +97,7 @@ public:
     virtual void updateTransform(uint32_t stamp);
     virtual void updateUBOs(uint32_t stamp);
     void         updateWorldBoundUBOs();
+    void         updateLocalShadowBias();
 
     inline void attachToScene(RenderScene *scene) {
         _scene            = scene;
@@ -113,6 +115,8 @@ public:
         _receiveShadow = value;
         onMacroPatchesStateChanged();
     }
+    inline void setShadowBias(float bias) { _shadowBias = bias; }
+    inline void setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
     inline void setTransform(Node *node) { _transform = node; }
     inline void setVisFlags(Layers::Enum flags) { _visFlags = flags; }
     inline void setBounds(geometry::AABB *world) {
@@ -156,6 +160,8 @@ public:
     inline RenderScene *                              getScene() const { return _scene; }
     inline void                                       setDynamicBatching(bool val) { _isDynamicBatching = val; }
     inline bool                                       isDynamicBatching() const { return _isDynamicBatching; }
+    inline float                                      getShadowBias() const { return _shadowBias; }
+    inline float                                      getShadowNormalBias() const { return _shadowNormalBias; }
 
     void initLocalDescriptors(index_t subModelIndex);
     void initWorldBoundDescriptors(index_t subModelIndex);
@@ -190,6 +196,8 @@ protected:
     gfx::Device *                _device{nullptr};
     bool                         _inited{false};
     uint32_t                     _descriptorSetCount{1};
+    float                        _shadowBias{0.0F};
+    float                        _shadowNormalBias{0.0F};
 
     bool _enabled{false};
     bool _castShadow{false};

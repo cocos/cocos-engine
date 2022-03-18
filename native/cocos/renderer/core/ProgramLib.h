@@ -42,6 +42,10 @@
 namespace cc {
 class EffectAsset;
 
+namespace render {
+class PipelineRuntime;
+} // namespace render
+
 struct IDefineRecord : public IDefineInfo {
     std::function<int32_t(const MacroValue &)> map{nullptr};
     int32_t                                    offset{0};
@@ -150,7 +154,7 @@ public:
      * @param key The shader cache key, if already known
      */
     gfx::Shader *getGFXShader(gfx::Device *device, const std::string &name, MacroRecord &defines,
-                              pipeline::RenderPipeline *pipeline, std::string *key = nullptr);
+                              render::PipelineRuntime *pipeline, std::string *key = nullptr);
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);

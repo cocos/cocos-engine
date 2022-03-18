@@ -57,52 +57,6 @@ inline const char* getName(ParameterType e) noexcept {
     }
     return "";
 }
-inline const char* getName(const ConstantsTag& /*v*/) noexcept { return "Constants"; }
-inline const char* getName(const BoundedTag& /*v*/) noexcept { return "Bounded"; }
-inline const char* getName(const UnboundedTag& /*v*/) noexcept { return "Unbounded"; }
-inline const char* getName(const CBufferTag& /*v*/) noexcept { return "CBuffer"; }
-inline const char* getName(const BufferTag& /*v*/) noexcept { return "Buffer"; }
-inline const char* getName(const TextureTag& /*v*/) noexcept { return "Texture"; }
-inline const char* getName(const RWBufferTag& /*v*/) noexcept { return "RWBuffer"; }
-inline const char* getName(const RWTextureTag& /*v*/) noexcept { return "RWTexture"; }
-inline const char* getName(const SamplerTag& /*v*/) noexcept { return "Sampler"; }
-inline const char* getName(const Texture1DTag& /*v*/) noexcept { return "Texture1D"; }
-inline const char* getName(const Texture1DArrayTag& /*v*/) noexcept { return "Texture1DArray"; }
-inline const char* getName(const Texture2DTag& /*v*/) noexcept { return "Texture2D"; }
-inline const char* getName(const Texture2DArrayTag& /*v*/) noexcept { return "Texture2DArray"; }
-inline const char* getName(const Texture2DMSTag& /*v*/) noexcept { return "Texture2DMS"; }
-inline const char* getName(const Texture2DMSArrayTag& /*v*/) noexcept { return "Texture2DMSArray"; }
-inline const char* getName(const Texture3DTag& /*v*/) noexcept { return "Texture3D"; }
-inline const char* getName(const TextureCubeTag& /*v*/) noexcept { return "TextureCube"; }
-inline const char* getName(const TextureCubeArrayTag& /*v*/) noexcept { return "TextureCubeArray"; }
-inline const char* getName(const RaytracingAccelerationStructureTag& /*v*/) noexcept { return "RaytracingAccelerationStructure"; }
-inline const char* getName(const SamplerStateTag& /*v*/) noexcept { return "SamplerState"; }
-inline const char* getName(const SamplerComparisonStateTag& /*v*/) noexcept { return "SamplerComparisonState"; }
-inline const char* getName(const TypelessTag& /*v*/) noexcept { return "Typeless"; }
-inline const char* getName(const Float4Tag& /*v*/) noexcept { return "Float4"; }
-inline const char* getName(const Float3Tag& /*v*/) noexcept { return "Float3"; }
-inline const char* getName(const Float2Tag& /*v*/) noexcept { return "Float2"; }
-inline const char* getName(const Float1Tag& /*v*/) noexcept { return "Float1"; }
-inline const char* getName(const Half4Tag& /*v*/) noexcept { return "Half4"; }
-inline const char* getName(const Half3Tag& /*v*/) noexcept { return "Half3"; }
-inline const char* getName(const Half2Tag& /*v*/) noexcept { return "Half2"; }
-inline const char* getName(const Half1Tag& /*v*/) noexcept { return "Half1"; }
-inline const char* getName(const Fixed4Tag& /*v*/) noexcept { return "Fixed4"; }
-inline const char* getName(const Fixed3Tag& /*v*/) noexcept { return "Fixed3"; }
-inline const char* getName(const Fixed2Tag& /*v*/) noexcept { return "Fixed2"; }
-inline const char* getName(const Fixed1Tag& /*v*/) noexcept { return "Fixed1"; }
-inline const char* getName(const Uint4Tag& /*v*/) noexcept { return "Uint4"; }
-inline const char* getName(const Uint3Tag& /*v*/) noexcept { return "Uint3"; }
-inline const char* getName(const Uint2Tag& /*v*/) noexcept { return "Uint2"; }
-inline const char* getName(const Uint1Tag& /*v*/) noexcept { return "Uint1"; }
-inline const char* getName(const Int4Tag& /*v*/) noexcept { return "Int4"; }
-inline const char* getName(const Int3Tag& /*v*/) noexcept { return "Int3"; }
-inline const char* getName(const Int2Tag& /*v*/) noexcept { return "Int2"; }
-inline const char* getName(const Int1Tag& /*v*/) noexcept { return "Int1"; }
-inline const char* getName(const Bool4Tag& /*v*/) noexcept { return "Bool4"; }
-inline const char* getName(const Bool3Tag& /*v*/) noexcept { return "Bool3"; }
-inline const char* getName(const Bool2Tag& /*v*/) noexcept { return "Bool2"; }
-inline const char* getName(const Bool1Tag& /*v*/) noexcept { return "Bool1"; }
 inline const char* getName(const RasterTag& /*v*/) noexcept { return "Raster"; }
 inline const char* getName(const ComputeTag& /*v*/) noexcept { return "Compute"; }
 inline const char* getName(const CopyTag& /*v*/) noexcept { return "Copy"; }
@@ -136,11 +90,12 @@ inline const char* getName(ResourceDimension e) noexcept {
     }
     return "";
 }
-inline const char* getName(const SampleDesc& /*v*/) noexcept { return "SampleDesc"; }
-inline const char* getName(NodeType e) noexcept {
+inline const char* getName(const BufferTag& /*v*/) noexcept { return "Buffer"; }
+inline const char* getName(const TextureTag& /*v*/) noexcept { return "Texture"; }
+inline const char* getName(TaskType e) noexcept {
     switch (e) {
-        case NodeType::INTERNAL: return "INTERNAL";
-        case NodeType::LEAF: return "LEAF";
+        case TaskType::SYNC: return "SYNC";
+        case TaskType::ASYNC: return "ASYNC";
     }
     return "";
 }

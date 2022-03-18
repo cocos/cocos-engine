@@ -895,6 +895,25 @@ static bool js_pipeline_RenderPipeline_getScissor(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_getScissor)
 
+static bool js_pipeline_RenderPipeline_getShadingScale(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getShadingScale : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getShadingScale();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getShadingScale : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_pipeline_RenderPipeline_getShadingScale)
+
 static bool js_pipeline_RenderPipeline_getViewport(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1187,6 +1206,25 @@ static bool js_pipeline_RenderPipeline_setProfiler(se::State& s) // NOLINT(reada
 }
 SE_BIND_FUNC_AS_PROP_SET(js_pipeline_RenderPipeline_setProfiler)
 
+static bool js_pipeline_RenderPipeline_setShadingScale(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_setShadingScale : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_setShadingScale : Error processing arguments");
+        cobj->setShadingScale(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_pipeline_RenderPipeline_setShadingScale)
+
 static bool js_pipeline_RenderPipeline_setValue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -1310,6 +1348,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineProperty("bloomEnabled", nullptr, _SE(js_pipeline_RenderPipeline_setBloomEnabled_asSetter));
     cls->defineProperty("pipelineSceneData", _SE(js_pipeline_RenderPipeline_getPipelineSceneData_asGetter), nullptr);
     cls->defineProperty("profiler", _SE(js_pipeline_RenderPipeline_getProfiler_asGetter), _SE(js_pipeline_RenderPipeline_setProfiler_asSetter));
+    cls->defineProperty("shadingScale", _SE(js_pipeline_RenderPipeline_getShadingScale_asGetter), _SE(js_pipeline_RenderPipeline_setShadingScale_asSetter));
     cls->defineFunction("activate", _SE(js_pipeline_RenderPipeline_activate));
     cls->defineFunction("createQuadInputAssembler", _SE(js_pipeline_RenderPipeline_createQuadInputAssembler));
     cls->defineFunction("ensureEnoughSize", _SE(js_pipeline_RenderPipeline_ensureEnoughSize));
@@ -3188,16 +3227,14 @@ static bool js_pipeline_PipelineSceneData_activate(se::State& s) // NOLINT(reada
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
+    if (argc == 1) {
         HolderType<cc::gfx::Device*, false> arg0 = {};
-        HolderType<cc::pipeline::RenderPipeline*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_activate : Error processing arguments");
-        cobj->activate(arg0.value(), arg1.value());
+        cobj->activate(arg0.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
 SE_BIND_FUNC(js_pipeline_PipelineSceneData_activate)

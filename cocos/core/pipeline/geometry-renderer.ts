@@ -38,6 +38,7 @@ import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit,
 import { warnID } from '../platform/debug';
 import { Frustum } from '../geometry/frustum';
 import { toRadian } from '../math/utils';
+import { Camera } from '../renderer/scene/camera';
 
 const _min = new Vec3();
 const _max = new Vec3();
@@ -225,7 +226,11 @@ export class GeometryRenderer {
         }
     }
 
-    public render (renderPass: RenderPass, cmdBuff: CommandBuffer) {
+    public render (camera: Camera, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+        if (!camera.window || !camera.window.swapchain) {
+            return ;
+        }
+
         this.update();
 
         const passes = this._pipeline!.pipelineSceneData.geometryRendererPasses;

@@ -1,5 +1,6 @@
 'use strict';
 
+var Fs = require('fs');
 var Path = require('path');
 var Chalk = require('chalk');
 var Spawn = require('child_process').spawn;
@@ -52,7 +53,6 @@ function exec(cmdArgs, path, cb, options) {
         if (text.indexOf('CONFLICT (content): Merge conflict in') !== -1) {
             console.error(Chalk.red(text));
             process.exit(1);
-            return;
         }
     });
     child.stderr.on('data', function(data) {
@@ -117,6 +117,39 @@ function exec(cmdArgs, path, cb, options) {
 
 function commit( repo, message, cb ) {
     exec(['commit', '-m', message], repo, cb);
+}
+
+function updateExternal( repo, tag, cb ) {
+    var Async = require('async');
+    var dir = Path.join(__dirname, '../external');
+    Async.series([
+        function ( next ) {
+            if (!Fs.existsSync(dir)) {
+                exec(['clone', repo, './external'], '..', next);
+            } else {
+                next();
+            }
+        },
+
+        function ( next ) {
+            exec(['fetch', '--all'], dir, next );
+        },
+
+        function ( next ) {
+            exec(['stash'], dir, next );
+        },
+
+        function ( next ) {
+            exec(['rev-parse', `tags/${tag}`], dir, next);
+        },
+    ], function ( err ) {
+        if ( err ) {
+            console.error(Chalk.red('Failed to update ' + repo + '. Message: ' + err.message ));
+            if (cb) cb (err);
+            return;
+        }
+        if (cb) cb();
+    });
 }
 
 function checkout( repo, branch, fetch, cb ) {
@@ -388,5 +421,6 @@ module.exports = {
   getCurrentCommit: getCurrentCommit,
   reportStatus: reportStatus,
   parseRepo: parseRepo,
-  updateOriginUrl: updateOriginUrl
+  updateOriginUrl: updateOriginUrl,
+  updateExternal: updateExternal,
 };

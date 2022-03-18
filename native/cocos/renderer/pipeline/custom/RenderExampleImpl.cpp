@@ -232,7 +232,9 @@ void buildRenderDependencyGraph(const RenderGraph& rg, RenderDependencyGraph& rd
                 auto& node     = get(RDG::Pass, rdg, vertID);
                 auto& valueIDs = get(RDG::ValueID, rdg, vertID);
 
-                addPassNodeValue(rdg, node, valueIDs, pass.resourceName, AccessType::READ);
+                for (const auto& pair : pass.presents) {
+                    addPassNodeValue(rdg, node, valueIDs, pair.first, AccessType::READ);
+                }
             },
             [&](const auto& /*pass*/) {
                 // do nothing

@@ -46,11 +46,13 @@ UniformBlockDB::UniformBlockDB(UniformBlockDB const& rhs, const allocator_type& 
 
 DescriptorBlock::DescriptorBlock(const allocator_type& alloc) noexcept
 : descriptors(alloc),
-  uniformBlocks(alloc) {}
+  uniformBlocks(alloc),
+  merged(alloc) {}
 
 DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
 : descriptors(std::move(rhs.descriptors), alloc),
   uniformBlocks(std::move(rhs.uniformBlocks), alloc),
+  merged(std::move(rhs.merged), alloc),
   capacity(rhs.capacity),
   start(rhs.start),
   count(rhs.count) {}
@@ -58,6 +60,7 @@ DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& al
 DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
 : descriptors(rhs.descriptors, alloc),
   uniformBlocks(rhs.uniformBlocks, alloc),
+  merged(rhs.merged, alloc),
   capacity(rhs.capacity),
   start(rhs.start),
   count(rhs.count) {}
@@ -126,55 +129,55 @@ LayoutGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
   handle(rhs.handle) {}
 
 UniformBlockData::UniformBlockData(const allocator_type& alloc) noexcept
-: values(alloc) {}
+: uniforms(alloc) {}
 
 UniformBlockData::UniformBlockData(UniformBlockData&& rhs, const allocator_type& alloc)
-: size(rhs.size),
-  values(std::move(rhs.values), alloc) {}
+: bufferSize(rhs.bufferSize),
+  uniforms(std::move(rhs.uniforms), alloc) {}
 
 UniformBlockData::UniformBlockData(UniformBlockData const& rhs, const allocator_type& alloc)
-: size(rhs.size),
-  values(rhs.values, alloc) {}
+: bufferSize(rhs.bufferSize),
+  uniforms(rhs.uniforms, alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(const allocator_type& alloc) noexcept
-: descriptors(alloc) {}
+: descriptors(alloc),
+  uniformBlocks(alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(DescriptorIndex typeIn, uint32_t capacityIn, const allocator_type& alloc) noexcept
 : type(typeIn),
   capacity(capacityIn),
-  descriptors(alloc) {}
+  descriptors(alloc),
+  uniformBlocks(alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc)
 : type(rhs.type),
   capacity(rhs.capacity),
-  descriptors(std::move(rhs.descriptors), alloc) {}
+  descriptors(std::move(rhs.descriptors), alloc),
+  uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc)
 : type(rhs.type),
   capacity(rhs.capacity),
-  descriptors(rhs.descriptors, alloc) {}
+  descriptors(rhs.descriptors, alloc),
+  uniformBlocks(rhs.uniformBlocks, alloc) {}
 
 DescriptorTableData::DescriptorTableData(const allocator_type& alloc) noexcept
-: descriptorBlocks(alloc),
-  uniformBlocks(alloc) {}
+: descriptorBlocks(alloc) {}
 
-DescriptorTableData::DescriptorTableData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
-: slot(slotIn),
+DescriptorTableData::DescriptorTableData(uint32_t tableIDIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
+: tableID(tableIDIn),
   capacity(capacityIn),
-  descriptorBlocks(alloc),
-  uniformBlocks(alloc) {}
+  descriptorBlocks(alloc) {}
 
 DescriptorTableData::DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc)
-: slot(rhs.slot),
+: tableID(rhs.tableID),
   capacity(rhs.capacity),
-  descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
-  uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
+  descriptorBlocks(std::move(rhs.descriptorBlocks), alloc) {}
 
 DescriptorTableData::DescriptorTableData(DescriptorTableData const& rhs, const allocator_type& alloc)
-: slot(rhs.slot),
+: tableID(rhs.tableID),
   capacity(rhs.capacity),
-  descriptorBlocks(rhs.descriptorBlocks, alloc),
-  uniformBlocks(rhs.uniformBlocks, alloc) {}
+  descriptorBlocks(rhs.descriptorBlocks, alloc) {}
 
 DescriptorSetData::DescriptorSetData(const allocator_type& alloc) noexcept
 : tables(alloc) {}

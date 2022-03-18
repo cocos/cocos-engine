@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES3GPUShader;
+struct GLES3GPUShader;
 
 class CC_GLES3_API GLES3Shader final : public Shader {
 public:

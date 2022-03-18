@@ -376,6 +376,17 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return out;
     }
 
+    public get shadingScale () {
+        return this._pipelineSceneData.shadingScale;
+    }
+
+    public set shadingScale (val: number) {
+        if (this._pipelineSceneData.shadingScale !== val) {
+            this._pipelineSceneData.shadingScale = val;
+            this.emit(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, val);
+        }
+    }
+
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
@@ -392,7 +403,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         // update global defines in advance here for deferred pipeline may tryCompile shaders.
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
         this._generateConstantMacros();
-        this._pipelineSceneData.activate(this._device, this);
+        this._pipelineSceneData.activate(this._device);
         this._geometryRenderer.activate(this._device, this);
 
         for (let i = 0; i < this._flows.length; i++) {

@@ -101,6 +101,7 @@ struct DescriptorBlock {
 
     PmrTransparentMap<PmrString, Descriptor>     descriptors;
     PmrTransparentMap<PmrString, UniformBlockDB> uniformBlocks;
+    PmrTransparentMap<gfx::Type, Descriptor>     merged;
     uint32_t                                     capacity{0};
     uint32_t                                     start{0};
     uint32_t                                     count{0};
@@ -353,18 +354,21 @@ struct LayoutGraph {
 
 struct UniformData {
     UniformData() = default;
-    UniformData(gfx::Type typeIn, uint32_t valueIDIn) noexcept
-    : type(typeIn),
-      valueID(valueIDIn) {}
+    UniformData(UniformID uniformIDIn, gfx::Type uniformTypeIn, uint32_t offsetIn) noexcept // NOLINT
+    : uniformID(uniformIDIn),
+      uniformType(uniformTypeIn),
+      offset(offsetIn) {}
 
-    gfx::Type type{gfx::Type::UNKNOWN};
-    uint32_t  valueID{0xFFFFFFFF};
+    UniformID uniformID{0xFFFFFFFF};
+    gfx::Type uniformType{gfx::Type::UNKNOWN};
+    uint32_t  offset{0};
+    uint32_t  size{0};
 };
 
 struct UniformBlockData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {values.get_allocator().resource()};
+        return {uniforms.get_allocator().resource()};
     }
 
     UniformBlockData(const allocator_type& alloc) noexcept; // NOLINT
@@ -376,19 +380,19 @@ struct UniformBlockData {
     UniformBlockData& operator=(UniformBlockData&& rhs) = default;
     UniformBlockData& operator=(UniformBlockData const& rhs) = default;
 
-    uint32_t                                   size{0};
-    boost::container::pmr::vector<UniformData> values;
+    uint32_t                                   bufferSize{0};
+    boost::container::pmr::vector<UniformData> uniforms;
 };
 
 struct DescriptorData {
     DescriptorData() = default;
-    DescriptorData(uint32_t idIn, gfx::Type typeIn) noexcept
-    : id(idIn),
+    DescriptorData(DescriptorID descriptorIDIn, gfx::Type typeIn) noexcept
+    : descriptorID(descriptorIDIn),
       type(typeIn) {}
 
-    uint32_t  id{0xFFFFFFFF};
-    gfx::Type type{gfx::Type::UNKNOWN};
-    uint32_t  count{1};
+    DescriptorID descriptorID{0xFFFFFFFF};
+    gfx::Type    type{gfx::Type::UNKNOWN};
+    uint32_t     count{1};
 };
 
 struct DescriptorBlockData {
@@ -410,6 +414,7 @@ struct DescriptorBlockData {
     DescriptorIndex                               type{DescriptorIndex::UNIFORM_BLOCK};
     uint32_t                                      capacity{0};
     boost::container::pmr::vector<DescriptorData> descriptors;
+    PmrFlatMap<uint32_t, UniformBlockData>        uniformBlocks;
 };
 
 struct DescriptorTableData {
@@ -419,7 +424,7 @@ struct DescriptorTableData {
     }
 
     DescriptorTableData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorTableData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
+    DescriptorTableData(uint32_t tableIDIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
     DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc);
     DescriptorTableData(DescriptorTableData const& rhs, const allocator_type& alloc);
 
@@ -428,10 +433,9 @@ struct DescriptorTableData {
     DescriptorTableData& operator=(DescriptorTableData&& rhs) = default;
     DescriptorTableData& operator=(DescriptorTableData const& rhs) = default;
 
-    uint32_t                                           slot{0xFFFFFFFF};
+    uint32_t                                           tableID{0xFFFFFFFF};
     uint32_t                                           capacity{0};
     boost::container::pmr::vector<DescriptorBlockData> descriptorBlocks;
-    PmrFlatMap<uint32_t, UniformBlockData>             uniformBlocks;
 };
 
 struct DescriptorSetData {

@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUGeneralBarrier;
+struct CCVKGPUGeneralBarrier;
 
 class CC_VULKAN_API CCVKGeneralBarrier : public GeneralBarrier {
 public:

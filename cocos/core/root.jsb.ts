@@ -1,10 +1,9 @@
 import { Pool } from './memop';
 import { warnID } from './platform';
-import { IBatcher } from '../2d/renderer/i-batcher';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
-import { builtinResMgr } from './builtin';
 import { createCustomPipeline } from './pipeline/custom';
 
 declare const nr: any;
@@ -32,7 +31,7 @@ const rootProto: any = Root.prototype;
 Object.defineProperty(rootProto, 'batcher2D', {
     configurable: true,
     enumerable: true,
-    get(): IBatcher {
+    get(): Batcher2D {
         return this._batcher;
     },
 });
@@ -45,6 +44,14 @@ Object.defineProperty(rootProto, 'dataPoolManager', {
     },
 });
 
+Object.defineProperty(rootProto, 'usesCustomPipeline', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._usesCustomPipeline;
+    }
+});
+
 Object.defineProperty(rootProto, 'pipeline', {
     configurable: true,
     enumerable: true,
@@ -53,13 +60,35 @@ Object.defineProperty(rootProto, 'pipeline', {
     }
 });
 
+Object.defineProperty(rootProto, 'pipelineEvent', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._pipelineEvent;
+    }
+});
+
+class DummyPipelineEvent {
+    on (type: any, callback: any, target?: any, once?: boolean) {}
+    once (type: any, callback: any, target?: any) {}
+    off (type: any, callback?: any, target?: any) {}
+    emit (type: any, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
+    targetOff (typeOrTarget: any) {}
+    removeAll (typeOrTarget: any) {}
+    hasEventListener (type: any, callback?: any, target?: any): boolean { return false; }
+}
+
 rootProto._ctor = function (device: Device) {
     this._device = device;
     this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
     this._modelPools = new Map();
     this._lightPools = new Map();
     this._batcher = null;
+    this._usesCustomPipeline = false;
     this._pipeline = null;
+    this._pipelineEvent = new DummyPipelineEvent();
+    this._classicPipeline = null;
+    this._customPipeline = null;
     this._registerListeners();
 };
 
@@ -125,8 +154,8 @@ rootProto.destroyLight = function (l) {
 
 rootProto._onBatch2DInit = function () {
     if (!this._batcher && legacyCC.internal.Batcher2D) {
-        this._batcher = new legacyCC.internal.Batcher2D(this) as IBatcher;
-        if (!this._batcher.initialize()) {
+        this._batcher = new legacyCC.internal.Batcher2D(this);
+        if (!this._batcher!.initialize()) {
             this.destroy();
             return false;
         }
@@ -162,12 +191,16 @@ rootProto.setRenderPipeline = function (pipeline) {
         pipeline = new nr.ForwardPipeline();
         pipeline.init();
     }
-    this._pipeline = pipeline;
-    this._pipeline.geometryRenderer.activate(this._device, this._pipeline);
 
-    if (!this._customPipeline) {
+    if (this._usesCustomPipeline) {
         this._customPipeline = createCustomPipeline();
+        this._pipeline = this._customPipeline;
+    } else {
+        this._classicPipeline = pipeline;
+        this._pipeline = this._classicPipeline;
     }
+
+    this._pipeline.geometryRenderer.activate(this._device, this._pipeline);
 
     return oldSetPipeline.call(this, pipeline);
 }

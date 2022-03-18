@@ -345,7 +345,7 @@ export class Director extends EventTarget {
         const persistNodeList = Object.keys(game._persistRootNodes).map((x) => game._persistRootNodes[x] as Node);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
-            node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
+            node.emit(Node.EventType.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
             const existNode = scene.uuid === node._originalSceneId && scene.getChildByUuid(node.uuid);
             if (existNode) {
                 // scene also contains the persist node, select the old one
@@ -389,7 +389,7 @@ export class Director extends EventTarget {
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
         }
-        this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
+        this.emit(Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
         // Run an Entity Scene
         this._scene = scene;
@@ -410,7 +410,7 @@ export class Director extends EventTarget {
         if (onLaunched) {
             onLaunched(null, scene);
         }
-        this.emit(legacyCC.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
+        this.emit(Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     }
 
     /**
@@ -433,7 +433,7 @@ export class Director extends EventTarget {
         scene._load();
 
         // Delay run / replace scene to the end of the frame
-        this.once(legacyCC.Director.EVENT_END_FRAME, () => {
+        this.once(Director.EVENT_END_FRAME, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     }
@@ -453,7 +453,7 @@ export class Director extends EventTarget {
         }
         const bundle = legacyCC.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
-            this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
+            this.emit(Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
             console.time(`LoadScene ${sceneName}`);
             bundle.loadScene(sceneName, (err, scene) => {

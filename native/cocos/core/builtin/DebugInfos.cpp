@@ -402,6 +402,7 @@ std::unordered_map<int, std::string> debugInfos = {
 { 9003, "The internal state of LinearBufferAccessor have severe issue and irreversible, please check the reason" },
 { 9004, "Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too large: %d bytes" },
 { 9005, "BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 * 9 * 4 / 1024 = 2304KB)" },
+{ 9006, "QuadRenderData is removed, please use MeshRenderData instead." },
 { 9100, "texture size exceeds current device limits %d/%d" },
 { 9201, "Cannot access game frame or container." },
 { 9202, "Setting window size is not supported." },
@@ -433,6 +434,8 @@ std::unordered_map<int, std::string> debugInfos = {
 { 13104, "Can not decode CCON binary: lack of text decoder." },
 { 14000, "Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame." },
 { 14100, "Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead" },
+{ 14200, "Can not update a static mesh." },
+{ 14201, "The primitiveIndex is out of range." },
 
 };
 }//namespace cc

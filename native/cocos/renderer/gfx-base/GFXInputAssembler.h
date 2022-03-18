@@ -26,11 +26,12 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL InputAssembler : public GFXObject {
+class CC_DLL InputAssembler : public GFXObject, public RefCounted {
 public:
     InputAssembler();
     ~InputAssembler() override;
@@ -45,6 +46,7 @@ public:
     inline size_t               getAttributesHash() const { return _attributesHash; }
 
     inline const DrawInfo &getDrawInfo() const { return _drawInfo; }
+    inline void            setDrawInfo(const DrawInfo &info) { _drawInfo = info; }
 
     inline void setVertexCount(uint32_t count) { _drawInfo.vertexCount = count; }
     inline void setFirstVertex(uint32_t first) { _drawInfo.firstVertex = first; }

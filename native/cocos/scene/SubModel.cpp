@@ -29,6 +29,7 @@
 #include "pipeline/Define.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Model.h"
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
@@ -154,7 +155,7 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<std::
 // This is a temporary solution
 // It should not be written in a fixed way, or modified by the user
 void SubModel::initPlanarShadowShader() {
-    const auto *pipeline   = static_cast<pipeline::ForwardPipeline *>(Root::getInstance()->getPipeline());
+    const auto *pipeline   = Root::getInstance()->getPipeline();
     Shadows *   shadowInfo = pipeline->getPipelineSceneData()->getShadows();
     if (shadowInfo != nullptr) {
         _planarShader = shadowInfo->getPlanarShader(_patches);
@@ -167,7 +168,7 @@ void SubModel::initPlanarShadowShader() {
 // This is a temporary solution
 // It should not be written in a fixed way, or modified by the user
 void SubModel::initPlanarShadowInstanceShader() {
-    const auto *pipeline   = static_cast<pipeline::ForwardPipeline *>(Root::getInstance()->getPipeline());
+    const auto *pipeline   = Root::getInstance()->getPipeline();
     Shadows *   shadowInfo = pipeline->getPipelineSceneData()->getShadows();
     if (shadowInfo != nullptr) {
         _planarInstanceShader = shadowInfo->getPlanarInstanceShader(_patches);
@@ -214,6 +215,18 @@ void SubModel::onMacroPatchesStateChanged(const std::vector<IMacroPatch> &patche
         pass->endChangeStatesSilently();
     }
     flushPassInfo();
+}
+
+void SubModel::onGeometryChanged() {
+    if (!_subMesh) {
+        return;
+    }
+
+    // update draw info
+    const auto &drawInfo = _subMesh->getDrawInfo();
+    if (drawInfo.has_value()) {
+        _inputAssembler->setDrawInfo(drawInfo.value());
+    }
 }
 
 void SubModel::flushPassInfo() {

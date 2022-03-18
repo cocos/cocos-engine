@@ -52,7 +52,7 @@ public:
         return reinterpret_cast<T *>(_chunks[chunk] + (entry * _bytesPerEntry));
     }
 
-    Object *allocateNewChunk();
+    se::Object *allocateNewChunk();
 
 private:
     static constexpr uint POOL_FLAG = 1 << 30;

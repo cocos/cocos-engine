@@ -115,6 +115,7 @@ void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
     setMaxReceived(shadowsInfo.getMaxReceived());
     setSize(shadowsInfo.getSize());
     setShadowColor(shadowsInfo.getShadowColor());
+    _shadowMapDirty = false;
 }
 
 void Shadows::destroy() {

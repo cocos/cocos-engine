@@ -35,7 +35,7 @@ class Camera;
 }
 namespace pipeline {
 class RenderPipeline;
-class CC_DLL PipelineUBO : public Object {
+class CC_DLL PipelineUBO final {
 public:
     static void    updateGlobalUBOView(const scene::Camera *camera, std::array<float, UBOGlobal::COUNT> *bufferView);
     static void    updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera);
@@ -43,8 +43,8 @@ public:
     static void    updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView, const scene::Light *light);
     static uint8_t getCombineSignY();
 
-    PipelineUBO()           = default;
-    ~PipelineUBO() override = default;
+    PipelineUBO()  = default;
+    ~PipelineUBO() = default;
     void activate(gfx::Device *device, RenderPipeline *pipeline);
     void destroy();
     void updateGlobalUBO(const scene::Camera *camera);

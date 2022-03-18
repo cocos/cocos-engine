@@ -40,7 +40,6 @@ namespace cc {
 class Mat4;
 class Mat4;
 class Quaternion;
-class Color;
 class Vec4;
 class Vec3;
 class Vec2;
@@ -57,6 +56,7 @@ class PipelineSceneData;
 namespace scene {
 
 class Model;
+class RenderScene;
 class RenderWindow;
 
 } // namespace scene
@@ -77,14 +77,25 @@ public:
 
     virtual ~PipelineRuntime() noexcept = 0;
 
+    virtual bool activate(gfx::Swapchain * swapchain) = 0;
+    virtual bool destroy() noexcept = 0;
+    virtual void render(const std::vector<scene::Camera*>& cameras) = 0;
+
     virtual const MacroRecord           &getMacros() const = 0;
-    virtual pipeline::GlobalDSManager   &getGlobalDSManager() const = 0;
-    virtual gfx::DescriptorSetLayout    &getDescriptorSetLayout() const = 0;
-    virtual pipeline::PipelineSceneData &getPipelineSceneData() const = 0;
+    virtual pipeline::GlobalDSManager   *getGlobalDSManager() const = 0;
+    virtual gfx::DescriptorSetLayout    *getDescriptorSetLayout() const = 0;
+    virtual pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
     virtual const std::string           &getConstantMacros() const = 0;
     virtual scene::Model                *getProfiler() const = 0;
-    virtual void                         setProfiler(scene::Model *profiler) const = 0;
-    virtual void                         onGlobalPipelineStateChanged() = 0;
+    virtual void                         setProfiler(scene::Model *profiler) = 0;
+
+    virtual float getShadingScale() const = 0;
+    virtual void  setShadingScale(float scale) = 0;
+
+    virtual void onGlobalPipelineStateChanged() = 0;
+
+    virtual void setValue(const std::string& name, int32_t value) = 0;
+    virtual void setValue(const std::string& name, bool value) = 0;
 };
 
 inline PipelineRuntime::~PipelineRuntime() noexcept = default;
@@ -116,7 +127,7 @@ public:
 
     virtual void setMat4(const std::string& name, const cc::Mat4& mat) = 0;
     virtual void setQuaternion(const std::string& name, const cc::Quaternion& quat) = 0;
-    virtual void setColor(const std::string& name, const cc::Color& color) = 0;
+    virtual void setColor(const std::string& name, const gfx::Color& color) = 0;
     virtual void setVec4(const std::string& name, const cc::Vec4& vec) = 0;
     virtual void setVec2(const std::string& name, const cc::Vec2& vec) = 0;
     virtual void setFloat(const std::string& name, float v) = 0;
@@ -225,20 +236,72 @@ public:
 
 inline CopyPassBuilder::~CopyPassBuilder() noexcept = default;
 
-class Pipeline {
+class SceneVisitor {
+public:
+    SceneVisitor() noexcept = default;
+    SceneVisitor(SceneVisitor&& rhs)      = delete;
+    SceneVisitor(SceneVisitor const& rhs) = delete;
+    SceneVisitor& operator=(SceneVisitor&& rhs) = delete;
+    SceneVisitor& operator=(SceneVisitor const& rhs) = delete;
+
+    virtual ~SceneVisitor() noexcept = 0;
+
+    virtual const pipeline::PipelineSceneData* getPipelineSceneData() const = 0;
+
+    virtual void setViewport(const gfx::Viewport &vp) = 0;
+    virtual void setScissor(const gfx::Rect &rect) = 0;
+    virtual void bindPipelineState(gfx::PipelineState* pso) = 0;
+    virtual void bindDescriptorSet(uint32_t set, gfx::DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) = 0;
+    virtual void bindInputAssembler(gfx::InputAssembler *ia) = 0;
+    virtual void updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) = 0;
+    virtual void draw(const gfx::DrawInfo &info) = 0;
+};
+
+inline SceneVisitor::~SceneVisitor() noexcept = default;
+
+class SceneTask {
+public:
+    SceneTask() noexcept = default;
+    SceneTask(SceneTask&& rhs)      = delete;
+    SceneTask(SceneTask const& rhs) = delete;
+    SceneTask& operator=(SceneTask&& rhs) = delete;
+    SceneTask& operator=(SceneTask const& rhs) = delete;
+
+    virtual ~SceneTask() noexcept = 0;
+
+    virtual TaskType getTaskType() const noexcept = 0;
+    virtual void     start() = 0;
+    virtual void     join() = 0;
+    virtual void     submit() = 0;
+};
+
+inline SceneTask::~SceneTask() noexcept = default;
+
+class SceneTransversal {
+public:
+    SceneTransversal() noexcept = default;
+    SceneTransversal(SceneTransversal&& rhs)      = delete;
+    SceneTransversal(SceneTransversal const& rhs) = delete;
+    SceneTransversal& operator=(SceneTransversal&& rhs) = delete;
+    SceneTransversal& operator=(SceneTransversal const& rhs) = delete;
+
+    virtual ~SceneTransversal() noexcept = 0;
+
+    virtual SceneTask* transverse(SceneVisitor *visitor) const = 0;
+};
+
+inline SceneTransversal::~SceneTransversal() noexcept = default;
+
+class Pipeline : public PipelineRuntime {
 public:
     Pipeline() noexcept = default;
-    Pipeline(Pipeline&& rhs)      = delete;
-    Pipeline(Pipeline const& rhs) = delete;
-    Pipeline& operator=(Pipeline&& rhs) = delete;
-    Pipeline& operator=(Pipeline const& rhs) = delete;
 
-    virtual ~Pipeline() noexcept = 0;
+    ~Pipeline() noexcept override = 0;
 
     virtual uint32_t            addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
     virtual uint32_t            addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     virtual uint32_t            addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
-    virtual void                beginFrame(pipeline::PipelineSceneData* pplScene) = 0;
+    virtual void                beginFrame() = 0;
     virtual void                endFrame() = 0;
     virtual RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) = 0;
     virtual RasterPassBuilder  *addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) = 0;
@@ -246,7 +309,9 @@ public:
     virtual ComputePassBuilder *addComputePass(const std::string& layoutName) = 0;
     virtual MovePassBuilder    *addMovePass(const std::string& name) = 0;
     virtual CopyPassBuilder    *addCopyPass(const std::string& name) = 0;
-    virtual void                addPresentPass(const std::string& name, const std::string& swapchainName) = 0;
+    virtual void                presentAll() = 0;
+
+    virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
 };
 
 inline Pipeline::~Pipeline() noexcept = default;
