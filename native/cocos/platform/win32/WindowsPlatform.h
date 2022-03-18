@@ -30,6 +30,7 @@
 
 struct SDL_WindowEvent;
 struct SDL_Window;
+union SDL_Event;
 
 namespace cc {
 
@@ -56,7 +57,8 @@ public:
 
 private:
     void               pollEvent() override;
-    void               handleWindowEvent(SDL_WindowEvent& wevent);
+    void               dispatchSDLEvent(const SDL_Event& sdlEvent);
+    void               dispatchWindowEvent(const SDL_WindowEvent& wevent);
     bool               _inited{false};
     bool               _quit{false};
     struct SDL_Window* _handle{nullptr};

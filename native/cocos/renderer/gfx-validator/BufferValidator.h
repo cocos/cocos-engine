@@ -33,8 +33,6 @@ namespace gfx {
 
 class CC_DLL BufferValidator final : public Agent<Buffer> {
 public:
-    static bool recordInitStack;
-
     explicit BufferValidator(Buffer *actor);
     ~BufferValidator() override;
 
@@ -52,9 +50,9 @@ protected:
 
     vector<uint8_t> _buffer;
 
-    uint32_t _lastUpdateFrame{0U};
-    uint32_t _totalUpdateTimes{0U};
-    uint32_t _creationFrame{0U};
+    uint64_t _lastUpdateFrame{0U};
+    uint64_t _totalUpdateTimes{0U};
+    uint64_t _creationFrame{0U};
 
     bool _inited{false};
 

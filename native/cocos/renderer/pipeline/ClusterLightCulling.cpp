@@ -90,14 +90,10 @@ void ClusterLightCulling::initialize(gfx::Device* dev) {
     _resetDispatchInfo    = {1, 1, 1};
     _cullingDispatchInfo  = {CLUSTERS_X / CLUSTERS_X_THREADS, CLUSTERS_Y / CLUSTERS_Y_THREADS, CLUSTERS_Z / clusterZThreads};
 
-    gfx::GlobalBarrierInfo resetBarrierInfo = {
-        {
-            gfx::AccessType::COMPUTE_SHADER_WRITE,
-        },
-        {
-            gfx::AccessType::COMPUTE_SHADER_READ_OTHER,
-        }};
-    _resetBarrier = _device->getGlobalBarrier(resetBarrierInfo);
+    _resetBarrier = _device->getGeneralBarrier({
+        gfx::AccessFlagBit::COMPUTE_SHADER_WRITE,
+        gfx::AccessFlagBit::COMPUTE_SHADER_READ_OTHER,
+    });
 
     initBuildingSatge();
     initResetStage();

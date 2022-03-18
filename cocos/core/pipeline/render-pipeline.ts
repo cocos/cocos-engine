@@ -32,10 +32,10 @@ import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { systemInfo } from 'pal/system-info';
 import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
 import { Asset } from '../assets/asset';
-import { AccessType, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
+import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
     DepthStencilAttachment, DescriptorSet, Device, Feature, Format, FormatFeatureBit, Framebuffer, FramebufferInfo, InputAssembler,
     InputAssemblerInfo, LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain,
-    Texture, TextureInfo, TextureType, TextureUsageBit, Viewport,
+    Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo,
 } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { MacroRecord } from '../renderer/core/pass-utils';
@@ -289,7 +289,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
                 colorAttachment.loadOp = LoadOp.DISCARD;
             } else {
                 colorAttachment.loadOp = LoadOp.LOAD;
-                colorAttachment.beginAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+                colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                    AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                    AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+                ));
             }
         }
 
@@ -297,7 +300,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
             if (!(clearFlags & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
             if (!(clearFlags & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
         }
-        depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
+        depthStencilAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+            AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+        ));
 
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
 
@@ -668,7 +674,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         colorAttachment.format = Format.RGBA8;
         colorAttachment.loadOp = LoadOp.CLEAR;
         colorAttachment.storeOp = StoreOp.STORE;
-        colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+        colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+            AccessFlagBit.NONE,
+            AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+        ));
         bloom.renderPass = device.createRenderPass(new RenderPassInfo([colorAttachment]));
 
         let curWidth = this._width;

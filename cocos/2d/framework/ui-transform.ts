@@ -28,18 +28,17 @@
  * @module ui
  */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple, visible } from 'cc.decorator';
-import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Node } from '../../core/scene-graph';
 import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
-import { TransformBit } from '../../core/scene-graph/node-enum';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';
-import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
+import { approx, EPSILON } from '../../core/math/utils';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -254,29 +253,6 @@ export class UITransform extends Component {
     @serializable
     protected _anchorPoint = new Vec2(0.5, 0.5);
 
-    // macro.UI_GPU_DRIVEN
-    /**
-     * @legacyPublic
-     */
-    declare public _rectDirty: boolean;
-    /**
-     * @legacyPublic
-     */
-    declare public _rectWithScale: Vec3;
-    /**
-     * @legacyPublic
-     */
-    declare public _anchorCache: Vec3;
-
-    constructor () {
-        super();
-        if (UI_GPU_DRIVEN) {
-            this._rectDirty = true;
-            this._rectWithScale = new Vec3();
-            this._anchorCache = new Vec3();
-        }
-    }
-
     public __preload () {
         this.node._uiProps.uiTransformComp = this;
     }
@@ -338,7 +314,7 @@ export class UITransform extends Component {
         let clone: Size;
         if (height === undefined) {
             size = size as Size;
-            if ((size.width === locContentSize.width) && (size.height === locContentSize.height)) {
+            if (approx(size.width, locContentSize.width, EPSILON) && approx(size.height, locContentSize.height, EPSILON)) {
                 return;
             }
 
@@ -349,7 +325,8 @@ export class UITransform extends Component {
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
-            if ((size === locContentSize.width) && (height === locContentSize.height)) {
+            size = size as number;
+            if (approx(size, locContentSize.width, EPSILON) && approx(height, locContentSize.height, EPSILON)) {
                 return;
             }
 
@@ -357,7 +334,7 @@ export class UITransform extends Component {
                 clone = new Size(this._contentSize);
             }
 
-            locContentSize.width = size as number;
+            locContentSize.width = size;
             locContentSize.height = height;
         }
 
@@ -684,33 +661,11 @@ export class UITransform extends Component {
     }
 
     private _markRenderDataDirty () {
-        if (UI_GPU_DRIVEN) {
-            this._rectDirty = true;
-            return;
-        }
         const uiComp = this.node._uiProps.uiComp;
         if (uiComp) {
             uiComp.markForUpdateRenderData();
             // @ts-expect-error hack for canRender is false // HACK,Need remove
             if (uiComp.renderData) { uiComp.renderData.vertDirty = true; }
-        }
-    }
-
-    public checkAndUpdateRect (rot: Quat, scale: Vec3) {
-        if (this._rectDirty) {
-            this._rectWithScale.x = scale.x * this.width;
-            this._rectWithScale.y = scale.y * this.height;
-            this._rectWithScale.z = scale.z;
-
-            const lenX = (0.5 - this.anchorPoint.x) * this.width * scale.x;
-            const lenY = (0.5 - this.anchorPoint.y) * this.height * scale.y;
-            Vec3.transformQuat(this._anchorCache, _vec3a.set(lenX, lenY, 0), rot);
-        }
-    }
-
-    public setRectDirty (transformBit: TransformBit) {
-        if (transformBit & TransformBit.RS) {
-            this._rectDirty = true;
         }
     }
 

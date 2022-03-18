@@ -75,6 +75,8 @@ public:
     inline void setLocalBuffer(gfx::Buffer *buffer) { _localBuffer = buffer; }
     inline void setWorldBoundBuffer(gfx::Buffer *buffer) { _worldBoundBuffer = buffer; }
     inline void setNode(Node *node) { _node = node; }
+    inline void setShadowBias(float bias) { _shadowBias = bias; }
+    inline void setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
     inline void setReceiveShadow(bool value) { _receiveShadow = value; }
     inline void setTransform(Node *node) { _transform = node; }
     inline void seVisFlag(uint32_t flags) { _visFlags = flags; }
@@ -106,6 +108,8 @@ public:
     inline float *                            getLocalData() const { return _localData; }
     inline const AABB &                       getModelBounds() const { return _modelBounds; }
     inline Node *                             getNode() const { return _node; }
+    inline float                              getShadowBias() const { return _shadowBias; }
+    inline float                              getShadowNormalBias() const { return _shadowNormalBias; }
     inline bool                               getReceiveShadow() const { return _receiveShadow; }
     inline const std::vector<SubModel *> &    getSubModels() const { return _subModels; }
     inline Node *                             getTransform() const { return _transform; }
@@ -137,6 +141,8 @@ private:
     int32_t                         _updateStamp{-1};
     Node *                          _transform{nullptr};
     Node *                          _node{nullptr};
+    float                           _shadowBias{0.0F};
+    float                           _shadowNormalBias{0.0F};
     float *                         _localData{nullptr};
     std::tuple<uint8_t *, uint32_t> _instancedBuffer{nullptr, 0};
     gfx::Buffer *                   _localBuffer{nullptr};

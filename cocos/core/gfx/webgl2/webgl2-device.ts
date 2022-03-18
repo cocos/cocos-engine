@@ -55,11 +55,11 @@ import { WebGL2Texture } from './webgl2-texture';
 import {
     CommandBufferType, DescriptorSetLayoutInfo, DescriptorSetInfo,
     PipelineLayoutInfo, BufferViewInfo, CommandBufferInfo, BufferInfo, FramebufferInfo, InputAssemblerInfo,
-    QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo, GlobalBarrierInfo, TextureBarrierInfo,
+    QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo, GeneralBarrierInfo, TextureBarrierInfo,
     QueueType, API, Feature, BufferTextureCopy, SwapchainInfo, FormatFeature, Format, FormatFeatureBit,
 } from '../base/define';
 import { WebGL2CmdFuncCopyTextureToBuffers, WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
-import { GlobalBarrier } from '../base/states/global-barrier';
+import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
@@ -101,7 +101,7 @@ export class WebGL2Device extends Device {
 
     protected _textureExclusive = new Array<boolean>(Format.COUNT);
 
-    public initialize (info: DeviceInfo): boolean {
+    public initialize (info: Readonly<DeviceInfo>): boolean {
         WebGL2DeviceManager.setInstance(this);
         this._gfxAPI = API.WEBGL2;
 
@@ -233,9 +233,9 @@ export class WebGL2Device extends Device {
         this._swapchain = null;
     }
 
-    public flushCommands (cmdBuffs: CommandBuffer[]) {}
+    public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>) {}
 
-    public acquire (swapchains: Swapchain[]) {}
+    public acquire (swapchains: Readonly<Swapchain[]>) {}
 
     public present () {
         const queue = (this._queue as WebGL2Queue);
@@ -460,7 +460,7 @@ export class WebGL2Device extends Device {
         }
     }
 
-    public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
+    public createCommandBuffer (info: Readonly<CommandBufferInfo>): CommandBuffer {
         // const Ctor = WebGLCommandBuffer; // opt to instant invocation
         const Ctor = info.type === CommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
         const cmdBuff = new Ctor();
@@ -468,80 +468,80 @@ export class WebGL2Device extends Device {
         return cmdBuff;
     }
 
-    public createSwapchain (info: SwapchainInfo): Swapchain {
+    public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
         const swapchain = new WebGL2Swapchain();
         this._swapchain = swapchain;
         swapchain.initialize(info);
         return swapchain;
     }
 
-    public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
+    public createBuffer (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>): Buffer {
         const buffer = new WebGL2Buffer();
         buffer.initialize(info);
         return buffer;
     }
 
-    public createTexture (info: TextureInfo | TextureViewInfo): Texture {
+    public createTexture (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>): Texture {
         const texture = new WebGL2Texture();
         texture.initialize(info);
         return texture;
     }
 
-    public createDescriptorSet (info: DescriptorSetInfo): DescriptorSet {
+    public createDescriptorSet (info: Readonly<DescriptorSetInfo>): DescriptorSet {
         const descriptorSet = new WebGL2DescriptorSet();
         descriptorSet.initialize(info);
         return descriptorSet;
     }
 
-    public createShader (info: ShaderInfo): Shader {
+    public createShader (info: Readonly<ShaderInfo>): Shader {
         const shader = new WebGL2Shader();
         shader.initialize(info);
         return shader;
     }
 
-    public createInputAssembler (info: InputAssemblerInfo): InputAssembler {
+    public createInputAssembler (info: Readonly<InputAssemblerInfo>): InputAssembler {
         const inputAssembler = new WebGL2InputAssembler();
         inputAssembler.initialize(info);
         return inputAssembler;
     }
 
-    public createRenderPass (info: RenderPassInfo): RenderPass {
+    public createRenderPass (info: Readonly<RenderPassInfo>): RenderPass {
         const renderPass = new WebGL2RenderPass();
         renderPass.initialize(info);
         return renderPass;
     }
 
-    public createFramebuffer (info: FramebufferInfo): Framebuffer {
+    public createFramebuffer (info: Readonly<FramebufferInfo>): Framebuffer {
         const framebuffer = new WebGL2Framebuffer();
         framebuffer.initialize(info);
         return framebuffer;
     }
 
-    public createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout {
+    public createDescriptorSetLayout (info: Readonly<DescriptorSetLayoutInfo>): DescriptorSetLayout {
         const descriptorSetLayout = new WebGL2DescriptorSetLayout();
         descriptorSetLayout.initialize(info);
         return descriptorSetLayout;
     }
 
-    public createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout {
+    public createPipelineLayout (info: Readonly<PipelineLayoutInfo>): PipelineLayout {
         const pipelineLayout = new WebGL2PipelineLayout();
         pipelineLayout.initialize(info);
         return pipelineLayout;
     }
 
-    public createPipelineState (info: PipelineStateInfo): PipelineState {
+    public createPipelineState (info: Readonly<PipelineStateInfo>): PipelineState {
         const pipelineState = new WebGL2PipelineState();
         pipelineState.initialize(info);
         return pipelineState;
     }
 
-    public createQueue (info: QueueInfo): Queue {
+    public createQueue (info: Readonly<QueueInfo>): Queue {
         const queue = new WebGL2Queue();
         queue.initialize(info);
         return queue;
     }
 
-    public getSampler (info: SamplerInfo): Sampler {
+    public getSampler (info: Readonly<SamplerInfo>): Sampler {
         const hash = Sampler.computeHash(info);
         if (!this._samplers.has(hash)) {
             this._samplers.set(hash, new WebGL2Sampler(info, hash));
@@ -549,15 +549,15 @@ export class WebGL2Device extends Device {
         return this._samplers.get(hash)!;
     }
 
-    public getGlobalBarrier (info: GlobalBarrierInfo) {
-        const hash = GlobalBarrier.computeHash(info);
-        if (!this._globalBarriers.has(hash)) {
-            this._globalBarriers.set(hash, new GlobalBarrier(info, hash));
+    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>) {
+        const hash = GeneralBarrier.computeHash(info);
+        if (!this._generalBarrierss.has(hash)) {
+            this._generalBarrierss.set(hash, new GeneralBarrier(info, hash));
         }
-        return this._globalBarriers.get(hash)!;
+        return this._generalBarrierss.get(hash)!;
     }
 
-    public getTextureBarrier (info: TextureBarrierInfo) {
+    public getTextureBarrier (info: Readonly<TextureBarrierInfo>) {
         const hash = TextureBarrier.computeHash(info);
         if (!this._textureBarriers.has(hash)) {
             this._textureBarriers.set(hash, new TextureBarrier(info, hash));
@@ -565,7 +565,7 @@ export class WebGL2Device extends Device {
         return this._textureBarriers.get(hash)!;
     }
 
-    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {
         WebGL2CmdFuncCopyBuffersToTexture(
             this,
             buffers,
@@ -574,7 +574,7 @@ export class WebGL2Device extends Device {
         );
     }
 
-    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
+    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>) {
         WebGL2CmdFuncCopyTextureToBuffers(
             this,
             (texture as WebGL2Texture).gpuTexture,
@@ -584,9 +584,9 @@ export class WebGL2Device extends Device {
     }
 
     public copyTexImagesToTexture (
-        texImages: TexImageSource[],
+        texImages: Readonly<TexImageSource[]>,
         texture: Texture,
-        regions: BufferTextureCopy[],
+        regions: Readonly<BufferTextureCopy[]>,
     ) {
         WebGL2CmdFuncCopyTexImagesToTexture(
             this,

@@ -375,8 +375,8 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         colorAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.loadOp        = gfx::LoadOp::CLEAR;
         colorAttachmentInfo.clearColor    = clearColor;
-        colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
-        colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        colorAttachmentInfo.beginAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
+        colorAttachmentInfo.endAccesses   = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
         data.outputTex                    = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
         // set render area
@@ -449,8 +449,8 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
-        colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
-        colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        colorAttachmentInfo.beginAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
+        colorAttachmentInfo.endAccesses   = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
 
         data.outputTex         = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleOutColorTexture));
         bool lightingPassValid = data.outputTex.isValid();
@@ -473,8 +473,8 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
         depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
         depthAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
-        depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
-        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+        depthAttachmentInfo.beginAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
+        depthAttachmentInfo.endAccesses   = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
 
         data.depth = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture));
         if (!data.depth.isValid()) { // when there is no opaque object present
@@ -599,7 +599,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.loadOp      = gfx::LoadOp::CLEAR;
         colorAttachmentInfo.clearColor  = {0.F, 0.F, 0.F, 0.F};
-        colorAttachmentInfo.endAccesses = {gfx::AccessType::COMPUTE_SHADER_WRITE};
+        colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COMPUTE_SHADER_WRITE;
         data.reflection                 = builder.write(data.reflection, colorAttachmentInfo);
         builder.writeToBlackboard(reflectTexHandle, data.reflection);
         builder.sideEffect();
@@ -641,18 +641,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         builder.writeToBlackboard(reflectTexHandle, data.reflection);
     };
 
-    gfx::TextureBarrierList barrierBeforeReflector;
-    gfx::TextureBarrierInfo info1 = {
-        {
-            gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE,
-        },
-        {
-            gfx::AccessType::COMPUTE_SHADER_READ_TEXTURE,
-        }};
-
-    barrierBeforeReflector.push_back(_device->getTextureBarrier(info1));
-
-    auto compReflectExec = [this, camera, barrierBeforeReflector](DataCompReflect const &data, const framegraph::DevicePassResourceTable &table) {
+    auto compReflectExec = [this, camera](DataCompReflect const &data, const framegraph::DevicePassResourceTable &table) {
         auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
 
         gfx::Viewport vp    = pipeline->getViewport(camera);
@@ -669,7 +658,11 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         auto *cmdBuff = pipeline->getCommandBuffers()[0];
         cmdBuff->pipelineBarrier(_reflectionComp->getBarrierPre());
 
-        cmdBuff->pipelineBarrier(nullptr, const_cast<gfx::TextureBarrierList &>(barrierBeforeReflector), {texDepth});
+        auto *textureBarrier{_device->getTextureBarrier({
+            gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE,
+            gfx::AccessFlagBit::COMPUTE_SHADER_READ_TEXTURE,
+        })};
+        cmdBuff->pipelineBarrier(nullptr, &textureBarrier, &texDepth, 1);
 
         // step 2 bind descriptors
         gfx::DescriptorSet *reflectDesc = _reflectionComp->getDescriptorSet();
@@ -782,8 +775,8 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         colorAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
         colorAttachmentInfo.clearColor    = gfx::Color();
-        colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
-        colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        colorAttachmentInfo.beginAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
+        colorAttachmentInfo.endAccesses   = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE;
 
         data.lightingOut = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleOutColorTexture)), colorAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutColorTexture, data.lightingOut);
@@ -793,8 +786,8 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
         depthAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
         depthAttachmentInfo.clearColor    = gfx::Color();
-        depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
-        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
+        depthAttachmentInfo.beginAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_READ;
+        depthAttachmentInfo.endAccesses   = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_READ;
 
         data.depth = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture)), depthAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);

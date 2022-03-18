@@ -43,7 +43,6 @@
 #include "GLES2Shader.h"
 #include "GLES2Swapchain.h"
 #include "GLES2Texture.h"
-#include "base/memory/Memory.h"
 #include "states/GLES2Sampler.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
@@ -101,7 +100,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions   = StringUtil::split(extStr, " ");
 
-    _multithreadedSubmission = false;
+    _multithreadedCommandRecording = false;
 
     initFormatFeature();
 

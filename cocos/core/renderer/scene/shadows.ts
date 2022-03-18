@@ -333,8 +333,8 @@ export class Shadows {
         this._setEnable(shadowsInfo.enabled);
         this._setType(shadowsInfo.type);
 
-        this.normal = shadowsInfo.normal;
-        this.distance = shadowsInfo.distance;
+        this.normal = shadowsInfo.planeDirection;
+        this.distance = shadowsInfo.planeHeight;
         this.shadowColor = shadowsInfo.shadowColor;
         this.maxReceived = shadowsInfo.maxReceived;
         this.size = shadowsInfo.size;

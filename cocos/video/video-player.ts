@@ -296,7 +296,7 @@ export class VideoPlayer extends Component {
      */
     @serializable
     @type([ComponentEventHandler])
-    @displayOrder(20)
+    @displayOrder(100)
     @tooltip('i18n:videoplayer.videoPlayerEvent')
     public videoPlayerEvent: ComponentEventHandler[] = [];
 

@@ -34,6 +34,7 @@ namespace gfx {
 class CC_DLL DeviceValidator final : public Agent<Device> {
 public:
     static DeviceValidator *getInstance();
+    static bool allowStacktraceJS;
 
     ~DeviceValidator() override;
 
@@ -43,7 +44,7 @@ public:
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
     using Device::createFramebuffer;
-    using Device::createGlobalBarrier;
+    using Device::createGeneralBarrier;
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
@@ -74,7 +75,7 @@ public:
     PipelineState *      createPipelineState() override;
 
     Sampler *       getSampler(const SamplerInfo &info) override;
-    GlobalBarrier * getGlobalBarrier(const GlobalBarrierInfo &info) override;
+    GeneralBarrier * getGeneralBarrier(const GeneralBarrierInfo &info) override;
     TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
@@ -89,7 +90,7 @@ public:
 
     inline void     enableRecording(bool recording) { _recording = recording; }
     inline bool     isRecording() const { return _recording; }
-    inline uint32_t currentFrame() const { return _currentFrame; }
+    inline uint64_t currentFrame() const { return _currentFrame; }
 
 protected:
     static DeviceValidator *instance;
@@ -104,7 +105,7 @@ protected:
     void bindContext(bool bound) override { _actor->bindContext(bound); }
 
     bool     _recording{false};
-    uint32_t _currentFrame{1U};
+    uint64_t _currentFrame{1U};
 };
 
 } // namespace gfx

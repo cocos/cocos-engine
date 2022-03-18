@@ -42,21 +42,14 @@ export class TextureBarrier extends GFXObject {
     protected _info: TextureBarrierInfo = new TextureBarrierInfo();
     protected _hash = 0;
 
-    constructor (info: TextureBarrierInfo, hash: number) {
+    constructor (info: Readonly<TextureBarrierInfo>, hash: number) {
         super(ObjectType.TEXTURE_BARRIER);
         this._info.copy(info);
         this._hash = hash;
     }
 
-    static computeHash (info: TextureBarrierInfo) {
-        let res = 'prev:';
-        for (let i = 0; i < info.prevAccesses.length; ++i) {
-            res += ` ${info.prevAccesses[i]}`;
-        }
-        res += 'next:';
-        for (let i = 0; i < info.nextAccesses.length; ++i) {
-            res += ` ${info.nextAccesses[i]}`;
-        }
+    static computeHash (info: Readonly<TextureBarrierInfo>) {
+        let res = `${info.prevAccesses} ${info.nextAccesses}`;
         res += info.discardContents;
         res += info.srcQueue ? info.srcQueue.type : 0;
         res += info.dstQueue ? info.dstQueue.type : 0;

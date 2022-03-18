@@ -41,7 +41,7 @@
 #include "GFXShader.h"
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
-#include "states/GFXGlobalBarrier.h"
+#include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
 #include "states/GFXTextureBarrier.h"
 
@@ -85,13 +85,14 @@ public:
     inline PipelineState *      createPipelineState(const PipelineStateInfo &info);
 
     virtual Sampler *       getSampler(const SamplerInfo &info);
-    virtual GlobalBarrier * getGlobalBarrier(const GlobalBarrierInfo &info);
+    virtual GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info);
     virtual TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info);
 
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) = 0;
     virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count)        = 0;
     virtual void getQueryPoolResults(QueryPool *queryPool)                                                                           = 0;
 
+    inline void copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions);
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
     inline void flushCommands(const vector<CommandBuffer *> &cmdBuffs);
     inline void acquire(const vector<Swapchain *> &swapchains);
@@ -145,7 +146,7 @@ protected:
     virtual PipelineState *      createPipelineState()                                             = 0;
 
     virtual Sampler *       createSampler(const SamplerInfo &info) { return CC_NEW(Sampler(info)); }
-    virtual GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info) { return CC_NEW(GlobalBarrier(info)); }
+    virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return CC_NEW(GeneralBarrier(info)); }
     virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) { return CC_NEW(TextureBarrier(info)); }
 
     // For context switching between threads
@@ -156,9 +157,10 @@ protected:
     String             _vendor;
     String             _version;
     API                _api{API::UNKNOWN};
-    bool               _multithreadedSubmission{true};
     DeviceCaps         _caps;
     BindingMappingInfo _bindingMappingInfo;
+
+    bool _multithreadedCommandRecording{true};
 
     std::array<bool, static_cast<size_t>(Feature::COUNT)>         _features;
     std::array<FormatFeature, static_cast<size_t>(Format::COUNT)> _formatFeatures;
@@ -174,7 +176,7 @@ protected:
     MemoryStatus _memoryStatus;
 
     unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>>                      _samplers;
-    unordered_map<GlobalBarrierInfo, GlobalBarrier *, Hasher<GlobalBarrierInfo>>    _globalBarriers;
+    unordered_map<GeneralBarrierInfo, GeneralBarrier *, Hasher<GeneralBarrierInfo>> _generalBarriers;
     unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
 
 private:
@@ -282,6 +284,10 @@ PipelineState *Device::createPipelineState(const PipelineStateInfo &info) {
 
 void Device::copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
     copyBuffersToTexture(buffers.data(), dst, regions.data(), utils::toUint(regions.size()));
+}
+
+void Device::copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions) {
+    copyTextureToBuffers(src, buffers.data(), regions.data(), utils::toUint(regions.size()));
 }
 
 void Device::flushCommands(const vector<CommandBuffer *> &cmdBuffs) {

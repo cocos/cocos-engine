@@ -41,6 +41,8 @@ public:
     inline void renounceOwnership() { _ownTheActor = false; }
     inline bool isInited() const { return _inited; }
 
+    const Texture *getRaw() const override { return _actor->getRaw(); }
+
 protected:
     friend class SwapchainValidator;
 
@@ -50,7 +52,7 @@ protected:
     void doDestroy() override;
     void doResize(uint32_t width, uint32_t height, uint32_t size) override;
 
-    uint32_t _lastUpdateFrame{0U};
+    uint64_t _lastUpdateFrame{0U};
     bool     _ownTheActor{true};
     bool     _inited{false};
 };

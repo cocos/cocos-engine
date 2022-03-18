@@ -148,11 +148,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 #endif
 
     // Determine the number of images
-    // for now we assume triple buffer is universal
-    uint32_t desiredNumberOfSwapchainImages = gpuDevice->backBufferCount;
-    CCASSERT(desiredNumberOfSwapchainImages <= surfaceCapabilities.maxImageCount &&
-                 desiredNumberOfSwapchainImages >= surfaceCapabilities.minImageCount,
-             "Swapchain image count assumption broken");
+    uint32_t desiredNumberOfSwapchainImages = std::max(gpuDevice->backBufferCount, surfaceCapabilities.minImageCount);
 
     VkExtent2D                    imageExtent  = {1U, 1U};
     VkSurfaceTransformFlagBitsKHR preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
@@ -300,10 +296,9 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
 
     uint32_t imageCount;
     VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
+    CCVKDevice::getInstance()->updateBackBufferCount(imageCount);
     _gpuSwapchain->swapchainImages.resize(imageCount);
     VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
-
-    CCASSERT(imageCount == _gpuSwapchain->createInfo.minImageCount, "swapchain image count assumption is broken");
 
     // should skip size check, since the old swapchain has already been destroyed
     static_cast<CCVKTexture *>(_colorTexture)->_info.width        = 1;
@@ -326,7 +321,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     auto *               depthStencilGPUTexture = static_cast<CCVKTexture *>(_depthStencilTexture)->gpuTexture();
     for (uint32_t i = 0U; i < imageCount; i++) {
         tempBarrier.nextAccessCount             = 1;
-        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::PRESENT)];
+        tempBarrier.pNextAccesses               = getAccessType(AccessFlagBit::PRESENT);
         tempBarrier.image                       = _gpuSwapchain->swapchainImages[i];
         tempBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[i]);
@@ -334,7 +329,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         dstStageMask |= tempDstStageMask;
 
         tempBarrier.nextAccessCount             = 1;
-        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE)];
+        tempBarrier.pNextAccesses               = getAccessType(AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE);
         tempBarrier.image                       = depthStencilGPUTexture->swapchainVkImages[i];
         tempBarrier.subresourceRange.aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
         thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[imageCount + i]);
@@ -343,7 +338,8 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     }
     CCVKDevice::getInstance()->gpuTransportHub()->checkIn(
         [&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
-            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, imageCount, barriers.data());
+            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr,
+                                 utils::toUint(barriers.size()), barriers.data());
         },
         true); // submit immediately
 

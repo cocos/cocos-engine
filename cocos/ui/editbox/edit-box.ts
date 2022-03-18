@@ -766,6 +766,8 @@ export class EditBox extends Component {
         if (backgroundNode) {
             backgroundNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
         }
+
+        this._syncSize();
     }
 }
 

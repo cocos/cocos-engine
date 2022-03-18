@@ -467,37 +467,6 @@ const VkPipelineBindPoint VK_PIPELINE_BIND_POINTS[] = {
     VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
 };
 
-const ThsvsAccessType THSVS_ACCESS_TYPES[] = {
-    THSVS_ACCESS_NONE,                                                       // NONE
-    THSVS_ACCESS_INDIRECT_BUFFER,                                            // INDIRECT_BUFFER
-    THSVS_ACCESS_INDEX_BUFFER,                                               // INDEX_BUFFER
-    THSVS_ACCESS_VERTEX_BUFFER,                                              // VERTEX_BUFFER
-    THSVS_ACCESS_VERTEX_SHADER_READ_UNIFORM_BUFFER,                          // VERTEX_SHADER_READ_UNIFORM_BUFFER
-    THSVS_ACCESS_VERTEX_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,   // VERTEX_SHADER_READ_TEXTURE
-    THSVS_ACCESS_VERTEX_SHADER_READ_OTHER,                                   // VERTEX_SHADER_READ_OTHER
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                        // FRAGMENT_SHADER_READ_UNIFORM_BUFFER
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER, // FRAGMENT_SHADER_READ_TEXTURE
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,                // FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT,        // FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT
-    THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER,                                 // FRAGMENT_SHADER_READ_OTHER
-    THSVS_ACCESS_COLOR_ATTACHMENT_READ,                                      // COLOR_ATTACHMENT_READ
-    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ,                              // DEPTH_STENCIL_ATTACHMENT_READ
-    THSVS_ACCESS_COMPUTE_SHADER_READ_UNIFORM_BUFFER,                         // COMPUTE_SHADER_READ_UNIFORM_BUFFER
-    THSVS_ACCESS_COMPUTE_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,  // COMPUTE_SHADER_READ_TEXTURE
-    THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER,                                  // COMPUTE_SHADER_READ_OTHER
-    THSVS_ACCESS_TRANSFER_READ,                                              // TRANSFER_READ
-    THSVS_ACCESS_HOST_READ,                                                  // HOST_READ
-    THSVS_ACCESS_PRESENT,                                                    // PRESENT
-    THSVS_ACCESS_VERTEX_SHADER_WRITE,                                        // VERTEX_SHADER_WRITE
-    THSVS_ACCESS_FRAGMENT_SHADER_WRITE,                                      // FRAGMENT_SHADER_WRITE
-    THSVS_ACCESS_COLOR_ATTACHMENT_WRITE,                                     // COLOR_ATTACHMENT_WRITE
-    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE,                             // DEPTH_STENCIL_ATTACHMENT_WRITE
-    THSVS_ACCESS_COMPUTE_SHADER_WRITE,                                       // COMPUTE_SHADER_WRITE
-    THSVS_ACCESS_TRANSFER_WRITE,                                             // TRANSFER_WRITE
-    THSVS_ACCESS_HOST_PREINITIALIZED,                                        // HOST_PREINITIALIZED
-    THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
-};
-
 const VkResolveModeFlagBits VK_RESOLVE_MODES[] = {
     VK_RESOLVE_MODE_NONE,
     VK_RESOLVE_MODE_SAMPLE_ZERO_BIT,
@@ -561,6 +530,47 @@ void fullPipelineBarrier(VkCommandBuffer cmdBuff) {
     vkCmdPipelineBarrier(cmdBuff, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                          0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 #endif
+}
+
+static constexpr ThsvsAccessType THSVS_ACCESS_TYPES[] = {
+    THSVS_ACCESS_NONE,                                                       // NONE
+    THSVS_ACCESS_INDIRECT_BUFFER,                                            // INDIRECT_BUFFER
+    THSVS_ACCESS_INDEX_BUFFER,                                               // INDEX_BUFFER
+    THSVS_ACCESS_VERTEX_BUFFER,                                              // VERTEX_BUFFER
+    THSVS_ACCESS_VERTEX_SHADER_READ_UNIFORM_BUFFER,                          // VERTEX_SHADER_READ_UNIFORM_BUFFER
+    THSVS_ACCESS_VERTEX_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,   // VERTEX_SHADER_READ_TEXTURE
+    THSVS_ACCESS_VERTEX_SHADER_READ_OTHER,                                   // VERTEX_SHADER_READ_OTHER
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                        // FRAGMENT_SHADER_READ_UNIFORM_BUFFER
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER, // FRAGMENT_SHADER_READ_TEXTURE
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,                // FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT,        // FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER,                                 // FRAGMENT_SHADER_READ_OTHER
+    THSVS_ACCESS_COLOR_ATTACHMENT_READ,                                      // COLOR_ATTACHMENT_READ
+    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ,                              // DEPTH_STENCIL_ATTACHMENT_READ
+    THSVS_ACCESS_COMPUTE_SHADER_READ_UNIFORM_BUFFER,                         // COMPUTE_SHADER_READ_UNIFORM_BUFFER
+    THSVS_ACCESS_COMPUTE_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,  // COMPUTE_SHADER_READ_TEXTURE
+    THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER,                                  // COMPUTE_SHADER_READ_OTHER
+    THSVS_ACCESS_TRANSFER_READ,                                              // TRANSFER_READ
+    THSVS_ACCESS_HOST_READ,                                                  // HOST_READ
+    THSVS_ACCESS_PRESENT,                                                    // PRESENT
+    THSVS_ACCESS_VERTEX_SHADER_WRITE,                                        // VERTEX_SHADER_WRITE
+    THSVS_ACCESS_FRAGMENT_SHADER_WRITE,                                      // FRAGMENT_SHADER_WRITE
+    THSVS_ACCESS_COLOR_ATTACHMENT_WRITE,                                     // COLOR_ATTACHMENT_WRITE
+    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE,                             // DEPTH_STENCIL_ATTACHMENT_WRITE
+    THSVS_ACCESS_COMPUTE_SHADER_WRITE,                                       // COMPUTE_SHADER_WRITE
+    THSVS_ACCESS_TRANSFER_WRITE,                                             // TRANSFER_WRITE
+    THSVS_ACCESS_HOST_PREINITIALIZED,                                        // HOST_PREINITIALIZED
+    THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
+};
+
+const ThsvsAccessType *getAccessType(AccessFlagBit flag) {
+    return &THSVS_ACCESS_TYPES[utils::getBitPosition(toNumber(flag))];
+}
+
+void getAccessTypes(AccessFlags flag, vector<ThsvsAccessType> &v) {
+    for (uint32_t mask = toNumber(flag); mask; mask = utils::clearLowestBit(mask)) {
+        v.push_back(THSVS_ACCESS_TYPES[utils::getBitPosition(utils::getLowestBit(mask))]);
+    }
 }
 
 VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple) {

@@ -27,8 +27,9 @@
  * @hidden
  */
 
-import { removeProperty } from '../utils/x-deprecated';
-import { Feature } from './base/define';
+import { removeProperty, replaceProperty } from '../utils/x-deprecated';
+import { Device } from './base/device';
+import { Feature, ColorAttachment, DepthStencilAttachment } from './base/define';
 
 // Deprecate format features in gfx Feature.
 removeProperty(Feature, 'Feature', [
@@ -103,5 +104,34 @@ removeProperty(Feature, 'Feature', [
         name: 'FORMAT_RGB8',
         suggest: 'Please use device.getFormatFeatures() instead, like: \n'
              + 'let isSupported = device.getFormatFeatures(Format.RGB8) !== FormatFeatureBit.NONE;',
+    },
+]);
+
+removeProperty(ColorAttachment.prototype, 'ColorAttachment', [
+    {
+        name: 'beginAccesses',
+        suggest: 'Please assign to ColorAttachment.barrier instead',
+    },
+    {
+        name: 'endAccesses',
+        suggest: 'Please assign to ColorAttachment.barrier instead',
+    },
+]);
+
+removeProperty(DepthStencilAttachment.prototype, 'DepthStencilAttachment', [
+    {
+        name: 'beginAccesses',
+        suggest: 'Please assign to DepthStencilAttachment.barrier instead',
+    },
+    {
+        name: 'endAccesses',
+        suggest: 'Please assign to DepthStencilAttachment.barrier instead',
+    },
+]);
+
+replaceProperty(Device.prototype, 'Device', [
+    {
+        name: 'getGlobalBarrier',
+        newName: 'getGeneralBarrier',
     },
 ]);

@@ -37,8 +37,8 @@ import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { Format, StoreOp,
     ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
-    RenderPassInfo, Texture, AccessType, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain } from '../../gfx';
+    RenderPassInfo, Texture, AccessFlagBit, Framebuffer,
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
@@ -190,7 +190,10 @@ export class DeferredPipeline extends RenderPipeline {
             colorAttachment.format = Format.RGBA8;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
-            colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+            colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                AccessFlagBit.NONE,
+                AccessFlagBit.COLOR_ATTACHMENT_WRITE,
+            ));
 
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = Format.DEPTH_STENCIL;
@@ -198,8 +201,10 @@ export class DeferredPipeline extends RenderPipeline {
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
             depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-            depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
-            depthStencilAttachment.endAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
+            colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
+                AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+                AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE,
+            ));
 
             const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
             this._lightingRenderPass = device.createRenderPass(renderPassInfo);

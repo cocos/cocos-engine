@@ -190,8 +190,8 @@ void GbufferStage::render(scene::Camera *camera) {
         colorInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorInfo.loadOp        = gfx::LoadOp::CLEAR;
         colorInfo.clearColor    = clearColor;
-        colorInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT};
-        colorInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT};
+        colorInfo.beginAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
+        colorInfo.endAccesses   = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
         for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
             data.gbuffer[i] = builder.write(data.gbuffer[i], colorInfo);
             builder.writeToBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i], data.gbuffer[i]);
@@ -212,7 +212,7 @@ void GbufferStage::render(scene::Camera *camera) {
         depthInfo.loadOp       = gfx::LoadOp::CLEAR;
         depthInfo.clearDepth   = camera->clearDepth;
         depthInfo.clearStencil = camera->clearStencil;
-        depthInfo.endAccesses  = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+        depthInfo.endAccesses  = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
         data.depth             = builder.write(data.depth, depthInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 

@@ -26,7 +26,7 @@
 // @ts-expect-error jsb polyfills
 (function () {
     if (!window.middleware) return;
-
+    const middleware = window.middleware;
     const middlewareMgr = middleware.MiddlewareManager.getInstance();
     let reference = 0;
     const director = cc.director;
@@ -80,30 +80,22 @@
         const bufferCount = middlewareMgr.getBufferCount(nativeFormat);
         for (let i = 0; i < bufferCount; i++) {
             const ibBytesLength = middlewareMgr.getIBTypedArrayLength(nativeFormat, i);
-            const srcVertexCount = 65535;
+            const vbBytesLength = middlewareMgr.getVBTypedArrayLength(nativeFormat, i);
             const srcIndicesCount = ibBytesLength / 2; // USHORT
-            const srcVertexFloatCount = srcVertexCount * nativeFormat;
+            const srcVertexCount = vbBytesLength  / nativeFormat / 4;
 
             let buffer = renderInfoLookup[nativeFormat][i];
             if (!buffer)  {
                 buffer = cc.UI.MeshRenderData.add(jsFormat);
             }
-            buffer.reset();
-            buffer.request(srcVertexCount, srcIndicesCount);
-
-            const vBuf = buffer.vData;
-            const iBuf = buffer.iData;
 
             const srcVBuf = middlewareMgr.getVBTypedArray(nativeFormat, i);
             const srcIBuf = middlewareMgr.getIBTypedArray(nativeFormat, i);
 
-            vBuf.set(srcVBuf.subarray(0, srcVertexFloatCount), 0);
-            iBuf.set(srcIBuf.subarray(0, srcIndicesCount), 0);
+            buffer.vData = srcVBuf;
+            buffer.iData = srcIBuf;
+            buffer.resize(srcVertexCount, srcIndicesCount);
 
-            // forbid js upload data, call by middleware
-            // buffer.uploadBuffers();
-
-            // forbid auto merge, because of it's meaningless
             renderInfoLookup[nativeFormat][i] = buffer;
         }
     }
@@ -148,7 +140,7 @@
             if (!classProto) continue;
             for (const getName in classProto) {
                 const getPos = getName.search(/^get/);
-                if (getPos == -1) continue;
+                if (getPos === -1) continue;
                 let propName = getName.replace(/^get/, '');
                 const nameArr = propName.split('');
                 const lowerFirst = nameArr[0].toLowerCase();
@@ -157,6 +149,7 @@
                 const left = nameArr.join('');
                 propName = lowerFirst + left;
                 const setName = `set${upperFirst}${left}`;
+                // eslint-disable-next-line no-prototype-builtins
                 if (classProto.hasOwnProperty(propName)) continue;
                 const setFunc = classProto[setName];
                 const hasSetFunc = typeof setFunc === 'function';

@@ -24,7 +24,7 @@ for (let i = 2; i < argc; i++) {
     }
 }
 
-const defaultEngineRoot = ps.join(__dirname, '../../../engine');
+const defaultEngineRoot = ps.join(__dirname, '../../..');
 const cacheFile = ps.join(__dirname, 'engine_root_cache.txt');
 if (options.engineRoot) {
     if (options.engineRoot === 'default') { options.engineRoot = defaultEngineRoot; }

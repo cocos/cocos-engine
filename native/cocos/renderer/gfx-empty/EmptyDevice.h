@@ -42,7 +42,7 @@ public:
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
     using Device::createFramebuffer;
-    using Device::createGlobalBarrier;
+    using Device::createGeneralBarrier;
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;

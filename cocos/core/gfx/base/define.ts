@@ -28,13 +28,15 @@
  * @module gfx
  */
 
-import { Buffer } from './buffer';
-import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Queue } from './queue';
-import { RenderPass } from './render-pass';
-import { Sampler } from './states/sampler';
-import { Swapchain } from './swapchain';
+import { Buffer } from './buffer';
 import { Texture } from './texture';
+import { Swapchain } from './swapchain';
+import { RenderPass } from './render-pass';
+import { DescriptorSetLayout } from './descriptor-set-layout';
+
+import { Sampler } from './states/sampler';
+import { GeneralBarrier } from './states/general-barrier';
 
 interface ICopyable { copy(info: ICopyable): ICopyable; }
 
@@ -522,49 +524,49 @@ export enum ShaderStageFlagBit {
 }
 
 export enum LoadOp {
-    LOAD,    // Load the contents from the fbo from previous
-    CLEAR,   // Clear the fbo
-    DISCARD, // Ignore writing to the fbo and keep old data
+    LOAD,    // Load the previous content from memory
+    CLEAR,   // Clear the content to a fixed value
+    DISCARD, // Discard the previous content
 }
 
 export enum StoreOp {
-    STORE,   // Write the source to the destination
-    DISCARD, // Don't write the source to the destination
+    STORE,   // Store the pending content to memory
+    DISCARD, // Discard the pending content
 }
 
-export enum AccessType {
-    NONE,
+export enum AccessFlagBit {
+    NONE = 0,
 
-    // Read access
-    INDIRECT_BUFFER,                                     // Read as an indirect buffer for drawing or dispatch
-    INDEX_BUFFER,                                        // Read as an index buffer for drawing
-    VERTEX_BUFFER,                                       // Read as a vertex buffer for drawing
-    VERTEX_SHADER_READ_UNIFORM_BUFFER,                   // Read as a uniform buffer in a vertex shader
-    VERTEX_SHADER_READ_TEXTURE,                          // Read as a sampled image/uniform texel buffer in a vertex shader
-    VERTEX_SHADER_READ_OTHER,                            // Read as any other resource in a vertex shader
-    FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                 // Read as a uniform buffer in a fragment shader
-    FRAGMENT_SHADER_READ_TEXTURE,                        // Read as a sampled image/uniform texel buffer in a fragment shader
-    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,         // Read as an input attachment with a color format in a fragment shader
-    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT, // Read as an input attachment with a depth/stencil format in a fragment shader
-    FRAGMENT_SHADER_READ_OTHER,                          // Read as any other resource in a fragment shader
-    COLOR_ATTACHMENT_READ,                               // Read by standard blending/logic operations or subpass load operations
-    DEPTH_STENCIL_ATTACHMENT_READ,                       // Read by depth/stencil tests or subpass load operations
-    COMPUTE_SHADER_READ_UNIFORM_BUFFER,                  // Read as a uniform buffer in a compute shader
-    COMPUTE_SHADER_READ_TEXTURE,                         // Read as a sampled image/uniform texel buffer in a compute shader
-    COMPUTE_SHADER_READ_OTHER,                           // Read as any other resource in a compute shader
-    TRANSFER_READ,                                       // Read as the source of a transfer operation
-    HOST_READ,                                           // Read on the host
-    PRESENT,                                             // Read by the presentation engine
+    // Read accesses
+    INDIRECT_BUFFER                                     = 1 << 0,  // Read as an indirect buffer for drawing or dispatch
+    INDEX_BUFFER                                        = 1 << 1,  // Read as an index buffer for drawing
+    VERTEX_BUFFER                                       = 1 << 2,  // Read as a vertex buffer for drawing
+    VERTEX_SHADER_READ_UNIFORM_BUFFER                   = 1 << 3,  // Read as a uniform buffer in a vertex shader
+    VERTEX_SHADER_READ_TEXTURE                          = 1 << 4,  // Read as a sampled image/uniform texel buffer in a vertex shader
+    VERTEX_SHADER_READ_OTHER                            = 1 << 5,  // Read as any other resource in a vertex shader
+    FRAGMENT_SHADER_READ_UNIFORM_BUFFER                 = 1 << 6,  // Read as a uniform buffer in a fragment shader
+    FRAGMENT_SHADER_READ_TEXTURE                        = 1 << 7,  // Read as a sampled image/uniform texel buffer in a fragment shader
+    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT         = 1 << 8,  // Read as an input attachment with a color format in a fragment shader
+    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT = 1 << 9,  // Read as an input attachment with a depth/stencil format in a fragment shader
+    FRAGMENT_SHADER_READ_OTHER                          = 1 << 10, // Read as any other resource in a fragment shader
+    COLOR_ATTACHMENT_READ                               = 1 << 11, // Read by standard blending/logic operations or subpass load operations
+    DEPTH_STENCIL_ATTACHMENT_READ                       = 1 << 12, // Read by depth/stencil tests or subpass load operations
+    COMPUTE_SHADER_READ_UNIFORM_BUFFER                  = 1 << 13, // Read as a uniform buffer in a compute shader
+    COMPUTE_SHADER_READ_TEXTURE                         = 1 << 14, // Read as a sampled image/uniform texel buffer in a compute shader
+    COMPUTE_SHADER_READ_OTHER                           = 1 << 15, // Read as any other resource in a compute shader
+    TRANSFER_READ                                       = 1 << 16, // Read as the source of a transfer operation
+    HOST_READ                                           = 1 << 17, // Read on the host
+    PRESENT                                             = 1 << 18, // Read by the presentation engine
 
-    // Write access
-    VERTEX_SHADER_WRITE,            // Written as any resource in a vertex shader
-    FRAGMENT_SHADER_WRITE,          // Written as any resource in a fragment shader
-    COLOR_ATTACHMENT_WRITE,         // Written as a color attachment during rendering, or via a subpass store op
-    DEPTH_STENCIL_ATTACHMENT_WRITE, // Written as a depth/stencil attachment during rendering, or via a subpass store op
-    COMPUTE_SHADER_WRITE,           // Written as any resource in a compute shader
-    TRANSFER_WRITE,                 // Written as the destination of a transfer operation
-    HOST_PREINITIALIZED,            // Data pre-filled by host before device access starts
-    HOST_WRITE,                     // Written on the host
+    // Write accesses
+    VERTEX_SHADER_WRITE            = 1 << 19, // Written as any resource in a vertex shader
+    FRAGMENT_SHADER_WRITE          = 1 << 20, // Written as any resource in a fragment shader
+    COLOR_ATTACHMENT_WRITE         = 1 << 21, // Written as a color attachment during rendering, or via a subpass store op
+    DEPTH_STENCIL_ATTACHMENT_WRITE = 1 << 22, // Written as a depth/stencil attachment during rendering, or via a subpass store op
+    COMPUTE_SHADER_WRITE           = 1 << 23, // Written as any resource in a compute shader
+    TRANSFER_WRITE                 = 1 << 24, // Written as the destination of a transfer operation
+    HOST_PREINITIALIZED            = 1 << 25, // Data pre-filled by host before device access starts
+    HOST_WRITE                     = 1 << 26, // Written on the host
 }
 
 export enum ResolveMode {
@@ -679,6 +681,7 @@ export type TextureUsage = TextureUsageBit;
 export type TextureFlags = TextureFlagBit;
 export type FormatFeature = FormatFeatureBit;
 export type ShaderStageFlags = ShaderStageFlagBit;
+export type AccessFlags = AccessFlagBit;
 export type DynamicStateFlags = DynamicStateFlagBit;
 export type ClearFlags = ClearFlagBit;
 
@@ -1464,8 +1467,7 @@ export class ColorAttachment {
         public sampleCount: SampleCount = SampleCount.ONE,
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
-        public beginAccesses: AccessType[] = [],
-        public endAccesses: AccessType[] = [AccessType.COLOR_ATTACHMENT_WRITE],
+        public barrier: GeneralBarrier = null!,
         public isGeneralLayout: boolean = false,
     ) {}
 
@@ -1474,8 +1476,7 @@ export class ColorAttachment {
         this.sampleCount = info.sampleCount;
         this.loadOp = info.loadOp;
         this.storeOp = info.storeOp;
-        this.beginAccesses = info.beginAccesses.slice();
-        this.endAccesses = info.endAccesses.slice();
+        this.barrier = info.barrier;
         this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
@@ -1491,8 +1492,7 @@ export class DepthStencilAttachment {
         public depthStoreOp: StoreOp = StoreOp.STORE,
         public stencilLoadOp: LoadOp = LoadOp.CLEAR,
         public stencilStoreOp: StoreOp = StoreOp.STORE,
-        public beginAccesses: AccessType[] = [],
-        public endAccesses: AccessType[] = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE],
+        public barrier: GeneralBarrier = null!,
         public isGeneralLayout: boolean = false,
     ) {}
 
@@ -1503,8 +1503,7 @@ export class DepthStencilAttachment {
         this.depthStoreOp = info.depthStoreOp;
         this.stencilLoadOp = info.stencilLoadOp;
         this.stencilStoreOp = info.stencilStoreOp;
-        this.beginAccesses = info.beginAccesses.slice();
-        this.endAccesses = info.endAccesses.slice();
+        this.barrier = info.barrier;
         this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
@@ -1543,15 +1542,13 @@ export class SubpassDependency {
     constructor (
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
-        public srcAccesses: AccessType[] = [],
-        public dstAccesses: AccessType[] = [],
+        public barrier: GeneralBarrier = null!,
     ) {}
 
     public copy (info: Readonly<SubpassDependency>) {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
-        this.srcAccesses = info.srcAccesses.slice();
-        this.dstAccesses = info.dstAccesses.slice();
+        this.barrier = info.barrier;
         return this;
     }
 }
@@ -1575,17 +1572,17 @@ export class RenderPassInfo {
     }
 }
 
-export class GlobalBarrierInfo {
+export class GeneralBarrierInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public prevAccesses: AccessType[] = [],
-        public nextAccesses: AccessType[] = [],
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
     ) {}
 
-    public copy (info: Readonly<GlobalBarrierInfo>) {
-        this.prevAccesses = info.prevAccesses.slice();
-        this.nextAccesses = info.nextAccesses.slice();
+    public copy (info: Readonly<GeneralBarrierInfo>) {
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
         return this;
     }
 }
@@ -1594,16 +1591,16 @@ export class TextureBarrierInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public prevAccesses: AccessType[] = [],
-        public nextAccesses: AccessType[] = [],
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
         public discardContents: boolean = false,
         public srcQueue: Queue | null = null,
         public dstQueue: Queue | null = null,
     ) {}
 
     public copy (info: Readonly<TextureBarrierInfo>) {
-        this.prevAccesses = info.prevAccesses.slice();
-        this.nextAccesses = info.nextAccesses.slice();
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
         this.discardContents = info.discardContents;
         this.srcQueue = info.srcQueue;
         this.dstQueue = info.dstQueue;

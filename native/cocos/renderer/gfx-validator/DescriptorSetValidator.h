@@ -42,11 +42,15 @@ public:
     void bindTexture(uint32_t binding, Texture *texture, uint32_t index) override;
     void bindSampler(uint32_t binding, Sampler *sampler, uint32_t index) override;
 
+    void updateReferenceStamp();
+
     inline bool isInited() const { return _inited; }
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;
     void doDestroy() override;
+
+    uint64_t _referenceStamp{0U};
 
     bool _inited{false};
 };

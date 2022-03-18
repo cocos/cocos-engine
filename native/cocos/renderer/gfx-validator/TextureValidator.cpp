@@ -31,7 +31,6 @@
 #include "ValidationUtils.h"
 #include "gfx-base/GFXDef-common.h"
 
-
 namespace cc {
 namespace gfx {
 
@@ -81,7 +80,8 @@ void TextureValidator::doInit(const TextureInfo &info) {
 
 void TextureValidator::doInit(const TextureViewInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
-    _inited = true;
+    _inited        = true;
+    _isTextureView = true;
     CCASSERT(info.texture && static_cast<TextureValidator *>(info.texture)->isInited(), "alread destroyed?");
 
     /////////// execute ///////////
@@ -123,7 +123,7 @@ void TextureValidator::doResize(uint32_t width, uint32_t height, uint32_t /*size
 void TextureValidator::sanityCheck() {
     CCASSERT(isInited(), "alread destroyed?");
 
-    uint32_t cur = DeviceValidator::getInstance()->currentFrame();
+    uint64_t cur = DeviceValidator::getInstance()->currentFrame();
 
     // FIXME: minggo: as current implementation need to update some textures more than once, so disable it.
     // Should enable it when it is fixed.

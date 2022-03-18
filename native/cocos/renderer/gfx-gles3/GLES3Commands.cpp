@@ -30,6 +30,7 @@
 #include "GLES3QueryPool.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-gles-common/GLESCommandPool.h"
+#include "gfx-gles3/GLES3GPUObjects.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
@@ -979,20 +980,21 @@ void cmdFuncGLES3PrepareSamplerInfo(GLES3Device * /*device*/, GLES3GPUSampler *g
     gpuSampler->glWrapR = GLES3_WRAPS[toNumber(gpuSampler->addressW)];
 }
 
-GLuint GLES3GPUSamplerRegistry::getGLSampler(GLES3GPUSampler *gpuSampler) {
-    if (!_cache.count(gpuSampler)) {
+GLuint GLES3GPUSampler::getGLSampler(uint16_t minLod, uint16_t maxLod) {
+    uint32_t hash = (minLod << 16) + maxLod;
+    if (!_cache.count(hash)) {
         GLuint glSampler{0U};
         GL_CHECK(glGenSamplers(1, &glSampler));
-        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_MIN_FILTER, gpuSampler->glMinFilter));
-        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_MAG_FILTER, gpuSampler->glMagFilter));
-        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_S, gpuSampler->glWrapS));
-        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_T, gpuSampler->glWrapT));
-        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_R, gpuSampler->glWrapR));
-        GL_CHECK(glSamplerParameterf(glSampler, GL_TEXTURE_MIN_LOD, 0.F));
-        GL_CHECK(glSamplerParameterf(glSampler, GL_TEXTURE_MAX_LOD, 1000.F));
-        _cache[gpuSampler] = glSampler;
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_MIN_FILTER, glMinFilter));
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_MAG_FILTER, glMagFilter));
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_S, glWrapS));
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_T, glWrapT));
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_R, glWrapR));
+        GL_CHECK(glSamplerParameterf(glSampler, GL_TEXTURE_MIN_LOD, static_cast<GLfloat>(minLod)));
+        GL_CHECK(glSamplerParameterf(glSampler, GL_TEXTURE_MAX_LOD, static_cast<GLfloat>(maxLod)));
+        _cache[hash] = glSampler;
     }
-    return _cache[gpuSampler];
+    return _cache[hash];
 }
 
 // NOLINTNEXTLINE(google-readability-function-size, readability-function-size)
@@ -1435,12 +1437,12 @@ void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembl
     gpuInputAssembler->glVAOs.clear();
 }
 
-static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *                    device,
-                                                                  const vector<GLES3GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
-                                                                  const GLES3GPUTexture *depthStencil,
-                                                                  const uint32_t *       resolves            = nullptr,
-                                                                  const GLES3GPUTexture *depthStencilResolve = nullptr,
-                                                                  GLbitfield *           resolveMask         = nullptr) {
+static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *                        device,
+                                                                  const vector<GLES3GPUTextureView *> &attachments, const uint32_t *colors, size_t colorCount,
+                                                                  const GLES3GPUTextureView *depthStencilView,
+                                                                  const uint32_t *           resolves                = nullptr,
+                                                                  const GLES3GPUTextureView *depthStencilResolveView = nullptr,
+                                                                  GLbitfield *               resolveMask             = nullptr) {
     static vector<GLenum>                  drawBuffers;
     GLES3GPUStateCache *                   cache = device->stateCache();
     GLES3GPUFramebuffer::GLFramebufferInfo res;
@@ -1457,22 +1459,25 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device * 
     bool autoResolve  = supportLevel > MSRTSupportLevel::LEVEL1 || (supportLevel != MSRTSupportLevel::NONE && colorCount <= 1);
 
     for (size_t j = 0; j < colorCount; ++j) {
-        GLES3GPUTexture *gpuColorTexture   = attachments[colors[j]];
-        GLES3GPUTexture *gpuResolveTexture = resolves ? attachments[resolves[j]] : nullptr;
+        GLES3GPUTextureView *gpuColorTextureView   = attachments[colors[j]];
+        GLES3GPUTextureView *gpuResolveTextureView = resolves ? attachments[resolves[j]] : nullptr;
+        GLES3GPUTexture *    gpuColorTexture       = gpuColorTextureView->gpuTexture;
+        GLES3GPUTexture *    gpuResolveTexture     = resolves ? gpuResolveTextureView->gpuTexture : nullptr;
+
         drawBuffers.push_back(static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j));
 
         if (gpuResolveTexture) {
             if (autoResolve) {
                 GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                                              gpuResolveTexture->glTarget, gpuResolveTexture->glTexture, 0,
-                                                              gpuColorTexture->glSamples));
+                                                              gpuResolveTexture->glTarget, gpuResolveTexture->glTexture,
+                                                              gpuResolveTextureView->baseLevel, gpuColorTexture->glSamples));
                 continue;
             }
             *resolveMask |= GL_COLOR_BUFFER_BIT; // fallback to blit-based manual resolve
         }
         if (gpuColorTexture->glTexture) {
             GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                            gpuColorTexture->glTarget, gpuColorTexture->glTexture, 0));
+                                            gpuColorTexture->glTarget, gpuColorTexture->glTexture, gpuColorTextureView->baseLevel));
         } else {
             GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
                                                gpuColorTexture->glTarget, gpuColorTexture->glRenderbuffer));
@@ -1480,24 +1485,27 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device * 
         res.width  = std::min(res.width, gpuColorTexture->width);
         res.height = std::min(res.height, gpuColorTexture->height);
     }
+
+    GLES3GPUTexture *depthStencil        = depthStencilView ? depthStencilView->gpuTexture : nullptr;
+    GLES3GPUTexture *depthStencilResolve = depthStencilResolveView ? depthStencilResolveView->gpuTexture : nullptr;
     if (depthStencil) {
         bool   hasStencil   = GFX_FORMAT_INFOS[static_cast<int>(depthStencil->format)].hasStencil;
         GLenum glAttachment = hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
         if (depthStencil->glTexture) {
-            GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, glAttachment, depthStencil->glTarget, depthStencil->glTexture, 0));
+            GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, glAttachment, depthStencil->glTarget, depthStencil->glTexture, depthStencilView->baseLevel));
         } else if (depthStencil->glRenderbuffer) {
             GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, glAttachment, depthStencil->glTarget, depthStencil->glRenderbuffer));
         }
 
         // fallback to blit-based manual resolve
         if (depthStencilResolve) *resolveMask |= hasStencil ? GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT;
-        res.width  = std::min(res.width, depthStencil->width);
-        res.height = std::min(res.height, depthStencil->height);
+        res.width  = std::min(res.width, depthStencil->width >> depthStencilView->baseLevel);
+        res.height = std::min(res.height, depthStencil->height >> depthStencilView->baseLevel);
     }
 
     // register to framebuffer caches
-    if (colorCount == 1) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, attachments[colors[0]], 0);
-    if (depthStencil) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, depthStencil, 0);
+    if (colorCount == 1) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, attachments[colors[0]]->gpuTexture, 0);
+    if (depthStencil) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, depthStencilView->gpuTexture, 0);
 
     GL_CHECK(glDrawBuffers(utils::toUint(drawBuffers.size()), drawBuffers.data()));
 
@@ -1529,12 +1537,12 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device * 
     return res;
 }
 
-static GLES3GPUSwapchain *getSwapchainIfExists(const vector<GLES3GPUTexture *> &textures, const uint32_t *indices, size_t count) {
+static GLES3GPUSwapchain *getSwapchainIfExists(const vector<GLES3GPUTextureView *> &textureViews, const uint32_t *indices, size_t count) {
     GLES3GPUSwapchain *swapchain{nullptr};
     if (indices) {
         size_t offscreenCount{0};
         for (size_t i = 0; i < count; ++i) {
-            auto *colorTexture = textures[indices[i]];
+            auto *colorTexture = textureViews[indices[i]]->gpuTexture;
             if (colorTexture->swapchain) {
                 swapchain = colorTexture->swapchain;
             } else {
@@ -1549,28 +1557,28 @@ static GLES3GPUSwapchain *getSwapchainIfExists(const vector<GLES3GPUTexture *> &
 static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO, const vector<uint32_t> &colors,
                                         uint32_t depthStencil, GLES3GPUFramebuffer::Framebuffer *outFBO,
                                         const uint32_t *resolves = nullptr, uint32_t depthStencilResolve = INVALID_BINDING) {
-    GLES3GPUSwapchain *swapchain{getSwapchainIfExists(gpuFBO->gpuColorTextures, colors.data(), colors.size())};
+    GLES3GPUSwapchain *swapchain{getSwapchainIfExists(gpuFBO->gpuColorViews, colors.data(), colors.size())};
     if (!swapchain) {
-        const GLES3GPUTexture *depthStencilTexture = nullptr;
+        const GLES3GPUTextureView *depthStencilTextureView = nullptr;
         if (depthStencil != INVALID_BINDING) {
-            depthStencilTexture = depthStencil < gpuFBO->gpuColorTextures.size()
-                                      ? gpuFBO->gpuColorTextures[depthStencil]
-                                      : gpuFBO->gpuDepthStencilTexture;
+            depthStencilTextureView = depthStencil < gpuFBO->gpuColorViews.size()
+                                          ? gpuFBO->gpuColorViews[depthStencil]
+                                          : gpuFBO->gpuDepthStencilView;
         }
-        const GLES3GPUTexture *depthStencilResolveTexture = nullptr;
+        const GLES3GPUTextureView *depthStencilResolveTextureView = nullptr;
         if (depthStencilResolve != INVALID_BINDING) {
-            depthStencilResolveTexture = depthStencilResolve < gpuFBO->gpuColorTextures.size()
-                                             ? gpuFBO->gpuColorTextures[depthStencilResolve]
-                                             : gpuFBO->gpuDepthStencilTexture;
+            depthStencilResolveTextureView = depthStencilResolve < gpuFBO->gpuColorViews.size()
+                                                 ? gpuFBO->gpuColorViews[depthStencilResolve]
+                                                 : gpuFBO->gpuDepthStencilView;
         }
 
-        outFBO->framebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorTextures, colors.data(), utils::toUint(colors.size()),
-                                                           depthStencilTexture, resolves, depthStencilResolveTexture, &outFBO->resolveMask));
+        outFBO->framebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorViews, colors.data(), utils::toUint(colors.size()),
+                                                           depthStencilTextureView, resolves, depthStencilResolveTextureView, &outFBO->resolveMask));
         if (outFBO->resolveMask) {
             size_t             resolveCount = outFBO->resolveMask & GL_COLOR_BUFFER_BIT ? utils::toUint(colors.size()) : 0U;
-            GLES3GPUSwapchain *resolveSwapchain{getSwapchainIfExists(gpuFBO->gpuColorTextures, resolves, resolveCount)};
+            GLES3GPUSwapchain *resolveSwapchain{getSwapchainIfExists(gpuFBO->gpuColorViews, resolves, resolveCount)};
             if (!resolveSwapchain) {
-                outFBO->resolveFramebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorTextures, resolves, resolveCount, depthStencilResolveTexture));
+                outFBO->resolveFramebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorViews, resolves, resolveCount, depthStencilResolveTextureView));
             } else {
                 outFBO->resolveFramebuffer.initialize(resolveSwapchain);
             }
@@ -1596,10 +1604,10 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
 
         gpuFBO->uberColorAttachmentIndices.clear();
         bool hasDepth{gpuFBO->gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN};
-        gpuFBO->uberDepthStencil = hasDepth ? utils::toUint(gpuFBO->gpuColorTextures.size()) : INVALID_BINDING;
-        for (uint32_t i = 0U; i < gpuFBO->gpuColorTextures.size(); ++i) {
+        gpuFBO->uberDepthStencil = hasDepth ? utils::toUint(gpuFBO->gpuColorViews.size()) : INVALID_BINDING;
+        for (uint32_t i = 0U; i < gpuFBO->gpuColorViews.size(); ++i) {
             if (i == gpuFBO->uberFinalOutput) continue;
-            const auto *gpuTexture = gpuFBO->gpuColorTextures[i];
+            const auto *gpuTexture = gpuFBO->gpuColorViews[i];
             if (GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].hasDepth) {
                 gpuFBO->uberDepthStencil = i;
                 continue;
@@ -1645,15 +1653,15 @@ void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gp
     gpuFBO->uberInstance.resolveFramebuffer.destroy(cache, framebufferCacheMap);
 }
 
-void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses, const std::vector<AccessType> &nextAccesses, GLES3GPUGlobalBarrier *barrier) {
+void cmdFuncGLES3CreateGeneralBarrier(GLES3Device * /*device*/, GLES3GPUGeneralBarrier *barrier) {
     bool hasShaderWrites = false;
-    for (auto prevAccesse : prevAccesses) {
-        switch (prevAccesse) {
-            case AccessType::COMPUTE_SHADER_WRITE:
-            case AccessType::VERTEX_SHADER_WRITE:
-            case AccessType::FRAGMENT_SHADER_WRITE:
-            case AccessType::COLOR_ATTACHMENT_WRITE:
-            case AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE:
+    for (uint32_t mask = toNumber(barrier->prevAccesses); mask; mask = utils::clearLowestBit(mask)) {
+        switch (static_cast<AccessFlagBit>(utils::getLowestBit(mask))) {
+            case AccessFlagBit::COMPUTE_SHADER_WRITE:
+            case AccessFlagBit::VERTEX_SHADER_WRITE:
+            case AccessFlagBit::FRAGMENT_SHADER_WRITE:
+            case AccessFlagBit::COLOR_ATTACHMENT_WRITE:
+            case AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE:
                 hasShaderWrites = true;
                 break;
             default:
@@ -1662,64 +1670,64 @@ void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses
     }
 
     if (hasShaderWrites) {
-        for (auto nextAccesse : nextAccesses) {
-            switch (nextAccesse) {
-                case AccessType::INDIRECT_BUFFER:
+        for (uint32_t mask = toNumber(barrier->nextAccesses); mask; mask = utils::clearLowestBit(mask)) {
+            switch (static_cast<AccessFlagBit>(utils::getLowestBit(mask))) {
+                case AccessFlagBit::INDIRECT_BUFFER:
                     barrier->glBarriers |= GL_COMMAND_BARRIER_BIT;
                     break;
-                case AccessType::INDEX_BUFFER:
+                case AccessFlagBit::INDEX_BUFFER:
                     barrier->glBarriers |= GL_ELEMENT_ARRAY_BARRIER_BIT;
                     break;
-                case AccessType::VERTEX_BUFFER:
+                case AccessFlagBit::VERTEX_BUFFER:
                     barrier->glBarriers |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
                     break;
-                case AccessType::COMPUTE_SHADER_READ_UNIFORM_BUFFER:
-                case AccessType::VERTEX_SHADER_READ_UNIFORM_BUFFER:
-                case AccessType::FRAGMENT_SHADER_READ_UNIFORM_BUFFER:
+                case AccessFlagBit::COMPUTE_SHADER_READ_UNIFORM_BUFFER:
+                case AccessFlagBit::VERTEX_SHADER_READ_UNIFORM_BUFFER:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_UNIFORM_BUFFER:
                     barrier->glBarriersByRegion |= GL_UNIFORM_BARRIER_BIT;
                     break;
-                case AccessType::COMPUTE_SHADER_READ_TEXTURE:
-                case AccessType::VERTEX_SHADER_READ_TEXTURE:
-                case AccessType::FRAGMENT_SHADER_READ_TEXTURE:
-                case AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT:
-                case AccessType::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT:
+                case AccessFlagBit::COMPUTE_SHADER_READ_TEXTURE:
+                case AccessFlagBit::VERTEX_SHADER_READ_TEXTURE:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT:
                     barrier->glBarriersByRegion |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
                     barrier->glBarriersByRegion |= GL_TEXTURE_FETCH_BARRIER_BIT;
                     break;
-                case AccessType::COMPUTE_SHADER_READ_OTHER:
-                case AccessType::VERTEX_SHADER_READ_OTHER:
-                case AccessType::FRAGMENT_SHADER_READ_OTHER:
+                case AccessFlagBit::COMPUTE_SHADER_READ_OTHER:
+                case AccessFlagBit::VERTEX_SHADER_READ_OTHER:
+                case AccessFlagBit::FRAGMENT_SHADER_READ_OTHER:
                     barrier->glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
                     break;
-                case AccessType::COLOR_ATTACHMENT_READ:
-                case AccessType::DEPTH_STENCIL_ATTACHMENT_READ:
+                case AccessFlagBit::COLOR_ATTACHMENT_READ:
+                case AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_READ:
                     barrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     break;
-                case AccessType::TRANSFER_READ:
+                case AccessFlagBit::TRANSFER_READ:
                     barrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     barrier->glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
                     barrier->glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
                     barrier->glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
                     break;
-                case AccessType::COMPUTE_SHADER_WRITE:
-                case AccessType::VERTEX_SHADER_WRITE:
-                case AccessType::FRAGMENT_SHADER_WRITE:
+                case AccessFlagBit::COMPUTE_SHADER_WRITE:
+                case AccessFlagBit::VERTEX_SHADER_WRITE:
+                case AccessFlagBit::FRAGMENT_SHADER_WRITE:
                     barrier->glBarriersByRegion |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
                     barrier->glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
                     break;
-                case AccessType::COLOR_ATTACHMENT_WRITE:
-                case AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE:
+                case AccessFlagBit::COLOR_ATTACHMENT_WRITE:
+                case AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE:
                     barrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     break;
-                case AccessType::TRANSFER_WRITE:
+                case AccessFlagBit::TRANSFER_WRITE:
                     barrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     barrier->glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
                     barrier->glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
                     barrier->glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
                     break;
-                case AccessType::HOST_PREINITIALIZED:
-                case AccessType::HOST_WRITE:
-                case AccessType::PRESENT:
+                case AccessFlagBit::HOST_PREINITIALIZED:
+                case AccessFlagBit::HOST_WRITE:
+                case AccessFlagBit::PRESENT:
                 default:
                     break;
             }
@@ -2081,8 +2089,8 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
                 GL_CHECK(glReadBuffer(attachment));
                 GL_CHECK(glDrawBuffers(1, &attachment));
 
-                GLES3GPUTexture *srcTex = gpuFramebuffer->gpuColorTextures[subpass.colors[i]];
-                GLES3GPUTexture *dstTex = gpuFramebuffer->gpuColorTextures[subpass.resolves[i]];
+                GLES3GPUTexture *srcTex = gpuFramebuffer->gpuColorViews[subpass.colors[i]]->gpuTexture;
+                GLES3GPUTexture *dstTex = gpuFramebuffer->gpuColorViews[subpass.resolves[i]]->gpuTexture;
 
                 ensureScissorRect(cache, 0, 0, dstTex->width, dstTex->height);
                 GL_CHECK(glBlitFramebuffer(
@@ -2093,12 +2101,12 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
         }
 
         if (instance.resolveMask & GL_DEPTH_BUFFER_BIT) {
-            GLES3GPUTexture *srcTex = subpass.depthStencil < gpuFramebuffer->gpuColorTextures.size()
-                                          ? gpuFramebuffer->gpuColorTextures[subpass.depthStencil]
-                                          : gpuFramebuffer->gpuDepthStencilTexture;
-            GLES3GPUTexture *dstTex = subpass.depthStencilResolve < gpuFramebuffer->gpuColorTextures.size()
-                                          ? gpuFramebuffer->gpuColorTextures[subpass.depthStencilResolve]
-                                          : gpuFramebuffer->gpuDepthStencilTexture;
+            GLES3GPUTexture *srcTex = subpass.depthStencil < gpuFramebuffer->gpuColorViews.size()
+                                          ? gpuFramebuffer->gpuColorViews[subpass.depthStencil]->gpuTexture
+                                          : gpuFramebuffer->gpuDepthStencilView->gpuTexture;
+            GLES3GPUTexture *dstTex = subpass.depthStencilResolve < gpuFramebuffer->gpuColorViews.size()
+                                          ? gpuFramebuffer->gpuColorViews[subpass.depthStencilResolve]->gpuTexture
+                                          : gpuFramebuffer->gpuDepthStencilView->gpuTexture;
 
             ensureScissorRect(cache, 0, 0, dstTex->width, dstTex->height);
             GL_CHECK(glBlitFramebuffer(
@@ -2120,8 +2128,8 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
 
             if (gpuFramebuffer->uberOnChipOutput != INVALID_BINDING) {
                 TextureBlit region;
-                auto *      blitSrc    = gpuFramebuffer->gpuColorTextures[gpuFramebuffer->uberOnChipOutput];
-                auto *      blitDst    = gpuFramebuffer->gpuColorTextures[gpuFramebuffer->uberFinalOutput];
+                auto *      blitSrc    = gpuFramebuffer->gpuColorViews[gpuFramebuffer->uberOnChipOutput]->gpuTexture;
+                auto *      blitDst    = gpuFramebuffer->gpuColorViews[gpuFramebuffer->uberFinalOutput]->gpuTexture;
                 region.srcExtent.width = region.dstExtent.width = blitSrc->width;
                 region.srcExtent.height = region.dstExtent.height = blitSrc->height;
                 cmdFuncGLES3BlitTexture(device, blitSrc, blitDst, &region, 1, Filter::POINT);
@@ -2416,28 +2424,39 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             const uint32_t               descriptorIndex  = gpuDescriptorSet->descriptorIndices->at(glSamplerTexture.binding);
             const GLES3GPUDescriptor *   gpuDescriptor    = &gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
+            GLES3GPUTextureView *gpuTextureView = nullptr;
+            GLES3GPUTexture *    gpuTexture     = nullptr;
+
+            uint32_t minLod = 0;
+            uint32_t maxLod = 0;
+
             for (size_t u = 0; u < glSamplerTexture.units.size(); u++, gpuDescriptor++) {
                 auto unit = static_cast<uint32_t>(glSamplerTexture.units[u]);
 
-                if (!gpuDescriptor->gpuTexture || !gpuDescriptor->gpuSampler) {
+                if (!gpuDescriptor->gpuTextureView || !gpuDescriptor->gpuTextureView->gpuTexture || !gpuDescriptor->gpuSampler) {
                     //CC_LOG_ERROR("Sampler texture '%s' at binding %d set %d index %d is not bounded",
                     //             glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);
                     continue;
                 }
 
-                if (gpuDescriptor->gpuTexture->size > 0) {
-                    GLuint glTexture = gpuDescriptor->gpuTexture->glTexture;
+                gpuTextureView = gpuDescriptor->gpuTextureView;
+                gpuTexture     = gpuTextureView->gpuTexture;
+                minLod         = gpuTextureView->baseLevel;
+                maxLod         = minLod + gpuTextureView->levelCount;
+
+                if (gpuTexture->size > 0) {
+                    GLuint glTexture = gpuTexture->glTexture;
 
                     if (cache->glTextures[unit] != glTexture) {
                         if (cache->texUint != unit) {
                             GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
                             cache->texUint = unit;
                         }
-                        GL_CHECK(glBindTexture(gpuDescriptor->gpuTexture->glTarget, glTexture));
+                        GL_CHECK(glBindTexture(gpuTexture->glTarget, glTexture));
                         cache->glTextures[unit] = glTexture;
                     }
 
-                    GLuint glSampler = device->samplerRegistry()->getGLSampler(gpuDescriptor->gpuSampler);
+                    GLuint glSampler = gpuDescriptor->gpuSampler->getGLSampler(minLod, maxLod);
                     if (cache->glSamplers[unit] != glSampler) {
                         GL_CHECK(glBindSampler(unit, glSampler));
                         cache->glSamplers[unit] = glSampler;
@@ -2454,20 +2473,24 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             const uint32_t               descriptorIndex  = gpuDescriptorSet->descriptorIndices->at(glImage.binding);
             const GLES3GPUDescriptor *   gpuDescriptor    = &gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
+            GLES3GPUTexture *gpuTexture = nullptr;
+
             for (size_t u = 0; u < glImage.units.size(); u++, gpuDescriptor++) {
                 auto unit = static_cast<uint32_t>(glImage.units[u]);
 
-                if (!gpuDescriptor->gpuTexture) {
+                if (!gpuDescriptor->gpuTextureView || !gpuDescriptor->gpuTextureView->gpuTexture) {
                     //CC_LOG_ERROR("Storage image '%s' at binding %d set %d index %d is not bounded",
                     //             glImage.name.c_str(), glImage.set, glImage.binding, u);
                     continue;
                 }
 
-                if (gpuDescriptor->gpuTexture->size > 0) {
-                    GLuint glTexture = gpuDescriptor->gpuTexture->glTexture;
+                gpuTexture = gpuDescriptor->gpuTextureView->gpuTexture;
+
+                if (gpuTexture->size > 0) {
+                    GLuint glTexture = gpuTexture->glTexture;
 
                     if (cache->glImages[unit] != glTexture) {
-                        GL_CHECK(glBindImageTexture(unit, glTexture, 0, GL_TRUE, 0, glImage.glMemoryAccess, gpuDescriptor->gpuTexture->glInternalFmt));
+                        GL_CHECK(glBindImageTexture(unit, glTexture, 0, GL_TRUE, 0, glImage.glMemoryAccess, gpuTexture->glInternalFmt));
                     }
                 }
             }

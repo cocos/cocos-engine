@@ -6,7 +6,7 @@
 #include <cc-shadow-map-fs>
 
 
-#define CC_STANDARD_SURFACE_ENTRY()                                \
+#pragma define CC_STANDARD_SURFACE_ENTRY()                         \
 #if CC_FORWARD_ADD                                                 \
   #include <shading-standard-additive>                             \
   #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                       \
@@ -47,11 +47,8 @@
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
     fragColor0 = s.albedo;                                         \
-    vec3 position;                                                 \
-    HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);         \
-    fragColor1 = vec4(position, s.roughness);                      \
     fragColor1 = vec4(float32x3_to_oct(s.normal), s.roughness, s.metallic); \
-    fragColor3 = vec4(s.emissive, s.occlusion);                    \
+    fragColor2 = vec4(s.emissive, s.occlusion);                    \
   }                                                                \
                                                                    \
 #endif                                                             \

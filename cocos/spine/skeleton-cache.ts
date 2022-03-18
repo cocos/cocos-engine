@@ -96,6 +96,8 @@ export class AnimationCache {
     public frames: AnimationFrame[] = [];
     public totalTime = 0;
     public isCompleted = false;
+    public maxVertexCount = 0;
+    public maxIndexCount = 0;
 
     /**
      * @legacyPublic
@@ -380,7 +382,8 @@ export class AnimationCache {
 
         // Fill vertices
         let vertices = frame.vertices;
-        const copyOutVerticeSize = _vfOffset / PerVertexSize * ExportVertexSize;
+        const vertexCount = _vfOffset / PerVertexSize;
+        const copyOutVerticeSize = vertexCount * ExportVertexSize;
         if (!vertices || vertices.length < copyOutVerticeSize) {
             vertices = frame.vertices = new Float32Array(copyOutVerticeSize);
         }
@@ -406,6 +409,8 @@ export class AnimationCache {
 
         frame.vertices = vertices;
         frame.indices = indices;
+        this.maxVertexCount = vertexCount > this.maxVertexCount ? vertexCount : this.maxVertexCount;
+        this.maxIndexCount = indices.length > this.maxIndexCount ? indices.length : this.maxIndexCount;
     }
 
     protected needToUpdate (toFrameIdx?: number) {
@@ -451,6 +456,10 @@ export class AnimationCache {
 
         for (let slotIdx = 0, slotCount = skeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
             slot = skeleton.drawOrder[slotIdx];
+
+            if (!slot.bone.active) {
+                continue;
+            }
 
             _vfCount = 0;
             _indexCount = 0;

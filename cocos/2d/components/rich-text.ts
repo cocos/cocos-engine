@@ -29,12 +29,12 @@
  * @module ui
  */
 
-import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { assert, warnID } from '../../core/platform';
-import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../utils/text-utils';
+import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, isEnglishWordPartAtFirst, isEnglishWordPartAtLast, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
@@ -47,6 +47,7 @@ import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import { CCObject } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { CylinderColliderComponent } from '../../physics/framework/deprecated';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -198,6 +199,29 @@ export class RichText extends Component {
 
     /**
      * @en
+     * Vertical Alignment of each line in RichText.
+     *
+     * @zh
+     * 文本内容的竖直对齐方式。
+     */
+    @type(VerticalTextAlignment)
+    @tooltip('i18n:richtext.vertical_align')
+    get verticalAlign () {
+        return this._verticalAlign;
+    }
+
+    set verticalAlign (value) {
+        if (this._verticalAlign === value) {
+            return;
+        }
+
+        this._verticalAlign = value;
+        this._layoutDirty = true;
+        this._updateRichTextStatus();
+    }
+
+    /**
+     * @en
      * Font size of RichText.
      *
      * @zh
@@ -274,6 +298,7 @@ export class RichText extends Component {
      * 是否使用系统字体。
      */
     @tooltip('i18n:richtext.use_system_font')
+    @displayOrder(12)
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
@@ -421,6 +446,8 @@ export class RichText extends Component {
     @serializable
     protected _horizontalAlign = HorizontalTextAlignment.LEFT;
     @serializable
+    protected _verticalAlign = VerticalTextAlignment.TOP;
+    @serializable
     protected _fontSize = 40;
     @serializable
     protected _maxWidth = 0;
@@ -545,19 +572,136 @@ export class RichText extends Component {
         }
     }
 
+    /**
+    * @engineInternal
+    */
+    protected SplitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
+        const labelSize = this._calculateSize(styleIndex, text);
+        const partStringArr: string[] = [];
+        if (labelSize.x < 2048) {
+            partStringArr.push(text);
+        } else {
+            const multilineTexts = text.split('\n');
+            for (let i = 0; i < multilineTexts.length; i++) {
+                const thisPartSize = this._calculateSize(styleIndex, multilineTexts[i]);
+                if (thisPartSize.x < 2048) {
+                    partStringArr.push(multilineTexts[i]);
+                } else {
+                    const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
+                    partStringArr.push(...thisPartSplitResultArr);
+                }
+            }
+        }
+        return partStringArr;
+    }
+
+    /**
+    * @engineInternal
+    */
+    protected splitLongStringOver2048 (text: string, styleIndex: number) {
+        const partStringArr: string[] = [];
+        const longStr = text;
+
+        let curStart = 0;
+        let curEnd = longStr.length / 2;
+        let curString = longStr.substring(curStart, curEnd);
+        let leftString = longStr.substring(curEnd);
+        let curStringSize = this._calculateSize(styleIndex, curString);
+        let leftStringSize = this._calculateSize(styleIndex, leftString);
+
+        // a line should be an unit to split long string
+        const lineCountForOnePart = 1;
+        const sizeForOnePart = lineCountForOnePart * this.maxWidth;
+
+        // divide text into some pieces of which the size is less than sizeForOnePart
+        while (curStringSize.x > sizeForOnePart) {
+            curEnd /= 2;
+            // at least one char can be an entity, step back.
+            if (curEnd < 1) {
+                curEnd *= 2;
+                break;
+            }
+
+            curString = curString.substring(curStart, curEnd);
+            leftString = longStr.substring(curEnd);
+            curStringSize = this._calculateSize(styleIndex, curString);
+        }
+
+        // avoid too many loops
+        let leftTryTimes = 1000;
+        // the minimum step of expansion or reduction
+        let curWordStep = 1;
+        while (leftTryTimes && curStart < text.length) {
+            while (leftTryTimes && curStringSize.x < sizeForOnePart) {
+                const nextPartExec = getEnglishWordPartAtFirst(leftString);
+                // add a character, unless there is a complete word at the beginning of the next line
+                if (nextPartExec && nextPartExec.length > 0) {
+                    curWordStep = nextPartExec[0].length;
+                }
+                curEnd += curWordStep;
+
+                curString = longStr.substring(curStart, curEnd);
+                leftString = longStr.substring(curEnd);
+                curStringSize = this._calculateSize(styleIndex, curString);
+
+                leftTryTimes--;
+            }
+
+            // reduce condition：size > maxwidth && curString.length >= 2
+            while (leftTryTimes && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
+                curEnd -= curWordStep;
+                curString = longStr.substring(curStart, curEnd);
+                curStringSize = this._calculateSize(styleIndex, curString);
+                // after the first reduction, the step should be 1.
+                curWordStep = 1;
+
+                leftTryTimes--;
+            }
+
+            // consider there is a part of a word at the end of this line, it should be moved to the next line
+            if (curString.length >= 2) {
+                const lastWordExec = getEnglishWordPartAtLast(curString);
+                if (lastWordExec && lastWordExec.length > 0
+                    // to avoid endless loop when there is only one word in this line
+                    && curString !== lastWordExec[0]) {
+                    curEnd -= lastWordExec[0].length;
+                    curString = longStr.substring(curStart, curEnd);
+                }
+            }
+
+            // curStart and curEnd can be float since they are like positions of pointer,
+            // but step must be integer because we split the complete characters of which the unit is integer.
+            // it is reasonable that using the length of this result to estimate the next result.
+            partStringArr.push(curString);
+            const partStep = curString.length;
+            curStart = curEnd;
+            curEnd += partStep;
+
+            curString = longStr.substring(curStart, curEnd);
+            leftString = longStr.substring(curEnd);
+            leftStringSize = this._calculateSize(styleIndex, leftString);
+
+            leftTryTimes--;
+
+            // Exit: If the left part string size is less than 2048, the method will finish.
+            if (leftStringSize.x < 2048) {
+                curStart = text.length;
+                curEnd = text.length;
+                curString = leftString;
+                partStringArr.push(curString);
+                break;
+            } else {
+                curStringSize = this._calculateSize(styleIndex, curString);
+            }
+        }
+
+        console.error(`try times = ${1000 - leftTryTimes}`);
+        return partStringArr;
+    }
+
     protected _measureText (styleIndex: number, string?: string) {
         const func = (s: string) => {
-            let label: ISegment;
-            if (this._labelSegmentsCache.length === 0) {
-                label = this._createFontLabel(s);
-                this._labelSegmentsCache.push(label);
-            } else {
-                label = this._labelSegmentsCache[0];
-                label.node.getComponent(Label)!.string = s;
-            }
-            label.styleIndex = styleIndex;
-            this._applyTextAttribute(label);
-            const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
+            const labelSize = this._calculateSize(styleIndex, s);
             return labelSize.width;
         };
         if (string) {
@@ -565,6 +709,24 @@ export class RichText extends Component {
         } else {
             return func;
         }
+    }
+
+    /**
+    * @engineInternal
+    */
+    protected _calculateSize (styleIndex: number, s: string) {
+        let label: ISegment;
+        if (this._labelSegmentsCache.length === 0) {
+            label = this._createFontLabel(s);
+            this._labelSegmentsCache.push(label);
+        } else {
+            label = this._labelSegmentsCache[0];
+            label.node.getComponent(Label)!.string = s;
+        }
+        label.styleIndex = styleIndex;
+        this._applyTextAttribute(label);
+        const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
+        return labelSize;
     }
 
     protected _onTouchEnded (event: EventTouch) {
@@ -654,6 +816,13 @@ export class RichText extends Component {
             }
         }
 
+        // set vertical alignments
+        // because horizontal alignment is applied with line offsets in method "_updateRichTextPosition"
+        const labelComp: Label = labelSegment.comp as Label;
+        if (labelComp.verticalAlign !== this._verticalAlign) {
+            labelComp.verticalAlign = this._verticalAlign;
+        }
+
         labelSegment.styleIndex = styleIndex;
         labelSegment.lineCount = this._lineCount;
         labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
@@ -693,7 +862,8 @@ export class RichText extends Component {
             }
         }
         if (fragmentWidth > this._maxWidth) {
-            const fragments = fragmentText(labelString, fragmentWidth, this._maxWidth, this._measureText(styleIndex) as (s: string) => number);
+            const fragments = fragmentText(labelString, fragmentWidth, this._maxWidth,
+                this._measureText(styleIndex) as unknown as (s: string) => number);
             for (let k = 0; k < fragments.length; ++k) {
                 const splitString = fragments[k];
                 labelSegment = this._addLabelSegment(splitString, styleIndex);
@@ -862,7 +1032,7 @@ export class RichText extends Component {
 
         for (let i = 0; i < this._textArray.length; ++i) {
             const richTextElement = this._textArray[i];
-            const text = richTextElement.text;
+            let text = richTextElement.text;
             if (text === undefined) {
                 continue;
             }
@@ -878,6 +1048,10 @@ export class RichText extends Component {
                     continue;
                 }
             }
+
+            const splitArr: string[] = this.SplitLongStringApproximatelyIn2048(text, i);
+            text = splitArr.join('\n');
+
             const multilineTexts = text.split('\n');
 
             for (let j = 0; j < multilineTexts.length; ++j) {
@@ -1120,3 +1294,5 @@ export class RichText extends Component {
         label.isUnderline = false;
     }
 }
+
+legacyCC.RichText = RichText;

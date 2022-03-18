@@ -28,6 +28,8 @@ export const NativeModel: Constructor<{
     seVisFlag (val: number): void;
     setTransform (n: Node): void;
     setNode (n: Node): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
     setWorldBoundBuffer (buf: Buffer | null): void;
@@ -47,6 +49,8 @@ export const NativeSkinningModel: Constructor<{
     seVisFlag (val: number): void;
     setTransform (n: Node): void;
     setNode (n: Node): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
     setWorldBoundBuffer (buf: Buffer | null): void;
@@ -84,6 +88,8 @@ export const NativeBakedSkinningModel: Constructor<{
     seVisFlag (val: number): void;
     setTransform (n: Node): void;
     setNode (n: Node): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
     setWorldBoundBuffer (buf: Buffer | null): void;

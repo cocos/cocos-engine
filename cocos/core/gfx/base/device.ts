@@ -32,7 +32,7 @@ import {
     API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
-    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo, SwapchainInfo,
+    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, SwapchainInfo,
     BindingMappingInfo, Format, FormatFeature,
 } from './define';
 import { Buffer } from './buffer';
@@ -48,7 +48,7 @@ import { RenderPass } from './render-pass';
 import { Sampler } from './states/sampler';
 import { Shader } from './shader';
 import { Texture } from './texture';
-import { GlobalBarrier } from './states/global-barrier';
+import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
 import { Swapchain } from './swapchain';
 
@@ -159,7 +159,7 @@ export abstract class Device {
     protected _caps = new DeviceCaps();
     protected _bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo();
     protected _samplers = new Map<number, Sampler>();
-    protected _globalBarriers = new Map<number, GlobalBarrier>();
+    protected _generalBarrierss = new Map<number, GeneralBarrier>();
     protected _textureBarriers = new Map<number, TextureBarrier>();
 
     public static canvas: HTMLCanvasElement; // Hack for WebGL device initialization process
@@ -172,7 +172,7 @@ export abstract class Device {
      * @en Acquire next swapchain image.
      * @zh 获取下一个交换链缓冲。
      */
-    public abstract acquire (swapchains: Swapchain[]): void;
+    public abstract acquire (swapchains: Readonly<Swapchain[]>): void;
 
     /**
      * @en Present current swapchain image.
@@ -184,7 +184,7 @@ export abstract class Device {
      * @en Flush the specified command buffers.
      * @zh 实际录制指定的命令缓冲。
      */
-    public abstract flushCommands (cmdBuffs: CommandBuffer[]): void;
+    public abstract flushCommands (cmdBuffs: Readonly<CommandBuffer[]>): void;
 
     /**
      * @en Create command buffer.
@@ -289,7 +289,7 @@ export abstract class Device {
      * @zh 创建全局内存屏障。
      * @param info GFX global barrier description info.
      */
-    public abstract getGlobalBarrier (info: Readonly<GlobalBarrierInfo>): GlobalBarrier;
+    public abstract getGeneralBarrier (info: Readonly<GeneralBarrierInfo>): GeneralBarrier;
 
     /**
      * @en Create texture barrier.
@@ -305,7 +305,7 @@ export abstract class Device {
      * @param texture The texture to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: BufferTextureCopy[]): void;
+    public abstract copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Copy texture to buffers
@@ -314,7 +314,7 @@ export abstract class Device {
      * @param buffers The buffer to copy to.
      * @param regions The region descriptions
      */
-    public abstract copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void;
+    public abstract copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Copy texture images to texture.
@@ -323,7 +323,7 @@ export abstract class Device {
      * @param texture The texture to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void;
+    public abstract copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
 
     /**
      * @en Whether the device has specific feature.

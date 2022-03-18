@@ -41,10 +41,10 @@ import { Texture } from '../base/texture';
 import {
     ShaderInfo,
     QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
-    RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GlobalBarrierInfo,
+    RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GeneralBarrierInfo,
     QueueType, API, BufferTextureCopy, SwapchainInfo,
 } from '../base/define';
-import { GlobalBarrier } from '../base/states/global-barrier';
+import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { Swapchain } from '../base/swapchain';
 import { EmptyDescriptorSet } from './empty-descriptor-set';
@@ -88,89 +88,89 @@ export class EmptyDevice extends Device {
         }
     }
 
-    public flushCommands (cmdBuffs: CommandBuffer[]) {}
-    public acquire (swapchains: Swapchain[]) {}
+    public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>) {}
+    public acquire (swapchains: Readonly<Swapchain[]>) {}
     public present () {}
 
-    public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
+    public createCommandBuffer (info: Readonly<CommandBufferInfo>): CommandBuffer {
         const cmdBuff = new EmptyCommandBuffer();
         cmdBuff.initialize(info);
         return cmdBuff;
     }
 
-    public createSwapchain (info: SwapchainInfo): Swapchain {
+    public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
         const swapchain = new EmptySwapchain();
         swapchain.initialize(info);
         return swapchain;
     }
 
-    public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
+    public createBuffer (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>): Buffer {
         const buffer = new EmptyBuffer();
         buffer.initialize(info);
         return buffer;
     }
 
-    public createTexture (info: TextureInfo | TextureViewInfo): Texture {
+    public createTexture (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>): Texture {
         const texture = new EmptyTexture();
         texture.initialize(info);
         return texture;
     }
 
-    public createDescriptorSet (info: DescriptorSetInfo): DescriptorSet {
+    public createDescriptorSet (info: Readonly<DescriptorSetInfo>): DescriptorSet {
         const descriptorSet = new EmptyDescriptorSet();
         descriptorSet.initialize(info);
         return descriptorSet;
     }
 
-    public createShader (info: ShaderInfo): Shader {
+    public createShader (info: Readonly<ShaderInfo>): Shader {
         const shader = new EmptyShader();
         shader.initialize(info);
         return shader;
     }
 
-    public createInputAssembler (info: InputAssemblerInfo): InputAssembler {
+    public createInputAssembler (info: Readonly<InputAssemblerInfo>): InputAssembler {
         const inputAssembler = new EmptyInputAssembler();
         inputAssembler.initialize(info);
         return inputAssembler;
     }
 
-    public createRenderPass (info: RenderPassInfo): RenderPass {
+    public createRenderPass (info: Readonly<RenderPassInfo>): RenderPass {
         const renderPass = new EmptyRenderPass();
         renderPass.initialize(info);
         return renderPass;
     }
 
-    public createFramebuffer (info: FramebufferInfo): Framebuffer {
+    public createFramebuffer (info: Readonly<FramebufferInfo>): Framebuffer {
         const framebuffer = new EmptyFramebuffer();
         framebuffer.initialize(info);
         return framebuffer;
     }
 
-    public createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout {
+    public createDescriptorSetLayout (info: Readonly<DescriptorSetLayoutInfo>): DescriptorSetLayout {
         const descriptorSetLayout = new EmptyDescriptorSetLayout();
         descriptorSetLayout.initialize(info);
         return descriptorSetLayout;
     }
 
-    public createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout {
+    public createPipelineLayout (info: Readonly<PipelineLayoutInfo>): PipelineLayout {
         const pipelineLayout = new EmptyPipelineLayout();
         pipelineLayout.initialize(info);
         return pipelineLayout;
     }
 
-    public createPipelineState (info: PipelineStateInfo): PipelineState {
+    public createPipelineState (info: Readonly<PipelineStateInfo>): PipelineState {
         const pipelineState = new EmptyPipelineState();
         pipelineState.initialize(info);
         return pipelineState;
     }
 
-    public createQueue (info: QueueInfo): Queue {
+    public createQueue (info: Readonly<QueueInfo>): Queue {
         const queue = new EmptyQueue();
         queue.initialize(info);
         return queue;
     }
 
-    public getSampler (info: SamplerInfo): Sampler {
+    public getSampler (info: Readonly<SamplerInfo>): Sampler {
         const hash = Sampler.computeHash(info);
         if (!this._samplers.has(hash)) {
             this._samplers.set(hash, new Sampler(info, hash));
@@ -178,15 +178,15 @@ export class EmptyDevice extends Device {
         return this._samplers.get(hash)!;
     }
 
-    public getGlobalBarrier (info: GlobalBarrierInfo) {
-        const hash = GlobalBarrier.computeHash(info);
-        if (!this._globalBarriers.has(hash)) {
-            this._globalBarriers.set(hash, new GlobalBarrier(info, hash));
+    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>) {
+        const hash = GeneralBarrier.computeHash(info);
+        if (!this._generalBarrierss.has(hash)) {
+            this._generalBarrierss.set(hash, new GeneralBarrier(info, hash));
         }
-        return this._globalBarriers.get(hash)!;
+        return this._generalBarrierss.get(hash)!;
     }
 
-    public getTextureBarrier (info: TextureBarrierInfo) {
+    public getTextureBarrier (info: Readonly<TextureBarrierInfo>) {
         const hash = TextureBarrier.computeHash(info);
         if (!this._textureBarriers.has(hash)) {
             this._textureBarriers.set(hash, new TextureBarrier(info, hash));
@@ -194,9 +194,9 @@ export class EmptyDevice extends Device {
         return this._textureBarriers.get(hash)!;
     }
 
-    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {}
-    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {}
-    public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]) {}
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
+    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>) {}
+    public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
 }
 
 legacyCC.EmptyDevice = EmptyDevice;

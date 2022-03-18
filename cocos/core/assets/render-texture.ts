@@ -31,8 +31,7 @@
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { clamp } from '../math/utils';
-import { Texture, ColorAttachment, DepthStencilAttachment,
-    AccessType, RenderPassInfo, Format } from '../gfx';
+import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
@@ -49,8 +48,6 @@ export interface IRenderTextureCreateInfo {
 
 const _colorAttachment = new ColorAttachment();
 _colorAttachment.format = Format.RGBA8;
-_colorAttachment.beginAccesses = [AccessType.FRAGMENT_SHADER_READ_TEXTURE];
-_colorAttachment.endAccesses = [AccessType.FRAGMENT_SHADER_READ_TEXTURE];
 const _depthStencilAttachment = new DepthStencilAttachment();
 _depthStencilAttachment.format = Format.DEPTH_STENCIL;
 const passInfo = new RenderPassInfo([_colorAttachment], _depthStencilAttachment);
@@ -155,6 +152,11 @@ export class RenderTexture extends TextureBase {
         _windowInfo.width = this._width;
         _windowInfo.height = this._height;
         _windowInfo.renderPassInfo = info && info.passInfo ? info.passInfo : passInfo;
+
+        _colorAttachment.barrier = root.device.getGeneralBarrier(new GeneralBarrierInfo(
+            AccessFlagBit.FRAGMENT_SHADER_READ_TEXTURE,
+            AccessFlagBit.FRAGMENT_SHADER_READ_TEXTURE,
+        ));
 
         if (this._window) {
             this._window.destroy();

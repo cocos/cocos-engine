@@ -49,6 +49,7 @@ namespace cc {
 namespace gfx {
 
 DeviceValidator *DeviceValidator::instance = nullptr;
+bool DeviceValidator::allowStacktraceJS{true};
 
 DeviceValidator *DeviceValidator::getInstance() {
     return DeviceValidator::instance;
@@ -266,33 +267,25 @@ Sampler *DeviceValidator::getSampler(const SamplerInfo &info) {
     return _actor->getSampler(info);
 }
 
-GlobalBarrier *DeviceValidator::getGlobalBarrier(const GlobalBarrierInfo &info) {
-    if (std::any_of(info.prevAccesses.begin(), info.prevAccesses.end(), [&](const auto access) {
-            return access > AccessType::PRESENT; // write access
-        })) {
-        CCASSERT(info.prevAccesses.size() == 1, "Write access should appear on its own");
+GeneralBarrier *DeviceValidator::getGeneralBarrier(const GeneralBarrierInfo &info) {
+    if (info.prevAccesses > AccessFlagBit::PRESENT) {
+        CCASSERT(math::IsPowerOfTwo(toNumber(info.prevAccesses)), "Write access should appear on its own");
     }
-    if (std::any_of(info.nextAccesses.begin(), info.nextAccesses.end(), [&](const auto access) {
-            return access > AccessType::PRESENT; // write access
-        })) {
-        CCASSERT(info.nextAccesses.size() == 1, "Write access should appear on its own");
+    if (info.nextAccesses > AccessFlagBit::PRESENT) {
+        CCASSERT(math::IsPowerOfTwo(toNumber(info.nextAccesses)), "Write access should appear on its own");
     }
 
     /////////// execute ///////////
 
-    return _actor->getGlobalBarrier(info);
+    return _actor->getGeneralBarrier(info);
 }
 
 TextureBarrier *DeviceValidator::getTextureBarrier(const TextureBarrierInfo &info) {
-    if (std::any_of(info.prevAccesses.begin(), info.prevAccesses.end(), [&](const auto access) {
-            return access > AccessType::PRESENT; // write access
-        })) {
-        CCASSERT(info.prevAccesses.size() == 1, "Write access should appear on its own");
+    if (info.prevAccesses > AccessFlagBit::PRESENT) {
+        CCASSERT(math::IsPowerOfTwo(toNumber(info.prevAccesses)), "Write access should appear on its own");
     }
-    if (std::any_of(info.nextAccesses.begin(), info.nextAccesses.end(), [&](const auto access) {
-            return access > AccessType::PRESENT; // write access
-        })) {
-        CCASSERT(info.nextAccesses.size() == 1, "Write access should appear on its own");
+    if (info.nextAccesses > AccessFlagBit::PRESENT) {
+        CCASSERT(math::IsPowerOfTwo(toNumber(info.nextAccesses)), "Write access should appear on its own");
     }
 
     /////////// execute ///////////

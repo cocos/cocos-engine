@@ -29,6 +29,8 @@ const cacheManager = require('./jsb-cache-manager');
     if (window.dragonBones === undefined || window.middleware === undefined) return;
     const ArmatureDisplayComponent = cc.internal.ArmatureDisplay;
     if (ArmatureDisplayComponent === undefined) return;
+    const dragonBones = window.dragonBones;
+    const middleware = window.middleware;
 
     // dragonbones global time scale.
     Object.defineProperty(dragonBones, 'timeScale', {
@@ -93,7 +95,7 @@ const cacheManager = require('./jsb-cache-manager');
 
     const _replaceSkin = factoryProto.replaceSkin;
     factoryProto.replaceSkin = function (armatrue, skinData, isOverride, exclude) {
-        if (isOverride == undefined) isOverride = false;
+        if (isOverride === undefined) isOverride = false;
         exclude = exclude || [];
         _replaceSkin.call(this, armatrue, skinData, isOverride, exclude);
     };
@@ -221,7 +223,7 @@ const cacheManager = require('./jsb-cache-manager');
 
     dbAtlas.getTextureByIndex = function (textureIdx) {
         const texKey = _textureKeyMap[textureIdx];
-        if (!texKey) return;
+        if (!texKey) return null;
         return _textureMap.get(texKey);
     };
 
@@ -364,7 +366,7 @@ const cacheManager = require('./jsb-cache-manager');
 
             this._refresh();
 
-            if (oldArmature && oldArmature != this._armature) {
+            if (oldArmature && oldArmature !== this._armature) {
                 oldArmature.dispose();
             }
 
@@ -413,7 +415,8 @@ const cacheManager = require('./jsb-cache-manager');
         this._armatureKey = this.dragonAsset.init(this._factory, atlasUUID);
 
         if (this.isAnimationCached()) {
-            this._nativeDisplay = new dragonBones.CCArmatureCacheDisplay(this.armatureName, this._armatureKey, atlasUUID, this._cacheMode == AnimationCacheMode.SHARED_CACHE);
+            const isShare = this._cacheMode === AnimationCacheMode.SHARED_CACHE;
+            this._nativeDisplay = new dragonBones.CCArmatureCacheDisplay(this.armatureName, this._armatureKey, atlasUUID, isShare);
             this._armature = this._nativeDisplay.armature();
         } else {
             this._nativeDisplay = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID);
@@ -631,7 +634,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (!node) return;
 
         const paramsBuffer = this._paramsBuffer;
-        if (this._renderOrder != middleware.renderOrder) {
+        if (this._renderOrder !== middleware.renderOrder) {
             paramsBuffer[0] = middleware.renderOrder;
             this._renderOrder = middleware.renderOrder;
             middleware.renderOrder++;
@@ -718,7 +721,6 @@ const cacheManager = require('./jsb-cache-manager');
             sharedBufferOffset[1] = 0;
 
             const socketNodes = this.socketNodes;
-            const scale = new cc.Vec3();
 
             for (let l = sockets.length - 1; l >= 0; l--) {
                 const sock = sockets[l];
@@ -741,14 +743,7 @@ const cacheManager = require('./jsb-cache-manager');
                 tm.m05 = attachInfo[matOffset + 5];
                 tm.m12 = attachInfo[matOffset + 12];
                 tm.m13 = attachInfo[matOffset + 13];
-
-                if (!boneNode._oldScale) {
-                    // back origin scale info
-                    boneNode._oldScale = boneNode.scale.clone();
-                }
-                scale.set(boneNode._oldScale);
                 boneNode.matrix = tm;
-                boneNode.scale = scale.multiply(node.scale);
             }
         }
 
@@ -791,9 +786,14 @@ const cacheManager = require('./jsb-cache-manager');
     // assembler
     const assembler = cc.internal.DragonBonesAssembler;
 
+    // eslint-disable-next-line no-unused-vars
+    assembler.createData = function (comp) {
+    };
+
     assembler.updateRenderData = function () {
     };
 
+    // eslint-disable-next-line no-unused-vars
     assembler.fillBuffers = function (comp, renderer) {
     };
 }());

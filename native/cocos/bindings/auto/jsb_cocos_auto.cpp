@@ -1047,6 +1047,21 @@ static bool js_engine_ICanvasRenderingContext2D_createLinearGradient(se::State& 
 }
 SE_BIND_FUNC(js_engine_ICanvasRenderingContext2D_createLinearGradient)
 
+static bool js_engine_ICanvasRenderingContext2D_fetchData(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
+    SE_PRECONDITION2(cobj, false, "js_engine_ICanvasRenderingContext2D_fetchData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->fetchData();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_ICanvasRenderingContext2D_fetchData)
+
 static bool js_engine_ICanvasRenderingContext2D_fill(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
@@ -1695,6 +1710,7 @@ bool js_register_engine_ICanvasRenderingContext2D(se::Object* obj) // NOLINT(rea
     cls->defineFunction("clearRect", _SE(js_engine_ICanvasRenderingContext2D_clearRect));
     cls->defineFunction("closePath", _SE(js_engine_ICanvasRenderingContext2D_closePath));
     cls->defineFunction("createLinearGradient", _SE(js_engine_ICanvasRenderingContext2D_createLinearGradient));
+    cls->defineFunction("fetchData", _SE(js_engine_ICanvasRenderingContext2D_fetchData));
     cls->defineFunction("fill", _SE(js_engine_ICanvasRenderingContext2D_fill));
     cls->defineFunction("fillImageData", _SE(js_engine_ICanvasRenderingContext2D_fillImageData));
     cls->defineFunction("fillRect", _SE(js_engine_ICanvasRenderingContext2D_fillRect));

@@ -44,7 +44,6 @@ namespace {
 
 @implementation ViewController
 
-cc::IScreen::Orientation _lastOrientation;
 
 - (BOOL) shouldAutorotate {
     return YES;
@@ -61,7 +60,7 @@ cc::IScreen::Orientation _lastOrientation;
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    cc::IScreen::Orientation orientation = _lastOrientation;
+    cc::IScreen::Orientation orientation;
     // reference: https://developer.apple.com/documentation/uikit/uiinterfaceorientation?language=objc
     // UIInterfaceOrientationLandscapeRight = UIDeviceOrientationLandscapeLeft
     // UIInterfaceOrientationLandscapeLeft = UIDeviceOrientationLandscapeRight
@@ -81,16 +80,25 @@ cc::IScreen::Orientation _lastOrientation;
         default:
             break;
     }
-    if (_lastOrientation != orientation) {
-        cc::DeviceEvent ev;
-        cc::BasePlatform* platform = cc::BasePlatform::getPlatform();
-        cc::IScreen* screenIntf = platform->getInterface<cc::IScreen>();
-        ev.type           = cc::DeviceEvent::Type::DEVICE_ORIENTATION;
-        ev.args[0].intVal = static_cast<int>(screenIntf->getDeviceOrientation());
-        AppDelegate* delegate = [[UIApplication sharedApplication] delegate];
-        [delegate dispatchEvent:ev];
-        _lastOrientation = orientation;
-    }
+    cc::DeviceEvent ev;
+    cc::BasePlatform* platform = cc::BasePlatform::getPlatform();
+    cc::IScreen* screenIntf = platform->getInterface<cc::IScreen>();
+    ev.type           = cc::DeviceEvent::Type::DEVICE_ORIENTATION;
+    ev.args[0].intVal = static_cast<int>(screenIntf->getDeviceOrientation());
+    AppDelegate* delegate = [[UIApplication sharedApplication] delegate];
+    [delegate dispatchEvent:ev];
+
+    float pixelRatio = screenIntf->getDevicePixelRatio();
+    cc::WindowEvent resizeEv;
+    resizeEv.type = cc::WindowEvent::Type::RESIZED;
+    resizeEv.width = size.width * pixelRatio;
+    resizeEv.height = size.height * pixelRatio;
+    [delegate dispatchEvent:resizeEv];
+    //CAMetalLayer is available on ios8.0, ios-simulator13.0.
+    CAMetalLayer *layer = (CAMetalLayer *)self.view.layer;
+    CGSize tsize             = CGSizeMake(static_cast<int>(size.width * pixelRatio),
+                                         static_cast<int>(size.height * pixelRatio));
+    layer.drawableSize = tsize;
 }
 
 @end
