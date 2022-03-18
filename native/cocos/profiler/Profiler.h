@@ -40,7 +40,7 @@ enum class ShowOption : uint32_t {
     MEMORY_STATS      = 0x02,
     OBJECT_STATS      = 0x04,
     PERFORMANCE_STATS = 0x08,
-    All               = CORE_STATS | MEMORY_STATS | OBJECT_STATS | PERFORMANCE_STATS,
+    ALL               = CORE_STATS | MEMORY_STATS | OBJECT_STATS | PERFORMANCE_STATS,
 };
 
 /**
@@ -80,7 +80,7 @@ private:
     void gatherBlocks(ProfilerBlock *parent, uint32_t depth, std::vector<ProfilerBlockDepth> &outBlocks);
 
     static Profiler *instance;
-    uint32_t         _options{static_cast<uint32_t>(ShowOption::All)};
+    uint32_t         _options{static_cast<uint32_t>(ShowOption::ALL)};
     utils::Timer     _timer;
     CoreStats        _coreStats;
     MemoryStats      _memoryStats;
