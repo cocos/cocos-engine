@@ -306,7 +306,7 @@ void AudioEngineImpl::stopAll() {
     // Create a temporary vector for storing all players since
     // p->stop() will trigger _audioPlayers.erase,
     // and it will cause a crash as it's already in for loop
-    std::vector<IAudioPlayer *> players;
+    ccstd::vector<IAudioPlayer *> players;
     players.reserve(_audioPlayers.size());
 
     for (const auto &e : _audioPlayers) {

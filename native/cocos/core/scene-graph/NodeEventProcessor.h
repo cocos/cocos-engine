@@ -33,13 +33,13 @@
 #include "core/scene-graph/NodeEvent.h"
 
 namespace cc {
-const std::vector<CallbacksInvoker::KeyType> TOUCH_EVENTS{
+const ccstd::vector<CallbacksInvoker::KeyType> TOUCH_EVENTS{
     cc::NodeEventType::TOUCH_START,
     cc::NodeEventType::TOUCH_MOVE,
     cc::NodeEventType::TOUCH_END,
     cc::NodeEventType::TOUCH_CANCEL};
 
-const std::vector<CallbacksInvoker::KeyType> MOUSE_EVENTS{
+const ccstd::vector<CallbacksInvoker::KeyType> MOUSE_EVENTS{
     cc::NodeEventType::MOUSE_DOWN,
     cc::NodeEventType::MOUSE_ENTER,
     cc::NodeEventType::MOUSE_MOVE,
@@ -78,7 +78,7 @@ public:
     template <typename Target, typename... Args>
     bool hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const;
 
-    static bool checkListeners(Node *node, const std::vector<CallbacksInvoker::KeyType> &events);
+    static bool checkListeners(Node *node, const ccstd::vector<CallbacksInvoker::KeyType> &events);
 
     template <typename... Args>
     void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackInfoBase::ID &cbID, bool useCapture = false);
@@ -133,8 +133,8 @@ public:
 
     void targetOff(const CallbacksInvoker::KeyType &target);
 
-    void getCapturingTargets(const CallbacksInvoker::KeyType &type, std::vector<Node *> &targets) const;
-    void getBubblingTargets(const CallbacksInvoker::KeyType &type, std::vector<Node *> &targets) const;
+    void getCapturingTargets(const CallbacksInvoker::KeyType &type, ccstd::vector<Node *> &targets) const;
+    void getBubblingTargets(const CallbacksInvoker::KeyType &type, ccstd::vector<Node *> &targets) const;
 
     inline CallbacksInvoker *getBubblingTargets() const { return _bubblingTargets; }
     inline CallbacksInvoker *getCapturingTargets() const { return _capturingTargets; }

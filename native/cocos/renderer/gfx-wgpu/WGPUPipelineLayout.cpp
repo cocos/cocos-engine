@@ -42,7 +42,7 @@ void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {
 }
 
 void CCWGPUPipelineLayout::prepare(const std::set<uint8_t> &setInUse) {
-    std::vector<WGPUBindGroupLayout> layouts;
+    ccstd::vector<WGPUBindGroupLayout> layouts;
     // _bgLayouts.clear();
     for (size_t i = 0; i < _setLayouts.size(); i++) {
         auto *descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout *>(_setLayouts[i]);

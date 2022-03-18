@@ -64,9 +64,9 @@ private:
     std::array<float, UBOGlobal::COUNT> _globalUBO;
     std::array<float, UBOShadow::COUNT> _shadowUBO;
 
-    std::vector<gfx::Buffer *> _ubos;
+    ccstd::vector<gfx::Buffer *> _ubos;
     void                       initCombineSignY();
-    std::vector<float>         _cameraUBOs;
+    ccstd::vector<float>         _cameraUBOs;
     gfx::Buffer *              _cameraBuffer{nullptr};
     uint                       _currentCameraUBOOffset{0};
     uint                       _alignedCameraUBOSize{0};

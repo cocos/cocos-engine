@@ -853,7 +853,7 @@ void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
     uint32_t              width  = bWait ? 1U : 2U;
     uint64_t              stride = sizeof(uint64_t) * width;
     VkQueryResultFlagBits flag   = bWait ? VK_QUERY_RESULT_WAIT_BIT : VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
-    std::vector<uint64_t> results(queryCount * width, 0ULL);
+    ccstd::vector<uint64_t> results(queryCount * width, 0ULL);
 
     if (queryCount > 0U) {
         VkResult result = vkGetQueryPoolResults(

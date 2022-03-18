@@ -257,7 +257,7 @@ void AudioPlayerProvider::preloadEffect(const AudioFileInfo &info, const Preload
             PreloadCallbackParam param;
             param.callback          = cb;
             param.isPreloadInPlay2d = isPreloadInPlay2d;
-            std::vector<PreloadCallbackParam> callbacks;
+            ccstd::vector<PreloadCallbackParam> callbacks;
             callbacks.push_back(std::move(param));
             _preloadCallbackMap.insert(std::make_pair(audioFilePath, std::move(callbacks)));
         }

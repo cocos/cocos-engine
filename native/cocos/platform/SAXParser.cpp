@@ -56,7 +56,7 @@ private:
 bool XmlSaxHander::VisitEnter(const tinyxml2::XMLElement &element, const tinyxml2::XMLAttribute *firstAttribute) {
     //log(" VisitEnter %s",element.Value());
 
-    std::vector<const char *> attsVector;
+    ccstd::vector<const char *> attsVector;
     for (const tinyxml2::XMLAttribute *attrib = firstAttribute; attrib; attrib = attrib->Next()) {
         //log("%s", attrib->Name());
         attsVector.push_back(attrib->Name());

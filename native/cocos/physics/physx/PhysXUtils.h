@@ -138,8 +138,8 @@ inline physx::PxMaterial &getDefaultMaterial() {
     return *(reinterpret_cast<physx::PxMaterial *>(getPxMaterialMap()[0]));
 }
 
-inline std::vector<physx::PxRaycastHit> &getPxRaycastHitBuffer() {
-    static std::vector<physx::PxRaycastHit> m{12};
+inline ccstd::vector<physx::PxRaycastHit> &getPxRaycastHitBuffer() {
+    static ccstd::vector<physx::PxRaycastHit> m{12};
     return m;
 }
 

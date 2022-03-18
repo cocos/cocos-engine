@@ -239,8 +239,8 @@ public:
 
     void         initialize(const ShadowsInfo &shadowsInfo);
     void         destroy();
-    gfx::Shader *getPlanarShader(const std::vector<IMacroPatch> &patches);
-    gfx::Shader *getPlanarInstanceShader(const std::vector<IMacroPatch> &patches);
+    gfx::Shader *getPlanarShader(const ccstd::vector<IMacroPatch> &patches);
+    gfx::Shader *getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &patches);
     void         activate();
 
     /**

@@ -62,7 +62,7 @@ std::string format(const char *format, ...) {
  *
  * Return value: the index of the last character that is not c.
  * */
-unsigned int getIndexOfLastNotChar16(const std::vector<char16_t> &str, char16_t c) {
+unsigned int getIndexOfLastNotChar16(const ccstd::vector<char16_t> &str, char16_t c) {
     int len = static_cast<int>(str.size());
 
     int i = len - 1;
@@ -83,7 +83,7 @@ unsigned int getIndexOfLastNotChar16(const std::vector<char16_t> &str, char16_t 
  *
  * Return value: the trimmed string.
  * */
-static void trimUTF16VectorFromIndex(std::vector<char16_t> &str, int index) { //NOLINT
+static void trimUTF16VectorFromIndex(ccstd::vector<char16_t> &str, int index) { //NOLINT
     int size = static_cast<int>(str.size());
     if (index >= size || index < 0) {
         return;
@@ -114,7 +114,7 @@ bool isCJKUnicode(char16_t ch) {
            || (ch >= 0x31C0 && ch <= 0x4DFF); // Other extensions
 }
 
-void trimUTF16Vector(std::vector<char16_t> &str) {
+void trimUTF16Vector(ccstd::vector<char16_t> &str) {
     int len = static_cast<int>(str.size());
 
     if (len <= 0) {
@@ -270,8 +270,8 @@ jstring newStringUTFJNI(JNIEnv *env, const std::string &utf8Str, bool *ret) {
 }
 #endif
 
-std::vector<char16_t> getChar16VectorFromUTF16String(const std::u16string &utf16) {
-    return std::vector<char16_t>(utf16.begin(), utf16.end());
+ccstd::vector<char16_t> getChar16VectorFromUTF16String(const std::u16string &utf16) {
+    return ccstd::vector<char16_t>(utf16.begin(), utf16.end());
 }
 
 long getCharacterCountInUTF8String(const std::string &utf8) { //NOLINT

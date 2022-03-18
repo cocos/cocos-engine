@@ -58,13 +58,13 @@ public:
     };
 
     inline SimulationEventCallback &                       getEventCallback() { return *_mCallback; }
-    inline std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerPairs() { return _mTriggerPairs; }
-    inline std::vector<std::shared_ptr<ContactEventPair>> &getConatctPairs() { return _mConatctPairs; }
+    inline ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerPairs() { return _mTriggerPairs; }
+    inline ccstd::vector<std::shared_ptr<ContactEventPair>> &getConatctPairs() { return _mConatctPairs; }
     void                                                   refreshPairs();
 
 private:
-    std::vector<std::shared_ptr<TriggerEventPair>> _mTriggerPairs;
-    std::vector<std::shared_ptr<ContactEventPair>> _mConatctPairs;
+    ccstd::vector<std::shared_ptr<TriggerEventPair>> _mTriggerPairs;
+    ccstd::vector<std::shared_ptr<ContactEventPair>> _mConatctPairs;
     SimulationEventCallback *                      _mCallback;
 };
 

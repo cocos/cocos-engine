@@ -51,7 +51,7 @@ uint64_t Material::getHashForMaterial(Material *material) {
 }
 
 Material::Material() {
-    _passes = std::make_shared<std::vector<IntrusivePtr<scene::Pass>>>();
+    _passes = std::make_shared<ccstd::vector<IntrusivePtr<scene::Pass>>>();
 }
 
 Material::~Material() = default;
@@ -180,7 +180,7 @@ CC_MATERIAL_SETPROPERTY_IMPL(GFXTexture, gfx::Texture *)
 #undef CC_MATERIAL_SETPROPERTY_IMPL
 
 #define CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(funcNameSuffix, type)                                                                                       \
-    void Material::setProperty##funcNameSuffix##Array(const std::string &name, const std::vector<type> &val, index_t /*passIdx = CC_INVALID_INDEX*/) { \
+    void Material::setProperty##funcNameSuffix##Array(const std::string &name, const ccstd::vector<type> &val, index_t /*passIdx = CC_INVALID_INDEX*/) { \
         MaterialPropertyList propertyArr;                                                                                                              \
         propertyArr.reserve(val.size());                                                                                                               \
         for (const auto &e : val) {                                                                                                                    \
@@ -309,8 +309,8 @@ void Material::update(bool keepProps /* = true*/) {
     _hash = Material::getHashForMaterial(this);
 }
 
-std::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
-    std::vector<IntrusivePtr<scene::Pass>> passes;
+ccstd::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
+    ccstd::vector<IntrusivePtr<scene::Pass>> passes;
     ITechniqueInfo *                       tech = nullptr;
     if (_techIdx < _effectAsset->_techniques.size()) {
         tech = &_effectAsset->_techniques[_techIdx];

@@ -26,7 +26,7 @@
 #pragma once
 
 #include <algorithm> // for std::find
-#include <vector>
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -45,7 +45,7 @@ namespace cc {
 template <typename T>
 class MutableForwardIterator {
 public:
-    explicit MutableForwardIterator(std::vector<T> &array)
+    explicit MutableForwardIterator(ccstd::vector<T> &array)
     : array(array) {}
 
     int32_t getLength() const {
@@ -103,7 +103,7 @@ public:
     }
 
     int32_t         i = 0;
-    std::vector<T> &array;
+    ccstd::vector<T> &array;
 };
 
 } // namespace cc

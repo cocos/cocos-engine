@@ -316,15 +316,15 @@ private:
 
     FileOperationDelegate _fileOperationDelegate;
 
-    std::vector<RegisterCallback>         _registerCallbackArray;
-    std::vector<RegisterCallback>         _permRegisterCallbackArray;
+    ccstd::vector<RegisterCallback>         _registerCallbackArray;
+    ccstd::vector<RegisterCallback>         _permRegisterCallbackArray;
     std::chrono::steady_clock::time_point _startTime;
 
-    std::vector<std::function<void()>> _beforeInitHookArray;
-    std::vector<std::function<void()>> _afterInitHookArray;
+    ccstd::vector<std::function<void()>> _beforeInitHookArray;
+    ccstd::vector<std::function<void()>> _afterInitHookArray;
 
-    std::vector<std::function<void()>> _beforeCleanupHookArray;
-    std::vector<std::function<void()>> _afterCleanupHookArray;
+    ccstd::vector<std::function<void()>> _beforeCleanupHookArray;
+    ccstd::vector<std::function<void()>> _afterCleanupHookArray;
 
     ExceptionCallback _exceptionCallback;
     // name ~> JSScript map

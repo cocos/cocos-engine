@@ -67,7 +67,7 @@ private:
 
     gfx::Device *                            _device{nullptr};
     Record<std::string, IntrusivePtr<Asset>> _resources;
-    std::vector<IntrusivePtr<Material>>      _materialsToBeCompiled;
+    ccstd::vector<IntrusivePtr<Material>>      _materialsToBeCompiled;
     bool                                     _isInitialized{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BuiltinResMgr);

@@ -37,7 +37,7 @@ namespace framegraph {
 class DevicePass final {
 public:
     DevicePass() = delete;
-    DevicePass(const FrameGraph &graph, std::vector<PassNode *> const &subpassNodes);
+    DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const &subpassNodes);
     DevicePass(const DevicePass &) = delete;
     DevicePass(DevicePass &&)      = delete;
     ~DevicePass()                  = default;
@@ -55,7 +55,7 @@ private:
     };
 
     struct Subpass final {
-        std::vector<LogicPass> logicPasses{};
+        ccstd::vector<LogicPass> logicPasses{};
         gfx::SubpassInfo       desc;
     };
 
@@ -64,15 +64,15 @@ private:
         gfx::Texture *         renderTarget{nullptr};
     };
 
-    void append(const FrameGraph &graph, const PassNode *passNode, std::vector<RenderTargetAttachment> *attachments);
+    void append(const FrameGraph &graph, const PassNode *passNode, ccstd::vector<RenderTargetAttachment> *attachments);
     void append(const FrameGraph &graph, const RenderTargetAttachment &attachment,
-                std::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const std::vector<Handle> &reads);
+                ccstd::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const ccstd::vector<Handle> &reads);
     void begin(gfx::CommandBuffer *cmdBuff);
     void next(gfx::CommandBuffer *cmdBuff) noexcept;
     void end(gfx::CommandBuffer *cmdBuff);
 
-    std::vector<Subpass>    _subpasses{};
-    std::vector<Attachment> _attachments{};
+    ccstd::vector<Subpass>    _subpasses{};
+    ccstd::vector<Attachment> _attachments{};
     uint16_t                _usedRenderTargetSlotMask{0};
     DevicePassResourceTable _resourceTable;
 

@@ -38,13 +38,13 @@ struct Keyframe {
     float outTangent = 0;
 };
 
-float evalOptCurve(float t, const std::vector<float> &coefs);
+float evalOptCurve(float t, const ccstd::vector<float> &coefs);
 
 struct OptimizedKey {
     float              index;
     float              time;
     float              endTime;
-    std::vector<float> coefficient;
+    ccstd::vector<float> coefficient;
     OptimizedKey() {
         index   = -1;
         time    = 0;
@@ -66,7 +66,7 @@ private:
     // _curve ! : RealCurve;
 
 public:
-    static std::vector<KeyFrame> defaultKF = [ {
+    static ccstd::vector<KeyFrame> defaultKF = [ {
                                                   time : 0,
                                                   value : 1,
                                                   inTangent : 0,

@@ -192,7 +192,7 @@ void CCWGPUDescriptorSet::prepare() {
     if (_isDirty || forceUpdate || !_gpuBindGroupObj->bindgroup) {
         auto *dsLayout = static_cast<CCWGPUDescriptorSetLayout *>(_layout);
         dsLayout->prepare(forceUpdate);
-        // std::vector<WGPUBindGroupEntry>
+        // ccstd::vector<WGPUBindGroupEntry>
         //     bindGroupEntries;
         // bindGroupEntries.assign(_gpuBindGroupObj->bindGroupEntries.begin(), _gpuBindGroupObj->bindGroupEntries.end());
         // bindGroupEntries.erase(std::remove_if(

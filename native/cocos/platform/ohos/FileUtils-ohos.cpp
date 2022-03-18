@@ -245,7 +245,7 @@ std::pair<int, std::function<void()>> FileUtilsOHOS::getFd(const std::string &pa
         RawFile *rf = OpenRawFile(ohosResourceMgr, fullpath.c_str());
         // FIXME: try reuse file
         const auto bufSize   = GetRawFileSize(rf);
-        auto       fileCache = std::vector<char>(bufSize);
+        auto       fileCache = ccstd::vector<char>(bufSize);
         auto *     buf       = fileCache.data();
         // Fill buffer
         const auto readBytes = ReadRawFile(rf, buf, bufSize);

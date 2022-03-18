@@ -30,8 +30,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
-
+#include "base/std/container/vector.h"
 #include "base/Macros.h"
 
 //#define CC_DOWNLOADER_DEBUG
@@ -67,7 +66,7 @@ public:
                        int                               errorCode,
                        int                               errorCodeInternal,
                        const std::string &               errorStr,
-                       const std::vector<unsigned char> &data)>
+                       const ccstd::vector<unsigned char> &data)>
         onTaskFinish;
 
     virtual IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask> &task) = 0;

@@ -132,7 +132,7 @@ protected:
     CCMTLSemaphore *           _inFlightSemaphore                           = nullptr;
     CC_UNUSED uint32_t         _memoryAlarmListenerId                       = 0;
 
-    std::vector<CCMTLSwapchain *> _swapchains;
+    ccstd::vector<CCMTLSwapchain *> _swapchains;
 
     CCMTLGPUDeviceObject *_gpuDeviceObj = nullptr;
 };

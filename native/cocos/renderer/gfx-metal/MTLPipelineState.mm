@@ -266,8 +266,8 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
     const ColorAttachmentList &colorAttachments = _renderPass->getColorAttachments();
     const auto &               ccShader         = static_cast<CCMTLShader *>(_shader);
 
-    std::vector<uint32_t> bindingIndices;
-    std::vector<int>      bindingOffsets;
+    ccstd::vector<uint32_t> bindingIndices;
+    ccstd::vector<int>      bindingOffsets;
 
     const CCMTLGPUShader *gpuShader = ccShader->gpuShader();
     uint32_t              outputNum = static_cast<uint32_t>(gpuShader->outputs.size());

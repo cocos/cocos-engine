@@ -82,9 +82,9 @@ private:
     gfx::Device *                     _device{nullptr};
     gfx::Format                       _format{gfx::Format::UNKNOWN};
     uint32_t                          _formatSize{0};
-    std::vector<ITextureBuffer>       _chunks;
+    ccstd::vector<ITextureBuffer>       _chunks;
     uint32_t                          _chunkCount{0};
-    std::vector<ITextureBufferHandle> _handles;
+    ccstd::vector<ITextureBufferHandle> _handles;
     gfx::BufferTextureCopy            _region0;
     gfx::BufferTextureCopy            _region1;
     gfx::BufferTextureCopy            _region2;

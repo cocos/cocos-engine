@@ -57,19 +57,19 @@ struct IMacroInfo {
 };
 
 struct ITemplateInfo {
-    std::vector<gfx::Attribute>                  gfxAttributes;
+    ccstd::vector<gfx::Attribute>                  gfxAttributes;
     gfx::ShaderInfo                              shaderInfo;
-    std::vector<int32_t>                         blockSizes;
+    ccstd::vector<int32_t>                         blockSizes;
     RefVector<gfx::DescriptorSetLayout *>           setLayouts;
     IntrusivePtr<gfx::PipelineLayout>            pipelineLayout;
     Record<std::string, uint32_t>                handleMap;
-    std::vector<gfx::DescriptorSetLayoutBinding> bindings;
+    ccstd::vector<gfx::DescriptorSetLayoutBinding> bindings;
     int32_t                                      samplerStartBinding{-1};
 };
 
 struct IProgramInfo : public IShaderInfo {
     std::string                effectName;
-    std::vector<IDefineRecord> defines;
+    ccstd::vector<IDefineRecord> defines;
     std::string                constantMacros;
     bool                       uber{false}; // macro number exceeds default limits, will fallback to string hash
 

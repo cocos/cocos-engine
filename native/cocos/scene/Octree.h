@@ -145,15 +145,15 @@ private:
     void               add(Model *model);
     void               remove(Model *model);
     void               onRemoved();
-    void               gatherModels(std::vector<Model *> &results) const;
-    void               doQueryVisibility(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, std::vector<Model *> &results) const;
-    void               queryVisibilityParallelly(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, std::vector<Model *> &results) const;
-    void               queryVisibilitySequentially(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, std::vector<Model *> &results) const;
+    void               gatherModels(ccstd::vector<Model *> &results) const;
+    void               doQueryVisibility(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
+    void               queryVisibilityParallelly(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
+    void               queryVisibilitySequentially(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
 
     Octree *                                      _owner{nullptr};
     OctreeNode *                                  _parent{nullptr};
     std::array<OctreeNode *, OCTREE_CHILDREN_NUM> _children{};
-    std::vector<Model *>                          _models;
+    ccstd::vector<Model *>                          _models;
     BBox                                          _aabb{};
     uint32_t                                      _depth{0};
     uint32_t                                      _index{0};
@@ -213,7 +213,7 @@ public:
     inline uint32_t getMaxDepth() const { return _maxDepth; }
 
     // view frustum culling
-    void queryVisibility(Camera *camera, const geometry::Frustum &frustum, bool isShadow, std::vector<Model *> &results) const;
+    void queryVisibility(Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
 
 private:
     bool isInside(Model *model) const;

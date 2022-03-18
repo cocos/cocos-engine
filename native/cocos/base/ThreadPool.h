@@ -145,10 +145,10 @@ private:
 
     void stretchPool(int count);
 
-    std::vector<std::unique_ptr<std::thread>>       _threads;
-    std::vector<std::shared_ptr<std::atomic<bool>>> _abortFlags;
-    std::vector<std::shared_ptr<std::atomic<bool>>> _idleFlags;
-    std::vector<std::shared_ptr<std::atomic<bool>>> _initedFlags;
+    ccstd::vector<std::unique_ptr<std::thread>>       _threads;
+    ccstd::vector<std::shared_ptr<std::atomic<bool>>> _abortFlags;
+    ccstd::vector<std::shared_ptr<std::atomic<bool>>> _idleFlags;
+    ccstd::vector<std::shared_ptr<std::atomic<bool>>> _initedFlags;
 
     template <typename T>
     class ThreadSafeQueue {

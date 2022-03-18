@@ -32,9 +32,9 @@
 
 namespace cc {
 
-const std::vector<Mat4> &Skeleton::getInverseBindposes() {
+const ccstd::vector<Mat4> &Skeleton::getInverseBindposes() {
     if (!_invBindposes.has_value()) {
-        _invBindposes = std::vector<Mat4>{};
+        _invBindposes = ccstd::vector<Mat4>{};
         for (const auto &bindpose : _bindposes) {
             _invBindposes.value().emplace_back(bindpose.getInversed());
         }

@@ -26,7 +26,7 @@
 #pragma once
 
 #include <algorithm>
-#include <vector>
+#include "base/std/container/vector.h"
 #include "core/geometry/Enums.h"
 #include "math/Mat3.h"
 #include "math/Quaternion.h"
@@ -139,7 +139,7 @@ public:
     void               getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const;
     void               merge(const AABB &aabb);
     void               merge(const cc::Vec3 &point);
-    void               merge(const std::vector<cc::Vec3> &points);
+    void               merge(const ccstd::vector<cc::Vec3> &points);
     void               merge(const Frustum &frustum);
     void               set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal);
     void               transform(const Mat4 &m, AABB *out) const;

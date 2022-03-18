@@ -30,7 +30,7 @@
 #include "base/Log.h"
 namespace cc {
 
-std::vector<RefCounted *> DeferredReleasePool::managedObjectArray{};
+ccstd::vector<RefCounted *> DeferredReleasePool::managedObjectArray{};
 
 void DeferredReleasePool::add(RefCounted *object) {
     DeferredReleasePool::managedObjectArray.push_back(object);

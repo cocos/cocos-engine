@@ -33,8 +33,8 @@
 #include <mutex>
 #include <set>
 #include <unordered_map>
-#include <vector>
 
+#include "base/std/container/vector.h"
 #include "base/RefCounted.h"
 
 namespace cc {
@@ -274,7 +274,7 @@ public:
 private:
     // Hash Element used for "selectors with interval"
     struct HashTimerEntry {
-        std::vector<Timer *> timers;
+        ccstd::vector<Timer *> timers;
         void *               target;
         int                  timerIndex;
         Timer *              currentTimer;
@@ -295,7 +295,7 @@ private:
     bool _updateHashLocked = false;
 
     // Used for "perform Function"
-    std::vector<std::function<void()>> _functionsToPerform;
+    ccstd::vector<std::function<void()>> _functionsToPerform;
     std::mutex                         _performMutex;
 };
 

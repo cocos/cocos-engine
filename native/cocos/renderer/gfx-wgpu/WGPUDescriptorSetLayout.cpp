@@ -239,7 +239,7 @@ void CCWGPUDescriptorSetLayout::prepare(bool forceUpdate) {
     if (_gpuLayoutEntryObj->bindGroupLayout && !forceUpdate) {
         return;
     }
-    // std::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
+    // ccstd::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
     // bindGroupLayoutEntries.assign(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end());
     // bindGroupLayoutEntries.erase(std::remove_if(
     //                                  bindGroupLayoutEntries.begin(), bindGroupLayoutEntries.end(), [&bindingInUse, &bindGroupLayoutEntries](const WGPUBindGroupLayoutEntry& entry) {

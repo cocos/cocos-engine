@@ -60,7 +60,7 @@ static cc::network::Downloader *localDownloader() {
     if (!gLocalDownloader) {
         gLocalDownloader                    = std::make_shared<cc::network::Downloader>();
         gLocalDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask & task,
-                                                  const std::vector<unsigned char> &data) {
+                                                  const ccstd::vector<unsigned char> &data) {
             if (data.empty()) {
                 SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
                 return;
@@ -272,7 +272,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
         void *      ptr;
     };
 
-    std::vector<NamePtrStruct> namePtrArray;
+    ccstd::vector<NamePtrStruct> namePtrArray;
 
     for (const auto &e : se::NativePtrToObjectMap::instance()) {
         se::Object *jsobj = e.second;

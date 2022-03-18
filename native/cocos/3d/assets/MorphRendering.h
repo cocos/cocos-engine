@@ -45,7 +45,7 @@ public:
 
 private:
     Mesh *                                           _mesh{nullptr};
-    std::vector<IntrusivePtr<SubMeshMorphRendering>> _subMeshRenderings;
+    ccstd::vector<IntrusivePtr<SubMeshMorphRendering>> _subMeshRenderings;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(StdMorphRendering);
 

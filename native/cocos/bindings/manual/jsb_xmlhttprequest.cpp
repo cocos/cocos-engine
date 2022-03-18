@@ -424,7 +424,7 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     }
 
     // set header
-    std::vector<char> *headers = response->getResponseHeader();
+    ccstd::vector<char> *headers = response->getResponseHeader();
 
     std::string header(headers->begin(), headers->end());
 
@@ -435,7 +435,7 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     }
 
     /** get the response data **/
-    std::vector<char> *buffer = response->getResponseData();
+    ccstd::vector<char> *buffer = response->getResponseData();
 
     if (_responseType == ResponseType::STRING || _responseType == ResponseType::JSON) {
         _responseText.append(buffer->data(), buffer->size());
@@ -548,7 +548,7 @@ std::string XMLHttpRequest::getResponseHeader(const std::string &key) const {
 }
 
 void XMLHttpRequest::setHttpRequestHeader() {
-    std::vector<std::string> header;
+    ccstd::vector<std::string> header;
 
     for (auto &it : _requestHeader) {
         const char *first  = it.first.c_str();

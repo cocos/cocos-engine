@@ -131,7 +131,7 @@ private:
     gfx::Buffer *                                                            _constantsBuffer{nullptr};
 
     ccstd::vector<scene::Light *> _validLights;
-    std::vector<float>     _lightBufferData;
+    ccstd::vector<float>     _lightBufferData;
 
     gfx::GeneralBarrier *_resetBarrier{nullptr};
 

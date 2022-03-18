@@ -28,7 +28,7 @@
 
 namespace cc {
 namespace {
-const std::vector<std::vector<uint32_t>> FACE_AXES{
+const ccstd::vector<ccstd::vector<uint32_t>> FACE_AXES{
     {2, 3, 1}, // FRONT
     {4, 5, 7}, // BACK
     {7, 6, 2}, // TOP
@@ -37,7 +37,7 @@ const std::vector<std::vector<uint32_t>> FACE_AXES{
     {5, 0, 6}  // LEFT
 };
 
-const std::vector<std::vector<float>> FACE_NORMALS{
+const ccstd::vector<ccstd::vector<float>> FACE_NORMALS{
     {0, 0, 1},  // FRONT
     {0, 0, -1}, // BACK
     {0, 1, 0},  // TOP
@@ -46,7 +46,7 @@ const std::vector<std::vector<float>> FACE_NORMALS{
     {-1, 0, 0}  // LEFT
 };
 
-const std::vector<std::vector<float>> FACE_TANGENTS{
+const ccstd::vector<ccstd::vector<float>> FACE_TANGENTS{
     {-1, 0, 0, 1}, // FRONT
     {-1, 0, 0, 1}, // BACK
     {-1, 0, 0, 1}, // TOP
@@ -65,13 +65,13 @@ IGeometry box(const cc::optional<IBoxOptions> &options) {
     const float hh = options->height.has_value() ? options->height.value() / 2 : 1.0F / 2;
     const float hl = options->length.has_value() ? options->length.value() / 2 : 1.0F / 2;
 
-    std::vector<Vec3> corners{Vec3{-hw, -hh, hl}, Vec3{hw, -hh, hl}, Vec3{hw, hh, hl}, Vec3{-hw, hh, hl}, Vec3{hw, -hh, -hl}, Vec3{-hw, -hh, -hl}, Vec3{-hw, hh, -hl}, Vec3{hw, hh, -hl}};
+    ccstd::vector<Vec3> corners{Vec3{-hw, -hh, hl}, Vec3{hw, -hh, hl}, Vec3{hw, hh, hl}, Vec3{-hw, hh, hl}, Vec3{hw, -hh, -hl}, Vec3{-hw, -hh, -hl}, Vec3{-hw, hh, -hl}, Vec3{hw, hh, -hl}};
 
-    std::vector<float>    positions;
-    std::vector<float>    normals;
-    std::vector<float>    uvs;
-    std::vector<float>    tangents;
-    std::vector<uint32_t> indices;
+    ccstd::vector<float>    positions;
+    ccstd::vector<float>    normals;
+    ccstd::vector<float>    uvs;
+    ccstd::vector<float>    tangents;
+    ccstd::vector<uint32_t> indices;
     const Vec3            minPos(-hw, -hh, -hl);
     const Vec3            maxPos(hw, hh, hl);
     float                 boundingRadius{static_cast<float>(sqrt(hw * hw + hh * hh + hl * hl))};

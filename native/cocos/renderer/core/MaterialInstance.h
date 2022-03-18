@@ -78,7 +78,7 @@ public:
     //
 
 protected:
-    std::vector<IntrusivePtr<scene::Pass>> createPasses() override;
+    ccstd::vector<IntrusivePtr<scene::Pass>> createPasses() override;
 
 private:
     IntrusivePtr<Material> _parent;

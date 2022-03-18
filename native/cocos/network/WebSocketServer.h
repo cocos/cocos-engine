@@ -98,7 +98,7 @@ public:
     unsigned char *getData() { return _underlyingData.data() + LWS_PRE; }
 
 private:
-    std::vector<unsigned char>               _underlyingData;
+    ccstd::vector<unsigned char>               _underlyingData;
     int                                      _consumed = 0;
     bool                                     _isBinary = false;
     std::function<void(const std::string &)> _callback;
@@ -139,7 +139,7 @@ public:
 
     std::map<std::string, std::string> getHeaders();
 
-    std::vector<std::string> getProtocols();
+    ccstd::vector<std::string> getProtocols();
 
     inline void setOnClose(std::function<void(int, const std::string &)> cb) {
         _onclose = cb;
@@ -222,7 +222,7 @@ public:
     static void listenAsync(std::shared_ptr<WebSocketServer> &server, int port, const std::string &host, std::function<void(const std::string &errorMsg)> callback);
     void        closeAsync(std::function<void(const std::string &errorMsg)> callback = nullptr);
 
-    std::vector<std::shared_ptr<WebSocketServerConnection>> getConnections() const;
+    ccstd::vector<std::shared_ptr<WebSocketServerConnection>> getConnections() const;
 
     void setOnListening(std::function<void(const std::string &)> cb) {
         _onlistening = cb;

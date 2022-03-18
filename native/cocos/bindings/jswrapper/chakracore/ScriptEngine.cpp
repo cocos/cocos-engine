@@ -273,7 +273,7 @@ ScriptEngine::ExceptionInfo ScriptEngine::formatException(JsValueRef exception) 
     if (exception == JS_INVALID_REFERENCE)
         return ret;
 
-    std::vector<std::string> allKeys;
+    ccstd::vector<std::string> allKeys;
     Object *                 exceptionObj = Object::_createJSObject(nullptr, exception);
     exceptionObj->getAllKeys(&allKeys);
 

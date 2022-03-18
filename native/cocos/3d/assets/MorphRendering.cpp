@@ -50,12 +50,12 @@ public:
      * Set weights of each morph target.
      * @param weights The weights.
      */
-    virtual void setWeights(const std::vector<float> &weights) = 0;
+    virtual void setWeights(const ccstd::vector<float> &weights) = 0;
 
     /**
      * Asks the define overrides needed to do the rendering.
      */
-    virtual std::vector<scene::IMacroPatch> requiredPatches() = 0;
+    virtual ccstd::vector<scene::IMacroPatch> requiredPatches() = 0;
 
     /**
      * Adapts the pipelineState to apply the rendering.
@@ -168,7 +168,7 @@ struct CpuMorphAttributeTarget {
     Float32Array displacements;
 };
 
-using CpuMorphAttributeTargetList = std::vector<CpuMorphAttributeTarget>;
+using CpuMorphAttributeTargetList = ccstd::vector<CpuMorphAttributeTarget>;
 
 struct CpuMorphAttribute {
     std::string                 name;
@@ -297,7 +297,7 @@ public:
         return _remoteBuffer;
     }
 
-    void setWeights(const std::vector<float> &weights) {
+    void setWeights(const ccstd::vector<float> &weights) {
         CC_ASSERT(weights.size() == _targetCount);
         for (size_t iWeight = 0; iWeight < weights.size(); ++iWeight) {
             _localBuffer->setFloat32(static_cast<uint32_t>(pipeline::UBOMorph::OFFSET_OF_WEIGHTS + 4 * iWeight), weights[iWeight]);
@@ -329,10 +329,10 @@ public:
     explicit CpuComputing(Mesh *mesh, uint32_t subMeshIndex, const Morph *morph, gfx::Device *gfxDevice);
 
     SubMeshMorphRenderingInstance *       createInstance() override;
-    const std::vector<CpuMorphAttribute> &getData() const;
+    const ccstd::vector<CpuMorphAttribute> &getData() const;
 
 private:
-    std::vector<CpuMorphAttribute> _attributes;
+    ccstd::vector<CpuMorphAttribute> _attributes;
     gfx::Device *                  _gfxDevice{nullptr};
 };
 
@@ -348,7 +348,7 @@ private:
     const SubMeshMorph *           _subMeshMorph{nullptr};
     uint32_t                       _textureWidth{0};
     uint32_t                       _textureHeight{0};
-    std::vector<GpuMorphAttribute> _attributes;
+    ccstd::vector<GpuMorphAttribute> _attributes;
     uint32_t                       _verticesCount{0};
 
     friend class GpuComputingRenderingInstance;
@@ -369,7 +369,7 @@ public:
         }
     }
 
-    void setWeights(const std::vector<float> &weights) override {
+    void setWeights(const ccstd::vector<float> &weights) override {
         for (size_t iAttribute = 0; iAttribute < _attributes.size(); ++iAttribute) {
             const auto &  myAttribute    = _attributes[iAttribute];
             Float32Array &valueView      = myAttribute.morphTexture->getValueView();
@@ -398,7 +398,7 @@ public:
         }
     }
 
-    std::vector<scene::IMacroPatch> requiredPatches() override {
+    ccstd::vector<scene::IMacroPatch> requiredPatches() override {
         return {
             {"CC_MORPH_TARGET_USE_TEXTURE", true},
             {"CC_MORPH_PRECOMPUTED", true},
@@ -436,7 +436,7 @@ public:
     }
 
 private:
-    std::vector<GpuMorphAttribute> _attributes;
+    ccstd::vector<GpuMorphAttribute> _attributes;
     IntrusivePtr<CpuComputing>     _owner;
     IntrusivePtr<MorphUniforms>    _morphUniforms;
 };
@@ -452,12 +452,12 @@ public:
         _attributes = &_owner->_attributes;
     }
 
-    void setWeights(const std::vector<float> &weights) override {
+    void setWeights(const ccstd::vector<float> &weights) override {
         _morphUniforms->setWeights(weights);
         _morphUniforms->commit();
     }
 
-    std::vector<scene::IMacroPatch> requiredPatches() override {
+    ccstd::vector<scene::IMacroPatch> requiredPatches() override {
         return {
             {"CC_MORPH_TARGET_USE_TEXTURE", true},
         };
@@ -490,7 +490,7 @@ public:
     }
 
 private:
-    std::vector<GpuMorphAttribute> *_attributes{nullptr};
+    ccstd::vector<GpuMorphAttribute> *_attributes{nullptr};
     IntrusivePtr<GpuComputing>      _owner;
     IntrusivePtr<MorphUniforms>     _morphUniforms;
 };
@@ -528,7 +528,7 @@ SubMeshMorphRenderingInstance *CpuComputing::createInstance() {
         _gfxDevice);
 }
 
-const std::vector<CpuMorphAttribute> &CpuComputing::getData() const {
+const ccstd::vector<CpuMorphAttribute> &CpuComputing::getData() const {
     return _attributes;
 }
 
@@ -626,7 +626,7 @@ public:
         }
     }
 
-    std::vector<scene::IMacroPatch> requiredPatches(index_t subMeshIndex) override {
+    ccstd::vector<scene::IMacroPatch> requiredPatches(index_t subMeshIndex) override {
         CC_ASSERT(_owner->_mesh->getStruct().morph.has_value());
         const auto &subMeshMorphOpt          = _owner->_mesh->getStruct().morph.value().subMeshMorphs[subMeshIndex];
         auto *      subMeshRenderingInstance = _subMeshInstances[subMeshIndex].get();
@@ -635,7 +635,7 @@ public:
         }
         const auto &subMeshMorph = subMeshMorphOpt.value();
 
-        std::vector<scene::IMacroPatch> patches{
+        ccstd::vector<scene::IMacroPatch> patches{
             {"CC_USE_MORPH", true},
             {"CC_MORPH_TARGET_COUNT", static_cast<int32_t>(subMeshMorph.targets.size())}};
 
@@ -681,7 +681,7 @@ public:
 
 private:
     IntrusivePtr<StdMorphRendering>                          _owner;
-    std::vector<IntrusivePtr<SubMeshMorphRenderingInstance>> _subMeshInstances;
+    ccstd::vector<IntrusivePtr<SubMeshMorphRenderingInstance>> _subMeshInstances;
 };
 
 StdMorphRendering::StdMorphRendering(Mesh *mesh, gfx::Device *gfxDevice) {

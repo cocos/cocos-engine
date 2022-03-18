@@ -54,7 +54,7 @@ protected:
     void doDestroy() override;
 
     GLES3GPUQueryPool *   _gpuQueryPool = nullptr;
-    std::vector<uint32_t> _ids;
+    ccstd::vector<uint32_t> _ids;
 };
 
 } // namespace gfx

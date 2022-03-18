@@ -148,8 +148,8 @@ public:
      * @en Flatted vertex buffers
      * @zh 扁平化的顶点缓冲区。
      */
-    inline const std::vector<IFlatBuffer> &getFlatBuffers() const { return _flatBuffers; }
-    inline void                            setFlatBuffers(const std::vector<IFlatBuffer> &flatBuffers) { _flatBuffers = flatBuffers; }
+    inline const ccstd::vector<IFlatBuffer> &getFlatBuffers() const { return _flatBuffers; }
+    inline void                            setFlatBuffers(const ccstd::vector<IFlatBuffer> &flatBuffers) { _flatBuffers = flatBuffers; }
 
     void genFlatBuffers();
 
@@ -189,12 +189,12 @@ private:
     Mesh *                 _mesh{nullptr};
     cc::optional<uint32_t> _subMeshIdx;
 
-    std::vector<IFlatBuffer> _flatBuffers;
+    ccstd::vector<IFlatBuffer> _flatBuffers;
 
     // As gfx::InputAssemblerInfo needs the data structure, so not use IntrusivePtr.
     RefVector<gfx::Buffer *> _jointMappedBuffers;
 
-    std::vector<uint32_t> _jointMappedBufferIndices;
+    ccstd::vector<uint32_t> _jointMappedBufferIndices;
 
     cc::optional<VertexIdChannel> _vertexIdChannel;
 

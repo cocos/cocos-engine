@@ -53,17 +53,17 @@ public:
     void                                                   setCollisionMatrix(uint32_t index, uint32_t mask) override;
     bool                                                   raycast(RaycastOptions &opt) override;
     bool                                                   raycastClosest(RaycastOptions &opt) override;
-    std::vector<RaycastResult> &                           raycastResult() override;
+    ccstd::vector<RaycastResult> &                           raycastResult() override;
     RaycastResult &                                        raycastClosestResult() override;
     uintptr_t                                              createConvex(ConvexDesc &desc) override;
     uintptr_t                                              createTrimesh(TrimeshDesc &desc) override;
     uintptr_t                                              createHeightField(HeightFieldDesc &desc) override;
     uintptr_t                                              createMaterial(uint16_t id, float f, float df, float r,
                                                                           uint8_t m0, uint8_t m1) override;
-    inline std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override {
+    inline ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override {
         return _mEventMgr->getTriggerPairs();
     }
-    inline std::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override {
+    inline ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override {
         return _mEventMgr->getConatctPairs();
     }
     void syncSceneToPhysics() override;
@@ -94,7 +94,7 @@ private:
     physx::PxScene *               _mScene;
     PhysXEventManager *            _mEventMgr;
     uint32_t                       _mCollisionMatrix[31];
-    std::vector<PhysXSharedBody *> _mSharedBodies;
+    ccstd::vector<PhysXSharedBody *> _mSharedBodies;
 };
 
 } // namespace physics

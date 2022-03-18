@@ -34,7 +34,7 @@ namespace gfx {
 
 struct CCWGPUBindGroupObject;
 
-using Pairs = std::vector<std::pair<uint8_t, uint8_t>>;
+using Pairs = ccstd::vector<std::pair<uint8_t, uint8_t>>;
 
 class CCWGPUDescriptorSet final : public emscripten::wrapper<DescriptorSet> {
 public:

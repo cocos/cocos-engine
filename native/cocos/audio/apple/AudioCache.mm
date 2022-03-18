@@ -161,7 +161,7 @@ void AudioCache::readDataTask(unsigned int selfId) {
             BREAK_IF_ERR_LOG(!decoder.seek(totalFrames), "AudioDecoder::seek(%u) error", totalFrames);
 
             char *tmpBuf = (char *)malloc(framesToReadOnce * bytesPerFrame);
-            std::vector<char> adjustFrameBuf;
+            ccstd::vector<char> adjustFrameBuf;
             adjustFrameBuf.reserve(framesToReadOnce * bytesPerFrame);
 
             // Adjust total frames by setting position to the end of frames and try to read more data.

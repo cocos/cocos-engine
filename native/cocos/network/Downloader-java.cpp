@@ -194,7 +194,7 @@ void DownloaderJava::abort(const std::unique_ptr<IDownloadTask> &task) {
 
             DownloadTaskAndroid *coTask = iter->second;
             _taskMap.erase(iter);
-            std::vector<unsigned char> emptyBuffer;
+            ccstd::vector<unsigned char> emptyBuffer;
             onTaskFinish(*coTask->task,
                          DownloadTask::ERROR_ABORT,
                          DownloadTask::ERROR_ABORT,
@@ -218,7 +218,7 @@ void DownloaderJava::onProcessImpl(int taskId, int64_t dl, int64_t dlNow, int64_
     onTaskProgress(*coTask->task, dl, dlNow, dlTotal, transferDataToBuffer);
 }
 
-void DownloaderJava::onFinishImpl(int taskId, int errCode, const char *errStr, const std::vector<unsigned char> &data) {
+void DownloaderJava::onFinishImpl(int taskId, int errCode, const char *errStr, const ccstd::vector<unsigned char> &data) {
     DLLOG("DownloaderJava::onFinishImpl(taskId: %d, errCode: %d, errStr: %s)", taskId, errCode, (errStr) ? errStr : "null");
     auto iter = _taskMap.find(taskId);
     if (_taskMap.end() == iter) {
@@ -256,7 +256,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jclass
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*clazz*/, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data) {
     std::string          errStrTmp;
-    std::vector<uint8_t> dataTmp;
+    ccstd::vector<uint8_t> dataTmp;
     if (errStr) {
         const char *nativeErrStr = env->GetStringUTFChars(errStr, JNI_FALSE);
         errStrTmp                = nativeErrStr;
@@ -275,7 +275,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*claz
             DLLOG("_nativeOnFinish can't find downloader id: %d for task: %d", id, taskId);
             return;
         }
-        std::vector<unsigned char> buf;
+        ccstd::vector<unsigned char> buf;
         if (!errStrTmp.empty()) {
             // failure
             downloader->onFinishImpl((int)taskId, (int)errCode, errStrTmp.c_str(), buf);

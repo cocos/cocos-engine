@@ -56,7 +56,7 @@ private:
     bool excuted(DummyGraphNode *n) const;
 
     int                           _generation{0};
-    std::vector<DummyGraphNode *> _nodes;
+    ccstd::vector<DummyGraphNode *> _nodes;
 };
 
 class DummyGraphNodeTaskItf {

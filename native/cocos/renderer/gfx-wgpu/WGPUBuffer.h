@@ -50,7 +50,7 @@ public:
     inline uint getOffset() const { return _offset; }
 
     void update(const emscripten::val &v, uint size) {
-        std::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
+        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
         update(reinterpret_cast<const void *>(buffer.data()), size);
     }
 

@@ -28,7 +28,7 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include "base/std/container/vector.h"
 #include "base/RefCounted.h"
 
 namespace cc {
@@ -64,7 +64,7 @@ private:
      * be destructed properly by calling Ref::release() even if the object
      * is in the pool.
      */
-    static std::vector<RefCounted *> managedObjectArray;
+    static ccstd::vector<RefCounted *> managedObjectArray;
 };
 
 } // namespace cc

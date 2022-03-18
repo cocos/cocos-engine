@@ -108,7 +108,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
     CCWGPUSwapchain *             swapchain          = ccFrameBuffer->swapchain();
 
     WGPURenderPassDescriptor &                 renderPassDesc = _gpuCommandBufferObj->renderPassDescriptor;
-    std::vector<WGPURenderPassColorAttachment> colorAttachments;
+    ccstd::vector<WGPURenderPassColorAttachment> colorAttachments;
     if (colorConfigs.empty()) {
         renderPassDesc.nextInChain          = nullptr;
         renderPassDesc.label                = "swapchain";
@@ -137,7 +137,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
         }
     }
 
-    std::vector<WGPURenderPassDepthStencilAttachment> depthStencils;
+    ccstd::vector<WGPURenderPassDepthStencilAttachment> depthStencils;
     if (dsTexture) {
         WGPURenderPassDepthStencilAttachment depthStencil = {
             .view            = static_cast<CCWGPUTexture *>(dsTexture)->gpuTextureObject()->selfView,
@@ -276,7 +276,7 @@ void CCWGPUCommandBuffer::bindStates() {
 
     // printf("ppl binding %p\n", pipelineState);
 
-    // std::vector<void*> wgpuLayouts;
+    // ccstd::vector<void*> wgpuLayouts;
 
     if (pipelineState->getBindPoint() == PipelineBindPoint::GRAPHICS) {
         //bindgroup & descriptorset

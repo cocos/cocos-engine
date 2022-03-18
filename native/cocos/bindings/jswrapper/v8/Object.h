@@ -295,7 +295,7 @@ public:
          *  @param[out] allKeys A string vector to store all property names.
          *  @return true if succeed, otherwise false.
          */
-    bool getAllKeys(std::vector<std::string> *allKeys) const;
+    bool getAllKeys(ccstd::vector<std::string> *allKeys) const;
 
     void               setPrivateObject(PrivateObjectBase *data);
     PrivateObjectBase *getPrivateObject() const;

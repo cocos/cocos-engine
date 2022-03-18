@@ -60,7 +60,7 @@ struct CallbackInfoBase {
     bool  _once{false};
     bool  _isCCObject{false};
 #if CC_DEBUG
-    std::vector<std::string> _argTypes;
+    ccstd::vector<std::string> _argTypes;
 #endif
 };
 
@@ -126,7 +126,7 @@ struct CallbackInfo final : public CallbackInfoBase {
  */
 class CallbackList final {
 public:
-    std::vector<std::shared_ptr<CallbackInfoBase>> _callbackInfos;
+    ccstd::vector<std::shared_ptr<CallbackInfoBase>> _callbackInfos;
     bool                                           _isInvoking{false};
     bool                                           _containCanceled{false};
 
@@ -378,7 +378,7 @@ void CallbacksInvoker::off(const KeyType &key, void (Target::*memberFn)(Args...)
 template <typename... Args>
 void CallbacksInvoker::emit(const KeyType &key, Args &&...args) {
 #if CC_DEBUG
-    std::vector<std::string> argTypes{(typeid(Args).name())...};
+    ccstd::vector<std::string> argTypes{(typeid(Args).name())...};
 #endif
     auto iter = _callbackTable.find(key);
     if (iter != _callbackTable.end()) {

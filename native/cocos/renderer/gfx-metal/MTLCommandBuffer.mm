@@ -930,7 +930,7 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
     } else {
         id<MTLCommandBuffer> mtlCommandBuffer = getMTLCommandBuffer();
 
-        std::vector<std::pair<uint8_t*, uint32_t>> stagingAddrs(count);
+        ccstd::vector<std::pair<uint8_t*, uint32_t>> stagingAddrs(count);
         for (size_t i = 0; i < count; ++i) {
             uint32_t      width         = regions[i].texExtent.width;
             uint32_t      height        = regions[i].texExtent.height;

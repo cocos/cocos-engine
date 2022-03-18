@@ -97,9 +97,9 @@ private:
     physx::PxRigidDynamic *                    _mDynamicActor;
     PhysXWorld *                               _mWrappedWorld;
     PhysXRigidBody *                           _mWrappedBody;
-    std::vector<PhysXShape *>                  _mWrappedShapes;
-    std::vector<PhysXJoint *>                  _mWrappedJoints0;
-    std::vector<PhysXJoint *>                  _mWrappedJoints1;
+    ccstd::vector<PhysXShape *>                  _mWrappedShapes;
+    ccstd::vector<PhysXJoint *>                  _mWrappedJoints0;
+    ccstd::vector<PhysXJoint *>                  _mWrappedJoints1;
     PhysXSharedBody(Node *node, PhysXWorld *world, PhysXRigidBody *body);
     ~PhysXSharedBody();
     void initActor();

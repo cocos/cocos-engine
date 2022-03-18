@@ -90,10 +90,10 @@ private:
     void          generateDevicePasses();
     ResourceNode *getResourceNode(const VirtualResource *virtualResource, uint8_t version) noexcept;
 
-    std::vector<std::unique_ptr<PassNode>>        _passNodes{};
-    std::vector<ResourceNode>                     _resourceNodes{};
-    std::vector<std::unique_ptr<VirtualResource>> _virtualResources{};
-    std::vector<std::unique_ptr<DevicePass>>      _devicePasses{};
+    ccstd::vector<std::unique_ptr<PassNode>>        _passNodes{};
+    ccstd::vector<ResourceNode>                     _resourceNodes{};
+    ccstd::vector<std::unique_ptr<VirtualResource>> _virtualResources{};
+    ccstd::vector<std::unique_ptr<DevicePass>>      _devicePasses{};
     ResourceHandleBlackboard                      _blackboard;
     bool                                          _merge{true};
 

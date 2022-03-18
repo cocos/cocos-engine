@@ -985,12 +985,12 @@ The way it works is:
 // Given following variables already initialized:
 VkDevice device;
 VmaAllocator allocator;
-std::vector<VkBuffer> buffers;
-std::vector<VmaAllocation> allocations;
+ccstd::vector<VkBuffer> buffers;
+ccstd::vector<VmaAllocation> allocations;
 
 
 const uint32_t allocCount = (uint32_t)allocations.size();
-std::vector<VkBool32> allocationsChanged(allocCount);
+ccstd::vector<VkBool32> allocationsChanged(allocCount);
 
 VmaDefragmentationInfo2 defragInfo = {};
 defragInfo.allocationCount = allocCount;
@@ -1053,12 +1053,12 @@ Example:
 VkDevice device;
 VmaAllocator allocator;
 VkCommandBuffer commandBuffer;
-std::vector<VkBuffer> buffers;
-std::vector<VmaAllocation> allocations;
+ccstd::vector<VkBuffer> buffers;
+ccstd::vector<VmaAllocation> allocations;
 
 
 const uint32_t allocCount = (uint32_t)allocations.size();
-std::vector<VkBool32> allocationsChanged(allocCount);
+ccstd::vector<VkBool32> allocationsChanged(allocCount);
 
 VkCommandBufferBeginInfo cmdBufBeginInfo = ...;
 vkBeginCommandBuffer(commandBuffer, &cmdBufBeginInfo);
@@ -4054,7 +4054,7 @@ internally, like:
 //#define VMA_USE_STL_CONTAINERS 1
 
 /* Set this macro to 1 to make the library including and using STL containers:
-std::pair, std::vector, std::list, std::unordered_map.
+std::pair, ccstd::vector, std::list, std::unordered_map.
 
 Set it to 0 or undefined to make the library using its own implementation of
 the containers.
@@ -4967,23 +4967,23 @@ public:
 
 #if VMA_USE_STL_VECTOR
 
-#define VmaVector std::vector
+#define VmaVector ccstd::vector
 
 template<typename T, typename allocatorT>
-static void VmaVectorInsert(std::vector<T, allocatorT>& vec, size_t index, const T& item)
+static void VmaVectorInsert(ccstd::vector<T, allocatorT>& vec, size_t index, const T& item)
 {
     vec.insert(vec.begin() + index, item);
 }
 
 template<typename T, typename allocatorT>
-static void VmaVectorRemove(std::vector<T, allocatorT>& vec, size_t index)
+static void VmaVectorRemove(ccstd::vector<T, allocatorT>& vec, size_t index)
 {
     vec.erase(vec.begin() + index);
 }
 
 #else // #if VMA_USE_STL_VECTOR
 
-/* Class with interface compatible with subset of std::vector.
+/* Class with interface compatible with subset of ccstd::vector.
 T must be POD because constructors and destructors are not called and memcpy is
 used for these objects. */
 template<typename T, typename AllocatorT>
@@ -5008,7 +5008,7 @@ public:
     {
     }
 
-    // This version of the constructor is here for compatibility with pre-C++14 std::vector.
+    // This version of the constructor is here for compatibility with pre-C++14 ccstd::vector.
     // value is unused.
     VmaVector(size_t count, const T& value, const AllocatorT& allocator)
         : VmaVector(count, allocator) {}

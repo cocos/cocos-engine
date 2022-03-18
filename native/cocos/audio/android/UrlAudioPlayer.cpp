@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/ICallerThreadUtils.h"
+#include "base/std/container/vector.h"
 
 #include <math.h>
 #include <algorithm> // for std::find
@@ -34,7 +35,7 @@ THE SOFTWARE.
 namespace {
 
 std::mutex __playerContainerMutex;
-std::vector<cc::UrlAudioPlayer *> __playerContainer;
+ccstd::vector<cc::UrlAudioPlayer *> __playerContainer;
 std::once_flag __onceFlag;
 
 } // namespace

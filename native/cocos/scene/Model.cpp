@@ -103,7 +103,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
     cc::gfx::Address::CLAMP,
 };
 
-const std::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
+const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const std::string                         INST_MAT_WORLD = "a_matWorld0";
 } // namespace
 
@@ -231,7 +231,7 @@ void Model::updateUBOs(uint32_t stamp) {
     Mat4        mat4;
     int         idx = _instMatWorldIdx;
     if (idx >= 0) {
-        std::vector<TypedArray> &attrs = getInstancedAttributeBlock()->views;
+        ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock()->views;
         uploadMat4AsVec4x3(worldMatrix, cc::get<Float32Array>(attrs[idx]), cc::get<Float32Array>(attrs[idx + 1]), cc::get<Float32Array>(attrs[idx + 2]));
     } else if (_localBuffer) {
         mat4ToFloat32Array(worldMatrix, _localData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
@@ -352,7 +352,7 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     }
 }
 
-std::vector<IMacroPatch> &Model::getMacroPatches(index_t subModelIndex) {
+ccstd::vector<IMacroPatch> &Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
             _eventProcessor.emit(EventTypesToJS::MODEL_GET_MACRO_PATCHES, subModelIndex, &_macroPatches);
@@ -395,7 +395,7 @@ index_t Model::getInstancedAttributeIndex(const std::string &name) const {
     return CC_INVALID_INDEX;
 }
 
-void Model::updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, Pass *pass) {
+void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
             _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, pass);

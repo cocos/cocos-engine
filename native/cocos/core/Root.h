@@ -184,7 +184,7 @@ public:
      * @zh
      * 窗口列表
      */
-    inline const std::vector<IntrusivePtr<scene::RenderWindow>> &getWindows() const { return _windows; }
+    inline const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &getWindows() const { return _windows; }
 
     /**
      * @zh
@@ -203,7 +203,7 @@ public:
      * @zh
      * 场景列表
      */
-    inline const std::vector<IntrusivePtr<scene::RenderScene>> &getScenes() const { return _scenes; }
+    inline const ccstd::vector<IntrusivePtr<scene::RenderScene>> &getScenes() const { return _scenes; }
 
     /**
      * @zh
@@ -249,12 +249,12 @@ private:
     IntrusivePtr<scene::RenderWindow>              _mainWindow;
     IntrusivePtr<scene::RenderWindow>              _curWindow;
     IntrusivePtr<scene::RenderWindow>              _tempWindow;
-    std::vector<IntrusivePtr<scene::RenderWindow>> _windows;
+    ccstd::vector<IntrusivePtr<scene::RenderWindow>> _windows;
     IntrusivePtr<pipeline::RenderPipeline>         _pipeline{nullptr};
     std::unique_ptr<render::PipelineRuntime>       _pipelineRuntime;
     scene::DrawBatch2D *                           _batcher2D{nullptr};
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
-    std::vector<IntrusivePtr<scene::RenderScene>> _scenes;
+    ccstd::vector<IntrusivePtr<scene::RenderScene>> _scenes;
     memop::Pool<scene::Camera> *                  _cameraPool{nullptr};
     float                                         _cumulativeTime{0.F};
     float                                         _frameTime{0.F};
@@ -266,9 +266,9 @@ private:
     bool                                          _usesCustomPipeline{false};
     CallbacksInvoker *                            _eventProcessor{nullptr};
 
-    // Cache std::vector to avoid allocate every frame in frameMove
-    std::vector<scene::Camera *>  _cameraList;
-    std::vector<gfx::Swapchain *> _swapchains;
+    // Cache ccstd::vector to avoid allocate every frame in frameMove
+    ccstd::vector<scene::Camera *>  _cameraList;
+    ccstd::vector<gfx::Swapchain *> _swapchains;
     //
 };
 

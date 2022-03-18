@@ -86,7 +86,7 @@ Downloader::Downloader(const DownloaderHints &hints) {
                                  int                               errorCode,
                                  int                               errorCodeInternal,
                                  const std::string &               errorStr,
-                                 const std::vector<unsigned char> &data) {
+                                 const ccstd::vector<unsigned char> &data) {
         if (DownloadTask::ERROR_NO_ERROR != errorCode) {
             if (onTaskError) {
                 onTaskError(task, errorCode, errorCodeInternal, errorStr);

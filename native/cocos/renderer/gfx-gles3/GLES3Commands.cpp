@@ -1771,7 +1771,7 @@ void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES
         }
         case GLES3QueryType::GET_RESULTS: {
             auto                  queryCount = queryPool->getIdCount();
-            std::vector<uint64_t> results(queryCount);
+            ccstd::vector<uint64_t> results(queryCount);
 
             for (auto queryId = 0U; queryId < queryCount; queryId++) {
                 GLuint glQueryId = gpuQueryPool->mapGLQueryId(queryId);

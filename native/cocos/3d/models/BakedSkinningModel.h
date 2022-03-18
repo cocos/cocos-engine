@@ -45,7 +45,7 @@ struct BakedJointInfo {
     Float32Array                              jointTextureInfo;
     cc::optional<IJointTextureHandle *>       texture;
     IAnimInfo                                 animInfo;
-    std::vector<cc::optional<geometry::AABB>> boundsInfo;
+    ccstd::vector<cc::optional<geometry::AABB>> boundsInfo;
 };
 
 class BakedSkinningModel final : public MorphModel {
@@ -56,11 +56,11 @@ public:
 
     void destroy() override;
 
-    std::vector<scene::IMacroPatch> &getMacroPatches(index_t subModelIndex) override;
+    ccstd::vector<scene::IMacroPatch> &getMacroPatches(index_t subModelIndex) override;
     void                             updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) override;
     void                             updateTransform(uint32_t stamp) override;
     void                             updateUBOs(uint32_t stamp) override;
-    void                             updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
+    void                             updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
     void                             updateInstancedJointTextureInfo();
     // void                             uploadAnimation(AnimationClip *anim); // TODO(xwx): AnimationClip not define
 
@@ -75,7 +75,7 @@ public:
     }
 
     void syncAnimInfoForJS(gfx::Buffer *buffer, const Float32Array &data, Uint8Array &dirty);
-    void syncDataForJS(const std::vector<cc::optional<geometry::AABB>> &boundsInfo,
+    void syncDataForJS(const ccstd::vector<cc::optional<geometry::AABB>> &boundsInfo,
                        const cc::optional<geometry::AABB> &             modelBound,
                        float                                            jointTextureInfo0,
                        float                                            jointTextureInfo1,

@@ -32,7 +32,7 @@
 namespace cc {
 namespace geometry {
 namespace {
-const std::vector<cc::Vec3> VEC_VALS{
+const ccstd::vector<cc::Vec3> VEC_VALS{
     {1, 1, 1},
     {-1, 1, 1},
     {-1, -1, 1},

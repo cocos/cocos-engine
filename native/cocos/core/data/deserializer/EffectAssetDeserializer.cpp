@@ -32,7 +32,7 @@ template <typename T>
 using DeserializeArrayElementCallback = std::function<void(const rapidjson::Value &, T &)>;
 
 template <typename T>
-static void deserializeArray(const rapidjson::Value &valArray, std::vector<T> &cValArray, const DeserializeArrayElementCallback<T> &deserializeArrayElement) {
+static void deserializeArray(const rapidjson::Value &valArray, ccstd::vector<T> &cValArray, const DeserializeArrayElementCallback<T> &deserializeArrayElement) {
     CC_ASSERT(valArray.IsArray());
     index_t i = 0;
     cValArray.resize(valArray.Size());
@@ -42,13 +42,13 @@ static void deserializeArray(const rapidjson::Value &valArray, std::vector<T> &c
     }
 }
 
-static void deserializeArray(const rapidjson::Value &valArray, std::vector<std::string> &cValArray) {
+static void deserializeArray(const rapidjson::Value &valArray, ccstd::vector<std::string> &cValArray) {
     deserializeArray<std::string>(valArray, cValArray, [](const rapidjson::Value &val, std::string &cVal) {
         cVal = val.GetString();
     });
 }
 
-static void deserializeArray(const rapidjson::Value &valArray, std::vector<bool> &cValArray) {
+static void deserializeArray(const rapidjson::Value &valArray, ccstd::vector<bool> &cValArray) {
     CC_ASSERT(valArray.IsArray());
     index_t i = 0;
     cValArray.resize(valArray.Size());
@@ -61,7 +61,7 @@ static void deserializeArray(const rapidjson::Value &valArray, std::vector<bool>
 }
 
 template <typename T, typename Enabled = std::enable_if_t<!std::is_same<std::string, T>::value && !std::is_same<bool, T>::value, T>>
-static void deserializeArray(const rapidjson::Value &valArray, std::vector<T> &cValArray) {
+static void deserializeArray(const rapidjson::Value &valArray, ccstd::vector<T> &cValArray) {
     DeserializeArrayElementCallback<T> cb{[](const rapidjson::Value &val, T &cVal) {
         cVal = val.Get<T>();
     }};
@@ -136,7 +136,7 @@ static IPropertyInfo jsonToPropertyInfo(const rapidjson::Value &propertyInfoVal)
     if (propertyInfoVal.HasMember("value")) {
         const auto &val = propertyInfoVal["value"];
         if (val.IsArray()) {
-            std::vector<float> arr;
+            ccstd::vector<float> arr;
             arr.reserve(val.GetArray().Size());
             for (const auto &e : val.GetArray()) {
                 if (e.IsNumber()) {
@@ -552,7 +552,7 @@ static void deserializeShaderDefine(const rapidjson::Value &defineVal, IDefineIn
         auto &      cRange   = cDefine.range;
         const auto &rangeVal = defineVal["range"];
 
-        cRange = std::vector<int32_t>{};
+        cRange = ccstd::vector<int32_t>{};
         deserializeArray(rangeVal, cRange.value());
     }
 
@@ -560,7 +560,7 @@ static void deserializeShaderDefine(const rapidjson::Value &defineVal, IDefineIn
         auto &      cOptions   = cDefine.options;
         const auto &optionsVal = defineVal["options"];
 
-        cOptions = std::vector<std::string>{};
+        cOptions = ccstd::vector<std::string>{};
         deserializeArray(optionsVal, cOptions.value());
     }
 
@@ -813,15 +813,15 @@ static void deserializeShader(const rapidjson::Value &shaderVal, IShaderInfo &cS
 
 static void deserializePreCompileInfoValue(const rapidjson::Value &infoVal, IPreCompileInfoValueType &cInfo) {
     if (infoVal.IsBool()) {
-        std::vector<bool> boolInfo;
+        ccstd::vector<bool> boolInfo;
         deserializeArray(infoVal, boolInfo);
         cInfo = std::move(boolInfo);
     } else if (infoVal.IsInt()) {
-        std::vector<int32_t> intInfo;
+        ccstd::vector<int32_t> intInfo;
         deserializeArray(infoVal, intInfo);
         cInfo = std::move(intInfo);
     } else if (infoVal.IsString()) {
-        std::vector<std::string> strInfo;
+        ccstd::vector<std::string> strInfo;
         deserializeArray(infoVal, strInfo);
         cInfo = std::move(strInfo);
     } else {

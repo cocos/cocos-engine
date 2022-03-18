@@ -53,7 +53,7 @@ private:
     inline PassInsertPoint get(StringHandle name) const;
 
     StringPool                   _stringPool;
-    std::vector<PassInsertPoint> _insertPoints{};
+    ccstd::vector<PassInsertPoint> _insertPoints{};
 };
 
 //////////////////////////////////////////////////////////////////////////

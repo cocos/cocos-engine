@@ -196,7 +196,7 @@ private:
 class SPVShaderStageInstance {
 public:
     ShaderStageFlagBit    stage{ShaderStageFlagBit::NONE};
-    std::vector<uint32_t> spv;
+    ccstd::vector<uint32_t> spv;
 
     inline void setStage(ShaderStageFlagBit stageIn) { stage = stageIn; }
     inline void setSPVData(const emscripten::val &v) { spv = emscripten::convertJSArrayToNumberVector<uint32_t>(v); }
@@ -206,7 +206,7 @@ class SPVShaderInfoInstance {
 public:
     inline void setName(String name) { info.name = name; }
     inline void setAttributes(AttributeList attrs) { info.attributes = attrs; }
-    inline void setStages(std::vector<SPVShaderStageInstance> spvStages) { stages = spvStages; }
+    inline void setStages(ccstd::vector<SPVShaderStageInstance> spvStages) { stages = spvStages; }
     inline void setBlocks(UniformBlockList blocks) { info.blocks = blocks; }
     inline void setBuffers(UniformStorageBufferList buffers) { info.buffers = buffers; }
     inline void setSamplerTextures(UniformSamplerTextureList list) { info.samplerTextures = list; }
@@ -216,7 +216,7 @@ public:
     inline void setSubpasses(UniformInputAttachmentList subpassInputs) { info.subpassInputs = subpassInputs; }
 
     ShaderInfo                          info;
-    std::vector<SPVShaderStageInstance> stages;
+    ccstd::vector<SPVShaderStageInstance> stages;
 };
 
 class DescriptorSetLayoutBindingInstance {
@@ -256,7 +256,7 @@ private:
 
 class DescriptorSetLayoutInfoInstance {
 public:
-    inline void setBindings(std::vector<DescriptorSetLayoutBindingInstance> bindings) { info.bindings = std::vector<DescriptorSetLayoutBinding>(bindings.begin(), bindings.end()); }
+    inline void setBindings(ccstd::vector<DescriptorSetLayoutBindingInstance> bindings) { info.bindings = ccstd::vector<DescriptorSetLayoutBinding>(bindings.begin(), bindings.end()); }
 
     explicit operator const DescriptorSetLayoutInfo() const { return info; }
 

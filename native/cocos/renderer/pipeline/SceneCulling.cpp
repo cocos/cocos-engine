@@ -385,7 +385,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         }
 
         if (isShadowMap) {
-            std::vector<scene::Model *> casters;
+            ccstd::vector<scene::Model *> casters;
             casters.reserve(scene->getModels().size() / 4);
             octree->queryVisibility(camera, dirLightFrustum, true, casters);
 
@@ -394,7 +394,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
             }
         }
 
-        std::vector<scene::Model *> models;
+        ccstd::vector<scene::Model *> models;
         models.reserve(scene->getModels().size() / 4);
         octree->queryVisibility(camera, camera->getFrustum(), false, models);
         for (const auto *model : models) {

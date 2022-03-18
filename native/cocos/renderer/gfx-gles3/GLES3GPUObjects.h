@@ -94,7 +94,7 @@ public:
     QueryType           type{QueryType::OCCLUSION};
     uint32_t            maxQueryObjects{0};
     bool                forceWait{true};
-    std::vector<GLuint> glQueryIds;
+    ccstd::vector<GLuint> glQueryIds;
 
     inline GLuint mapGLQueryId(uint32_t queryId) {
         if (queryId < maxQueryObjects) {

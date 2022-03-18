@@ -417,7 +417,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
                 errorCode = cc::network::DownloadTask::ERROR_ABORT;
                 errorMsg = @"downloadFile:fail abort";
             }
-            std::vector<unsigned char> buf; // just a placeholder
+            ccstd::vector<unsigned char> buf; // just a placeholder
             _outer->onTaskFinish(*[wrapper get],
                                  cc::network::DownloadTask::ERROR_IMPL_INTERNAL,
                                  errorCode,
@@ -429,7 +429,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
             std::string errorString;
 
             const int64_t buflen = [wrapper totalBytesReceived];
-            std::vector<unsigned char> data((size_t)buflen);
+            ccstd::vector<unsigned char> data((size_t)buflen);
             char *buf = (char *)data.data();
             [wrapper transferDataToBuffer:buf lengthOfBuffer:buflen];
 
@@ -443,7 +443,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
 
             // Check for error status code
             if (statusCode >= 400) {
-                std::vector<unsigned char> buf; // just a placeholder
+                ccstd::vector<unsigned char> buf; // just a placeholder
                 const char *originalURL = [task.originalRequest.URL.absoluteString cStringUsingEncoding:NSUTF8StringEncoding];
                 std::string errorMessage = cc::StringUtils::format("Downloader: Failed to download %s with status code (%d)", originalURL, (int)statusCode);
 
@@ -597,7 +597,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
             errorString = [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding];
         }
     }
-    std::vector<unsigned char> buf; // just a placeholder
+    ccstd::vector<unsigned char> buf; // just a placeholder
     _outer->onTaskFinish(*[wrapper get], errorCode, errorCodeInternal, errorString, buf);
 }
 
