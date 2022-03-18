@@ -228,7 +228,7 @@ export class GeometryRenderer {
 
     public render (camera: Camera, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         if (!camera.window || !camera.window.swapchain) {
-            return ;
+            return;
         }
 
         this.update();
