@@ -30,8 +30,8 @@
 
 namespace cc {
 
-class EmptyPlatform : public UniversalPlatform,
-                      public SystemWindow::Delegate {
+class CC_DLL EmptyPlatform : public UniversalPlatform,
+                             public SystemWindow::Delegate {
 public:
     EmptyPlatform();
     /**

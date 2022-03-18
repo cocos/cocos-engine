@@ -27,7 +27,7 @@
 
 #include "platform/FileUtils.h"
 namespace cc {
-class FileUtilsLinux : public FileUtils {
+class CC_DLL FileUtilsLinux : public FileUtils {
 public:
     friend class FileUtils;
     bool        isFileExistInternal(const std::string &filename) const override;

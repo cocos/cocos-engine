@@ -34,8 +34,8 @@ union SDL_Event;
 
 namespace cc {
 
-class WindowsPlatform : public UniversalPlatform,
-                        public SystemWindow::Delegate {
+class CC_DLL WindowsPlatform : public UniversalPlatform,
+                               public SystemWindow::Delegate {
 public:
     WindowsPlatform();
     /**

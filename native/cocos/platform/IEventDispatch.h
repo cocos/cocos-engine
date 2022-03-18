@@ -28,7 +28,7 @@
 #include "bindings/event/EventDispatcher.h"
 
 namespace cc {
-class IEventDispatch {
+class CC_DLL IEventDispatch {
 public:
     /**
      * Destructor of EventDispatchInterface.

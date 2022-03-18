@@ -34,7 +34,7 @@ struct SDL_WindowEvent;
 
 namespace cc {
 
-class SystemWindow : public ISystemWindow {
+class CC_DLL SystemWindow : public ISystemWindow {
 public:
     explicit SystemWindow();
     ~SystemWindow() override;

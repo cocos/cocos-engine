@@ -34,8 +34,8 @@ struct SDL_Window;
 
 namespace cc {
 
-class QnxPlatform : public UniversalPlatform,
-                    public SystemWindow::Delegate {
+class CC_DLL QnxPlatform : public UniversalPlatform,
+                           public SystemWindow::Delegate {
 public:
     QnxPlatform();
     /**

@@ -33,8 +33,8 @@ struct SDL_Window;
 
 namespace cc {
 
-class LinuxPlatform : public UniversalPlatform,
-                      public SystemWindow::Delegate {
+class CC_DLL LinuxPlatform : public UniversalPlatform,
+                             public SystemWindow::Delegate {
 public:
     LinuxPlatform();
     /**

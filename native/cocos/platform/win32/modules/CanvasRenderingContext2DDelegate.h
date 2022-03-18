@@ -39,7 +39,7 @@
 
 namespace cc {
 
-class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
+class CC_DLL CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
     using Point   = std::array<float, 2>;
     using Vec2    = std::array<float, 2>;
