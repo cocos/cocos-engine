@@ -27,6 +27,7 @@
 
 #include <memory>
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 #include "core/scene-graph/Node.h"
 #include "physics/physx/PhysXEventManager.h"
 #include "physics/physx/PhysXFilterShader.h"

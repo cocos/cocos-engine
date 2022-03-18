@@ -27,6 +27,7 @@
 
 #include <cstdint>
 #include <memory>
+#include "base/std/container/vector.h"
 #include "base/TypeDef.h"
 #include "math/Vec3.h"
 
