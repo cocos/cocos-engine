@@ -46,13 +46,11 @@ class Light;
 } // namespace scene
 namespace pipeline {
 
-class RenderPipeline;
-
 class CC_DLL PipelineSceneData : public RefCounted {
 public:
     PipelineSceneData();
     ~PipelineSceneData() override;
-    virtual void activate(gfx::Device *device, RenderPipeline *pipeline);
+    virtual void activate(gfx::Device *device);
     void         destroy();
 
     virtual void updatePipelineSceneData() {}
@@ -112,7 +110,6 @@ protected:
     std::vector<scene::Pass *>          _geometryRendererPasses;  // weak reference
     std::vector<gfx::Shader *>          _geometryRendererShaders; // weak reference
 
-    RenderPipeline *_pipeline{nullptr};
     gfx::Device *   _device{nullptr};
 
     scene::Fog *    _fog{nullptr};

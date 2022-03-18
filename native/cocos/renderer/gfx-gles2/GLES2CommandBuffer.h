@@ -31,10 +31,10 @@
 namespace cc {
 namespace gfx {
 
-class GLES2CmdPackage;
-class GLES2GPUPipelineState;
-class GLES2GPUDescriptorSet;
-class GLES2GPUInputAssembler;
+struct GLES2CmdPackage;
+struct GLES2GPUPipelineState;
+struct GLES2GPUDescriptorSet;
+struct GLES2GPUInputAssembler;
 class GLES2GPUCommandAllocator;
 
 class CC_GLES2_API GLES2CommandBuffer : public CommandBuffer {

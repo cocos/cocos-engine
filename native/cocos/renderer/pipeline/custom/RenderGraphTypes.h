@@ -82,12 +82,12 @@ struct ResourceTraits {
 
 struct RenderSwapchain {
     RenderSwapchain() = default;
-    RenderSwapchain(IntrusivePtr<gfx::Swapchain> swapchainIn) noexcept // NOLINT
-    : swapchain(std::move(swapchainIn)) {}
+    RenderSwapchain(gfx::Swapchain* swapchainIn) noexcept // NOLINT
+    : swapchain(swapchainIn) {}
 
-    IntrusivePtr<gfx::Swapchain> swapchain;
-    uint32_t                     currentID{0};
-    uint32_t                     numBackBuffers{0};
+    gfx::Swapchain* swapchain{nullptr};
+    uint32_t        currentID{0};
+    uint32_t        numBackBuffers{0};
 };
 
 struct ResourceStates {
@@ -681,14 +681,23 @@ struct Blit {
     PmrString shader;
 };
 
+struct Present {
+    Present() = default;
+    Present(uint32_t syncIntervalIn, uint32_t flagsIn) noexcept // NOLINT
+    : syncInterval(syncIntervalIn),
+      flags(flagsIn) {}
+
+    uint32_t syncInterval{0};
+    uint32_t flags{0};
+};
+
 struct PresentPass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {resourceName.get_allocator().resource()};
+        return {presents.get_allocator().resource()};
     }
 
     PresentPass(const allocator_type& alloc) noexcept; // NOLINT
-    PresentPass(PmrString resourceNameIn, uint32_t syncIntervalIn, uint32_t flagsIn, const allocator_type& alloc) noexcept;
     PresentPass(PresentPass&& rhs, const allocator_type& alloc);
     PresentPass(PresentPass const& rhs, const allocator_type& alloc);
 
@@ -697,9 +706,7 @@ struct PresentPass {
     PresentPass& operator=(PresentPass&& rhs) = default;
     PresentPass& operator=(PresentPass const& rhs) = default;
 
-    PmrString resourceName;
-    uint32_t  syncInterval{0};
-    uint32_t  flags{0};
+    PmrTransparentMap<PmrString, Present> presents;
 };
 
 struct RenderData {

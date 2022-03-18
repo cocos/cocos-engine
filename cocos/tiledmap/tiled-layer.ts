@@ -407,8 +407,8 @@ export class TiledLayer extends Renderable2D {
 
     onDisable () {
         super.onDisable();
-        this.node.parent!.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
-        this.node.parent!.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.parent?.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent?.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
@@ -422,10 +422,6 @@ export class TiledLayer extends Renderable2D {
         this._leftDownToCenterY = trans.height * trans.anchorY * scale.y;
         this._cullingDirty = true;
         this.markForUpdateRenderData();
-    }
-
-    onDestroy () {
-        super.onDestroy();
     }
 
     /**
@@ -1427,6 +1423,7 @@ export class TiledLayer extends Renderable2D {
             });
             this._meshRenderDataArray.length = 0;
         }
+        super.destroyRenderData();
     }
 
     protected _flushAssembler () {

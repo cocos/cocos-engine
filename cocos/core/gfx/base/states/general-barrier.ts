@@ -42,13 +42,13 @@ export class GeneralBarrier extends GFXObject {
     protected _info: GeneralBarrierInfo = new GeneralBarrierInfo();
     protected _hash = 0;
 
-    constructor (info: GeneralBarrierInfo, hash: number) {
+    constructor (info: Readonly<GeneralBarrierInfo>, hash: number) {
         super(ObjectType.GLOBAL_BARRIER);
         this._info.copy(info);
         this._hash = hash;
     }
 
-    static computeHash (info: GeneralBarrierInfo) {
+    static computeHash (info: Readonly<GeneralBarrierInfo>) {
         return murmurhash2_32_gc(`${info.prevAccesses} ${info.nextAccesses}`, 666);
     }
 }

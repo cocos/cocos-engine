@@ -714,6 +714,23 @@ static bool js_audio_AudioEngine_setVolume_static(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_audio_AudioEngine_setVolume_static)
 
+static bool js_audio_AudioEngine_setVolumeFactor_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setVolumeFactor_static : Error processing arguments");
+        cc::AudioEngine::setVolumeFactor(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_audio_AudioEngine_setVolumeFactor_static)
+
 static bool js_audio_AudioEngine_stop_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -803,6 +820,7 @@ bool js_register_audio_AudioEngine(se::Object* obj) // NOLINT(readability-identi
     cls->defineStaticFunction("setLoop", _SE(js_audio_AudioEngine_setLoop_static));
     cls->defineStaticFunction("setMaxAudioInstance", _SE(js_audio_AudioEngine_setMaxAudioInstance_static));
     cls->defineStaticFunction("setVolume", _SE(js_audio_AudioEngine_setVolume_static));
+    cls->defineStaticFunction("setVolumeFactor", _SE(js_audio_AudioEngine_setVolumeFactor_static));
     cls->defineStaticFunction("stop", _SE(js_audio_AudioEngine_stop_static));
     cls->defineStaticFunction("stopAll", _SE(js_audio_AudioEngine_stopAll_static));
     cls->defineStaticFunction("uncache", _SE(js_audio_AudioEngine_uncache_static));

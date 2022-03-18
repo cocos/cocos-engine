@@ -85,6 +85,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         GlobalObject.setActivity(this);
         CocosHelper.registerBatteryLevelReceiver(this);
         CocosHelper.init(this);
+        CocosAudioFocusManager.registerAudioFocusListener(this);
         CanvasRenderingContext2DImpl.init(this);
         onLoadNativeLibraries();
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -166,6 +167,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         }
         super.onDestroy();
         CocosHelper.unregisterBatteryLevelReceiver(this);
+        CocosAudioFocusManager.unregisterAudioFocusListener(this);
         CanvasRenderingContext2DImpl.destroy();
     }
 
@@ -185,18 +187,23 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         Utils.hideVirtualButton();
         onResumeNative();
         Utils.hideVirtualButton();
+        if (CocosAudioFocusManager.isAudioFocusLoss()) {
+            CocosAudioFocusManager.registerAudioFocusListener(this);
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         onStopNative();
+        mSurfaceView.setVisibility(View.INVISIBLE);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         onStartNative();
+        mSurfaceView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -212,6 +219,9 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         super.onWindowFocusChanged(hasFocus);
         if (!mDestroyed) {
             onWindowFocusChangedNative(hasFocus);
+        }
+        if (hasFocus && CocosAudioFocusManager.isAudioFocusLoss()) {
+            CocosAudioFocusManager.registerAudioFocusListener(this);
         }
     }
 

@@ -34,7 +34,7 @@
 namespace cc {
 
 template <typename T>
-class CachedArray : public Object {
+class CachedArray final {
 public:
     explicit CachedArray(uint size = 1U) {
         _size     = 0;
@@ -43,7 +43,7 @@ public:
     }
 
     // The rule of five applies here
-    ~CachedArray() override {
+    ~CachedArray() {
         CC_SAFE_DELETE_ARRAY(_array);
     }
 

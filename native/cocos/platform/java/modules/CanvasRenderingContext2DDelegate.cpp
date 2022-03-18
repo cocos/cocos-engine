@@ -25,6 +25,12 @@
 
 #include "platform/java/modules/CanvasRenderingContext2DDelegate.h"
 
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #include <android/bitmap.h>
+#else
+    #include <multimedia/image/image_pixel_map.h>
+#endif
+
 namespace {
 
 } // namespace
@@ -49,7 +55,6 @@ void CanvasRenderingContext2DDelegate::recreateBuffer(float w, float h) {
         return;
     }
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "recreateBuffer", w, h);
-    fillData();
 }
 
 void CanvasRenderingContext2DDelegate::beginPath() {
@@ -74,7 +79,6 @@ void CanvasRenderingContext2DDelegate::stroke() {
     }
 
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "stroke");
-    fillData();
 }
 
 void CanvasRenderingContext2DDelegate::fill() {
@@ -83,7 +87,6 @@ void CanvasRenderingContext2DDelegate::fill() {
     }
 
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "fill");
-    fillData();
 }
 
 void CanvasRenderingContext2DDelegate::rect(float x, float y, float w, float h) {
@@ -91,7 +94,6 @@ void CanvasRenderingContext2DDelegate::rect(float x, float y, float w, float h) 
         return;
     }
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "rect", x, y, w, h);
-    fillData();
 }
 
 void CanvasRenderingContext2DDelegate::saveContext() {
@@ -116,7 +118,6 @@ void CanvasRenderingContext2DDelegate::clearRect(float x, float y, float w, floa
         h = _bufferHeight - y;
     }
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "clearRect", x, y, w, h);
-    fillData();
 }
 
 void CanvasRenderingContext2DDelegate::fillRect(float x, float y, float w, float h) {
@@ -133,7 +134,6 @@ void CanvasRenderingContext2DDelegate::fillRect(float x, float y, float w, float
         h = _bufferHeight - y;
     }
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "fillRect", x, y, w, h);
-    fillData();
 }
 
 void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x, float y, float maxWidth) {
@@ -141,7 +141,6 @@ void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x
         return;
     }
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "fillText", text, x, y, maxWidth);
-    fillData();
 }
 
 void CanvasRenderingContext2DDelegate::strokeText(const std::string &text, float x, float y, float maxWidth) {
@@ -149,7 +148,6 @@ void CanvasRenderingContext2DDelegate::strokeText(const std::string &text, float
         return;
     }
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "strokeText", text, x, y, maxWidth);
-    fillData();
 }
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const std::string &text) {
@@ -208,24 +206,77 @@ void CanvasRenderingContext2DDelegate::fillImageData(const Data &imageData, floa
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "_fillImageData", arr, imageWidth,
                                     imageHeight, offsetX, offsetY);
     ccDeleteLocalRef(JniHelper::getEnv(), arr);
-
-    fillData();
 }
 
-void CanvasRenderingContext2DDelegate::fillData() {
-    jbyteArray arr = JniHelper::callObjectByteArrayMethod(_obj, JCLS_CANVASIMPL, "getDataRef");
-    if (arr == nullptr) {
-        SE_LOGE("getDataRef return null in fillData, size: %d, %d", (int)_bufferWidth, (int)_bufferHeight);
-        return;
+void CanvasRenderingContext2DDelegate::updateData() {
+    jobject       bmpObj = nullptr;
+    JniMethodInfo methodInfo;
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    if (JniHelper::getMethodInfo(methodInfo, JCLS_CANVASIMPL, "getBitmap", "()Landroid/graphics/Bitmap;")) {
+        bmpObj = methodInfo.env->CallObjectMethod(_obj, methodInfo.methodID);
+        methodInfo.env->DeleteLocalRef(methodInfo.classID);
     }
-    jsize len     = JniHelper::getEnv()->GetArrayLength(arr);
-    auto *jbarray = static_cast<jbyte *>(malloc(len * sizeof(jbyte)));
-    JniHelper::getEnv()->GetByteArrayRegion(arr, 0, len, jbarray);
-#if CC_PLATFORM != CC_PLATFORM_OHOS
-    unMultiplyAlpha(reinterpret_cast<unsigned char *>(jbarray), len);
+#else
+    if (JniHelper::getMethodInfo(methodInfo, JCLS_CANVASIMPL, "getBitmap", "()Lohos/media/image/PixelMap;")) {
+        bmpObj = methodInfo.env->CallObjectMethod(_obj, methodInfo.methodID);
+        methodInfo.env->DeleteLocalRef(methodInfo.classID);
+    }
 #endif
-    _data.fastSet(reinterpret_cast<unsigned char *>(jbarray), len); //IDEA: DON'T create new jbarray every time.
-    ccDeleteLocalRef(JniHelper::getEnv(), arr);
+    JNIEnv *env = JniHelper::getEnv();
+    do {
+        if (nullptr == bmpObj) {
+            break;
+        }
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+        AndroidBitmapInfo bmpInfo;
+        if (AndroidBitmap_getInfo(env, bmpObj, &bmpInfo) != ANDROID_BITMAP_RESULT_SUCCESS) {
+            CC_LOG_ERROR("AndroidBitmap_getInfo() failed ! error");
+            break;
+        }
+        if (bmpInfo.width < 1 || bmpInfo.height < 1) {
+            break;
+        }
+
+        void *pixelData;
+        if (AndroidBitmap_lockPixels(env, bmpObj, &pixelData) != ANDROID_BITMAP_RESULT_SUCCESS) {
+            CC_LOG_ERROR("AndroidBitmap_lockPixels() failed ! error");
+            break;
+        }
+
+        uint32_t size = bmpInfo.stride * bmpInfo.height;
+#else
+        OhosPixelMapInfo bmpInfo;
+        void *           pixelData = nullptr;
+        if (GetImageInfo(env, bmpObj, bmpInfo) ==
+                OHOS_IMAGE_RESULT_SUCCESS &&
+            bmpInfo.width > 0 &&
+            bmpInfo.height > 0 &&
+            bmpInfo.pixelFormat == OHOS_PIXEL_MAP_FORMAT_RGBA_8888) {
+            if (AccessPixels(env, bmpObj, &pixelData) != OHOS_IMAGE_RESULT_SUCCESS) {
+                CC_LOG_ERROR("AccessPixels() failed ! error");
+                break;
+            }
+        } else {
+            break;
+        }
+        uint32_t size = bmpInfo.rowSize * bmpInfo.height;
+#endif
+        auto *bmpData = static_cast<jbyte *>(malloc(size));
+        memcpy(bmpData, pixelData, size);
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+        unMultiplyAlpha(reinterpret_cast<unsigned char *>(bmpData), size);
+#endif
+        _data.fastSet(reinterpret_cast<unsigned char *>(bmpData), size);
+
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+        AndroidBitmap_unlockPixels(env, bmpObj);
+#else
+        UnAccessPixels(env, bmpObj);
+#endif
+    } while (false);
+    if (bmpObj) {
+        env->DeleteLocalRef(bmpObj);
+    }
 }
 
 void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, ssize_t size) { // NOLINT(readability-convert-member-functions-to-static)

@@ -1,8 +1,17 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
+#if USE_BATCHING
+  #pragma define BATCHING_COUNT 10
+  #pragma builtin(local)
+  layout(set = 2, binding = 0) uniform CCLocalBatched {
+    highp mat4 cc_matWorlds[BATCHING_COUNT];
+  };
+#endif
+
 #pragma builtin(local)
 layout(set = 2, binding = 0) uniform CCLocal {
   highp mat4 cc_matWorld;
   highp mat4 cc_matWorldIT;
   highp vec4 cc_lightingMapUVParam;
+  highp vec4 cc_localShadowBias; // x:shadow bias, y:shadow normal bias.
 };

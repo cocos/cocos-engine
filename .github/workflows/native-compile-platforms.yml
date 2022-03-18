@@ -1,14 +1,13 @@
 name: <Native> Compile
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - 'native/**'
 
 jobs:
   compile_windows:
-    # windows 2019, Visual Studio Enterprise 2019
-    # windows 2016, Visual Studio Enterprise 2017
-    #runs-on: windows-latest
-    # runs-on: windows-2019
-    runs-on: windows-2016
+    runs-on: windows-2019
     name: "Windows"
 
     steps:
@@ -30,28 +29,28 @@ jobs:
           echo "Create auto-generated jsbinding glue codes."
           python ./genbindings.py
           rm userconf.ini
-      - name: Compile win32
+      - name: Compile win64
         shell: bash
         env:
           COCOS_ENGINE_DEV: 1
         run: |
           cd $GITHUB_WORKSPACE/native/templates/windows
-          mkdir -p build-win32/proj
-          touch build-win32/proj/cfg.cmake
-          echo "set(CC_USE_GLES3 ON)" >> build-win32/proj/cfg.cmake
-          echo "set(CC_USE_VULKAN ON)" >> build-win32/proj/cfg.cmake
-          echo "set(CC_USE_GLES2 ON)" >> build-win32/proj/cfg.cmake
-          echo "set(USE_SPINE OFF)" >> build-win32/proj/cfg.cmake
-          echo "set(USE_DRAGONBONES OFF)" >> build-win32/proj/cfg.cmake
-          echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win32/proj/cfg.cmake
-          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win32/proj/cfg.cmake
-          mkdir build-win32/assets
-          cd build-win32
-          RES_DIR=${GITHUB_WORKSPACE//\\//}/native/templates/windows/build-win32
+          mkdir -p build-win64/proj
+          touch build-win64/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 ON)" >> build-win64/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN ON)" >> build-win64/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 ON)" >> build-win64/proj/cfg.cmake
+          echo "set(USE_SPINE OFF)" >> build-win64/proj/cfg.cmake
+          echo "set(USE_DRAGONBONES OFF)" >> build-win64/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win64/proj/cfg.cmake
+          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win64/proj/cfg.cmake
+          mkdir build-win64/assets
+          cd build-win64
+          RES_DIR=${GITHUB_WORKSPACE//\\//}/native/templates/windows/build-win64
           COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}/native
-          cmake ../ -G"Visual Studio 15 2017" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Awin32
+          cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Ax64
           cmake --build . --config Release
-          echo "Compile Win32 Release Done!"
+          echo "Compile Win64 Release Done!"
 
   compile_android:
     name: "Android"

@@ -31,32 +31,8 @@
 
 namespace cc {
 
-using any = std::any;
-
-template <typename ValueType>
-inline ValueType *any_cast(any *operand) noexcept {
-    return std::any_cast<ValueType>(operand);
-}
-
-template <typename ValueType>
-inline const ValueType *any_cast(const any *operand) noexcept {
-    return std::any_cast<ValueType>(operand);
-}
-
-template <typename ValueType>
-inline ValueType any_cast(any &operand) {
-    return std::any_cast<ValueType>(operand);
-}
-
-template <typename ValueType>
-inline ValueType any_cast(const any &operand) {
-    return std::any_cast<ValueType>(operand);
-}
-
-template <typename ValueType>
-inline ValueType any_cast(any &&operand) {
-    return std::any_cast<ValueType>(operand);
-}
+using std::any;
+using std::any_cast;
 
 } // namespace cc
 
@@ -65,6 +41,7 @@ inline ValueType any_cast(any &&operand) {
     #include "boost/any.hpp"
 
 namespace cc {
+
 class any : public boost::any { // NOLINT // use std style
 public:
     using boost::any::any;

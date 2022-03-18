@@ -260,6 +260,18 @@ export class SubModel {
         this._flushPassInfo();
     }
 
+    public onGeometryChanged (): void {
+        if (!this._subMesh) {
+            return;
+        }
+
+        // update draw info
+        const drawInfo = this._subMesh.drawInfo;
+        if (this._inputAssembler && drawInfo) {
+            this._inputAssembler.drawInfo.copy(drawInfo);
+        }
+    }
+
     protected _flushPassInfo (): void {
         const passes = this._passes;
         if (!passes) { return; }

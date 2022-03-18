@@ -358,57 +358,6 @@ void BuiltinResMgr::initMaterials() {
     resources[defaultGraphicsMtl->getUuid()] = defaultGraphicsMtl;
     _materialsToBeCompiled.emplace_back(defaultGraphicsMtl);
 
-#if UI_GPU_DRIVEN
-    // sprite material
-    auto *spriteGPUMtl = new Material();
-    spriteGPUMtl->setUuid("ui-base-gpu-material");
-    IMaterialInfo spriteGPUMtlInfo{
-        .defines    = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", false}}},
-        .effectName = std::string{"sprite-gpu"}};
-    spriteGPUMtl->initialize(spriteGPUMtlInfo);
-    resources[spriteGPUMtl->getUuid()] = spriteGPUMtl;
-    _materialsToBeCompiled.emplace_back(spriteGPUMtl);
-
-    // sprite material
-    auto *spriteColorGPUMtl = new Material();
-    spriteColorGPUMtl->setUuid("ui-sprite-gpu-material");
-    IMaterialInfo spriteColorGPUMtlInfo{
-        .defines    = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", false}}},
-        .effectName = std::string{"sprite-gpu"}};
-    spriteColorGPUMtl->initialize(spriteColorGPUMtlInfo);
-    resources[spriteColorGPUMtl->getUuid()] = spriteColorGPUMtl;
-    _materialsToBeCompiled.emplace_back(spriteColorGPUMtl);
-
-    // sprite gray material
-    auto *spriteGrayGPUMtl = new Material();
-    spriteGrayGPUMtl->setUuid("ui-sprite-gray-gpu-material");
-    IMaterialInfo spriteGrayGPUMtlInfo{
-        .defines    = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", false}, {"IS_GRAY", true}}},
-        .effectName = std::string{"sprite-gpu"}};
-    spriteGrayGPUMtl->initialize(spriteGrayGPUMtlInfo);
-    resources[spriteGrayGPUMtl->getUuid()] = spriteGrayGPUMtl;
-    _materialsToBeCompiled.emplace_back(spriteGrayGPUMtl);
-
-    // sprite alpha material
-    auto *spriteAlphaGPUMtl = new Material();
-    spriteAlphaGPUMtl->setUuid("ui-sprite-alpha-sep-gpu-material");
-
-    IMaterialInfo spriteAlphaGPUMtlInfo{
-        .defines    = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", true}, {"IS_GRAY", false}}},
-        .effectName = std::string{"sprite-gpu"}};
-    spriteAlphaGPUMtl->initialize(spriteAlphaGPUMtlInfo);
-    resources[spriteAlphaGPUMtl->getUuid()] = spriteAlphaGPUMtl;
-    _materialsToBeCompiled.emplace_back(spriteAlphaGPUMtl);
-
-    // sprite alpha & gray material
-    auto *spriteAlphaGrayGPUMtl = new Material();
-    spriteAlphaGrayGPUMtl->setUuid("ui-sprite-gray-alpha-sep-gpu-material");
-    spriteAlphaGrayGPUMtl->initialize({.defines    = IMaterialInfo::DefinesType{MacroRecord{{"USE_TEXTURE", true}, {"CC_USE_EMBEDDED_ALPHA", true}, {"IS_GRAY", true}}},
-                                       .effectName = std::string{"sprite-gpu"}});
-    resources[spriteAlphaGrayGPUMtl->getUuid()] = spriteAlphaGrayGPUMtl;
-    _materialsToBeCompiled.emplace_back(spriteAlphaGrayGPUMtl);
-#endif
-
     // default particle material
     auto *defaultParticleMtl = new Material();
     defaultParticleMtl->setUuid("default-particle-material");

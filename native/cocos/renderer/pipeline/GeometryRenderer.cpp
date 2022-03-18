@@ -37,6 +37,8 @@
 #include "math/Mat4.h"
 #include "math/Math.h"
 #include "scene/Pass.h"
+#include "scene/Camera.h"
+#include "scene/RenderWindow.h"
 
 namespace cc {
 namespace pipeline {
@@ -198,7 +200,11 @@ void GeometryRenderer::flushFromJSB(uint32_t type, uint32_t index, void *vb, uin
     }
 }
 
-void GeometryRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
+void GeometryRenderer::render(scene::Camera* camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
+    if (!camera->getWindow() || !camera->getWindow()->getSwapchain()) {
+        return;
+    }
+
     update();
 
     const auto *sceneData = _pipeline->getPipelineSceneData();

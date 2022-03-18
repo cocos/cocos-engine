@@ -24,9 +24,12 @@
 ****************************************************************************/
 
 #include "NativePipelineTypes.h"
-#include "pipeline/custom/GslUtils.h"
-#include "pipeline/custom/RenderCommonTypes.h"
-#include "scene/RenderWindow.h"
+#include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
+#include "cocos/renderer/pipeline/custom/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
+#include "cocos/scene/RenderScene.h"
+#include "cocos/scene/RenderWindow.h"
 
 namespace cc {
 
@@ -37,61 +40,123 @@ NativePipeline::NativePipeline() noexcept {
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addRenderTexture(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) {
+uint32_t NativePipeline::addRenderTexture(const std::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
     return 0;
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addRenderTarget(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+uint32_t NativePipeline::addRenderTarget(const std::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
     return 0;
 }
 
 // NOLINTNEXTLINE
-uint32_t NativePipeline::addDepthStencil(const std::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+uint32_t NativePipeline::addDepthStencil(const std::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
     return 0;
 }
 
-void NativePipeline::beginFrame(pipeline::PipelineSceneData* pplScene) {
-
+void NativePipeline::beginFrame() {
 }
 
 void NativePipeline::endFrame() {
-
 }
 
 // NOLINTNEXTLINE
-RasterPassBuilder* NativePipeline::addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName, const std::string& name) {
+RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height, const std::string &layoutName, const std::string &name) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-RasterPassBuilder* NativePipeline::addRasterPass(uint32_t width, uint32_t height, const std::string& layoutName) {
+RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height, const std::string &layoutName) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-ComputePassBuilder* NativePipeline::addComputePass(const std::string& layoutName, const std::string& name) {
+ComputePassBuilder *NativePipeline::addComputePass(const std::string &layoutName, const std::string &name) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-ComputePassBuilder* NativePipeline::addComputePass(const std::string& layoutName) {
+ComputePassBuilder *NativePipeline::addComputePass(const std::string &layoutName) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-MovePassBuilder* NativePipeline::addMovePass(const std::string& name) {
+MovePassBuilder *NativePipeline::addMovePass(const std::string &name) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-CopyPassBuilder* NativePipeline::addCopyPass(const std::string& name) {
+CopyPassBuilder *NativePipeline::addCopyPass(const std::string &name) {
     return nullptr;
 }
 
 // NOLINTNEXTLINE
-void NativePipeline::addPresentPass(const std::string& name, const std::string& swapchainName) {
+void NativePipeline::presentAll() {
+}
 
+// NOLINTNEXTLINE
+SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) {
+    return nullptr;
+}
+
+// NOLINTNEXTLINE
+bool NativePipeline::activate(gfx::Swapchain *swapchain) {
+    return true;
+}
+
+bool NativePipeline::destroy() noexcept {
+    return true;
+}
+
+// NOLINTNEXTLINE
+void NativePipeline::render(const std::vector<scene::Camera *> &cameras) {
+}
+
+const MacroRecord &NativePipeline::getMacros() const {
+    return macros;
+}
+
+pipeline::GlobalDSManager *NativePipeline::getGlobalDSManager() const {
+    return globalDSManager.get();
+}
+
+gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout() const {
+    return globalDSManager->getDescriptorSetLayout();
+}
+
+pipeline::PipelineSceneData *NativePipeline::getPipelineSceneData() const {
+    return pipelineSceneData;
+}
+
+const std::string &NativePipeline::getConstantMacros() const {
+    return constantMacros;
+}
+
+scene::Model *NativePipeline::getProfiler() const {
+    return profiler;
+}
+
+// NOLINTNEXTLINE
+void NativePipeline::setProfiler(scene::Model *profilerIn) {
+    profiler = profilerIn;
+}
+
+float NativePipeline::getShadingScale() const {
+    return 0;
+}
+
+void NativePipeline::setShadingScale(float scale) {
+}
+
+void NativePipeline::onGlobalPipelineStateChanged() {
+}
+
+void NativePipeline::setValue(const std::string &name, int32_t value) {
+    macros[name] = value;
+}
+
+void NativePipeline::setValue(const std::string &name, bool value) {
+    macros[name] = value;
 }
 
 } // namespace render

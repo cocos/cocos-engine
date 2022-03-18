@@ -58,7 +58,7 @@ export class WebGLIndirectDrawInfos {
         this.instancedDraw = false;
     }
 
-    public setDrawInfo (idx: number, info: DrawInfo) {
+    public setDrawInfo (idx: number, info: Readonly<DrawInfo>) {
         this._ensureCapacity(idx);
         this.drawByIndex = info.indexCount > 0;
         this.instancedDraw = !!info.instanceCount;
@@ -170,6 +170,7 @@ export interface IWebGLGPUFramebuffer {
     isOffscreen: boolean;
     width: number;
     height: number;
+    lodLevel: number;
 }
 
 export interface IWebGLGPUSampler {

@@ -23,76 +23,112 @@
  THE SOFTWARE.
  */
 
-import { FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
-    FormatInfos, TextureUsageBit, TextureFlagBit } from '../base/define';
+import {
+    FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
+    FormatInfos, TextureUsageBit, TextureFlagBit,
+} from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2DeviceManager } from './webgl2-define';
-import { IWebGL2GPUTexture } from './webgl2-gpu-objects';
+import { IWebGL2GPUTexture, IWebGL2GPUTextureView } from './webgl2-gpu-objects';
 
 export class WebGL2Texture extends Texture {
+    private _gpuTexture: IWebGL2GPUTexture | null = null;
+    private _gpuTextureView: IWebGL2GPUTextureView | null = null;
+
     get gpuTexture (): IWebGL2GPUTexture {
-        return  this._gpuTexture!;
+        return this._gpuTexture!;
     }
 
-    private _gpuTexture: IWebGL2GPUTexture | null = null;
+    get gpuTextureView (): IWebGL2GPUTextureView {
+        return this._gpuTextureView!;
+    }
 
-    public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean) {
+    public initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean) {
+        let texInfo = info as Readonly<TextureInfo>;
+        const viewInfo = info as Readonly<TextureViewInfo>;
+
         if ('texture' in info) {
-            console.log('WebGL2 does not support texture view.');
-            return;
+            texInfo = viewInfo.texture.info;
+            this._isTextureView = true;
         }
 
-        this._type = info.type;
-        this._usage = info.usage;
-        this._format = info.format;
-        this._width = info.width;
-        this._height = info.height;
-        this._depth = info.depth;
-        this._layerCount = info.layerCount;
-        this._levelCount = info.levelCount;
-        this._samples = info.samples;
-        this._flags = info.flags;
-        this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
-        this._size = FormatSurfaceSize(this._format, this.width, this.height,
-            this.depth, this._levelCount) * this._layerCount;
+        this._info.copy(texInfo);
 
-        this._gpuTexture = {
-            type: this._type,
-            format: this._format,
-            usage: this._usage,
-            width: this._width,
-            height: this._height,
-            depth: this._depth,
-            size: this._size,
-            arrayLayer: this._layerCount,
-            mipLevel: this._levelCount,
-            samples: this._samples,
-            flags: this._flags,
-            isPowerOf2: this._isPowerOf2,
+        this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
+        this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
+            this.depth, this._info.levelCount) * this._info.layerCount;
 
-            glTarget: 0,
-            glInternalFmt: 0,
-            glFormat: 0,
-            glType: 0,
-            glUsage: 0,
-            glTexture: null,
-            glRenderbuffer: null,
-            glWrapS: 0,
-            glWrapT: 0,
-            glMinFilter: 0,
-            glMagFilter: 0,
+        if (!this._isTextureView) {
+            this._gpuTexture = {
+                type: texInfo.type,
+                format: texInfo.format,
+                usage: texInfo.usage,
+                width: texInfo.width,
+                height: texInfo.height,
+                depth: texInfo.depth,
+                size: this._size,
+                arrayLayer: texInfo.layerCount,
+                mipLevel: texInfo.levelCount,
+                samples: texInfo.samples,
+                flags: texInfo.flags,
+                isPowerOf2: this._isPowerOf2,
 
-            isSwapchainTexture: isSwapchainTexture || false,
-        };
+                glTarget: 0,
+                glInternalFmt: 0,
+                glFormat: 0,
+                glType: 0,
+                glUsage: 0,
+                glTexture: null,
+                glRenderbuffer: null,
+                glWrapS: 0,
+                glWrapT: 0,
+                glMinFilter: 0,
+                glMagFilter: 0,
 
-        WebGL2CmdFuncCreateTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+                isSwapchainTexture: isSwapchainTexture || false,
+            };
 
-        WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+            WebGL2CmdFuncCreateTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+
+            WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+
+            this._viewInfo.texture = this;
+            this._viewInfo.type = info.type;
+            this._viewInfo.format = info.format;
+            this._viewInfo.baseLevel = 0;
+            this._viewInfo.levelCount = 1;
+            this._viewInfo.baseLayer = 0;
+            this._viewInfo.layerCount = 1;
+
+            this._gpuTextureView = {
+                gpuTexture: this._gpuTexture,
+                type: this._viewInfo.type,
+                format: this._viewInfo.format,
+                baseLevel: this._viewInfo.baseLevel,
+                levelCount: this._viewInfo.levelCount,
+            };
+        } else {
+            this._viewInfo.copy(viewInfo);
+            this._gpuTexture = (viewInfo.texture as WebGL2Texture)._gpuTexture;
+
+            if (this._gpuTexture?.format !== texInfo.format) {
+                console.log('GPU memory alias is not supported');
+                return;
+            }
+
+            this._gpuTextureView = {
+                gpuTexture: this._gpuTexture,
+                type: viewInfo.type,
+                format: viewInfo.format,
+                baseLevel: viewInfo.baseLevel,
+                levelCount: viewInfo.levelCount,
+            };
+        }
     }
 
     public destroy () {
-        if (this._gpuTexture) {
+        if (!this._isTextureView && this._gpuTexture) {
             WebGL2CmdFuncDestroyTexture(WebGL2DeviceManager.instance, this._gpuTexture);
             WebGL2DeviceManager.instance.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
@@ -100,13 +136,23 @@ export class WebGL2Texture extends Texture {
     }
 
     public resize (width: number, height: number) {
-        const oldSize = this._size;
-        this._width = width;
-        this._height = height;
-        this._size = FormatSurfaceSize(this._format, this.width, this.height,
-            this.depth, this._levelCount) * this._layerCount;
+        if (this._info.width === width && this._info.height === height) {
+            return;
+        }
 
-        if (this._gpuTexture) {
+        if (this._info.levelCount === WebGL2Texture.getLevelCount(this._info.width, this._info.height)) {
+            this._info.levelCount = WebGL2Texture.getLevelCount(width, height);
+        } else if (this._info.levelCount > 1) {
+            this._info.levelCount = Math.min(this._info.levelCount, WebGL2Texture.getLevelCount(width, height));
+        }
+
+        const oldSize = this._size;
+        this._info.width = width;
+        this._info.height = height;
+        this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
+            this.depth, this._info.levelCount) * this._info.layerCount;
+
+        if (!this._isTextureView && this._gpuTexture) {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
@@ -118,7 +164,7 @@ export class WebGL2Texture extends Texture {
 
     // ======================= Swapchain Specific ======================= //
 
-    protected initAsSwapchainTexture (info: ISwapchainTextureInfo) {
+    protected initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>) {
         const texInfo = new TextureInfo();
         texInfo.format = info.format;
         texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;

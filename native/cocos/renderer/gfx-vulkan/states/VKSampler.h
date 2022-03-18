@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUSampler;
+struct CCVKGPUSampler;
 
 class CC_VULKAN_API CCVKSampler final : public Sampler {
 public:

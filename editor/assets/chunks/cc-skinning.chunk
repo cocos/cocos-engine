@@ -2,17 +2,6 @@
 
 #pragma extension([GL_EXT_shader_explicit_arithmetic_types_int32, __VERSION__ > 310, require])
 
-#if __VERSION__ > 310
-  // strictly speaking this should be u16vec4, but due to poor driver support
-  // somehow it seems we can get better results on many platforms using u32vec4
-  layout(location = 4) in u32vec4 a_joints;
-#else
-  #pragma format(RGBA16UI)
-  layout(location = 4) in vec4 a_joints;
-#endif
-
-layout(location = 5) in vec4 a_weights;
-
 #include <common>
 
 #if CC_USE_BAKED_ANIMATION
@@ -47,7 +36,7 @@ layout(location = 5) in vec4 a_weights;
     y = (tempY + 0.5) * invSize;
   }
 #else
-  #define JOINT_UNIFORM_CAPACITY 30
+  #pragma define JOINT_UNIFORM_CAPACITY 30
   #pragma builtin(local)
   layout(set = 2, binding = 3) uniform CCSkinning {
     highp vec4 cc_joints[JOINT_UNIFORM_CAPACITY * 3];

@@ -264,8 +264,15 @@ void Model::createBoundingShape(const cc::optional<Vec3> &minPos, const cc::opti
         return;
     }
 
-    _modelBounds = geometry::AABB::fromPoints(minPos.value(), maxPos.value(), new geometry::AABB());
-    _worldBounds = geometry::AABB::fromPoints(minPos.value(), maxPos.value(), new geometry::AABB());
+    if (!_modelBounds) {
+        _modelBounds = new geometry::AABB();
+    }
+    geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _modelBounds);
+
+    if (!_worldBounds) {
+        _worldBounds = new geometry::AABB();
+    }
+    geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _worldBounds);
 }
 
 SubModel *Model::createSubModel() {
@@ -313,6 +320,12 @@ void Model::onGlobalPipelineStateChanged() const {
 void Model::onMacroPatchesStateChanged() {
     for (index_t i = 0; i < _subModels.size(); ++i) {
         _subModels[i]->onMacroPatchesStateChanged(getMacroPatches(i));
+    }
+}
+
+void Model::onGeometryChanged() {
+    for (SubModel *subModel : _subModels) {
+        subModel->onGeometryChanged();
     }
 }
 
@@ -477,6 +490,14 @@ void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSe
 }
 void Model::setInstancedAttributesViewData(index_t viewIdx, index_t arrIdx, float value) {
     cc::get<Float32Array>(_instanceAttributeBlock.views[viewIdx])[arrIdx] = value;
+}
+
+void Model::updateLocalShadowBias() {
+    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 0] = _shadowBias;
+    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 1] = _shadowNormalBias;
+    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2] = 0;
+    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3] = 0;
+    _localDataUpdated                                     = true;
 }
 
 } // namespace scene

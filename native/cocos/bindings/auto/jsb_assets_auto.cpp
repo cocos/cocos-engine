@@ -9,6 +9,7 @@
 #include "3d/assets/Morph.h"
 #include "3d/assets/MorphRendering.h"
 #include "3d/assets/Skeleton.h"
+#include "3d/misc/CreateMesh.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
 
 #ifndef JSB_ALLOC
@@ -12433,6 +12434,25 @@ static bool js_assets_RenderingSubMesh_getAttributes(se::State& s) // NOLINT(rea
 }
 SE_BIND_FUNC(js_assets_RenderingSubMesh_getAttributes)
 
+static bool js_assets_RenderingSubMesh_getDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderingSubMesh>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_RenderingSubMesh_getDrawInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        boost::optional<cc::gfx::DrawInfo>& result = cobj->getDrawInfo();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_RenderingSubMesh_getDrawInfo : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_RenderingSubMesh_getDrawInfo)
+
 static bool js_assets_RenderingSubMesh_getFlatBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderingSubMesh>(s);
@@ -12623,6 +12643,40 @@ static bool js_assets_RenderingSubMesh_indirectBuffer(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_assets_RenderingSubMesh_indirectBuffer)
 
+static bool js_assets_RenderingSubMesh_invalidateGeometricInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderingSubMesh>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_RenderingSubMesh_invalidateGeometricInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->invalidateGeometricInfo();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_RenderingSubMesh_invalidateGeometricInfo)
+
+static bool js_assets_RenderingSubMesh_setDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderingSubMesh>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_RenderingSubMesh_setDrawInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::DrawInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_RenderingSubMesh_setDrawInfo : Error processing arguments");
+        cobj->setDrawInfo(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_RenderingSubMesh_setDrawInfo)
+
 static bool js_assets_RenderingSubMesh_setFlatBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderingSubMesh>(s);
@@ -12768,10 +12822,13 @@ bool js_register_assets_RenderingSubMesh(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("enableVertexIdChannel", _SE(js_assets_RenderingSubMesh_enableVertexIdChannel));
     cls->defineFunction("genFlatBuffers", _SE(js_assets_RenderingSubMesh_genFlatBuffers));
     cls->defineFunction("getAttributes", _SE(js_assets_RenderingSubMesh_getAttributes));
+    cls->defineFunction("getDrawInfo", _SE(js_assets_RenderingSubMesh_getDrawInfo));
     cls->defineFunction("getGeometricInfo", _SE(js_assets_RenderingSubMesh_getGeometricInfo));
     cls->defineFunction("getIndexBuffer", _SE(js_assets_RenderingSubMesh_getIndexBuffer));
     cls->defineFunction("getVertexBuffers", _SE(js_assets_RenderingSubMesh_getVertexBuffers));
     cls->defineFunction("indirectBuffer", _SE(js_assets_RenderingSubMesh_indirectBuffer));
+    cls->defineFunction("invalidateGeometricInfo", _SE(js_assets_RenderingSubMesh_invalidateGeometricInfo));
+    cls->defineFunction("setDrawInfo", _SE(js_assets_RenderingSubMesh_setDrawInfo));
     cls->defineFinalizeFunction(_SE(js_cc_RenderingSubMesh_finalize));
     cls->install();
     JSBClassType::registerClass<cc::RenderingSubMesh>(cls);
@@ -14774,6 +14831,33 @@ static bool js_assets_TextureCube_fromTexture2DArray_static(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_assets_TextureCube_fromTexture2DArray_static)
 
+static bool js_assets_TextureCube_get_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_get_isRGBE : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->isRGBE, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->isRGBE, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_TextureCube_get_isRGBE)
+
+static bool js_assets_TextureCube_set_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::TextureCube>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_TextureCube_set_isRGBE : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->isRGBE, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_TextureCube_set_isRGBE : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_TextureCube_set_isRGBE)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_TextureCube_finalize)
 
 static bool js_assets_TextureCube_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -14794,6 +14878,7 @@ bool js_register_assets_TextureCube(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("TextureCube", obj, __jsb_cc_SimpleTexture_proto, _SE(js_assets_TextureCube_constructor));
 
+    cls->defineProperty("isRGBE", _SE(js_assets_TextureCube_get_isRGBE), _SE(js_assets_TextureCube_set_isRGBE));
     cls->defineFunction("getGfxTextureCreateInfo", _SE(js_assets_TextureCube_getGfxTextureCreateInfo));
     cls->defineFunction("getImage", _SE(js_assets_TextureCube_getImage));
     cls->defineFunction("getMipmaps", _SE(js_assets_TextureCube_getMipmaps));
@@ -15121,6 +15206,1353 @@ bool js_register_assets_StdMorphRendering(se::Object* obj) // NOLINT(readability
 
     __jsb_cc_StdMorphRendering_proto = cls->getProto();
     __jsb_cc_StdMorphRendering_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_CustomAttribute_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_CustomAttribute_class = nullptr;  // NOLINT
+
+static bool js_assets_CustomAttribute_get_attr(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CustomAttribute>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_CustomAttribute_get_attr : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->attr, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->attr, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_CustomAttribute_get_attr)
+
+static bool js_assets_CustomAttribute_set_attr(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::CustomAttribute>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_CustomAttribute_set_attr : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->attr, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_CustomAttribute_set_attr : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_CustomAttribute_set_attr)
+
+static bool js_assets_CustomAttribute_get_values(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::CustomAttribute>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_CustomAttribute_get_values : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->values, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->values, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_CustomAttribute_get_values)
+
+static bool js_assets_CustomAttribute_set_values(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::CustomAttribute>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_CustomAttribute_set_values : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->values, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_CustomAttribute_set_values : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_CustomAttribute_set_values)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::CustomAttribute * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::CustomAttribute*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("attr", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->attr), ctx);
+    }
+    json->getProperty("values", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->values), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_CustomAttribute_finalize)
+
+static bool js_assets_CustomAttribute_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::CustomAttribute);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::CustomAttribute);
+        auto cobj = ptr->get<cc::CustomAttribute>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::CustomAttribute);
+    auto cobj = ptr->get<cc::CustomAttribute>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->attr), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->values), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_CustomAttribute_constructor, __jsb_cc_CustomAttribute_class, js_cc_CustomAttribute_finalize)
+
+static bool js_cc_CustomAttribute_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_CustomAttribute_finalize)
+
+bool js_register_assets_CustomAttribute(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("CustomAttribute", obj, nullptr, _SE(js_assets_CustomAttribute_constructor));
+
+    cls->defineProperty("attr", _SE(js_assets_CustomAttribute_get_attr), _SE(js_assets_CustomAttribute_set_attr));
+    cls->defineProperty("values", _SE(js_assets_CustomAttribute_get_values), _SE(js_assets_CustomAttribute_set_values));
+    cls->defineFinalizeFunction(_SE(js_cc_CustomAttribute_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::CustomAttribute>(cls);
+
+    __jsb_cc_CustomAttribute_proto = cls->getProto();
+    __jsb_cc_CustomAttribute_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_IGeometry_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_IGeometry_class = nullptr;  // NOLINT
+
+static bool js_assets_IGeometry_get_positions(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_positions : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->positions, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->positions, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_positions)
+
+static bool js_assets_IGeometry_set_positions(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_positions : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->positions, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_positions : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_positions)
+
+static bool js_assets_IGeometry_get_normals(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_normals : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->normals, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->normals, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_normals)
+
+static bool js_assets_IGeometry_set_normals(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_normals : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->normals, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_normals : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_normals)
+
+static bool js_assets_IGeometry_get_uvs(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_uvs : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->uvs, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->uvs, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_uvs)
+
+static bool js_assets_IGeometry_set_uvs(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_uvs : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->uvs, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_uvs : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_uvs)
+
+static bool js_assets_IGeometry_get_tangents(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_tangents : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->tangents, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->tangents, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_tangents)
+
+static bool js_assets_IGeometry_set_tangents(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_tangents : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->tangents, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_tangents : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_tangents)
+
+static bool js_assets_IGeometry_get_colors(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_colors : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->colors, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->colors, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_colors)
+
+static bool js_assets_IGeometry_set_colors(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_colors : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->colors, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_colors : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_colors)
+
+static bool js_assets_IGeometry_get_attributes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_attributes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->attributes, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->attributes, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_attributes)
+
+static bool js_assets_IGeometry_set_attributes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_attributes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->attributes, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_attributes : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_attributes)
+
+static bool js_assets_IGeometry_get_customAttributes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_customAttributes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->customAttributes, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->customAttributes, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_customAttributes)
+
+static bool js_assets_IGeometry_set_customAttributes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_customAttributes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->customAttributes, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_customAttributes : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_customAttributes)
+
+static bool js_assets_IGeometry_get_boundingRadius(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_boundingRadius : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->boundingRadius, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->boundingRadius, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_boundingRadius)
+
+static bool js_assets_IGeometry_set_boundingRadius(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_boundingRadius : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->boundingRadius, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_boundingRadius : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_boundingRadius)
+
+static bool js_assets_IGeometry_get_minPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_minPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->minPos, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->minPos, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_minPos)
+
+static bool js_assets_IGeometry_set_minPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_minPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->minPos, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_minPos : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_minPos)
+
+static bool js_assets_IGeometry_get_maxPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_maxPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxPos, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxPos, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_maxPos)
+
+static bool js_assets_IGeometry_set_maxPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_maxPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxPos, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_maxPos : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_maxPos)
+
+static bool js_assets_IGeometry_get_indices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_indices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->indices, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->indices, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_indices)
+
+static bool js_assets_IGeometry_set_indices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_indices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->indices, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_indices : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_indices)
+
+static bool js_assets_IGeometry_get_primitiveMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_primitiveMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->primitiveMode, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->primitiveMode, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_primitiveMode)
+
+static bool js_assets_IGeometry_set_primitiveMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_primitiveMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->primitiveMode, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_primitiveMode : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_primitiveMode)
+
+static bool js_assets_IGeometry_get_doubleSided(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_get_doubleSided : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->doubleSided, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->doubleSided, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IGeometry_get_doubleSided)
+
+static bool js_assets_IGeometry_set_doubleSided(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IGeometry_set_doubleSided : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->doubleSided, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IGeometry_set_doubleSided : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IGeometry_set_doubleSided)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::IGeometry * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::IGeometry*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("positions", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->positions), ctx);
+    }
+    json->getProperty("normals", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->normals), ctx);
+    }
+    json->getProperty("uvs", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->uvs), ctx);
+    }
+    json->getProperty("tangents", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->tangents), ctx);
+    }
+    json->getProperty("colors", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->colors), ctx);
+    }
+    json->getProperty("attributes", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->attributes), ctx);
+    }
+    json->getProperty("customAttributes", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->customAttributes), ctx);
+    }
+    json->getProperty("boundingRadius", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->boundingRadius), ctx);
+    }
+    json->getProperty("minPos", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->minPos), ctx);
+    }
+    json->getProperty("maxPos", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxPos), ctx);
+    }
+    json->getProperty("indices", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->indices), ctx);
+    }
+    json->getProperty("primitiveMode", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->primitiveMode), ctx);
+    }
+    json->getProperty("doubleSided", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->doubleSided), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_IGeometry_finalize)
+
+static bool js_assets_IGeometry_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::IGeometry);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::IGeometry);
+        auto cobj = ptr->get<cc::IGeometry>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::IGeometry);
+    auto cobj = ptr->get<cc::IGeometry>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->positions), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->normals), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->uvs), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->tangents), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->colors), nullptr);
+    }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->attributes), nullptr);
+    }
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(cobj->customAttributes), nullptr);
+    }
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(cobj->boundingRadius), nullptr);
+    }
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(cobj->minPos), nullptr);
+    }
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(cobj->maxPos), nullptr);
+    }
+    if (argc > 10 && !args[10].isUndefined()) {
+        ok &= sevalue_to_native(args[10], &(cobj->indices), nullptr);
+    }
+    if (argc > 11 && !args[11].isUndefined()) {
+        ok &= sevalue_to_native(args[11], &(cobj->primitiveMode), nullptr);
+    }
+    if (argc > 12 && !args[12].isUndefined()) {
+        ok &= sevalue_to_native(args[12], &(cobj->doubleSided), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_IGeometry_constructor, __jsb_cc_IGeometry_class, js_cc_IGeometry_finalize)
+
+static bool js_cc_IGeometry_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_IGeometry_finalize)
+
+bool js_register_assets_IGeometry(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("IGeometry", obj, nullptr, _SE(js_assets_IGeometry_constructor));
+
+    cls->defineProperty("positions", _SE(js_assets_IGeometry_get_positions), _SE(js_assets_IGeometry_set_positions));
+    cls->defineProperty("normals", _SE(js_assets_IGeometry_get_normals), _SE(js_assets_IGeometry_set_normals));
+    cls->defineProperty("uvs", _SE(js_assets_IGeometry_get_uvs), _SE(js_assets_IGeometry_set_uvs));
+    cls->defineProperty("tangents", _SE(js_assets_IGeometry_get_tangents), _SE(js_assets_IGeometry_set_tangents));
+    cls->defineProperty("colors", _SE(js_assets_IGeometry_get_colors), _SE(js_assets_IGeometry_set_colors));
+    cls->defineProperty("attributes", _SE(js_assets_IGeometry_get_attributes), _SE(js_assets_IGeometry_set_attributes));
+    cls->defineProperty("customAttributes", _SE(js_assets_IGeometry_get_customAttributes), _SE(js_assets_IGeometry_set_customAttributes));
+    cls->defineProperty("boundingRadius", _SE(js_assets_IGeometry_get_boundingRadius), _SE(js_assets_IGeometry_set_boundingRadius));
+    cls->defineProperty("minPos", _SE(js_assets_IGeometry_get_minPos), _SE(js_assets_IGeometry_set_minPos));
+    cls->defineProperty("maxPos", _SE(js_assets_IGeometry_get_maxPos), _SE(js_assets_IGeometry_set_maxPos));
+    cls->defineProperty("indices", _SE(js_assets_IGeometry_get_indices), _SE(js_assets_IGeometry_set_indices));
+    cls->defineProperty("primitiveMode", _SE(js_assets_IGeometry_get_primitiveMode), _SE(js_assets_IGeometry_set_primitiveMode));
+    cls->defineProperty("doubleSided", _SE(js_assets_IGeometry_get_doubleSided), _SE(js_assets_IGeometry_set_doubleSided));
+    cls->defineFinalizeFunction(_SE(js_cc_IGeometry_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::IGeometry>(cls);
+
+    __jsb_cc_IGeometry_proto = cls->getProto();
+    __jsb_cc_IGeometry_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_DynamicCustomAttribute_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_DynamicCustomAttribute_class = nullptr;  // NOLINT
+
+static bool js_assets_DynamicCustomAttribute_get_attr(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DynamicCustomAttribute>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_DynamicCustomAttribute_get_attr : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->attr, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->attr, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_DynamicCustomAttribute_get_attr)
+
+static bool js_assets_DynamicCustomAttribute_set_attr(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DynamicCustomAttribute>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_DynamicCustomAttribute_set_attr : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->attr, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_DynamicCustomAttribute_set_attr : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_DynamicCustomAttribute_set_attr)
+
+static bool js_assets_DynamicCustomAttribute_get_values(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::DynamicCustomAttribute>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_DynamicCustomAttribute_get_values : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->values, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->values, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_DynamicCustomAttribute_get_values)
+
+static bool js_assets_DynamicCustomAttribute_set_values(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::DynamicCustomAttribute>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_DynamicCustomAttribute_set_values : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->values, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_DynamicCustomAttribute_set_values : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_DynamicCustomAttribute_set_values)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::DynamicCustomAttribute * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::DynamicCustomAttribute*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("attr", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->attr), ctx);
+    }
+    json->getProperty("values", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->values), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_DynamicCustomAttribute_finalize)
+
+static bool js_assets_DynamicCustomAttribute_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::DynamicCustomAttribute);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::DynamicCustomAttribute);
+        auto cobj = ptr->get<cc::DynamicCustomAttribute>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::DynamicCustomAttribute);
+    auto cobj = ptr->get<cc::DynamicCustomAttribute>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->attr), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->values), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_DynamicCustomAttribute_constructor, __jsb_cc_DynamicCustomAttribute_class, js_cc_DynamicCustomAttribute_finalize)
+
+static bool js_cc_DynamicCustomAttribute_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_DynamicCustomAttribute_finalize)
+
+bool js_register_assets_DynamicCustomAttribute(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("DynamicCustomAttribute", obj, nullptr, _SE(js_assets_DynamicCustomAttribute_constructor));
+
+    cls->defineProperty("attr", _SE(js_assets_DynamicCustomAttribute_get_attr), _SE(js_assets_DynamicCustomAttribute_set_attr));
+    cls->defineProperty("values", _SE(js_assets_DynamicCustomAttribute_get_values), _SE(js_assets_DynamicCustomAttribute_set_values));
+    cls->defineFinalizeFunction(_SE(js_cc_DynamicCustomAttribute_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::DynamicCustomAttribute>(cls);
+
+    __jsb_cc_DynamicCustomAttribute_proto = cls->getProto();
+    __jsb_cc_DynamicCustomAttribute_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_IDynamicGeometry_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_IDynamicGeometry_class = nullptr;  // NOLINT
+
+static bool js_assets_IDynamicGeometry_get_positions(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_positions : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->positions, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->positions, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_positions)
+
+static bool js_assets_IDynamicGeometry_set_positions(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_positions : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->positions, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_positions : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_positions)
+
+static bool js_assets_IDynamicGeometry_get_normals(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_normals : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->normals, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->normals, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_normals)
+
+static bool js_assets_IDynamicGeometry_set_normals(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_normals : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->normals, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_normals : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_normals)
+
+static bool js_assets_IDynamicGeometry_get_uvs(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_uvs : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->uvs, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->uvs, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_uvs)
+
+static bool js_assets_IDynamicGeometry_set_uvs(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_uvs : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->uvs, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_uvs : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_uvs)
+
+static bool js_assets_IDynamicGeometry_get_tangents(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_tangents : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->tangents, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->tangents, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_tangents)
+
+static bool js_assets_IDynamicGeometry_set_tangents(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_tangents : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->tangents, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_tangents : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_tangents)
+
+static bool js_assets_IDynamicGeometry_get_colors(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_colors : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->colors, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->colors, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_colors)
+
+static bool js_assets_IDynamicGeometry_set_colors(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_colors : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->colors, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_colors : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_colors)
+
+static bool js_assets_IDynamicGeometry_get_customAttributes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_customAttributes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->customAttributes, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->customAttributes, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_customAttributes)
+
+static bool js_assets_IDynamicGeometry_set_customAttributes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_customAttributes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->customAttributes, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_customAttributes : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_customAttributes)
+
+static bool js_assets_IDynamicGeometry_get_minPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_minPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->minPos, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->minPos, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_minPos)
+
+static bool js_assets_IDynamicGeometry_set_minPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_minPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->minPos, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_minPos : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_minPos)
+
+static bool js_assets_IDynamicGeometry_get_maxPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_maxPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxPos, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxPos, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_maxPos)
+
+static bool js_assets_IDynamicGeometry_set_maxPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_maxPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxPos, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_maxPos : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_maxPos)
+
+static bool js_assets_IDynamicGeometry_get_indices16(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_indices16 : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->indices16, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->indices16, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_indices16)
+
+static bool js_assets_IDynamicGeometry_set_indices16(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_indices16 : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->indices16, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_indices16 : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_indices16)
+
+static bool js_assets_IDynamicGeometry_get_indices32(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_indices32 : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->indices32, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->indices32, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_indices32)
+
+static bool js_assets_IDynamicGeometry_set_indices32(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_indices32 : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->indices32, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_indices32 : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_indices32)
+
+static bool js_assets_IDynamicGeometry_get_primitiveMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_primitiveMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->primitiveMode, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->primitiveMode, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_primitiveMode)
+
+static bool js_assets_IDynamicGeometry_set_primitiveMode(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_primitiveMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->primitiveMode, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_primitiveMode : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_primitiveMode)
+
+static bool js_assets_IDynamicGeometry_get_doubleSided(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_get_doubleSided : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->doubleSided, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->doubleSided, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicGeometry_get_doubleSided)
+
+static bool js_assets_IDynamicGeometry_set_doubleSided(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicGeometry_set_doubleSided : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->doubleSided, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicGeometry_set_doubleSided : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicGeometry_set_doubleSided)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::IDynamicGeometry * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::IDynamicGeometry*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("positions", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->positions), ctx);
+    }
+    json->getProperty("normals", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->normals), ctx);
+    }
+    json->getProperty("uvs", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->uvs), ctx);
+    }
+    json->getProperty("tangents", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->tangents), ctx);
+    }
+    json->getProperty("colors", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->colors), ctx);
+    }
+    json->getProperty("customAttributes", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->customAttributes), ctx);
+    }
+    json->getProperty("minPos", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->minPos), ctx);
+    }
+    json->getProperty("maxPos", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxPos), ctx);
+    }
+    json->getProperty("indices16", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->indices16), ctx);
+    }
+    json->getProperty("indices32", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->indices32), ctx);
+    }
+    json->getProperty("primitiveMode", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->primitiveMode), ctx);
+    }
+    json->getProperty("doubleSided", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->doubleSided), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_IDynamicGeometry_finalize)
+
+static bool js_assets_IDynamicGeometry_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::IDynamicGeometry);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::IDynamicGeometry);
+        auto cobj = ptr->get<cc::IDynamicGeometry>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::IDynamicGeometry);
+    auto cobj = ptr->get<cc::IDynamicGeometry>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->positions), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->normals), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->uvs), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->tangents), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->colors), nullptr);
+    }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->customAttributes), nullptr);
+    }
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(cobj->minPos), nullptr);
+    }
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(cobj->maxPos), nullptr);
+    }
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(cobj->indices16), nullptr);
+    }
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(cobj->indices32), nullptr);
+    }
+    if (argc > 10 && !args[10].isUndefined()) {
+        ok &= sevalue_to_native(args[10], &(cobj->primitiveMode), nullptr);
+    }
+    if (argc > 11 && !args[11].isUndefined()) {
+        ok &= sevalue_to_native(args[11], &(cobj->doubleSided), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_IDynamicGeometry_constructor, __jsb_cc_IDynamicGeometry_class, js_cc_IDynamicGeometry_finalize)
+
+static bool js_cc_IDynamicGeometry_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_IDynamicGeometry_finalize)
+
+bool js_register_assets_IDynamicGeometry(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("IDynamicGeometry", obj, nullptr, _SE(js_assets_IDynamicGeometry_constructor));
+
+    cls->defineProperty("positions", _SE(js_assets_IDynamicGeometry_get_positions), _SE(js_assets_IDynamicGeometry_set_positions));
+    cls->defineProperty("normals", _SE(js_assets_IDynamicGeometry_get_normals), _SE(js_assets_IDynamicGeometry_set_normals));
+    cls->defineProperty("uvs", _SE(js_assets_IDynamicGeometry_get_uvs), _SE(js_assets_IDynamicGeometry_set_uvs));
+    cls->defineProperty("tangents", _SE(js_assets_IDynamicGeometry_get_tangents), _SE(js_assets_IDynamicGeometry_set_tangents));
+    cls->defineProperty("colors", _SE(js_assets_IDynamicGeometry_get_colors), _SE(js_assets_IDynamicGeometry_set_colors));
+    cls->defineProperty("customAttributes", _SE(js_assets_IDynamicGeometry_get_customAttributes), _SE(js_assets_IDynamicGeometry_set_customAttributes));
+    cls->defineProperty("minPos", _SE(js_assets_IDynamicGeometry_get_minPos), _SE(js_assets_IDynamicGeometry_set_minPos));
+    cls->defineProperty("maxPos", _SE(js_assets_IDynamicGeometry_get_maxPos), _SE(js_assets_IDynamicGeometry_set_maxPos));
+    cls->defineProperty("indices16", _SE(js_assets_IDynamicGeometry_get_indices16), _SE(js_assets_IDynamicGeometry_set_indices16));
+    cls->defineProperty("indices32", _SE(js_assets_IDynamicGeometry_get_indices32), _SE(js_assets_IDynamicGeometry_set_indices32));
+    cls->defineProperty("primitiveMode", _SE(js_assets_IDynamicGeometry_get_primitiveMode), _SE(js_assets_IDynamicGeometry_set_primitiveMode));
+    cls->defineProperty("doubleSided", _SE(js_assets_IDynamicGeometry_get_doubleSided), _SE(js_assets_IDynamicGeometry_set_doubleSided));
+    cls->defineFinalizeFunction(_SE(js_cc_IDynamicGeometry_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::IDynamicGeometry>(cls);
+
+    __jsb_cc_IDynamicGeometry_proto = cls->getProto();
+    __jsb_cc_IDynamicGeometry_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -15537,6 +16969,347 @@ bool js_register_assets_Mesh_ISubMesh(se::Object* obj) // NOLINT(readability-ide
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_Mesh_IDynamicInfo_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_Mesh_IDynamicInfo_class = nullptr;  // NOLINT
+
+static bool js_assets_IDynamicInfo_get_maxSubMeshes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicInfo_get_maxSubMeshes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxSubMeshes, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxSubMeshes, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicInfo_get_maxSubMeshes)
+
+static bool js_assets_IDynamicInfo_set_maxSubMeshes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicInfo_set_maxSubMeshes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxSubMeshes, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicInfo_set_maxSubMeshes : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicInfo_set_maxSubMeshes)
+
+static bool js_assets_IDynamicInfo_get_maxSubMeshVertices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicInfo_get_maxSubMeshVertices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxSubMeshVertices, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxSubMeshVertices, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicInfo_get_maxSubMeshVertices)
+
+static bool js_assets_IDynamicInfo_set_maxSubMeshVertices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicInfo_set_maxSubMeshVertices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxSubMeshVertices, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicInfo_set_maxSubMeshVertices : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicInfo_set_maxSubMeshVertices)
+
+static bool js_assets_IDynamicInfo_get_maxSubMeshIndices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicInfo_get_maxSubMeshIndices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxSubMeshIndices, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxSubMeshIndices, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicInfo_get_maxSubMeshIndices)
+
+static bool js_assets_IDynamicInfo_set_maxSubMeshIndices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicInfo_set_maxSubMeshIndices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxSubMeshIndices, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicInfo_set_maxSubMeshIndices : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicInfo_set_maxSubMeshIndices)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::Mesh::IDynamicInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::Mesh::IDynamicInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("maxSubMeshes", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxSubMeshes), ctx);
+    }
+    json->getProperty("maxSubMeshVertices", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxSubMeshVertices), ctx);
+    }
+    json->getProperty("maxSubMeshIndices", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxSubMeshIndices), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_Mesh_IDynamicInfo_finalize)
+
+static bool js_assets_IDynamicInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Mesh::IDynamicInfo);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Mesh::IDynamicInfo);
+        auto cobj = ptr->get<cc::Mesh::IDynamicInfo>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Mesh::IDynamicInfo);
+    auto cobj = ptr->get<cc::Mesh::IDynamicInfo>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->maxSubMeshes), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->maxSubMeshVertices), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->maxSubMeshIndices), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_IDynamicInfo_constructor, __jsb_cc_Mesh_IDynamicInfo_class, js_cc_Mesh_IDynamicInfo_finalize)
+
+static bool js_cc_Mesh_IDynamicInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_Mesh_IDynamicInfo_finalize)
+
+bool js_register_assets_Mesh_IDynamicInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create({"Mesh","IDynamicInfo"}, obj, nullptr, _SE(js_assets_IDynamicInfo_constructor));
+
+    cls->defineProperty("maxSubMeshes", _SE(js_assets_IDynamicInfo_get_maxSubMeshes), _SE(js_assets_IDynamicInfo_set_maxSubMeshes));
+    cls->defineProperty("maxSubMeshVertices", _SE(js_assets_IDynamicInfo_get_maxSubMeshVertices), _SE(js_assets_IDynamicInfo_set_maxSubMeshVertices));
+    cls->defineProperty("maxSubMeshIndices", _SE(js_assets_IDynamicInfo_get_maxSubMeshIndices), _SE(js_assets_IDynamicInfo_set_maxSubMeshIndices));
+    cls->defineFinalizeFunction(_SE(js_cc_Mesh_IDynamicInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::Mesh::IDynamicInfo>(cls);
+
+    __jsb_cc_Mesh_IDynamicInfo_proto = cls->getProto();
+    __jsb_cc_Mesh_IDynamicInfo_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_Mesh_IDynamicStruct_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_Mesh_IDynamicStruct_class = nullptr;  // NOLINT
+
+static bool js_assets_IDynamicStruct_get_info(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicStruct>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicStruct_get_info : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->info, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->info, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicStruct_get_info)
+
+static bool js_assets_IDynamicStruct_set_info(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicStruct>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicStruct_set_info : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->info, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicStruct_set_info : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicStruct_set_info)
+
+static bool js_assets_IDynamicStruct_get_bounds(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicStruct>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicStruct_get_bounds : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->bounds, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->bounds, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IDynamicStruct_get_bounds)
+
+static bool js_assets_IDynamicStruct_set_bounds(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IDynamicStruct>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IDynamicStruct_set_bounds : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->bounds, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IDynamicStruct_set_bounds : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IDynamicStruct_set_bounds)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::Mesh::IDynamicStruct * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::Mesh::IDynamicStruct*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("info", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->info), ctx);
+    }
+    json->getProperty("bounds", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->bounds), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_Mesh_IDynamicStruct_finalize)
+
+static bool js_assets_IDynamicStruct_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Mesh::IDynamicStruct);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Mesh::IDynamicStruct);
+        auto cobj = ptr->get<cc::Mesh::IDynamicStruct>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::Mesh::IDynamicStruct);
+    auto cobj = ptr->get<cc::Mesh::IDynamicStruct>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->info), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->bounds), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_IDynamicStruct_constructor, __jsb_cc_Mesh_IDynamicStruct_class, js_cc_Mesh_IDynamicStruct_finalize)
+
+static bool js_cc_Mesh_IDynamicStruct_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_Mesh_IDynamicStruct_finalize)
+
+bool js_register_assets_Mesh_IDynamicStruct(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create({"Mesh","IDynamicStruct"}, obj, nullptr, _SE(js_assets_IDynamicStruct_constructor));
+
+    cls->defineProperty("info", _SE(js_assets_IDynamicStruct_get_info), _SE(js_assets_IDynamicStruct_set_info));
+    cls->defineProperty("bounds", _SE(js_assets_IDynamicStruct_get_bounds), _SE(js_assets_IDynamicStruct_set_bounds));
+    cls->defineFinalizeFunction(_SE(js_cc_Mesh_IDynamicStruct_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::Mesh::IDynamicStruct>(cls);
+
+    __jsb_cc_Mesh_IDynamicStruct_proto = cls->getProto();
+    __jsb_cc_Mesh_IDynamicStruct_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_Mesh_IStruct_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_Mesh_IStruct_class = nullptr;  // NOLINT
 
@@ -15702,6 +17475,33 @@ static bool js_assets_IStruct_set_morph(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_SET(js_assets_IStruct_set_morph)
 
+static bool js_assets_IStruct_get_dynamic(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IStruct_get_dynamic : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->dynamic, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->dynamic, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_IStruct_get_dynamic)
+
+static bool js_assets_IStruct_set_dynamic(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_IStruct_set_dynamic : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->dynamic, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_IStruct_set_dynamic : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_IStruct_set_dynamic)
+
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::Mesh::IStruct * to, se::Object *ctx)
@@ -15738,6 +17538,10 @@ bool sevalue_to_native(const se::Value &from, cc::Mesh::IStruct * to, se::Object
     json->getProperty("morph", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->morph), ctx);
+    }
+    json->getProperty("dynamic", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->dynamic), ctx);
     }
     return ok;
 }
@@ -15792,6 +17596,9 @@ static bool js_assets_IStruct_constructor(se::State& s) // NOLINT(readability-id
     if (argc > 5 && !args[5].isUndefined()) {
         ok &= sevalue_to_native(args[5], &(cobj->morph), nullptr);
     }
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(cobj->dynamic), nullptr);
+    }
 
     if(!ok) {
         delete ptr;
@@ -15819,6 +17626,7 @@ bool js_register_assets_Mesh_IStruct(se::Object* obj) // NOLINT(readability-iden
     cls->defineProperty("maxPosition", _SE(js_assets_IStruct_get_maxPosition), _SE(js_assets_IStruct_set_maxPosition));
     cls->defineProperty("jointMaps", _SE(js_assets_IStruct_get_jointMaps), _SE(js_assets_IStruct_set_jointMaps));
     cls->defineProperty("morph", _SE(js_assets_IStruct_get_morph), _SE(js_assets_IStruct_set_morph));
+    cls->defineProperty("dynamic", _SE(js_assets_IStruct_get_dynamic), _SE(js_assets_IStruct_set_dynamic));
     cls->defineFinalizeFunction(_SE(js_cc_Mesh_IStruct_finalize));
     cls->install();
     JSBClassType::registerClass<cc::Mesh::IStruct>(cls);
@@ -16473,6 +18281,27 @@ static bool js_assets_Mesh_setStruct(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_assets_Mesh_setStruct)
 
+static bool js_assets_Mesh_updateSubMesh(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_Mesh_updateSubMesh : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<int, false> arg0 = {};
+        HolderType<cc::IDynamicGeometry, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_Mesh_updateSubMesh : Error processing arguments");
+        cobj->updateSubMesh(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_Mesh_updateSubMesh)
+
 static bool js_assets_Mesh_validateMergingMesh(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Mesh>(s);
@@ -16563,6 +18392,7 @@ bool js_register_assets_Mesh(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("readIndices", _SE(js_assets_Mesh_readIndices));
     cls->defineFunction("reset", _SE(js_assets_Mesh_reset));
     cls->defineFunction("setStruct", _SE(js_assets_Mesh_setStruct));
+    cls->defineFunction("updateSubMesh", _SE(js_assets_Mesh_updateSubMesh));
     cls->defineFunction("validateMergingMesh", _SE(js_assets_Mesh_validateMergingMesh));
     cls->defineFinalizeFunction(_SE(js_cc_Mesh_finalize));
     cls->install();
@@ -16755,6 +18585,465 @@ bool js_register_assets_Skeleton(se::Object* obj) // NOLINT(readability-identifi
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_ICreateMeshOptions_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_ICreateMeshOptions_class = nullptr;  // NOLINT
+
+static bool js_assets_ICreateMeshOptions_get_calculateBounds(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ICreateMeshOptions>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ICreateMeshOptions_get_calculateBounds : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->calculateBounds, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->calculateBounds, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_ICreateMeshOptions_get_calculateBounds)
+
+static bool js_assets_ICreateMeshOptions_set_calculateBounds(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ICreateMeshOptions>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ICreateMeshOptions_set_calculateBounds : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->calculateBounds, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_ICreateMeshOptions_set_calculateBounds : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_ICreateMeshOptions_set_calculateBounds)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::ICreateMeshOptions * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::ICreateMeshOptions*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("calculateBounds", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->calculateBounds), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_ICreateMeshOptions_finalize)
+
+static bool js_assets_ICreateMeshOptions_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ICreateMeshOptions);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ICreateMeshOptions);
+    auto cobj = ptr->get<cc::ICreateMeshOptions>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->calculateBounds), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_ICreateMeshOptions_constructor, __jsb_cc_ICreateMeshOptions_class, js_cc_ICreateMeshOptions_finalize)
+
+static bool js_cc_ICreateMeshOptions_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_ICreateMeshOptions_finalize)
+
+bool js_register_assets_ICreateMeshOptions(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("ICreateMeshOptions", obj, nullptr, _SE(js_assets_ICreateMeshOptions_constructor));
+
+    cls->defineProperty("calculateBounds", _SE(js_assets_ICreateMeshOptions_get_calculateBounds), _SE(js_assets_ICreateMeshOptions_set_calculateBounds));
+    cls->defineFinalizeFunction(_SE(js_cc_ICreateMeshOptions_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::ICreateMeshOptions>(cls);
+
+    __jsb_cc_ICreateMeshOptions_proto = cls->getProto();
+    __jsb_cc_ICreateMeshOptions_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_ICreateDynamicMeshOptions_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_ICreateDynamicMeshOptions_class = nullptr;  // NOLINT
+
+static bool js_assets_ICreateDynamicMeshOptions_get_maxSubMeshes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ICreateDynamicMeshOptions>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ICreateDynamicMeshOptions_get_maxSubMeshes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxSubMeshes, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxSubMeshes, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_ICreateDynamicMeshOptions_get_maxSubMeshes)
+
+static bool js_assets_ICreateDynamicMeshOptions_set_maxSubMeshes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ICreateDynamicMeshOptions>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ICreateDynamicMeshOptions_set_maxSubMeshes : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxSubMeshes, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_ICreateDynamicMeshOptions_set_maxSubMeshes : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_ICreateDynamicMeshOptions_set_maxSubMeshes)
+
+static bool js_assets_ICreateDynamicMeshOptions_get_maxSubMeshVertices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ICreateDynamicMeshOptions>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ICreateDynamicMeshOptions_get_maxSubMeshVertices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxSubMeshVertices, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxSubMeshVertices, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_ICreateDynamicMeshOptions_get_maxSubMeshVertices)
+
+static bool js_assets_ICreateDynamicMeshOptions_set_maxSubMeshVertices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ICreateDynamicMeshOptions>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ICreateDynamicMeshOptions_set_maxSubMeshVertices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxSubMeshVertices, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_ICreateDynamicMeshOptions_set_maxSubMeshVertices : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_ICreateDynamicMeshOptions_set_maxSubMeshVertices)
+
+static bool js_assets_ICreateDynamicMeshOptions_get_maxSubMeshIndices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::ICreateDynamicMeshOptions>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ICreateDynamicMeshOptions_get_maxSubMeshIndices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxSubMeshIndices, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxSubMeshIndices, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_assets_ICreateDynamicMeshOptions_get_maxSubMeshIndices)
+
+static bool js_assets_ICreateDynamicMeshOptions_set_maxSubMeshIndices(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::ICreateDynamicMeshOptions>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_ICreateDynamicMeshOptions_set_maxSubMeshIndices : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxSubMeshIndices, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_assets_ICreateDynamicMeshOptions_set_maxSubMeshIndices : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_assets_ICreateDynamicMeshOptions_set_maxSubMeshIndices)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::ICreateDynamicMeshOptions * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::ICreateDynamicMeshOptions*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("maxSubMeshes", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxSubMeshes), ctx);
+    }
+    json->getProperty("maxSubMeshVertices", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxSubMeshVertices), ctx);
+    }
+    json->getProperty("maxSubMeshIndices", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxSubMeshIndices), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_ICreateDynamicMeshOptions_finalize)
+
+static bool js_assets_ICreateDynamicMeshOptions_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ICreateDynamicMeshOptions);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ICreateDynamicMeshOptions);
+        auto cobj = ptr->get<cc::ICreateDynamicMeshOptions>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::ICreateDynamicMeshOptions);
+    auto cobj = ptr->get<cc::ICreateDynamicMeshOptions>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->maxSubMeshes), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->maxSubMeshVertices), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->maxSubMeshIndices), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_assets_ICreateDynamicMeshOptions_constructor, __jsb_cc_ICreateDynamicMeshOptions_class, js_cc_ICreateDynamicMeshOptions_finalize)
+
+static bool js_cc_ICreateDynamicMeshOptions_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_ICreateDynamicMeshOptions_finalize)
+
+bool js_register_assets_ICreateDynamicMeshOptions(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("ICreateDynamicMeshOptions", obj, nullptr, _SE(js_assets_ICreateDynamicMeshOptions_constructor));
+
+    cls->defineProperty("maxSubMeshes", _SE(js_assets_ICreateDynamicMeshOptions_get_maxSubMeshes), _SE(js_assets_ICreateDynamicMeshOptions_set_maxSubMeshes));
+    cls->defineProperty("maxSubMeshVertices", _SE(js_assets_ICreateDynamicMeshOptions_get_maxSubMeshVertices), _SE(js_assets_ICreateDynamicMeshOptions_set_maxSubMeshVertices));
+    cls->defineProperty("maxSubMeshIndices", _SE(js_assets_ICreateDynamicMeshOptions_get_maxSubMeshIndices), _SE(js_assets_ICreateDynamicMeshOptions_set_maxSubMeshIndices));
+    cls->defineFinalizeFunction(_SE(js_cc_ICreateDynamicMeshOptions_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::ICreateDynamicMeshOptions>(cls);
+
+    __jsb_cc_ICreateDynamicMeshOptions_proto = cls->getProto();
+    __jsb_cc_ICreateDynamicMeshOptions_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_MeshUtils_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_MeshUtils_class = nullptr;  // NOLINT
+
+static bool js_assets_MeshUtils_createDynamicMesh_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<int, false> arg0 = {};
+        HolderType<cc::IDynamicGeometry, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createDynamicMesh_static : Error processing arguments");
+        cc::Mesh* result = cc::MeshUtils::createDynamicMesh(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createDynamicMesh_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    if (argc == 3) {
+        HolderType<int, false> arg0 = {};
+        HolderType<cc::IDynamicGeometry, true> arg1 = {};
+        HolderType<cc::Mesh*, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        ok &= sevalue_to_native(args[2], &arg2, nullptr);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createDynamicMesh_static : Error processing arguments");
+        cc::Mesh* result = cc::MeshUtils::createDynamicMesh(arg0.value(), arg1.value(), arg2.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createDynamicMesh_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    if (argc == 4) {
+        HolderType<int, false> arg0 = {};
+        HolderType<cc::IDynamicGeometry, true> arg1 = {};
+        HolderType<cc::Mesh*, false> arg2 = {};
+        HolderType<cc::ICreateDynamicMeshOptions, true> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        ok &= sevalue_to_native(args[2], &arg2, nullptr);
+        ok &= sevalue_to_native(args[3], &arg3, nullptr);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createDynamicMesh_static : Error processing arguments");
+        cc::Mesh* result = cc::MeshUtils::createDynamicMesh(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createDynamicMesh_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_assets_MeshUtils_createDynamicMesh_static)
+
+static bool js_assets_MeshUtils_createDynamicMeshInfo_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::IDynamicGeometry, true> arg0 = {};
+        HolderType<cc::ICreateDynamicMeshOptions, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createDynamicMeshInfo_static : Error processing arguments");
+        cc::Mesh::ICreateInfo result = cc::MeshUtils::createDynamicMeshInfo(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createDynamicMeshInfo_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_MeshUtils_createDynamicMeshInfo_static)
+
+static bool js_assets_MeshUtils_createMesh_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::IGeometry, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createMesh_static : Error processing arguments");
+        cc::Mesh* result = cc::MeshUtils::createMesh(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createMesh_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    if (argc == 2) {
+        HolderType<cc::IGeometry, true> arg0 = {};
+        HolderType<cc::Mesh*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createMesh_static : Error processing arguments");
+        cc::Mesh* result = cc::MeshUtils::createMesh(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createMesh_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    if (argc == 3) {
+        HolderType<cc::IGeometry, true> arg0 = {};
+        HolderType<cc::Mesh*, false> arg1 = {};
+        HolderType<cc::ICreateMeshOptions, true> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        ok &= sevalue_to_native(args[2], &arg2, nullptr);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createMesh_static : Error processing arguments");
+        cc::Mesh* result = cc::MeshUtils::createMesh(arg0.value(), arg1.value(), arg2.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createMesh_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_assets_MeshUtils_createMesh_static)
+
+static bool js_assets_MeshUtils_createMeshInfo_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::IGeometry, true> arg0 = {};
+        HolderType<cc::ICreateMeshOptions, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createMeshInfo_static : Error processing arguments");
+        cc::Mesh::ICreateInfo result = cc::MeshUtils::createMeshInfo(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_assets_MeshUtils_createMeshInfo_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_MeshUtils_createMeshInfo_static)
+static bool js_cc_MeshUtils_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_MeshUtils_finalize)
+
+bool js_register_assets_MeshUtils(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("MeshUtils", obj, nullptr, nullptr);
+
+    cls->defineStaticFunction("createDynamicMesh", _SE(js_assets_MeshUtils_createDynamicMesh_static));
+    cls->defineStaticFunction("createDynamicMeshInfo", _SE(js_assets_MeshUtils_createDynamicMeshInfo_static));
+    cls->defineStaticFunction("createMesh", _SE(js_assets_MeshUtils_createMesh_static));
+    cls->defineStaticFunction("createMeshInfo", _SE(js_assets_MeshUtils_createMeshInfo_static));
+    cls->defineFinalizeFunction(_SE(js_cc_MeshUtils_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::MeshUtils>(cls);
+
+    __jsb_cc_MeshUtils_proto = cls->getProto();
+    __jsb_cc_MeshUtils_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 bool register_all_assets(se::Object* obj)    // NOLINT
 {
     // Get the ns
@@ -16773,7 +19062,9 @@ bool register_all_assets(se::Object* obj)    // NOLINT
     js_register_assets_BoundingBox(ns);
     js_register_assets_BufferAsset(ns);
     js_register_assets_BuiltinResMgr(ns);
+    js_register_assets_CustomAttribute(ns);
     js_register_assets_DepthStencilStateInfo(ns);
+    js_register_assets_DynamicCustomAttribute(ns);
     js_register_assets_EffectAsset(ns);
     js_register_assets_Error(ns);
     js_register_assets_IAttributeInfo(ns);
@@ -16782,11 +19073,17 @@ bool register_all_assets(se::Object* obj)    // NOLINT
     js_register_assets_IBuiltin(ns);
     js_register_assets_IBuiltinInfo(ns);
     js_register_assets_IBuiltins(ns);
+    js_register_assets_ICreateDynamicMeshOptions(ns);
     js_register_assets_Mesh(ns);
     js_register_assets_Mesh_ICreateInfo(ns);
+    js_register_assets_ICreateMeshOptions(ns);
     js_register_assets_IDefineInfo(ns);
+    js_register_assets_IDynamicGeometry(ns);
+    js_register_assets_Mesh_IDynamicInfo(ns);
+    js_register_assets_Mesh_IDynamicStruct(ns);
     js_register_assets_IFlatBuffer(ns);
     js_register_assets_IGeometricInfo(ns);
+    js_register_assets_IGeometry(ns);
     js_register_assets_IImageInfo(ns);
     js_register_assets_IInputAttachmentInfo(ns);
     js_register_assets_IMaterialInfo(ns);
@@ -16812,6 +19109,7 @@ bool register_all_assets(se::Object* obj)    // NOLINT
     js_register_assets_Mesh_IVertexBundle(ns);
     js_register_assets_ImageAsset(ns);
     js_register_assets_Material(ns);
+    js_register_assets_MeshUtils(ns);
     js_register_assets_Morph(ns);
     js_register_assets_MorphRendering(ns);
     js_register_assets_MorphRenderingInstance(ns);

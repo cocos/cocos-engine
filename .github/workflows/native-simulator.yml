@@ -1,13 +1,14 @@
 name: <Native> Simulator
 
-on: [pull_request]
+#on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - 'native/**'
 
 jobs:
   win_gen_simulator:
-    # windows 2019, Visual Studio Enterprise 2019
-    # windows 2016, Visual Studio Enterprise 2017
-    #runs-on: windows-latest
-    runs-on: windows-2016
+    runs-on: windows-2019
     name: Windows
     defaults:
       run:
@@ -46,6 +47,7 @@ jobs:
         run: |
           Get-ChildItem ./simulator/Debug -Name SimulatorApp-Win32.exe
           if(Test-Path ./simulator/Debug/SimulatorApp-Win32.exe) {exit 0} else {exit 1}
+
   # mac_gen_simulator:
   #   runs-on: macos-latest
   #   name: MacOS

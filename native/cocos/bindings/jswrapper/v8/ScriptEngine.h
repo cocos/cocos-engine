@@ -338,7 +338,7 @@ public:
         std::unordered_map<std::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
     };
 
-    inline VMStringPool   &_getStringPool() { return _stringPool; }         // NOLINT(readability-identifier-naming)
+    inline VMStringPool &  _getStringPool() { return _stringPool; }         // NOLINT(readability-identifier-naming)
     void                   _retainScriptObject(void *owner, void *target);  // NOLINT(readability-identifier-naming)
     void                   _releaseScriptObject(void *owner, void *target); // NOLINT(readability-identifier-naming)
     v8::Local<v8::Context> _getContext() const;                             // NOLINT(readability-identifier-naming)
@@ -366,11 +366,11 @@ private:
     bool postInit();
     // Struct to save exception info
     struct PromiseExceptionMsg {
-        const char* event;
-        const char* stackTrace;
+        std::string event;
+        std::string stackTrace;
     };
     // Push promise and exception msg to _promiseArray
-    void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char* event, const char *stackTrace);
+    void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace);
 
     std::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, std::vector<PromiseExceptionMsg>>> _promiseArray;
 
@@ -384,11 +384,11 @@ private:
 
     v8::Persistent<v8::Context> _context;
 
-    v8::Isolate     *_isolate;
+    v8::Isolate *    _isolate;
     v8::HandleScope *_handleScope;
-    Object          *_globalObj;
+    Object *         _globalObj;
     Value            _gcFuncValue;
-    Object          *_gcFunc = nullptr;
+    Object *         _gcFunc = nullptr;
 
     FileOperationDelegate _fileOperationDelegate;
     ExceptionCallback     _nativeExceptionCallback = nullptr;
@@ -401,10 +401,10 @@ private:
     VMStringPool _stringPool;
 
     std::thread::id _engineThreadId;
-
-    std::string _debuggerServerAddr;
-    uint32_t    _debuggerServerPort;
-    bool        _isWaitForConnect;
+    std::string     _lastStackTrace;
+    std::string     _debuggerServerAddr;
+    uint32_t        _debuggerServerPort;
+    bool            _isWaitForConnect;
 
     uint32_t _vmId;
 

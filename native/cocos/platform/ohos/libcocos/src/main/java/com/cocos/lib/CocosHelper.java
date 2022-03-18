@@ -83,8 +83,10 @@ public class CocosHelper {
     static class LockedTaskQ {
         private final Object readMtx = new Object();
         private Queue<Runnable> sTaskQ = new LinkedList<>();
-        public synchronized void addTask(Runnable runnable) {
-            sTaskQ.add(runnable);
+        public void addTask(Runnable runnable) {
+            synchronized (readMtx) {
+                sTaskQ.add(runnable);
+            }
         }
         public void runTasks(){
             Queue<Runnable> tmp;

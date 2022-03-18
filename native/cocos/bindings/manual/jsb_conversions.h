@@ -1232,6 +1232,9 @@ inline bool nativevalue_to_se(const std::vector<T, A> &from, se::Value &to, se::
 template <typename K, typename V>
 inline bool nativevalue_to_se(const std::unordered_map<K, V> &from, se::Value &to, se::Object *ctx); // NOLINT
 
+template <typename T>
+inline bool nativevalue_to_se(const cc::TypedArrayTemp<T> &typedArray, se::Value &to, se::Object *ctx); // NOLINT
+
 /// nativevalue_to_se cc::optional
 template <typename T>
 bool nativevalue_to_se(const cc::optional<T> &from, se::Value &to, se::Object *ctx) { // NOLINT
