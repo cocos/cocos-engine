@@ -174,7 +174,7 @@ gulp.task('gen-simulator', async function () {
             cwd: simulatorProject,
         };
         Object.assign(newEnv, process.env);
-        Object.keys (newEnv ).filter (x => x.toLowerCase ().startswith( 'npm ')). forEach(e => delete newEnv[e]);
+        Object.keys (newEnv ).filter (x => x.toLowerCase().startswith( 'npm_')). forEach(e => delete newEnv[e]);
         let cmakeProcess = spawn(cmakeBin, args, newEnv);
         cmakeProcess.on('close', () => {
             console.log('cmake finished!');
@@ -203,7 +203,7 @@ gulp.task('gen-simulator', async function () {
             cwd: simulatorProject,
         };
         Object.assign(newEnv, process.env);
-        Object.keys (newEnv ).filter (x => x.toLowerCase ().startswith( 'npm ')). forEach(e => delete newEnv[e]);
+        Object.keys (newEnv ).filter (x => x.toLowerCase().startswith( 'npm_')). forEach(e => delete newEnv[e]);
         let buildProcess = spawn(cmakeBin, makeArgs, newEnv);
         buildProcess.on('close', () => {
             console.log('cmake finished!');
