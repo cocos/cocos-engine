@@ -136,11 +136,11 @@ private:
 /**
  * FreeTypeFontFace
  */
-FTLibrary *FreeTypeFontFace::_library = nullptr;
+FTLibrary *FreeTypeFontFace::library = nullptr;
 FreeTypeFontFace::FreeTypeFontFace(Font *font)
 : FontFace(font) {
-    if (!_library) {
-        _library = new FTLibrary();
+    if (!library) {
+        library = new FTLibrary();
     }
 }
 
@@ -157,7 +157,7 @@ void FreeTypeFontFace::doInit(const FontFaceInfo &info) {
     _allocator     = std::make_unique<GlyphAllocator>(_textureWidth, _textureHeight);
 
     FT_Face  face{nullptr};
-    FT_Error error = FT_New_Memory_Face(_library->lib, fontData.data(), static_cast<FT_Long>(fontData.size()), 0, &face);
+    FT_Error error = FT_New_Memory_Face(library->lib, fontData.data(), static_cast<FT_Long>(fontData.size()), 0, &face);
     if (error) {
         CC_LOG_ERROR("FT_New_Memory_Face failed, error code: %d.", error);
         return;
@@ -172,7 +172,7 @@ void FreeTypeFontFace::doInit(const FontFaceInfo &info) {
     _face       = std::make_unique<FTFace>(face);
     _lineHeight = face->size->metrics.height >> 6;
 
-    for (auto &code : info.preLoadedCharacters) {
+    for (const auto &code : info.preLoadedCharacters) {
         loadGlyph(code);
     }
 }
@@ -290,9 +290,9 @@ void FreeTypeFontFace::updateTexture(uint32_t page, uint32_t x, uint32_t y, uint
 }
 
 void FreeTypeFontFace::destroyFreeType() {
-    if (_library) {
-        delete _library;
-        _library = nullptr;
+    if (library) {
+        delete library;
+        library = nullptr;
     }
 }
 
@@ -300,7 +300,7 @@ void FreeTypeFontFace::destroyFreeType() {
  * FreeTypeFont
  */
 FreeTypeFont::FreeTypeFont(const std::string &path)
-: Font(FontType::FreeType, path) {
+: Font(FontType::FREETYPE, path) {
 }
 
 FontFace *FreeTypeFont::createFace(const FontFaceInfo &info) {

@@ -42,9 +42,9 @@
 #include "renderer/pipeline/UIPhase.h"
 #include "renderer/pipeline/deferred/DeferredPipelineSceneData.h"
 #include "scene/Camera.h"
+#include "scene/Pass.h"
 #include "scene/RenderWindow.h"
 #include "scene/SubModel.h"
-#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {
@@ -228,7 +228,7 @@ void PostProcessStage::render(scene::Camera *camera) {
 
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, pipeline->getProfiler(), camera);
-        ccDebugRenderer->render(renderPass, cmdBuff);
+        CC_DEBUG_RENDERER->render(renderPass, cmdBuff);
     };
 
     // add pass

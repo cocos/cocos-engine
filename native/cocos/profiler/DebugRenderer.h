@@ -95,10 +95,10 @@ private:
     DebugRenderer()  = default;
     ~DebugRenderer() = default;
 
-    void     addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color);
-    uint32_t getLineHeight(bool bold = false, bool italic = false);
+    static void addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color);
+    uint32_t    getLineHeight(bool bold = false, bool italic = false);
 
-    static DebugRenderer *    _instance;
+    static DebugRenderer *    instance;
     gfx::Device *             _device{nullptr};
     pipeline::RenderPipeline *_pipeline{nullptr};
     DebugVertexBuffer *       _buffer{nullptr};
@@ -109,4 +109,4 @@ private:
 
 } // namespace cc
 
-#define ccDebugRenderer cc::DebugRenderer::getInstance()
+#define CC_DEBUG_RENDERER cc::DebugRenderer::getInstance()

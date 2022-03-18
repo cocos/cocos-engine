@@ -36,11 +36,11 @@ class ProfilerBlock;
 struct ProfilerBlockDepth;
 
 enum class ShowOption : uint32_t {
-    CoreStats        = 0x01,
-    MemoryStats      = 0x02,
-    ObjectStats      = 0x04,
-    PerformanceStats = 0x08,
-    All              = CoreStats | MemoryStats | ObjectStats | PerformanceStats,
+    CORE_STATS        = 0x01,
+    MEMORY_STATS      = 0x02,
+    OBJECT_STATS      = 0x04,
+    PERFORMANCE_STATS = 0x08,
+    All               = CORE_STATS | MEMORY_STATS | OBJECT_STATS | PERFORMANCE_STATS,
 };
 
 /**
@@ -71,15 +71,15 @@ private:
     Profiler();
     ~Profiler();
 
-    void doIntervalUpdate();
-    void doFrameUpdate();
-    void printStats();
+    void        doIntervalUpdate();
+    static void doFrameUpdate();
+    void        printStats();
 
     void beginBlock(const std::string &name);
     void endBlock();
     void gatherBlocks(ProfilerBlock *parent, uint32_t depth, std::vector<ProfilerBlockDepth> &outBlocks);
 
-    static Profiler *_instance;
+    static Profiler *instance;
     uint32_t         _options{static_cast<uint32_t>(ShowOption::All)};
     utils::Timer     _timer;
     CoreStats        _coreStats;

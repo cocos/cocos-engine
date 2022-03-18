@@ -189,7 +189,7 @@ gfx::Texture *BitmapFontFace::loadTexture(const std::string &path) {
  * BitmapFont
  */
 BitmapFont::BitmapFont(const std::string &path)
-: Font(FontType::Bitmap, path) {
+: Font(FontType::BITMAP, path) {
 }
 
 FontFace *BitmapFont::createFace(const FontFaceInfo &info) {

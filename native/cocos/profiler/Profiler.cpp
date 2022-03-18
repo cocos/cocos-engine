@@ -33,11 +33,11 @@
 #include "core/assets/Font.h"
 #include "gfx-base/GFXDevice.h"
 #include "platform/FileUtils.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/Device.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
 #include "renderer/GFXDeviceManager.h"
-#include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "scene/Shadow.h"
 
 namespace cc {
@@ -47,8 +47,8 @@ namespace cc {
  */
 class ProfilerBlock {
 public:
-    ProfilerBlock(ProfilerBlock *parent, const std::string &name)
-    : _parent(parent), _name(name) {}
+    ProfilerBlock(ProfilerBlock *parent, std::string name)
+    : _parent(parent), _name(std::move(name)) {}
     ~ProfilerBlock();
 
     inline void    begin() { _timer.reset(); }
@@ -89,7 +89,7 @@ ProfilerBlock *ProfilerBlock::getOrCreateChild(const std::string &name) {
     return child;
 }
 
-void ProfilerBlock::onFrameBegin() {
+void ProfilerBlock::onFrameBegin() { //NOLINT(misc-no-recursion)
     _item.onFrameBegin();
 
     for (auto *child : _children) {
@@ -97,7 +97,7 @@ void ProfilerBlock::onFrameBegin() {
     }
 }
 
-void ProfilerBlock::onFrameEnd() {
+void ProfilerBlock::onFrameEnd() { //NOLINT(misc-no-recursion)
     for (auto *child : _children) {
         child->onFrameEnd();
     }
@@ -105,7 +105,7 @@ void ProfilerBlock::onFrameEnd() {
     _item.onFrameEnd();
 }
 
-void ProfilerBlock::doIntervalUpdate() {
+void ProfilerBlock::doIntervalUpdate() { //NOLINT(misc-no-recursion)
     _item.onIntervalUpdate();
 
     for (auto *child : _children) {
@@ -121,19 +121,19 @@ struct ProfilerBlockDepth {
 /**
  * Profiler
  */
-Profiler *Profiler::_instance = nullptr;
+Profiler *Profiler::instance = nullptr;
 Profiler *Profiler::getInstance() {
-    if (!_instance) {
-        _instance = new Profiler();
+    if (!instance) {
+        instance = new Profiler();
     }
 
-    return _instance;
+    return instance;
 }
 
 void Profiler::destroyInstance() {
-    if (_instance) {
-        delete _instance;
-        _instance = nullptr;
+    if (instance) {
+        delete instance;
+        instance = nullptr;
     }
 }
 
@@ -149,7 +149,7 @@ Profiler::~Profiler() {
 }
 
 void Profiler::setEnable(ShowOption option, bool b) {
-    uint32_t flag = static_cast<uint32_t>(option);
+    auto flag = static_cast<uint32_t>(option);
     if (b) {
         _options |= flag;
     } else {
@@ -158,7 +158,7 @@ void Profiler::setEnable(ShowOption option, bool b) {
 }
 
 bool Profiler::isEnabled(ShowOption option) const {
-    uint32_t flag = static_cast<uint32_t>(option);
+    auto flag = static_cast<uint32_t>(option);
     return (_options & flag) == flag;
 }
 
@@ -227,7 +227,7 @@ void Profiler::doFrameUpdate() {
 }
 
 void Profiler::printStats() {
-    auto *      renderer    = ccDebugRenderer;
+    auto *      renderer    = CC_DEBUG_RENDERER;
     const auto *window      = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
     const auto  viewSize    = window->getViewSize() * Device::getDevicePixelRatio();
     const auto  width       = viewSize.x;
@@ -245,7 +245,7 @@ void Profiler::printStats() {
         {{0.8F, 0.8F, 0.8F, 1.0F}, false, false, true, 1U, {0.0F, 0.0F, 0.0F, 1.0F}, 1.0F},
     };
 
-    if (isEnabled(ShowOption::CoreStats)) {
+    if (isEnabled(ShowOption::CORE_STATS)) {
         float coreOffset = columnWidth * 2.0F;
         auto  coreStats  = StringUtil::format(
             "FPS: %u    "
@@ -271,7 +271,7 @@ void Profiler::printStats() {
         lines += 0.5F;
     }
 
-    if (isEnabled(ShowOption::ObjectStats)) {
+    if (isEnabled(ShowOption::OBJECT_STATS)) {
         leftLines            = lines;
         float yOffset        = lineHeight * leftLines;
         float countOffset    = columnWidth * 2;
@@ -305,7 +305,7 @@ void Profiler::printStats() {
         leftLines += 0.5F;
     }
 
-    if (isEnabled(ShowOption::MemoryStats)) {
+    if (isEnabled(ShowOption::MEMORY_STATS)) {
         rightLines           = lines;
         float yOffset        = lineHeight * rightLines;
         float memoryOffset   = width * 0.5F;
@@ -339,7 +339,7 @@ void Profiler::printStats() {
         rightLines += 0.5F;
     }
 
-    if (isEnabled(ShowOption::PerformanceStats)) {
+    if (isEnabled(ShowOption::PERFORMANCE_STATS)) {
         lines                    = std::max(leftLines, rightLines);
         float yOffset            = lineHeight * lines;
         float frameTimeOffset    = columnWidth * 4;
@@ -407,7 +407,7 @@ void Profiler::endBlock() {
     }
 }
 
-void Profiler::gatherBlocks(ProfilerBlock *parent, uint32_t depth, std::vector<ProfilerBlockDepth> &outBlocks) {
+void Profiler::gatherBlocks(ProfilerBlock *parent, uint32_t depth, std::vector<ProfilerBlockDepth> &outBlocks) { //NOLINT(misc-no-recursion)
     outBlocks.push_back({parent, depth});
 
     for (auto *child : parent->_children) {

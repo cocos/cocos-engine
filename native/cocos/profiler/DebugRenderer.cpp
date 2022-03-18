@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "DebugRenderer.h"
+#include <algorithm>
 #include "Profiler.h"
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
@@ -64,14 +65,14 @@ inline uint32_t getFontIndex(bool bold, bool italic) {
 
 inline std::string getFontPath(uint32_t index) {
     // stanley todo: use readable names later.
-    static const std::string uuids[DEBUG_FONT_COUNT] = {
+    static const std::string UUIDS[DEBUG_FONT_COUNT] = {
         "0835f102-5471-47a3-9a76-01c07ac9cdb2", //"OpenSans-Regular",
         "b5475517-23b9-4873-bc1a-968d96616081", //"OpenSans-Bold",
         "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", //"OpenSans-Italic",
         "b23391b6-52eb-46a6-8da1-6244d9d315fb", //"OpenSans-BoldItalic"
     };
 
-    auto *asset = BuiltinResMgr::getInstance()->getAsset(uuids[index]);
+    auto *asset = BuiltinResMgr::getInstance()->getAsset(UUIDS[index]);
 
     return asset->getNativeUrl();
 }
@@ -106,7 +107,7 @@ struct DebugBatch {
         CC_SAFE_DESTROY_AND_DELETE(descriptorSetLayout);
     }
 
-    inline bool match(bool b, bool i, gfx::Texture *tex) {
+    inline bool match(bool b, bool i, gfx::Texture *tex) const {
         return bold == b && italic == i && texture == tex;
     }
 
@@ -166,20 +167,16 @@ public:
             }
         }
 
-        DebugBatch *batch = new DebugBatch(device, pipeline, bold, italic, texture);
+        auto *batch = new DebugBatch(device, pipeline, bold, italic, texture);
         _batches.push_back(batch);
 
         return *batch;
     }
 
     inline bool empty() const {
-        for (auto *batch : _batches) {
-            if (!batch->vertices.empty()) {
-                return false;
-            }
-        }
-
-        return true;
+        return std::all_of(_batches.begin(),
+                           _batches.end(),
+                           [](const DebugBatch *batch) { return batch->vertices.empty(); });
     }
     inline void reset() {
         for (auto *batch : _batches) {
@@ -200,19 +197,19 @@ DebugRendererInfo::DebugRendererInfo()
 : fontSize(DEBUG_FONT_SIZE), maxCharacters(DEBUG_MAX_CHARACTERS) {
 }
 
-DebugRenderer *DebugRenderer::_instance = nullptr;
+DebugRenderer *DebugRenderer::instance = nullptr;
 DebugRenderer *DebugRenderer::getInstance() {
-    if (!_instance) {
-        _instance = new DebugRenderer();
+    if (!instance) {
+        instance = new DebugRenderer();
     }
 
-    return _instance;
+    return instance;
 }
 
 void DebugRenderer::destroyInstance() {
-    if (_instance) {
-        delete _instance;
-        _instance = nullptr;
+    if (instance) {
+        delete instance;
+        instance = nullptr;
     }
 }
 
@@ -220,13 +217,13 @@ void DebugRenderer::activate(gfx::Device *device, pipeline::RenderPipeline *pipe
     _device   = device;
     _pipeline = pipeline;
 
-    static const gfx::AttributeList attributes = {
+    static const gfx::AttributeList ATTRIBUTES = {
         {"a_position", gfx::Format::RG32F},
         {"a_texCoord", gfx::Format::RG32F},
         {"a_color", gfx::Format::RGBA32F}};
 
     _buffer = new DebugVertexBuffer();
-    _buffer->init(_device, info.maxCharacters * DEBUG_VERTICES_PER_CHAR, attributes);
+    _buffer->init(_device, info.maxCharacters * DEBUG_VERTICES_PER_CHAR, ATTRIBUTES);
 
     const auto *window   = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
     const auto  width    = window->getViewSize().x * Device::getDevicePixelRatio();
@@ -306,9 +303,7 @@ void DebugRenderer::addText(const std::string &text, const Vec2 &screenPos, cons
     const auto  lineHeight     = face->getLineHeight() * scale;
     const auto &invTextureSize = fontInfo.invTextureSize;
 
-    for (auto i = 0U; i < unicodeText.size(); i++) {
-        const auto code = unicodeText[i];
-
+    for (char32_t code : unicodeText) {
         if (code == '\r') {
             continue;
         }
@@ -327,8 +322,14 @@ void DebugRenderer::addText(const std::string &text, const Vec2 &screenPos, cons
         if (glyph->width > 0U && glyph->height > 0U) {
             auto &batch = _buffer->getOrCreateBatch(_device, _pipeline, info.bold, info.italic, face->getTexture(glyph->page));
 
-            Vec4 rect{offsetX + glyph->bearingX * scale, offsetY - glyph->bearingY * scale, glyph->width * scale, glyph->height * scale};
-            Vec4 uv{glyph->x * invTextureSize.x, glyph->y * invTextureSize.y, glyph->width * invTextureSize.x, glyph->height * invTextureSize.y};
+            Vec4 rect{offsetX + static_cast<float>(glyph->bearingX) * scale,
+                      offsetY - static_cast<float>(glyph->bearingY) * scale,
+                      static_cast<float>(glyph->width) * scale,
+                      static_cast<float>(glyph->height) * scale};
+            Vec4 uv{static_cast<float>(glyph->x) * invTextureSize.x,
+                    static_cast<float>(glyph->y) * invTextureSize.y,
+                    static_cast<float>(glyph->width) * invTextureSize.x,
+                    static_cast<float>(glyph->height) * invTextureSize.y};
 
             if (info.shadow) {
                 for (auto x = 1U; x <= info.shadowThickness; x++) {

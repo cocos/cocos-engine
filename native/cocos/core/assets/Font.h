@@ -41,9 +41,9 @@ constexpr uint32_t MIN_FONT_SIZE                 = 1U;
 constexpr uint32_t MAX_FONT_SIZE                 = 128U;
 
 enum class FontType {
-    Invalid,
-    FreeType,
-    Bitmap,
+    INVALID,
+    FREETYPE,
+    BITMAP,
 };
 
 struct FontGlyph {
@@ -149,7 +149,7 @@ public:
 protected:
     void load(const std::string &path);
 
-    FontType                                 _type{FontType::Invalid};
+    FontType                                 _type{FontType::INVALID};
     std::string                              _path;
     std::vector<uint8_t>                     _data;
     std::unordered_map<uint32_t, FontFace *> _faces;

@@ -61,7 +61,7 @@ private:
 
     std::unique_ptr<GlyphAllocator> _allocator{nullptr};
     std::unique_ptr<FTFace>         _face;
-    static FTLibrary *              _library;
+    static FTLibrary *              library;
 
     friend class FreeTypeFont;
 };

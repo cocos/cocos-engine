@@ -39,9 +39,9 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/UIPhase.h"
-#include "scene/Camera.h"
 #include "profiler/DebugRenderer.h"
 #include "profiler/Profiler.h"
+#include "scene/Camera.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {
@@ -235,7 +235,7 @@ void ForwardStage::render(scene::Camera *camera) {
         _pipeline->getGeometryRenderer()->render(camera, renderPass, cmdBuff);
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
-        ccDebugRenderer->render(renderPass, cmdBuff);
+        CC_DEBUG_RENDERER->render(renderPass, cmdBuff);
     };
 
     // add pass
