@@ -44,7 +44,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             const uniformBlock: DescriptorBlock = new DescriptorBlock();
             descriptorDB.blocks.set(key, uniformBlock);
 
-            uniformBlock['blockIndex'] = blockIndex;
+            // uniformBlock['blockIndex'] = blockIndex;
         }
         return descriptorDB.blocks.get(key) as DescriptorBlock;
     }
@@ -54,8 +54,8 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             const uniformBlock: DescriptorBlock = new DescriptorBlock();
             descriptorDB.blocks.set(key, uniformBlock);
 
-            const blockIndedx: DescriptorBlockIndex = JSON.parse(key) as DescriptorBlockIndex;
-            uniformBlock['blockIndex'] = blockIndedx;
+            // const blockIndedx: DescriptorBlockIndex = JSON.parse(key) as DescriptorBlockIndex;
+            // uniformBlock['blockIndex'] = blockIndedx;
         }
         return descriptorDB.blocks.get(key) as DescriptorBlock;
     }
@@ -79,10 +79,10 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
     }
 
     private merge (descriptorDB: DescriptorDB) {
-        for (let entry of descriptorDB.blocks) {
+        for (const entry of descriptorDB.blocks) {
             const block: DescriptorBlock = entry[1];
             const typeMap: Map<Type, number> = new Map<Type, number>();
-            for (let ee of block.descriptors) {
+            for (const ee of block.descriptors) {
                 const descriptor: Descriptor = ee[1];
                 const type: Type = descriptor.type;
                 if (typeMap.get(type) === undefined) {
@@ -93,16 +93,13 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
                 }
                 block.capacity++;
             }
-            for (let ii of typeMap) {
+            for (const ii of typeMap) {
                 const type: Type = ii[0];
                 const count: number = ii[1];
                 if (count > 0) {
                     const mergedDescriptor: Descriptor = new Descriptor(type);
                     mergedDescriptor.count = count;
-                    if (block['merged'] === undefined) {
-                        block['merged'] = new Map<Type, Descriptor>();
-                    }
-                    block['merged'].set(type, mergedDescriptor);
+                    block.merged.set(type, mergedDescriptor);
                 }
             }
         }
@@ -111,33 +108,24 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
     private mergeDBs (descriptorDBs: DescriptorDB[], target: DescriptorDB) {
         for (let i = 0; i < descriptorDBs.length; ++i) {
             const db: DescriptorDB = descriptorDBs[i];
-            for (let e of db.blocks) {
+            for (const e of db.blocks) {
                 const key: string = e[0];
                 const block: DescriptorBlock = e[1];
 
-                if (block['merged'] !== undefined) {
+                if (block.merged.size > 0) {
                     const targetBlock: DescriptorBlock = this.getLayoutBlockByKey(key, target);
-                    if (targetBlock['merged'] === undefined) {
-                        targetBlock['merged'] = new Map<Type, Descriptor>();
-                        for (let ee of block['merged']) {
-                            const type: Type = ee[0];
-                            const descriptor: Descriptor = ee[1];
+                    for (let ee of block.merged) {
+                        const type: Type = ee[0];
+                        const descriptor: Descriptor = ee[1];
+                        if (!targetBlock.merged.has(type)) {
                             const ds: Descriptor = new Descriptor(descriptor.type);
                             ds.count = descriptor.count;
-                            targetBlock['merged'].set(type, ds);
-                        }
-                    } else {
-                        for (let ee of targetBlock['merged']) {
-                            const type: Type = ee[0];
-                            const descriptor: Descriptor = ee[1];
-                            if (targetBlock['merged'].get(type) === undefined) {
-                                const ds: Descriptor = new Descriptor(descriptor.type);
-                                ds.count = descriptor.count;
-                                targetBlock['merged'].set(type, ds);
-                            } else {
-                                const ds: Descriptor = targetBlock['merged'].get(type);
+                            targetBlock.merged.set(type, ds);
+                        } else {
+                            const ds: Descriptor | undefined = targetBlock.merged.get(type);
+                            if (ds !== undefined) {
                                 ds.count = ds.count > descriptor.count ? ds.count : descriptor.count;
-                            }
+                            } 
                         }
                     }
                     targetBlock.capacity = block.capacity > targetBlock.capacity ? block.capacity : targetBlock.capacity;
@@ -151,7 +139,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
             return String(a[0]).localeCompare(b[0]);
         }));
         descriptorDB.blocks.clear();
-        for (let e of sortedMap) {
+        for (const e of sortedMap) {
             descriptorDB.blocks.set(e[0], e[1]);
         }
     }
