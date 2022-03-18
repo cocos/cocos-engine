@@ -580,56 +580,42 @@ const Elements = {
 
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('section > ui-prop');
             $skyProps.forEach(($prop) => {
-                if ($prop.dump.name === 'envmap') {
-                    if (!$prop.updateSkylightingColor) {
-                        $prop.updateSkylightingColor = Elements.scene.updateSkylightingColor.bind(panel);
-                        $prop.addEventListener('change-dump', $prop.updateSkylightingColor);
+                if ($prop.dump.name === 'envLightingType' || $prop.dump.name === 'envmap') {
+                    if (!$prop.regenerate) {
+                        $prop.regenerate = Elements.scene.regenerate.bind(panel);
+                        $prop.addEventListener('change-dump', $prop.regenerate);
                     }
-                }
-                if ($prop.dump.name === 'envLightingType' && !$prop.updateDiffuseMap) {
-                    $prop.updateDiffuseMap = Elements.scene.updateDiffuseMap.bind(panel);
-                    $prop.addEventListener('change-dump', (e) => {
-                        $prop.updateDiffuseMap();
-                    });
                 }
             });
         },
-        async updateDiffuseMap() {
+        async regenerate() {
             const panel = this;
 
             const dump = panel.dump._globals.skybox.value;
             if (!dump.envmap.value) {
                 return;
             }
-
             const envMapUuid = dump.envmap.value.uuid;
             if (!envMapUuid) {
                 return;
             }
+
             const envLightingType = dump.envLightingType.value;
+
+            // DIFFUSEMAP_WITH_REFLECTION 的枚举值为 2
             if (envLightingType === 2) {
                 await Editor.Message.request('scene', 'execute-scene-script', {
                     name: 'inspector',
                     method: 'generateDiffuseMap',
                     args: [envMapUuid],
                 });
+            } else {
+                await Editor.Message.request('scene', 'execute-scene-script', {
+                    name: 'inspector',
+                    method: 'generateVector',
+                    args: [envMapUuid],
+                });
             }
-        },
-        async updateSkylightingColor() {
-            const panel = this;
-            const dump = panel.dump._globals.skybox.value;
-            if (!dump.envmap.value) {
-                return;
-            }
-            const envMapUuid = dump.envmap.value.uuid;
-            if (!envMapUuid) {
-                return;
-            }
-            await Editor.Message.request('scene', 'execute-scene-script', {
-                name: 'inspector',
-                method: 'generateVector',
-                args: [envMapUuid],
-            });
         },
     },
     node: {
