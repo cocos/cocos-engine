@@ -897,6 +897,7 @@ export class SubpassGraph implements impl.BidirectionalGraph
 }
 
 export class RasterPass {
+    isValid = false;
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly subpassGraph: SubpassGraph = new SubpassGraph();
