@@ -28,9 +28,9 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#include "platform/SDLHelper.h"
 #include "platform/interfaces/OSInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
-#include "platform/SDLHelper.h"
 
 namespace {
 
@@ -65,7 +65,7 @@ int32_t LinuxPlatform::loop() {
     onResume();
     while (!_quit) {
         curTime         = getCurrentMillSecond();
-		desiredInterval = static_cast<long>(1000.0 / getFps());
+        desiredInterval = static_cast<long>(1000.0 / getFps());
         pollEvent();
         actualInterval = curTime - lastTime;
         if (actualInterval >= desiredInterval) {
@@ -88,7 +88,7 @@ void LinuxPlatform::pollEvent() {
 bool LinuxPlatform::createWindow(const char *title,
                                  int x, int y, int w,
                                  int h, int flags) {
-   return _sdl->createWindow(title, x, y, w, h, flags);
+    return _sdl->createWindow(title, x, y, w, h, flags);
 }
 
 uintptr_t LinuxPlatform::getWindowHandler() const {

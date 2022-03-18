@@ -28,9 +28,9 @@
 #include <Windows.h>
 #include <shellapi.h>
 #include <sstream>
+#include "platform/SDLHelper.h"
 #include "platform/interfaces/OSInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
-#include "platform/SDLHelper.h"
 
 namespace {
 /**
@@ -76,7 +76,6 @@ WindowsPlatform::WindowsPlatform() {
     _sdl = std::make_unique<SDLHelper>(this);
 }
 WindowsPlatform::~WindowsPlatform() {
-
 #ifdef USE_WIN32_CONSOLE
     FreeConsole();
 #endif
@@ -151,7 +150,6 @@ int32_t WindowsPlatform::loop() {
     onDestory();
     return 0;
 }
-
 
 void WindowsPlatform::pollEvent() {
     _sdl->pollEvent(&_quit);

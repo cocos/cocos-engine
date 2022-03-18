@@ -39,7 +39,7 @@ static const char gdefaultFontName[] = "lucidasans-24";
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
     LinuxPlatform *platform = dynamic_cast<LinuxPlatform *>(BasePlatform::getPlatform());
     CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    _dis = reinterpret_cast<Display*>(platform->getDisplay());
+    _dis = reinterpret_cast<Display *>(platform->getDisplay());
     _win = reinterpret_cast<Drawable>(platform->getWindowHandler());
 }
 

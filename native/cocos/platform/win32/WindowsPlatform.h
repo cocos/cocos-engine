@@ -52,8 +52,8 @@ public:
     uintptr_t getWindowHandler() const override;
 
 private:
-    void               pollEvent() override;
-    bool               _quit{false};
+    void                       pollEvent() override;
+    bool                       _quit{false};
     std::unique_ptr<SDLHelper> _sdl;
 };
 

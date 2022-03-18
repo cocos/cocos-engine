@@ -56,9 +56,9 @@ public:
     }
 
 private:
-    void             pollEvent() override;
-    bool             _inited{false};
-    bool             _quit{false};
+    void pollEvent() override;
+    bool _inited{false};
+    bool _quit{false};
     // std::unique_ptr<SDLHelper> _sdl;
     screen_context_t _screenCtx;
     screen_window_t  _screenWin;
