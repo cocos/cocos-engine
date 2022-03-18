@@ -135,7 +135,7 @@ export class WebDescriptorHierarchy extends DescriptorHierarchy {
     }
 
     private sort (descriptorDB: DescriptorDB) {
-        const sortedMap: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>(Array.from(descriptorDB.blocks).sort((a, b) => { return String(a[0]).localeCompare(b[0]); }));
+        const sortedMap: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>(Array.from(descriptorDB.blocks).sort((a, b) => String(a[0]).localeCompare(b[0])));
         descriptorDB.blocks.clear();
         for (const e of sortedMap) {
             descriptorDB.blocks.set(e[0], e[1]);
