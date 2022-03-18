@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "renderer/gfx-base/GFXDef-common.h"
 
 namespace cc {

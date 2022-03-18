@@ -27,7 +27,6 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 #include "cocos/base/Optional.h"
 #include "core/TypedArray.h"
 namespace cc {

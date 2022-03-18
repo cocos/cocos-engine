@@ -25,7 +25,6 @@
 #pragma once
 
 #include <set>
-#include <vector>
 #include "3d/assets/Morph.h"
 #include "scene/Define.h"
 #include "scene/Model.h"

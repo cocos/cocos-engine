@@ -27,7 +27,6 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"

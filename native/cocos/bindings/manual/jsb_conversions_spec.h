@@ -22,7 +22,6 @@
 #pragma once
 
 #include <unordered_map>
-#include <vector>
 #include "base/Ptr.h"
 #include "base/Value.h"
 #include "bindings/jswrapper/SeApi.h"

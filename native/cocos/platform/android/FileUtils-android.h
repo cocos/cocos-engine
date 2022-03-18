@@ -28,7 +28,6 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include "android/asset_manager.h"
 #include "base/Macros.h"
 #include "jni.h"

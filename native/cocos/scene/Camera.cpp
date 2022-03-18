@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 #include "scene/Camera.h"
-#include <vector>
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "core/platform/Debug.h"

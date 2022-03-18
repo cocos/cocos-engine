@@ -26,7 +26,6 @@
 #pragma once
 
 #include <tuple>
-#include <vector>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "core/TypedArray.h"

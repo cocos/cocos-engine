@@ -26,7 +26,6 @@
  ****************************************************************************/
 
 #include "math/Vertex.h"
-#include <vector>
 #include "base/Macros.h"
 
 namespace cc {

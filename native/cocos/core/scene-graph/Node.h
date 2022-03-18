@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
 #include "cocos/base/Any.h"

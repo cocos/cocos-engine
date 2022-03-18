@@ -27,7 +27,6 @@
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include "base/Ptr.h"
 #include "cocos/base/Optional.h"
 #include "cocos/base/Variant.h"

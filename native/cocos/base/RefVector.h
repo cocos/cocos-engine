@@ -32,7 +32,6 @@
 #include <algorithm> // for std::find
 #include <cstdint>
 #include <functional>
-#include <vector>
 
 #include "base/Log.h"
 #include "base/memory/Memory.h"

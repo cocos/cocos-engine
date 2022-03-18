@@ -24,7 +24,6 @@
 ****************************************************************************/
 #pragma once
 
-#include <vector>
 #include "cocos/base/Optional.h"
 #include "core/TypedArray.h"
 #include "math/Vec3.h"

@@ -3,7 +3,6 @@
 #include <array>
 #include <cmath>
 #include <limits>
-#include <vector>
 #include "3d/assets/Mesh.h"
 #include "base/Macros.h"
 #include "core/TypedArray.h"

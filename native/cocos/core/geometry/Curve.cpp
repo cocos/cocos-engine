@@ -1,5 +1,4 @@
 #include "cocos/core/geometry/Curve.h"
-#include <vector>
 namespace cc {
 namespace geometry {
 

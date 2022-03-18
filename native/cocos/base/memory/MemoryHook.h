@@ -33,7 +33,6 @@
 
     #include <mutex>
     #include <unordered_map>
-    #include <vector>
 
 typedef void *(*MallocType)(size_t size);
 typedef void (*FreeType)(void *ptr);

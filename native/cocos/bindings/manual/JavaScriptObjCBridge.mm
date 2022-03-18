@@ -30,7 +30,6 @@
 
 
 #include <string>
-#include <vector>
 #include <iostream>
 
 #import <Foundation/Foundation.h>

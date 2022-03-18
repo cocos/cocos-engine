@@ -27,7 +27,6 @@
 
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include "base/TypeDef.h"
 #include "math/Vec3.h"
 

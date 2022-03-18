@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 namespace cc {
 namespace geometry {
 

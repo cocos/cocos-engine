@@ -25,7 +25,6 @@
 
 #include "WGPUQueue.h"
 #include <webgpu/webgpu.h>
-#include <vector>
 #include "WGPUCommandBuffer.h"
 #include "WGPUDevice.h"
 #include "WGPUObject.h"

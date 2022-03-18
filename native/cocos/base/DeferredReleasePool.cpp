@@ -26,7 +26,6 @@
 ****************************************************************************/
 
 #include "base/DeferredReleasePool.h"
-#include <vector>
 #include "base/Log.h"
 namespace cc {
 

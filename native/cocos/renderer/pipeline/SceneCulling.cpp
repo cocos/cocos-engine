@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include <array>
-#include <vector>
 
 #include "Define.h"
 #include "PipelineSceneData.h"

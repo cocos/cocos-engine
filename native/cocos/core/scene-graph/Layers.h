@@ -24,7 +24,6 @@
 */
 
 #pragma once
-#include <vector>
 
 #include "base/Macros.h"
 #include "base/TypeDef.h"

@@ -26,7 +26,6 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 #include "base/RefCounted.h"
 #include "core/assets/RenderingSubMesh.h"
 #include "renderer/gfx-base/GFXDescriptorSet.h"

@@ -26,7 +26,6 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include "base/Macros.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/spec/IWorld.h"

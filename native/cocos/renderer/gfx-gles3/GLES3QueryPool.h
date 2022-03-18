@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "GLES3Std.h"
 #include "gfx-base/GFXQueryPool.h"
 

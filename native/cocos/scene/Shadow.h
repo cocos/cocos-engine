@@ -26,7 +26,6 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include "core/assets/Material.h"
 #include "core/geometry/Sphere.h"
 #include "math/Color.h"

@@ -26,7 +26,6 @@
 #pragma once
 
 #include <unordered_set>
-#include <vector>
 #include "cocos/base/Macros.h"
 #include "cocos/base/TypeDef.h"
 

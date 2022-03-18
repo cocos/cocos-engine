@@ -26,7 +26,6 @@
 #pragma once
 
 #include <map>
-#include <vector>
 #include "base/Macros.h"
 #include "core/scene-graph/Node.h"
 #include "physics/physx/PhysXInc.h"

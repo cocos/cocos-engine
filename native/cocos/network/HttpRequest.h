@@ -33,7 +33,6 @@
 
 #include <functional>
 #include <string>
-#include <vector>
 
 /**
  * @addtogroup network

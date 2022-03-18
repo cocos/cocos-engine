@@ -26,7 +26,6 @@
 #pragma once
 
 #include <utility>
-#include <vector>
 #include "3d/models/MorphModel.h"
 #include "core/animation/SkeletalAnimationUtils.h"
 #include "math/Mat4.h"

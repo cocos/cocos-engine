@@ -29,7 +29,6 @@
 #include <string>
 #include <typeinfo>
 #include <unordered_map>
-#include <vector>
 
 #include "base/Log.h"
 #include "base/Macros.h"

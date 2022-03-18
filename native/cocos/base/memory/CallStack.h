@@ -33,7 +33,6 @@
     #endif
     #include <cstdint>
     #include <string>
-    #include <vector>
     #include "../Macros.h"
 
 namespace cc {

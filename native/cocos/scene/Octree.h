@@ -26,7 +26,6 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
 #include "core/geometry/AABB.h"

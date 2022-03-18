@@ -30,7 +30,6 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include "base/RefVector.h"
 #include "cocos/base/Optional.h"
 #include "core/Types.h"

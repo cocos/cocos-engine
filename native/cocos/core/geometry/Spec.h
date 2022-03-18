@@ -2,7 +2,6 @@
 
 #include <cfloat>
 #include <cstdint>
-#include <vector>
 #include "base/Optional.h"
 
 namespace cc {

@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
 #include "gfx-base/GFXDef-common.h"

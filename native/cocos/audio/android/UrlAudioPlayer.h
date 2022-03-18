@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/AssetFd.h"
 #include <mutex>
-#include <vector>
 #include <memory>
 #include <thread>
 

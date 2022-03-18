@@ -26,7 +26,6 @@
 #pragma once
 
 #include <mutex>
-#include <vector>
 #include "VKStd.h"
 #include "gfx-base/GFXQueryPool.h"
 

@@ -25,7 +25,6 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 //#include "3d/skeletal-animation/DataPoolManager.h"
 #include "core/memop/Pool.h"
 #include "renderer/pipeline/RenderPipeline.h"

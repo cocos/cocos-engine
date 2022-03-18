@@ -42,7 +42,6 @@
     #include <string>
     #include <thread>
     #include <unordered_map>
-    #include <vector>
 
     #if CC_PLATFORM == CC_PLATFORM_OHOS
         #include "libwebsockets.h"

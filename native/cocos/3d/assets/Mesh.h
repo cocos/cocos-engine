@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "3d/assets/MorphRendering.h"
 #include "3d/assets/Types.h"
 #include "cocos/base/Optional.h"

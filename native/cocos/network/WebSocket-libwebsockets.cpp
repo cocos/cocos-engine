@@ -53,7 +53,6 @@
 #include <queue>
 #include <string>
 #include <thread>
-#include <vector>
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "network/Uri.h"

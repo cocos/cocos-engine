@@ -30,7 +30,6 @@
 #include <memory>
 #include <mutex>
 #include <string>
-#include <vector>
 #if defined(OPENAL_PLAIN_INCLUDES)
     #include <al.h>
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS

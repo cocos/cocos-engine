@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "Handle.h"
 #include "base/Macros.h"
 

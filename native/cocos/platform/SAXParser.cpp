@@ -28,9 +28,6 @@
 ****************************************************************************/
 
 #include "platform/SAXParser.h"
-
-#include <vector> // because its based on windows 8 build :P
-
 #include "platform/FileUtils.h"
 #include "tinyxml2/tinyxml2.h"
 
