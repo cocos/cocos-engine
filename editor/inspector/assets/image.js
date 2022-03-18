@@ -13,6 +13,10 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.image.flipVertical" tooltip="i18n:ENGINE.assets.image.flipVerticalTip"></ui-label>
         <ui-checkbox slot="content" class="flipVertical-checkbox"></ui-checkbox>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.image.bakeOfflineMipmaps" tooltip="i18n:ENGINE.assets.image.bakeOfflineMipmapsTip"></ui-label>
+        <ui-checkbox slot="content" class="bakeOfflineMipmaps-checkbox"></ui-checkbox>
+    </ui-prop>
     <ui-prop class="isRGBE-prop">
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
@@ -47,6 +51,8 @@ exports.$ = {
     flipVerticalCheckbox: '.flipVertical-checkbox',
     isRGBEProp: '.isRGBE-prop',
     isRGBECheckbox: '.isRGBE-checkbox',
+
+    bakeOfflineMipmapsCheckbox: '.bakeOfflineMipmaps-checkbox',
 };
 
 /**
@@ -101,6 +107,23 @@ const Elements = {
 
             panel.updateInvalid(panel.$.flipVerticalCheckbox, 'flipVertical');
             panel.updateReadonly(panel.$.flipVerticalCheckbox);
+        },
+    },
+    bakeOfflineMipmaps: {
+        ready() {
+            const panel = this;
+
+            panel.$.bakeOfflineMipmapsCheckbox.addEventListener('change', (event) => {
+                panel.metaList.forEach((meta) => {
+                    meta.userData.bakeOfflineMipmaps = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
         },
     },
     isRGBE: {
