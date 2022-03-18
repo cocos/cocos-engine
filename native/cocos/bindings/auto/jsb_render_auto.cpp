@@ -1268,6 +1268,25 @@ static bool js_render_SceneVisitor_draw(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_render_SceneVisitor_draw)
 
+static bool js_render_SceneVisitor_getPipelineSceneData(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::SceneVisitor>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_SceneVisitor_getPipelineSceneData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::pipeline::PipelineSceneData* result = cobj->getPipelineSceneData();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_render_SceneVisitor_getPipelineSceneData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_render_SceneVisitor_getPipelineSceneData)
+
 static bool js_render_SceneVisitor_setScissor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::SceneVisitor>(s);
@@ -1310,6 +1329,7 @@ bool js_register_render_SceneVisitor(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("SceneVisitor", obj, nullptr, nullptr);
 
+    cls->defineProperty("pipelineSceneData", _SE(js_render_SceneVisitor_getPipelineSceneData_asGetter), nullptr);
     cls->defineFunction("bindInputAssembler", _SE(js_render_SceneVisitor_bindInputAssembler));
     cls->defineFunction("bindPipelineState", _SE(js_render_SceneVisitor_bindPipelineState));
     cls->defineFunction("draw", _SE(js_render_SceneVisitor_draw));
@@ -1570,27 +1590,6 @@ static bool js_render_Pipeline_addMovePass(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC(js_render_Pipeline_addMovePass)
 
-static bool js_render_Pipeline_addPresentPass(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::render::Pipeline>(s);
-    SE_PRECONDITION2(cobj, false, "js_render_Pipeline_addPresentPass : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<std::string, true> arg0 = {};
-        HolderType<std::string, true> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_render_Pipeline_addPresentPass : Error processing arguments");
-        cobj->addPresentPass(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_render_Pipeline_addPresentPass)
-
 static bool js_render_Pipeline_addRasterPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -1760,6 +1759,21 @@ static bool js_render_Pipeline_endFrame(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_render_Pipeline_endFrame)
 
+static bool js_render_Pipeline_presentAll(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_render_Pipeline_presentAll : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->presentAll();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_Pipeline_presentAll)
+
 bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Pipeline", obj, __jsb_cc_render_PipelineRuntime_proto, nullptr);
@@ -1768,13 +1782,13 @@ bool js_register_render_Pipeline(se::Object* obj) // NOLINT(readability-identifi
     cls->defineFunction("addCopyPass", _SE(js_render_Pipeline_addCopyPass));
     cls->defineFunction("addDepthStencil", _SE(js_render_Pipeline_addDepthStencil));
     cls->defineFunction("addMovePass", _SE(js_render_Pipeline_addMovePass));
-    cls->defineFunction("addPresentPass", _SE(js_render_Pipeline_addPresentPass));
     cls->defineFunction("addRasterPass", _SE(js_render_Pipeline_addRasterPass));
     cls->defineFunction("addRenderTarget", _SE(js_render_Pipeline_addRenderTarget));
     cls->defineFunction("addRenderTexture", _SE(js_render_Pipeline_addRenderTexture));
     cls->defineFunction("beginFrame", _SE(js_render_Pipeline_beginFrame));
     cls->defineFunction("createSceneTransversal", _SE(js_render_Pipeline_createSceneTransversal));
     cls->defineFunction("endFrame", _SE(js_render_Pipeline_endFrame));
+    cls->defineFunction("presentAll", _SE(js_render_Pipeline_presentAll));
     cls->install();
     JSBClassType::registerClass<cc::render::Pipeline>(cls);
 

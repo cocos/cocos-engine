@@ -676,6 +676,7 @@ export class RenderDependencyGraph {
             if (presentPass) {
                 for (const resIdx of this._resourceGraph.vertices()) {
                     const resName = this._resourceGraph.vertexName(resIdx);
+                    /*
                     if (presentPass.resourceName === resName) {
                         const res = this.getResource(resName);
                         if (!res) {
@@ -688,6 +689,7 @@ export class RenderDependencyGraph {
                         this._presentPass = renderPass;
                         break;
                     }
+                    */
                 }
             }
         }

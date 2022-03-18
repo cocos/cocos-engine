@@ -24,13 +24,18 @@
 ****************************************************************************/
 
 import { PipelineState, DescriptorSet, InputAssembler, DrawInfo, Buffer, CommandBuffer, Rect, Viewport } from '../../gfx';
+import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneVisitor } from './pipeline';
 
 export class WebSceneVisitor extends SceneVisitor {
     private _commandBuffer: CommandBuffer;
+    private _pipelineSceneData : PipelineSceneData | null = null;
     constructor (commandBuffer: CommandBuffer) {
         super();
         this._commandBuffer = commandBuffer;
+    }
+    public get pipelineSceneData (): PipelineSceneData {
+        return this._pipelineSceneData!;
     }
     public setViewport (vp: Viewport): void {
         this._commandBuffer.setViewport(vp);

@@ -121,6 +121,7 @@ export abstract class CopyPassBuilder {
 }
 
 export abstract class SceneVisitor {
+    public abstract get pipelineSceneData(): PipelineSceneData;
     public abstract setViewport(vp: Viewport): void;
     public abstract setScissor(rect: Rect): void;
     public abstract bindPipelineState(pso: PipelineState): void;
@@ -154,7 +155,7 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract addComputePass(layoutName: string): ComputePassBuilder;
     public abstract addMovePass(name: string): MovePassBuilder;
     public abstract addCopyPass(name: string): CopyPassBuilder;
-    public abstract addPresentPass(name: string, swapchainName: string): void;
+    public abstract presentAll(): void;
     public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
 }
 
