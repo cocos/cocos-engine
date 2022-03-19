@@ -41,6 +41,7 @@
 #endif
 #include "audio/oalsoft/AudioMacros.h"
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 class AudioEngineImpl;
