@@ -32,7 +32,7 @@ import { Camera, PCFType, Shadows, ShadowType, CSMLevel } from '../../core/rende
 import { Root } from '../../core/root';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
-import { clamp, Vec2 } from '../../core';
+import { clamp } from '../../core';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')
@@ -65,6 +65,8 @@ export class DirectionalLight extends Light {
     protected _shadowInvisibleOcclusionRange = 200;
     @serializable
     protected _shadowCSMLevel = CSMLevel.level_3;
+    @serializable
+    protected _shadowCSMLambda = 0.35;
 
     // fixed area properties
     @serializable
@@ -78,6 +80,7 @@ export class DirectionalLight extends Light {
 
     protected _type = scene.LightType.DIRECTIONAL;
     protected _light: scene.DirectionalLight | null = null;
+    protected _shadowCSMDebugMode = false;
 
     /**
      * @en
@@ -219,6 +222,7 @@ export class DirectionalLight extends Light {
         this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
         if (this._light) {
             this._light.shadowDistance = this._shadowDistance;
+            this._light.shadowCSMValueDirty = true;
         }
     }
 
@@ -266,6 +270,54 @@ export class DirectionalLight extends Light {
         this._shadowCSMLevel = val;
         if (this._light) {
             this._light.shadowCSMLevel = this._shadowCSMLevel;
+            this._light.shadowCSMValueDirty = true;
+        }
+    }
+
+    /**
+     * @en get or set shadow CSM level ratio
+     * @zh 获取或者设置阴影层级系数
+    */
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+                === ShadowType.ShadowMap && this._shadowFixedArea === false;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
+    @editable
+    @tooltip('CSM Level ratio')
+    @slide
+    @type(CCFloat)
+    get shadowCSMLambda () {
+        return this._shadowCSMLambda;
+    }
+    set shadowCSMLambda (val) {
+        this._shadowCSMLambda = val;
+        if (this._light) {
+            this._light.shadowCSMLambda = this._shadowCSMLambda;
+            this._light.shadowCSMValueDirty = true;
+        }
+    }
+
+    /**
+     * @en get or set shadow CSM level ratio
+     * @zh 获取或者设置阴影层级系数
+    */
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+                    === ShadowType.ShadowMap && this._shadowFixedArea === false;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
+    @editable
+    @tooltip('CSM Level ratio')
+    @slide
+    @type(CCBoolean)
+    get shadowCSMDebugMode () {
+        return this._shadowCSMDebugMode;
+    }
+    set shadowCSMDebugMode (val) {
+        this._shadowCSMDebugMode = val;
+        if (this._light) {
+            this._light.shadowCSMDebugMode = this._shadowCSMDebugMode;
         }
     }
 
@@ -274,7 +326,7 @@ export class DirectionalLight extends Light {
      * @zh 是否是固定区域阴影
      */
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
     @editable
     @type(CCBoolean)
     get shadowFixedArea () {
@@ -295,7 +347,7 @@ export class DirectionalLight extends Light {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 15 } })
     @editable
     @type(CCFloat)
     get shadowNear () {
@@ -316,7 +368,7 @@ export class DirectionalLight extends Light {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 16 } })
     @editable
     @type(CCFloat)
     get shadowFar () {
@@ -337,7 +389,7 @@ export class DirectionalLight extends Light {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 17 } })
     @type(CCFloat)
     get shadowOrthoSize () {
         return this._shadowOrthoSize;
@@ -372,6 +424,8 @@ export class DirectionalLight extends Light {
             this._light.shadowFar = this._shadowFar;
             this._light.shadowOrthoSize = this._shadowOrthoSize;
             this._light.shadowCSMLevel = this._shadowCSMLevel;
+            this._light.shadowCSMLambda = this._shadowCSMLambda;
+            this._light.shadowCSMDebugMode = this._shadowCSMDebugMode;
         }
     }
 }

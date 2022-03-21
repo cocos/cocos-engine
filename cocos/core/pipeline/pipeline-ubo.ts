@@ -227,25 +227,30 @@ export class PipelineUBO {
                         cv[UBOCSM.SHADOW_PROJ_INFO_LEVELS_OFFSET + 1 + 4 * i] = matShadowProj.m05;
                         cv[UBOCSM.SHADOW_PROJ_INFO_LEVELS_OFFSET + 2 + 4 * i] = 1.0 / matShadowProj.m00;
                         cv[UBOCSM.SHADOW_PROJ_INFO_LEVELS_OFFSET + 3 + 4 * i] = 1.0 / matShadowProj.m05;
-
-                        if (camera.projectionType === CameraProjection.ORTHO) {
-                            cv[UBOCSM.DEPTH_MODE_OFFSET + 0] = 1;
-                            cv[UBOCSM.DEPTH_MODE_OFFSET + 1] = 0;
-                            if (API.GLES2 || API.GLES3 || API.WEBGL || API.WEBGL2) {
-                                cv[UBOCSM.DEPTH_MODE_OFFSET + 2] = 0.5;
-                                cv[UBOCSM.DEPTH_MODE_OFFSET + 3] = 0.5;
-                            } else {
-                                // TODO 未知平台需要验证深度模式
-                                cv[UBOCSM.DEPTH_MODE_OFFSET + 2] = 1;
-                                cv[UBOCSM.DEPTH_MODE_OFFSET + 3] = 0;
-                            }
-                        } else {
-                            cv[UBOCSM.DEPTH_MODE_OFFSET + 0] = 0;
-                            cv[UBOCSM.DEPTH_MODE_OFFSET + 1] = 0;
-                            cv[UBOCSM.DEPTH_MODE_OFFSET + 2] = 0;
-                            cv[UBOCSM.DEPTH_MODE_OFFSET + 3] = 1.0 / mainLight.shadowDistance;
-                        }
                     }
+
+                    if (camera.projectionType === CameraProjection.ORTHO) {
+                        cv[UBOCSM.DEPTH_MODE_OFFSET + 0] = 1;
+                        cv[UBOCSM.DEPTH_MODE_OFFSET + 1] = 0;
+                        if (API.GLES2 || API.GLES3 || API.WEBGL || API.WEBGL2) {
+                            cv[UBOCSM.DEPTH_MODE_OFFSET + 2] = 0.5;
+                            cv[UBOCSM.DEPTH_MODE_OFFSET + 3] = 0.5;
+                        } else {
+                            // TODO 未知平台需要验证深度模式
+                            cv[UBOCSM.DEPTH_MODE_OFFSET + 2] = 1;
+                            cv[UBOCSM.DEPTH_MODE_OFFSET + 3] = 0;
+                        }
+                    } else {
+                        cv[UBOCSM.DEPTH_MODE_OFFSET + 0] = 0;
+                        cv[UBOCSM.DEPTH_MODE_OFFSET + 1] = 0;
+                        cv[UBOCSM.DEPTH_MODE_OFFSET + 2] = 0;
+                        cv[UBOCSM.DEPTH_MODE_OFFSET + 3] = 1.0 / mainLight.shadowDistance;
+                    }
+
+                    cv[UBOCSM.CSM_INFO_OFFSET + 0] = mainLight.shadowCSMDebugMode ? 1 : 0;
+                    cv[UBOCSM.CSM_INFO_OFFSET + 1] = 0;
+                    cv[UBOCSM.CSM_INFO_OFFSET + 2] = 0;
+                    cv[UBOCSM.CSM_INFO_OFFSET + 3] = 0;
 
                     _vec4ShadowInfo.set(0, 0, linear, 1.0 - mainLight.shadowSaturation);
                     Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
