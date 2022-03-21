@@ -26,31 +26,13 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <deque>
-#include <list>
 #include <map>
-#include <queue>
 #include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 
 namespace cc {
-
-//template <typename T>
-//using vector = std::vector<T>;
-
-template <typename T>
-using list = std::list<T>;
-
-template <typename T>
-using queue = std::queue<T>;
-
-template <typename T, typename C = typename std::vector<T>::type, typename P = std::less<typename C::value_type>>
-using priority_queue = std::priority_queue<T, C, P>;
-
-template <typename T>
-using deque = std::deque<T>;
 
 template <typename T, typename P = std::less<T>>
 using set = std::set<T, P>;
