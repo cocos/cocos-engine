@@ -561,18 +561,16 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
             for (uint i = 0; i < drawInfoCount; ++i) {
                 const auto &drawInfo = drawInfos[i];
                 offset += drawInfo.firstIndex * stride;
-                uint stride = indexBuffer->getStride();
-                const uint realIndexCount = info.indexCount - offset / stride;
                 if (indirectBuffer->isDrawIndirectByIndex()) {
                     if (drawInfo.instanceCount == 0) {
                         [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                               indexCount:realIndexCount
+                                               indexCount:drawInfo.indexCount
                                                 indexType:indexBuffer->getIndexType()
                                               indexBuffer:indexBuffer->getMTLBuffer()
                                         indexBufferOffset:offset];
                     } else {
                         [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                               indexCount:realIndexCount
+                                               indexCount:drawInfo.indexCount
                                                 indexType:indexBuffer->getIndexType()
                                               indexBuffer:indexBuffer->getMTLBuffer()
                                         indexBufferOffset:offset
@@ -596,17 +594,15 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
         if (info.indexCount > 0) {
             uint offset = 0;
             offset += info.firstIndex * indexBuffer->getStride();
-            uint stride = indexBuffer->getStride();
-            const uint realIndexCount = info.indexCount - offset / stride;
             if (info.instanceCount == 0) {
                 [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                       indexCount:realIndexCount
+                                       indexCount:info.indexCount
                                         indexType:indexBuffer->getIndexType()
                                       indexBuffer:indexBuffer->getMTLBuffer()
                                 indexBufferOffset:offset];
             } else {
                 [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                       indexCount:realIndexCount
+                                       indexCount:info.indexCount
                                         indexType:indexBuffer->getIndexType()
                                       indexBuffer:indexBuffer->getMTLBuffer()
                                 indexBufferOffset:offset
