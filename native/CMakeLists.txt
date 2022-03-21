@@ -331,6 +331,7 @@ cocos_source_files(
     cocos/base/std/container/dequeue.h
     cocos/base/std/container/queue.h
     cocos/base/std/container/vector.h
+    cocos/base/std/container/unordered_set.h
 )
 
 ############ application
