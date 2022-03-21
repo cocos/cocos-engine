@@ -32,7 +32,7 @@
 namespace cc {
 class BaseEngine;
 
-class CocosApplication : public BaseApplication {
+class CC_DLL CocosApplication : public BaseApplication {
 public:
     CocosApplication();
     ~CocosApplication() override;

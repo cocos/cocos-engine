@@ -33,7 +33,7 @@
 
 namespace cc {
 
-class BaseEngine : public std::enable_shared_from_this<BaseEngine> {
+class CC_DLL BaseEngine : public std::enable_shared_from_this<BaseEngine> {
 public:
     virtual ~BaseEngine();
     using Ptr = std::shared_ptr<BaseEngine>;

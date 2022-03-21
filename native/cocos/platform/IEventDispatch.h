@@ -26,9 +26,10 @@
 #pragma once
 
 #include "bindings/event/EventDispatcher.h"
+#include "base/Macros.h"
 
 namespace cc {
-class IEventDispatch {
+class CC_DLL IEventDispatch {
 public:
     /**
      * Destructor of EventDispatchInterface.

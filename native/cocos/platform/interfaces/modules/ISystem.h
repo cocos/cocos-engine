@@ -31,7 +31,7 @@
 
 namespace cc {
 
-class ISystem : public OSInterface {
+class CC_DLL ISystem : public OSInterface {
 public:
     ~ISystem() override;
     enum class LanguageType {

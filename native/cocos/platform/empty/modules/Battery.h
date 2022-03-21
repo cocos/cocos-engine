@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class Battery : public IBattery {
+class CC_DLL Battery : public IBattery {
 public:
     float getBatteryLevel() const override;
 };

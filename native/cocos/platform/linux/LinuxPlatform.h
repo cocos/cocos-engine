@@ -30,8 +30,8 @@
 
 namespace cc {
 class SDLHelper;
-class LinuxPlatform : public UniversalPlatform,
-                      public SystemWindow::Delegate {
+class CC_DLL LinuxPlatform : public UniversalPlatform,
+                             public SystemWindow::Delegate {
 public:
     LinuxPlatform();
     /**

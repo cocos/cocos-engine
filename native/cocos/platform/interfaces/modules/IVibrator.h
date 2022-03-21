@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class IVibrator : public OSInterface {
+class CC_DLL IVibrator : public OSInterface {
 public:
     IVibrator() = default;
     /**
