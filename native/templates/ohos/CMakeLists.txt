@@ -20,7 +20,9 @@ set(PROJ_SOURCES
 
 
 add_library(${LIB_NAME} SHARED ${PROJ_SOURCES})
-
+target_compile_definitions(${LIB_NAME} PRIVATE
+    GAME_NAME="${APP_NAME}"
+)
 target_link_libraries(${LIB_NAME}
     "-Wl,--whole-archive" cocos2d_jni "-Wl,--no-whole-archive"
     cocos2d
