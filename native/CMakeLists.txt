@@ -1317,6 +1317,15 @@ cocos_source_files(
     cocos/primitive/Transform.h
 )
 
+##### profiler
+cocos_source_files(
+    cocos/profiler/DebugRenderer.h
+    cocos/profiler/DebugRenderer.cpp
+    cocos/profiler/Profiler.h
+    cocos/profiler/Profiler.cpp
+    cocos/profiler/GameStats.h
+)
+
 ##### components
 cocos_source_files(
     # cocos/core/components/Component.h
@@ -1824,6 +1833,12 @@ cocos_source_files(
     cocos/core/assets/TextureBase.h
     cocos/core/assets/TextureCube.cpp
     cocos/core/assets/TextureCube.h
+    cocos/core/assets/BitmapFont.h
+    cocos/core/assets/BitmapFont.cpp
+    cocos/core/assets/Font.h
+    cocos/core/assets/Font.cpp
+    cocos/core/assets/FreeTypeFont.h
+    cocos/core/assets/FreeTypeFont.cpp
 
     # builtin
     cocos/core/builtin/BuiltinResMgr.cpp

@@ -43,6 +43,8 @@
 #include "GLES2Shader.h"
 #include "GLES2Swapchain.h"
 #include "GLES2Texture.h"
+#include "base/memory/Memory.h"
+#include "profiler/Profiler.h"
 #include "states/GLES2Sampler.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
@@ -241,6 +243,7 @@ void GLES2Device::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void GLES2Device::present() {
+    CC_PROFILE(GLES2DevicePresent);
     auto *queue   = static_cast<GLES2Queue *>(_queue);
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
@@ -496,10 +499,12 @@ Sampler *GLES2Device::createSampler(const SamplerInfo &info) {
 }
 
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
+    CC_PROFILE(GLES2DeviceCopyBuffersToTexture);
     cmdFuncGLES2CopyBuffersToTexture(this, buffers, static_cast<GLES2Texture *>(dst)->gpuTexture(), regions, count);
 }
 
 void GLES2Device::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
+    CC_PROFILE(GLES2DeviceCopyTextureToBuffers);
     cmdFuncGLES2CopyTextureToBuffers(this, static_cast<GLES2Texture *>(src)->gpuTexture(), buffers, region, count);
 }
 

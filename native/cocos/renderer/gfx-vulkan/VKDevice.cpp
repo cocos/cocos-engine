@@ -48,6 +48,7 @@
 #include "states/VKTextureBarrier.h"
 
 #include "gfx-base/SPIRVUtils.h"
+#include "profiler/Profiler.h"
 
 CC_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION
@@ -626,6 +627,7 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void CCVKDevice::present() {
+    CC_PROFILE(CCVKDevicePresent);
     auto *queue          = static_cast<CCVKQueue *>(_queue);
     _numDrawCalls        = queue->_numDrawCalls;
     _numInstances        = queue->_numInstances;
@@ -804,12 +806,14 @@ TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info)
 }
 
 void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
+    CC_PROFILE(CCVKDeviceCopyBuffersToTexture);
     gpuTransportHub()->checkIn([this, buffers, dst, regions, count](CCVKGPUCommandBuffer *gpuCommandBuffer) {
         cmdFuncCCVKCopyBuffersToTexture(this, buffers, static_cast<CCVKTexture *>(dst)->gpuTexture(), regions, count, gpuCommandBuffer);
     });
 }
 
 void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
+    CC_PROFILE(CCVKDeviceCopyTextureToBuffers);
     uint32_t                              totalSize = 0U;
     Format                                format    = srcTexture->getFormat();
     vector<std::pair<uint32_t, uint32_t>> regionOffsetSizes(count);
@@ -845,6 +849,7 @@ void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffe
 }
 
 void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
+    CC_PROFILE(CCVKDeviceGetQueryPoolResults);
     auto *vkQueryPool = static_cast<CCVKQueryPool *>(queryPool);
     auto  queryCount  = static_cast<uint32_t>(vkQueryPool->_ids.size());
     CCASSERT(queryCount <= vkQueryPool->getMaxQueryObjects(), "Too many query commands.");

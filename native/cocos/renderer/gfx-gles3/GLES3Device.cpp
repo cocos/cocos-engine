@@ -43,6 +43,7 @@
 #include "GLES3Shader.h"
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
+#include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
 #include "states/GLES3Sampler.h"
 
@@ -250,6 +251,7 @@ void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void GLES3Device::present() {
+    CC_PROFILE(GLES3DevicePresent);
     auto *queue   = static_cast<GLES3Queue *>(_queue);
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
@@ -539,14 +541,17 @@ GeneralBarrier *GLES3Device::createGeneralBarrier(const GeneralBarrierInfo &info
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
+    CC_PROFILE(GLES3DeviceCopyBuffersToTexture);
     cmdFuncGLES3CopyBuffersToTexture(this, buffers, static_cast<GLES3Texture *>(dst)->gpuTexture(), regions, count);
 }
 
 void GLES3Device::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
+    CC_PROFILE(GLES3DeviceCopyTextureToBuffers);
     cmdFuncGLES3CopyTextureToBuffers(this, static_cast<GLES3Texture *>(srcTexture)->gpuTexture(), buffers, regions, count);
 }
 
 void GLES3Device::getQueryPoolResults(QueryPool *queryPool) {
+    CC_PROFILE(GLES3DeviceGetQueryPoolResults);
     auto *cmdBuff = static_cast<GLES3CommandBuffer *>(getCommandBuffer());
     cmdBuff->getQueryPoolResults(queryPool);
 }

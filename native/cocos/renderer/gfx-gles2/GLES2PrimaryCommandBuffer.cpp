@@ -35,6 +35,7 @@
 #include "GLES2PrimaryCommandBuffer.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Texture.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -81,6 +82,7 @@ void GLES2PrimaryCommandBuffer::nextSubpass() {
 }
 
 void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(GLES2PrimaryCommandBufferDraw);
     if (_isStateInvalid) {
         vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
         vector<uint32_t> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;

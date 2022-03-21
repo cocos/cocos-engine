@@ -113,6 +113,29 @@ public:
         });
     }
 
+    static constexpr bool isDetachDeviceThread() {
+        return DETACH_DEVICE_THREAD;
+    }
+
+    static std::string getGFXName() {
+        std::string gfx = "unknown";
+#ifdef CC_USE_NVN
+        gfx = "NVN";
+#elif defined(CC_USE_VULKAN)
+        gfx = "Vulkan";
+#elif defined(CC_USE_METAL)
+        gfx = "Metal";
+#elif defined(CC_USE_GLES3)
+        gfx = "GLES3";
+#elif defined(CC_USE_GLES2)
+        gfx = "GLES2";
+#else
+        gfx = "Empty";
+#endif
+
+        return gfx;
+    }
+
 private:
     template <typename DeviceCtor, typename Enable = std::enable_if_t<std::is_base_of<Device, DeviceCtor>::value>>
     static bool tryCreate(const DeviceInfo &info, Device **pDevice) {

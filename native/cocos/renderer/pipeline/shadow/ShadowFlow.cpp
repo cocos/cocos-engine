@@ -34,6 +34,7 @@
 #include "ShadowStage.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/Camera.h"
+#include "profiler/Profiler.h"
 #include "scene/DirectionalLight.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
@@ -69,6 +70,7 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 }
 
 void ShadowFlow::render(scene::Camera *camera) {
+	CC_PROFILE(ShadowFlowRender);
     const auto *sceneData  = _pipeline->getPipelineSceneData();
     auto *      shadowInfo = sceneData->getShadows();
     if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::SHADOW_MAP) {

@@ -27,6 +27,7 @@
 #include "VKCommandBuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -55,6 +56,7 @@ void CCVKBuffer::doInit(const BufferInfo & /*info*/) {
 
     cmdFuncCCVKCreateBuffer(CCVKDevice::getInstance(), _gpuBuffer);
     CCVKDevice::getInstance()->getMemoryStatus().bufferSize += _size;
+    CC_PROFILE_MEMORY_INC(Buffer, _size);
 
     _gpuBufferView = CC_NEW(CCVKGPUBufferView);
     createBufferView();
@@ -90,6 +92,7 @@ void CCVKBuffer::doDestroy() {
             CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuBuffer);
             CC_DELETE(_gpuBuffer);
             CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
+            CC_PROFILE_MEMORY_DEC(Buffer, _size);
         }
         _gpuBuffer = nullptr;
     }
@@ -97,6 +100,7 @@ void CCVKBuffer::doDestroy() {
 
 void CCVKBuffer::doResize(uint32_t size, uint32_t count) {
     CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
+    CC_PROFILE_MEMORY_DEC(Buffer, _size);
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
 
     _gpuBuffer->size  = size;
@@ -112,9 +116,11 @@ void CCVKBuffer::doResize(uint32_t size, uint32_t count) {
         _gpuBuffer->indirectCmds.resize(drawInfoCount);
     }
     CCVKDevice::getInstance()->getMemoryStatus().bufferSize += size;
+    CC_PROFILE_MEMORY_INC(Buffer, size);
 }
 
 void CCVKBuffer::update(const void *buffer, uint32_t size) {
+    CC_PROFILE(CCVKBufferUpdate);
     cmdFuncCCVKUpdateBuffer(CCVKDevice::getInstance(), _gpuBuffer, buffer, size, nullptr);
 }
 

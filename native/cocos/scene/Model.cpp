@@ -30,6 +30,7 @@
 #include "core/assets/Material.h"
 #include "core/event/EventTypesToJS.h"
 #include "gfx-base/GFXTexture.h"
+#include "profiler/Profiler.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
 #include "scene/Model.h"
@@ -162,6 +163,7 @@ void Model::uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &
 }
 
 void Model::updateTransform(uint32_t stamp) {
+    CC_PROFILE(ModelUpdateTransform);
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
             _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_TRANSFORM, stamp);
@@ -210,6 +212,7 @@ void Model::updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb) {
 }
 
 void Model::updateUBOs(uint32_t stamp) {
+    CC_PROFILE(ModelUpdateUBOs);
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
             _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_UBO, stamp);
@@ -295,6 +298,7 @@ void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Materia
     _subModels[idx]->initialize(subMeshData, mat->getPasses(), getMacroPatches(idx));
     _subModels[idx]->initPlanarShadowShader();
     _subModels[idx]->initPlanarShadowInstanceShader();
+    _subModels[idx]->setOwner(this);
     updateAttributesAndBinding(idx);
 }
 

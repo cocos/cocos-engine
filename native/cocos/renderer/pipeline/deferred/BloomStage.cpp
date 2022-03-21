@@ -40,6 +40,7 @@
 #include "gfx-base/states/GFXSampler.h"
 #include "pipeline/Define.h"
 #include "pipeline/UIPhase.h"
+#include "profiler/Profiler.h"
 #include "renderer/pipeline/deferred/DeferredPipelineSceneData.h"
 #include "scene/Camera.h"
 #include "scene/RenderScene.h"
@@ -115,6 +116,7 @@ void BloomStage::destroy() {
 }
 
 void BloomStage::render(scene::Camera *camera) {
+    CC_PROFILE(BloomStageRender);
     auto *pipeline = _pipeline;
     CC_ASSERT(pipeline != nullptr);
     if (!pipeline->isBloomEnabled() || pipeline->getPipelineSceneData()->getRenderObjects().empty()) return;
