@@ -163,6 +163,7 @@ void MemoryHook::addRecord(uint64_t address, size_t size) {
         record.size      = size;
         record.callstack = CallStack::backtrace();
         _records.insert({address, record});
+        _totalSize += size;
     }
 
     _hooking = false;
@@ -180,6 +181,7 @@ void MemoryHook::removeRecord(uint64_t address) {
     {
         auto iter = _records.find(address);
         if (iter != _records.end()) {
+            _totalSize -= iter->second.size;
             _records.erase(iter);
         }
     }
@@ -207,12 +209,10 @@ void MemoryHook::dumpMemoryLeak() {
         log(stream.str());
     }
 
-    int    i     = 0;
-    size_t total = 0;
+    int i = 0;
     for (const auto &iter : _records) {
         std::stringstream stream;
         int               k = 0;
-        total += iter.second.size;
 
         stream << std::endl;
         stream << "<" << ++i << ">:"
@@ -228,7 +228,7 @@ void MemoryHook::dumpMemoryLeak() {
 
     std::stringstream endStream;
     endStream << std::endl
-              << "Total Leak: " << total << " bytes" << std::endl;
+              << "Total Leak: " << _totalSize << " bytes" << std::endl;
     endStream << "---------------------------------------------------------------------------------------------------------" << std::endl;
     endStream << "--------------------------------------memory leak report end---------------------------------------------" << std::endl;
     endStream << "---------------------------------------------------------------------------------------------------------" << std::endl;

@@ -34,6 +34,7 @@
 #include "MTLRenderCommandEncoder.h"
 #include "MTLUtils.h"
 #include "MTLGPUObjects.h"
+#import "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -79,6 +80,7 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
         }
     }
     CCMTLDevice::getInstance()->getMemoryStatus().bufferSize += _size;
+    CC_PROFILE_MEMORY_INC(Buffer, _size);
 }
 
 void CCMTLBuffer::doInit(const BufferViewInfo &info) {
@@ -130,6 +132,7 @@ void CCMTLBuffer::doDestroy() {
     }
 
     CCMTLDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
+    CC_PROFILE_MEMORY_DEC(Buffer, _size);
 
     if (!_indexedPrimitivesIndirectArguments.empty()) {
         _indexedPrimitivesIndirectArguments.clear();
@@ -170,6 +173,8 @@ void CCMTLBuffer::doResize(uint size, uint count) {
 
     CCMTLDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
     CCMTLDevice::getInstance()->getMemoryStatus().bufferSize += size;
+    CC_PROFILE_MEMORY_DEC(Buffer, _size);
+    CC_PROFILE_MEMORY_INC(Buffer, size);
 
     _size = size;
     _count = count;
@@ -185,6 +190,7 @@ void CCMTLBuffer::doResize(uint size, uint count) {
 }
 
 void CCMTLBuffer::update(const void *buffer, uint size) {
+    CC_PROFILE(CCMTLBufferUpdate);
     if (_isBufferView) {
         CC_LOG_WARNING("Cannot update a buffer view.");
         return;

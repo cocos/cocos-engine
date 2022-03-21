@@ -35,6 +35,7 @@
 #include "VKQueue.h"
 #include "VKRenderPass.h"
 #include "VKTexture.h"
+#include "profiler/Profiler.h"
 #include "states/VKGeneralBarrier.h"
 #include "states/VKTextureBarrier.h"
 
@@ -365,6 +366,7 @@ void CCVKCommandBuffer::nextSubpass() {
 }
 
 void CCVKCommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(CCVKCmdBufDraw);
     if (_firstDirtyDescriptorSet < _curGPUDescriptorSets.size()) {
         bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
     }
@@ -461,6 +463,7 @@ void CCVKCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) 
 }
 
 void CCVKCommandBuffer::updateBuffer(Buffer *buffer, const void *data, uint32_t size) {
+    CC_PROFILE(CCVKCmdBufUpdateBuffer);
     CCVKGPUBuffer *gpuBuffer = static_cast<CCVKBuffer *>(buffer)->gpuBuffer();
     cmdFuncCCVKUpdateBuffer(CCVKDevice::getInstance(), gpuBuffer, data, size, _gpuCommandBuffer);
 }

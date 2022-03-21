@@ -57,8 +57,8 @@ namespace pipeline {
 class RenderPipeline;
 struct GeometryVertexBuffers;
 
-struct GeometryConfig {
-    GeometryConfig();
+struct GeometryRendererInfo {
+    GeometryRendererInfo();
 
     uint32_t maxLines{0U};
     uint32_t maxDashedLines{0U};
@@ -74,7 +74,7 @@ public:
     GeometryRenderer &operator=(const GeometryRenderer &) = delete;
     GeometryRenderer &operator=(GeometryRenderer &&) = delete;
 
-    void activate(gfx::Device *device, RenderPipeline *pipeline, const GeometryConfig &config = GeometryConfig());
+    void activate(gfx::Device *device, RenderPipeline *pipeline, const GeometryRendererInfo &info = GeometryRendererInfo());
     void flushFromJSB(uint32_t type, uint32_t index, void *vb, uint32_t vertexCount);
     void render(scene::Camera* camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
     void destroy();

@@ -58,9 +58,14 @@ int64_t Timer::getMilliseconds() const {
     return duration;
 }
 
-float Timer::getSeconds() const {
-    int64_t msecs = getMilliseconds();
-    return static_cast<float>(msecs) / 1000.0F;
+float Timer::getSeconds(bool highPrecision) const {
+    if (highPrecision) {
+        int64_t micro = getMicroseconds();
+        return static_cast<float>(micro) / 1000000.0F;
+    }
+
+    int64_t milli = getMilliseconds();
+    return static_cast<float>(milli) / 1000.0F;
 }
 
 } // namespace utils

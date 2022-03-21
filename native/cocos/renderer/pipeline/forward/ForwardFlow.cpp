@@ -27,6 +27,7 @@
 #include "../SceneCulling.h"
 #include "ForwardPipeline.h"
 #include "ForwardStage.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace pipeline {
@@ -57,6 +58,7 @@ void ForwardFlow::activate(RenderPipeline *pipeline) {
 }
 
 void ForwardFlow::render(scene::Camera *camera) {
+    CC_PROFILE(ForwardFlowRender);
     RenderFlow::render(camera);
 }
 

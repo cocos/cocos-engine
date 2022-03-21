@@ -27,6 +27,7 @@
 // #include "core/Director.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
+#include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
@@ -299,6 +300,8 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         for (const auto &scene : _scenes) {
             scene->update(stamp);
         }
+
+        CC_PROFILER_UPDATE;
 
         _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_COMMIT, this);
 

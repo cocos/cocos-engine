@@ -46,6 +46,7 @@
 #import "MTLTexture.h"
 #import "cocos/bindings/event/CustomEventTypes.h"
 #import "cocos/bindings/event/EventDispatcher.h"
+#import "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -200,6 +201,7 @@ void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void CCMTLDevice::present() {
+    CC_PROFILE(CCMTLDevicePresent);
     CCMTLQueue *queue = (CCMTLQueue *)_queue;
     _numDrawCalls     = queue->gpuQueueObj()->numDrawCalls;
     _numInstances     = queue->gpuQueueObj()->numInstances;
@@ -306,6 +308,7 @@ Swapchain *CCMTLDevice::createSwapchain() {
 }
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
+    CC_PROFILE(CCMTLDeviceCopyBuffersToTexture);
     // This assumes the default command buffer will get submitted every frame,
     // which is true for now but may change in the future. This approach gives us
     // the wiggle room to leverage immediate update vs. copy-upload strategies without
@@ -315,10 +318,12 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
 }
 
 void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+    CC_PROFILE(CCMTLDeviceCopyTextureToBuffers);
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
 }
 
 void CCMTLDevice::getQueryPoolResults(QueryPool *queryPool) {
+    CC_PROFILE(CCMTLDeviceGetQueryPoolResults);
     auto *             mtlQueryPool = static_cast<CCMTLQueryPool *>(queryPool);
     CCMTLGPUQueryPool *gpuQueryPool = mtlQueryPool->gpuQueryPool();
     auto               queryCount   = static_cast<uint32_t>(mtlQueryPool->_ids.size());

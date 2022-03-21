@@ -39,6 +39,7 @@
 #include "scene/Pass.h"
 #include "scene/Camera.h"
 #include "scene/RenderWindow.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace pipeline {
@@ -96,18 +97,16 @@ private:
         info.attributes = attributes;
         info.vertexBuffers.push_back(_buffer);
         _inputAssembler = device->createInputAssembler(info);
+        CC_PROFILE_MEMORY_INC(GeometryVertexBuffer, static_cast<uint32_t>(_maxVertices * sizeof(T)));
     }
 
-    inline bool empty() const { return _vertices.empty(); }
-    inline void reset() { _vertices.clear(); }
+    inline uint32_t getCount() const { return std::min(static_cast<uint32_t>(_vertices.size()), _maxVertices); }
+    inline bool     empty() const { return _vertices.empty(); }
+    inline void     reset() { _vertices.clear(); }
 
     inline void update() {
         if (!empty()) {
-            auto vcount = static_cast<uint32_t>(_vertices.size());
-            if (vcount > _maxVertices) {
-                CC_LOG_WARNING("GeometryRenderer: too many vertices.");
-            }
-            const auto count = std::min(vcount, _maxVertices);
+            const auto count = getCount();
             const auto size  = static_cast<uint32_t>(count * sizeof(T));
             _buffer->update(&_vertices[0], size);
         }
@@ -117,6 +116,7 @@ private:
         _vertices.clear();
         CC_SAFE_DESTROY_AND_DELETE(_buffer);
         CC_SAFE_DESTROY_AND_DELETE(_inputAssembler);
+        CC_PROFILE_MEMORY_DEC(GeometryVertexBuffer, static_cast<uint32_t>(_maxVertices * sizeof(T)));
     }
 
     uint32_t             _maxVertices{0};
@@ -133,7 +133,7 @@ struct GeometryVertexBuffers {
     std::array<GeometryVertexBuffer<PosNormColorVertex>, GEOMETRY_DEPTH_TYPE_COUNT> triangles;
 };
 
-GeometryConfig::GeometryConfig()
+GeometryRendererInfo::GeometryRendererInfo()
 : maxLines{GEOMETRY_MAX_LINES}, maxDashedLines{GEOMETRY_MAX_DASHED_LINES}, maxTriangles{GEOMETRY_MAX_TRIANGLES} {
 }
 
@@ -145,7 +145,7 @@ GeometryRenderer::~GeometryRenderer() {
     CC_SAFE_DELETE(_buffers);
 }
 
-void GeometryRenderer::activate(gfx::Device *device, RenderPipeline *pipeline, const GeometryConfig &config) {
+void GeometryRenderer::activate(gfx::Device *device, RenderPipeline *pipeline, const GeometryRendererInfo &info) {
     _device   = device;
     _pipeline = pipeline;
 
@@ -159,9 +159,9 @@ void GeometryRenderer::activate(gfx::Device *device, RenderPipeline *pipeline, c
         {"a_color", gfx::Format::RGBA32F}};
 
     for (auto i = 0U; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
-        _buffers->lines[i].init(_device, config.maxLines * GEOMETRY_VERTICES_PER_LINE, POS_COLOR_ATTRIBUTES);
-        _buffers->dashedLines[i].init(_device, config.maxDashedLines * GEOMETRY_VERTICES_PER_LINE, POS_COLOR_ATTRIBUTES);
-        _buffers->triangles[i].init(_device, config.maxTriangles * GEOMETRY_VERTICES_PER_TRIANGLE, POS_NORM_COLOR_ATTRIBUTES);
+        _buffers->lines[i].init(_device, info.maxLines * GEOMETRY_VERTICES_PER_LINE, POS_COLOR_ATTRIBUTES);
+        _buffers->dashedLines[i].init(_device, info.maxDashedLines * GEOMETRY_VERTICES_PER_LINE, POS_COLOR_ATTRIBUTES);
+        _buffers->triangles[i].init(_device, info.maxTriangles * GEOMETRY_VERTICES_PER_TRIANGLE, POS_NORM_COLOR_ATTRIBUTES);
     }
 }
 
@@ -228,7 +228,7 @@ void GeometryRenderer::render(scene::Camera* camera, gfx::RenderPass *renderPass
         auto &lines = _buffers->lines[i];
         if (!lines.empty()) {
             gfx::DrawInfo drawInfo;
-            drawInfo.vertexCount = static_cast<uint32_t>(lines._vertices.size());
+            drawInfo.vertexCount = lines.getCount();
 
             for (auto p = 0U; p < passCount[i]; p++) {
                 auto *pass   = passes[offset + p];
@@ -248,7 +248,7 @@ void GeometryRenderer::render(scene::Camera* camera, gfx::RenderPass *renderPass
         auto &dashedLines = _buffers->dashedLines[i];
         if (!dashedLines.empty()) {
             gfx::DrawInfo drawInfo;
-            drawInfo.vertexCount = static_cast<uint32_t>(dashedLines._vertices.size());
+            drawInfo.vertexCount = dashedLines.getCount();
 
             for (auto p = 0U; p < passCount[i]; p++) {
                 auto *pass   = passes[offset + p];
@@ -268,7 +268,7 @@ void GeometryRenderer::render(scene::Camera* camera, gfx::RenderPass *renderPass
         auto &triangles = _buffers->triangles[i];
         if (!triangles.empty()) {
             gfx::DrawInfo drawInfo;
-            drawInfo.vertexCount = static_cast<uint32_t>(triangles._vertices.size());
+            drawInfo.vertexCount = triangles.getCount();
 
             for (auto p = 0U; p < passCount[i]; p++) {
                 auto *pass   = passes[offset + p];

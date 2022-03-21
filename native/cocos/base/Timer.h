@@ -42,7 +42,7 @@ public:
     void    reset();
     int64_t getMicroseconds() const;
     int64_t getMilliseconds() const;
-    float   getSeconds() const;
+    float   getSeconds(bool highPrecision = false) const;
 
 private:
     TimePoint _startTime;

@@ -36,6 +36,7 @@
 #include "GLES3QueryPool.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Texture.h"
+#include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
 
 namespace cc {
@@ -84,6 +85,7 @@ void GLES3PrimaryCommandBuffer::nextSubpass() {
 }
 
 void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(GLES3PrimaryCommandBufferDraw);
     if (_isStateInvalid) {
         bindStates();
     }
