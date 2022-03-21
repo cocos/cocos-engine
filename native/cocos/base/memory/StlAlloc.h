@@ -27,24 +27,10 @@ THE SOFTWARE.
 #pragma once
 
 #include <map>
-//#include <set>
 #include <string>
 #include <unordered_map>
-//#include <unordered_set>
 
 namespace cc {
-
-//template <typename T, typename P = std::less<T>>
-//using set = std::set<T, P>;
-
-//template <typename T, typename P = std::less<T>>
-//using multiset = std::multiset<T, P>;
-
-//template <typename T, typename H = std::hash<T>, typename P = std::equal_to<T>>
-//using unordered_set = std::unordered_set<T, H, P>;
-
-//template <typename T, typename H = std::hash<T>, typename P = std::equal_to<T>>
-//using unordered_multiset = std::unordered_multiset<T, H, P>;
 
 template <typename K, typename V, typename P = std::less<K>>
 using map = std::map<K, V, P>;
