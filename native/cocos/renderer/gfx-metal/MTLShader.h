@@ -80,8 +80,8 @@ protected:
     NSMutableDictionary<NSString *, id<MTLFunction>> *_specializedFragFuncs = nil;
 
     unordered_map<uint, uint> _mtlFragmentSamplerBindings;
-    ccstd::vector<uint>              _availableVertexBufferBindingIndex;
-    ccstd::vector<uint>              _availableFragmentBufferBindingIndex;
+    ccstd::vector<uint>       _availableVertexBufferBindingIndex;
+    ccstd::vector<uint>       _availableFragmentBufferBindingIndex;
 
     CCMTLGPUShader *_gpuShader = nullptr;
 

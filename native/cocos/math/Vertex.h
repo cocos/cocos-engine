@@ -27,8 +27,8 @@
 #ifndef __CCVERTEX_H__
 #define __CCVERTEX_H__
 
-#include "base/std/container/vector.h"
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 #include "math/Vec2.h"
 
 /**

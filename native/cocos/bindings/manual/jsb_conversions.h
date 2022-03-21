@@ -302,7 +302,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, T> *ret
     se::Object *obj = v.toObject();
 
     ccstd::vector<std::string> allKeys;
-    bool                     ok = obj->getAllKeys(&allKeys);
+    bool                       ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
         return false;
@@ -1108,7 +1108,7 @@ bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Objec
 ////////////// std::unordered_map
 template <typename V>
 bool sevalue_to_native(const se::Value &from, std::unordered_map<std::string, V> *to, se::Object *ctx) { //NOLINT
-    se::Object *             jsmap = from.toObject();
+    se::Object *               jsmap = from.toObject();
     ccstd::vector<std::string> allKeys;
     jsmap->getAllKeys(&allKeys);
     bool      ret = true;

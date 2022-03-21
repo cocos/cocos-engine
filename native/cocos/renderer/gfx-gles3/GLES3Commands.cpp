@@ -1218,8 +1218,8 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     // texture unit index mapping optimization
     ccstd::vector<GLES3GPUUniformSamplerTexture> glActiveSamplerTextures;
     ccstd::vector<GLint>                         glActiveSamplerLocations;
-    const GLESBindingMapping &            bindingMappings = device->bindingMappings();
-    unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
+    const GLESBindingMapping &                   bindingMappings = device->bindingMappings();
+    unordered_map<String, uint32_t> &            texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
     // sampler bindings in the flexible set comes strictly after buffer bindings
     // so we need to subtract the buffer count for these samplers
@@ -1436,13 +1436,13 @@ void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembl
     gpuInputAssembler->glVAOs.clear();
 }
 
-static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *                        device,
+static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *                               device,
                                                                   const ccstd::vector<GLES3GPUTextureView *> &attachments, const uint32_t *colors, size_t colorCount,
                                                                   const GLES3GPUTextureView *depthStencilView,
                                                                   const uint32_t *           resolves                = nullptr,
                                                                   const GLES3GPUTextureView *depthStencilResolveView = nullptr,
                                                                   GLbitfield *               resolveMask             = nullptr) {
-    static ccstd::vector<GLenum>                  drawBuffers;
+    static ccstd::vector<GLenum>           drawBuffers;
     GLES3GPUStateCache *                   cache = device->stateCache();
     GLES3GPUFramebuffer::GLFramebufferInfo res;
 
@@ -1770,7 +1770,7 @@ void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES
             break;
         }
         case GLES3QueryType::GET_RESULTS: {
-            auto                  queryCount = queryPool->getIdCount();
+            auto                    queryCount = queryPool->getIdCount();
             ccstd::vector<uint64_t> results(queryCount);
 
             for (auto queryId = 0U; queryId < queryCount; queryId++) {
@@ -2387,7 +2387,7 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             uint32_t offset = gpuDescriptor.gpuBuffer->glOffset;
 
             const ccstd::vector<int> &dynamicOffsetSetIndices = dynamicOffsetIndices[glBuffer.set];
-            int                dynamicOffsetIndex      = glBuffer.binding < dynamicOffsetSetIndices.size() ? dynamicOffsetSetIndices[glBuffer.binding] : -1;
+            int                       dynamicOffsetIndex      = glBuffer.binding < dynamicOffsetSetIndices.size() ? dynamicOffsetSetIndices[glBuffer.binding] : -1;
             if (dynamicOffsetIndex >= 0) offset += dynamicOffsets[dynamicOffsetIndex];
 
             if (glBuffer.isStorage) {

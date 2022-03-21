@@ -53,10 +53,10 @@ public:
     bool initialize(GLES2GPUStateCache *stateCache, GLES2GPUConstantRegistry *constantRegistry);
     void destroy();
 
-    EGLint         eglMajorVersion{0};
-    EGLint         eglMinorVersion{0};
-    EGLDisplay     eglDisplay{EGL_NO_DISPLAY};
-    EGLConfig      eglConfig{nullptr};
+    EGLint                eglMajorVersion{0};
+    EGLint                eglMinorVersion{0};
+    EGLDisplay            eglDisplay{EGL_NO_DISPLAY};
+    EGLConfig             eglConfig{nullptr};
     ccstd::vector<EGLint> eglAttributes;
 
     EGLSurface eglDefaultSurface{EGL_NO_SURFACE};
@@ -175,28 +175,28 @@ struct GLES2GPUInput {
 using GLES2GPUInputList = ccstd::vector<GLES2GPUInput>;
 
 struct GLES2GPUUniform {
-    uint32_t        binding = INVALID_BINDING;
-    String          name;
-    Type            type   = Type::UNKNOWN;
-    uint32_t        stride = 0;
-    uint32_t        count  = 0;
-    uint32_t        size   = 0;
-    uint32_t        offset = 0;
-    GLenum          glType = 0;
-    GLint           glLoc  = -1;
+    uint32_t               binding = INVALID_BINDING;
+    String                 name;
+    Type                   type   = Type::UNKNOWN;
+    uint32_t               stride = 0;
+    uint32_t               count  = 0;
+    uint32_t               size   = 0;
+    uint32_t               offset = 0;
+    GLenum                 glType = 0;
+    GLint                  glLoc  = -1;
     ccstd::vector<uint8_t> buff;
 };
 using GLES2GPUUniformList = ccstd::vector<GLES2GPUUniform>;
 
 struct GLES2GPUUniformBlock {
-    uint32_t            set     = 0;
-    uint32_t            binding = 0;
-    uint32_t            idx     = 0;
-    String              name;
-    uint32_t            size = 0;
-    GLES2GPUUniformList glUniforms;
-    GLES2GPUUniformList glActiveUniforms;
-    ccstd::vector<uint32_t>    activeUniformIndices;
+    uint32_t                set     = 0;
+    uint32_t                binding = 0;
+    uint32_t                idx     = 0;
+    String                  name;
+    uint32_t                size = 0;
+    GLES2GPUUniformList     glUniforms;
+    GLES2GPUUniformList     glActiveUniforms;
+    ccstd::vector<uint32_t> activeUniformIndices;
 };
 using GLES2GPUUniformBlockList = ccstd::vector<GLES2GPUUniformBlock>;
 
@@ -208,8 +208,8 @@ struct GLES2GPUUniformSamplerTexture {
     uint32_t count = 0U;
 
     ccstd::vector<GLint> units;
-    GLenum        glType = 0;
-    GLint         glLoc  = -1;
+    GLenum               glType = 0;
+    GLint                glLoc  = -1;
 };
 using GLES2GPUUniformSamplerTextureList = ccstd::vector<GLES2GPUUniformSamplerTexture>;
 
@@ -317,8 +317,8 @@ public:
     ccstd::vector<Framebuffer> instances;
 
     ccstd::vector<uint32_t> uberColorAttachmentIndices;
-    uint32_t         uberDepthStencil{INVALID_BINDING};
-    Framebuffer      uberInstance;
+    uint32_t                uberDepthStencil{INVALID_BINDING};
+    Framebuffer             uberInstance;
 
     // the assumed shader output, may differ from actual subpass output
     // see Feature::INPUT_ATTACHMENT_BENEFIT for more
@@ -328,11 +328,11 @@ public:
 
 struct GLES2GPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
-    ccstd::vector<uint32_t>               dynamicBindings;
+    ccstd::vector<uint32_t>        dynamicBindings;
 
     ccstd::vector<uint32_t> bindingIndices;
     ccstd::vector<uint32_t> descriptorIndices;
-    uint32_t         descriptorCount = 0U;
+    uint32_t                descriptorCount = 0U;
 };
 using GLES2GPUDescriptorSetLayoutList = ccstd::vector<GLES2GPUDescriptorSetLayout *>;
 
@@ -341,9 +341,9 @@ struct GLES2GPUPipelineLayout {
 
     // helper storages
     ccstd::vector<ccstd::vector<int>> dynamicOffsetIndices;
-    ccstd::vector<uint32_t>    dynamicOffsetOffsets;
-    ccstd::vector<uint32_t>    dynamicOffsets;
-    uint32_t            dynamicOffsetCount = 0U;
+    ccstd::vector<uint32_t>           dynamicOffsetOffsets;
+    ccstd::vector<uint32_t>           dynamicOffsets;
+    uint32_t                          dynamicOffsetCount = 0U;
 };
 
 struct GLES2GPUPipelineState {
@@ -368,7 +368,7 @@ struct GLES2GPUDescriptor {
 using GLES2GPUDescriptorList = ccstd::vector<GLES2GPUDescriptor>;
 
 struct GLES2GPUDescriptorSet {
-    GLES2GPUDescriptorList  gpuDescriptors;
+    GLES2GPUDescriptorList         gpuDescriptors;
     const ccstd::vector<uint32_t> *descriptorIndices = nullptr;
 };
 
@@ -396,10 +396,10 @@ public:
     GLuint                          glUniformBuffer      = 0;
     GLuint                          glVAO                = 0;
     uint32_t                        texUint              = 0;
-    ccstd::vector<GLuint>                  glTextures;
+    ccstd::vector<GLuint>           glTextures;
     GLuint                          glProgram = 0;
-    ccstd::vector<bool>                    glEnabledAttribLocs;
-    ccstd::vector<bool>                    glCurrentAttribLocs;
+    ccstd::vector<bool>             glEnabledAttribLocs;
+    ccstd::vector<bool>             glCurrentAttribLocs;
     GLuint                          glFramebuffer  = 0;
     GLuint                          glRenderbuffer = 0;
     GLuint                          glReadFBO      = 0;

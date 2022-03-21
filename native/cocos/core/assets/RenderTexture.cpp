@@ -25,8 +25,8 @@
 
 #include "core/assets/RenderTexture.h"
 #include "core/Root.h"
-#include "core/utils/IDGenerator.h"
 #include "core/platform/Debug.h"
+#include "core/utils/IDGenerator.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "scene/RenderWindow.h"
 
@@ -93,9 +93,9 @@ void RenderTexture::initWindow() {
     auto *device{Root::getInstance()->getDevice()};
 
     cc::scene::IRenderWindowInfo windowInfo;
-    windowInfo.title  = _name;
-    windowInfo.width  = _width;
-    windowInfo.height = _height;
+    windowInfo.title          = _name;
+    windowInfo.width          = _width;
+    windowInfo.height         = _height;
     windowInfo.renderPassInfo = getDefaultRenderPassInfo(device);
 
     if (_window != nullptr) {

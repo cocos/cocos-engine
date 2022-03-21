@@ -131,9 +131,8 @@ public:
          */
     static Object *createArrayBufferObject(const void *data, size_t byteLength);
 
-    using BufferContentsFreeFunc = void (*)(void* contents, size_t byteLength, void* userData);
-    static Object *createExternalArrayBufferObject(void* contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void* freeUserData = nullptr);
-
+    using BufferContentsFreeFunc = void (*)(void *contents, size_t byteLength, void *userData);
+    static Object *createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData = nullptr);
 
     /**
          *  @brief Creates a JavaScript Object from a JSON formatted string.
@@ -455,9 +454,9 @@ private:
 
     bool init(Class *cls, v8::Local<v8::Object> obj);
 
-    Class *     _cls{nullptr};
-    ObjectWrap  _obj;
-    uint32_t    _rootCount{0};
+    Class *    _cls{nullptr};
+    ObjectWrap _obj;
+    uint32_t   _rootCount{0};
 
     PrivateObjectBase *    _privateObject{nullptr};
     V8FinalizeFunc         _finalizeCb{nullptr};

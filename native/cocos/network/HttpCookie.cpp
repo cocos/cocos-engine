@@ -61,10 +61,10 @@ void HttpCookie::readFile() {
                 continue;
             }
 
-            CookiesInfo              co;
-            std::stringstream        streamInfo(cookie);
+            CookiesInfo                co;
+            std::stringstream          streamInfo(cookie);
             ccstd::vector<std::string> elems;
-            std::string              elemsItem;
+            std::string                elemsItem;
 
             while (std::getline(streamInfo, elemsItem, '\t')) {
                 elems.push_back(elemsItem);

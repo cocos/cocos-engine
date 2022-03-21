@@ -274,7 +274,7 @@ void WebSocketServer::listenAsync(std::shared_ptr<WebSocketServer> &server, int 
 }
 
 ccstd::vector<std::shared_ptr<WebSocketServerConnection>> WebSocketServer::getConnections() const {
-    std::lock_guard<std::mutex>                             guard(_connsMtx);
+    std::lock_guard<std::mutex>                               guard(_connsMtx);
     ccstd::vector<std::shared_ptr<WebSocketServerConnection>> ret;
     for (auto itr : _conns) {
         ret.emplace_back(itr.second);
@@ -525,9 +525,9 @@ void WebSocketServerConnection::onHTTP() {
 
     _headers.clear();
 
-    int               n = 0, len;
+    int                 n = 0, len;
     ccstd::vector<char> buf(256);
-    const char *      c;
+    const char *        c;
     do {
         lws_token_indexes idx = static_cast<lws_token_indexes>(n);
         c                     = (const char *)lws_token_to_string(idx);

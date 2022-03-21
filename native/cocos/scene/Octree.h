@@ -152,7 +152,7 @@ private:
     Octree *                                      _owner{nullptr};
     OctreeNode *                                  _parent{nullptr};
     std::array<OctreeNode *, OCTREE_CHILDREN_NUM> _children{};
-    ccstd::vector<Model *>                          _models;
+    ccstd::vector<Model *>                        _models;
     BBox                                          _aabb{};
     uint32_t                                      _depth{0};
     uint32_t                                      _index{0};

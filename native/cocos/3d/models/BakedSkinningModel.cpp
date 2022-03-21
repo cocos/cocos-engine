@@ -202,13 +202,13 @@ void BakedSkinningModel::syncAnimInfoForJS(gfx::Buffer *buffer, const Float32Arr
 }
 
 void BakedSkinningModel::syncDataForJS(const ccstd::vector<cc::optional<geometry::AABB>> &boundsInfo,
-                                       const cc::optional<geometry::AABB> &             modelBound,
-                                       float                                            jointTextureInfo0,
-                                       float                                            jointTextureInfo1,
-                                       float                                            jointTextureInfo2,
-                                       float                                            jointTextureInfo3,
-                                       gfx::Texture *                                   tex,
-                                       const Float32Array &                             animInfoData) {
+                                       const cc::optional<geometry::AABB> &               modelBound,
+                                       float                                              jointTextureInfo0,
+                                       float                                              jointTextureInfo1,
+                                       float                                              jointTextureInfo2,
+                                       float                                              jointTextureInfo3,
+                                       gfx::Texture *                                     tex,
+                                       const Float32Array &                               animInfoData) {
     _jointMedium.boundsInfo = boundsInfo;
 
     if (modelBound.has_value()) {

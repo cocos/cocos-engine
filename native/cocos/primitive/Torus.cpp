@@ -35,9 +35,9 @@ IGeometry torus(float radius, float tube, const cc::optional<ITorusOptions> &opt
     ccstd::vector<float>    normals;
     ccstd::vector<float>    uvs;
     ccstd::vector<uint32_t> indices;
-    const Vec3            minPos(-radius - tube, -tube, -radius - tube);
-    const Vec3            maxPos(radius + tube, tube, radius + tube);
-    const float           boundingRadius = radius + tube;
+    const Vec3              minPos(-radius - tube, -tube, -radius - tube);
+    const Vec3              maxPos(radius + tube, tube, radius + tube);
+    const float             boundingRadius = radius + tube;
 
     for (uint32_t j = 0; j <= radialSegments; j++) {
         for (uint32_t i = 0; i <= tubularSegments; i++) {

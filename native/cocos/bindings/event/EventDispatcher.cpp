@@ -24,22 +24,22 @@
 ****************************************************************************/
 
 #include "EventDispatcher.h"
+#include "cocos/application/ApplicationManager.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
-#include "cocos/application/ApplicationManager.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
 
 namespace {
-se::Value                 tickVal;
-se::ValueArray            tickArgsValArr(1);
+se::Value                   tickVal;
+se::ValueArray              tickArgsValArr(1);
 ccstd::vector<se::Object *> jsTouchObjPool;
-se::Object *              jsTouchObjArray       = nullptr;
-se::Object *              jsMouseEventObj       = nullptr;
-se::Object *              jsKeyboardEventObj    = nullptr;
-se::Object *              jsResizeEventObj      = nullptr;
-se::Object *              jsOrientationEventObj = nullptr;
-bool                      inited                = false;
+se::Object *                jsTouchObjArray       = nullptr;
+se::Object *                jsMouseEventObj       = nullptr;
+se::Object *                jsKeyboardEventObj    = nullptr;
+se::Object *                jsResizeEventObj      = nullptr;
+se::Object *                jsOrientationEventObj = nullptr;
+bool                        inited                = false;
 } // namespace
 
 namespace cc {

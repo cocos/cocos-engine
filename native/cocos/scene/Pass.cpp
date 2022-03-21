@@ -424,7 +424,6 @@ gfx::Shader *Pass::getShaderVariant(const ccstd::vector<IMacroPatch> &patches) {
     }
 #endif
 
-
     auto *pipeline = _root->getPipeline();
     for (const auto &patch : patches) {
         _defines[patch.name] = patch.value;
@@ -509,12 +508,12 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     _descriptorSet = _device->createDescriptorSet(dsInfo);
 
     // calculate total size required
-    const auto &                blocks     = _shaderInfo->blocks;
-    const auto *                tmplInfo   = programLib->getTemplateInfo(info.program);
+    const auto &                  blocks     = _shaderInfo->blocks;
+    const auto *                  tmplInfo   = programLib->getTemplateInfo(info.program);
     const ccstd::vector<int32_t> &blockSizes = tmplInfo->blockSizes;
-    const auto &                handleMap  = tmplInfo->handleMap;
+    const auto &                  handleMap  = tmplInfo->handleMap;
 
-    const auto            alignment = device->getCapabilities().uboOffsetAlignment;
+    const auto              alignment = device->getCapabilities().uboOffsetAlignment;
     ccstd::vector<uint32_t> startOffsets;
     startOffsets.reserve(blocks.size());
     uint32_t lastSize   = 0;

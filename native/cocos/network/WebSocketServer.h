@@ -97,7 +97,7 @@ public:
     unsigned char *getData() { return _underlyingData.data() + LWS_PRE; }
 
 private:
-    ccstd::vector<unsigned char>               _underlyingData;
+    ccstd::vector<unsigned char>             _underlyingData;
     int                                      _consumed = 0;
     bool                                     _isBinary = false;
     std::function<void(const std::string &)> _callback;

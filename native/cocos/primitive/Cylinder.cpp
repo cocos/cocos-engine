@@ -65,10 +65,10 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
     ccstd::vector<float>    positions(vertCount * 3);
     ccstd::vector<float>    normals(vertCount * 3);
     ccstd::vector<float>    uvs(vertCount * 2);
-    const float           maxRadius = std::max(radiusTop, radiusBottom);
-    const Vec3            minPos(-maxRadius, -halfHeight, -maxRadius);
-    const Vec3            maxPos(maxRadius, halfHeight, maxRadius);
-    const float           boundingRadius = sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
+    const float             maxRadius = std::max(radiusTop, radiusBottom);
+    const Vec3              minPos(-maxRadius, -halfHeight, -maxRadius);
+    const Vec3              maxPos(maxRadius, halfHeight, maxRadius);
+    const float             boundingRadius = sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
 
     uint32_t index       = 0;
     uint32_t indexOffset = 0;
@@ -86,7 +86,7 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
         // generate positions, normals and uvs
         for (uint32_t y = 0; y <= heightSegments; y++) {
             ccstd::vector<uint32_t> indexRow;
-            const float           v = static_cast<float>(y) / static_cast<float>(heightSegments);
+            const float             v = static_cast<float>(y) / static_cast<float>(heightSegments);
 
             // calculate the radius of the current row
             const float radius = v * r + radiusBottom;

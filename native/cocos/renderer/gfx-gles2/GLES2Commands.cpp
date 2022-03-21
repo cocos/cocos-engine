@@ -1090,8 +1090,8 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     // texture unit index mapping optimization
     ccstd::vector<GLES2GPUUniformSamplerTexture> glActiveSamplerTextures;
     ccstd::vector<GLint>                         glActiveSamplerLocations;
-    const GLESBindingMapping &            bindingMappings = device->bindingMappings();
-    unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
+    const GLESBindingMapping &                   bindingMappings = device->bindingMappings();
+    unordered_map<String, uint32_t> &            texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
     // sampler bindings in the flexible set comes strictly after buffer bindings
     // so we need to subtract the buffer count for these samplers
@@ -1290,13 +1290,13 @@ void cmdFuncGLES2DestroyInputAssembler(GLES2Device *device, GLES2GPUInputAssembl
     gpuInputAssembler->glVAOs.clear();
 }
 
-static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device *                    device,
+static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device *                           device,
                                                                   const ccstd::vector<GLES2GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
                                                                   const GLES2GPUTexture *depthStencil,
                                                                   const uint32_t *       resolves            = nullptr,
                                                                   const GLES2GPUTexture *depthStencilResolve = nullptr,
                                                                   GLbitfield *           resolveMask         = nullptr) {
-    static ccstd::vector<GLenum>                  drawBuffers;
+    static ccstd::vector<GLenum>           drawBuffers;
     GLES2GPUStateCache *                   cache = device->stateCache();
     GLES2GPUFramebuffer::GLFramebufferInfo res;
 
@@ -2044,11 +2044,11 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
 
     // bind descriptor sets
     if (gpuPipelineState && gpuPipelineState->gpuShader && gpuPipelineState->gpuPipelineLayout) {
-        size_t                     blockLen{gpuPipelineState->gpuShader->glBlocks.size()};
+        size_t                                   blockLen{gpuPipelineState->gpuShader->glBlocks.size()};
         const ccstd::vector<ccstd::vector<int>> &dynamicOffsetIndices{gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices};
-        uint8_t *                  uniformBuffBase{nullptr};
-        uint8_t *                  uniformBuff{nullptr};
-        uint8_t *                  uniformCachedBuff{nullptr};
+        uint8_t *                                uniformBuffBase{nullptr};
+        uint8_t *                                uniformBuff{nullptr};
+        uint8_t *                                uniformCachedBuff{nullptr};
 
         for (size_t j = 0; j < blockLen; j++) {
             GLES2GPUUniformBlock &glBlock = gpuPipelineState->gpuShader->glBlocks[j];
@@ -2063,7 +2063,7 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                 continue;
             }
 
-            uint32_t           offset                = 0U;
+            uint32_t                  offset                = 0U;
             const ccstd::vector<int> &dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
             if (dynamicOffsetIndexSet.size() > glBlock.binding) {
                 int dynamicOffsetIndex = dynamicOffsetIndexSet[glBlock.binding];

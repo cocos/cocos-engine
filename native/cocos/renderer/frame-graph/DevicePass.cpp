@@ -199,10 +199,10 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
 void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     if (_attachments.empty()) return;
 
-    gfx::RenderPassInfo            rpInfo;
-    gfx::FramebufferInfo           fboInfo;
-    float                          clearDepth   = 1.F;
-    uint32_t                       clearStencil = 0;
+    gfx::RenderPassInfo              rpInfo;
+    gfx::FramebufferInfo             fboInfo;
+    float                            clearDepth   = 1.F;
+    uint32_t                         clearStencil = 0;
     static ccstd::vector<gfx::Color> clearColors;
     clearColors.clear();
 

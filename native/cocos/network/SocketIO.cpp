@@ -31,9 +31,9 @@
 #include <sstream>
 #include <utility>
 #include "application/ApplicationManager.h"
-#include "base/memory/Memory.h"
 #include "base/Log.h"
 #include "base/UTF8.h"
+#include "base/memory/Memory.h"
 #include "network/HttpClient.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
@@ -72,22 +72,22 @@ public:
     void               setEvent(const std::string &event) { _name = event; };
     const std::string &getEvent() const { return _name; };
 
-    void                     addData(const std::string &data);
+    void                       addData(const std::string &data);
     ccstd::vector<std::string> getData() const { return _args; };
-    virtual std::string      stringify() const;
+    virtual std::string        stringify() const;
 
     static SocketIOPacket *createPacketWithType(const std::string &type, SocketIOVersion version);
     static SocketIOPacket *createPacketWithTypeIndex(int type, SocketIOVersion version);
 
 protected:
-    std::string              _pId;               //id message
-    std::string              _ack;               //
-    std::string              _name;              //event name
+    std::string                _pId;               //id message
+    std::string                _ack;               //
+    std::string                _name;              //event name
     ccstd::vector<std::string> _args;              //we will be using a vector of strings to store multiple data
-    std::string              _endpoint;          //
-    std::string              _endpointseparator; //socket.io 1.x requires a ',' between endpoint and payload
-    std::string              _type;              //message type
-    std::string              _separator;         //for stringify the object
+    std::string                _endpoint;          //
+    std::string                _endpointseparator; //socket.io 1.x requires a ',' between endpoint and payload
+    std::string                _type;              //message type
+    std::string                _separator;         //for stringify the object
     ccstd::vector<std::string> _types;             //types of messages
 };
 
@@ -227,7 +227,7 @@ SocketIOPacketV10x::SocketIOPacketV10x() {
 
 int SocketIOPacketV10x::typeAsNumber() const {
     ccstd::vector<std::string>::size_type num  = 0;
-    auto                                item = std::find(_typesMessage.begin(), _typesMessage.end(), _type);
+    auto                                  item = std::find(_typesMessage.begin(), _typesMessage.end(), _type);
     if (item != _typesMessage.end()) { //it's a message
         num = item - _typesMessage.begin();
         num += 40;
@@ -413,7 +413,7 @@ void SIOClientImpl::handshakeResponse(HttpClient * /*sender*/, HttpResponse *res
     CC_LOG_INFO("SIOClientImpl::handshake() succeeded");
 
     ccstd::vector<char> *buffer = response->getResponseData();
-    std::stringstream  s;
+    std::stringstream    s;
     s.str("");
 
     for (const auto &iter : *buffer) {

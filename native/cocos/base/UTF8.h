@@ -29,8 +29,8 @@
 
 #include <sstream>
 #include <string>
-#include "base/std/container/vector.h"
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "platform/java/jni/JniHelper.h"

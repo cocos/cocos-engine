@@ -215,7 +215,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
     const auto *sceneData       = _pipeline->getPipelineSceneData();
     const auto *shadowInfo      = sceneData->getShadows();
 
-    size_t      offset  = 0;
+    size_t offset = 0;
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
 

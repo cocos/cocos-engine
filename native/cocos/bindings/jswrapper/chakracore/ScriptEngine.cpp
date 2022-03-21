@@ -274,7 +274,7 @@ ScriptEngine::ExceptionInfo ScriptEngine::formatException(JsValueRef exception) 
         return ret;
 
     ccstd::vector<std::string> allKeys;
-    Object *                 exceptionObj = Object::_createJSObject(nullptr, exception);
+    Object *                   exceptionObj = Object::_createJSObject(nullptr, exception);
     exceptionObj->getAllKeys(&allKeys);
 
     for (const auto &key : allKeys) {

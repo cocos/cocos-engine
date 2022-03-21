@@ -59,7 +59,7 @@ static uint64_t                                                                 
 static cc::network::Downloader *localDownloader() {
     if (!gLocalDownloader) {
         gLocalDownloader                    = std::make_shared<cc::network::Downloader>();
-        gLocalDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask & task,
+        gLocalDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask &   task,
                                                   const ccstd::vector<unsigned char> &data) {
             if (data.empty()) {
                 SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());

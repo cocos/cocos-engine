@@ -809,7 +809,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<cc::MacroRecord> *to
             if (!ok || !arrElement.isObject()) {
                 continue;
             }
-            cc::MacroRecord          macroRecord;
+            cc::MacroRecord            macroRecord;
             ccstd::vector<std::string> keys;
             ok = arrElement.toObject()->getAllKeys(&keys);
             if (ok) {
@@ -983,8 +983,8 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, std::string> *to, se::Object * /*ctx*/) {
     if (from.isObject() && from.toObject()->isArray()) {
-        uint32_t           len = 0;
-        bool               ok  = from.toObject()->getArrayLength(&len);
+        uint32_t             len = 0;
+        bool                 ok  = from.toObject()->getArrayLength(&len);
         ccstd::vector<float> arr;
         arr.resize(len);
         for (uint32_t i = 0; i < len; ++i) {
@@ -1204,7 +1204,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, cc::mid
     se::Object *obj = v.toObject();
 
     ccstd::vector<std::string> allKeys;
-    bool                     ok = obj->getAllKeys(&allKeys);
+    bool                       ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
         return false;

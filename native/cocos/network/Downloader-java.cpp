@@ -255,7 +255,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jclass
 }
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*clazz*/, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data) {
-    std::string          errStrTmp;
+    std::string            errStrTmp;
     ccstd::vector<uint8_t> dataTmp;
     if (errStr) {
         const char *nativeErrStr = env->GetStringUTFChars(errStr, JNI_FALSE);

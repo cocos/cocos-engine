@@ -57,7 +57,7 @@ struct IGeometryOptions {
 };
 
 struct CustomAttribute {
-    gfx::Attribute     attr;
+    gfx::Attribute       attr;
     ccstd::vector<float> values;
 };
 

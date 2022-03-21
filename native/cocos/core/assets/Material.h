@@ -219,7 +219,7 @@ public:
      * @param mat The material to be copied.
      * @param overrides The overriding states on top of the original material.
      */
-    void copy(const Material *mat, IMaterialInfo* overrides = nullptr);
+    void copy(const Material *mat, IMaterialInfo *overrides = nullptr);
 
     void fillInfo(const IMaterialInfo &info);
 

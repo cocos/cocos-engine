@@ -445,9 +445,9 @@ private:
                 continue;
             }
 
-            CookiesInfo              co;
-            std::stringstream        streamInfo(cookies);
-            std::string              item;
+            CookiesInfo                co;
+            std::stringstream          streamInfo(cookies);
+            std::string                item;
             ccstd::vector<std::string> elems;
 
             while (std::getline(streamInfo, item, '\t')) {

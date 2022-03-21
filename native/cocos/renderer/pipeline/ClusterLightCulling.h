@@ -131,7 +131,7 @@ private:
     gfx::Buffer *                                                            _constantsBuffer{nullptr};
 
     ccstd::vector<scene::Light *> _validLights;
-    ccstd::vector<float>     _lightBufferData;
+    ccstd::vector<float>          _lightBufferData;
 
     gfx::GeneralBarrier *_resetBarrier{nullptr};
 
@@ -145,7 +145,7 @@ private:
     float _lightMeterScale{10000.0F};
 
     // only rebuild clusters when camera project matrix changed
-    bool         _rebuildClusters{false};
+    bool                _rebuildClusters{false};
     ccstd::vector<Mat4> _oldCamProjMats;
 
     bool _initialized{false};

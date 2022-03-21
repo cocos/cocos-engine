@@ -135,8 +135,8 @@ protected:
 
     void initFormatFeature();
 
-    CCVKGPUDevice *       _gpuDevice  = nullptr;
-    CCVKGPUContext *      _gpuContext = nullptr;
+    CCVKGPUDevice *              _gpuDevice  = nullptr;
+    CCVKGPUContext *             _gpuContext = nullptr;
     ccstd::vector<CCVKTexture *> _depthStencilTextures;
 
     ccstd::vector<CCVKGPUFencePool *>         _gpuFencePools;
