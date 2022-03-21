@@ -116,7 +116,7 @@ protected:
     IntrusivePtr<Material> _debugRendererMaterial{nullptr};
     gfx::Shader *          _debugRendererShader{nullptr};
     scene::Pass *          _debugRendererPass{nullptr};
-    gfx::Device *   _device{nullptr};
+    gfx::Device *          _device{nullptr};
 
     scene::Fog *    _fog{nullptr};
     scene::Ambient *_ambient{nullptr};
