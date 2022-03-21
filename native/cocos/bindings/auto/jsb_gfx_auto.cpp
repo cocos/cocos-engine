@@ -19544,6 +19544,25 @@ static bool js_gfx_Texture_getInfo(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_PROP_GET(js_gfx_Texture_getInfo)
 
+static bool js_gfx_Texture_getRaw(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getRaw : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::gfx::Texture* result = cobj->getRaw();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getRaw : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Texture_getRaw)
+
 static bool js_gfx_Texture_getSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
@@ -19712,6 +19731,7 @@ bool js_register_gfx_Texture(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineProperty("size", _SE(js_gfx_Texture_getSize), nullptr);
     cls->defineProperty("hash", _SE(js_gfx_Texture_getHash), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Texture_destroy));
+    cls->defineFunction("getRaw", _SE(js_gfx_Texture_getRaw));
     cls->defineFunction("isTextureView", _SE(js_gfx_Texture_isTextureView));
     cls->defineFunction("resize", _SE(js_gfx_Texture_resize));
     cls->defineStaticFunction("computeHash", _SE(js_gfx_Texture_computeHash));
