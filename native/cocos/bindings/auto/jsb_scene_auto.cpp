@@ -10154,6 +10154,25 @@ static bool js_scene_Root_setTempWindow(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_Root_setTempWindow)
 
+static bool js_scene_Root_usesCustomPipeline(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Root>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Root_usesCustomPipeline : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->usesCustomPipeline();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Root_usesCustomPipeline : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Root_usesCustomPipeline)
+
 static bool js_scene_Root_getInstance_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -10228,6 +10247,7 @@ bool js_register_scene_Root(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("resetCumulativeTime", _SE(js_scene_Root_resetCumulativeTime));
     cls->defineFunction("resize", _SE(js_scene_Root_resize));
     cls->defineFunction("setRenderPipeline", _SE(js_scene_Root_setRenderPipeline));
+    cls->defineFunction("usesCustomPipeline", _SE(js_scene_Root_usesCustomPipeline));
     cls->defineStaticFunction("getInstance", _SE(js_scene_Root_getInstance_static));
     cls->defineFinalizeFunction(_SE(js_cc_Root_finalize));
     cls->install();
