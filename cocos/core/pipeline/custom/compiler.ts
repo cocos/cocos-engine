@@ -51,6 +51,7 @@ class PassVisitor implements RenderGraphVisitor {
         const rg = this._context.renderGraph;
         for (const q of rg.children(this.passID)) {
             const queueID = q.target as number;
+            assert(rg.holds(RenderGraphValue.Queue, queueID));
             this._queueID = queueID;
             rg.visitVertex(this, queueID);
         }
@@ -119,7 +120,7 @@ class PassVisitor implements RenderGraphVisitor {
     }
 }
 
-export class ResourceVisitor implements ResourceGraphVisitor {
+class ResourceVisitor implements ResourceGraphVisitor {
     private readonly _context: CompilerContext;
     public resID = 0xFFFFFFFF;
     constructor (context: CompilerContext) {
