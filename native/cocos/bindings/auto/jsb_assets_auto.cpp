@@ -14903,6 +14903,27 @@ bool js_register_assets_TextureCube(se::Object* obj) // NOLINT(readability-ident
 se::Object* __jsb_cc_BuiltinResMgr_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_BuiltinResMgr_class = nullptr;  // NOLINT
 
+static bool js_assets_BuiltinResMgr_addAsset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::BuiltinResMgr>(s);
+    SE_PRECONDITION2(cobj, false, "js_assets_BuiltinResMgr_addAsset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<cc::Asset*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_assets_BuiltinResMgr_addAsset : Error processing arguments");
+        cobj->addAsset(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_assets_BuiltinResMgr_addAsset)
+
 static bool js_assets_BuiltinResMgr_getAsset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::BuiltinResMgr>(s);
@@ -15005,6 +15026,7 @@ bool js_register_assets_BuiltinResMgr(se::Object* obj) // NOLINT(readability-ide
 {
     auto* cls = se::Class::create("BuiltinResMgr", obj, nullptr, nullptr);
 
+    cls->defineFunction("addAsset", _SE(js_assets_BuiltinResMgr_addAsset));
     cls->defineFunction("getAsset", _SE(js_assets_BuiltinResMgr_getAsset));
     cls->defineFunction("initBuiltinRes", _SE(js_assets_BuiltinResMgr_initBuiltinRes));
     cls->defineFunction("isInitialized", _SE(js_assets_BuiltinResMgr_isInitialized));
