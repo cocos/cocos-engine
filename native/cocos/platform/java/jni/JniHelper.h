@@ -30,6 +30,7 @@
 #include <jni.h>
 #include <functional>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 #include "base/Log.h"
@@ -145,6 +146,28 @@ public:
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallFloatMethod(object, t.methodID, convert(&localRefs, &t, xs)...);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
+            CLEAR_EXCEPTON(t.env);
+            deleteLocalRefs(t.env, &localRefs);
+        } else {
+            reportError(className, methodName, signature);
+        }
+        return ret;
+    }
+
+    template <typename... Ts>
+    static jlong callObjectLongMethod(jobject            object,
+                                      const std::string &className,
+                                      const std::string &methodName,
+                                      Ts... xs) {
+        jlong             ret = 0;
+        cc::JniMethodInfo t;
+        std::string       signature = "(" + std::string(getJNISignature(xs...)) + ")J";
+        if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+            LocalRefMapType localRefs;
+            ret = t.env->CallLongMethod(object, t.methodID, convert(&localRefs, &t, xs)...);
 #ifndef __OHOS__
             ccDeleteLocalRef(t.env, t.classID);
 #endif
@@ -380,9 +403,69 @@ private:
 
     static jstring convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::string &x);
 
+    static jobject convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::vector<std::string> &x);
+
     template <typename T>
     static T convert(LocalRefMapType * /*localRefs*/, cc::JniMethodInfo * /*t*/, T x) {
         return x;
+    }
+
+    template <typename T>
+    static jobject convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, std::pair<T *, size_t> data) {
+        jobject ret = nullptr;
+
+#define JNI_SET_TYPED_ARRAY(lowercase, camelCase)                                                                   \
+    j##lowercase##Array array = t->env->New##camelCase##Array(data.second);                                         \
+    t->env->Set##camelCase##ArrayRegion(array, 0, data.second, reinterpret_cast<const j##lowercase *>(data.first)); \
+    if (array) {                                                                                                    \
+        (*localRefs)[t->env].push_back(array);                                                                      \
+    }                                                                                                               \
+    ret = static_cast<jobject>(array);
+
+        using U = typename std::remove_cv<typename std::remove_pointer<T>::type>::type;
+
+        if (sizeof(U) == 1) {
+            JNI_SET_TYPED_ARRAY(byte, Byte)
+        } else if (sizeof(U) == 4 && std::is_integral<U>::value) {
+            JNI_SET_TYPED_ARRAY(int, Int)
+        } else if (sizeof(U) == 8 && std::is_integral<U>::value) {
+            JNI_SET_TYPED_ARRAY(long, Long);
+        } else if (sizeof(U) == 4 && std::is_floating_point<U>::value) {
+            JNI_SET_TYPED_ARRAY(float, Float);
+        } else if (sizeof(U) == 8 && std::is_floating_point<U>::value) {
+            JNI_SET_TYPED_ARRAY(double, Double);
+        }
+
+#undef JNI_SET_TYPED_ARRAY
+        return ret;
+    }
+
+    template <typename T, typename A>
+    static typename std::enable_if<std::is_arithmetic<T>::value, jobject>::type convert(LocalRefMapType *localRefs, cc::JniMethodInfo *t, const std::vector<T, A> &data) {
+        jobject ret = nullptr;
+
+#define JNI_SET_TYPED_ARRAY(lowercase, camelCase)                                                                    \
+    j##lowercase##Array array = t->env->New##camelCase##Array(data.size());                                          \
+    t->env->Set##camelCase##ArrayRegion(array, 0, data.size(), reinterpret_cast<const j##lowercase *>(data.data())); \
+    if (array) {                                                                                                     \
+        (*localRefs)[t->env].push_back(array);                                                                       \
+    }                                                                                                                \
+    ret = static_cast<jobject>(array);
+
+        if (sizeof(T) == 1) {
+            JNI_SET_TYPED_ARRAY(byte, Byte)
+        } else if (sizeof(T) == 4 && std::is_integral<T>::value) {
+            JNI_SET_TYPED_ARRAY(int, Int)
+        } else if (sizeof(T) == 8 && std::is_integral<T>::value) {
+            JNI_SET_TYPED_ARRAY(long, Long);
+        } else if (sizeof(T) == 4 && std::is_floating_point<T>::value) {
+            JNI_SET_TYPED_ARRAY(float, Float);
+        } else if (sizeof(T) == 8 && std::is_floating_point<T>::value) {
+            JNI_SET_TYPED_ARRAY(double, Double);
+        }
+
+#undef JNI_SET_TYPED_ARRAY
+        return ret;
     }
 
     static void deleteLocalRefs(JNIEnv *env, LocalRefMapType *localRefs);
@@ -397,6 +480,10 @@ private:
 
     static std::string getJNISignature(char /*unused*/) {
         return "C";
+    }
+
+    static std::string getJNISignature(unsigned char /*unused*/) {
+        return "B"; // same as jbyte
     }
 
     static std::string getJNISignature(int16_t /*unused*/) {
@@ -440,6 +527,18 @@ private:
         // This template should never be instantiated
         static_assert(sizeof(x) == 0, "Unsupported argument type");
         return "";
+    }
+
+    template <typename T>
+    static std::string getJNISignature(std::pair<T *, size_t> /*x*/) {
+        typename std::remove_pointer<typename std::remove_cv<T>::type>::type m;
+        return std::string("[") + getJNISignature(m);
+    }
+
+    template <typename T, typename A>
+    static std::string getJNISignature(const std::vector<T, A> & /*x*/) {
+        T m;
+        return std::string("[") + getJNISignature(m);
     }
 
     template <typename T, typename... Ts>

@@ -823,9 +823,15 @@ if(ANDROID OR OHOS)
 endif()
 
 if(NOT APPLE AND USE_SOCKET)
+    if(ANDROID)
+    cocos_source_files(
+        NO_WERROR    cocos/network/WebSocket-okhttp.cpp
+    )
+    else()
     cocos_source_files(
         NO_WERROR    cocos/network/WebSocket-libwebsockets.cpp
     )
+    endif()
 endif()
 
 if(WINDOWS OR LINUX OR QNX)
