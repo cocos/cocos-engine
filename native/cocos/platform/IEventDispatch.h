@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "bindings/event/EventDispatcher.h"
 #include "base/Macros.h"
+#include "bindings/event/EventDispatcher.h"
 
 namespace cc {
 class CC_DLL IEventDispatch {
