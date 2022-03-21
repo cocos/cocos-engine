@@ -34,8 +34,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, RenderScene, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
-import { RenderDependencyGraph } from './render-dependency-graph';
-import { ExecutorExample } from './executor';
+import { Executor } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { assert, macro } from '../../platform';
@@ -452,17 +451,16 @@ export class WebPipeline extends Pipeline {
             this._compiler = new Compiler(this, this._resourceGraph, this._renderGraph, this._layoutGraph);
         }
         this._compiler.compile();
-        // if (!this._renderDependencyGraph) {
-        //     this._renderDependencyGraph = new RenderDependencyGraph(this, this._renderGraph,
-        //         this._resourceGraph, this._layoutGraph);
-        // }
-        // this._renderDependencyGraph.reset();
-        // this._renderDependencyGraph.build();
     }
 
-    renderContext () {
-        // if (!this._renderDependencyGraph) { throw new Error('RenderDependencyGraph is not initialized'); }
-        // this._renderDependencyGraph.execute();
+    execute () {
+        if (!this._renderGraph) {
+            throw new Error('Cannot run without creating rendergraph');
+        }
+        if (!this._executor) {
+            this._executor = new Executor(this, this._device, this._resourceGraph);
+        }
+        this._executor.execute(this._renderGraph);
     }
     protected _buildShadowPass (automata: WebPipeline,
         light: Readonly<Light>,
@@ -599,11 +597,10 @@ export class WebPipeline extends Pipeline {
                 forwardPass
                     .addQueue(QueueHint.RENDER_TRANSPARENT)
                     .addSceneOfCamera(camera);
-                // this.addPresentPass(`CameraPresentPass${i.toString()}`, forwardPassRTName);
             }
         }
         this.compile();
-        this.renderContext();
+        this.execute();
         this.endFrame();
     }
 
@@ -674,5 +671,5 @@ export class WebPipeline extends Pipeline {
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
     private _renderGraph: RenderGraph | null = null;
     private _compiler: Compiler | null = null;
-    // private _renderDependencyGraph: RenderDependencyGraph | null = null;
+    private _executor: Executor | null = null;
 }
