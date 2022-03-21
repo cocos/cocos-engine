@@ -234,10 +234,10 @@ void Engine::tick() {
         prevTime = std::chrono::steady_clock::now();
 
         _scheduler->update(dt);
-		
-		se::ScriptEngine::getInstance()->handlePromiseExceptions();
-	    cc::EventDispatcher::dispatchTickEvent(dt);
-	    se::ScriptEngine::getInstance()->mainLoopUpdate();
+
+        se::ScriptEngine::getInstance()->handlePromiseExceptions();
+        cc::EventDispatcher::dispatchTickEvent(dt);
+        se::ScriptEngine::getInstance()->mainLoopUpdate();
 
         cc::DeferredReleasePool::clear();
 

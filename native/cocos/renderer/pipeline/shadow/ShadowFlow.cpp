@@ -33,8 +33,8 @@
 #include "../forward/ForwardPipeline.h"
 #include "ShadowStage.h"
 #include "gfx-base/GFXDevice.h"
-#include "scene/Camera.h"
 #include "profiler/Profiler.h"
+#include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
@@ -70,7 +70,7 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 }
 
 void ShadowFlow::render(scene::Camera *camera) {
-	CC_PROFILE(ShadowFlowRender);
+    CC_PROFILE(ShadowFlowRender);
     const auto *sceneData  = _pipeline->getPipelineSceneData();
     auto *      shadowInfo = sceneData->getShadows();
     if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::SHADOW_MAP) {
@@ -175,7 +175,7 @@ void ShadowFlow::resizeShadowMap() {
     auto *      device     = gfx::Device::getInstance();
     const auto  width      = static_cast<uint>(shadowInfo->getSize().x);
     const auto  height     = static_cast<uint>(shadowInfo->getSize().y);
-    const auto format      = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
+    const auto  format     = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
 
     for (const auto &pair : sceneData->getShadowFramebufferMap()) {
         gfx::Framebuffer *framebuffer = pair.second;

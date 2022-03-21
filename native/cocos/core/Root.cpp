@@ -32,10 +32,10 @@
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/NativePipelineTypes.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
-#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
-#include "renderer/pipeline/custom/NativePipelineTypes.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
@@ -192,7 +192,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             isCreateDefaultPipeline = true;
         }
 
-        _pipeline = rppl;
+        _pipeline        = rppl;
         _pipelineRuntime = std::make_unique<RenderPipelineBridge>(rppl);
 
         // now cluster just enabled in deferred pipeline
@@ -369,7 +369,7 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
     if (light == nullptr) {
         return;
     }
-    
+
     if (light->getScene() != nullptr) {
         if (light->getType() == scene::LightType::DIRECTIONAL) {
             light->getScene()->removeDirectionalLight(static_cast<scene::DirectionalLight *>(light));

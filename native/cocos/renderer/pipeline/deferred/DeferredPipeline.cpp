@@ -39,8 +39,8 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
-#include "profiler/Profiler.h"
 #include "pipeline/ClusterLightCulling.h"
+#include "profiler/Profiler.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {
