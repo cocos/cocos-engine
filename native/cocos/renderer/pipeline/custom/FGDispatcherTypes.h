@@ -39,6 +39,7 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/String.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -65,7 +66,7 @@ struct Range {
 };
 
 struct ResourceAccessDesc {
-    uint32_t                resourceID{unInitializeID};
+    uint32_t                resourceID{0xFFFFFFFF};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit    access{gfx::MemoryAccessBit::NONE};
     Range                   range;
@@ -195,21 +196,48 @@ struct ResourceAccessGraph {
     boost::container::pmr::vector<ResourceAccessNode>             access;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
+    // Members
+    boost::container::pmr::vector<PmrString>    resourceNames;
+    std::vector<RenderGraph::vertex_descriptor> presentPasses;
+    PmrUnorderedMap<PmrString, uint32_t>        resourceIndex;
 };
 
 struct Barrier {
-    RenderGraph::vertex_descriptor resourceID{unInitializeID};
-    RenderGraph::vertex_descriptor from{unInitializeID};
-    RenderGraph::vertex_descriptor to{unInitializeID};
+    RenderGraph::vertex_descriptor resourceID{0xFFFFFFFF};
+    RenderGraph::vertex_descriptor from{0xFFFFFFFF};
+    RenderGraph::vertex_descriptor to{0xFFFFFFFF};
     gfx::ShaderStageFlagBit        beginVisibility{gfx::ShaderStageFlagBit::NONE};
     gfx::ShaderStageFlagBit        endVisibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit           beginAccess{gfx::MemoryAccessBit::NONE};
     gfx::MemoryAccessBit           endAccess{gfx::MemoryAccessBit::NONE};
+    PassType                       passType{PassType::Raster};
+    Range                          fromRange;
+    Range                          toRange;
 };
 
 struct BarrierNode {
     std::vector<Barrier> frontBarriers;
     std::vector<Barrier> rearBarriers;
+};
+
+struct FrameGraphDispatcher {
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn) noexcept
+    : resourceGraph(resourceGraphIn),
+      graph(graphIn),
+      layoutGraph(layoutGraphIn),
+      scratch(scratchIn) {}
+    FrameGraphDispatcher(FrameGraphDispatcher&& rhs)      = delete;
+    FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
+    FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
+    FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
+
+                    void buildBarriers();
+                    
+
+    ResourceGraph&                          resourceGraph;
+    RenderGraph&                            graph;
+    LayoutGraphData&                        layoutGraph;
+    boost::container::pmr::memory_resource* scratch{nullptr};
 };
 
 } // namespace render

@@ -1181,6 +1181,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/GeometryRenderer.cpp
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
+                 cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h

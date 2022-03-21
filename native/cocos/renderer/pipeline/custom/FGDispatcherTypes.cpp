@@ -39,7 +39,9 @@ ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
 : vertices(alloc),
   passID(alloc),
   access(alloc),
-  passIndex(alloc) {}
+  passIndex(alloc),
+  resourceNames(alloc),
+  resourceIndex(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {
