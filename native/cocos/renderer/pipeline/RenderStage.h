@@ -69,7 +69,7 @@ protected:
     // Generate quad ia, cannot be updated inside renderpass
     gfx::InputAssembler * _inputAssembler{nullptr};
     RenderQueueDescList   _renderQueueDescriptors;
-    vector<RenderQueue *> _renderQueues;
+    ccstd::vector<RenderQueue *> _renderQueues;
     RenderPipeline *      _pipeline = nullptr;
     RenderFlow *          _flow     = nullptr;
     gfx::Device *         _device   = nullptr;

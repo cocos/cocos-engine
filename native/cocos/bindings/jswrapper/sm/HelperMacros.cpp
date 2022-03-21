@@ -66,7 +66,7 @@ void clearRecordJSBInvoke() {
 
 void printJSBInvoke() {
 #if defined(RECORD_JSB_INVOKING)
-    static std::vector<std::pair<const char *, std::tuple<int, uint64_t>>> pairs;
+    static ccstd::vector<std::pair<const char *, std::tuple<int, uint64_t>>> pairs;
     for (const auto &it : __jsbFunctionInvokedRecords) {
         pairs.emplace_back(it); //NOLINT
     }

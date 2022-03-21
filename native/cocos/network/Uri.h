@@ -19,11 +19,10 @@
 
 #pragma once
 
-#include "base/Macros.h"
-
 #include <string>
-#include <vector>
 #include <stdint.h>
+#include "base/Macros.h"
+#include "base/std/container/vector.h"
 
 /**
   * @addtogroup network
@@ -150,7 +149,7 @@ public:
     *          pair of which the first element is parameter name and the second
     *          one is parameter value
     */
-    const std::vector<std::pair<std::string, std::string>> &getQueryParams();
+    const ccstd::vector<std::pair<std::string, std::string>> &getQueryParams();
 
     /** Clears all parts of the URI. */
     void clear();
@@ -172,7 +171,7 @@ private:
     std::string _path;
     std::string _query;
     std::string _fragment;
-    std::vector<std::pair<std::string, std::string>> _queryParams;
+    ccstd::vector<std::pair<std::string, std::string>> _queryParams;
 };
 
 } // namespace network

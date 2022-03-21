@@ -541,14 +541,14 @@ bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
     return (*ptr != nullptr);
 }
 
-bool Object::getAllKeys(std::vector<std::string> *allKeys) const {
+bool Object::getAllKeys(ccstd::vector<std::string> *allKeys) const {
     assert(allKeys != nullptr);
     JS::RootedObject         jsobj(__cx, _getJSObject());
     JS::Rooted<JS::IdVector> props(__cx, JS::IdVector(__cx));
     if (!JS_Enumerate(__cx, jsobj, &props))
         return false;
 
-    std::vector<std::string> keys;
+    ccstd::vector<std::string> keys;
     for (size_t i = 0, length = props.length(); i < length; ++i) {
         JS::RootedId    id(__cx, props[i]);
         JS::RootedValue keyVal(__cx);

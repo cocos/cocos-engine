@@ -355,9 +355,9 @@ private:
     gfx::ClearFlagBit     _clearFlag{gfx::ClearFlagBit::NONE};
     float                 _clearDepth{1.0F};
 
-    static const std::vector<float> FSTOPS;
-    static const std::vector<float> SHUTTERS;
-    static const std::vector<float> ISOS;
+    static const ccstd::vector<float> FSTOPS;
+    static const ccstd::vector<float> SHUTTERS;
+    static const ccstd::vector<float> ISOS;
 
     uint32_t _visibility = pipeline::CAMERA_DEFAULT_MASK;
     float    _exposure{0.F};

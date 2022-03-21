@@ -117,8 +117,8 @@ public:
 private:
     void clearRemoveList();
 
-    std::vector<IMiddleware *> _updateList;
-    std::vector<IMiddleware *> _removeList;
+    ccstd::vector<IMiddleware *> _updateList;
+    ccstd::vector<IMiddleware *> _removeList;
     std::map<int, MeshBuffer *> _mbMap;
 
     SharedBufferManager _renderInfo;

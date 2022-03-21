@@ -28,12 +28,13 @@
 
 #include "base/Macros.h"
 #include "base/memory/StlAlloc.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
 class Value;
 
-using ValueVector    = vector<Value>;
+using ValueVector    = ccstd::vector<Value>;
 using ValueMap       = unordered_map<String, Value>;
 using ValueMapIntKey = unordered_map<int, Value>;
 

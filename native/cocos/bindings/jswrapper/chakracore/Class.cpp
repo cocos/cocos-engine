@@ -45,7 +45,7 @@ namespace se {
 
 namespace {
 //        std::unordered_map<std::string, Class *> __clsMap;
-std::vector<Class *> __allClasses;
+ccstd::vector<Class *> __allClasses;
 
 JsValueRef emptyContructor(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState) {
     return JS_INVALID_REFERENCE;

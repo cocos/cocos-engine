@@ -43,9 +43,9 @@
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/deferred/DeferredPipelineSceneData.h"
 #include "scene/Camera.h"
+#include "scene/Pass.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
-#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

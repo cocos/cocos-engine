@@ -27,9 +27,9 @@
 
 #include <cstring>
 #include <map>
-#include <vector>
 #include "StringHandle.h"
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 #include "threading/ReadWriteLock.h"
 
 namespace cc {
@@ -60,7 +60,7 @@ private:
     StringHandle doFind(const char *str) const noexcept;
 
     std::map<char const *, StringHandle, StringCompare> _stringToHandles{};
-    std::vector<char const *>                           _handleToStrings{};
+    ccstd::vector<char const *>                           _handleToStrings{};
     mutable ReadWriteLock                               _readWriteLock{};
 };
 

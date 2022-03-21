@@ -27,13 +27,12 @@
 
 #include "base/Log.h"
 #include "base/Macros.h"
-
+#include "base/std/container/vector.h"
 #include "bindings/event/EventDispatcher.h"
 #include "platform/interfaces/modules/ISystem.h"
 
 #include <algorithm>
 #include <functional>
-#include <vector>
 
 namespace cc {
 
@@ -155,7 +154,7 @@ public:
     }
 
 private:
-    std::vector<OSInterface::Ptr> _osInterfaces;
+    ccstd::vector<OSInterface::Ptr> _osInterfaces;
     CC_DISALLOW_COPY_MOVE_ASSIGN(BasePlatform);
 };
 } // namespace cc

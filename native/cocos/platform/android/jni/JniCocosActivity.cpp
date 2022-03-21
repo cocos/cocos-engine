@@ -32,7 +32,6 @@
 #include <jni.h>
 #include <unistd.h>
 #include <thread>
-#include <vector>
 
 #include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniHelper.h"

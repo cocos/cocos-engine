@@ -283,7 +283,7 @@ bool FileUtilsWin32::createDirectory(const std::string &dirPath) {
     size_t                    start = 0;
     size_t                    found = path.find_first_of(L"/\\", start);
     std::wstring              subpath;
-    std::vector<std::wstring> dirs;
+    ccstd::vector<std::wstring> dirs;
 
     if (found != std::wstring::npos) {
         while (true) {

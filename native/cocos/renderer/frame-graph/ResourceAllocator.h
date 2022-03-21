@@ -50,7 +50,7 @@ public:
     void                      gc(uint32_t unusedFrameCount) noexcept;
 
 private:
-    using DeviceResourcePool = std::vector<DeviceResourceType *>;
+    using DeviceResourcePool = ccstd::vector<DeviceResourceType *>;
 
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator()         = default;

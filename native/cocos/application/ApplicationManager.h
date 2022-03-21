@@ -26,8 +26,7 @@
 #pragma once
 
 #include <memory>
-#include <vector>
-
+#include "base/std/container/vector.h"
 #include "application/BaseApplication.h"
 
 namespace cc {
@@ -65,7 +64,7 @@ public:
 
 private:
     std::weak_ptr<BaseApplication> _currentApp;
-    std::vector<ApplicationPtr>    _apps;
+    ccstd::vector<ApplicationPtr>    _apps;
 };
 } // namespace cc
 

@@ -31,7 +31,6 @@
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
     #include <string>
-    #include <vector>
     #include "base/Macros.h"
     #include "platform/FileUtils.h"
 

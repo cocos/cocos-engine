@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "3d/assets/MorphRendering.h"
 #include "3d/assets/Types.h"
 #include "cocos/base/Optional.h"
@@ -83,7 +82,7 @@ public:
          * @en The vertex bundle references used by the sub mesh.
          * @zh 此子网格引用的顶点块，索引至网格的顶点块数组。
          */
-        std::vector<uint32_t> vertexBundelIndices;
+        ccstd::vector<uint32_t> vertexBundelIndices;
 
         /**
          * @en The primitive mode of the sub mesh
@@ -136,7 +135,7 @@ public:
          * @en dynamic submesh bounds
          * @zh 动态子模型包围盒。
          */
-        std::vector<geometry::AABB> bounds;
+        ccstd::vector<geometry::AABB> bounds;
     };
 
     /**
@@ -148,13 +147,13 @@ public:
          * @en All vertex bundles of the mesh
          * @zh 此网格所有的顶点块。
          */
-        std::vector<IVertexBundle> vertexBundles;
+        ccstd::vector<IVertexBundle> vertexBundles;
 
         /**
          * @en All sub meshes
          * @zh 此网格的所有子网格。
          */
-        std::vector<ISubMesh> primitives;
+        ccstd::vector<ISubMesh> primitives;
 
         /**
          * @en The minimum position of all vertices in the mesh
@@ -173,7 +172,7 @@ public:
          * @zh 此网格使用的关节索引映射关系列表，数组长度应为子模型中实际使用到的所有关节，
          * 每个元素都对应一个原骨骼资源里的索引，按子模型 VB 内的实际索引排列。
          */
-        cc::optional<std::vector<std::vector<index_t>>> jointMaps;
+        cc::optional<ccstd::vector<ccstd::vector<index_t>>> jointMaps;
 
         /**
          * @en The morph information of the mesh
@@ -272,13 +271,13 @@ public:
      */
     void setHash(uint64_t hash) { _hash = hash; }
 
-    using JointBufferIndicesType = std::vector<index_t>;
+    using JointBufferIndicesType = ccstd::vector<index_t>;
     /**
      * The index of the joint buffer of all sub meshes in the joint map buffers
      */
     const JointBufferIndicesType &getJointBufferIndices();
 
-    using RenderingSubMeshList = std::vector<IntrusivePtr<RenderingSubMesh>>;
+    using RenderingSubMeshList = ccstd::vector<IntrusivePtr<RenderingSubMesh>>;
     /**
      * @en The sub meshes for rendering. Mesh could be split into different sub meshes for rendering.
      * @zh 此网格创建的渲染网格。
@@ -325,7 +324,7 @@ public:
      */
     void reset(ICreateInfo &&info);
 
-    using BoneSpaceBounds = std::vector<IntrusivePtr<geometry::AABB>>;
+    using BoneSpaceBounds = ccstd::vector<IntrusivePtr<geometry::AABB>>;
     /**
      * @en Get [[AABB]] bounds in the skeleton's bone space
      * @zh 获取骨骼变换空间内下的 [[AABB]] 包围盒

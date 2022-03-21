@@ -63,8 +63,8 @@ public:
     inline void                                                                setDirShadowObjects(RenderObjectList &&ro) { _dirShadowObjects = std::forward<RenderObjectList>(ro); }
     inline const RenderObjectList &                                            isCastShadowObjects() const { return _castShadowObjects; }
     inline void                                                                setCastShadowObjects(RenderObjectList &&ro) { _castShadowObjects = std::forward<RenderObjectList>(ro); }
-    inline const vector<const scene::Light *> &                                getValidPunctualLights() const { return _validPunctualLights; }
-    inline void                                                                setValidPunctualLights(vector<const scene::Light *> &&validPunctualLights) { _validPunctualLights = std::forward<vector<const scene::Light *>>(validPunctualLights); }
+    inline const ccstd::vector<const scene::Light *> &                                getValidPunctualLights() const { return _validPunctualLights; }
+    inline void                                                                setValidPunctualLights(ccstd::vector<const scene::Light *> &&validPunctualLights) { _validPunctualLights = std::forward<ccstd::vector<const scene::Light *>>(validPunctualLights); }
     inline bool                                                                isHDR() const { return _isHDR; }
     inline void                                                                setHDR(bool val) { _isHDR = val; }
     inline scene::Shadows *                                                    getShadows() const { return _shadow; }
@@ -75,9 +75,9 @@ public:
     inline gfx::InputAssembler *                                               getOcclusionQueryInputAssembler() const { return _occlusionQueryInputAssembler; }
     inline scene::Pass *                                                       getOcclusionQueryPass() const { return _occlusionQueryPass; }
     inline gfx::Shader *                                                       getOcclusionQueryShader() const { return _occlusionQueryShader; }
-    inline const std::vector<IntrusivePtr<Material>> &                         getGeometryRendererMaterials() const { return _geometryRendererMaterials; }
-    inline const std::vector<scene::Pass *> &                                  getGeometryRendererPasses() const { return _geometryRendererPasses; }
-    inline const std::vector<gfx::Shader *> &                                  getGeometryRendererShaders() const { return _geometryRendererShaders; }
+    inline const ccstd::vector<IntrusivePtr<Material>> &                       getGeometryRendererMaterials() const { return _geometryRendererMaterials; }
+    inline const ccstd::vector<scene::Pass *> &                                getGeometryRendererPasses() const { return _geometryRendererPasses; }
+    inline const ccstd::vector<gfx::Shader *> &                                getGeometryRendererShaders() const { return _geometryRendererShaders; }
     inline scene::Pass *                                                       getDebugRendererPass() const { return _debugRendererPass; }
     inline gfx::Shader *                                                       getDebugRendererShader() const { return _debugRendererShader; }
     inline void                                                                addRenderObject(RenderObject &&obj) { _renderObjects.emplace_back(obj); }
@@ -100,7 +100,7 @@ protected:
     RenderObjectList             _renderObjects;
     RenderObjectList             _dirShadowObjects;
     RenderObjectList             _castShadowObjects;
-    vector<const scene::Light *> _validPunctualLights;
+    ccstd::vector<const scene::Light *> _validPunctualLights;
     gfx::Buffer *                _occlusionQueryVertexBuffer{nullptr};
     gfx::Buffer *                _occlusionQueryIndicesBuffer{nullptr};
     gfx::InputAssembler *        _occlusionQueryInputAssembler{nullptr};
@@ -109,14 +109,14 @@ protected:
     gfx::Shader *          _occlusionQueryShader{nullptr}; // weak reference
     scene::Pass *          _occlusionQueryPass{nullptr};   // weak reference
 
-    std::vector<IntrusivePtr<Material>> _geometryRendererMaterials;
-    std::vector<scene::Pass *>          _geometryRendererPasses;  // weak reference
-    std::vector<gfx::Shader *>          _geometryRendererShaders; // weak reference
+    ccstd::vector<IntrusivePtr<Material>> _geometryRendererMaterials;
+    ccstd::vector<scene::Pass *>          _geometryRendererPasses;  // weak reference
+    ccstd::vector<gfx::Shader *>          _geometryRendererShaders; // weak reference
 
     IntrusivePtr<Material> _debugRendererMaterial{nullptr};
     gfx::Shader *          _debugRendererShader{nullptr};
     scene::Pass *          _debugRendererPass{nullptr};
-    gfx::Device *   _device{nullptr};
+    gfx::Device *          _device{nullptr};
 
     scene::Fog *    _fog{nullptr};
     scene::Ambient *_ambient{nullptr};

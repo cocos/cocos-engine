@@ -200,7 +200,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         }
     } else {
         // TODO: cache state.
-        vector<bool> visited(colorAttachments.size(), false);
+        ccstd::vector<bool> visited(colorAttachments.size(), false);
         for (size_t i = 0; i < subpasses.size(); ++i) {
             for (size_t j = 0; j < subpasses[i].inputs.size(); ++j) {
                 uint32_t input = subpasses[i].inputs[j];
@@ -667,8 +667,8 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     }
 
     uint                            totalSize = 0;
-    vector<uint>                    bufferSize(count);
-    vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
+    ccstd::vector<uint>                    bufferSize(count);
+    ccstd::vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
     auto                            format          = texture->getFormat();
     auto *                          mtlTexture      = static_cast<CCMTLTexture *>(texture);
     auto                            convertedFormat = mtlTexture->getConvertedFormat();
@@ -933,7 +933,7 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
     } else {
         id<MTLCommandBuffer> mtlCommandBuffer = getMTLCommandBuffer();
 
-        std::vector<std::pair<uint8_t*, uint32_t>> stagingAddrs(count);
+        ccstd::vector<std::pair<uint8_t*, uint32_t>> stagingAddrs(count);
         for (size_t i = 0; i < count; ++i) {
             uint32_t      width         = regions[i].texExtent.width;
             uint32_t      height        = regions[i].texExtent.height;

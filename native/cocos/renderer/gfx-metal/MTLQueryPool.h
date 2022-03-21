@@ -47,7 +47,7 @@ protected:
     void doDestroy() override;
 
     CCMTLGPUQueryPool *   _gpuQueryPool{nullptr};
-    std::vector<uint32_t> _ids;
+    ccstd::vector<uint32_t> _ids;
 };
 
 } // namespace gfx

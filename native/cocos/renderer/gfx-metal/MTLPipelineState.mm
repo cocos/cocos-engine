@@ -212,10 +212,10 @@ bool CCMTLPipelineState::createMTLRenderPipelineState() {
 //TODO: reconstruction
 void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descriptor) {
     auto                                                                                                  activeAttributes = static_cast<CCMTLShader *>(_shader)->getAttributes();
-    vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>>                               layouts;
+    ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>>                               layouts;
     unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
-    vector<uint>                                                                                          streamOffsets(CCMTLDevice::getInstance()->getCapabilities().maxVertexAttributes, 0u);
-    vector<bool>                                                                                          activeAttribIdx(activeAttributes.size(), false);
+    ccstd::vector<uint>                                                                                     streamOffsets(CCMTLDevice::getInstance()->getCapabilities().maxVertexAttributes, 0u);
+    ccstd::vector<bool>                                                                                          activeAttribIdx(activeAttributes.size(), false);
     for (const auto &inputAttrib : _inputState.attributes) {
         auto bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, inputAttrib.stream);
 
@@ -266,8 +266,8 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
     const ColorAttachmentList &colorAttachments = _renderPass->getColorAttachments();
     const auto &               ccShader         = static_cast<CCMTLShader *>(_shader);
 
-    std::vector<uint32_t> bindingIndices;
-    std::vector<int>      bindingOffsets;
+    ccstd::vector<uint32_t> bindingIndices;
+    ccstd::vector<int>      bindingOffsets;
 
     const CCMTLGPUShader *gpuShader = ccShader->gpuShader();
     uint32_t              outputNum = static_cast<uint32_t>(gpuShader->outputs.size());

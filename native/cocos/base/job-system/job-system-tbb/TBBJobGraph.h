@@ -26,6 +26,7 @@
 #pragma once
 
 #include <tbb/flow_graph.h>
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -69,7 +70,7 @@ private:
         uint predecessor = 0u;
         uint successor   = 0u;
     };
-    vector<TBBParallelJob> _parallelJobs;
+    ccstd::vector<TBBParallelJob> _parallelJobs;
 
     bool _pending = false;
 };

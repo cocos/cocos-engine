@@ -26,7 +26,6 @@
 #pragma once
 
 #include <tuple>
-#include <vector>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "core/TypedArray.h"
@@ -58,8 +57,8 @@ class Pass;
 struct IMacroPatch;
 struct InstancedAttributeBlock {
     Uint8Array                  buffer;
-    std::vector<TypedArray>     views;
-    std::vector<gfx::Attribute> attributes;
+    ccstd::vector<TypedArray>     views;
+    ccstd::vector<gfx::Attribute> attributes;
 };
 
 class Model : public RefCounted {
@@ -91,8 +90,8 @@ public:
     void                              onMacroPatchesStateChanged();
     void                              onGeometryChanged();
     void                              updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
-    virtual std::vector<IMacroPatch> &getMacroPatches(index_t subModelIndex);
-    virtual void                      updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, Pass *pass);
+    virtual ccstd::vector<IMacroPatch> &getMacroPatches(index_t subModelIndex);
+    virtual void                      updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass);
 
     virtual void updateTransform(uint32_t stamp);
     virtual void updateUBOs(uint32_t stamp);
@@ -138,7 +137,7 @@ public:
     inline bool                                       isEnabled() const { return _enabled; }
     inline bool                                       isInstancingEnabled() const { return _instMatWorldIdx >= 0; };
     inline int32_t                                    getInstMatWorldIdx() const { return _instMatWorldIdx; }
-    inline const std::vector<gfx::Attribute> &        getInstanceAttributes() const { return _instanceAttributeBlock.attributes; }
+    inline const ccstd::vector<gfx::Attribute> &        getInstanceAttributes() const { return _instanceAttributeBlock.attributes; }
     inline InstancedAttributeBlock *                  getInstancedAttributeBlock() { return &_instanceAttributeBlock; }
     inline const uint8_t *                            getInstancedBuffer() const { return _instanceAttributeBlock.buffer.buffer()->getData(); }
     inline uint32_t                                   getInstancedBufferSize() const { return _instanceAttributeBlock.buffer.length(); }
@@ -148,7 +147,7 @@ public:
     inline geometry::AABB *                           getModelBounds() const { return _modelBounds; }
     inline Node *                                     getNode() const { return _node.get(); }
     inline bool                                       isReceiveShadow() const { return _receiveShadow; }
-    inline const std::vector<IntrusivePtr<SubModel>> &getSubModels() const { return _subModels; }
+    inline const ccstd::vector<IntrusivePtr<SubModel>> &getSubModels() const { return _subModels; }
     inline Node *                                     getTransform() const { return _transform.get(); }
     inline bool                                       isLocalDataUpdated() const { return _localDataUpdated; }
     inline uint32_t                                   getUpdateStamp() const { return _updateStamp; }
@@ -214,12 +213,12 @@ protected:
     IntrusivePtr<gfx::Buffer>           _localBuffer;
     IntrusivePtr<gfx::Buffer>           _worldBoundBuffer;
     InstancedAttributeBlock             _instanceAttributeBlock{};
-    std::vector<IntrusivePtr<SubModel>> _subModels;
+    ccstd::vector<IntrusivePtr<SubModel>> _subModels;
 
     IntrusivePtr<Texture2D> _lightmap;
     Vec4                    _lightmapUVParam;
 
-    std::vector<IMacroPatch> _macroPatches;
+    ccstd::vector<IMacroPatch> _macroPatches;
 
     // For JS
     CallbacksInvoker _eventProcessor;

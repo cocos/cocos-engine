@@ -43,7 +43,7 @@ public:
     //bindgroup not ready yet so delay creation
     void prepare(const std::set<uint8_t> &setInUse);
 
-    // const std::vector<void*> & layouts()const{return _bgLayouts;}
+    // const ccstd::vector<void*> & layouts()const{return _bgLayouts;}
 
 protected:
     void doInit(const PipelineLayoutInfo &info) override;
@@ -51,7 +51,7 @@ protected:
 
     CCWGPUPipelineLayoutObject *_gpuPipelineLayoutObj = nullptr;
 
-    // std::vector<void*> _bgLayouts;
+    // ccstd::vector<void*> _bgLayouts;
 };
 
 } // namespace gfx

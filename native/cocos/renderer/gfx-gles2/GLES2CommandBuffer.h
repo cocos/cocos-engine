@@ -83,8 +83,8 @@ protected:
 
     uint32_t                        _curSubpassIdx       = 0U;
     GLES2GPUPipelineState *         _curGPUPipelineState = nullptr;
-    vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
-    vector<vector<uint32_t>>        _curDynamicOffsets;
+    ccstd::vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
+    ccstd::vector<ccstd::vector<uint32_t>>        _curDynamicOffsets;
     GLES2GPUInputAssembler *        _curGPUInputAssember = nullptr;
     DynamicStates                   _curDynamicStates;
 

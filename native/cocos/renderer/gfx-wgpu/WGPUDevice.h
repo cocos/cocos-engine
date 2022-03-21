@@ -117,8 +117,8 @@ public:
 
     void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const BufferTextureCopyList &regions) {
         uint32_t                          len = v["length"].as<unsigned>();
-        std::vector<std::vector<uint8_t>> lifeProlonger(len);
-        std::vector<const uint8_t *>      buffers;
+        ccstd::vector<ccstd::vector<uint8_t>> lifeProlonger(len);
+        ccstd::vector<const uint8_t *>      buffers;
         for (size_t i = 0; i < len; i++) {
             lifeProlonger[i] = EMSArraysToU8Vec(v, i);
             buffers.push_back(lifeProlonger[i].data());
@@ -157,7 +157,7 @@ protected:
     void getQueryPoolResults(QueryPool *queryPool) override;
 
     CCWGPUDeviceObject *           _gpuDeviceObj = nullptr;
-    std::vector<CCWGPUSwapchain *> _swapchains;
+    ccstd::vector<CCWGPUSwapchain *> _swapchains;
 };
 
 } // namespace gfx

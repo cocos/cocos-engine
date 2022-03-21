@@ -57,7 +57,7 @@ public:
     EGLint         eglMinorVersion{0};
     EGLDisplay     eglDisplay{EGL_NO_DISPLAY};
     EGLConfig      eglConfig{nullptr};
-    vector<EGLint> eglAttributes;
+    ccstd::vector<EGLint> eglAttributes;
 
     EGLSurface eglDefaultSurface{EGL_NO_SURFACE};
     EGLContext eglDefaultContext{EGL_NO_CONTEXT};
@@ -102,7 +102,7 @@ struct GLES2GPUBuffer {
     uint8_t *    buffer   = nullptr;
     DrawInfoList indirects;
 };
-using GLES2GPUBufferList = vector<GLES2GPUBuffer *>;
+using GLES2GPUBufferList = ccstd::vector<GLES2GPUBuffer *>;
 
 struct GLES2GPUBufferView {
     GLES2GPUBuffer *gpuBuffer = nullptr;
@@ -139,7 +139,7 @@ struct GLES2GPUTexture {
     GLES2GPUSwapchain *swapchain{nullptr};
 };
 
-using GLES2GPUTextureList = vector<GLES2GPUTexture *>;
+using GLES2GPUTextureList = ccstd::vector<GLES2GPUTexture *>;
 
 struct GLES2GPUSwapchain {
     EGLSurface       eglSurface{EGL_NO_SURFACE};
@@ -172,7 +172,7 @@ struct GLES2GPUInput {
     GLenum   glType = 0;
     GLint    glLoc  = -1;
 };
-using GLES2GPUInputList = vector<GLES2GPUInput>;
+using GLES2GPUInputList = ccstd::vector<GLES2GPUInput>;
 
 struct GLES2GPUUniform {
     uint32_t        binding = INVALID_BINDING;
@@ -184,9 +184,9 @@ struct GLES2GPUUniform {
     uint32_t        offset = 0;
     GLenum          glType = 0;
     GLint           glLoc  = -1;
-    vector<uint8_t> buff;
+    ccstd::vector<uint8_t> buff;
 };
-using GLES2GPUUniformList = vector<GLES2GPUUniform>;
+using GLES2GPUUniformList = ccstd::vector<GLES2GPUUniform>;
 
 struct GLES2GPUUniformBlock {
     uint32_t            set     = 0;
@@ -196,9 +196,9 @@ struct GLES2GPUUniformBlock {
     uint32_t            size = 0;
     GLES2GPUUniformList glUniforms;
     GLES2GPUUniformList glActiveUniforms;
-    vector<uint32_t>    activeUniformIndices;
+    ccstd::vector<uint32_t>    activeUniformIndices;
 };
-using GLES2GPUUniformBlockList = vector<GLES2GPUUniformBlock>;
+using GLES2GPUUniformBlockList = ccstd::vector<GLES2GPUUniformBlock>;
 
 struct GLES2GPUUniformSamplerTexture {
     uint32_t set     = 0;
@@ -207,18 +207,18 @@ struct GLES2GPUUniformSamplerTexture {
     Type     type  = Type::UNKNOWN;
     uint32_t count = 0U;
 
-    vector<GLint> units;
+    ccstd::vector<GLint> units;
     GLenum        glType = 0;
     GLint         glLoc  = -1;
 };
-using GLES2GPUUniformSamplerTextureList = vector<GLES2GPUUniformSamplerTexture>;
+using GLES2GPUUniformSamplerTextureList = ccstd::vector<GLES2GPUUniformSamplerTexture>;
 
 struct GLES2GPUShaderStage {
     ShaderStageFlagBit type = ShaderStageFlagBit::NONE;
     String             source;
     GLuint             glShader = 0;
 };
-using GLES2GPUShaderStageList = vector<GLES2GPUShaderStage>;
+using GLES2GPUShaderStageList = ccstd::vector<GLES2GPUShaderStage>;
 
 struct GLES2GPUShader {
     String                            name;
@@ -244,7 +244,7 @@ struct GLES2GPUAttribute {
     bool     isInstanced    = false;
     uint32_t offset         = 0;
 };
-using GLES2GPUAttributeList = vector<GLES2GPUAttribute>;
+using GLES2GPUAttributeList = ccstd::vector<GLES2GPUAttribute>;
 
 struct GLES2GPUInputAssembler {
     AttributeList                 attributes;
@@ -266,7 +266,7 @@ struct GLES2GPURenderPass {
     DepthStencilAttachment depthStencilAttachment;
     SubpassInfoList        subpasses;
 
-    vector<AttachmentStatistics> statistics; // per attachment
+    ccstd::vector<AttachmentStatistics> statistics; // per attachment
 };
 
 class GLES2GPUFramebufferCacheMap;
@@ -314,9 +314,9 @@ public:
     };
 
     // one per subpass, if not using FBF
-    vector<Framebuffer> instances;
+    ccstd::vector<Framebuffer> instances;
 
-    vector<uint32_t> uberColorAttachmentIndices;
+    ccstd::vector<uint32_t> uberColorAttachmentIndices;
     uint32_t         uberDepthStencil{INVALID_BINDING};
     Framebuffer      uberInstance;
 
@@ -328,21 +328,21 @@ public:
 
 struct GLES2GPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
-    vector<uint32_t>               dynamicBindings;
+    ccstd::vector<uint32_t>               dynamicBindings;
 
-    vector<uint32_t> bindingIndices;
-    vector<uint32_t> descriptorIndices;
+    ccstd::vector<uint32_t> bindingIndices;
+    ccstd::vector<uint32_t> descriptorIndices;
     uint32_t         descriptorCount = 0U;
 };
-using GLES2GPUDescriptorSetLayoutList = vector<GLES2GPUDescriptorSetLayout *>;
+using GLES2GPUDescriptorSetLayoutList = ccstd::vector<GLES2GPUDescriptorSetLayout *>;
 
 struct GLES2GPUPipelineLayout {
     GLES2GPUDescriptorSetLayoutList setLayouts;
 
     // helper storages
-    vector<vector<int>> dynamicOffsetIndices;
-    vector<uint32_t>    dynamicOffsetOffsets;
-    vector<uint32_t>    dynamicOffsets;
+    ccstd::vector<ccstd::vector<int>> dynamicOffsetIndices;
+    ccstd::vector<uint32_t>    dynamicOffsetOffsets;
+    ccstd::vector<uint32_t>    dynamicOffsets;
     uint32_t            dynamicOffsetCount = 0U;
 };
 
@@ -365,11 +365,11 @@ struct GLES2GPUDescriptor {
     GLES2GPUTexture *   gpuTexture    = nullptr;
     GLES2GPUSampler *   gpuSampler    = nullptr;
 };
-using GLES2GPUDescriptorList = vector<GLES2GPUDescriptor>;
+using GLES2GPUDescriptorList = ccstd::vector<GLES2GPUDescriptor>;
 
 struct GLES2GPUDescriptorSet {
     GLES2GPUDescriptorList  gpuDescriptors;
-    const vector<uint32_t> *descriptorIndices = nullptr;
+    const ccstd::vector<uint32_t> *descriptorIndices = nullptr;
 };
 
 class GLES2GPUFence final {
@@ -396,10 +396,10 @@ public:
     GLuint                          glUniformBuffer      = 0;
     GLuint                          glVAO                = 0;
     uint32_t                        texUint              = 0;
-    vector<GLuint>                  glTextures;
+    ccstd::vector<GLuint>                  glTextures;
     GLuint                          glProgram = 0;
-    vector<bool>                    glEnabledAttribLocs;
-    vector<bool>                    glCurrentAttribLocs;
+    ccstd::vector<bool>                    glEnabledAttribLocs;
+    ccstd::vector<bool>                    glCurrentAttribLocs;
     GLuint                          glFramebuffer  = 0;
     GLuint                          glRenderbuffer = 0;
     GLuint                          glReadFBO      = 0;
@@ -588,7 +588,7 @@ public:
     void update(GLES2GPUTexture *texture);
 
 private:
-    unordered_map<GLES2GPUTexture *, vector<GLES2GPUFramebuffer *>> _framebuffers;
+    unordered_map<GLES2GPUTexture *, ccstd::vector<GLES2GPUFramebuffer *>> _framebuffers;
 };
 
 } // namespace gfx

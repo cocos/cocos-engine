@@ -81,7 +81,7 @@ void AABB::merge(const cc::Vec3 &point) {
     setHalfExtents(maxPos.x - center.x, maxPos.y - center.y, maxPos.z - center.z);
 }
 
-void AABB::merge(const std::vector<cc::Vec3> &points) {
+void AABB::merge(const ccstd::vector<cc::Vec3> &points) {
     for (const auto &p : points) {
         merge(p);
     }

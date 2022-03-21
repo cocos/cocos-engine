@@ -31,7 +31,6 @@
 
 #include <algorithm>
 #include <climits>
-#include <vector>
 #include "base/Log.h"
 #include "base/Macros.h"
 

@@ -30,7 +30,6 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
-    #include <vector>
     #include "Base.h"
 
 namespace se {

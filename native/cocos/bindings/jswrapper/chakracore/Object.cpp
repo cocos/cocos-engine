@@ -312,7 +312,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
 
     JsValueRef *jsArgs = (JsValueRef *)malloc(sizeof(JsValueRef) * (args.size() + 1)); // Requires thisArg as first argument of arguments.
 
-    std::vector<Object *> toUnrootedObjects;
+    ccstd::vector<Object *> toUnrootedObjects;
 
     for (auto &arg : args) {
         if (arg.isObject()) {
@@ -444,7 +444,7 @@ bool Object::setArrayElement(uint32_t index, const Value &data) {
     return true;
 }
 
-bool Object::getAllKeys(std::vector<std::string> *allKeys) const {
+bool Object::getAllKeys(ccstd::vector<std::string> *allKeys) const {
     assert(allKeys != nullptr);
 
     JsErrorCode err  = JsNoError;

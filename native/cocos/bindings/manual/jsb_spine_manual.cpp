@@ -128,7 +128,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     }
 
     if (skeletonData) {
-        std::vector<int> texturesIndex;
+        ccstd::vector<int> texturesIndex;
         for (auto it = textures.begin(); it != textures.end(); it++) {
             texturesIndex.push_back(it->second->getRealTextureIndex());
         }

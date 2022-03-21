@@ -61,7 +61,7 @@ public:
 
     bool activate(gfx::Swapchain * swapchain) override;
     bool destroy() noexcept override;
-    void render(const std::vector<scene::Camera*>& cameras) override;
+    void render(const ccstd::vector<scene::Camera*>& cameras) override;
 
     const MacroRecord           &getMacros() const override;
     pipeline::GlobalDSManager   *getGlobalDSManager() const override;

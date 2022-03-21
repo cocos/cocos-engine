@@ -28,7 +28,6 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 #include "cocos/base/Optional.h"
 
 #include <cstdint>

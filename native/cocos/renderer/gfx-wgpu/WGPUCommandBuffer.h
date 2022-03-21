@@ -78,7 +78,7 @@ public:
     void updateIndirectBuffer(Buffer *buffer, const DrawInfoList &list);
 
     void updateBuffer(Buffer *buff, const emscripten::val &v, uint size) {
-        std::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
+        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
         updateBuffer(buff, reinterpret_cast<const void *>(buffer.data()), size);
     }
 

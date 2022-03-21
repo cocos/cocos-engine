@@ -24,7 +24,6 @@
 ****************************************************************************/
 #pragma once
 
-#include <vector>
 #include "cocos/base/Optional.h"
 #include "core/TypedArray.h"
 #include "math/Vec3.h"
@@ -59,7 +58,7 @@ struct IGeometryOptions {
 
 struct CustomAttribute {
     gfx::Attribute     attr;
-    std::vector<float> values;
+    ccstd::vector<float> values;
 };
 
 /**
@@ -75,7 +74,7 @@ struct IGeometry {
      * @zh
      * 顶点位置。
      */
-    std::vector<float> positions;
+    ccstd::vector<float> positions;
 
     /**
      * @en
@@ -83,7 +82,7 @@ struct IGeometry {
      * @zh
      * 顶点法线。
      */
-    cc::optional<std::vector<float>> normals;
+    cc::optional<ccstd::vector<float>> normals;
 
     /**
      * @en
@@ -91,7 +90,7 @@ struct IGeometry {
      * @zh
      * 纹理坐标。
      */
-    cc::optional<std::vector<float>> uvs;
+    cc::optional<ccstd::vector<float>> uvs;
 
     /**
      * @en
@@ -99,7 +98,7 @@ struct IGeometry {
      * @zh
      * 顶点切线。
      */
-    cc::optional<std::vector<float>> tangents;
+    cc::optional<ccstd::vector<float>> tangents;
 
     /**
      * @en
@@ -107,7 +106,7 @@ struct IGeometry {
      * @zh
      * 顶点颜色。
      */
-    cc::optional<std::vector<float>> colors;
+    cc::optional<ccstd::vector<float>> colors;
 
     /**
      * @en
@@ -123,7 +122,7 @@ struct IGeometry {
      * @zh
      * 定制属性列表。
      */
-    cc::optional<std::vector<CustomAttribute>> customAttributes;
+    cc::optional<ccstd::vector<CustomAttribute>> customAttributes;
 
     /**
      * @en
@@ -155,7 +154,7 @@ struct IGeometry {
      * @zh
      * 几何索引，当使用索引绘制时。
      */
-    cc::optional<std::vector<uint32_t>> indices; //cjh uint16_t ?
+    cc::optional<ccstd::vector<uint32_t>> indices; //cjh uint16_t ?
 
     /**
      * @en
@@ -232,7 +231,7 @@ struct IDynamicGeometry {
      * @zh
      * 定制属性列表。
      */
-    cc::optional<std::vector<DynamicCustomAttribute>> customAttributes;
+    cc::optional<ccstd::vector<DynamicCustomAttribute>> customAttributes;
 
     /**
      * @en

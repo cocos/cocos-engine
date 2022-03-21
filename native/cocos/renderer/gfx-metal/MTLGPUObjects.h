@@ -57,16 +57,16 @@ constexpr size_t MAX_COLORATTACHMENTS = 16u;
 
 struct CCMTLGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
-    vector<uint>                   dynamicBindings;
-    vector<uint>                   descriptorIndices;
-    vector<uint>                   bindingIndices;
+    ccstd::vector<uint>                   dynamicBindings;
+    ccstd::vector<uint>                   descriptorIndices;
+    ccstd::vector<uint>                   bindingIndices;
     uint                           descriptorCount = 0;
 };
-typedef vector<CCMTLGPUDescriptorSetLayout *> MTLGPUDescriptorSetLayoutList;
+typedef ccstd::vector<CCMTLGPUDescriptorSetLayout *> MTLGPUDescriptorSetLayoutList;
 
 struct CCMTLGPUPipelineLayout {
     MTLGPUDescriptorSetLayoutList setLayouts;
-    vector<vector<int>>           dynamicOffsetIndices;
+    ccstd::vector<ccstd::vector<int>>           dynamicOffsetIndices;
 };
 
 struct CCMTLGPUUniformBlock {
@@ -100,8 +100,8 @@ struct CCMTLGPUShader {
     unordered_map<uint, CCMTLGPUUniformBlock> blocks;
     unordered_map<uint, CCMTLGPUSamplerBlock> samplers;
 
-    vector<CCMTLGPUSubpassAttachment> inputs;
-    vector<CCMTLGPUSubpassAttachment> outputs;
+    ccstd::vector<CCMTLGPUSubpassAttachment> inputs;
+    ccstd::vector<CCMTLGPUSubpassAttachment> outputs;
 
     NSString *shaderSrc       = nil;
     bool      specializeColor = true;
@@ -121,7 +121,7 @@ struct CCMTLGPUPipelineState {
     id<MTLComputePipelineState>                                             mtlComputePipelineState = nil;
     uint                                                                    stencilRefFront         = 0;
     uint                                                                    stencilRefBack          = 0;
-    vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> vertexBufferBindingInfo;
+    ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> vertexBufferBindingInfo;
     const CCMTLGPUPipelineLayout *                                          gpuPipelineLayout = nullptr;
     const CCMTLGPUShader *                                                  gpuShader         = nullptr;
 };
@@ -148,7 +148,7 @@ struct CCMTLGPUTextureViewObject {
 struct CCMTLGPUInputAssembler {
     id<MTLBuffer>         mtlIndexBuffer    = nil;
     id<MTLBuffer>         mtlIndirectBuffer = nil;
-    vector<id<MTLBuffer>> mtlVertexBufers;
+    ccstd::vector<id<MTLBuffer>> mtlVertexBufers;
 };
 
 struct CCMTLGPUDescriptor {
@@ -157,11 +157,11 @@ struct CCMTLGPUDescriptor {
     CCMTLTexture * texture = nullptr;
     CCMTLSampler * sampler = nullptr;
 };
-typedef vector<CCMTLGPUDescriptor> MTLGPUDescriptorList;
+typedef ccstd::vector<CCMTLGPUDescriptor> MTLGPUDescriptorList;
 
 struct CCMTLGPUDescriptorSet {
     MTLGPUDescriptorList gpuDescriptors;
-    const vector<uint> * descriptorIndices = nullptr;
+    const ccstd::vector<uint> * descriptorIndices = nullptr;
 };
 
 class CCMTLGPUStagingBufferPool final {
@@ -262,7 +262,7 @@ public:
 protected:
     struct Buffer {
         id<MTLBuffer>         mtlBuffer = nil;
-        vector<id<MTLBuffer>> dynamicDataBuffers{MAX_FRAMES_IN_FLIGHT};
+        ccstd::vector<id<MTLBuffer>> dynamicDataBuffers{MAX_FRAMES_IN_FLIGHT};
         uint8_t *             mappedData = nullptr;
         uint                  curOffset  = 0;
     };
@@ -270,7 +270,7 @@ protected:
     bool           _tripleEnabled = false;
     uint           _inflightIndex = 0;
     id<MTLDevice>  _device        = nil;
-    vector<Buffer> _pool;
+    ccstd::vector<Buffer> _pool;
 };
 
 struct CCMTLGPUBufferImageCopy {

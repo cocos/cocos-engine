@@ -31,7 +31,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
-#include <vector>
+#include "base/std/container/vector.h"
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "math/Vec3.h"
@@ -70,7 +70,7 @@ using JniMethodInfo = struct JniMethodInfo_ { //NOLINT(readability-identifier-na
 
 class CC_DLL JniHelper {
 public:
-    using LocalRefMapType = std::unordered_map<JNIEnv *, std::vector<jobject>>;
+    using LocalRefMapType = std::unordered_map<JNIEnv *, ccstd::vector<jobject>>;
 
     static JavaVM *getJavaVM();
     static JNIEnv *getEnv();

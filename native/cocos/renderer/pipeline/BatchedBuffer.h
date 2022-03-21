@@ -39,7 +39,7 @@ namespace pipeline {
 
 struct CC_DLL BatchedItem {
     gfx::BufferList                           vbs;
-    vector<uint8_t *>                         vbDatas;
+    ccstd::vector<uint8_t *>                         vbDatas;
     gfx::Buffer *                             indexBuffer = nullptr;
     float *                                   indexData   = nullptr;
     uint                                      vbCount     = 0;
@@ -51,8 +51,8 @@ struct CC_DLL BatchedItem {
     const scene::Pass *                       pass          = nullptr;
     gfx::Shader *                             shader        = nullptr;
 };
-using BatchedItemList   = vector<BatchedItem>;
-using DynamicOffsetList = vector<uint>;
+using BatchedItemList   = ccstd::vector<BatchedItem>;
+using DynamicOffsetList = ccstd::vector<uint>;
 
 class CC_DLL BatchedBuffer : public RefCounted {
 public:

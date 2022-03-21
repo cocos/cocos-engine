@@ -33,7 +33,6 @@
 #include <tuple>
 #include <type_traits>
 #include <typeinfo>
-#include <vector>
 #include "../ValueArrayPool.h"
 #include "../config.h"
 #include "base/Log.h"

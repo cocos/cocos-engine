@@ -109,7 +109,7 @@ bool NativePipeline::destroy() noexcept {
 }
 
 // NOLINTNEXTLINE
-void NativePipeline::render(const std::vector<scene::Camera *> &cameras) {
+void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
 }
 
 const MacroRecord &NativePipeline::getMacros() const {

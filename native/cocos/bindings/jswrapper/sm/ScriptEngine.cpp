@@ -519,7 +519,7 @@ void ScriptEngine::addPermanentRegisterCallback(RegisterCallback cb) {
 
 static std::string              inData;
 static std::string              outData;
-static std::vector<std::string> g_queue;
+static ccstd::vector<std::string> g_queue;
 static std::mutex               g_qMutex;
 static std::mutex               g_rwMutex;
 static int                      clientSocket      = -1;

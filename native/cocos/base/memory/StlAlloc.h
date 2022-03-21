@@ -37,8 +37,8 @@ THE SOFTWARE.
 
 namespace cc {
 
-template <typename T>
-using vector = std::vector<T>;
+//template <typename T>
+//using vector = std::vector<T>;
 
 template <typename T>
 using list = std::list<T>;
@@ -46,7 +46,7 @@ using list = std::list<T>;
 template <typename T>
 using queue = std::queue<T>;
 
-template <typename T, typename C = typename vector<T>::type, typename P = std::less<typename C::value_type>>
+template <typename T, typename C = typename std::vector<T>::type, typename P = std::less<typename C::value_type>>
 using priority_queue = std::priority_queue<T, C, P>;
 
 template <typename T>
@@ -78,6 +78,6 @@ using unordered_multimap = std::unordered_multimap<K, V, H, P>;
 
 using String = std::string;
 using WString = std::wstring;
-using StringArray = vector<String>;
+using StringArray = std::vector<String>;
 
 } // namespace cc

@@ -125,7 +125,7 @@ protected:
     GLES3GPUConstantRegistry *   _gpuConstantRegistry{nullptr};
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
 
-    vector<GLES3GPUSwapchain *> _swapchains;
+    ccstd::vector<GLES3GPUSwapchain *> _swapchains;
 
     GLESBindingMapping _bindingMappings;
 

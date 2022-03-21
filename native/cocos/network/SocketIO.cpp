@@ -73,7 +73,7 @@ public:
     const std::string &getEvent() const { return _name; };
 
     void                     addData(const std::string &data);
-    std::vector<std::string> getData() const { return _args; };
+    ccstd::vector<std::string> getData() const { return _args; };
     virtual std::string      stringify() const;
 
     static SocketIOPacket *createPacketWithType(const std::string &type, SocketIOVersion version);
@@ -83,12 +83,12 @@ protected:
     std::string              _pId;               //id message
     std::string              _ack;               //
     std::string              _name;              //event name
-    std::vector<std::string> _args;              //we will be using a vector of strings to store multiple data
+    ccstd::vector<std::string> _args;              //we will be using a vector of strings to store multiple data
     std::string              _endpoint;          //
     std::string              _endpointseparator; //socket.io 1.x requires a ',' between endpoint and payload
     std::string              _type;              //message type
     std::string              _separator;         //for stringify the object
-    std::vector<std::string> _types;             //types of messages
+    ccstd::vector<std::string> _types;             //types of messages
 };
 
 class SocketIOPacketV10x : public SocketIOPacket {
@@ -99,7 +99,7 @@ public:
     std::string stringify() const override;
 
 private:
-    std::vector<std::string> _typesMessage;
+    ccstd::vector<std::string> _typesMessage;
 };
 
 SocketIOPacket::SocketIOPacket() : _separator(":") {
@@ -226,7 +226,7 @@ SocketIOPacketV10x::SocketIOPacketV10x() {
 }
 
 int SocketIOPacketV10x::typeAsNumber() const {
-    std::vector<std::string>::size_type num  = 0;
+    ccstd::vector<std::string>::size_type num  = 0;
     auto                                item = std::find(_typesMessage.begin(), _typesMessage.end(), _type);
     if (item != _typesMessage.end()) { //it's a message
         num = item - _typesMessage.begin();
@@ -412,7 +412,7 @@ void SIOClientImpl::handshakeResponse(HttpClient * /*sender*/, HttpResponse *res
 
     CC_LOG_INFO("SIOClientImpl::handshake() succeeded");
 
-    std::vector<char> *buffer = response->getResponseData();
+    ccstd::vector<char> *buffer = response->getResponseData();
     std::stringstream  s;
     s.str("");
 

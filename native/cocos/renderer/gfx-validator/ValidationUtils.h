@@ -44,7 +44,7 @@ struct RenderPassSnapshot {
     RenderPass *  renderPass  = nullptr;
     Framebuffer * framebuffer = nullptr;
     Rect          renderArea;
-    vector<Color> clearColors;
+    ccstd::vector<Color> clearColors;
     float         clearDepth   = 1.F;
     uint32_t      clearStencil = 0U;
 };
@@ -52,8 +52,8 @@ struct RenderPassSnapshot {
 struct DrawcallSnapshot {
     PipelineState *          pipelineState;
     InputAssembler *         inputAssembler;
-    vector<DescriptorSet *>  descriptorSets;
-    vector<vector<uint32_t>> dynamicOffsets;
+    ccstd::vector<DescriptorSet *>  descriptorSets;
+    ccstd::vector<ccstd::vector<uint32_t>> dynamicOffsets;
 };
 
 struct CommandBufferStorage : public DynamicStates, RenderPassSnapshot, DrawcallSnapshot {};
@@ -65,8 +65,8 @@ public:
     void recordEndRenderPass();
     void clear();
 
-    static vector<uint32_t> serialize(const CommandRecorder &recorder);
-    static CommandRecorder  deserialize(const vector<uint32_t> &bytes);
+    static ccstd::vector<uint32_t> serialize(const CommandRecorder &recorder);
+    static CommandRecorder  deserialize(const ccstd::vector<uint32_t> &bytes);
     static bool             compare(const CommandRecorder &test, const CommandRecorder &baseline);
 
 private:
@@ -81,7 +81,7 @@ private:
         DepthStencilAttachment depthStencilAttachment;
 
         Rect          renderArea;
-        vector<Color> clearColors;
+        ccstd::vector<Color> clearColors;
         float         clearDepth   = 1.F;
         uint32_t      clearStencil = 0U;
     };
@@ -97,17 +97,17 @@ private:
 
         DrawInfo drawInfo;
 
-        vector<DescriptorSet *> descriptorSets;
-        vector<uint32_t>        dynamicOffsets;
+        ccstd::vector<DescriptorSet *> descriptorSets;
+        ccstd::vector<uint32_t>        dynamicOffsets;
     };
 
-    vector<CommandType>       _commands;
-    vector<RenderPassCommand> _renderPassCommands;
-    vector<DrawcallCommand>   _drawcallCommands;
+    ccstd::vector<CommandType>       _commands;
+    ccstd::vector<RenderPassCommand> _renderPassCommands;
+    ccstd::vector<DrawcallCommand>   _drawcallCommands;
 
     struct BufferData {
         BufferInfo      info;
-        vector<uint8_t> data;
+        ccstd::vector<uint8_t> data;
     };
     unordered_map<uint32_t, BufferData> _bufferMap;
 };
@@ -135,11 +135,11 @@ private:
         String    initStack;
     };
 
-    static vector<ResourceRecord> resources;
+    static ccstd::vector<ResourceRecord> resources;
 };
 
 template <typename Resource, typename Enable>
-vector<typename DeviceResourceTracker<Resource, Enable>::ResourceRecord> DeviceResourceTracker<Resource, Enable>::resources;
+ccstd::vector<typename DeviceResourceTracker<Resource, Enable>::ResourceRecord> DeviceResourceTracker<Resource, Enable>::resources;
 
 template <typename Resource, typename Enable>
 template <typename T, typename EnableFn>

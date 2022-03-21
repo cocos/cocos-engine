@@ -50,7 +50,7 @@ const uint32_t                   Node::DESTROYING{static_cast<uint>(CCObject::Fl
 const uint32_t                   Node::DEACTIVATING{static_cast<uint>(CCObject::Flags::DEACTIVATING)};
 const uint32_t                   Node::DONT_DESTROY{static_cast<uint>(CCObject::Flags::DONT_DESTROY)};
 index_t                          Node::stackId{0};
-std::vector<std::vector<Node *>> Node::stacks;
+ccstd::vector<ccstd::vector<Node *>> Node::stacks;
 //
 
 namespace {
@@ -58,7 +58,7 @@ CachedArray<Node *> allNodes{128}; //cjh how to clear ?
 const std::string   EMPTY_NODE_NAME;
 IDGenerator         idGenerator("Node");
 
-std::vector<Node *>  dirtyNodes;
+ccstd::vector<Node *>  dirtyNodes;
 CC_FORCE_INLINE void setDirtyNode(const index_t idx, Node *node) {
     if (idx >= dirtyNodes.size()) {
         if (idx >= dirtyNodes.capacity()) {
@@ -293,7 +293,7 @@ void Node::walk(const std::function<void(Node *)> &preFunc) {
 void Node::walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc) {
     index_t                                index{1};
     index_t                                i{0};
-    const std::vector<IntrusivePtr<Node>> *children = nullptr;
+    const ccstd::vector<IntrusivePtr<Node>> *children = nullptr;
     Node *                                 curr{nullptr};
     auto                                   stacksCount = static_cast<index_t>(Node::stacks.size());
     if (stackId >= stacksCount) {
@@ -453,7 +453,7 @@ void Node::updateScene() {
     emit(EventTypesToJS::NODE_SCENE_UPDATED, _scene);
 }
 
-index_t Node::getIdxOfChild(const std::vector<IntrusivePtr<Node>> &child, Node *target) {
+index_t Node::getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &child, Node *target) {
     auto iteChild = std::find(child.begin(), child.end(), target);
     if (iteChild != child.end()) {
         return static_cast<index_t>(iteChild - child.begin());
@@ -502,7 +502,7 @@ void Node::setSiblingIndex(index_t index) {
         debug::errorID(3821);
         return;
     }
-    std::vector<IntrusivePtr<Node>> &siblings = _parent->_children;
+    ccstd::vector<IntrusivePtr<Node>> &siblings = _parent->_children;
     index                                     = index != -1 ? index : static_cast<index_t>(siblings.size()) - 1;
     index_t oldIdx                            = getIdxOfChild(siblings, this);
     if (index != oldIdx) {
@@ -523,7 +523,7 @@ void Node::setSiblingIndex(index_t index) {
 
 Node *Node::getChildByPath(const std::string &path) const {
     size_t                   end      = 0;
-    std::vector<std::string> segments = StringUtil::split(path, "/");
+    ccstd::vector<std::string> segments = StringUtil::split(path, "/");
     auto *                   lastNode = const_cast<Node *>(this);
     for (const std::string &segment : segments) {
         if (segment.empty()) {
@@ -1027,7 +1027,7 @@ void Node::onHierarchyChanged(Node *oldParent) {
 //    return _children.size();
 //}
 //
-void Node::_setChildren(std::vector<IntrusivePtr<Node>> &&children) {
+void Node::_setChildren(ccstd::vector<IntrusivePtr<Node>> &&children) {
     _children = std::move(children);
 }
 

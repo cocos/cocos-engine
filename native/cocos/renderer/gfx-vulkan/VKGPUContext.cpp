@@ -95,10 +95,10 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
 
 bool CCVKGPUContext::initialize() {
     // only enable the absolute essentials
-    vector<const char *> requestedLayers{
+    ccstd::vector<const char *> requestedLayers{
         //"VK_LAYER_KHRONOS_synchronization2",
     };
-    vector<const char *> requestedExtensions{
+    ccstd::vector<const char *> requestedExtensions{
         VK_KHR_SURFACE_EXTENSION_NAME,
     };
 
@@ -123,12 +123,12 @@ bool CCVKGPUContext::initialize() {
 
     uint32_t availableLayerCount;
     VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr));
-    vector<VkLayerProperties> supportedLayers(availableLayerCount);
+    ccstd::vector<VkLayerProperties> supportedLayers(availableLayerCount);
     VK_CHECK(vkEnumerateInstanceLayerProperties(&availableLayerCount, supportedLayers.data()));
 
     uint32_t availableExtensionCount;
     VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr));
-    vector<VkExtensionProperties> supportedExtensions(availableExtensionCount);
+    ccstd::vector<VkExtensionProperties> supportedExtensions(availableExtensionCount);
     VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, supportedExtensions.data()));
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
@@ -267,10 +267,10 @@ bool CCVKGPUContext::initialize() {
         return false;
     }
 
-    vector<VkPhysicalDevice> physicalDeviceHandles(physicalDeviceCount);
+    ccstd::vector<VkPhysicalDevice> physicalDeviceHandles(physicalDeviceCount);
     VK_CHECK(vkEnumeratePhysicalDevices(vkInstance, &physicalDeviceCount, physicalDeviceHandles.data()));
 
-    vector<VkPhysicalDeviceProperties> physicalDevicePropertiesList(physicalDeviceCount);
+    ccstd::vector<VkPhysicalDeviceProperties> physicalDevicePropertiesList(physicalDeviceCount);
 
     uint32_t deviceIndex;
     for (deviceIndex = 0U; deviceIndex < physicalDeviceCount; ++deviceIndex) {

@@ -230,7 +230,7 @@ void FrameGraph::cull() {
         }
     }
 
-    static std::vector<const ResourceNode *> stack;
+    static ccstd::vector<const ResourceNode *> stack;
     stack.clear();
     stack.reserve(_resourceNodes.size());
 
@@ -439,7 +439,7 @@ void FrameGraph::generateDevicePasses() {
 
     ID passId = 1;
 
-    static std::vector<PassNode *> subpassNodes;
+    static ccstd::vector<PassNode *> subpassNodes;
     subpassNodes.clear();
 
     for (const auto &passNode : _passNodes) {

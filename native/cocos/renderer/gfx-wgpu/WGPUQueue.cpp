@@ -25,7 +25,6 @@
 
 #include "WGPUQueue.h"
 #include <webgpu/webgpu.h>
-#include <vector>
 #include "WGPUCommandBuffer.h"
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
@@ -55,7 +54,7 @@ void CCWGPUQueue::doDestroy() {
 }
 
 void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
-    // std::vector<WGPUCommandBuffer> commandBuffs(count);
+    // ccstd::vector<WGPUCommandBuffer> commandBuffs(count);
     // for (size_t i = 0; i < count; i++) {
     //     auto* commandBuff = static_cast<CCWGPUCommandBuffer*>(cmdBuffs[i]);
     //     commandBuffs[i]   = commandBuff->gpuCommandBufferObject()->wgpuCommandBuffer;

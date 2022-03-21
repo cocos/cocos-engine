@@ -68,7 +68,7 @@ inline void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
 
 extern const scene::Camera *profilerCamera;
 
-void decideProfilerCamera(const vector<scene::Camera *> &cameras);
+void decideProfilerCamera(const ccstd::vector<scene::Camera *> &cameras);
 void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera);
 
 } // namespace pipeline

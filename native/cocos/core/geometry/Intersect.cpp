@@ -3,7 +3,6 @@
 #include <array>
 #include <cmath>
 #include <limits>
-#include <vector>
 #include "3d/assets/Mesh.h"
 #include "base/Macros.h"
 #include "core/TypedArray.h"
@@ -217,7 +216,7 @@ float rayCapsule(const Ray &ray, const Capsule &capsule) {
 }
 
 namespace {
-void fillResult(float *minDis, ERaycastMode m, float d, float i0, float i1, float i2, cc::optional<std::vector<IRaySubMeshResult>> &r) {
+void fillResult(float *minDis, ERaycastMode m, float d, float i0, float i1, float i2, cc::optional<ccstd::vector<IRaySubMeshResult>> &r) {
     if (m == ERaycastMode::CLOSEST) {
         if (*minDis > d || *minDis == 0.0F) {
             *minDis = d;

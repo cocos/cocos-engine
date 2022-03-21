@@ -138,7 +138,7 @@ bool RenderTexture::validate() const {
     return _width >= 1 && _width <= 2048 && _height >= 1 && _height <= 2048;
 }
 
-std::vector<uint8_t> RenderTexture::readPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const {
+ccstd::vector<uint8_t> RenderTexture::readPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const {
     auto *gfxTexture = getGFXTexture();
     if (!gfxTexture) {
         debug::errorID(7606);
@@ -153,7 +153,7 @@ std::vector<uint8_t> RenderTexture::readPixels(uint32_t x, uint32_t y, uint32_t 
     region0.texExtent.width  = width;
     region0.texExtent.height = height;
 
-    std::vector<uint8_t> buffer;
+    ccstd::vector<uint8_t> buffer;
     buffer.resize(width * height * 4);
     uint8_t *pBuffer = buffer.data();
     gfxDevice->copyTextureToBuffers(gfxTexture, &pBuffer, &region0, 1);

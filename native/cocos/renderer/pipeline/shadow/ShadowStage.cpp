@@ -32,8 +32,8 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "math/Vec2.h"
-#include "scene/Camera.h"
 #include "profiler/Profiler.h"
+#include "scene/Camera.h"
 #include "scene/Shadow.h"
 
 namespace cc {

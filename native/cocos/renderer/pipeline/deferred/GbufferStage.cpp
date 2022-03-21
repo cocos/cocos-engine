@@ -38,8 +38,8 @@
 #include "frame-graph/DevicePassResourceTable.h"
 #include "frame-graph/Resource.h"
 #include "gfx-base/GFXDevice.h"
-#include "scene/Camera.h"
 #include "profiler/Profiler.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {

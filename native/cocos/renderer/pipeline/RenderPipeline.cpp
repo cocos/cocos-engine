@@ -100,7 +100,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     return true;
 }
 
-void RenderPipeline::render(const vector<scene::Camera *> &cameras) {
+void RenderPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     for (auto *const flow : _flows) {
         for (auto *camera : cameras) {
             flow->render(camera);
@@ -222,7 +222,7 @@ bool RenderPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer *
     return (*quadIA) != nullptr;
 }
 
-void RenderPipeline::ensureEnoughSize(const vector<scene::Camera *> &cameras) {
+void RenderPipeline::ensureEnoughSize(const ccstd::vector<scene::Camera *> &cameras) {
     for (auto *camera : cameras) {
         _width  = std::max(camera->getWindow()->getWidth(), _width);
         _height = std::max(camera->getWindow()->getHeight(), _height);

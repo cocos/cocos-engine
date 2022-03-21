@@ -130,7 +130,7 @@ void Shadows::destroy() {
     }
 }
 
-gfx::Shader *Shadows::getPlanarShader(const std::vector<IMacroPatch> &patches) {
+gfx::Shader *Shadows::getPlanarShader(const ccstd::vector<IMacroPatch> &patches) {
     if (!_material) {
         createMaterial();
     }
@@ -139,7 +139,7 @@ gfx::Shader *Shadows::getPlanarShader(const std::vector<IMacroPatch> &patches) {
     return passes[0]->getShaderVariant(patches);
 }
 
-gfx::Shader *Shadows::getPlanarInstanceShader(const std::vector<IMacroPatch> &patches) {
+gfx::Shader *Shadows::getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &patches) {
     if (!_instancingMaterial) {
         createInstanceMaterial();
     }

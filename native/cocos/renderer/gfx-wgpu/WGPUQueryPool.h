@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "gfx-base/GFXQueryPool.h"
 
 namespace cc {
@@ -51,7 +50,7 @@ protected:
     void doDestroy() override;
 
     CCWGPUQueryPoolObject *_gpuQueryPool = nullptr;
-    std::vector<uint32_t>  _ids;
+    ccstd::vector<uint32_t>  _ids;
 };
 
 } // namespace gfx

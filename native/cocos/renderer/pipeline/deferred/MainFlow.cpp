@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "MainFlow.h"
+#include "BloomStage.h"
 #include "DeferredPipeline.h"
 #include "GbufferStage.h"
 #include "LightingStage.h"
-#include "BloomStage.h"
 #include "PostProcessStage.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"

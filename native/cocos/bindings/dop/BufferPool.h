@@ -32,6 +32,7 @@
 #include "cocos/base/TypeDef.h"
 #include "cocos/base/memory/StlAlloc.h"
 #include "cocos/bindings/jswrapper/Object.h"
+#include "base/std/container/vector.h"
 
 namespace se {
 
@@ -58,7 +59,7 @@ private:
     static constexpr uint POOL_FLAG = 1 << 30;
 
     BufferAllocator   _allocator;
-    cc::vector<Chunk> _chunks;
+    ccstd::vector<Chunk> _chunks;
     uint              _entryBits       = 1 << 8;
     uint              _chunkMask       = 0;
     uint              _entryMask       = 0;
