@@ -25,13 +25,13 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture } from '../../gfx/index';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, StoreOp, LoadOp, ClearFlagBit } from '../../gfx/index';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, TaskType } from './types';
-import { Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
+import { AccessType, AttachmentType, Blit, ComputePass, ComputeView, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, PresentPass, RasterPass, RasterView, RenderData, RenderGraph, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, RasterPassBuilder, RasterQueueBuilder, SceneTask, SceneTransversal, SceneVisitor, Setter } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, RenderScene, Camera } from '../../renderer/scene';
+import { Model, RenderScene, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { RenderDependencyGraph } from './render-dependency-graph';
@@ -42,7 +42,11 @@ import { assert, macro } from '../../platform';
 import { WebSceneTransversal } from './web-scene';
 import { MacroRecord } from '../../renderer';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
+import { supportsR32FloatTexture } from '../define';
 import { OS } from '../../../../pal/system-info/enum-type';
+import { PipelineUBO } from '../pipeline-ubo';
+import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
+import { Compiler } from './compiler';
 
 export class WebSetter {
     constructor (data: RenderData) {
@@ -327,15 +331,15 @@ export class WebPipeline extends Pipeline {
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
+        const descH = new WebDescriptorHierarchy();
+        //descH.addEffect(new EffectAsset());
+        // this._pipelineUBO.activate(this._device, this);
         return true;
     }
     public destroy (): boolean {
         this._globalDSManager?.destroy();
         this._pipelineSceneData?.destroy();
         return true;
-    }
-    public render (cameras: Camera[]) {
-
     }
     public get macros (): MacroRecord {
         return this._macros;
@@ -440,20 +444,167 @@ export class WebPipeline extends Pipeline {
         this._renderGraph = null;
     }
 
-    build () {
+    compile () {
         if (!this._renderGraph) {
             throw new Error('RenderGraph cannot be built without being created');
         }
-        if (!this._renderDependencyGraph) {
-            this._renderDependencyGraph = new RenderDependencyGraph(this._renderGraph, this._resourceGraph, this._layoutGraph);
+        if (!this._compiler) {
+            this._compiler = new Compiler(this, this._resourceGraph, this._renderGraph, this._layoutGraph);
         }
-        this._renderDependencyGraph.reset();
-        this._renderDependencyGraph.build();
+        this._compiler.compile();
+        // if (!this._renderDependencyGraph) {
+        //     this._renderDependencyGraph = new RenderDependencyGraph(this, this._renderGraph,
+        //         this._resourceGraph, this._layoutGraph);
+        // }
+        // this._renderDependencyGraph.reset();
+        // this._renderDependencyGraph.build();
     }
 
     renderContext () {
-        if (!this._renderDependencyGraph) { throw new Error('RenderDependencyGraph is not initialized'); }
-        this._renderDependencyGraph.render();
+        // if (!this._renderDependencyGraph) { throw new Error('RenderDependencyGraph is not initialized'); }
+        // this._renderDependencyGraph.execute();
+    }
+    protected _buildShadowPass (automata: WebPipeline,
+        light: Readonly<Light>,
+        shadows: Readonly<Shadows>,
+        passName: Readonly<string>,
+        width: Readonly<number>,
+        height: Readonly<number>,
+        bCastShadow: Readonly<boolean>) {
+        if (bCastShadow) {
+            if (!automata.resourceGraph.contains(this._dsShadowMap)) {
+                const format = supportsR32FloatTexture(this._device) ? Format.R32F : Format.RGBA8;
+                automata.addRenderTarget(this._dsShadowMap, format, width, height, ResourceResidency.PERSISTENT);
+            }
+            const pass = automata.addRasterPass(width, height, '_', passName);
+            pass.addRasterView(this._dsShadowMap, new RasterView('_',
+                AccessType.WRITE, AttachmentType.RENDER_TARGET,
+                LoadOp.CLEAR, StoreOp.STORE,
+                ClearFlagBit.COLOR,
+                new Color(0, 0, 0, 0)));
+            const queue = pass.addQueue(QueueHint.NONE);
+            queue.addScene(`${passName}_shadowScene`);
+            // setCameraValues(queue, camera, light, shadows);
+        }
+    }
+    protected _buildShadowPasses (automata: WebPipeline, validLights: Light[],
+        mainLight: Readonly<DirectionalLight> | null,
+        pplScene: Readonly<PipelineSceneData>,
+        name: Readonly<string>): void {
+        const shadows = pplScene.shadows;
+        if (!shadows.enabled || shadows.type !== ShadowType.ShadowMap) {
+            return;
+        }
+        const castShadowObjects = pplScene.castShadowObjects;
+        const validPunctualLights = pplScene.validPunctualLights;
+
+        // force clean up
+        validLights.length = 0;
+
+        // pick spot lights
+        let numSpotLights = 0;
+        for (let i = 0; numSpotLights < shadows.maxReceived && i < validPunctualLights.length; ++i) {
+            const light = validPunctualLights[i];
+            if (light.type === LightType.SPOT) {
+                validLights.push(light);
+                ++numSpotLights;
+            }
+        }
+
+        // build shadow map
+        const bCastShadow = castShadowObjects.length !== 0;
+        const mapWidth = bCastShadow ? shadows.size.x : 1;
+        const mapHeight = bCastShadow ? shadows.size.y : 1;
+
+        // main light
+        if (mainLight) {
+            const passName = `MainLightShadow${name}`;
+            this._buildShadowPass(automata, mainLight, shadows,
+                passName, mapWidth, mapHeight, bCastShadow);
+        }
+        // spot lights
+        for (let i = 0; i !== validLights.length; ++i) {
+            const passName = `SpotLight${i.toString()}Shadow${name}`;
+            this._buildShadowPass(automata, validLights[i], shadows,
+                passName, mapWidth, mapHeight, bCastShadow);
+        }
+    }
+    private readonly _validLights: Light[] = [];
+    private readonly _dsShadowMap = 'dsShadowMap';
+    render (cameras: Camera[]) {
+        if (cameras.length === 0) {
+            return;
+        }
+        // build graph
+        this.beginFrame();
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera.scene) {
+                // this._pipelineUBO.updateGlobalUBO(camera.window);
+                // this._pipelineUBO.updateCameraUBO(camera);
+                this._buildShadowPasses(this, this._validLights,
+                    camera.scene.mainLight,
+                    this._pipelineSceneData,
+                    `Camera${i.toString()}`);
+
+                const window = camera.window;
+                const width = Math.floor(window.width);
+                const height = Math.floor(window.height);
+                const forwardPassRTName = `dsForwardPassColorCamera${i}`;
+                const forwardPassDSName = `dsForwardPassDSCamera${i}`;
+                if (!this.resourceGraph.contains(forwardPassRTName)) {
+                    this.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
+                    this.addRenderTarget(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+                }
+                const forwardPass = this.addRasterPass(width, height, '_', `CameraForwardPass${i.toString()}`);
+                if (this.resourceGraph.contains(this._dsShadowMap)) {
+                    forwardPass.addRasterView(this._dsShadowMap, new RasterView('_',
+                        AccessType.READ, AttachmentType.RENDER_TARGET,
+                        LoadOp.CLEAR, StoreOp.DISCARD,
+                        ClearFlagBit.NONE,
+                        new Color(0, 0, 0, 0)));
+                }
+                const passView = new RasterView('_',
+                    AccessType.WRITE, AttachmentType.RENDER_TARGET,
+                    LoadOp.CLEAR, StoreOp.STORE,
+                    ClearFlagBit.NONE,
+                    new Color(0, 0, 0, 0));
+                if (!(camera.clearFlag & ClearFlagBit.COLOR)) {
+                    if (camera.clearFlag & SKYBOX_FLAG) {
+                        passView.loadOp = LoadOp.DISCARD;
+                    } else {
+                        passView.loadOp = LoadOp.LOAD;
+                        passView.accessType = AccessType.READ_WRITE;
+                    }
+                } else {
+                    passView.clearColor.x = camera.clearColor.x;
+                    passView.clearColor.y = camera.clearColor.y;
+                    passView.clearColor.z = camera.clearColor.z;
+                    passView.clearColor.w = camera.clearColor.w;
+                }
+                const passDSView = new RasterView('_',
+                    AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+                    LoadOp.CLEAR, StoreOp.STORE,
+                    ClearFlagBit.DEPTH_STENCIL,
+                    new Color(1, 0, 0, 0));
+                if ((camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
+                    if (!(camera.clearFlag & ClearFlagBit.DEPTH)) passDSView.loadOp = LoadOp.LOAD;
+                    if (!(camera.clearFlag & ClearFlagBit.STENCIL)) passDSView.loadOp = LoadOp.LOAD;
+                }
+                forwardPass.addRasterView(forwardPassRTName, passView);
+                forwardPass.addRasterView(forwardPassDSName, passDSView);
+                forwardPass
+                    .addQueue(QueueHint.RENDER_OPAQUE)
+                    .addSceneOfCamera(camera);
+                forwardPass
+                    .addQueue(QueueHint.RENDER_TRANSPARENT)
+                    .addSceneOfCamera(camera);
+                // this.addPresentPass(`CameraPresentPass${i.toString()}`, forwardPassRTName);
+            }
+        }
+        this.compile();
+        this.renderContext();
+        this.endFrame();
     }
 
     addRasterPass (width: number, height: number, layoutName: string, name = 'Raster'): RasterPassBuilder {
@@ -498,6 +649,7 @@ export class WebPipeline extends Pipeline {
     get resourceGraph () {
         return this._resourceGraph;
     }
+    get layoutGraph () { return this._layoutGraph; }
     protected _updateRasterPassConstants (pass: Setter, width: number, height: number) {
         const shadingWidth = width;
         const shadingHeight = height;
@@ -512,6 +664,7 @@ export class WebPipeline extends Pipeline {
 
     private _device!: Device;
     private _globalDSManager!: GlobalDSManager;
+    // protected _pipelineUBO = new PipelineUBO();
     private readonly _macros: MacroRecord = {};
     private readonly _pipelineSceneData: PipelineSceneData = new PipelineSceneData();
     private _constantMacros = '';
@@ -520,5 +673,6 @@ export class WebPipeline extends Pipeline {
     private readonly _layoutGraph: LayoutGraphData = new LayoutGraphData();
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
     private _renderGraph: RenderGraph | null = null;
-    private _renderDependencyGraph: RenderDependencyGraph | null = null;
+    private _compiler: Compiler | null = null;
+    // private _renderDependencyGraph: RenderDependencyGraph | null = null;
 }
