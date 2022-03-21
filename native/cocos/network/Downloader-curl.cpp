@@ -28,11 +28,12 @@
 
 #include <curl/curl.h>
 #include <string.h>
-#include <set>
 #include <thread>
 
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
+#include "base/std/container/set.h"
+#include "base/std/container/deque.h"
 #include "platform/FileUtils.h"
 
 #include "network/Downloader.h"
@@ -48,7 +49,6 @@
 
 namespace cc {
 namespace network {
-using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Implementation DownloadTaskCURL
@@ -58,7 +58,7 @@ class DownloadTaskCURL : public IDownloadTask {
 
     // if more than one task write to one file, cause file broken
     // so use a set to check this situation
-    static set<string> _sStoragePathSet;
+    static ccstd::set<string> _sStoragePathSet;
 
 public:
     int serialId;
@@ -218,7 +218,7 @@ private:
     }
 };
 int         DownloadTaskCURL::_sSerialId;
-set<string> DownloadTaskCURL::_sStoragePathSet;
+ccstd::set<string> DownloadTaskCURL::_sStoragePathSet;
 
 typedef pair<shared_ptr<const DownloadTask>, DownloadTaskCURL *> TaskWrapper;
 
@@ -612,9 +612,9 @@ private:
     }
 
     thread             _thread;
-    deque<TaskWrapper> _requestQueue;
-    set<TaskWrapper>   _processSet;
-    deque<TaskWrapper> _finishedQueue;
+    ccstd::deque<TaskWrapper> _requestQueue;
+    ccstd::set<TaskWrapper>   _processSet;
+    ccstd::deque<TaskWrapper> _finishedQueue;
 
     mutex _threadMutex;
     mutex _requestMutex;
