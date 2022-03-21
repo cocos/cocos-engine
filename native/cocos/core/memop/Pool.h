@@ -28,8 +28,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <functional>
-#include "base/std/container/vector.h"
 #include "base/TypeDef.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -119,7 +119,7 @@ private:
     std::function<T *()> _ctor{nullptr};
     uint32_t             _elementsPerBatch{0};
     index_t              _nextAvail{-1};
-    ccstd::vector<T *>     _freepool;
+    ccstd::vector<T *>   _freepool;
 };
 
 } // namespace memop

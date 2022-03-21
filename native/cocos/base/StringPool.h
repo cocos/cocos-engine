@@ -60,7 +60,7 @@ private:
     StringHandle doFind(const char *str) const noexcept;
 
     std::map<char const *, StringHandle, StringCompare> _stringToHandles{};
-    ccstd::vector<char const *>                           _handleToStrings{};
+    ccstd::vector<char const *>                         _handleToStrings{};
     mutable ReadWriteLock                               _readWriteLock{};
 };
 

@@ -142,7 +142,7 @@ bool LegacyThreadPool::tryShrinkPool() {
     auto before = std::chrono::high_resolution_clock::now();
 
     ccstd::vector<int> threadIDsToJoin;
-    int              maxThreadNumToJoin = std::min(_initedThreadNum - _minThreadNum, _shrinkStep);
+    int                maxThreadNumToJoin = std::min(_initedThreadNum - _minThreadNum, _shrinkStep);
 
     for (int i = 0; i < _maxThreadNum; ++i) {
         if ((int)threadIDsToJoin.size() >= maxThreadNumToJoin) {

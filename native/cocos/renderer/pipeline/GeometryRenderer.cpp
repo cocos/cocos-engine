@@ -120,7 +120,7 @@ private:
     }
 
     uint32_t             _maxVertices{0};
-    ccstd::vector<T>       _vertices;
+    ccstd::vector<T>     _vertices;
     gfx::Buffer *        _buffer{nullptr};
     gfx::InputAssembler *_inputAssembler{nullptr};
 
@@ -525,9 +525,9 @@ void GeometryRenderer::addCapsule(const Vec3 &center, float radius, float height
 }
 
 void GeometryRenderer::addCylinder(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    const auto        deltaPhi = math::PI_2 / static_cast<float>(segments);
-    Vec3              bottomCenter{center.x, center.y - height / 2.0F, center.z};
-    Vec3              topCenter{center.x, center.y + height / 2.0F, center.z};
+    const auto          deltaPhi = math::PI_2 / static_cast<float>(segments);
+    Vec3                bottomCenter{center.x, center.y - height / 2.0F, center.z};
+    Vec3                topCenter{center.x, center.y + height / 2.0F, center.z};
     ccstd::vector<Vec3> bottomPoints;
     ccstd::vector<Vec3> topPoints;
 
@@ -558,9 +558,9 @@ void GeometryRenderer::addCylinder(const Vec3 &center, float radius, float heigh
 }
 
 void GeometryRenderer::addCone(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    const auto        deltaPhi = math::PI_2 / static_cast<float>(segments);
-    Vec3              bottomCenter{center.x, center.y - height / 2.0F, center.z};
-    Vec3              topCenter{center.x, center.y + height / 2.0F, center.z};
+    const auto          deltaPhi = math::PI_2 / static_cast<float>(segments);
+    Vec3                bottomCenter{center.x, center.y - height / 2.0F, center.z};
+    Vec3                topCenter{center.x, center.y + height / 2.0F, center.z};
     ccstd::vector<Vec3> bottomPoints;
 
     for (auto i = 0U; i < segments + 1; i++) {
@@ -584,7 +584,7 @@ void GeometryRenderer::addCone(const Vec3 &center, float radius, float height, g
 }
 
 void GeometryRenderer::addCircle(const Vec3 &center, float radius, gfx::Color color, uint32_t segments, bool depthTest, bool useTransform, const Mat4 &transform) {
-    const auto        deltaPhi = math::PI_2 / static_cast<float>(segments);
+    const auto          deltaPhi = math::PI_2 / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
 
     for (auto i = 0U; i < segments + 1; i++) {
@@ -604,9 +604,9 @@ void GeometryRenderer::addCircle(const Vec3 &center, float radius, gfx::Color co
 }
 
 void GeometryRenderer::addArc(const Vec3 &center, float radius, gfx::Color color, float startAngle, float endAngle, uint32_t segments, bool depthTest, bool useTransform, const Mat4 &transform) {
-    float             startRadian = math::DEG_TO_RAD * startAngle;
-    float             endRadian   = math::DEG_TO_RAD * endAngle;
-    const auto        deltaPhi    = (endRadian - startRadian) / static_cast<float>(segments);
+    float               startRadian = math::DEG_TO_RAD * startAngle;
+    float               endRadian   = math::DEG_TO_RAD * endAngle;
+    const auto          deltaPhi    = (endRadian - startRadian) / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
 
     for (auto i = 0U; i < segments + 1; i++) {
@@ -634,9 +634,9 @@ void GeometryRenderer::addPolygon(const Vec3 &center, float radius, gfx::Color c
 }
 
 void GeometryRenderer::addDisc(const Vec3 &center, float radius, gfx::Color color, uint32_t segments, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    const auto        deltaPhi = math::PI_2 / static_cast<float>(segments);
+    const auto          deltaPhi = math::PI_2 / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
-    Vec3              newCenter = center;
+    Vec3                newCenter = center;
 
     for (auto i = 0U; i < segments + 1; i++) {
         Vec3 point{radius * cosf(static_cast<float>(i) * deltaPhi), 0.0F, radius * sinf(static_cast<float>(i) * deltaPhi)};
@@ -664,11 +664,11 @@ void GeometryRenderer::addDisc(const Vec3 &center, float radius, gfx::Color colo
 }
 
 void GeometryRenderer::addSector(const Vec3 &center, float radius, gfx::Color color, float startAngle, float endAngle, uint32_t segments, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
-    float             startRadian = math::DEG_TO_RAD * startAngle;
-    float             endRadian   = math::DEG_TO_RAD * endAngle;
-    const auto        deltaPhi    = (endRadian - startRadian) / static_cast<float>(segments);
+    float               startRadian = math::DEG_TO_RAD * startAngle;
+    float               endRadian   = math::DEG_TO_RAD * endAngle;
+    const auto          deltaPhi    = (endRadian - startRadian) / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
-    Vec3              newCenter = center;
+    Vec3                newCenter = center;
 
     for (auto i = 0U; i < segments + 1; i++) {
         Vec3 point{radius * cosf(static_cast<float>(i) * deltaPhi), 0.0F, radius * sinf(static_cast<float>(i) * deltaPhi)};
@@ -821,7 +821,7 @@ void GeometryRenderer::addOctahedron(const Vec3 &center, float radius, gfx::Colo
 }
 
 void GeometryRenderer::addBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, gfx::Color color, uint32_t segments, bool depthTest, bool useTransform, const Mat4 &transform) {
-    const auto        deltaT = 1.0F / static_cast<float>(segments);
+    const auto          deltaT = 1.0F / static_cast<float>(segments);
     ccstd::vector<Vec3> points;
 
     Vec3 newV0 = v0;

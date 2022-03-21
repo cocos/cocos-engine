@@ -59,8 +59,8 @@ struct ITextureCubeSerializeMipmapData {
 };
 
 struct ITextureCubeSerializeData {
-    std::string                                  base;
-    bool                                         rgbe{false};
+    std::string                                    base;
+    bool                                           rgbe{false};
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
 };
 

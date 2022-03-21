@@ -146,7 +146,7 @@ private:
     ccstd::vector<JSStaticFunction> _staticFuncs;
     ccstd::vector<JSPropertySpec>   _properties;
     ccstd::vector<JSPropertySpec>   _staticProperties;
-    JSObjectFinalizeCallback      _finalizeOp;
+    JSObjectFinalizeCallback        _finalizeOp;
 
     friend class ScriptEngine;
     friend class Object;

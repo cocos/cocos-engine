@@ -541,8 +541,8 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
 
         JavaScriptJavaBridge::CallInfo call(clsName.c_str(), methodName.c_str(), methodSig.c_str());
         if (call.isValid() && call.getArgumentsCount() == (argc - 3)) {
-            int                  count = argc - 3;
-            auto *               jargs = new jvalue[count];
+            int                    count = argc - 3;
+            auto *                 jargs = new jvalue[count];
             ccstd::vector<jobject> toReleaseObjects;
             for (int i = 0; i < count; ++i) {
                 int index = i + 3;

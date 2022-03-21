@@ -42,30 +42,30 @@ class Mesh;
 
 // _chunkIdxMap[key] = skeleton ^ clips[i]
 struct IChunkContent {
-    uint64_t              skeleton{0};
+    uint64_t                skeleton{0};
     ccstd::vector<uint64_t> clips;
 };
 
 struct ICustomJointTextureLayout {
-    uint32_t                   textureLength{0};
+    uint32_t                     textureLength{0};
     ccstd::vector<IChunkContent> contents;
 };
 
 struct IInternalJointAnimInfo {
-    cc::optional<Mat4>              downstream;         // downstream default pose, if present
+    cc::optional<Mat4>                downstream;         // downstream default pose, if present
     cc::optional<ccstd::vector<Mat4>> curveData;          // the nearest animation curve, if present
-    index_t                         bindposeIdx{0};     // index of the actual bindpose to use
-    cc::optional<Mat4>              bindposeCorrection; // correction factor from the original bindpose
+    index_t                           bindposeIdx{0};     // index of the actual bindpose to use
+    cc::optional<Mat4>                bindposeCorrection; // correction factor from the original bindpose
 };
 
 class IJointTextureHandle {
 public:
-    uint32_t                                                  pixelOffset{0};
-    uint32_t                                                  refCount{0};
-    uint64_t                                                  clipHash{0};
-    uint64_t                                                  skeletonHash{0};
-    bool                                                      readyToBeDeleted{false};
-    ITextureBufferHandle                                      handle;
+    uint32_t                                                    pixelOffset{0};
+    uint32_t                                                    refCount{0};
+    uint64_t                                                    clipHash{0};
+    uint64_t                                                    skeletonHash{0};
+    bool                                                        readyToBeDeleted{false};
+    ITextureBufferHandle                                        handle;
     std::unordered_map<uint32_t, ccstd::vector<geometry::AABB>> bounds;
     cc::optional<ccstd::vector<IInternalJointAnimInfo>>         animInfos;
 

@@ -153,7 +153,7 @@ protected:
     uint                                                          _width{0};
     uint                                                          _height{0};
     gfx::Buffer *                                                 _quadIB{nullptr};
-    ccstd::vector<gfx::Buffer *>                                    _quadVB;
+    ccstd::vector<gfx::Buffer *>                                  _quadVB;
     std::unordered_map<Vec4, gfx::InputAssembler *, Hasher<Vec4>> _quadIA;
 
     framegraph::FrameGraph                            _fg;

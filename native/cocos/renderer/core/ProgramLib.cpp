@@ -214,8 +214,8 @@ bool dependencyCheck(const ccstd::vector<std::string> &dependencies, const Macro
 
 ccstd::vector<gfx::Attribute> getActiveAttributes(const IProgramInfo &tmpl, const ITemplateInfo &tmplInfo, const MacroRecord &defines) {
     ccstd::vector<gfx::Attribute> out{};
-    const auto &                attributes    = tmpl.attributes;
-    const auto &                gfxAttributes = tmplInfo.gfxAttributes;
+    const auto &                  attributes    = tmpl.attributes;
+    const auto &                  gfxAttributes = tmplInfo.gfxAttributes;
     for (auto i = 0; i < attributes.size(); i++) {
         if (!dependencyCheck(attributes[i].defines, defines)) {
             continue;
@@ -683,7 +683,7 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const std::string &na
     }
 
     ccstd::vector<IMacroInfo> macroArray = prepareDefines(defines, tmpl.defines);
-    std::stringstream       ss;
+    std::stringstream         ss;
     ss << std::endl;
     for (const auto &m : macroArray) {
         ss << "#define " << m.name << " " << m.value << std::endl;

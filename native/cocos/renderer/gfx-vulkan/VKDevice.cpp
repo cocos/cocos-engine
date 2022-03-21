@@ -160,9 +160,9 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     }
 
     // prepare the device queues
-    uint32_t                        queueFamilyPropertiesCount = utils::toUint(_gpuContext->queueFamilyProperties.size());
+    uint32_t                               queueFamilyPropertiesCount = utils::toUint(_gpuContext->queueFamilyProperties.size());
     ccstd::vector<VkDeviceQueueCreateInfo> queueCreateInfos(queueFamilyPropertiesCount, {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO});
-    ccstd::vector<ccstd::vector<float>>           queuePriorities(queueFamilyPropertiesCount);
+    ccstd::vector<ccstd::vector<float>>    queuePriorities(queueFamilyPropertiesCount);
 
     for (uint32_t queueFamilyIndex = 0U; queueFamilyIndex < queueFamilyPropertiesCount; ++queueFamilyIndex) {
         const VkQueueFamilyProperties &queueFamilyProperty = _gpuContext->queueFamilyProperties[queueFamilyIndex];
@@ -543,11 +543,11 @@ void CCVKDevice::doDestroy() {
 }
 
 namespace {
-    ccstd::vector<VkSwapchainKHR>       vkSwapchains;
-    ccstd::vector<uint32_t>             vkSwapchainIndices;
-    ccstd::vector<CCVKGPUSwapchain *>   gpuSwapchains;
-    ccstd::vector<VkImageMemoryBarrier> vkAcquireBarriers;
-    ccstd::vector<VkImageMemoryBarrier> vkPresentBarriers;
+ccstd::vector<VkSwapchainKHR>       vkSwapchains;
+ccstd::vector<uint32_t>             vkSwapchainIndices;
+ccstd::vector<CCVKGPUSwapchain *>   gpuSwapchains;
+ccstd::vector<VkImageMemoryBarrier> vkAcquireBarriers;
+ccstd::vector<VkImageMemoryBarrier> vkPresentBarriers;
 
 VkImageMemoryBarrier acquireBarrier{
     VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -814,8 +814,8 @@ void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *ds
 
 void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
     CC_PROFILE(CCVKDeviceCopyTextureToBuffers);
-    uint32_t                              totalSize = 0U;
-    Format                                format    = srcTexture->getFormat();
+    uint32_t                                     totalSize = 0U;
+    Format                                       format    = srcTexture->getFormat();
     ccstd::vector<std::pair<uint32_t, uint32_t>> regionOffsetSizes(count);
     for (size_t i = 0U; i < count; ++i) {
         const BufferTextureCopy &region     = regions[i];
@@ -854,10 +854,10 @@ void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
     auto  queryCount  = static_cast<uint32_t>(vkQueryPool->_ids.size());
     CCASSERT(queryCount <= vkQueryPool->getMaxQueryObjects(), "Too many query commands.");
 
-    const bool            bWait  = queryPool->getForceWait();
-    uint32_t              width  = bWait ? 1U : 2U;
-    uint64_t              stride = sizeof(uint64_t) * width;
-    VkQueryResultFlagBits flag   = bWait ? VK_QUERY_RESULT_WAIT_BIT : VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
+    const bool              bWait  = queryPool->getForceWait();
+    uint32_t                width  = bWait ? 1U : 2U;
+    uint64_t                stride = sizeof(uint64_t) * width;
+    VkQueryResultFlagBits   flag   = bWait ? VK_QUERY_RESULT_WAIT_BIT : VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
     ccstd::vector<uint64_t> results(queryCount * width, 0ULL);
 
     if (queryCount > 0U) {

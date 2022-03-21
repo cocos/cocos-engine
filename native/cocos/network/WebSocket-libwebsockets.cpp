@@ -209,7 +209,7 @@ public:
 
     bool init(const cc::network::WebSocket::Delegate &delegate,
               const std::string &                     url,
-              const ccstd::vector<std::string> *        protocols  = nullptr,
+              const ccstd::vector<std::string> *      protocols  = nullptr,
               const std::string &                     caFilePath = "");
 
     void                              send(const std::string &message);
@@ -242,7 +242,7 @@ private:
     cc::network::WebSocket::State _readyState;
     std::mutex                    _readyStateMutex;
     std::string                   _url;
-    ccstd::vector<char>             _receivedData;
+    ccstd::vector<char>           _receivedData;
 
     struct lws *          _wsInstance;
     struct lws_protocols *_lwsProtocols;
@@ -280,10 +280,10 @@ enum WsMsg {
 class WsThreadHelper;
 
 static ccstd::vector<WebSocketImpl *> *websocketInstances{nullptr};
-static std::recursive_mutex          instanceMutex;
-static struct lws_context *          wsContext{nullptr};
-static WsThreadHelper *              wsHelper{nullptr};
-static std::atomic_bool              wsPolling{false};
+static std::recursive_mutex            instanceMutex;
+static struct lws_context *            wsContext{nullptr};
+static WsThreadHelper *                wsHelper{nullptr};
+static std::atomic_bool                wsPolling{false};
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 static std::string getFileNameForPath(const std::string &filePath) {
@@ -575,7 +575,7 @@ private:
     unsigned char *_payload{nullptr};
     ssize_t        _payloadLength{0};
 
-    ssize_t                    _frameLength{0};
+    ssize_t                      _frameLength{0};
     ccstd::vector<unsigned char> _data;
 };
 
@@ -660,7 +660,7 @@ WebSocketImpl::~WebSocketImpl() {
 
 bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
                          const std::string &                     url,
-                         const ccstd::vector<std::string> *        protocols /* = nullptr*/,
+                         const ccstd::vector<std::string> *      protocols /* = nullptr*/,
                          const std::string &                     caFilePath /* = ""*/) {
     _delegate   = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
     _url        = url;
@@ -1352,10 +1352,10 @@ WebSocket::~WebSocket() {
     delete _impl;
 }
 
-bool WebSocket::init(const Delegate &                delegate,
-                     const std::string &             url,
+bool WebSocket::init(const Delegate &                  delegate,
+                     const std::string &               url,
                      const ccstd::vector<std::string> *protocols /* = nullptr*/,
-                     const std::string &             caFilePath /* = ""*/) {
+                     const std::string &               caFilePath /* = ""*/) {
     return _impl->init(delegate, url, protocols, caFilePath);
 }
 

@@ -57,16 +57,16 @@ constexpr size_t MAX_COLORATTACHMENTS = 16u;
 
 struct CCMTLGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
-    ccstd::vector<uint>                   dynamicBindings;
-    ccstd::vector<uint>                   descriptorIndices;
-    ccstd::vector<uint>                   bindingIndices;
+    ccstd::vector<uint>            dynamicBindings;
+    ccstd::vector<uint>            descriptorIndices;
+    ccstd::vector<uint>            bindingIndices;
     uint                           descriptorCount = 0;
 };
 typedef ccstd::vector<CCMTLGPUDescriptorSetLayout *> MTLGPUDescriptorSetLayoutList;
 
 struct CCMTLGPUPipelineLayout {
-    MTLGPUDescriptorSetLayoutList setLayouts;
-    ccstd::vector<ccstd::vector<int>>           dynamicOffsetIndices;
+    MTLGPUDescriptorSetLayoutList     setLayouts;
+    ccstd::vector<ccstd::vector<int>> dynamicOffsetIndices;
 };
 
 struct CCMTLGPUUniformBlock {
@@ -111,19 +111,19 @@ struct CCMTLGPUShader {
 };
 
 struct CCMTLGPUPipelineState {
-    MTLCullMode                                                             cullMode;
-    MTLWinding                                                              winding;
-    MTLTriangleFillMode                                                     fillMode;
-    MTLDepthClipMode                                                        depthClipMode;
-    MTLPrimitiveType                                                        primitiveType;
-    id<MTLRenderPipelineState>                                              mtlRenderPipelineState  = nil;
-    id<MTLDepthStencilState>                                                mtlDepthStencilState    = nil;
-    id<MTLComputePipelineState>                                             mtlComputePipelineState = nil;
-    uint                                                                    stencilRefFront         = 0;
-    uint                                                                    stencilRefBack          = 0;
+    MTLCullMode                                                                    cullMode;
+    MTLWinding                                                                     winding;
+    MTLTriangleFillMode                                                            fillMode;
+    MTLDepthClipMode                                                               depthClipMode;
+    MTLPrimitiveType                                                               primitiveType;
+    id<MTLRenderPipelineState>                                                     mtlRenderPipelineState  = nil;
+    id<MTLDepthStencilState>                                                       mtlDepthStencilState    = nil;
+    id<MTLComputePipelineState>                                                    mtlComputePipelineState = nil;
+    uint                                                                           stencilRefFront         = 0;
+    uint                                                                           stencilRefBack          = 0;
     ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> vertexBufferBindingInfo;
-    const CCMTLGPUPipelineLayout *                                          gpuPipelineLayout = nullptr;
-    const CCMTLGPUShader *                                                  gpuShader         = nullptr;
+    const CCMTLGPUPipelineLayout *                                                 gpuPipelineLayout = nullptr;
+    const CCMTLGPUShader *                                                         gpuShader         = nullptr;
 };
 
 struct CCMTLGPUBuffer {
@@ -146,8 +146,8 @@ struct CCMTLGPUTextureViewObject {
 };
 
 struct CCMTLGPUInputAssembler {
-    id<MTLBuffer>         mtlIndexBuffer    = nil;
-    id<MTLBuffer>         mtlIndirectBuffer = nil;
+    id<MTLBuffer>                mtlIndexBuffer    = nil;
+    id<MTLBuffer>                mtlIndirectBuffer = nil;
     ccstd::vector<id<MTLBuffer>> mtlVertexBufers;
 };
 
@@ -160,8 +160,8 @@ struct CCMTLGPUDescriptor {
 typedef ccstd::vector<CCMTLGPUDescriptor> MTLGPUDescriptorList;
 
 struct CCMTLGPUDescriptorSet {
-    MTLGPUDescriptorList gpuDescriptors;
-    const ccstd::vector<uint> * descriptorIndices = nullptr;
+    MTLGPUDescriptorList       gpuDescriptors;
+    const ccstd::vector<uint> *descriptorIndices = nullptr;
 };
 
 class CCMTLGPUStagingBufferPool final {
@@ -261,15 +261,15 @@ public:
 
 protected:
     struct Buffer {
-        id<MTLBuffer>         mtlBuffer = nil;
+        id<MTLBuffer>                mtlBuffer = nil;
         ccstd::vector<id<MTLBuffer>> dynamicDataBuffers{MAX_FRAMES_IN_FLIGHT};
-        uint8_t *             mappedData = nullptr;
-        uint                  curOffset  = 0;
+        uint8_t *                    mappedData = nullptr;
+        uint                         curOffset  = 0;
     };
 
-    bool           _tripleEnabled = false;
-    uint           _inflightIndex = 0;
-    id<MTLDevice>  _device        = nil;
+    bool                  _tripleEnabled = false;
+    uint                  _inflightIndex = 0;
+    id<MTLDevice>         _device        = nil;
     ccstd::vector<Buffer> _pool;
 };
 

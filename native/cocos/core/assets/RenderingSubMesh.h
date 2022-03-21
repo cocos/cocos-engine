@@ -149,7 +149,7 @@ public:
      * @zh 扁平化的顶点缓冲区。
      */
     inline const ccstd::vector<IFlatBuffer> &getFlatBuffers() const { return _flatBuffers; }
-    inline void                            setFlatBuffers(const ccstd::vector<IFlatBuffer> &flatBuffers) { _flatBuffers = flatBuffers; }
+    inline void                              setFlatBuffers(const ccstd::vector<IFlatBuffer> &flatBuffers) { _flatBuffers = flatBuffers; }
 
     void genFlatBuffers();
 

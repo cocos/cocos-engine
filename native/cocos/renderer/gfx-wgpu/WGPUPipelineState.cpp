@@ -73,7 +73,7 @@ void CCWGPUPipelineState::prepare(const std::set<uint8_t> &setInUse) {
 
         const uint8_t streamCount = (*maxStreamAttr).stream + 1;
 
-        ccstd::vector<WGPUVertexBufferLayout>           vbLayouts(streamCount);
+        ccstd::vector<WGPUVertexBufferLayout>             vbLayouts(streamCount);
         ccstd::vector<ccstd::vector<WGPUVertexAttribute>> wgpuAttrsVec(streamCount);
 
         const AttributeList &attrs       = _shader->getAttributes();
@@ -208,7 +208,7 @@ void CCWGPUPipelineState::prepare(const std::set<uint8_t> &setInUse) {
             .alphaToCoverageEnabled = _blendState.isA2C != 0,
         };
 
-        const ColorAttachmentList &       colors = _renderPass->getColorAttachments();
+        const ColorAttachmentList &         colors = _renderPass->getColorAttachments();
         ccstd::vector<WGPUColorTargetState> colorTargetStates(colors.size());
 
         ccstd::vector<WGPUBlendState> blendState(colors.size());

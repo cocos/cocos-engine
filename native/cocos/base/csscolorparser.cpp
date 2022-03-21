@@ -269,8 +269,8 @@ float cssHueToRgb(float m1, float m2, float h) {
 
 ccstd::vector<std::string> split(const std::string &s, char delim) {
     ccstd::vector<std::string> elems;
-    std::stringstream        ss(s);
-    std::string              item;
+    std::stringstream          ss(s);
+    std::string                item;
     while (std::getline(ss, item, delim)) {
         elems.push_back(item);
     }
@@ -324,7 +324,7 @@ Color parse(const std::string &cssStr) {
     size_t op = str.find_first_of('(');
     size_t ep = str.find_first_of(')');
     if (op != std::string::npos && ep + 1 == str.length()) {
-        const std::string              fname = str.substr(0, op);
+        const std::string                fname = str.substr(0, op);
         const ccstd::vector<std::string> params =
             split(str.substr(op + 1, ep - (op + 1)), ',');
 

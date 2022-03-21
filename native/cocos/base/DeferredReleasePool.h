@@ -28,8 +28,8 @@
 #pragma once
 
 #include <string>
-#include "base/std/container/vector.h"
 #include "base/RefCounted.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 

@@ -80,13 +80,13 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, std::array<fl
 }
 
 void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera) {
-    const auto *const              scene         = camera->getScene();
-    const scene::DirectionalLight *mainLight     = scene->getMainLight();
-    const auto *                   sceneData     = pipeline->getPipelineSceneData();
-    const scene::Shadows *const    shadowInfo    = sceneData->getShadows();
-    const auto *                   ambient       = sceneData->getAmbient();
-    auto *                         fog           = sceneData->getFog();
-    const auto                     isHDR         = sceneData->isHDR();
+    const auto *const              scene      = camera->getScene();
+    const scene::DirectionalLight *mainLight  = scene->getMainLight();
+    const auto *                   sceneData  = pipeline->getPipelineSceneData();
+    const scene::Shadows *const    shadowInfo = sceneData->getShadows();
+    const auto *                   ambient    = sceneData->getAmbient();
+    auto *                         fog        = sceneData->getFog();
+    const auto                     isHDR      = sceneData->isHDR();
 
     auto *device = gfx::Device::getInstance();
 

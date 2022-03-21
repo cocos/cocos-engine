@@ -125,7 +125,7 @@ public:
     };
 
     ccstd::vector<TouchInfo> touches;
-    Type                   type = Type::UNKNOWN;
+    Type                     type = Type::UNKNOWN;
 };
 
 class MouseEvent : public OSEvent {

@@ -29,7 +29,7 @@
 namespace cc {
 IGeometry circle(cc::optional<ICircleOptions> &options) {
     if (!options.has_value()) options = ICircleOptions();
-    const uint32_t     segments = options->segments;
+    const uint32_t       segments = options->segments;
     ccstd::vector<float> positions(3 * (segments + 1));
     positions[0] = 0;
     positions[1] = 0;

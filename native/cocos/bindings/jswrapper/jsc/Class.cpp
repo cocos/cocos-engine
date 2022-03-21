@@ -44,7 +44,7 @@ namespace se {
 
 namespace {
 //        std::unordered_map<std::string, Class *> __clsMap;
-JSContextRef         __cx = nullptr;
+JSContextRef           __cx = nullptr;
 ccstd::vector<Class *> __allClasses;
 
 void defaultFinalizeCallback(JSObjectRef _obj) {

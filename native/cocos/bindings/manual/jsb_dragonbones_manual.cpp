@@ -436,7 +436,7 @@ bool register_all_dragonbones_manual(se::Object *obj) {
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject *obj, int type) {
         //std::string typeName = typeid(*obj).name();
 
-        se::Object* seObj = nullptr;
+        se::Object *seObj = nullptr;
 
         auto iter = se::NativePtrToObjectMap::find(obj);
         if (iter != se::NativePtrToObjectMap::end()) {

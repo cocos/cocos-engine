@@ -40,9 +40,9 @@ struct Keyframe {
 float evalOptCurve(float t, const ccstd::vector<float> &coefs);
 
 struct OptimizedKey {
-    float              index;
-    float              time;
-    float              endTime;
+    float                index;
+    float                time;
+    float                endTime;
     ccstd::vector<float> coefficient;
     OptimizedKey() {
         index   = -1;
@@ -66,17 +66,17 @@ private:
 
 public:
     static ccstd::vector<KeyFrame> defaultKF = [ {
-                                                  time : 0,
-                                                  value : 1,
-                                                  inTangent : 0,
-                                                  outTangent : 0,
-                                              },
-                                               {
-                                                   time : 1,
-                                                   value : 1,
-                                                   inTangent : 0,
-                                                   outTangent : 0,
-                                               } ];
+                                                    time : 0,
+                                                    value : 1,
+                                                    inTangent : 0,
+                                                    outTangent : 0,
+                                                },
+                                                 {
+                                                     time : 1,
+                                                     value : 1,
+                                                     inTangent : 0,
+                                                     outTangent : 0,
+                                                 } ];
 
     /**
      * For internal usage only.

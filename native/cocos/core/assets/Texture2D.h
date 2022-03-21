@@ -34,7 +34,7 @@
 namespace cc {
 
 struct ITexture2DSerializeData {
-    std::string              base;
+    std::string                base;
     ccstd::vector<std::string> mipmaps;
 };
 

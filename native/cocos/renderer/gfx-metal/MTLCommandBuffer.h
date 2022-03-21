@@ -99,8 +99,8 @@ protected:
     id<MTLCommandBuffer> getMTLCommandBuffer();
 
     ccstd::vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets; // NOLINT(bugprone-reserved-identifier)
-    ccstd::vector<ccstd::vector<uint>>            _dynamicOffsets;
-    uint                            _firstDirtyDescriptorSet = UINT_MAX;
+    ccstd::vector<ccstd::vector<uint>>     _dynamicOffsets;
+    uint                                   _firstDirtyDescriptorSet = UINT_MAX;
 
     bool                                _indirectDrawSuppotred = false;
     bool                                _commandBufferBegan    = false;

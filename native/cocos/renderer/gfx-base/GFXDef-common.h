@@ -26,8 +26,8 @@
 #pragma once
 
 #include "base/TypeDef.h"
-#include "base/std/container/vector.h"
 #include "base/memory/Memory.h"
+#include "base/std/container/vector.h"
 #include "math/Math.h"
 
 /**
@@ -912,7 +912,7 @@ struct Color {
 
     EXPOSE_COPY_FN(Color)
 };
-using ColorList =ccstd:: vector<Color>;
+using ColorList = ccstd::vector<Color>;
 
 /**
  * For non-vulkan backends, to maintain compatibility and maximize

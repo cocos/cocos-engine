@@ -39,10 +39,10 @@ class AABB;
 }
 
 struct JointInfo {
-    geometry::AABB *     bound{nullptr};
-    Node *               target{nullptr};
-    Mat4                 bindpose;
-    IJointTransform *    transform{nullptr};
+    geometry::AABB *       bound{nullptr};
+    Node *                 target{nullptr};
+    Mat4                   bindpose;
+    IJointTransform *      transform{nullptr};
     ccstd::vector<index_t> buffers;
     ccstd::vector<index_t> indices;
 };
@@ -58,9 +58,9 @@ public:
     void updateUBOs(uint32_t stamp) override;
     void destroy() override;
 
-    void                             initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) override;
+    void                               initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) override;
     ccstd::vector<scene::IMacroPatch> &getMacroPatches(index_t subModelIndex) override;
-    void                             updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
+    void                               updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
 
     void bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *mesh);
 

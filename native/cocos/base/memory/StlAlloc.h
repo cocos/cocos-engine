@@ -76,8 +76,8 @@ using unordered_map = std::unordered_map<K, V, H, P>;
 template <typename K, typename V, typename H = std::hash<K>, typename P = std::equal_to<K>>
 using unordered_multimap = std::unordered_multimap<K, V, H, P>;
 
-using String = std::string;
-using WString = std::wstring;
+using String      = std::string;
+using WString     = std::wstring;
 using StringArray = std::vector<String>;
 
 } // namespace cc

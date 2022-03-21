@@ -51,7 +51,7 @@ typedef size_t (*write_callback)(void *ptr, size_t size, size_t nmemb, void *str
 // Callback function used by libcurl for collect response data
 static size_t writeData(void *ptr, size_t size, size_t nmemb, void *stream) {
     ccstd::vector<char> *recvBuffer = (ccstd::vector<char> *)stream;
-    size_t             sizes      = size * nmemb;
+    size_t               sizes      = size * nmemb;
 
     // add data to the end of recvBuffer
     // write data maybe called more than once in a single request
@@ -63,7 +63,7 @@ static size_t writeData(void *ptr, size_t size, size_t nmemb, void *stream) {
 // Callback function used by libcurl for collect header data
 static size_t writeHeaderData(void *ptr, size_t size, size_t nmemb, void *stream) {
     ccstd::vector<char> *recvBuffer = (ccstd::vector<char> *)stream;
-    size_t             sizes      = size * nmemb;
+    size_t               sizes      = size * nmemb;
 
     // add data to the end of recvBuffer
     // write data maybe called more than once in a single request

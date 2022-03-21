@@ -27,9 +27,9 @@
 #pragma once
 
 #include <string>
-#include "base/std/container/vector.h"
 #include "HandleObject.h"
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 
 namespace se {
 

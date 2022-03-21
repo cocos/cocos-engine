@@ -29,9 +29,9 @@
 
 #include "3d/assets/Mesh.h"
 #include "3d/assets/Skeleton.h"
+#include "core/platform/Debug.h"
 #include "core/scene-graph/Node.h"
 #include "renderer/gfx-base/GFXBuffer.h"
-#include "core/platform/Debug.h"
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 
@@ -96,8 +96,8 @@ void SkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *m
         auto *          target = skinningRoot->getChildByPath(skeleton->getJoints()[index]);
         if (!bound || !target) continue;
 
-        auto *               transform = cc::getTransform(target, skinningRoot);
-        const Mat4 &         bindPose  = skeleton->getBindposes()[index];
+        auto *                 transform = cc::getTransform(target, skinningRoot);
+        const Mat4 &           bindPose  = skeleton->getBindposes()[index];
         ccstd::vector<index_t> indices;
         ccstd::vector<index_t> buffers;
         if (!jointMaps.has_value()) {

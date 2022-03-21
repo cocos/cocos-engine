@@ -51,10 +51,10 @@ public:
     bool initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstantRegistry *constantRegistry);
     void destroy();
 
-    EGLint         eglMajorVersion{0};
-    EGLint         eglMinorVersion{0};
-    EGLDisplay     eglDisplay{EGL_NO_DISPLAY};
-    EGLConfig      eglConfig{nullptr};
+    EGLint                eglMajorVersion{0};
+    EGLint                eglMinorVersion{0};
+    EGLDisplay            eglDisplay{EGL_NO_DISPLAY};
+    EGLConfig             eglConfig{nullptr};
     ccstd::vector<EGLint> eglAttributes;
 
     EGLSurface eglDefaultSurface{EGL_NO_SURFACE};
@@ -91,9 +91,9 @@ private:
 
 class GLES3GPUQueryPool final {
 public:
-    QueryType           type{QueryType::OCCLUSION};
-    uint32_t            maxQueryObjects{0};
-    bool                forceWait{true};
+    QueryType             type{QueryType::OCCLUSION};
+    uint32_t              maxQueryObjects{0};
+    bool                  forceWait{true};
     ccstd::vector<GLuint> glQueryIds;
 
     inline GLuint mapGLQueryId(uint32_t queryId) {
@@ -236,8 +236,8 @@ struct GLES3GPUUniformSamplerTexture {
     uint32_t count = 0U;
 
     ccstd::vector<GLint> units;
-    GLenum        glType = 0;
-    GLint         glLoc  = -1;
+    GLenum               glType = 0;
+    GLint                glLoc  = -1;
 };
 using GLES3GPUUniformSamplerTextureList = ccstd::vector<GLES3GPUUniformSamplerTexture>;
 
@@ -249,8 +249,8 @@ struct GLES3GPUUniformStorageImage {
     uint32_t count = 0U;
 
     ccstd::vector<int> units;
-    GLenum      glMemoryAccess = GL_READ_WRITE;
-    GLint       glLoc          = -1;
+    GLenum             glMemoryAccess = GL_READ_WRITE;
+    GLint              glLoc          = -1;
 };
 using GLES3GPUUniformStorageImageList = ccstd::vector<GLES3GPUUniformStorageImage>;
 
@@ -376,8 +376,8 @@ public:
     ccstd::vector<Framebuffer> instances;
 
     ccstd::vector<uint32_t> uberColorAttachmentIndices;
-    uint32_t         uberDepthStencil{INVALID_BINDING};
-    Framebuffer      uberInstance;
+    uint32_t                uberDepthStencil{INVALID_BINDING};
+    Framebuffer             uberInstance;
 
     // the assumed shader output, may differ from actual subpass output
     // see Feature::INPUT_ATTACHMENT_BENEFIT for more details on this
@@ -387,11 +387,11 @@ public:
 
 struct GLES3GPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
-    ccstd::vector<uint32_t>               dynamicBindings;
+    ccstd::vector<uint32_t>        dynamicBindings;
 
     ccstd::vector<uint32_t> bindingIndices;
     ccstd::vector<uint32_t> descriptorIndices;
-    uint32_t         descriptorCount = 0U;
+    uint32_t                descriptorCount = 0U;
 };
 using GLES3GPUDescriptorSetLayoutList = ccstd::vector<GLES3GPUDescriptorSetLayout *>;
 
@@ -400,9 +400,9 @@ struct GLES3GPUPipelineLayout {
 
     // helper storages
     ccstd::vector<ccstd::vector<int>> dynamicOffsetIndices;
-    ccstd::vector<uint32_t>    dynamicOffsetOffsets;
-    ccstd::vector<uint32_t>    dynamicOffsets;
-    uint32_t            dynamicOffsetCount;
+    ccstd::vector<uint32_t>           dynamicOffsetOffsets;
+    ccstd::vector<uint32_t>           dynamicOffsets;
+    uint32_t                          dynamicOffsetCount;
 };
 
 struct GLES3GPUPipelineState {
@@ -426,7 +426,7 @@ struct GLES3GPUDescriptor {
 using GLES3GPUDescriptorList = ccstd::vector<GLES3GPUDescriptor>;
 
 struct GLES3GPUDescriptorSet {
-    GLES3GPUDescriptorList  gpuDescriptors;
+    GLES3GPUDescriptorList         gpuDescriptors;
     const ccstd::vector<uint32_t> *descriptorIndices = nullptr;
 };
 
@@ -457,20 +457,20 @@ public:
     GLuint                          glArrayBuffer        = 0;
     GLuint                          glElementArrayBuffer = 0;
     GLuint                          glUniformBuffer      = 0;
-    ccstd::vector<GLuint>                  glBindUBOs;
-    ccstd::vector<GLuint>                  glBindUBOOffsets;
+    ccstd::vector<GLuint>           glBindUBOs;
+    ccstd::vector<GLuint>           glBindUBOOffsets;
     GLuint                          glShaderStorageBuffer = 0;
-    ccstd::vector<GLuint>                  glBindSSBOs;
-    ccstd::vector<GLuint>                  glBindSSBOOffsets;
+    ccstd::vector<GLuint>           glBindSSBOs;
+    ccstd::vector<GLuint>           glBindSSBOOffsets;
     GLuint                          glDispatchIndirectBuffer = 0;
     GLuint                          glVAO                    = 0;
     uint32_t                        texUint                  = 0;
-    ccstd::vector<GLuint>                  glTextures;
-    ccstd::vector<GLuint>                  glImages;
-    ccstd::vector<GLuint>                  glSamplers;
+    ccstd::vector<GLuint>           glTextures;
+    ccstd::vector<GLuint>           glImages;
+    ccstd::vector<GLuint>           glSamplers;
     GLuint                          glProgram = 0;
-    ccstd::vector<bool>                    glEnabledAttribLocs;
-    ccstd::vector<bool>                    glCurrentAttribLocs;
+    ccstd::vector<bool>             glEnabledAttribLocs;
+    ccstd::vector<bool>             glCurrentAttribLocs;
     GLuint                          glReadFramebuffer = 0;
     GLuint                          glDrawFramebuffer = 0;
     GLuint                          glRenderbuffer    = 0;

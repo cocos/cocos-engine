@@ -49,8 +49,8 @@ protected:
     void doInit(const QueryPoolInfo &info) override;
     void doDestroy() override;
 
-    CCWGPUQueryPoolObject *_gpuQueryPool = nullptr;
-    ccstd::vector<uint32_t>  _ids;
+    CCWGPUQueryPoolObject * _gpuQueryPool = nullptr;
+    ccstd::vector<uint32_t> _ids;
 };
 
 } // namespace gfx

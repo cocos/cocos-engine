@@ -78,7 +78,7 @@ public:
     static Node *instantiate(Node *cloned, bool isSyncedNode);
     // for walk
     static ccstd::vector<ccstd::vector<Node *>> stacks;
-    static index_t                          stackId;
+    static index_t                              stackId;
 
     static void    setScene(Node *);
     static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
@@ -260,10 +260,10 @@ public:
     inline void setActiveInHierarchy(bool v) { _activeInHierarchyArr[0] = (v ? 1 : 0); }
     inline void setActiveInHierarchyPtr(uint8_t *ptr) { _activeInHierarchyArr = ptr; }
 
-    virtual void                                  onPostActivated(bool active) {}
+    virtual void                                    onPostActivated(bool active) {}
     inline const ccstd::vector<IntrusivePtr<Node>> &getChildren() const { return _children; }
-    inline Node *                                 getParent() const { return _parent; }
-    inline NodeEventProcessor *                   getEventProcessor() const { return _eventProcessor; }
+    inline Node *                                   getParent() const { return _parent; }
+    inline NodeEventProcessor *                     getEventProcessor() const { return _eventProcessor; }
 
     Node *           getChildByUuid(const std::string &) const;
     Node *           getChildByName(const std::string &) const;
@@ -681,10 +681,10 @@ public:
     std::function<void(index_t)> onSiblingIndexChanged{nullptr};
     index_t                      _siblingIndex{0};
     // For deserialization
-    std::string                     _id;
+    std::string                       _id;
     ccstd::vector<IntrusivePtr<Node>> _children;
-    Node *                          _parent{nullptr};
-    bool                            _active{true};
+    Node *                            _parent{nullptr};
+    bool                              _active{true};
 
 private:
     // local transform

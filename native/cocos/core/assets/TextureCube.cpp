@@ -50,7 +50,7 @@ void forEachFace(const ITextureCubeMipmap &mipmap, const ForEachFaceCallback &ca
 
 /* static */
 TextureCube *TextureCube::fromTexture2DArray(const ccstd::vector<Texture2D *> &textures) {
-    size_t                          nMipmaps = textures.size() / 6;
+    size_t                            nMipmaps = textures.size() / 6;
     ccstd::vector<ITextureCubeMipmap> mipmaps;
     mipmaps.reserve(nMipmaps);
     for (size_t i = 0; i < nMipmaps; i++) {
