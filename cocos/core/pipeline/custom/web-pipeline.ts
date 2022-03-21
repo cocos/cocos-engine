@@ -132,7 +132,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         const sceneData = new SceneData(name);
         sceneData.camera = camera;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, name, '', new RenderData(), this._vertID,
+            RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
         setCameraValues(this, camera, this._pipeline,
             camera.scene ? camera.scene : legacyCC.director.getScene().renderScene);
@@ -140,12 +140,12 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
     addScene (sceneName: string): void {
         const sceneData = new SceneData(sceneName);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), this._vertID,
+            RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
         );
     }
     addFullscreenQuad (shader: string, layoutName = '', name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(shader), name, '', new RenderData(), this._vertID,
+            RenderGraphValue.Blit, new Blit(shader), name, '', new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -191,7 +191,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         const queue = new RenderQueue(hint);
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, layoutName, data, this._vertID,
+            RenderGraphValue.Queue, queue, name, layoutName, data, false, this._vertID,
         );
         return new WebRasterQueueBuilder(data, this._renderGraph, queueID, queue, this._pipeline);
     }
@@ -199,7 +199,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit,
             new Blit(shader),
-            name, layoutName, new RenderData(), this._vertID,
+            name, layoutName, new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -225,7 +225,7 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
         this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
             RenderGraphValue.Dispatch,
             new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-            name, layoutName, new RenderData(), this._vertID,
+            name, layoutName, new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -253,7 +253,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         const queue = new RenderQueue();
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, layoutName, data, this._vertID,
+            RenderGraphValue.Queue, queue, name, layoutName, data, false, this._vertID,
         );
         return new WebComputeQueueBuilder(data, this._renderGraph, queueID, queue, this._pipeline);
     }
@@ -266,7 +266,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
             RenderGraphValue.Dispatch,
             new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-            name, layoutName, new RenderData(), this._vertID,
+            name, layoutName, new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -608,7 +608,7 @@ export class WebPipeline extends Pipeline {
         const pass = new RasterPass();
         const data = new RenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Raster>(
-            RenderGraphValue.Raster, pass, name, layoutName, data,
+            RenderGraphValue.Raster, pass, name, layoutName, data, false,
         );
         const result = new WebRasterPassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height);
@@ -618,24 +618,24 @@ export class WebPipeline extends Pipeline {
         const pass = new ComputePass();
         const data = new RenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Compute>(
-            RenderGraphValue.Compute, pass, name, layoutName, new RenderData(),
+            RenderGraphValue.Compute, pass, name, layoutName, new RenderData(), false,
         );
         return new WebComputePassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData);
     }
     addMovePass (name = 'Move'): MovePassBuilder {
         const pass = new MovePass();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Move>(RenderGraphValue.Move, pass, name, '', new RenderData());
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Move>(RenderGraphValue.Move, pass, name, '', new RenderData(), false);
         return new WebMovePassBuilder(this._renderGraph!, vertID, pass);
     }
     addCopyPass (name = 'Copy'): CopyPassBuilder {
         const pass = new CopyPass();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', new RenderData());
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', new RenderData(), false);
         return new WebCopyPassBuilder(this._renderGraph!, vertID, pass);
     }
     presentAll (): void {
         const pass = new PresentPass();
         // TODO: add swapchains to present pass
-        this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, '', '', new RenderData());
+        this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, '', '', new RenderData(), false);
     }
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         return new WebSceneTransversal(camera);

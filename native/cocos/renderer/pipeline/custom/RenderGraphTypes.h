@@ -475,6 +475,7 @@ struct RasterPass {
     RasterPass& operator=(RasterPass&& rhs) = default;
     RasterPass& operator=(RasterPass const& rhs) = default;
 
+    bool                                                                     isValid{false};
     PmrTransparentMap<PmrString, RasterView>                                 rasterViews;
     PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
     SubpassGraph                                                             subpassGraph;
@@ -912,6 +913,8 @@ struct RenderGraph {
     } static constexpr Layout{}; // NOLINT
     struct DataTag {
     } static constexpr Data{}; // NOLINT
+    struct ValidTag {
+    } static constexpr Valid{}; // NOLINT
 
     // Owners
     boost::container::pmr::vector<Object> objects;
@@ -921,6 +924,7 @@ struct RenderGraph {
     boost::container::pmr::vector<PmrString>  names;
     boost::container::pmr::vector<PmrString>  layoutNodes;
     boost::container::pmr::vector<RenderData> data;
+    boost::container::pmr::vector<bool>       valid;
     // PolymorphicGraph
     boost::container::pmr::vector<RasterPass>   rasterPasses;
     boost::container::pmr::vector<ComputePass>  computePasses;

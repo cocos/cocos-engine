@@ -1324,6 +1324,23 @@ struct property_map<cc::render::RenderGraph, T cc::render::RenderData::*> {
         T cc::render::RenderData::*>;
 };
 
+// Vertex Component
+template <>
+struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::ValidTag> {
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::RenderGraph,
+        const container::pmr::vector<bool>,
+        bool,
+        const bool&>;
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::RenderGraph,
+        container::pmr::vector<bool>,
+        bool,
+        bool&>;
+};
+
 } // namespace boost
 
 namespace cc {
@@ -2132,6 +2149,17 @@ template <class T>
 inline typename boost::property_map<RenderGraph, T RenderData::*>::type
 get(T RenderData::*memberPointer, RenderGraph& g) noexcept {
     return {g.data, memberPointer};
+}
+
+// Vertex Component
+inline typename boost::property_map<RenderGraph, RenderGraph::ValidTag>::const_type
+get(RenderGraph::ValidTag /*tag*/, const RenderGraph& g) noexcept {
+    return {g.valid};
+}
+
+inline typename boost::property_map<RenderGraph, RenderGraph::ValidTag>::type
+get(RenderGraph::ValidTag /*tag*/, RenderGraph& g) noexcept {
+    return {g.valid};
 }
 
 // PolymorphicGraph
@@ -3183,6 +3211,7 @@ add_vertex(RenderGraph& g, Tag t, PmrString&& name) { // NOLINT
         std::forward_as_tuple(std::move(name)), // names
         std::forward_as_tuple(),                // layoutNodes
         std::forward_as_tuple(),                // data
+        std::forward_as_tuple(),                // valid
         std::forward_as_tuple(),                // PolymorphicType
         g);
 }
@@ -3195,6 +3224,7 @@ add_vertex(RenderGraph& g, Tag t, const char* name) { // NOLINT
         std::forward_as_tuple(name), // names
         std::forward_as_tuple(),     // layoutNodes
         std::forward_as_tuple(),     // data
+        std::forward_as_tuple(),     // valid
         std::forward_as_tuple(),     // PolymorphicType
         g);
 }
