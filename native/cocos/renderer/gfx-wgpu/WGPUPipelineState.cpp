@@ -26,6 +26,7 @@
 #include "WGPUPipelineState.h"
 #include <emscripten/html5_webgpu.h>
 #include <numeric>
+#include "base/std/container/vector.h"
 #include "WGPUDescriptorSetLayout.h"
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
@@ -53,7 +54,7 @@ void CCWGPUPipelineState::check(RenderPass *renderPass) {
     }
 }
 
-void CCWGPUPipelineState::prepare(const std::set<uint8_t> &setInUse) {
+void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
     auto *pipelineLayout = static_cast<CCWGPUPipelineLayout *>(_pipelineLayout);
 
     const DepthStencilAttachment &dsAttachment = _renderPass->getDepthStencilAttachment();

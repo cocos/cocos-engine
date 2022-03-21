@@ -28,10 +28,9 @@
 #include "base/Log.h"
 #include "base/Utils.h"
 #include "platform/FileUtils.h"
-
+#include "base/std/container/queue.h"
 #include <condition_variable>
 #include <mutex>
-#include <queue>
 #include <thread>
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
@@ -136,7 +135,7 @@ private:
     }
 
     ccstd::vector<std::thread>        _workers;
-    std::queue<std::function<void()>> _taskQueue;
+    ccstd::queue<std::function<void()>> _taskQueue;
 
     std::mutex              _queueMutex;
     std::condition_variable _taskCondition;

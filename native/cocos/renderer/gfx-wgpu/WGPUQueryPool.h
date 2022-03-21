@@ -26,6 +26,7 @@
 #pragma once
 
 #include "gfx-base/GFXQueryPool.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {

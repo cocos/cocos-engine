@@ -28,7 +28,6 @@
 
 #include "network/HttpClient.h"
 
-#include <queue>
 #include <errno.h>
 
 #import "network/HttpAsynConnection-apple.h"

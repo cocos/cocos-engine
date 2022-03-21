@@ -26,6 +26,7 @@
 #include "WGPUCommandBuffer.h"
 #include <webgpu/webgpu.h>
 #include <limits>
+#include "base/std/container/vector.h"
 #include "WGPUBuffer.h"
 #include "WGPUDescriptorSet.h"
 #include "WGPUDescriptorSetLayout.h"
@@ -269,7 +270,7 @@ void CCWGPUCommandBuffer::bindStates() {
         return;
     }
 
-    std::set<uint8_t> setInUse;
+    ccstd::set<uint8_t> setInUse;
     for (const auto &descriptorSet : _gpuCommandBufferObj->stateCache.descriptorSets) {
         setInUse.insert(descriptorSet.index);
     }

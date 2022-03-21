@@ -30,12 +30,11 @@
 
 #include <cerrno>
 #include <cstdio>
-#include <queue>
 #include <sstream>
 #include "application/ApplicationManager.h"
 #include "platform/FileUtils.h"
 #include "platform/java/jni/JniHelper.h"
-
+#include "base/std/container/queue.h"
 #include "base/Log.h"
 #include "base/UTF8.h"
 

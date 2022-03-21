@@ -28,7 +28,6 @@
 
 #include <curl/curl.h>
 #include <string.h>
-#include <deque>
 #include <set>
 #include <thread>
 

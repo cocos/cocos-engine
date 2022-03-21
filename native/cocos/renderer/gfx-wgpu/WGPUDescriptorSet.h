@@ -27,6 +27,7 @@
 
 #include <emscripten/bind.h>
 #include <map>
+#include "base/std/container/vector.h"
 #include "gfx-base/GFXDescriptorSet.h"
 namespace cc {
 namespace gfx {
