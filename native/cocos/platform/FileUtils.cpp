@@ -40,9 +40,9 @@
 #include <sys/stat.h>
 #include <regex>
 
-#include "base/memory/Memory.h"
 #include "base/Data.h"
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 #include "platform/SAXParser.h"
 
 #include "tinydir/tinydir.h"
@@ -810,7 +810,7 @@ bool FileUtils::isDirectoryExist(const std::string &dirPath) const {
 }
 
 ccstd::vector<std::string> FileUtils::listFiles(const std::string &dirPath) const {
-    std::string              fullpath = fullPathForFilename(dirPath);
+    std::string                fullpath = fullPathForFilename(dirPath);
     ccstd::vector<std::string> files;
     if (isDirectoryExist(fullpath)) {
         tinydir_dir dir;
@@ -981,9 +981,9 @@ bool FileUtils::createDirectory(const std::string &path) {
     }
 
     // Split the path
-    size_t                   start = 0;
-    size_t                   found = path.find_first_of("/\\", start);
-    std::string              subpath;
+    size_t                     start = 0;
+    size_t                     found = path.find_first_of("/\\", start);
+    std::string                subpath;
     ccstd::vector<std::string> dirs;
 
     if (found != std::string::npos) {

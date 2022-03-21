@@ -33,9 +33,9 @@
 #include <climits>
 #include <limits>
 #include <string>
-#include "base/std/container/vector.h"
 #include "base/Macros.h"
 #include "base/TypeDef.h"
+#include "base/std/container/vector.h"
 /** @file ccUtils.h
 Misc free functions
 */

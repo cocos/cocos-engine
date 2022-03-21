@@ -179,9 +179,9 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
 
     const ccstd::vector<std::string> &joints    = skeleton->getJoints();
     const ccstd::vector<Mat4> &       bindPoses = skeleton->getBindposes();
-    Float32Array                    textureBuffer;
-    bool                            buildTexture = false;
-    auto                            jointCount   = static_cast<uint32_t>(joints.size());
+    Float32Array                      textureBuffer;
+    bool                              buildTexture = false;
+    auto                              jointCount   = static_cast<uint32_t>(joints.size());
     if (!texture.has_value()) {
         uint32_t             bufSize = jointCount * 12;
         ITextureBufferHandle handle;
@@ -490,7 +490,7 @@ void JointAnimationInfo::destroy(const std::string &nodeID) {
 }
 
 const IAnimInfo &JointAnimationInfo::switchClip(IAnimInfo &info /*, AnimationClip *clip */) {
-//    info.currentClip = clip;
+    //    info.currentClip = clip;
     info.data[0] = -1;
     info.buffer->update(info.data.buffer()->getData());
     info.dirty = false;

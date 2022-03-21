@@ -187,7 +187,7 @@ ccstd::vector<void *> CallStack::backtrace() {
 ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *> &callstack) {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ccstd::vector<StackFrame> frames;
-    size_t                  size = callstack.size();
+    size_t                    size = callstack.size();
     for (size_t i = 0; i < size; i++) {
         Dl_info    info;
         StackFrame frame;
@@ -218,7 +218,7 @@ ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *
     }
 
     ccstd::vector<StackFrame> frames;
-    char **                 strs = ::backtrace_symbols(&callstack[0], size);
+    char **                   strs = ::backtrace_symbols(&callstack[0], size);
     for (size_t i = 0; i < size; i++) {
         StackFrame frame;
         frame.file = strs[i];

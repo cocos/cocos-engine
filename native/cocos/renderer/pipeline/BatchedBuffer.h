@@ -39,7 +39,7 @@ namespace pipeline {
 
 struct CC_DLL BatchedItem {
     gfx::BufferList                           vbs;
-    ccstd::vector<uint8_t *>                         vbDatas;
+    ccstd::vector<uint8_t *>                  vbDatas;
     gfx::Buffer *                             indexBuffer = nullptr;
     float *                                   indexData   = nullptr;
     uint                                      vbCount     = 0;

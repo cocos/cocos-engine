@@ -49,7 +49,7 @@ namespace cc {
 namespace gfx {
 
 DeviceValidator *DeviceValidator::instance = nullptr;
-bool DeviceValidator::allowStacktraceJS{true};
+bool             DeviceValidator::allowStacktraceJS{true};
 
 DeviceValidator *DeviceValidator::getInstance() {
     return DeviceValidator::instance;

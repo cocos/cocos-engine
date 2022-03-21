@@ -86,7 +86,7 @@ private:
     ccstd::vector<std::string>        _joints;
     ccstd::vector<Mat4>               _bindposes;
     cc::optional<ccstd::vector<Mat4>> _invBindposes;
-    uint64_t                        _hash{0};
+    uint64_t                          _hash{0};
 };
 
 } // namespace cc

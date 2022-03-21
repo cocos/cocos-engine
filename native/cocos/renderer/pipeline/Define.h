@@ -30,8 +30,8 @@
 #include "base/Object.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
-#include "renderer/gfx-base/GFXDef.h"
 #include "base/std/container/vector.h"
+#include "renderer/gfx-base/GFXDef.h"
 
 namespace cc {
 
@@ -99,10 +99,10 @@ struct CC_DLL RenderTextureDesc {
 using RenderTextureDescList = ccstd::vector<RenderTextureDesc>;
 
 struct CC_DLL FrameBufferDesc {
-    String         name;
-    uint           renderPass = 0;
+    String                name;
+    uint                  renderPass = 0;
     ccstd::vector<String> colorTextures;
-    String         depthStencilTexture;
+    String                depthStencilTexture;
 };
 using FrameBufferDescList = ccstd::vector<FrameBufferDesc>;
 

@@ -72,14 +72,14 @@ IGeometry box(const cc::optional<IBoxOptions> &options) {
     ccstd::vector<float>    uvs;
     ccstd::vector<float>    tangents;
     ccstd::vector<uint32_t> indices;
-    const Vec3            minPos(-hw, -hh, -hl);
-    const Vec3            maxPos(hw, hh, hl);
-    float                 boundingRadius{static_cast<float>(sqrt(hw * hw + hh * hh + hl * hl))};
+    const Vec3              minPos(-hw, -hh, -hl);
+    const Vec3              maxPos(hw, hh, hl);
+    float                   boundingRadius{static_cast<float>(sqrt(hw * hw + hh * hh + hl * hl))};
 
     auto buildPlane = [&](uint32_t side, uint32_t uSegments, uint32_t vSegments) {
-        float                  u           = 0;
-        float                  v           = 0;
-        const auto             offset      = static_cast<uint32_t>(positions.size() / 3);
+        float                         u           = 0;
+        float                         v           = 0;
+        const auto                    offset      = static_cast<uint32_t>(positions.size() / 3);
         const ccstd::vector<uint32_t> faceAxe     = FACE_AXES[side];
         const ccstd::vector<float>    faceNormal  = FACE_NORMALS[side];
         const ccstd::vector<float>    faceTangent = FACE_TANGENTS[side];

@@ -65,11 +65,11 @@ private:
     std::array<float, UBOShadow::COUNT> _shadowUBO;
 
     ccstd::vector<gfx::Buffer *> _ubos;
-    void                       initCombineSignY();
+    void                         initCombineSignY();
     ccstd::vector<float>         _cameraUBOs;
-    gfx::Buffer *              _cameraBuffer{nullptr};
-    uint                       _currentCameraUBOOffset{0};
-    uint                       _alignedCameraUBOSize{0};
+    gfx::Buffer *                _cameraBuffer{nullptr};
+    uint                         _currentCameraUBOOffset{0};
+    uint                         _alignedCameraUBOSize{0};
 };
 
 } // namespace pipeline

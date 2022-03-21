@@ -274,10 +274,10 @@ void Mesh::initialize() {
             return;
         }
 
-        auto &                                      buffer        = _data;
-        gfx::Device *                               gfxDevice     = gfx::Device::getInstance();
-        auto                                        vertexBuffers = createVertexBuffers(gfxDevice, buffer.buffer());
-        gfx::BufferList                             indexBuffers;
+        auto &                                        buffer        = _data;
+        gfx::Device *                                 gfxDevice     = gfx::Device::getInstance();
+        auto                                          vertexBuffers = createVertexBuffers(gfxDevice, buffer.buffer());
+        gfx::BufferList                               indexBuffers;
         ccstd::vector<IntrusivePtr<RenderingSubMesh>> subMeshes;
 
         for (size_t i = 0; i < _struct.primitives.size(); i++) {
@@ -379,10 +379,10 @@ Mesh::BoneSpaceBounds Mesh::getBoneSpaceBounds(Skeleton *skeleton) {
     if (iter != _boneSpaceBounds.end()) {
         return iter->second;
     }
-    Vec3              v32;
-    BoneSpaceBounds & bounds = _boneSpaceBounds[skeleton->getHash()];
+    Vec3                v32;
+    BoneSpaceBounds &   bounds = _boneSpaceBounds[skeleton->getHash()];
     ccstd::vector<bool> valid;
-    const auto &      bindposes = skeleton->getBindposes();
+    const auto &        bindposes = skeleton->getBindposes();
     valid.reserve(bindposes.size());
     for (size_t i = 0; i < bindposes.size(); i++) {
         bounds.emplace_back(new geometry::AABB{

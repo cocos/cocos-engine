@@ -375,12 +375,12 @@ private:
     ccstd::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, ccstd::vector<PromiseExceptionMsg>>> _promiseArray;
 
     std::chrono::steady_clock::time_point _startTime;
-    ccstd::vector<RegisterCallback>         _registerCallbackArray;
-    ccstd::vector<RegisterCallback>         _permRegisterCallbackArray;
-    ccstd::vector<std::function<void()>>    _beforeInitHookArray;
-    ccstd::vector<std::function<void()>>    _afterInitHookArray;
-    ccstd::vector<std::function<void()>>    _beforeCleanupHookArray;
-    ccstd::vector<std::function<void()>>    _afterCleanupHookArray;
+    ccstd::vector<RegisterCallback>       _registerCallbackArray;
+    ccstd::vector<RegisterCallback>       _permRegisterCallbackArray;
+    ccstd::vector<std::function<void()>>  _beforeInitHookArray;
+    ccstd::vector<std::function<void()>>  _afterInitHookArray;
+    ccstd::vector<std::function<void()>>  _beforeCleanupHookArray;
+    ccstd::vector<std::function<void()>>  _afterCleanupHookArray;
 
     v8::Persistent<v8::Context> _context;
 

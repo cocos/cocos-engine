@@ -328,12 +328,12 @@ class CpuComputing final : public SubMeshMorphRendering {
 public:
     explicit CpuComputing(Mesh *mesh, uint32_t subMeshIndex, const Morph *morph, gfx::Device *gfxDevice);
 
-    SubMeshMorphRenderingInstance *       createInstance() override;
+    SubMeshMorphRenderingInstance *         createInstance() override;
     const ccstd::vector<CpuMorphAttribute> &getData() const;
 
 private:
     ccstd::vector<CpuMorphAttribute> _attributes;
-    gfx::Device *                  _gfxDevice{nullptr};
+    gfx::Device *                    _gfxDevice{nullptr};
 };
 
 class GpuComputing final : public SubMeshMorphRendering {
@@ -344,12 +344,12 @@ public:
     void destroy();
 
 private:
-    gfx::Device *                  _gfxDevice{nullptr};
-    const SubMeshMorph *           _subMeshMorph{nullptr};
-    uint32_t                       _textureWidth{0};
-    uint32_t                       _textureHeight{0};
+    gfx::Device *                    _gfxDevice{nullptr};
+    const SubMeshMorph *             _subMeshMorph{nullptr};
+    uint32_t                         _textureWidth{0};
+    uint32_t                         _textureHeight{0};
     ccstd::vector<GpuMorphAttribute> _attributes;
-    uint32_t                       _verticesCount{0};
+    uint32_t                         _verticesCount{0};
 
     friend class GpuComputingRenderingInstance;
 };
@@ -437,8 +437,8 @@ public:
 
 private:
     ccstd::vector<GpuMorphAttribute> _attributes;
-    IntrusivePtr<CpuComputing>     _owner;
-    IntrusivePtr<MorphUniforms>    _morphUniforms;
+    IntrusivePtr<CpuComputing>       _owner;
+    IntrusivePtr<MorphUniforms>      _morphUniforms;
 };
 
 class GpuComputingRenderingInstance final : public SubMeshMorphRenderingInstance {
@@ -491,8 +491,8 @@ public:
 
 private:
     ccstd::vector<GpuMorphAttribute> *_attributes{nullptr};
-    IntrusivePtr<GpuComputing>      _owner;
-    IntrusivePtr<MorphUniforms>     _morphUniforms;
+    IntrusivePtr<GpuComputing>        _owner;
+    IntrusivePtr<MorphUniforms>       _morphUniforms;
 };
 
 CpuComputing::CpuComputing(Mesh *mesh, uint32_t subMeshIndex, const Morph *morph, gfx::Device *gfxDevice) {
@@ -680,7 +680,7 @@ public:
     }
 
 private:
-    IntrusivePtr<StdMorphRendering>                          _owner;
+    IntrusivePtr<StdMorphRendering>                            _owner;
     ccstd::vector<IntrusivePtr<SubMeshMorphRenderingInstance>> _subMeshInstances;
 };
 

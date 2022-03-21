@@ -83,7 +83,7 @@ protected:
     ALsizei  _queBufferSize[QUEUEBUFFER_NUM];
     uint32_t _queBufferFrames;
 
-    std::mutex                         _playCallbackMutex;
+    std::mutex                           _playCallbackMutex;
     ccstd::vector<std::function<void()>> _playCallbacks;
 
     // loadCallbacks doesn't need mutex since it's invoked only in Cocos thread.

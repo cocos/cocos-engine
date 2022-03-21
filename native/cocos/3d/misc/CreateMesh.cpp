@@ -32,12 +32,12 @@ Mesh::ICreateInfo MeshUtils::createMeshInfo(const IGeometry &geometry, const ICr
     gfx::AttributeList attributes;
     uint32_t           stride = 0;
     struct Channel {
-        uint32_t           offset{0};
+        uint32_t             offset{0};
         ccstd::vector<float> data; // float?
-        gfx::Attribute     attribute;
+        gfx::Attribute       attribute;
     };
     ccstd::vector<Channel> channels;
-    uint32_t             vertCount = 0;
+    uint32_t               vertCount = 0;
 
     const gfx::Attribute *attr = nullptr;
 
@@ -191,8 +191,8 @@ Mesh::ICreateInfo MeshUtils::createMeshInfo(const IGeometry &geometry, const ICr
     const uint32_t   idxStride = 2;
     if (geometry.indices.has_value()) {
         const ccstd::vector<uint32_t> &indices = geometry.indices.value();
-        idxCount                             = static_cast<uint32_t>(indices.size());
-        indexBuffer                          = new ArrayBuffer(idxStride * idxCount);
+        idxCount                               = static_cast<uint32_t>(indices.size());
+        indexBuffer                            = new ArrayBuffer(idxStride * idxCount);
         DataView indexBufferView(indexBuffer);
         writeBuffer(indexBufferView, indices, gfx::Format::R16UI);
     }
@@ -305,7 +305,7 @@ Mesh::ICreateInfo MeshUtils::createDynamicMeshInfo(const IDynamicGeometry &geome
 
     ccstd::vector<Mesh::IVertexBundle> vertexBundles;
     ccstd::vector<Mesh::ISubMesh>      primitives;
-    uint32_t                         dataSize = 0U;
+    uint32_t                           dataSize = 0U;
 
     for (auto i = 0U; i < options.maxSubMeshes; i++) {
         Mesh::ISubMesh primitive;

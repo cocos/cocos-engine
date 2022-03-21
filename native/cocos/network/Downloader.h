@@ -31,8 +31,8 @@
 #include <map>
 #include <memory>
 #include <string>
-#include "base/std/container/vector.h"
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace network {
@@ -74,7 +74,7 @@ public:
     Downloader(const DownloaderHints &hints);
     ~Downloader();
 
-    std::function<void(const DownloadTask &              task,
+    std::function<void(const DownloadTask &                task,
                        const ccstd::vector<unsigned char> &data)>
         onDataTaskSuccess;
 

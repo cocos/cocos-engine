@@ -272,10 +272,10 @@ public:
     inline index_t                                   getPassIndex() const { return _passIndex; }
     inline index_t                                   getPropertyIndex() const { return _propertyIndex; }
     // data
-    inline const IPassDynamics &         getDynamics() const { return _dynamics; }
+    inline const IPassDynamics &           getDynamics() const { return _dynamics; }
     inline const ccstd::vector<IBlockRef> &getBlocks() const { return _blocks; }
-    inline ArrayBuffer *                 getRootBlock() { return _rootBlock; }
-    inline bool                          isRootBufferDirty() const { return _rootBufferDirty; }
+    inline ArrayBuffer *                   getRootBlock() { return _rootBlock; }
+    inline bool                            isRootBufferDirty() const { return _rootBufferDirty; }
     //NOTE: _setRootBufferDirty must contain a _ prefix to make bindings-generator work correctly.
     // In ts engine, Pass has rootBufferDirty getter and without setter, but it contains a protected function named _setRootBufferDirty.
     // If we remove _ prefix in C++, bindings-generator doesn't support to bind rootBufferDirty property as getter and ignore to bind setRootBufferDirty as setter at the same time.
@@ -312,10 +312,10 @@ protected:
     virtual void syncBatchingScheme();
 
     // internal resources
-    IntrusivePtr<gfx::Buffer>              _rootBuffer;
+    IntrusivePtr<gfx::Buffer>                _rootBuffer;
     ccstd::vector<IntrusivePtr<gfx::Buffer>> _buffers;
-    IntrusivePtr<gfx::DescriptorSet>       _descriptorSet;
-    IntrusivePtr<gfx::PipelineLayout>      _pipelineLayout;
+    IntrusivePtr<gfx::DescriptorSet>         _descriptorSet;
+    IntrusivePtr<gfx::PipelineLayout>        _pipelineLayout;
     // internal data
     index_t                       _passIndex{0};
     index_t                       _propertyIndex{0};
@@ -323,7 +323,7 @@ protected:
     IPassDynamics                 _dynamics;
     Record<std::string, uint32_t> _propertyHandleMap;
     IntrusivePtr<ArrayBuffer>     _rootBlock;
-    ccstd::vector<IBlockRef>        _blocks; // Point to position in _rootBlock
+    ccstd::vector<IBlockRef>      _blocks; // Point to position in _rootBlock
 
     IProgramInfo *                                           _shaderInfo; // weakref to template of ProgramLib
     MacroRecord                                              _defines;

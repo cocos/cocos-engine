@@ -93,8 +93,8 @@ private:
     ccstd::vector<ResourceNode>                     _resourceNodes{};
     ccstd::vector<std::unique_ptr<VirtualResource>> _virtualResources{};
     ccstd::vector<std::unique_ptr<DevicePass>>      _devicePasses{};
-    ResourceHandleBlackboard                      _blackboard;
-    bool                                          _merge{true};
+    ResourceHandleBlackboard                        _blackboard;
+    bool                                            _merge{true};
 
     friend class PassNode;
     friend class PassNodeBuilder;

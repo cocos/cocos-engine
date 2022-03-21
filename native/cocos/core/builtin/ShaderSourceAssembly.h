@@ -27,8 +27,8 @@
 
 #include <string>
 #include <unordered_map>
-#include "base/std/container/vector.h"
 #include "base/StringUtil.h"
+#include "base/std/container/vector.h"
 namespace cc {
 
 using ShaderInfo      = std::unordered_map<std::string, GzipedString>;

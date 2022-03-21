@@ -61,7 +61,7 @@ public:
     uint32_t _depth{0};
 
 private:
-    void                                              initPool(uint32_t index);
+    void                                                initPool(uint32_t index);
     ccstd::vector<std::array<ValueArray, MAX_ARGS + 1>> _pools;
 };
 

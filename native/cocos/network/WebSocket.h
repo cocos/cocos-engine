@@ -166,10 +166,10 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate &                delegate,
-              const std::string &             url,
+    bool init(const Delegate &                  delegate,
+              const std::string &               url,
               const ccstd::vector<std::string> *protocols  = nullptr,
-              const std::string &             caFilePath = "");
+              const std::string &               caFilePath = "");
 
     /**
      *  @brief Sends string data to websocket server.

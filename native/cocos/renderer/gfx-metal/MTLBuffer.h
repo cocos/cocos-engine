@@ -71,10 +71,10 @@ protected:
     bool               _isIndirectDrawSupported = false;
     uint               _bufferViewOffset        = 0;
 
-    bool                                              _isDrawIndirectByIndex = false;
+    bool                                                     _isDrawIndirectByIndex = false;
     ccstd::vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
     ccstd::vector<MTLDrawPrimitivesIndirectArguments>        _primitiveIndirectArguments;
-    DrawInfoList                                      _drawInfos;
+    DrawInfoList                                             _drawInfos;
 
     CCMTLGPUBuffer *_gpuBuffer = nullptr;
 };

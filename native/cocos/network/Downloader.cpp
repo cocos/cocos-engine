@@ -82,10 +82,10 @@ Downloader::Downloader(const DownloaderHints &hints) {
         }
     };
 
-    _impl->onTaskFinish = [this](const DownloadTask &              task,
-                                 int                               errorCode,
-                                 int                               errorCodeInternal,
-                                 const std::string &               errorStr,
+    _impl->onTaskFinish = [this](const DownloadTask &                task,
+                                 int                                 errorCode,
+                                 int                                 errorCodeInternal,
+                                 const std::string &                 errorStr,
                                  const ccstd::vector<unsigned char> &data) {
         if (DownloadTask::ERROR_NO_ERROR != errorCode) {
             if (onTaskError) {

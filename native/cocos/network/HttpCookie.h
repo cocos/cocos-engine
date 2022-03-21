@@ -49,11 +49,11 @@ public:
     void setCookieFileName(const std::string &fileName);
 
     const ccstd::vector<CookiesInfo> *getCookies() const;
-    const CookiesInfo *             getMatchCookie(const std::string &url) const;
-    void                            updateOrAddCookie(CookiesInfo *cookie);
+    const CookiesInfo *               getMatchCookie(const std::string &url) const;
+    void                              updateOrAddCookie(CookiesInfo *cookie);
 
 private:
-    std::string              _cookieFileName;
+    std::string                _cookieFileName;
     ccstd::vector<CookiesInfo> _cookies;
 };
 

@@ -57,15 +57,15 @@ public:
         explicit SimulationEventCallback(PhysXEventManager *m) : mManager(m) {}
     };
 
-    inline SimulationEventCallback &                       getEventCallback() { return *_mCallback; }
+    inline SimulationEventCallback &                         getEventCallback() { return *_mCallback; }
     inline ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerPairs() { return _mTriggerPairs; }
     inline ccstd::vector<std::shared_ptr<ContactEventPair>> &getConatctPairs() { return _mConatctPairs; }
-    void                                                   refreshPairs();
+    void                                                     refreshPairs();
 
 private:
     ccstd::vector<std::shared_ptr<TriggerEventPair>> _mTriggerPairs;
     ccstd::vector<std::shared_ptr<ContactEventPair>> _mConatctPairs;
-    SimulationEventCallback *                      _mCallback;
+    SimulationEventCallback *                        _mCallback;
 };
 
 } // namespace physics

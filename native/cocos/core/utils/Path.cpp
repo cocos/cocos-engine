@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "core/utils/Path.h"
-#include "base/StringUtil.h"
 #include <cstring>
+#include "base/StringUtil.h"
 
 namespace cc {
 

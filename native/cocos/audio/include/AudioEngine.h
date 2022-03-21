@@ -373,9 +373,9 @@ protected:
     static bool sIsEnabled;
 
 private:
-    static float sVolumeFactor;
-    static uint32_t sOnPauseListenerID;
-    static uint32_t sOnResumeListenerID;
+    static float              sVolumeFactor;
+    static uint32_t           sOnPauseListenerID;
+    static uint32_t           sOnResumeListenerID;
     static ccstd::vector<int> sBreakAudioID;
 
     static void onEnterBackground(const CustomEvent &);

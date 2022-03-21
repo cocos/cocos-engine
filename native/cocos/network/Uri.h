@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include <string>
 #include <stdint.h>
+#include <string>
 #include "base/Macros.h"
 #include "base/std/container/vector.h"
 
@@ -157,20 +157,20 @@ public:
 private:
     bool doParse(const std::string &str);
 
-    bool _isValid;
-    bool _isSecure;
-    std::string _scheme;
-    std::string _username;
-    std::string _password;
-    std::string _host;
-    std::string _hostName;
-    bool _hasAuthority;
-    uint16_t _port;
-    std::string _authority;
-    std::string _pathEtc;
-    std::string _path;
-    std::string _query;
-    std::string _fragment;
+    bool                                               _isValid;
+    bool                                               _isSecure;
+    std::string                                        _scheme;
+    std::string                                        _username;
+    std::string                                        _password;
+    std::string                                        _host;
+    std::string                                        _hostName;
+    bool                                               _hasAuthority;
+    uint16_t                                           _port;
+    std::string                                        _authority;
+    std::string                                        _pathEtc;
+    std::string                                        _path;
+    std::string                                        _query;
+    std::string                                        _fragment;
     ccstd::vector<std::pair<std::string, std::string>> _queryParams;
 };
 

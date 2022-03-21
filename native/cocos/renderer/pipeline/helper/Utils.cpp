@@ -30,9 +30,9 @@
 #include "pipeline/Define.h"
 #include "scene/Camera.h"
 #include "scene/Model.h"
+#include "scene/Pass.h"
 #include "scene/RenderWindow.h"
 #include "scene/SubModel.h"
-#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

@@ -68,7 +68,7 @@ private:
     IntrusivePtr<gfx::DescriptorSetLayout>         _descriptorSetLayout;
     gfx::DescriptorSet *                           _globalDescriptorSet = nullptr;
     std::unordered_map<uint, gfx::DescriptorSet *> _descriptorSetMap{};
-    ccstd::vector<gfx::Buffer *>                     _shadowUBOs;
+    ccstd::vector<gfx::Buffer *>                   _shadowUBOs;
 };
 
 } // namespace pipeline

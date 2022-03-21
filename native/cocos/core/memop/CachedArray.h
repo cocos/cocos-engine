@@ -183,7 +183,7 @@ public:
     }
 
     ccstd::vector<T *> _array;
-    uint32_t         _length{0};
+    uint32_t           _length{0};
 
 private:
     CompareFn _compareFn{nullptr};

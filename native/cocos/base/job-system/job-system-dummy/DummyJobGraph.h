@@ -55,7 +55,7 @@ public:
 private:
     bool excuted(DummyGraphNode *n) const;
 
-    int                           _generation{0};
+    int                             _generation{0};
     ccstd::vector<DummyGraphNode *> _nodes;
 };
 

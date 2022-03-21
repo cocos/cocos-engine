@@ -126,8 +126,8 @@ struct CallbackInfo final : public CallbackInfoBase {
 class CallbackList final {
 public:
     ccstd::vector<std::shared_ptr<CallbackInfoBase>> _callbackInfos;
-    bool                                           _isInvoking{false};
-    bool                                           _containCanceled{false};
+    bool                                             _isInvoking{false};
+    bool                                             _containCanceled{false};
 
     /**
      * @zh 从列表中移除与指定目标相同回调函数的事件。

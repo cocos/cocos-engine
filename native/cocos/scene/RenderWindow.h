@@ -117,15 +117,15 @@ public:
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
 
 private:
-    uint32_t                          _width{1};
-    uint32_t                          _height{1};
-    gfx::Swapchain *                  _swapchain{nullptr};
-    std::string                       _title;
-    IntrusivePtr<gfx::RenderPass>     _renderPass;
-    IntrusivePtr<gfx::Texture>        _depthStencilTexture;
-    IntrusivePtr<gfx::Framebuffer>    _frameBuffer;
+    uint32_t                            _width{1};
+    uint32_t                            _height{1};
+    gfx::Swapchain *                    _swapchain{nullptr};
+    std::string                         _title;
+    IntrusivePtr<gfx::RenderPass>       _renderPass;
+    IntrusivePtr<gfx::Texture>          _depthStencilTexture;
+    IntrusivePtr<gfx::Framebuffer>      _frameBuffer;
     ccstd::vector<IntrusivePtr<Camera>> _cameras;
-    RefVector<gfx::Texture *>         _colorTextures;
+    RefVector<gfx::Texture *>           _colorTextures;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderWindow);
 };

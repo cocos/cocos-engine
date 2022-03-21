@@ -55,7 +55,7 @@ private:
 
     struct Subpass final {
         ccstd::vector<LogicPass> logicPasses{};
-        gfx::SubpassInfo       desc;
+        gfx::SubpassInfo         desc;
     };
 
     struct Attachment final {
@@ -72,8 +72,8 @@ private:
 
     ccstd::vector<Subpass>    _subpasses{};
     ccstd::vector<Attachment> _attachments{};
-    uint16_t                _usedRenderTargetSlotMask{0};
-    DevicePassResourceTable _resourceTable;
+    uint16_t                  _usedRenderTargetSlotMask{0};
+    DevicePassResourceTable   _resourceTable;
 
     gfx::Viewport _viewport;
     gfx::Rect     _scissor;

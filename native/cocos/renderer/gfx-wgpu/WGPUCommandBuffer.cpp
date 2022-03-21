@@ -107,7 +107,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
     Texture *                     dsTexture          = ccFrameBuffer->getDepthStencilTexture();
     CCWGPUSwapchain *             swapchain          = ccFrameBuffer->swapchain();
 
-    WGPURenderPassDescriptor &                 renderPassDesc = _gpuCommandBufferObj->renderPassDescriptor;
+    WGPURenderPassDescriptor &                   renderPassDesc = _gpuCommandBufferObj->renderPassDescriptor;
     ccstd::vector<WGPURenderPassColorAttachment> colorAttachments;
     if (colorConfigs.empty()) {
         renderPassDesc.nextInChain          = nullptr;

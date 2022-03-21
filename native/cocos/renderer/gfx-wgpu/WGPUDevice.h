@@ -116,9 +116,9 @@ public:
     Shader *createShader(const SPVShaderInfoInstance &spvInfo);
 
     void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const BufferTextureCopyList &regions) {
-        uint32_t                          len = v["length"].as<unsigned>();
+        uint32_t                              len = v["length"].as<unsigned>();
         ccstd::vector<ccstd::vector<uint8_t>> lifeProlonger(len);
-        ccstd::vector<const uint8_t *>      buffers;
+        ccstd::vector<const uint8_t *>        buffers;
         for (size_t i = 0; i < len; i++) {
             lifeProlonger[i] = EMSArraysToU8Vec(v, i);
             buffers.push_back(lifeProlonger[i].data());
@@ -156,7 +156,7 @@ protected:
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
     void getQueryPoolResults(QueryPool *queryPool) override;
 
-    CCWGPUDeviceObject *           _gpuDeviceObj = nullptr;
+    CCWGPUDeviceObject *             _gpuDeviceObj = nullptr;
     ccstd::vector<CCWGPUSwapchain *> _swapchains;
 };
 

@@ -43,8 +43,8 @@ typedef void (*DeleteHookType)(const void *ptr);
 namespace cc {
 
 struct CC_DLL MemoryRecord {
-    uint64_t            address{0};
-    size_t              size{0};
+    uint64_t              address{0};
+    size_t                size{0};
     ccstd::vector<void *> callstack;
 };
 

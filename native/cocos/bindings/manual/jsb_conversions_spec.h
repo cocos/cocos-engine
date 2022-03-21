@@ -335,7 +335,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Objec
 
 bool        sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);              // NOLINT(readability-identifier-naming)
 bool        sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, std::string> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
-inline bool sevalue_to_native(const se::Value & /*from*/, cc::monostate * /*to*/, se::Object * /*ctx*/) {                // NOLINT(readability-identifier-naming)
+inline bool sevalue_to_native(const se::Value & /*from*/, cc::monostate * /*to*/, se::Object * /*ctx*/) {                  // NOLINT(readability-identifier-naming)
     // nothing todo
     return false;
 }
@@ -442,12 +442,12 @@ inline bool nativevalue_to_se(bool from, se::Value &to, se::Object * /*ctx*/) { 
 }
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
-inline bool nativevalue_to_se(unsigned long from, se::Value &to,  se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool nativevalue_to_se(unsigned long from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     static_assert(sizeof(from) == 8, "");
     to.setDouble(static_cast<double>(from));
     return true;
 }
-inline bool nativevalue_to_se(long from,  se::Value &to,se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+inline bool nativevalue_to_se(long from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     static_assert(sizeof(from) == 8, "");
     to.setDouble(static_cast<double>(from));
     return true;
@@ -534,7 +534,7 @@ inline bool nativevalue_to_se(const se_object_ptr &from, se::Value &to, se::Obje
     return true;
 }
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, cc::middleware::Texture2D *> *ret); // NOLINT(readability-identifier-naming)
-#endif                                                                                                    //USE_MIDDLEWARE
+#endif                                                                                                       //USE_MIDDLEWARE
 
 #if USE_PHYSICS_PHYSX
 

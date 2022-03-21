@@ -306,11 +306,11 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     _colorTexture->resize(newWidth, newHeight);
     _depthStencilTexture->resize(newWidth, newHeight);
 
-    bool                         hasStencil = GFX_FORMAT_INFOS[toNumber(_depthStencilTexture->getFormat())].hasStencil;
+    bool                                hasStencil = GFX_FORMAT_INFOS[toNumber(_depthStencilTexture->getFormat())].hasStencil;
     ccstd::vector<VkImageMemoryBarrier> barriers(imageCount * 2, VkImageMemoryBarrier{});
-    VkPipelineStageFlags         srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkPipelineStageFlags         dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    ThsvsImageBarrier            tempBarrier{};
+    VkPipelineStageFlags                srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags                dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    ThsvsImageBarrier                   tempBarrier{};
     tempBarrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     tempBarrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     tempBarrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;

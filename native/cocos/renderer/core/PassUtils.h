@@ -93,7 +93,7 @@ extern const std::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer; /
  * @param type The type of the uniform
  */
 const ccstd::vector<float> &getDefaultFloatArrayFromType(gfx::Type type);
-const std::string &       getDefaultStringFromType(gfx::Type type);
+const std::string &         getDefaultStringFromType(gfx::Type type);
 
 /**
  * @en Combination of preprocess macros

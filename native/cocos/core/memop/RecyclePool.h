@@ -99,7 +99,7 @@ public:
     void removeAt(uint32_t idx);
 
 private:
-    uint32_t         _count{0};
+    uint32_t           _count{0};
     ccstd::vector<T *> _data;
 };
 

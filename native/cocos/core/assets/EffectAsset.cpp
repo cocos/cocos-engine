@@ -150,7 +150,7 @@ void EffectAsset::initDefault(const cc::optional<std::string> &uuid) {
     _name              = "unlit";
     _shaders           = effect->_shaders;
     _combinations      = effect->_combinations;
-    _techniques        = effect->_techniques; //NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE 
+    _techniques        = effect->_techniques; //NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE
 }
 
 bool EffectAsset::validate() const {
@@ -259,8 +259,8 @@ ccstd::vector<MacroRecord> EffectAsset::generateRecords(const std::string &key, 
 }
 
 ccstd::vector<MacroRecord> EffectAsset::insertInfoValue(const ccstd::vector<MacroRecord> &records,
-                                                      const std::string &             key,
-                                                      const IPreCompileInfoValueType &value) {
+                                                        const std::string &               key,
+                                                        const IPreCompileInfoValueType &  value) {
     ccstd::vector<MacroRecord> ret;
     for (const auto &record : records) {
         if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&value)) {

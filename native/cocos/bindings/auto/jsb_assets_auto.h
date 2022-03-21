@@ -607,6 +607,7 @@ extern se::Class * __jsb_cc_BuiltinResMgr_class; // NOLINT
 
 bool js_register_cc_BuiltinResMgr(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_assets_BuiltinResMgr_addAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_getAsset);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_initBuiltinRes);
 SE_DECLARE_FUNC(js_assets_BuiltinResMgr_isInitialized);

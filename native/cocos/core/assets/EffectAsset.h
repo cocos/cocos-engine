@@ -393,14 +393,14 @@ using IPassInfo = IPassInfoFull;
 
 struct ITechniqueInfo {
     ccstd::vector<IPassInfoFull> passes;
-    cc::optional<std::string>  name;
+    cc::optional<std::string>    name;
 };
 
 struct IBlockInfo {
-    int32_t                   binding{-1};
-    std::string               name;
+    int32_t                     binding{-1};
+    std::string                 name;
     ccstd::vector<gfx::Uniform> members;
-    gfx::ShaderStageFlags     stageFlags{gfx::ShaderStageFlags::NONE};
+    gfx::ShaderStageFlags       stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct ISamplerTextureInfo {
@@ -464,15 +464,15 @@ struct IAttributeInfo {
 };
 
 struct IDefineInfo {
-    std::string                            name;
-    std::string                            type;
+    std::string                              name;
+    std::string                              type;
     cc::optional<ccstd::vector<int32_t>>     range; //cjh number is float?  ?: number[];
     cc::optional<ccstd::vector<std::string>> options;
-    cc::optional<std::string>              defaultVal;
+    cc::optional<std::string>                defaultVal;
 };
 
 struct IBuiltin {
-    std::string              name;
+    std::string                name;
     ccstd::vector<std::string> defines;
 };
 
@@ -497,12 +497,12 @@ struct IShaderSource {
 };
 
 struct IShaderInfo {
-    std::string                       name;
-    uint64_t                          hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
-    IShaderSource                     glsl4;
-    IShaderSource                     glsl3;
-    IShaderSource                     glsl1;
-    IBuiltins                         builtins;
+    std::string                         name;
+    uint64_t                            hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
+    IShaderSource                       glsl4;
+    IShaderSource                       glsl3;
+    IShaderSource                       glsl1;
+    IBuiltins                           builtins;
     ccstd::vector<IDefineInfo>          defines;
     ccstd::vector<IAttributeInfo>       attributes;
     ccstd::vector<IBlockInfo>           blocks;
@@ -583,8 +583,8 @@ protected:
     static ccstd::vector<MacroRecord> doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
     static ccstd::vector<MacroRecord> generateRecords(const std::string &key, const IPreCompileInfoValueType &value);
     static ccstd::vector<MacroRecord> insertInfoValue(const ccstd::vector<MacroRecord> &records,
-                                                    const std::string &             key,
-                                                    const IPreCompileInfoValueType &value);
+                                                      const std::string &               key,
+                                                      const IPreCompileInfoValueType &  value);
 
     void precompile();
 

@@ -201,12 +201,11 @@ Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
 }
 
 /* static */
-Object *Object::createExternalArrayBufferObject(void* contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void* freeUserData/* = nullptr*/) {
+Object *Object::createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData /* = nullptr*/) {
     std::shared_ptr<v8::BackingStore> backingStore = v8::ArrayBuffer::NewBackingStore(contents, byteLength, freeFunc, freeUserData);
-    Object* obj = nullptr;
-    v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, backingStore);
-    if (!jsobj.IsEmpty())
-    {
+    Object *                          obj          = nullptr;
+    v8::Local<v8::ArrayBuffer>        jsobj        = v8::ArrayBuffer::New(__isolate, backingStore);
+    if (!jsobj.IsEmpty()) {
         obj = Object::_createJSObject(nullptr, jsobj);
     }
     return obj;
@@ -616,7 +615,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     size_t argc = args.size();
 
     std::array<v8::Local<v8::Value>, JSB_FUNC_DEFAULT_MAX_ARG_COUNT> argv;
-    std::unique_ptr<ccstd::vector<v8::Local<v8::Value>>>               vecArgs;
+    std::unique_ptr<ccstd::vector<v8::Local<v8::Value>>>             vecArgs;
     v8::Local<v8::Value> *                                           pArgv = argv.data();
 
     if (argc > JSB_FUNC_DEFAULT_MAX_ARG_COUNT) {

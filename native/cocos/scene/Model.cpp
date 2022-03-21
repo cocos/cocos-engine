@@ -105,7 +105,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 };
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
-const std::string                         INST_MAT_WORLD = "a_matWorld0";
+const std::string                           INST_MAT_WORLD = "a_matWorld0";
 } // namespace
 
 namespace cc {

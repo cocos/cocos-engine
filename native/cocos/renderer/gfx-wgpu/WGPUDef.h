@@ -195,7 +195,7 @@ private:
 
 class SPVShaderStageInstance {
 public:
-    ShaderStageFlagBit    stage{ShaderStageFlagBit::NONE};
+    ShaderStageFlagBit      stage{ShaderStageFlagBit::NONE};
     ccstd::vector<uint32_t> spv;
 
     inline void setStage(ShaderStageFlagBit stageIn) { stage = stageIn; }
@@ -215,7 +215,7 @@ public:
     inline void setImages(UniformStorageImageList images) { info.images = images; }
     inline void setSubpasses(UniformInputAttachmentList subpassInputs) { info.subpassInputs = subpassInputs; }
 
-    ShaderInfo                          info;
+    ShaderInfo                            info;
     ccstd::vector<SPVShaderStageInstance> stages;
 };
 

@@ -209,7 +209,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     totalVBs[flatBuffersCount] = indexBuffer;
 
     ccstd::vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();
-    gfx::Attribute         attrib     = {
+    gfx::Attribute                attrib     = {
         "a_dyn_batch_id",
         gfx::Format::R32F,
         false,
