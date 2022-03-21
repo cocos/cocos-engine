@@ -1088,8 +1088,8 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     }
 
     // texture unit index mapping optimization
-    vector<GLES2GPUUniformSamplerTexture> glActiveSamplerTextures;
-    vector<GLint>                         glActiveSamplerLocations;
+    ccstd::vector<GLES2GPUUniformSamplerTexture> glActiveSamplerTextures;
+    ccstd::vector<GLint>                         glActiveSamplerLocations;
     const GLESBindingMapping &            bindingMappings = device->bindingMappings();
     unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
@@ -1120,7 +1120,7 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     }
 
     if (!glActiveSamplerTextures.empty()) {
-        vector<bool> usedTexUnits(device->getCapabilities().maxTextureUnits, false);
+        ccstd::vector<bool> usedTexUnits(device->getCapabilities().maxTextureUnits, false);
         // try to reuse existing mappings first
         for (uint32_t i = 0U; i < glActiveSamplerTextures.size(); i++) {
             GLES2GPUUniformSamplerTexture &glSamplerTexture = glActiveSamplerTextures[i];
@@ -1251,7 +1251,7 @@ void cmdFuncGLES2CreateInputAssembler(GLES2Device *device, GLES2GPUInputAssemble
         }
     }
 
-    vector<uint32_t> streamOffsets(device->getCapabilities().maxVertexAttributes, 0U);
+    ccstd::vector<uint32_t> streamOffsets(device->getCapabilities().maxVertexAttributes, 0U);
 
     gpuInputAssembler->glAttribs.resize(gpuInputAssembler->attributes.size());
     for (size_t i = 0; i < gpuInputAssembler->glAttribs.size(); ++i) {
@@ -1291,12 +1291,12 @@ void cmdFuncGLES2DestroyInputAssembler(GLES2Device *device, GLES2GPUInputAssembl
 }
 
 static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device *                    device,
-                                                                  const vector<GLES2GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
+                                                                  const ccstd::vector<GLES2GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
                                                                   const GLES2GPUTexture *depthStencil,
                                                                   const uint32_t *       resolves            = nullptr,
                                                                   const GLES2GPUTexture *depthStencilResolve = nullptr,
                                                                   GLbitfield *           resolveMask         = nullptr) {
-    static vector<GLenum>                  drawBuffers;
+    static ccstd::vector<GLenum>                  drawBuffers;
     GLES2GPUStateCache *                   cache = device->stateCache();
     GLES2GPUFramebuffer::GLFramebufferInfo res;
 
@@ -1384,7 +1384,7 @@ static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device * 
     return res;
 }
 
-static GLES2GPUSwapchain *getSwapchainIfExists(const vector<GLES2GPUTexture *> &textures, const uint32_t *indices, size_t count) {
+static GLES2GPUSwapchain *getSwapchainIfExists(const ccstd::vector<GLES2GPUTexture *> &textures, const uint32_t *indices, size_t count) {
     GLES2GPUSwapchain *swapchain{nullptr};
     if (indices) {
         size_t offscreenCount{0};
@@ -1401,7 +1401,7 @@ static GLES2GPUSwapchain *getSwapchainIfExists(const vector<GLES2GPUTexture *> &
     return swapchain;
 }
 
-static void doCreateFramebufferInstance(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO, const vector<uint32_t> &colors,
+static void doCreateFramebufferInstance(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO, const ccstd::vector<uint32_t> &colors,
                                         uint32_t depthStencil, GLES2GPUFramebuffer::Framebuffer *outFBO,
                                         const uint32_t *resolves = nullptr, uint32_t depthStencilResolve = INVALID_BINDING) {
     GLES2GPUSwapchain *swapchain{getSwapchainIfExists(gpuFBO->gpuColorTextures, colors.data(), colors.size())};
@@ -1503,7 +1503,7 @@ void cmdFuncGLES2DestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gp
 
 void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2GPURenderPass *gpuRenderPass, GLES2GPUFramebuffer *gpuFramebuffer,
                                  const Rect *renderArea, const Color *clearColors, float clearDepth, uint32_t clearStencil) {
-    static vector<GLenum> invalidAttachments;
+    static ccstd::vector<GLenum> invalidAttachments;
 
     GLES2GPUStateCache *cache         = device->stateCache();
     GLES2ObjectCache &  gfxStateCache = cache->gfxStateCache;
@@ -1694,7 +1694,7 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
 }
 
 void cmdFuncGLES2EndRenderPass(GLES2Device *device) {
-    static vector<GLenum> invalidAttachments;
+    static ccstd::vector<GLenum> invalidAttachments;
 
     GLES2GPUStateCache * cache                = device->stateCache();
     GLES2ObjectCache &   gfxStateCache        = cache->gfxStateCache;
@@ -2045,7 +2045,7 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
     // bind descriptor sets
     if (gpuPipelineState && gpuPipelineState->gpuShader && gpuPipelineState->gpuPipelineLayout) {
         size_t                     blockLen{gpuPipelineState->gpuShader->glBlocks.size()};
-        const vector<vector<int>> &dynamicOffsetIndices{gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices};
+        const ccstd::vector<ccstd::vector<int>> &dynamicOffsetIndices{gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices};
         uint8_t *                  uniformBuffBase{nullptr};
         uint8_t *                  uniformBuff{nullptr};
         uint8_t *                  uniformCachedBuff{nullptr};
@@ -2064,7 +2064,7 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
             }
 
             uint32_t           offset                = 0U;
-            const vector<int> &dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
+            const ccstd::vector<int> &dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
             if (dynamicOffsetIndexSet.size() > glBlock.binding) {
                 int dynamicOffsetIndex = dynamicOffsetIndexSet[glBlock.binding];
                 if (dynamicOffsetIndex >= 0) offset = dynamicOffsets[dynamicOffsetIndex];

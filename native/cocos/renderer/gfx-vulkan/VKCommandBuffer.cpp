@@ -141,7 +141,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         framebuffer = _curGPUFBO->swapchain->vkSwapchainFramebufferListMap[_curGPUFBO][_curGPUFBO->swapchain->curImageIndex];
     }
 
-    vector<VkClearValue> &clearValues     = _curGPURenderPass->clearValues;
+    ccstd::vector<VkClearValue> &clearValues     = _curGPURenderPass->clearValues;
     bool                  depthEnabled    = _curGPURenderPass->depthStencilAttachment.format != Format::UNKNOWN;
     size_t                attachmentCount = depthEnabled ? clearValues.size() - 1 : clearValues.size();
 
@@ -562,7 +562,7 @@ void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
     CCVKDevice *           device               = CCVKDevice::getInstance();
     CCVKGPUDevice *        gpuDevice            = device->gpuDevice();
     CCVKGPUPipelineLayout *pipelineLayout       = _curGPUPipelineState->gpuPipelineLayout;
-    vector<uint32_t> &     dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
+    ccstd::vector<uint32_t> &     dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
     uint32_t               descriptorSetCount   = utils::toUint(pipelineLayout->setLayouts.size());
     _curDynamicOffsets.resize(pipelineLayout->dynamicOffsetCount);
 

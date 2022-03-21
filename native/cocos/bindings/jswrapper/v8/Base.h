@@ -41,7 +41,6 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include "../PrivateObject.h"
 
 #include "HelperMacros.h"

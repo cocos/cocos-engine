@@ -32,6 +32,7 @@
 #include <utility>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
+#include "base/std/container/vector.h"
 #include "bindings/jswrapper/HandleObject.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_classtype.h"
@@ -222,7 +223,7 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
 
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value && std::is_class<typename std::remove_pointer<T>::type>::value, bool>::type
-seval_to_std_vector(const se::Value &v, std::vector<T> *ret) { // NOLINT(readability-identifier-naming)
+seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     assert(ret != nullptr);
     assert(v.isObject());
     se::Object *obj = v.toObject();
@@ -262,7 +263,7 @@ seval_to_std_vector(const se::Value &v, std::vector<T> *ret) { // NOLINT(readabi
 
 template <typename T>
 typename std::enable_if<!std::is_pointer<T>::value, bool>::type
-seval_to_std_vector(const se::Value &v, std::vector<T> *ret) { // NOLINT(readability-identifier-naming)
+seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     assert(ret != nullptr);
     assert(v.isObject());
     se::Object *obj = v.toObject();
@@ -300,7 +301,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, T> *ret
     assert(v.isObject());
     se::Object *obj = v.toObject();
 
-    std::vector<std::string> allKeys;
+    ccstd::vector<std::string> allKeys;
     bool                     ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
@@ -509,7 +510,7 @@ bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = null
     return true;
 }
 template <typename T>
-bool std_vector_to_seval(const std::vector<T> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
+bool std_vector_to_seval(const ccstd::vector<T> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     assert(ret != nullptr);
     bool             ok = true;
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
@@ -712,13 +713,13 @@ template <typename... Args>
 bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 // std::shared_ptr
 template <typename T>
-bool sevalue_to_native(const se::Value &from, std::shared_ptr<std::vector<T>> *out, se::Object *ctx); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, std::shared_ptr<ccstd::vector<T>> *out, se::Object *ctx); // NOLINT(readability-identifier-naming)
 template <typename T>
 bool sevalue_to_native(const se::Value &from, std::shared_ptr<T> *out, se::Object *ctx); // NOLINT(readability-identifier-naming)
-// std::vector
-template <typename T, typename Allocator>
-bool sevalue_to_native(const se::Value &from, std::vector<T, Allocator> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
-// std::vector
+// ccstd::vector
+template <typename T>
+bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+// ccstd::vector
 template <typename T, size_t N>
 bool sevalue_to_native(const se::Value &from, std::array<T, N> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
@@ -778,10 +779,10 @@ bool sevalue_to_native(const se::Value &from, std::array<uint8_t, CNT> *to, se::
 }
 
 template <typename T>
-bool sevalue_to_native(const se::Value &from, cc::variant<T, std::vector<T>> *to, se::Object *ctx) { // NOLINT
+bool sevalue_to_native(const se::Value &from, cc::variant<T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
     se::Object *array = from.toObject();
     if (array->isArray()) {
-        std::vector<T> result;
+        ccstd::vector<T> result;
         sevalue_to_native(from, &result, ctx);
         *to = std::move(result);
     } else {
@@ -846,8 +847,8 @@ sevalue_to_native(const se::Value &from, T ***to, se::Object * /*ctx*/) { // NOL
     return true;
 }
 
-template <typename T, typename allocator>
-bool sevalue_to_native(const se::Value &from, std::vector<T, allocator> *to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+template <typename T>
+bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
 
     if (from.isNullOrUndefined()) {
         to->clear();
@@ -880,7 +881,7 @@ bool sevalue_to_native(const se::Value &from, std::vector<T, allocator> *to, se:
         return true;
     }
 
-    SE_LOGE("[warn] failed to convert to std::vector\n");
+    SE_LOGE("[warn] failed to convert to ccstd::vector\n");
     return false;
 }
 
@@ -991,34 +992,34 @@ inline typename std::enable_if<!is_jsb_object_v<T>, bool>::type sevalue_to_nativ
 #endif // HAS_CONSTEXPR
 
 #if HAS_CONSTEXPR
-template <typename T, typename allocator>
-inline bool sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, true> *holder, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+template <typename T>
+inline bool sevalue_to_native(const se::Value &from, HolderType<ccstd::vector<T>, true> *holder, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     if CC_CONSTEXPR (is_jsb_object_v<T> && std::is_pointer<T>::value) {
         auto &vec = holder->data;
         return sevalue_to_native(from, &vec, ctx);
     } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
-        return sevalue_to_native(from, static_cast<std::vector<T, allocator> *>(&(holder->data)), ctx);
+        return sevalue_to_native(from, static_cast<ccstd::vector<T> *>(&(holder->data)), ctx);
     } else {
         return sevalue_to_native(from, &(holder->data), ctx);
     }
 }
 
 #else
-template <typename T, typename allocator>
+template <typename T>
 inline typename std::enable_if<is_jsb_object_v<T> && std::is_pointer<T>::value, bool>::type
-sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, true> *holder, se::Object *ctx) {
+sevalue_to_native(const se::Value &from, HolderType<ccstd::vector<T>, true> *holder, se::Object *ctx) {
     auto &vec = holder->data;
     return sevalue_to_native(from, &vec, ctx);
 }
-template <typename T, typename allocator>
+template <typename T>
 inline typename std::enable_if<is_jsb_object_v<T> && !std::is_pointer<T>::value, bool>::type
-sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, true> *holder, se::Object *ctx) {
-    return sevalue_to_native(from, (std::vector<T, allocator> *)/* clang/xcode needs this */ &(holder->data), ctx);
+sevalue_to_native(const se::Value &from, HolderType<ccstd::vector<T>, true> *holder, se::Object *ctx) {
+    return sevalue_to_native(from, (ccstd::vector<T> *)/* clang/xcode needs this */ &(holder->data), ctx);
 }
 
-template <typename T, typename allocator>
+template <typename T>
 inline typename std::enable_if<!is_jsb_object_v<T>, bool>::type
-sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, true> *holder, se::Object *ctx) {
+sevalue_to_native(const se::Value &from, HolderType<ccstd::vector<T>, true> *holder, se::Object *ctx) {
     return sevalue_to_native(from, &(holder->data), ctx);
 }
 
@@ -1027,13 +1028,13 @@ sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, t
 /////////////////// std::shared_ptr
 
 template <typename T>
-bool sevalue_to_native(const se::Value &from, std::shared_ptr<std::vector<T>> *out, se::Object *ctx) {
+bool sevalue_to_native(const se::Value &from, std::shared_ptr<ccstd::vector<T>> *out, se::Object *ctx) {
     if (from.isNullOrUndefined()) {
         out->reset();
         return true;
     }
 
-    *out = std::make_shared<std::vector<T>>();
+    *out = std::make_shared<ccstd::vector<T>>();
     return sevalue_to_native(from, out->get(), ctx);
 }
 
@@ -1108,7 +1109,7 @@ bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Objec
 template <typename V>
 bool sevalue_to_native(const se::Value &from, std::unordered_map<std::string, V> *to, se::Object *ctx) { //NOLINT
     se::Object *             jsmap = from.toObject();
-    std::vector<std::string> allKeys;
+    ccstd::vector<std::string> allKeys;
     jsmap->getAllKeys(&allKeys);
     bool      ret = true;
     se::Value property;
@@ -1226,8 +1227,8 @@ bool nativevalue_to_se(const std::reference_wrapper<T> ref, se::Value &to, se::O
 template <typename... ARGS>
 bool nativevalue_to_se(const std::tuple<ARGS...> &from, se::Value &to, se::Object *ctx); // NOLINT
 
-template <typename T, typename A>
-inline bool nativevalue_to_se(const std::vector<T, A> &from, se::Value &to, se::Object *ctx); // NOLINT
+template <typename T>
+inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::Object *ctx); // NOLINT
 
 template <typename K, typename V>
 inline bool nativevalue_to_se(const std::unordered_map<K, V> &from, se::Value &to, se::Object *ctx); // NOLINT
@@ -1251,8 +1252,8 @@ inline bool nativevalue_to_se(const cc::TypedArrayTemp<T> &typedArray, se::Value
     return true;
 }
 
-template <typename T, typename A>
-inline bool nativevalue_to_se(const std::vector<T, A> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+template <typename T>
+inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     se::HandleObject array(se::Object::createArrayObject(from.size()));
     se::Value        tmp;
     for (size_t i = 0; i < from.size(); i++) {
@@ -1263,8 +1264,7 @@ inline bool nativevalue_to_se(const std::vector<T, A> &from, se::Value &to, se::
     return true;
 }
 
-template <typename A>
-inline bool nativevalue_to_se(const std::vector<bool, A> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT
+inline bool nativevalue_to_se(const ccstd::vector<bool> &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT
     se::HandleObject array(se::Object::createArrayObject(from.size()));
     for (auto i = 0; i < from.size(); i++) {
         array->setArrayElement(i, se::Value(from[i]));
@@ -1454,7 +1454,7 @@ bool nativevalue_to_se(const cc::variant<ARGS...> &from, se::Value &to, se::Obje
 }
 
 template <typename T>
-inline bool nativevalue_to_se(const std::shared_ptr<std::vector<T>> &from, se::Value &to, se::Object *ctx) { //NOLINT
+inline bool nativevalue_to_se(const std::shared_ptr<ccstd::vector<T>> &from, se::Value &to, se::Object *ctx) { //NOLINT
     return nativevalue_to_se(*from, to, ctx);
 }
 

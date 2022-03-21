@@ -131,7 +131,7 @@ void AudioCache::readDataTask(unsigned int selfId) {
             uint32_t       framesRead       = 0;
             const uint32_t framesToReadOnce = std::min(totalFrames, static_cast<uint32_t>(sampleRate * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
 
-            std::vector<char> adjustFrameBuf;
+            ccstd::vector<char> adjustFrameBuf;
 
             if (decoder->seek(totalFrames)) {
                 auto *tmpBuf = static_cast<char *>(malloc(framesToReadOnce * bytesPerFrame));

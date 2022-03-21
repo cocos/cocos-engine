@@ -877,7 +877,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalDescriptors", static_cast<uint32_t>(args.size()), args.data());
     });
 
-    cobj->getEventProcessor().on(cc::EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, [=](const std::vector<cc::gfx::Attribute> &attributes, cc::scene::Pass *pass) {
+    cobj->getEventProcessor().on(cc::EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, [=](const ccstd::vector<cc::gfx::Attribute> &attributes, cc::scene::Pass *pass) {
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
@@ -887,7 +887,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         se::ScriptEngine::getInstance()->callFunction(thiz, "_updateInstancedAttributes", static_cast<uint32_t>(args.size()), args.data());
     });
 
-    cobj->getEventProcessor().on(cc::EventTypesToJS::MODEL_GET_MACRO_PATCHES, [=](index_t subModelIndex, std::vector<cc::scene::IMacroPatch> *pPatches) {
+    cobj->getEventProcessor().on(cc::EventTypesToJS::MODEL_GET_MACRO_PATCHES, [=](index_t subModelIndex, ccstd::vector<cc::scene::IMacroPatch> *pPatches) {
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 

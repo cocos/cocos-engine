@@ -24,7 +24,6 @@
 */
 
 #pragma once
-#include <vector>
 
 #include "base/Macros.h"
 #include "base/TypeDef.h"
@@ -68,7 +67,7 @@ public:
      * @param includes All accepted layers
      * @return A filter which can detect all accepted layers
      */
-    static uint32_t makeMaskInclude(const std::vector<uint32_t> &includes) {
+    static uint32_t makeMaskInclude(const ccstd::vector<uint32_t> &includes) {
         uint32_t mask = 0;
         for (uint32_t inc : includes) {
             mask |= inc;
@@ -84,7 +83,7 @@ public:
      * @param excludes All excluded layers
      * @return A filter which can detect for excluded layers
      */
-    static uint32_t makeMaskExclude(const std::vector<uint32_t> &excludes) {
+    static uint32_t makeMaskExclude(const ccstd::vector<uint32_t> &excludes) {
         return ~makeMaskInclude(excludes);
     }
 

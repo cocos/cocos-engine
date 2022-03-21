@@ -282,7 +282,7 @@ void Uri::clear() {
     _queryParams.clear();
 }
 
-const std::vector<std::pair<std::string, std::string>> &Uri::getQueryParams() {
+const ccstd::vector<std::pair<std::string, std::string>> &Uri::getQueryParams() {
     if (!_query.empty() && _queryParams.empty()) {
         // Parse query string
         static const std::regex queryParamRegex(

@@ -100,7 +100,7 @@ bool DescriptorSet::bindSamplerJSB(uint32_t binding, Sampler *sampler, uint32_t 
 }
 
 Buffer *DescriptorSet::getBuffer(uint32_t binding, uint32_t index) const {
-    const vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
+    const ccstd::vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
     if (binding >= descriptorIndices.size()) return nullptr;
     const uint32_t descriptorIndex = descriptorIndices[binding] + index;
     if (descriptorIndex >= _buffers.size()) return nullptr;
@@ -108,7 +108,7 @@ Buffer *DescriptorSet::getBuffer(uint32_t binding, uint32_t index) const {
 }
 
 Texture *DescriptorSet::getTexture(uint32_t binding, uint32_t index) const {
-    const vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
+    const ccstd::vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
     if (binding >= descriptorIndices.size()) return nullptr;
     const uint32_t descriptorIndex = descriptorIndices[binding] + index;
     if (descriptorIndex >= _textures.size()) return nullptr;
@@ -116,7 +116,7 @@ Texture *DescriptorSet::getTexture(uint32_t binding, uint32_t index) const {
 }
 
 Sampler *DescriptorSet::getSampler(uint32_t binding, uint32_t index) const {
-    const vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
+    const ccstd::vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
     if (binding >= descriptorIndices.size()) return nullptr;
     const uint32_t descriptorIndex = descriptorIndices[binding] + index;
     if (descriptorIndex >= _samplers.size()) return nullptr;

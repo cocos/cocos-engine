@@ -26,7 +26,7 @@
 #pragma once
 
 #include <unordered_set>
-#include <vector>
+#include "base/std/container/vector.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/TypeDef.h"
 
@@ -56,7 +56,7 @@ private:
     bool excuted(DummyGraphNode *n) const;
 
     int                           _generation{0};
-    std::vector<DummyGraphNode *> _nodes;
+    ccstd::vector<DummyGraphNode *> _nodes;
 };
 
 class DummyGraphNodeTaskItf {

@@ -290,7 +290,7 @@ gfx::Buffer *RenderingSubMesh::allocVertexIdBuffer(gfx::Device *device) {
                                      // TODO(minggo): This depends on how stride of a vertex buffer is defined; Consider padding problem.
                                      : _vertexBuffers.at(0)->getSize() / _vertexBuffers.at(0)->getStride();
 
-    std::vector<float> vertexIds(vertexCount);
+    ccstd::vector<float> vertexIds(vertexCount);
     for (int iVertex = 0; iVertex < vertexCount; ++iVertex) {
         // `+0.5` because on some platforms, the "fetched integer" may have small error.
         // For example `26` may yield `25.99999`, which is convert to `25` instead of `26` using `int()`.

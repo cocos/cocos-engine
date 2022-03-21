@@ -396,7 +396,7 @@ void PipelineUBO::updateCameraUBO(const scene::Camera *camera) {
     cmdBuffer->updateBuffer(_cameraBuffer, _cameraUBOs.data());
 }
 
-void PipelineUBO::updateMultiCameraUBO(const vector<scene::Camera *> &cameras) {
+void PipelineUBO::updateMultiCameraUBO(const ccstd::vector<scene::Camera *> &cameras) {
     const auto cameraCount  = cameras.size();
     const auto totalUboSize = static_cast<uint>(_alignedCameraUBOSize * cameraCount);
 

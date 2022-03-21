@@ -27,8 +27,7 @@
 #pragma once
 
 #include <string>
-#include <vector>
-
+#include "base/std/container/vector.h"
 #include "HandleObject.h"
 #include "base/Macros.h"
 
@@ -485,7 +484,7 @@ private:
     bool _autoRootUnroot;
 };
 
-using ValueArray = std::vector<Value>;
+using ValueArray = ccstd::vector<Value>;
 extern ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
 } // namespace se

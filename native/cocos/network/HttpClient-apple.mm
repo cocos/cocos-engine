@@ -142,7 +142,7 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
     [nsrequest setHTTPMethod:requestType];
 
     /* get custom header data (if set) */
-    std::vector<std::string> headers = request->getHeaders();
+    ccstd::vector<std::string> headers = request->getHeaders();
     if (!headers.empty()) {
         /* append custom headers one by one */
         for (auto &header : headers) {
@@ -258,13 +258,13 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
         [header deleteCharactersInRange:range];
     }
     NSData *headerData = [header dataUsingEncoding:NSUTF8StringEncoding];
-    std::vector<char> *headerBuffer = (std::vector<char> *)headerStream;
+    ccstd::vector<char> *headerBuffer = (ccstd::vector<char> *)headerStream;
     const void *headerptr = [headerData bytes];
     long headerlen = [headerData length];
     headerBuffer->insert(headerBuffer->end(), (char *)headerptr, (char *)headerptr + headerlen);
 
     //handle response data
-    std::vector<char> *recvBuffer = (std::vector<char> *)stream;
+    ccstd::vector<char> *recvBuffer = (ccstd::vector<char> *)stream;
     const void *ptr = [httpAsynConn.responseData bytes];
     long len = [httpAsynConn.responseData length];
     recvBuffer->insert(recvBuffer->end(), (char *)ptr, (char *)ptr + len);

@@ -44,7 +44,7 @@ bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return true;
 }
 
-std::vector<Class *> __allClasses;
+ccstd::vector<Class *> __allClasses;
 
 } // namespace
 

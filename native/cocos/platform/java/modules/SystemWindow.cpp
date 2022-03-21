@@ -29,7 +29,6 @@
 #include <unistd.h>
 #include <functional>
 #include <thread>
-#include <vector>
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "platform/java/jni/JniImp.h"

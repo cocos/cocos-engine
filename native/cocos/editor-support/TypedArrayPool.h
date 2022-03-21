@@ -54,7 +54,7 @@ public:
 
 private:
     using arrayType = se::Object::TypedArrayType;
-    using objPool   = std::vector<se::Object *>;
+    using objPool   = ccstd::vector<se::Object *>;
     using fitMap    = std::map<std::size_t, objPool *>;
     using typeMap   = std::map<arrayType, fitMap *>;
 

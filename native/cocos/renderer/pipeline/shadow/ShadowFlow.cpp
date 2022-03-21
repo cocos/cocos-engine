@@ -125,7 +125,7 @@ void ShadowFlow::render(scene::Camera *camera) {
 void ShadowFlow::lightCollecting() {
     _validLights.clear();
 
-    const vector<const scene::Light *> validPunctualLights = _pipeline->getPipelineSceneData()->getValidPunctualLights();
+    const ccstd::vector<const scene::Light *> validPunctualLights = _pipeline->getPipelineSceneData()->getValidPunctualLights();
     for (const scene::Light *light : validPunctualLights) {
         if (light->getType() == scene::LightType::SPOT) {
             _validLights.emplace_back(light);
@@ -268,7 +268,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
         renderPassHashMap.insert({rpHash, _renderPass});
     }
 
-    vector<gfx::Texture *> renderTargets;
+    ccstd::vector<gfx::Texture *> renderTargets;
     renderTargets.emplace_back(device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,

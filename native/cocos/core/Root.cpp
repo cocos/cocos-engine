@@ -135,7 +135,7 @@ public:
     bool destroy() noexcept override {
         return pipeline->destroy();
     }
-    void render(const std::vector<scene::Camera *> &cameras) override {
+    void render(const ccstd::vector<scene::Camera *> &cameras) override {
         pipeline->render(cameras);
     }
     const MacroRecord &getMacros() const override {

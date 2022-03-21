@@ -44,17 +44,17 @@ IGeometry capsule(float radiusTop, float radiusBottom, float height, const cc::o
     const float arc = opts.has_value() ? opts->arc : math::PI_2;
 
     // calculate vertex count
-    std::vector<float>    positions;
-    std::vector<float>    normals;
-    std::vector<float>    uvs;
-    std::vector<uint32_t> indices;
+    ccstd::vector<float>    positions;
+    ccstd::vector<float>    normals;
+    ccstd::vector<float>    uvs;
+    ccstd::vector<uint32_t> indices;
     const float           maxRadius = std::max(radiusTop, radiusBottom);
     const Vec3            minPos(-maxRadius, -height / 2, -maxRadius);
     const Vec3            maxPos(maxRadius, height / 2, maxRadius);
     const float           boundingRadius = height / 2;
 
     uint32_t                           index = 0;
-    std::vector<std::vector<uint32_t>> indexArray;
+    ccstd::vector<ccstd::vector<uint32_t>> indexArray;
 
     // =======================
     // internal functions
@@ -65,7 +65,7 @@ IGeometry capsule(float radiusTop, float radiusBottom, float height, const cc::o
 
         // generate positions, normals and uvs
         for (uint32_t y = 0; y <= torSegments; y++) {
-            std::vector<uint32_t> indexRow;
+            ccstd::vector<uint32_t> indexRow;
             const float           lat    = static_cast<float>(y) / static_cast<float>(torSegments);
             const float           radius = lat * (radiusTop - radiusBottom) + radiusBottom;
 

@@ -27,7 +27,6 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"
@@ -257,7 +256,7 @@ public:
      * @param patches The macro patches
      */
     gfx::Shader *getShaderVariant();
-    gfx::Shader *getShaderVariant(const std::vector<IMacroPatch> &patches);
+    gfx::Shader *getShaderVariant(const ccstd::vector<IMacroPatch> &patches);
 
     IPassInfoFull getPassInfoFull() const;
 
@@ -274,7 +273,7 @@ public:
     inline index_t                                   getPropertyIndex() const { return _propertyIndex; }
     // data
     inline const IPassDynamics &         getDynamics() const { return _dynamics; }
-    inline const std::vector<IBlockRef> &getBlocks() const { return _blocks; }
+    inline const ccstd::vector<IBlockRef> &getBlocks() const { return _blocks; }
     inline ArrayBuffer *                 getRootBlock() { return _rootBlock; }
     inline bool                          isRootBufferDirty() const { return _rootBufferDirty; }
     //NOTE: _setRootBufferDirty must contain a _ prefix to make bindings-generator work correctly.
@@ -314,7 +313,7 @@ protected:
 
     // internal resources
     IntrusivePtr<gfx::Buffer>              _rootBuffer;
-    std::vector<IntrusivePtr<gfx::Buffer>> _buffers;
+    ccstd::vector<IntrusivePtr<gfx::Buffer>> _buffers;
     IntrusivePtr<gfx::DescriptorSet>       _descriptorSet;
     IntrusivePtr<gfx::PipelineLayout>      _pipelineLayout;
     // internal data
@@ -324,7 +323,7 @@ protected:
     IPassDynamics                 _dynamics;
     Record<std::string, uint32_t> _propertyHandleMap;
     IntrusivePtr<ArrayBuffer>     _rootBlock;
-    std::vector<IBlockRef>        _blocks; // Point to position in _rootBlock
+    ccstd::vector<IBlockRef>        _blocks; // Point to position in _rootBlock
 
     IProgramInfo *                                           _shaderInfo; // weakref to template of ProgramLib
     MacroRecord                                              _defines;

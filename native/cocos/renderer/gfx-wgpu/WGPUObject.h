@@ -127,8 +127,8 @@ static_assert(sizeof(CCWGPUDrawIndirectObject) == 16, "WGPU drawIndirect structu
 
 struct CCWGPUBufferObject {
     WGPUBuffer                                   wgpuBuffer = wgpuDefaultHandle;
-    std::vector<CCWGPUDrawIndexedIndirectObject> indexedIndirectObjs;
-    std::vector<CCWGPUDrawIndirectObject>        indirectObjs;
+    ccstd::vector<CCWGPUDrawIndexedIndirectObject> indexedIndirectObjs;
+    ccstd::vector<CCWGPUDrawIndirectObject>        indirectObjs;
     bool                                         mapped            = false;
     bool                                         hasDynamicOffsets = false;
 };
@@ -150,12 +150,12 @@ struct CCWGPUSamplerObject {
 
 struct CCWGPUBindGroupLayoutObject {
     WGPUBindGroupLayout                   bindGroupLayout = wgpuDefaultHandle;
-    std::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
+    ccstd::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
 };
 
 struct CCWGPUBindGroupObject {
     WGPUBindGroup                   bindgroup = wgpuDefaultHandle;
-    std::vector<WGPUBindGroupEntry> bindGroupEntries;
+    ccstd::vector<WGPUBindGroupEntry> bindGroupEntries;
     std::set<uint8_t>               bindingSet;
 };
 
@@ -167,7 +167,7 @@ struct CCWGPUPipelineStateObject {
     WGPURenderPipeline  wgpuRenderPipeline  = wgpuDefaultHandle;
     WGPUComputePipeline wgpuComputePipeline = wgpuDefaultHandle;
 
-    std::vector<WGPUVertexAttribute> redundantAttr;
+    ccstd::vector<WGPUVertexAttribute> redundantAttr;
     uint32_t                         maxAttrLength = 0;
 };
 
@@ -217,7 +217,7 @@ struct CCWGPUStateCache {
     uint32_t minAttachmentWidth  = 0;
     uint32_t minAttachmentHeight = 0;
 
-    std::vector<CCWGPUDescriptorSetObject>    descriptorSets;
+    ccstd::vector<CCWGPUDescriptorSetObject>    descriptorSets;
     std::map<StencilFace, CCWGPUStencilMasks> stencilMasks;
 };
 
@@ -239,7 +239,7 @@ struct CCWGPUCommandBufferObject {
 struct CCWGPUQueryPoolObject {
     QueryType             type            = QueryType::OCCLUSION;
     uint32_t              maxQueryObjects = 0;
-    std::vector<uint32_t> idPool;
+    ccstd::vector<uint32_t> idPool;
 };
 
 } // namespace gfx

@@ -108,8 +108,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _gpuDevice->minorVersion = _gpuContext->minorVersion;
 
     // only enable the absolute essentials
-    vector<const char *> requestedLayers{};
-    vector<const char *> requestedExtensions{
+    ccstd::vector<const char *> requestedLayers{};
+    ccstd::vector<const char *> requestedExtensions{
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     };
     if (_gpuDevice->minorVersion < 2) {
@@ -161,8 +161,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     // prepare the device queues
     uint32_t                        queueFamilyPropertiesCount = utils::toUint(_gpuContext->queueFamilyProperties.size());
-    vector<VkDeviceQueueCreateInfo> queueCreateInfos(queueFamilyPropertiesCount, {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO});
-    vector<vector<float>>           queuePriorities(queueFamilyPropertiesCount);
+    ccstd::vector<VkDeviceQueueCreateInfo> queueCreateInfos(queueFamilyPropertiesCount, {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO});
+    ccstd::vector<ccstd::vector<float>>           queuePriorities(queueFamilyPropertiesCount);
 
     for (uint32_t queueFamilyIndex = 0U; queueFamilyIndex < queueFamilyPropertiesCount; ++queueFamilyIndex) {
         const VkQueueFamilyProperties &queueFamilyProperty = _gpuContext->queueFamilyProperties[queueFamilyIndex];
@@ -543,11 +543,11 @@ void CCVKDevice::doDestroy() {
 }
 
 namespace {
-vector<VkSwapchainKHR>       vkSwapchains;
-vector<uint32_t>             vkSwapchainIndices;
-vector<CCVKGPUSwapchain *>   gpuSwapchains;
-vector<VkImageMemoryBarrier> vkAcquireBarriers;
-vector<VkImageMemoryBarrier> vkPresentBarriers;
+    ccstd::vector<VkSwapchainKHR>       vkSwapchains;
+    ccstd::vector<uint32_t>             vkSwapchainIndices;
+    ccstd::vector<CCVKGPUSwapchain *>   gpuSwapchains;
+    ccstd::vector<VkImageMemoryBarrier> vkAcquireBarriers;
+    ccstd::vector<VkImageMemoryBarrier> vkPresentBarriers;
 
 VkImageMemoryBarrier acquireBarrier{
     VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -671,7 +671,7 @@ CCVKGPURecycleBin *       CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_
 CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuDevice->curBackBufferIndex]; }
 
 void CCVKDevice::waitAllFences() {
-    static vector<VkFence> fences;
+    static ccstd::vector<VkFence> fences;
     fences.clear();
 
     for (auto *fencePool : _gpuFencePools) {
@@ -816,7 +816,7 @@ void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffe
     CC_PROFILE(CCVKDeviceCopyTextureToBuffers);
     uint32_t                              totalSize = 0U;
     Format                                format    = srcTexture->getFormat();
-    vector<std::pair<uint32_t, uint32_t>> regionOffsetSizes(count);
+    ccstd::vector<std::pair<uint32_t, uint32_t>> regionOffsetSizes(count);
     for (size_t i = 0U; i < count; ++i) {
         const BufferTextureCopy &region     = regions[i];
         uint32_t                 w          = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
@@ -858,7 +858,7 @@ void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
     uint32_t              width  = bWait ? 1U : 2U;
     uint64_t              stride = sizeof(uint64_t) * width;
     VkQueryResultFlagBits flag   = bWait ? VK_QUERY_RESULT_WAIT_BIT : VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
-    std::vector<uint64_t> results(queryCount * width, 0ULL);
+    ccstd::vector<uint64_t> results(queryCount * width, 0ULL);
 
     if (queryCount > 0U) {
         VkResult result = vkGetQueryPoolResults(
@@ -900,14 +900,14 @@ static VkResult VKAPI_PTR vkCreateRenderPass2KHRFallback(
     const VkRenderPassCreateInfo2 *pCreateInfo,
     const VkAllocationCallbacks *  pAllocator,
     VkRenderPass *                 pRenderPass) {
-    static vector<VkAttachmentDescription> attachmentDescriptions;
-    static vector<VkSubpassDescription>    subpassDescriptions;
-    static vector<VkAttachmentReference>   attachmentReferences;
-    static vector<VkSubpassDependency>     subpassDependencies;
-    static vector<size_t>                  inputs;
-    static vector<size_t>                  colors;
-    static vector<size_t>                  resolves;
-    static vector<size_t>                  depths;
+    static ccstd::vector<VkAttachmentDescription> attachmentDescriptions;
+    static ccstd::vector<VkSubpassDescription>    subpassDescriptions;
+    static ccstd::vector<VkAttachmentReference>   attachmentReferences;
+    static ccstd::vector<VkSubpassDependency>     subpassDependencies;
+    static ccstd::vector<size_t>                  inputs;
+    static ccstd::vector<size_t>                  colors;
+    static ccstd::vector<size_t>                  resolves;
+    static ccstd::vector<size_t>                  depths;
 
     attachmentDescriptions.resize(pCreateInfo->attachmentCount);
     for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {

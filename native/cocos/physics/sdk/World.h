@@ -42,11 +42,11 @@ public:
     void                                            syncSceneToPhysics() override;
     void                                            syncSceneWithCheck() override;
     void                                            setCollisionMatrix(uint32_t i, uint32_t m) override;
-    std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override;
-    std::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override;
+    ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override;
+    ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override;
     bool                                            raycast(RaycastOptions &opt) override;
     bool                                            raycastClosest(RaycastOptions &opt) override;
-    std::vector<RaycastResult> &                    raycastResult() override;
+    ccstd::vector<RaycastResult> &                    raycastResult() override;
     RaycastResult &                                 raycastClosestResult() override;
     uintptr_t                                       createConvex(ConvexDesc &desc) override;
     uintptr_t                                       createTrimesh(TrimeshDesc &desc) override;

@@ -53,7 +53,7 @@ void SubModel::update() {
     _worldBoundDescriptorSet->update();
 }
 
-void SubModel::setPasses(const std::shared_ptr<std::vector<IntrusivePtr<Pass>>> &pPasses) {
+void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses) {
     if (!pPasses || pPasses->size() > MAX_PASS_COUNT) {
         debug::errorID(12004, MAX_PASS_COUNT);
         return;
@@ -91,7 +91,7 @@ Pass *SubModel::getPass(uint index) const {
     return passes[index];
 }
 
-void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<std::vector<IntrusivePtr<Pass>>> &pPasses, const std::vector<IMacroPatch> &patches) {
+void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses, const ccstd::vector<IMacroPatch> &patches) {
     _device = Root::getInstance()->getDevice();
     if (!pPasses->empty()) {
         dsInfo.layout = (*pPasses)[0]->getLocalSetLayout();
@@ -205,7 +205,7 @@ void SubModel::onPipelineStateChanged() {
     flushPassInfo();
 }
 
-void SubModel::onMacroPatchesStateChanged(const std::vector<IMacroPatch> &patches) {
+void SubModel::onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches) {
     _patches           = patches;
     const auto &passes = *_passes;
     if (passes.empty()) return;

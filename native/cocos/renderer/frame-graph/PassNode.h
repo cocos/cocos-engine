@@ -64,11 +64,11 @@ private:
     Handle                  getWriteResourceNodeHandle(const FrameGraph &graph, const VirtualResource *resource) const;
 
     std::unique_ptr<Executable>         _pass{nullptr};
-    std::vector<Handle>                 _reads{};
-    std::vector<Handle>                 _writes{};
-    std::vector<RenderTargetAttachment> _attachments{};
-    std::vector<VirtualResource *>      _resourceRequestArray{};
-    std::vector<VirtualResource *>      _resourceReleaseArray{};
+    ccstd::vector<Handle>                 _reads{};
+    ccstd::vector<Handle>                 _writes{};
+    ccstd::vector<RenderTargetAttachment> _attachments{};
+    ccstd::vector<VirtualResource *>      _resourceRequestArray{};
+    ccstd::vector<VirtualResource *>      _resourceReleaseArray{};
     const StringHandle                  _name;
     uint32_t                            _refCount{0};
     PassNode *                          _head{nullptr};

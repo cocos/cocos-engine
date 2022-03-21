@@ -211,7 +211,7 @@ void CCMTLDevice::present() {
     _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex   = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
-    std::vector<id<CAMetalDrawable>> releaseQ;
+    ccstd::vector<id<CAMetalDrawable>> releaseQ;
     for (auto *swapchain : _swapchains) {
         auto drawable = swapchain->currentDrawable();
         if (drawable) {

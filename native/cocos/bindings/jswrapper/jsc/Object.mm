@@ -547,7 +547,7 @@ bool Object::setArrayElement(uint32_t index, const Value &data) {
     return true;
 }
 
-bool Object::getAllKeys(std::vector<std::string> *allKeys) const {
+bool Object::getAllKeys(ccstd::vector<std::string> *allKeys) const {
     JSPropertyNameArrayRef keys = JSObjectCopyPropertyNames(__cx, _obj);
     size_t expectedCount = JSPropertyNameArrayGetCount(keys);
 

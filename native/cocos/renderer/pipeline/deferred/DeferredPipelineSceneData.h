@@ -53,9 +53,9 @@ public:
     inline scene::Pass *                     getLightPass() const { return _lightPass; }
     inline gfx::Shader *                     getBloomPrefilterPassShader() const { return _bloomPrefilterPassShader; }
     inline scene::Pass *                     getBloomPrefilterPass() const { return _bloomPrefilterPass; }
-    inline const std::vector<scene::Pass *> &getBloomUpSamplePasses() const { return _bloomUpSamplePasses; }
+    inline const ccstd::vector<scene::Pass *> &getBloomUpSamplePasses() const { return _bloomUpSamplePasses; }
     inline gfx::Shader *                     getBloomUpSamplePassShader() const { return _bloomUpSamplePassShader; }
-    inline const std::vector<scene::Pass *> &getBloomDownSamplePasses() const { return _bloomDownSamplePasses; }
+    inline const ccstd::vector<scene::Pass *> &getBloomDownSamplePasses() const { return _bloomDownSamplePasses; }
     inline gfx::Shader *                     getBloomDownSamplePassShader() const { return _bloomDownSamplePassShader; }
     inline scene::Pass *                     getBloomCombinePass() const { return _bloomCombinePass; }
     inline gfx::Shader *                     getBloomCombinePassShader() const { return _bloomCombinePassShader; }
@@ -83,9 +83,9 @@ private:
     gfx::Shader *              _bloomPrefilterPassShader{nullptr};  // weak reference
     scene::Pass *              _bloomCombinePass{nullptr};          // weak reference
     gfx::Shader *              _bloomCombinePassShader{nullptr};    // weak reference
-    std::vector<scene::Pass *> _bloomUpSamplePasses;                // weak reference
+    ccstd::vector<scene::Pass *> _bloomUpSamplePasses;                // weak reference
     gfx::Shader *              _bloomUpSamplePassShader{nullptr};   // weak reference
-    std::vector<scene::Pass *> _bloomDownSamplePasses;              // weak reference
+    ccstd::vector<scene::Pass *> _bloomDownSamplePasses;              // weak reference
     gfx::Shader *              _bloomDownSamplePassShader{nullptr}; // weak reference
 
     AntiAliasing _antiAliasing{AntiAliasing::NONE};

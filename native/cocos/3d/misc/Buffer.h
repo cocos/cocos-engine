@@ -34,7 +34,7 @@ namespace cc {
 // default params behaviors just like on an plain, compact Float32Array
 template <typename T>
 void writeBuffer(DataView &            target,
-                 const std::vector<T> &data,
+                 const ccstd::vector<T> &data,
                  const gfx::Format &   format = gfx::Format::R32F,
                  uint32_t              offset = 0,
                  uint32_t              stride = 0) {

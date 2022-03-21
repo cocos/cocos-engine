@@ -141,7 +141,7 @@ bool LegacyThreadPool::tryShrinkPool() {
 
     auto before = std::chrono::high_resolution_clock::now();
 
-    std::vector<int> threadIDsToJoin;
+    ccstd::vector<int> threadIDsToJoin;
     int              maxThreadNumToJoin = std::min(_initedThreadNum - _minThreadNum, _shrinkStep);
 
     for (int i = 0; i < _maxThreadNum; ++i) {
@@ -254,7 +254,7 @@ void LegacyThreadPool::stopAllTasks() {
 void LegacyThreadPool::stopTasksByType(TaskType type) {
     Task task;
 
-    std::vector<Task> notStopTasks;
+    ccstd::vector<Task> notStopTasks;
     notStopTasks.reserve(_taskQueue.size());
 
     while (_taskQueue.pop(task)) {

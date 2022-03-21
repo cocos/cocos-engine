@@ -136,7 +136,7 @@ void RenderWindow::resize(uint32_t width, uint32_t height) {
     }
 }
 
-void RenderWindow::extractRenderCameras(std::vector<Camera *> &cameras) {
+void RenderWindow::extractRenderCameras(ccstd::vector<Camera *> &cameras) {
     for (Camera *camera : _cameras) {
         if (camera->isEnabled()) {
             camera->update();

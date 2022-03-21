@@ -33,7 +33,6 @@
     #endif
     #include <cstdint>
     #include <string>
-    #include <vector>
     #include "../Macros.h"
 
 namespace cc {
@@ -60,8 +59,8 @@ class CC_DLL CallStack {
 public:
     static std::string basename(const std::string &path);
 
-    static std::vector<void *>     backtrace();
-    static std::vector<StackFrame> backtraceSymbols(const std::vector<void *> &callstack);
+    static ccstd::vector<void *>     backtrace();
+    static ccstd::vector<StackFrame> backtraceSymbols(const ccstd::vector<void *> &callstack);
 
     #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     static void initSym();

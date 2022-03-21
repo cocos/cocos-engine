@@ -33,7 +33,7 @@
 namespace {
 se::Value                 tickVal;
 se::ValueArray            tickArgsValArr(1);
-std::vector<se::Object *> jsTouchObjPool;
+ccstd::vector<se::Object *> jsTouchObjPool;
 se::Object *              jsTouchObjArray       = nullptr;
 se::Object *              jsMouseEventObj       = nullptr;
 se::Object *              jsKeyboardEventObj    = nullptr;
@@ -317,7 +317,7 @@ void EventDispatcher::dispatchRecreateWindowEvent() {
     EventDispatcher::doDispatchEvent(EVENT_RECREATE_WINDOW, "", se::EmptyValueArray);
 }
 
-void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunctionName, const std::vector<se::Value> &args) {
+void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunctionName, const ccstd::vector<se::Value> &args) {
     if (!se::ScriptEngine::getInstance()->isValid()) {
         return;
     }

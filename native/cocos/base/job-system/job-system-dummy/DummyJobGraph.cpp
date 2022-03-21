@@ -34,7 +34,7 @@ namespace cc {
 
 namespace {
 DummyGraphNode *              freeList{nullptr};
-std::vector<DummyGraphNode *> allocatedChunks;
+ccstd::vector<DummyGraphNode *> allocatedChunks;
 } // namespace
 
 DummyGraphNode::~DummyGraphNode() {

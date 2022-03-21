@@ -73,7 +73,7 @@ public:
     virtual bool activate(gfx::Swapchain *swapchain);
     bool         destroy() override;
     virtual bool initialize(const RenderPipelineInfo &info);
-    virtual void render(const vector<scene::Camera *> &cameras);
+    virtual void render(const ccstd::vector<scene::Camera *> &cameras);
     virtual void onGlobalPipelineStateChanged();
 
     inline const RenderFlowList &                  getFlows() const { return _flows; }
@@ -107,7 +107,7 @@ public:
     gfx::Color              getClearcolor(scene::Camera *camera) const;
     gfx::InputAssembler *   getIAByRenderArea(const gfx::Rect &renderArea);
     void                    updateQuadVertexData(const Vec4 &viewport, gfx::Buffer *buffer);
-    void                    ensureEnoughSize(const vector<scene::Camera *> &cameras);
+    void                    ensureEnoughSize(const ccstd::vector<scene::Camera *> &cameras);
     bool                    createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA);
 
     float getShadingScale() const;
@@ -153,7 +153,7 @@ protected:
     uint                                                          _width{0};
     uint                                                          _height{0};
     gfx::Buffer *                                                 _quadIB{nullptr};
-    std::vector<gfx::Buffer *>                                    _quadVB;
+    ccstd::vector<gfx::Buffer *>                                    _quadVB;
     std::unordered_map<Vec4, gfx::InputAssembler *, Hasher<Vec4>> _quadIA;
 
     framegraph::FrameGraph                            _fg;

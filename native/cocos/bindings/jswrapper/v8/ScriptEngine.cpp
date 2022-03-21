@@ -328,7 +328,7 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
     });
 
     if (itr == _promiseArray.end()) { //Not found, create one
-        _promiseArray.emplace_back(std::make_unique<v8::Persistent<v8::Promise>>(), std::vector<PromiseExceptionMsg>{});
+        _promiseArray.emplace_back(std::make_unique<v8::Persistent<v8::Promise>>(), ccstd::vector<PromiseExceptionMsg>{});
         std::get<0>(_promiseArray.back())->Reset(_isolate, promise);
         current = &_promiseArray.back();
     } else {
@@ -963,7 +963,7 @@ bool ScriptEngine::runByteCodeFile(const std::string &pathBc, Value *ret /* = nu
 
     // generate dummy code
     if (filesize > 0) {
-        std::vector<char> codeBuffer;
+        ccstd::vector<char> codeBuffer;
         codeBuffer.resize(filesize + 1);
         std::fill(codeBuffer.begin(), codeBuffer.end(), ' ');
         codeBuffer[0]            = '\"';

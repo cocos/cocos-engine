@@ -110,7 +110,7 @@ public:
      * @param width 像素宽度
      * @param height 像素高度
      */
-    std::vector<uint8_t> readPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const;
+    ccstd::vector<uint8_t> readPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const;
 
 private:
     scene::RenderWindow *_window{nullptr};

@@ -207,8 +207,8 @@ const std::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
      }},
 };
 
-const std::vector<float> &getDefaultFloatArrayFromType(gfx::Type type) {
-    static const std::vector<float> DEFAULT_FLOAT_VALUES[] = {
+const ccstd::vector<float> &getDefaultFloatArrayFromType(gfx::Type type) {
+    static const ccstd::vector<float> DEFAULT_FLOAT_VALUES[] = {
         {0},
         {0, 0},
         {0, 0, 0, 0},

@@ -42,8 +42,8 @@ const std::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
     return _fontFamilyNameMap;
 }
 
-static std::vector<std::string> getAvailableFontFamilyNames() {
-    std::vector<std::string> ret;
+static ccstd::vector<std::string> getAvailableFontFamilyNames() {
+    ccstd::vector<std::string> ret;
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     CFArrayRef allFamilyNames = CTFontManagerCopyAvailableFontFamilyNames();
@@ -63,7 +63,7 @@ static std::vector<std::string> getAvailableFontFamilyNames() {
     return ret;
 }
 
-static std::string getFontFamilyByCompareAvailableFontFamilyNames(const std::vector<std::string> &before, const std::vector<std::string> &after) {
+static std::string getFontFamilyByCompareAvailableFontFamilyNames(const ccstd::vector<std::string> &before, const ccstd::vector<std::string> &after) {
     std::string ret;
     size_t beforeLen = before.size();
     size_t afterLen = after.size();

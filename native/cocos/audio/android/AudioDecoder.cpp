@@ -66,7 +66,7 @@ long AudioDecoder::fileTell(void *datasource) {
 
 AudioDecoder::AudioDecoder()
 : _fileCurrPos(0), _sampleRate(-1) {
-    auto pcmBuffer = std::make_shared<std::vector<char>>();
+    auto pcmBuffer = std::make_shared<ccstd::vector<char>>();
     pcmBuffer->reserve(4096);
     _result.pcmBuffer = pcmBuffer;
 }
@@ -150,7 +150,7 @@ bool AudioDecoder::resample() {
 
     ALOGV("resample() %zu output frames", outputFrames);
 
-    std::vector<int> Ovalues;
+    ccstd::vector<int> Ovalues;
 
     if (Ovalues.empty()) {
         Ovalues.push_back(static_cast<int>(outputFrames));
@@ -211,7 +211,7 @@ bool AudioDecoder::resample() {
     _result.numFrames  = static_cast<int>(outputFrames);
     _result.sampleRate = outFrameRate;
 
-    auto buffer = std::make_shared<std::vector<char>>();
+    auto buffer = std::make_shared<ccstd::vector<char>>();
     buffer->reserve(_result.numFrames * _result.bitsPerSample / 8);
     buffer->insert(buffer->end(), (char *)convert,
                    (char *)convert + outputFrames * channels * sizeof(int16_t));
@@ -232,7 +232,7 @@ bool AudioDecoder::interleave() {
     } else if (_result.numChannels == 1) {
         // If it's a mono audio, try to compose a fake stereo buffer
         size_t newBufferSize = _result.pcmBuffer->size() * 2;
-        auto   newBuffer     = std::make_shared<std::vector<char>>();
+        auto   newBuffer     = std::make_shared<ccstd::vector<char>>();
         newBuffer->reserve(newBufferSize);
         size_t totalFrameSizeInBytes = (size_t)(_result.numFrames * _result.bitsPerSample / 8);
 

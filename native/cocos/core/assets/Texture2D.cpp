@@ -35,11 +35,11 @@ namespace cc {
 Texture2D::Texture2D()  = default;
 Texture2D::~Texture2D() = default;
 
-void Texture2D::syncMipmapsForJS(const std::vector<IntrusivePtr<ImageAsset>> &value) {
+void Texture2D::syncMipmapsForJS(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
     _mipmaps = value;
 }
 
-void Texture2D::setMipmaps(const std::vector<IntrusivePtr<ImageAsset>> &value) {
+void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
     _mipmaps = value;
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {
@@ -194,7 +194,7 @@ void Texture2D::initDefault(const cc::optional<std::string> &uuid) {
 }
 
 void Texture2D::setImage(ImageAsset *value) {
-    std::vector<IntrusivePtr<ImageAsset>> mipmaps;
+    ccstd::vector<IntrusivePtr<ImageAsset>> mipmaps;
     if (value != nullptr) {
         mipmaps.emplace_back(value);
     }

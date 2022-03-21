@@ -198,8 +198,8 @@ void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t
 
 void GLES3PrimaryCommandBuffer::bindStates() {
     if (_curGPUPipelineState) {
-        vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-        vector<uint32_t> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
         for (size_t i = 0U, len = dynamicOffsetOffsets.size() - 1; i < len; i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
             //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");

@@ -33,7 +33,6 @@
 
     #include <mutex>
     #include <unordered_map>
-    #include <vector>
 
 typedef void *(*MallocType)(size_t size);
 typedef void (*FreeType)(void *ptr);
@@ -46,7 +45,7 @@ namespace cc {
 struct CC_DLL MemoryRecord {
     uint64_t            address{0};
     size_t              size{0};
-    std::vector<void *> callstack;
+    ccstd::vector<void *> callstack;
 };
 
 class CC_DLL MemoryHook {

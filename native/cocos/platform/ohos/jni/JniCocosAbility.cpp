@@ -34,7 +34,6 @@
 #include <unistd.h>
 #include <future>
 #include <thread>
-#include <vector>
 #include "base/Log.h"
 
 #include "platform/java/jni/JniHelper.h"

@@ -175,9 +175,9 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     }
 
     // Create a new batch
-    vector<gfx::Buffer *> vbs(flatBuffersCount, nullptr);
-    vector<uint8_t *>     vbDatas(flatBuffersCount, nullptr);
-    vector<gfx::Buffer *> totalVBs(flatBuffersCount + 1, nullptr);
+    ccstd::vector<gfx::Buffer *> vbs(flatBuffersCount, nullptr);
+    ccstd::vector<uint8_t *>     vbDatas(flatBuffersCount, nullptr);
+    ccstd::vector<gfx::Buffer *> totalVBs(flatBuffersCount + 1, nullptr);
 
     for (uint i = 0; i < flatBuffersCount; ++i) {
         const auto &flatBuffer = flatBuffers[i];
@@ -208,7 +208,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     indexBuffer->update(indexData, static_cast<uint>(indexBufferSize));
     totalVBs[flatBuffersCount] = indexBuffer;
 
-    vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();
+    ccstd::vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();
     gfx::Attribute         attrib     = {
         "a_dyn_batch_id",
         gfx::Format::R32F,
