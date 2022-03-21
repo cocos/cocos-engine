@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
-import { Vec2, Vec3 } from '../../math';
+import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
 import { NativeDirectionalLight } from './native-scene';
@@ -50,6 +50,9 @@ export class DirectionalLight extends Light {
     protected _shadowDistance = 100;
     protected _shadowInvisibleOcclusionRange = 200;
     protected _shadowCSMLevel = CSMLevel.level_3;
+    protected _shadowCSMValueDirty = false;
+    protected _shadowCSMLambda = 0.35;
+    protected _shadowCSMDebugMode = false;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -215,6 +218,44 @@ export class DirectionalLight extends Light {
         this._shadowCSMLevel = val;
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setShadowCSMLevel(val);
+        }
+    }
+
+    get shadowCSMValueDirty () {
+        return this._shadowCSMValueDirty;
+    }
+    set shadowCSMValueDirty (val) {
+        this._shadowCSMValueDirty = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowCSMValueDirty(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow CSM level ratio
+      * @zh 获取或者设置级联阴影层数系数
+     */
+    get shadowCSMLambda () {
+        return this._shadowCSMLambda;
+    }
+    set shadowCSMLambda (val) {
+        this._shadowCSMLambda = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowCSMLambda(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow CSM level ratio
+      * @zh 获取或者设置级联阴影层数系数
+     */
+    get shadowCSMDebugMode () {
+        return this._shadowCSMDebugMode;
+    }
+    set shadowCSMDebugMode (val) {
+        this._shadowCSMDebugMode = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowCSMDebugMode(val);
         }
     }
 

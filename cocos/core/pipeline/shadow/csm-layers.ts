@@ -35,8 +35,6 @@ import { RenderPipeline } from '..';
 import { IRenderObject } from '../define';
 import { Device } from '../../gfx';
 
-const SHADOW_CSM_LAMBDA = 0.75;
-
 const _mat4Trans = new Mat4();
 const _matShadowTrans = new Mat4();
 const _matShadowView = new Mat4();
@@ -295,7 +293,7 @@ export class CSMLayers {
                 }
             }
 
-            if (this._levelCount !== levelCount || isRecalculate || this._shadowDistance !== shadowDistance) {
+            if (dirLight.shadowCSMValueDirty || this._levelCount !== levelCount || isRecalculate || this._shadowDistance !== shadowDistance) {
                 this._splitFrustumLevels(dirLight);
                 this._levelCount = levelCount;
                 this._shadowDistance = shadowDistance;
@@ -304,14 +302,6 @@ export class CSMLayers {
             this._calculateCSM(pipeline, camera, dirLight, shadowInfo);
         }
     }
-
-    // public shadowFrustumItemToConsole () {
-    //     for (let i = 0; i < this._levelCount; i++) {
-    //         console.warn(this._dirLight?.node!.name, '._shadowCSMLayers[',
-    //             i, '] = (', this._layers[i].splitCameraNear, ', ', this._layers[i].splitCameraFar, ')');
-    //         console.warn(this._camera?.node!.name, '._validFrustum[', i, '] =', this._layers[i].validFrustum?.toString());
-    //     }
-    // }
 
     public destroy () {
         this._castShadowObjects.length = 0;
@@ -344,12 +334,13 @@ export class CSMLayers {
         const fd = dirLight.shadowDistance;
         const ratio = fd / nd;
         const level = dirLight.shadowCSMLevel;
+        const lambda = dirLight.shadowCSMLambda;
         this._layers[0].splitCameraNear = nd;
         for (let i = 1; i < level; i++) {
             // i ÷ numbers of level
             const si = i / level;
             // eslint-disable-next-line no-restricted-properties
-            const preNear = SHADOW_CSM_LAMBDA * (nd * Math.pow(ratio, si)) + (1 - SHADOW_CSM_LAMBDA) * (nd + (fd - nd) * si);
+            const preNear = lambda * (nd * Math.pow(ratio, si)) + (1 - lambda) * (nd + (fd - nd) * si);
             // Slightly increase the overlap to avoid fracture
             const nextFar = preNear * 1.005;
             this._layers[i].splitCameraNear = preNear;
@@ -357,6 +348,8 @@ export class CSMLayers {
         }
         // numbers of level - 1
         this._layers[level - 1].splitCameraFar = fd;
+
+        dirLight.shadowCSMValueDirty = false;
     }
 
     private _calculateCSM (pipeline: RenderPipeline, camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
