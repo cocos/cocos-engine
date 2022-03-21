@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class IAccelerometer : public OSInterface {
+class CC_DLL IAccelerometer : public OSInterface {
 public:
     struct MotionValue {
         float accelerationX = 0.0F;

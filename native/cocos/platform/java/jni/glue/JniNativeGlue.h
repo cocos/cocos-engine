@@ -27,6 +27,7 @@
 
 #include <future>
 #include <memory>
+#include "base/Macros.h"
 #include "platform/java/jni/glue/MessagePipe.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
@@ -49,7 +50,7 @@ namespace cc {
 class IEventDispatch;
 class OSEvent;
 
-class JniNativeGlue {
+class CC_DLL JniNativeGlue {
 public:
     enum class JniCommand {
         JNI_CMD_TERM_WINDOW = 0,

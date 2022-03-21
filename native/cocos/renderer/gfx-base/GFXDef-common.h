@@ -79,6 +79,7 @@ class Context;
 
 using TextureBarrierList = vector<TextureBarrier *>;
 using BufferDataList     = vector<const uint8_t *>;
+using BufferSrcList      = vector<uint8_t *>;
 using CommandBufferList  = vector<CommandBuffer *>;
 using QueryPoolList      = vector<QueryPool *>;
 using IndexList          = vector<uint32_t>;
@@ -152,6 +153,7 @@ enum class Feature : uint32_t {
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
+    MEMORY_ALIASING,
     COMPUTE_SHADER,
     // This flag indicates whether the device can benefit from subpass-style usages.
     // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
@@ -1119,12 +1121,12 @@ struct InputAssemblerInfo {
 };
 
 struct ALIGNAS(8) ColorAttachment {
-    Format         format{Format::UNKNOWN};
-    SampleCount    sampleCount{SampleCount::ONE};
-    LoadOp         loadOp{LoadOp::CLEAR};
-    StoreOp        storeOp{StoreOp::STORE};
+    Format          format{Format::UNKNOWN};
+    SampleCount     sampleCount{SampleCount::ONE};
+    LoadOp          loadOp{LoadOp::CLEAR};
+    StoreOp         storeOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-    uint32_t       isGeneralLayout{0}; // @ts-boolean
+    uint32_t        isGeneralLayout{0}; // @ts-boolean
 #if CC_CPU_ARCH == CC_CPU_ARCH_64
     uint32_t _padding{0};
 #endif
@@ -1133,14 +1135,14 @@ struct ALIGNAS(8) ColorAttachment {
 using ColorAttachmentList = vector<ColorAttachment>;
 
 struct ALIGNAS(8) DepthStencilAttachment {
-    Format         format{Format::UNKNOWN};
-    SampleCount    sampleCount{SampleCount::ONE};
-    LoadOp         depthLoadOp{LoadOp::CLEAR};
-    StoreOp        depthStoreOp{StoreOp::STORE};
-    LoadOp         stencilLoadOp{LoadOp::CLEAR};
-    StoreOp        stencilStoreOp{StoreOp::STORE};
+    Format          format{Format::UNKNOWN};
+    SampleCount     sampleCount{SampleCount::ONE};
+    LoadOp          depthLoadOp{LoadOp::CLEAR};
+    StoreOp         depthStoreOp{StoreOp::STORE};
+    LoadOp          stencilLoadOp{LoadOp::CLEAR};
+    StoreOp         stencilStoreOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-    uint32_t       isGeneralLayout{0}; // @ts-boolean
+    uint32_t        isGeneralLayout{0}; // @ts-boolean
 #if CC_CPU_ARCH == CC_CPU_ARCH_64
     uint32_t _padding{0};
 #endif
@@ -1161,8 +1163,8 @@ struct SubpassInfo {
 using SubpassInfoList = vector<SubpassInfo>;
 
 struct ALIGNAS(8) SubpassDependency {
-    uint32_t       srcSubpass{0};
-    uint32_t       dstSubpass{0};
+    uint32_t        srcSubpass{0};
+    uint32_t        dstSubpass{0};
     GeneralBarrier *barrier{nullptr};
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     uint32_t _padding{0};

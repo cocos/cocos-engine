@@ -61,7 +61,7 @@ export abstract class Shader extends GFXObject {
         super(ObjectType.SHADER);
     }
 
-    public abstract initialize (info: ShaderInfo): void;
+    public abstract initialize (info: Readonly<ShaderInfo>): void;
 
     public abstract destroy (): void;
 }

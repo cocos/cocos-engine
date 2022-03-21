@@ -55,6 +55,8 @@ public:
     inline uint32_t getWidth() const { return _info.width; }
     inline uint32_t getHeight() const { return _info.height; }
 
+    virtual const Texture *getRaw() const { return this; }
+
 protected:
     friend class Swapchain;
 

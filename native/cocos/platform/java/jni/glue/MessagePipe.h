@@ -26,10 +26,11 @@
 #pragma once
 
 #include <iostream>
+#include "base/Macros.h"
 
 namespace cc {
 
-class MessagePipe {
+class CC_DLL MessagePipe {
 public:
     MessagePipe();
     ~MessagePipe();

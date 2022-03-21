@@ -40,6 +40,7 @@ import { debug } from '../platform/debug';
 import { SkeletonMask } from './skeleton-mask';
 import { PoseOutput } from './pose-output';
 import { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
+import { getGlobalAnimationManager } from './global-animation-manager';
 
 /**
  * @en The event type supported by Animation
@@ -354,7 +355,7 @@ export class AnimationState extends Playable {
         }
 
         if (!this._doNotCreateEval) {
-            const pose = blendStateBuffer ?? legacyCC.director.getAnimationManager()?.blendState ?? null;
+            const pose = blendStateBuffer ?? getGlobalAnimationManager()?.blendState ?? null;
             if (pose) {
                 this._poseOutput = new PoseOutput(pose);
             }
@@ -371,7 +372,7 @@ export class AnimationState extends Playable {
 
     public destroy () {
         if (!this.isMotionless) {
-            legacyCC.director.getAnimationManager().removeAnimation(this);
+            getGlobalAnimationManager().removeAnimation(this);
         }
         if (this._poseOutput) {
             this._poseOutput.destroy();
@@ -386,7 +387,7 @@ export class AnimationState extends Playable {
      * To process animation events, use `Animation` instead.
      */
     public emit (...args: any[]) {
-        legacyCC.director.getAnimationManager().pushDelayEvent(this._emit, this, args);
+        getGlobalAnimationManager().pushDelayEvent(this._emit, this, args);
     }
 
     /**
@@ -684,11 +685,11 @@ export class AnimationState extends Playable {
     }
 
     private _onReplayOrResume () {
-        legacyCC.director.getAnimationManager().addAnimation(this);
+        getGlobalAnimationManager().addAnimation(this);
     }
 
     private _onPauseOrStop () {
-        legacyCC.director.getAnimationManager().removeAnimation(this);
+        getGlobalAnimationManager().removeAnimation(this);
     }
 }
 

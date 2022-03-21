@@ -41,7 +41,7 @@
 
 namespace cc {
 
-class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
+class CC_DLL CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
     using Point   = std::array<float, 2>;
     using Vec2    = std::array<float, 2>;
@@ -77,6 +77,7 @@ public:
     void            fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
     void            strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     void            rect(float x, float y, float w, float h) override;
+    void            updateData() override {}
 
 private:
     static wchar_t *     utf8ToUtf16(const std::string &str, int *pRetLen = nullptr);

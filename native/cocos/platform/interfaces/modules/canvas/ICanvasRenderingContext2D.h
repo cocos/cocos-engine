@@ -54,14 +54,14 @@ namespace cc {
 //    void addColorStop(float offset, const std::string &color);
 //};
 
-class ICanvasGradient {
+class CC_DLL ICanvasGradient {
 public:
     ICanvasGradient()                                                 = default;
     virtual ~ICanvasGradient()                                        = default; // NOLINT(performance-trivially-destructible)
     virtual void addColorStop(float offset, const std::string &color) = 0;
 };
 
-class ICanvasRenderingContext2D : public OSInterface {
+class CC_DLL ICanvasRenderingContext2D : public OSInterface {
 public:
     class Delegate {
     public:
@@ -92,6 +92,7 @@ public:
         virtual void            setStrokeStyle(float r, float g, float b, float a)                                                            = 0;
         virtual void            setLineWidth(float lineWidth)                                                                                 = 0;
         virtual const cc::Data &getDataRef() const                                                                                            = 0;
+        virtual void            updateData()                                                                                                  = 0;
     };
     //static OSInterface::Ptr getInterface();
     // Rect
@@ -140,6 +141,8 @@ public:
 
     virtual void transform(float a, float b, float c, float d, float e, float f)    = 0;
     virtual void setTransform(float a, float b, float c, float d, float e, float f) = 0;
+
+    virtual void fetchData() = 0;
 
 private:
     virtual void recreateBufferIfNeeded() = 0;

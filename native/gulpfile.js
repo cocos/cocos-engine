@@ -164,14 +164,18 @@ gulp.task('gen-simulator', async function () {
         var args = [];
         args.push('-G');
         if (isWin32) {
-            args.push('Visual Studio 15 2017','-A','x64');
+            args.push('Visual Studio 16 2019','-A','x64');
         } 
         else {
             args.push('Xcode');
         }
         args.push(absolutePath('./tools/simulator/frameworks/runtime-src/'));
+        const newEnv = {};
+        Object.assign(newEnv, process.env);
+        Object.keys (newEnv).filter (x => x.toLowerCase().startsWith( 'npm_')). forEach(e => delete newEnv[e]);
         let cmakeProcess = spawn(cmakeBin, args, {
             cwd: simulatorProject,
+            env: newEnv,
         });
         cmakeProcess.on('close', () => {
             console.log('cmake finished!');
@@ -196,8 +200,12 @@ gulp.task('gen-simulator', async function () {
         if (!isWin32) {
             makeArgs = makeArgs.concat(['--', '-quiet', '-arch', 'x86_64']);
         }
+        const newEnv = {};
+        Object.assign(newEnv, process.env);
+        Object.keys (newEnv).filter (x => x.toLowerCase().startsWith( 'npm_')). forEach(e => delete newEnv[e]);
         let buildProcess = spawn(cmakeBin, makeArgs, {
             cwd: simulatorProject,
+            env: newEnv,
         });
         buildProcess.on('close', () => {
             console.log('cmake finished!');

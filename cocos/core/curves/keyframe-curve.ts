@@ -1,4 +1,5 @@
 import { binarySearchEpsilon } from '../algorithm/binary-search';
+import { CCClass } from '../data/class';
 import { ccclass, serializable } from '../data/decorators';
 import { assertIsTrue } from '../data/utils/asserts';
 import { approx } from '../math';
@@ -9,7 +10,6 @@ type KeyFrame<TKeyframeValue> = [number, TKeyframeValue];
 /**
  * Curve.
  */
-@ccclass('cc.KeyframeCurve')
 export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFrame<TKeyframeValue>> {
     /**
      * Gets the count of keyframes.
@@ -201,12 +201,15 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
     }
 
     // Times are always sorted and 1-1 correspond to values.
-    @serializable
     protected _times: number[] = [];
 
-    @serializable
     protected _values: TKeyframeValue[] = [];
 }
+
+CCClass.fastDefine('cc.KeyframeCurve', KeyframeCurve, {
+    _times: [],
+    _values: [],
+});
 
 function isSorted (values: number[]) {
     return values.every(

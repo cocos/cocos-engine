@@ -116,7 +116,9 @@ void GLES2Swapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform 
     _colorTexture->resize(width, height);
     _depthStencilTexture->resize(width, height);
 
-    doCreateSurface(_windowHandle);
+    if (_windowHandle) {
+        doCreateSurface(_windowHandle);
+    }
 }
 
 void GLES2Swapchain::doDestroySurface() {

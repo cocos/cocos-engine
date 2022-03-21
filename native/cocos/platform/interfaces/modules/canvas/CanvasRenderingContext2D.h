@@ -29,14 +29,14 @@
 
 namespace cc {
 
-class CanvasGradient : public ICanvasGradient {
+class CC_DLL CanvasGradient : public ICanvasGradient {
 public:
     CanvasGradient();
     ~CanvasGradient() override; // NOLINT(performance-trivially-destructible)
     void addColorStop(float offset, const std::string &color) override;
 };
 
-class CanvasRenderingContext2D : public ICanvasRenderingContext2D {
+class CC_DLL CanvasRenderingContext2D : public ICanvasRenderingContext2D {
 public:
     CanvasRenderingContext2D(float width, float height);
     ~CanvasRenderingContext2D() override;
@@ -63,6 +63,7 @@ public:
     // callback
     using CanvasBufferUpdatedCallback = std::function<void(const cc::Data &)>;
     void setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback &cb) override;
+    void fetchData() override;
 
     // functions for properties
     void setWidth(float width) override;

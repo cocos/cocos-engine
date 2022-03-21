@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class System : public CommonSystem {
+class CC_DLL System : public CommonSystem {
 public:
     System();
     ~System() override;

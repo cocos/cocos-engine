@@ -255,9 +255,9 @@ class CocosZipInstaller(object):
         return data
 
     def clean_external_folder(self, external_folder):
-        print('==> Cleaning cocos2d-x/external folder ...')
-        # remove external except 'config.json'
-        delete_folder_except(external_folder, ['config.json'])
+        print('==> Cleaning native/external folder ...')
+        # remove files in external directory
+        delete_folder_except(external_folder, [])
 
     def run(self, workpath, folder_for_extracting, remove_downloaded, force_update, download_only):
         if not force_update and not self.need_to_update():
@@ -337,7 +337,7 @@ def main():
     print("=======================================================")
     print("==> Prepare to download external libraries!")
     external_path = os.path.join(workpath, 'external')
-    installer = CocosZipInstaller(workpath, os.path.join(workpath, 'external', 'config.json'), os.path.join(workpath, 'external', 'version.json'), "prebuilt_libs_version")
+    installer = CocosZipInstaller(workpath, os.path.join(workpath, 'external-config.json'), os.path.join(workpath, 'external', 'version.json'), "prebuilt_libs_version")
     installer.run(workpath, external_path, opts.remove_downloaded, opts.force_update, opts.download_only)
 
 # -------------- main --------------

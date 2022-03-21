@@ -253,6 +253,9 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         bodyDef.position.Set(pos.x / PHYSICS_2D_PTM_RATIO, pos.y / PHYSICS_2D_PTM_RATIO);
 
         tempVec3.z = Quat.getAxisAngle(this._rotationAxis, node.worldRotation);
+        if (this._rotationAxis.z < 0.0) {
+            tempVec3.z = Math.PI * 2 - tempVec3.z;
+        }
         bodyDef.angle = tempVec3.z;
 
         bodyDef.awake = comp.awakeOnLoad;

@@ -28,7 +28,7 @@
  * @module component/light
  */
 
-import { ccclass, range, slide, type, editable, help, executeInEditMode,
+import { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
     menu, tooltip, serializable, formerlySerializedAs, visible } from 'cc.decorator';
 import { toRadian } from '../../core/math';
 import { scene } from '../../core/renderer';
@@ -82,6 +82,7 @@ export class SpotLight extends Light {
      * @zh 光通量。
      */
     @tooltip('i18n:lights.luminous_flux')
+    @displayOrder(-1)
     get luminousFlux () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -109,6 +110,7 @@ export class SpotLight extends Light {
       * @zh 光亮度。
       */
     @tooltip('i18n:lights.luminance')
+    @displayOrder(-1)
     get luminance () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -134,6 +136,7 @@ export class SpotLight extends Light {
      * @zh 当前使用的光度学计量单位。
      */
     @type(PhotometricTerm)
+    @displayOrder(-2)
     @tooltip('i18n:lights.term')
     get term (): number {
         return this._term;

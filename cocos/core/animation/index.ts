@@ -29,7 +29,7 @@
  */
 import { ccclass } from 'cc.decorator';
 import * as animation from './animation';
-import * as easing from './easing';
+import * as easing from '../easing/easing';
 import { ComponentPath, HierarchyPath, ICustomTargetPath, TargetPath } from './target-path';
 import { IValueProxyFactory } from './value-proxy';
 import { UniformProxyFactory } from './value-proxy-factories/uniform';
@@ -38,7 +38,7 @@ import { legacyCC } from '../global-exports';
 export * from './deprecated';
 
 legacyCC.easing = easing;
-export * from './bezier';
+export * from '../curves/bezier';
 export { easing };
 export * from './animation-curve';
 export { AnimationClip } from './animation-clip';
