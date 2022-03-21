@@ -29,11 +29,11 @@
 #include "boost/container/pmr/polymorphic_allocator.hpp"
 
 namespace ccstd {
-template <typename T>
+template <class T>
 using deque = std::deque<T>;
 
 namespace pmr {
-template <typename T>
+template <class T>
 using deque = std::deque<T, boost::container::pmr::polymorphic_allocator<T>>;
 }
 } // namespace ccstd

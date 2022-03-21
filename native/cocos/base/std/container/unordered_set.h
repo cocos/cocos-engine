@@ -4,11 +4,19 @@
 #include "boost/container/pmr/polymorphic_allocator.hpp"
 
 namespace ccstd {
-template <typename T>
-using unordered_set = std::unordered_set<T>;
+template <
+class Key,
+class Hash = std::hash<Key>,
+class KeyEqual = std::equal_to<Key>
+>
+using unordered_set = std::unordered_set<Key, Hash, KeyEqual>;
 
 namespace pmr {
-template <typename T>
-using unordered_set = std::unordered_set<T, boost::container::pmr::polymorphic_allocator<T>>;
+template <
+class Key,
+class Hash = std::hash<Key>,
+class KeyEqual = std::equal_to<Key>
+>
+using unordered_set = std::unordered_set<Key, Hash, KeyEqual, boost::container::pmr::polymorphic_allocator<Key>>;
 }
 } // namespace ccstd

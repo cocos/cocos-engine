@@ -328,7 +328,7 @@ cocos_source_files(
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
     cocos/base/Variant.h
-    cocos/base/std/container/dequeue.h
+    cocos/base/std/container/deque.h
     cocos/base/std/container/queue.h
     cocos/base/std/container/vector.h
     cocos/base/std/container/unordered_set.h
