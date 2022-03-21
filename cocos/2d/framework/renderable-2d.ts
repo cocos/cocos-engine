@@ -256,6 +256,7 @@ export class Renderable2D extends RenderableComponent {
     public onEnable () {
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.on(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
     }
@@ -270,6 +271,7 @@ export class Renderable2D extends RenderableComponent {
     public onDisable () {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
         this._renderFlag = false;
     }
 
@@ -445,6 +447,10 @@ export class Renderable2D extends RenderableComponent {
                 renderComp.markForUpdateRenderData();
             }
         }
+    }
+
+    protected _colorDirty () {
+        this.node._uiProps.colorDirty = true;
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
