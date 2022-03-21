@@ -246,6 +246,8 @@ public:
 
     virtual ~SceneVisitor() noexcept = 0;
 
+    virtual const pipeline::PipelineSceneData* getPipelineSceneData() const = 0;
+
     virtual void setViewport(const gfx::Viewport &vp) = 0;
     virtual void setScissor(const gfx::Rect &rect) = 0;
     virtual void bindPipelineState(gfx::PipelineState* pso) = 0;
@@ -307,7 +309,7 @@ public:
     virtual ComputePassBuilder *addComputePass(const std::string& layoutName) = 0;
     virtual MovePassBuilder    *addMovePass(const std::string& name) = 0;
     virtual CopyPassBuilder    *addCopyPass(const std::string& name) = 0;
-    virtual void                addPresentPass(const std::string& name, const std::string& swapchainName) = 0;
+    virtual void                presentAll() = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
 };

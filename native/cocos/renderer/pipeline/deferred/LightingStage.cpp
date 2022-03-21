@@ -42,6 +42,7 @@
 #include "frame-graph/Handle.h"
 #include "gfx-base/GFXDevice.h"
 #include "pipeline/Define.h"
+#include "profiler/Profiler.h"
 #include "scene/RenderScene.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
@@ -854,6 +855,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
 }
 
 void LightingStage::render(scene::Camera *camera) {
+    CC_PROFILE(LightingStageRender);
     auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
     pipeline->getPipelineUBO()->updateShadowUBO(camera);
     putTransparentObj2Queue();

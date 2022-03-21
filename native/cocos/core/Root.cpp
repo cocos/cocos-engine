@@ -27,14 +27,15 @@
 // #include "core/Director.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
+#include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/NativePipelineTypes.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
-#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
-#include "renderer/pipeline/custom/NativePipelineTypes.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
@@ -191,7 +192,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             isCreateDefaultPipeline = true;
         }
 
-        _pipeline = rppl;
+        _pipeline        = rppl;
         _pipelineRuntime = std::make_unique<RenderPipelineBridge>(rppl);
 
         // now cluster just enabled in deferred pipeline
@@ -300,6 +301,8 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
             scene->update(stamp);
         }
 
+        CC_PROFILER_UPDATE;
+
         _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_COMMIT, this);
 
         std::stable_sort(_cameraList.begin(), _cameraList.end(), [](const auto *a, const auto *b) {
@@ -366,7 +369,7 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
     if (light == nullptr) {
         return;
     }
-    
+
     if (light->getScene() != nullptr) {
         if (light->getType() == scene::LightType::DIRECTIONAL) {
             light->getScene()->removeDirectionalLight(static_cast<scene::DirectionalLight *>(light));

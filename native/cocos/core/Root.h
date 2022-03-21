@@ -187,6 +187,12 @@ public:
 
     /**
      * @zh
+     * 是否启用自定义渲染管线
+     */
+    inline bool usesCustomPipeline() const { return _usesCustomPipeline; }
+
+    /**
+     * @zh
      * 渲染管线
      */
     inline render::PipelineRuntime *getPipeline() const { return _pipelineRuntime.get(); }

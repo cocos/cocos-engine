@@ -39,6 +39,8 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/UIPhase.h"
+#include "profiler/DebugRenderer.h"
+#include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/RenderWindow.h"
 
@@ -137,6 +139,7 @@ void ForwardStage::dispenseRenderObject2Queues() {
 }
 
 void ForwardStage::render(scene::Camera *camera) {
+    CC_PROFILE(ForwardStageRender);
     struct RenderData {
         framegraph::TextureHandle outputTex;
         framegraph::TextureHandle depth;
@@ -232,6 +235,7 @@ void ForwardStage::render(scene::Camera *camera) {
         _pipeline->getGeometryRenderer()->render(camera, renderPass, cmdBuff);
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
+        CC_DEBUG_RENDERER->render(renderPass, cmdBuff);
     };
 
     // add pass

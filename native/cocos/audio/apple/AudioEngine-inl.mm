@@ -158,8 +158,20 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             }
             [[AVAudioSession sharedInstance] setActive:YES error:&error];
             alcMakeContextCurrent(s_ALContext);
-        } else if (isAudioSessionInterrupted) {
-            ALOGD("Audio session is still interrupted, pause director!");
+        }
+        else if (isAudioSessionInterrupted) {
+            isAudioSessionInterrupted = false;
+            ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
+            NSError *error = nil;
+            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
+            if (!success) {
+                ALOGE("Fail to set audio session.");
+                return;
+            }
+            [[AVAudioSession sharedInstance] setActive:YES error:&error];
+            alcMakeContextCurrent(s_ALContext);
+
+            // ALOGD("Audio session is still interrupted, pause director!");
             //IDEA: Director::getInstance()->pause();
         }
     }

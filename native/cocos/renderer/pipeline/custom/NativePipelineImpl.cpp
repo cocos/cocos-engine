@@ -91,7 +91,7 @@ CopyPassBuilder *NativePipeline::addCopyPass(const std::string &name) {
 }
 
 // NOLINTNEXTLINE
-void NativePipeline::addPresentPass(const std::string &name, const std::string &swapchainName) {
+void NativePipeline::presentAll() {
 }
 
 // NOLINTNEXTLINE

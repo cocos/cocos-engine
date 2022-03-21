@@ -143,13 +143,13 @@ SE_DECLARE_FUNC(js_render_Pipeline_addComputePass);
 SE_DECLARE_FUNC(js_render_Pipeline_addCopyPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addDepthStencil);
 SE_DECLARE_FUNC(js_render_Pipeline_addMovePass);
-SE_DECLARE_FUNC(js_render_Pipeline_addPresentPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addRasterPass);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTarget);
 SE_DECLARE_FUNC(js_render_Pipeline_addRenderTexture);
 SE_DECLARE_FUNC(js_render_Pipeline_beginFrame);
 SE_DECLARE_FUNC(js_render_Pipeline_createSceneTransversal);
 SE_DECLARE_FUNC(js_render_Pipeline_endFrame);
+SE_DECLARE_FUNC(js_render_Pipeline_presentAll);
 
 extern se::Object *__jsb_cc_render_Factory_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Factory_class; // NOLINT

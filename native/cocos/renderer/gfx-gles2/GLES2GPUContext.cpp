@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "GLES2GPUObjects.h"
+#include "profiler/Profiler.h"
 
 #define FORCE_DISABLE_VALIDATION 1
 
@@ -287,6 +288,7 @@ void GLES2GPUContext::makeCurrent(const GLES2GPUSwapchain *drawSwapchain, const 
 }
 
 void GLES2GPUContext::present(const GLES2GPUSwapchain *swapchain) {
+    CC_PROFILE(GLES2GPUContextPresent);
     if (_eglCurrentInterval != swapchain->eglSwapInterval) {
         if (!eglSwapInterval(eglDisplay, swapchain->eglSwapInterval)) {
             CC_LOG_ERROR("eglSwapInterval() - FAILED.");

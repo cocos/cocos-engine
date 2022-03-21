@@ -55,7 +55,7 @@ public:
     ComputePassBuilder *addComputePass(const std::string& layoutName) override;
     MovePassBuilder    *addMovePass(const std::string& name) override;
     CopyPassBuilder    *addCopyPass(const std::string& name) override;
-    void                addPresentPass(const std::string& name, const std::string& swapchainName) override;
+    void                presentAll() override;
 
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
 

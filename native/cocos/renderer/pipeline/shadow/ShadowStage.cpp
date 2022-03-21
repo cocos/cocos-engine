@@ -32,6 +32,7 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "math/Vec2.h"
+#include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/Shadow.h"
 
@@ -63,6 +64,7 @@ void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 }
 
 void ShadowStage::render(scene::Camera *camera) {
+    CC_PROFILE(ShadowStageRender);
     const auto *sceneData  = _pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
 

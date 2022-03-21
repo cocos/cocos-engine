@@ -75,9 +75,11 @@ public:
     inline gfx::InputAssembler *                                               getOcclusionQueryInputAssembler() const { return _occlusionQueryInputAssembler; }
     inline scene::Pass *                                                       getOcclusionQueryPass() const { return _occlusionQueryPass; }
     inline gfx::Shader *                                                       getOcclusionQueryShader() const { return _occlusionQueryShader; }
-    inline const ccstd::vector<IntrusivePtr<Material>> &                         getGeometryRendererMaterials() const { return _geometryRendererMaterials; }
-    inline const ccstd::vector<scene::Pass *> &                                  getGeometryRendererPasses() const { return _geometryRendererPasses; }
-    inline const ccstd::vector<gfx::Shader *> &                                  getGeometryRendererShaders() const { return _geometryRendererShaders; }
+    inline const ccstd::vector<IntrusivePtr<Material>> &                       getGeometryRendererMaterials() const { return _geometryRendererMaterials; }
+    inline const ccstd::vector<scene::Pass *> &                                getGeometryRendererPasses() const { return _geometryRendererPasses; }
+    inline const ccstd::vector<gfx::Shader *> &                                getGeometryRendererShaders() const { return _geometryRendererShaders; }
+    inline scene::Pass *                                                       getDebugRendererPass() const { return _debugRendererPass; }
+    inline gfx::Shader *                                                       getDebugRendererShader() const { return _debugRendererShader; }
     inline void                                                                addRenderObject(RenderObject &&obj) { _renderObjects.emplace_back(obj); }
     inline void                                                                clearRenderObjects() { _renderObjects.clear(); }
     inline void                                                                addValidPunctualLight(scene::Light *light) { _validPunctualLights.emplace_back(light); }
@@ -89,7 +91,8 @@ public:
 
 protected:
     void                 initOcclusionQuery();
-    void                 initGeometryRendererMaterials();
+    void                 initGeometryRenderer();
+    void                 initDebugRenderer();
     gfx::InputAssembler *createOcclusionQueryIA();
 
     static constexpr uint32_t GEOMETRY_RENDERER_TECHNIQUE_COUNT{6};
@@ -110,7 +113,10 @@ protected:
     ccstd::vector<scene::Pass *>          _geometryRendererPasses;  // weak reference
     ccstd::vector<gfx::Shader *>          _geometryRendererShaders; // weak reference
 
-    gfx::Device *   _device{nullptr};
+    IntrusivePtr<Material> _debugRendererMaterial{nullptr};
+    gfx::Shader *          _debugRendererShader{nullptr};
+    scene::Pass *          _debugRendererPass{nullptr};
+    gfx::Device *          _device{nullptr};
 
     scene::Fog *    _fog{nullptr};
     scene::Ambient *_ambient{nullptr};

@@ -96,7 +96,11 @@ builtinResMgrProto._preloadAssets = async function () {
             if (err) {
                 reject(err);
             } else {
-                assets.forEach((asset) => resources[asset._uuid] = asset);
+                assets.forEach((asset) => {
+                    resources[asset._uuid] = asset;
+                    const url = asset.nativeUrl; // update native url obviously.
+                    this.addAsset(asset._uuid, asset);
+                });
                 resolve();
             }
         }));

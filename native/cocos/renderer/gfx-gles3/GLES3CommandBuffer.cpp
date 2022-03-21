@@ -36,6 +36,7 @@
 #include "GLES3QueryPool.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Texture.h"
+#include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
 
 namespace cc {
@@ -256,6 +257,7 @@ void GLES3CommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, u
 }
 
 void GLES3CommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(GLES3CommandBufferDraw);
     if (_isStateInvalid) {
         bindStates();
     }

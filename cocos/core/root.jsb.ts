@@ -44,14 +44,6 @@ Object.defineProperty(rootProto, 'dataPoolManager', {
     },
 });
 
-Object.defineProperty(rootProto, 'usesCustomPipeline', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._usesCustomPipeline;
-    }
-});
-
 Object.defineProperty(rootProto, 'pipeline', {
     configurable: true,
     enumerable: true,
@@ -84,7 +76,6 @@ rootProto._ctor = function (device: Device) {
     this._modelPools = new Map();
     this._lightPools = new Map();
     this._batcher = null;
-    this._usesCustomPipeline = false;
     this._pipeline = null;
     this._pipelineEvent = new DummyPipelineEvent();
     this._classicPipeline = null;
@@ -192,7 +183,7 @@ rootProto.setRenderPipeline = function (pipeline) {
         pipeline.init();
     }
 
-    if (this._usesCustomPipeline) {
+    if (this.usesCustomPipeline()) {
         this._customPipeline = createCustomPipeline();
         this._pipeline = this._customPipeline;
     } else {

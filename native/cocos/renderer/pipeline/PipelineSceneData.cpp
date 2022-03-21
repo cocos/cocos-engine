@@ -57,8 +57,9 @@ PipelineSceneData::~PipelineSceneData() {
 }
 
 void PipelineSceneData::activate(gfx::Device *device) {
-    _device   = device;
-    initGeometryRendererMaterials();
+    _device = device;
+    initGeometryRenderer();
+    initDebugRenderer();
     initOcclusionQuery();
 }
 
@@ -92,7 +93,7 @@ void PipelineSceneData::initOcclusionQuery() {
     }
 }
 
-void PipelineSceneData::initGeometryRendererMaterials() {
+void PipelineSceneData::initGeometryRenderer() {
     _geometryRendererMaterials.resize(GEOMETRY_RENDERER_TECHNIQUE_COUNT);
     _geometryRendererPasses.reserve(GEOMETRY_RENDERER_TECHNIQUE_COUNT);
     _geometryRendererShaders.reserve(GEOMETRY_RENDERER_TECHNIQUE_COUNT);
@@ -114,6 +115,18 @@ void PipelineSceneData::initGeometryRendererMaterials() {
             _geometryRendererPasses.emplace_back(pass);
             _geometryRendererShaders.emplace_back(pass->getShaderVariant());
         }
+    }
+}
+
+void PipelineSceneData::initDebugRenderer() {
+    if (!_debugRendererMaterial) {
+        _debugRendererMaterial = new Material();
+        _debugRendererMaterial->setUuid("default-debug-renderer-material");
+        IMaterialInfo info;
+        info.effectName = "debug-renderer";
+        _debugRendererMaterial->initialize(info);
+        _debugRendererPass   = (*_debugRendererMaterial->getPasses())[0];
+        _debugRendererShader = _debugRendererPass->getShaderVariant();
     }
 }
 

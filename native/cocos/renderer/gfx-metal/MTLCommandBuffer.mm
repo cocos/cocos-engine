@@ -42,6 +42,7 @@
 #import "MTLSwapchain.h"
 #import "MTLTexture.h"
 #import "TargetConditionals.h"
+#import "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -526,6 +527,7 @@ void CCMTLCommandBuffer::nextSubpass() {
 }
 
 void CCMTLCommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(CCMTLCommandBufferDraw);
     if (_firstDirtyDescriptorSet < _GPUDescriptorSets.size()) {
         bindDescriptorSets();
     }
@@ -579,11 +581,11 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
                 } else {
                     if (drawInfo.instanceCount == 0) {
                         [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                       vertexStart:drawInfo.firstIndex
+                                       vertexStart:drawInfo.firstVertex
                                        vertexCount:drawInfo.vertexCount];
                     } else {
                         [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                       vertexStart:drawInfo.firstIndex
+                                       vertexStart:drawInfo.firstVertex
                                        vertexCount:drawInfo.vertexCount
                                      instanceCount:drawInfo.instanceCount];
                     }
@@ -611,11 +613,11 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
         } else if (info.vertexCount) {
             if (info.instanceCount == 0) {
                 [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                               vertexStart:info.firstIndex
+                               vertexStart:info.firstVertex
                                vertexCount:info.vertexCount];
             } else {
                 [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                               vertexStart:info.firstIndex
+                               vertexStart:info.firstVertex
                                vertexCount:info.vertexCount
                              instanceCount:info.instanceCount];
             }
@@ -639,6 +641,7 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
 }
 
 void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
+    CC_PROFILE(CCMTLCmdBufUpdateBuffer);
     if (!buff) {
         CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: buffer is nullptr.");
         return;

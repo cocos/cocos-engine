@@ -77,6 +77,38 @@ export const effects = [
     ]
   },
   {
+    "name": "debug-renderer",
+    "techniques": [
+      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "debug-renderer|debug-renderer-vs:vert|debug-renderer-fs:frag", "priority": 255, "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
+    ],
+    "shaders": [
+      {
+        "name": "debug-renderer|debug-renderer-vs:vert|debug-renderer-fs:frag",
+        "hash": 294392904,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 21, "location": 0 },
+          { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 },
+          { "name": "a_color", "defines": [], "format": 44, "location": 2 }
+        ],
+        "blocks": [],
+        "samplerTextures": [
+          { "name": "mainTexture", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 }
+        ],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      }
+    ]
+  },
+  {
     "name": "geometry-renderer",
     "techniques": [
       { "passes": [{ "primitive": 1, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "geometry-renderer|line-vs:vert|line-fs:front", "priority": 245, "depthStencilState": { "depthTest": false, "depthWrite": false } }] },
