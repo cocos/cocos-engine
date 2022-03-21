@@ -152,9 +152,8 @@ const Elements = {
             /** @type {HTMLElement} */
             const fixATAProp = panel.$.fixATAProp;
             fixAlphaTransparencyArtifactsCheckbox.value = panel.meta.userData.fixAlphaTransparencyArtifacts;
-            const bannedTypes = ['normal map', 'texture cube'];
-            const hasAlpha = panel.meta.userData.hasAlpha;
-            const isCapableToFixAlphaTransparencyArtifacts = hasAlpha && !bannedTypes.includes(panel.meta.userData.type) && !panel.meta.userData.isRGBE;
+            const bannedTypes = ['normal map'];
+            const isCapableToFixAlphaTransparencyArtifacts = !bannedTypes.includes(panel.meta.userData.type);
             if (isCapableToFixAlphaTransparencyArtifacts) {
                 fixATAProp.hidden = false;
                 panel.updateInvalid(panel.$.fixAlphaTransparencyArtifactsCheckbox, 'fixAlphaTransparencyArtifacts');
