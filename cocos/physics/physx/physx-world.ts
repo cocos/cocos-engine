@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Ray } from '../../core/geometry';

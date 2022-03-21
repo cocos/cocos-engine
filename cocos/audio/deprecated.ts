@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { AudioSource } from './audio-source';
 import { replaceProperty, markAsWarning } from '../core/utils/x-deprecated';

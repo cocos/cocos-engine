@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
 import { repeat } from '../core/math';

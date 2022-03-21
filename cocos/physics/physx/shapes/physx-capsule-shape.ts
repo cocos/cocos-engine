@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { absMax, Quat } from '../../../core';
 import { CapsuleCollider, EAxisDirection } from '../../framework';

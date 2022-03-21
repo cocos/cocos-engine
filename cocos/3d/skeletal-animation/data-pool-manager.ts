@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import type { AnimationClip } from '../../core/animation/animation-clip';
 import type { Skeleton } from '../assets';

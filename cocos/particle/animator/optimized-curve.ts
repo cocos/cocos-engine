@@ -24,10 +24,7 @@
  */
 
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { repeat } from '../../core/math';
 import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../core/geometry/curve';

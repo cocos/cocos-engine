@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { Event, EventMouse, EventTouch } from '../../input/types';
