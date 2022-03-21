@@ -360,6 +360,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._nativeSkeleton) {
             const compColor = this.color;
             this._nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
+            this.markForUpdateRenderData();
         }
     };
 
