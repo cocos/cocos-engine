@@ -153,12 +153,14 @@ const Elements = {
             const fixATAProp = panel.$.fixATAProp;
             fixAlphaTransparencyArtifactsCheckbox.value = panel.meta.userData.fixAlphaTransparencyArtifacts;
             const bannedTypes = ['normal map', 'texture cube'];
-            if (bannedTypes.includes(panel.meta.userData.type)) {
-                fixATAProp.hidden = true;
-            } else {
+            const hasAlpha = panel.meta.userData.hasAlpha;
+            const isCapableToFixAlphaTransparencyArtifacts = hasAlpha && !bannedTypes.includes(panel.meta.userData.type) && !panel.meta.userData.isRGBE;
+            if (isCapableToFixAlphaTransparencyArtifacts) {
                 fixATAProp.hidden = false;
                 panel.updateInvalid(panel.$.fixAlphaTransparencyArtifactsCheckbox, 'fixAlphaTransparencyArtifacts');
                 panel.updateReadonly(panel.$.fixAlphaTransparencyArtifactsCheckbox);
+            } else {
+                fixATAProp.hidden = true;
             }
 
         },
