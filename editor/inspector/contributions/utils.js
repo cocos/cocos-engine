@@ -52,8 +52,7 @@ function translate(dump, path, dumps, assets) {
                     });
                     // 仅当存在 value 数据时才添加 values
                     item.values = values;
-                }
-                catch (error) {
+                } catch (error) {
                     values = undefined;
                 }
             }
@@ -87,11 +86,18 @@ function collectGroups(dump) {
     if (!dump.groups) {
         dump.groups = {};
     }
+
     for (const name in dump.value) {
         const info = dump.value[name];
         if (!info || !info.group) {
+            if (info.isArray) {
+                info.value.forEach((item) => {
+                    collectGroups(item);
+                });
+            }
             continue;
         }
+
         if (typeof info.group !== 'object') {
             info.group = {
                 id: 'default',
@@ -143,8 +149,7 @@ function translationDump(dump, dumps, assets) {
         if (allow) {
             collectGroups(component);
             translate(component.value, component.path, dumps ? dumps.map((dump) => dump.__comps__[i].value) : undefined, assets);
-        }
-        else {
+        } else {
             break;
         }
     }
