@@ -3341,6 +3341,44 @@ static bool js_pipeline_PipelineSceneData_getAmbient(se::State& s) // NOLINT(rea
 }
 SE_BIND_FUNC_AS_PROP_GET(js_pipeline_PipelineSceneData_getAmbient)
 
+static bool js_pipeline_PipelineSceneData_getDebugRendererPass(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getDebugRendererPass : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::Pass* result = cobj->getDebugRendererPass();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getDebugRendererPass : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getDebugRendererPass)
+
+static bool js_pipeline_PipelineSceneData_getDebugRendererShader(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_PipelineSceneData_getDebugRendererShader : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Shader* result = cobj->getDebugRendererShader();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_PipelineSceneData_getDebugRendererShader : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_PipelineSceneData_getDebugRendererShader)
+
 static bool js_pipeline_PipelineSceneData_getDirShadowObjects(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
@@ -3789,6 +3827,8 @@ bool js_register_pipeline_PipelineSceneData(se::Object* obj) // NOLINT(readabili
     cls->defineFunction("clearRenderObjects", _SE(js_pipeline_PipelineSceneData_clearRenderObjects));
     cls->defineFunction("clearValidPunctualLights", _SE(js_pipeline_PipelineSceneData_clearValidPunctualLights));
     cls->defineFunction("destroy", _SE(js_pipeline_PipelineSceneData_destroy));
+    cls->defineFunction("getDebugRendererPass", _SE(js_pipeline_PipelineSceneData_getDebugRendererPass));
+    cls->defineFunction("getDebugRendererShader", _SE(js_pipeline_PipelineSceneData_getDebugRendererShader));
     cls->defineFunction("getDirShadowObjects", _SE(js_pipeline_PipelineSceneData_getDirShadowObjects));
     cls->defineFunction("getGeometryRendererMaterials", _SE(js_pipeline_PipelineSceneData_getGeometryRendererMaterials));
     cls->defineFunction("getGeometryRendererPasses", _SE(js_pipeline_PipelineSceneData_getGeometryRendererPasses));
