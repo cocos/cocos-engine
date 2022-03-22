@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import { JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';

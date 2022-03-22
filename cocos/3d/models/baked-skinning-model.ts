@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { JSB } from 'internal:constants';
 import type { AnimationClip } from '../../core/animation/animation-clip';
 import { Mesh } from '../assets/mesh';

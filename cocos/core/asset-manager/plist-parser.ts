@@ -25,10 +25,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { EDITOR } from 'internal:constants';
 import { warnID } from '../platform/debug';

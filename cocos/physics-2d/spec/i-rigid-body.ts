@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { ILifecycle } from '../../physics/spec/i-lifecycle';
 import { IVec2Like } from '../../core/math/type-define';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';

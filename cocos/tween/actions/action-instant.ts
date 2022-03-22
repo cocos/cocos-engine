@@ -25,11 +25,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { FiniteTimeAction, Action } from './action';
 import { RenderableComponent } from '../../core/components/renderable-component';
 

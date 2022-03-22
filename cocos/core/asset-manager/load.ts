@@ -35,10 +35,7 @@ import { cache, checkCircleReference, clear, forEach, gatherAsset, getDepends, s
 import { legacyCC } from '../global-exports';
 import { nativeDependMap, onLoadedInvokedMap } from './depend-maps';
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 interface IProgress {
     finish: number;
     total: number;

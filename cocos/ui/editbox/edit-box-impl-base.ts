@@ -26,11 +26,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EditBox } from './edit-box';
 
 export class EditBoxImplBase {
