@@ -88,7 +88,7 @@ struct DebugVertex {
 };
 
 struct DebugBatch {
-    DebugBatch(gfx::Device *device, pipeline::RenderPipeline *pipeline, bool bd, bool it, gfx::Texture *tex)
+    DebugBatch(gfx::Device *device, bool bd, bool it, gfx::Texture *tex)
     : bold(bd), italic(it), texture(tex) {
         gfx::DescriptorSetLayoutInfo info;
         info.bindings.push_back({0, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::FRAGMENT});
@@ -96,7 +96,15 @@ struct DebugBatch {
         descriptorSetLayout = device->createDescriptorSetLayout(info);
         descriptorSet       = device->createDescriptorSet({descriptorSetLayout});
 
-        auto *sampler = pipeline->getGlobalDSManager()->getLinearSampler();
+        auto *sampler = device->getSampler({
+            gfx::Filter::LINEAR,
+            gfx::Filter::LINEAR,
+            gfx::Filter::NONE,
+            gfx::Address::CLAMP,
+            gfx::Address::CLAMP,
+            gfx::Address::CLAMP,
+        });
+
         descriptorSet->bindSampler(0, sampler);
         descriptorSet->bindTexture(0, texture);
         descriptorSet->update();
@@ -160,14 +168,14 @@ public:
         CC_PROFILE_MEMORY_DEC(DebugVertexBuffer, static_cast<uint32_t>(_maxVertices * sizeof(DebugVertex)));
     }
 
-    DebugBatch &getOrCreateBatch(gfx::Device *device, pipeline::RenderPipeline *pipeline, bool bold, bool italic, gfx::Texture *texture) {
+    DebugBatch &getOrCreateBatch(gfx::Device *device, bool bold, bool italic, gfx::Texture *texture) {
         for (auto *batch : _batches) {
             if (batch->match(bold, italic, texture)) {
                 return *batch;
             }
         }
 
-        auto *batch = new DebugBatch(device, pipeline, bold, italic, texture);
+        auto *batch = new DebugBatch(device, bold, italic, texture);
         _batches.push_back(batch);
 
         return *batch;
@@ -213,9 +221,8 @@ void DebugRenderer::destroyInstance() {
     }
 }
 
-void DebugRenderer::activate(gfx::Device *device, pipeline::RenderPipeline *pipeline, const DebugRendererInfo &info) {
-    _device   = device;
-    _pipeline = pipeline;
+void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info) {
+    _device    = device;
 
     static const gfx::AttributeList ATTRIBUTES = {
         {"a_position", gfx::Format::RG32F},
@@ -237,7 +244,7 @@ void DebugRenderer::activate(gfx::Device *device, pipeline::RenderPipeline *pipe
     }
 }
 
-void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
+void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData* sceneData) {
     CC_PROFILE(DebugRendererRender);
     if (!_buffer || _buffer->empty()) {
         return;
@@ -245,9 +252,8 @@ void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdB
 
     _buffer->update();
 
-    const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto &pass      = sceneData->getDebugRendererPass();
-    const auto &shader    = sceneData->getDebugRendererShader();
+    const auto &pass   = sceneData->getDebugRendererPass();
+    const auto &shader = sceneData->getDebugRendererShader();
 
     auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, _buffer->_inputAssembler, renderPass);
     cmdBuff->bindPipelineState(pso);
@@ -320,7 +326,7 @@ void DebugRenderer::addText(const std::string &text, const Vec2 &screenPos, cons
         }
 
         if (glyph->width > 0U && glyph->height > 0U) {
-            auto &batch = _buffer->getOrCreateBatch(_device, _pipeline, info.bold, info.italic, face->getTexture(glyph->page));
+            auto &batch = _buffer->getOrCreateBatch(_device, info.bold, info.italic, face->getTexture(glyph->page));
 
             Vec4 rect{offsetX + static_cast<float>(glyph->bearingX) * scale,
                       offsetY - static_cast<float>(glyph->bearingY) * scale,

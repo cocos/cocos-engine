@@ -48,12 +48,10 @@ class Frustum;
 
 namespace scene {
 class Pass;
-class Camera;
 } // namespace scene
 
 namespace pipeline {
-
-class RenderPipeline;
+class PipelineSceneData;
 struct GeometryVertexBuffers;
 
 struct GeometryRendererInfo {
@@ -73,18 +71,17 @@ public:
     GeometryRenderer &operator=(const GeometryRenderer &) = delete;
     GeometryRenderer &operator=(GeometryRenderer &&) = delete;
 
-    void activate(gfx::Device *device, RenderPipeline *pipeline, const GeometryRendererInfo &info = GeometryRendererInfo());
-    void flushFromJSB(uint32_t type, uint32_t index, void *vb, uint32_t vertexCount);
-    void render(scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
+    void activate(gfx::Device *device, const GeometryRendererInfo &info = GeometryRendererInfo());
+    void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData);
     void destroy();
 
     void addDashedLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
     void addLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
     void addTriangle(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false);             // counterclockwise
     void addQuad(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false); // counterclockwise
-    void addBoundingBox(const geometry::AABB *aabb, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
+    void addBoundingBox(const geometry::AABB &aabb, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addCross(const Vec3 &center, float size, gfx::Color color, bool depthTest = true);
-    void addFrustum(const geometry::Frustum *frustum, gfx::Color color, bool depthTest = true);
+    void addFrustum(const geometry::Frustum &frustum, gfx::Color color, bool depthTest = true);
     void addCapsule(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segmentsU = 32U, uint32_t hemiSegmentsV = 8U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addCylinder(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addCone(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
@@ -105,7 +102,6 @@ private:
     void reset();
 
     gfx::Device *          _device{nullptr};
-    RenderPipeline *       _pipeline{nullptr};
     GeometryVertexBuffers *_buffers{nullptr};
 };
 

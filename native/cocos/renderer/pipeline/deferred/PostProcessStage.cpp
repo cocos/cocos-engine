@@ -32,7 +32,6 @@
 #include "pipeline/Define.h"
 #include "pipeline/UIPhase.h"
 #include "pipeline/helper/Utils.h"
-#include "profiler/DebugRenderer.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "renderer/pipeline/PipelineStateManager.h"
@@ -228,7 +227,7 @@ void PostProcessStage::render(scene::Camera *camera) {
 
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, pipeline->getProfiler(), camera);
-        CC_DEBUG_RENDERER->render(renderPass, cmdBuff);
+        renderDebugRenderer(renderPass, cmdBuff, pipeline->getPipelineSceneData(), camera);
     };
 
     // add pass

@@ -167,7 +167,6 @@ rootProto._onBatch2DReset = function () {
 
 rootProto._onDirectorBeforeCommit = function () {
     legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
-    this._pipeline.geometryRenderer.flush();
 };
 
 const oldFrameMove = rootProto.frameMove;
@@ -190,8 +189,6 @@ rootProto.setRenderPipeline = function (pipeline) {
         this._classicPipeline = pipeline;
         this._pipeline = this._classicPipeline;
     }
-
-    this._pipeline.geometryRenderer.activate(this._device, this._pipeline);
 
     return oldSetPipeline.call(this, pipeline);
 }
