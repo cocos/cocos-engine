@@ -407,7 +407,7 @@ void CCVKSwapchain::doDestroySurface() {
     _gpuSwapchain->vkSurface = VK_NULL_HANDLE;
 }
 
-void CCVKSwapchain::doCreateSurface(void *windowHandle) {
+void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
     if (!_gpuSwapchain || _gpuSwapchain->vkSurface != VK_NULL_HANDLE) return;
     createVkSurface();
     checkSwapchainStatus();
