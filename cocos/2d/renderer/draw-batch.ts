@@ -40,7 +40,7 @@ import { IBatcher } from './i-batcher';
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 export class DrawBatch2D {
     public get native (): NativeDrawBatch2D {
-        return this._nativeObj;
+        return this._nativeObj!;
     }
 
     public get inputAssembler () {
@@ -49,7 +49,7 @@ export class DrawBatch2D {
     public set inputAssembler (ia: InputAssembler | null) {
         this._inputAssembler = ia;
         if (JSB) {
-            this._nativeObj.inputAssembler = ia;
+            this._nativeObj!.inputAssembler = ia;
         }
     }
     public get descriptorSet () {
@@ -58,7 +58,7 @@ export class DrawBatch2D {
     public set descriptorSet (ds: DescriptorSet | null) {
         this._descriptorSet = ds;
         if (JSB) {
-            this._nativeObj.descriptorSet = ds;
+            this._nativeObj!.descriptorSet = ds;
         }
     }
     public get visFlags () {
@@ -68,7 +68,7 @@ export class DrawBatch2D {
         this._visFlags = vis;
 
         if (JSB) {
-            this._nativeObj.visFlags = vis;
+            this._nativeObj!.visFlags = vis;
         }
     }
 
@@ -169,8 +169,8 @@ export class DrawBatch2D {
                     for (let i = 0; i < passes.length; i++) {
                         nativePasses.push(passes[i].native);
                     }
-                    this._nativeObj.passes = nativePasses;
-                    this._nativeObj.shaders = this._shaders;
+                    this._nativeObj!.passes = nativePasses;
+                    this._nativeObj!.shaders = this._shaders;
                 }
             }
         }
