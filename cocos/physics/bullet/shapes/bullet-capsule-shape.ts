@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { absMax } from '../../../core';
 import { BulletShape } from './bullet-shape';

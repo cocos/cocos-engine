@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import './data-pool-manager';
 
 export * from './skeletal-animation-data-hub';

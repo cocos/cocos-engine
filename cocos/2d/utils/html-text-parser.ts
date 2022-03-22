@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { TEST } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 

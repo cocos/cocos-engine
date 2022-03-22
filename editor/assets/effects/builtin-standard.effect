@@ -249,8 +249,8 @@ CCProgram standard-fs %{
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, v_luv.xy);
-      s.lightmap = UnpackLightingmap(lightColor);
-      s.lightmap_test = v_luv.z; /*u scale*/
+      s.lightmap = lightColor.xyz * v_luv.z;
+      s.lightmap_test = v_luv.z; /*lum*/
     #endif
 
     s.normal = v_normal;

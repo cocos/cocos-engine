@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { FontAtlas } from '../../assets/bitmap-font';
 import { Color } from '../../../core/math';
 import { ImageAsset, Texture2D } from '../../../core/assets';

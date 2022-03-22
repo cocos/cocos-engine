@@ -24,10 +24,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { BulletSharedBody } from './bullet-shared-body';
 import { BulletRigidBody } from './bullet-rigid-body';
