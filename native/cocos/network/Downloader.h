@@ -28,7 +28,7 @@
 #pragma once
 
 #include <functional>
-#include <map>
+#include "base/std/container/map.h"
 #include <memory>
 #include <string>
 #include "base/Macros.h"
@@ -52,7 +52,7 @@ public:
     std::string                        identifier;
     std::string                        requestURL;
     std::string                        storagePath;
-    std::map<std::string, std::string> header;
+    ccstd::map<std::string, std::string> header;
 
     DownloadTask();
     virtual ~DownloadTask();
@@ -108,7 +108,7 @@ public:
 
     std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string &srcUrl, const std::string &storagePath, const std::string &identifier = "");
 
-    std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string &srcUrl, const std::string &storagePath, const std::map<std::string, std::string> &header, const std::string &identifier = "");
+    std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string &srcUrl, const std::string &storagePath, const ccstd::map<std::string, std::string> &header, const std::string &identifier = "");
 
     void abort(const DownloadTask &task);
 

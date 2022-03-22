@@ -30,8 +30,7 @@
 
 #include "bindings/event/EventDispatcher.h"
 #include "engine/BaseEngine.h"
-
-#include <map>
+#include "base/std/container/map.h"
 #include <memory>
 
 namespace cc {
@@ -124,7 +123,7 @@ private:
     cc::Vec2                   _viewLogicalSize{0, 0};
     bool                       _needRestart{false};
 
-    std::map<OSEventType, EventCb> _eventCallbacks;
+    ccstd::map<OSEventType, EventCb> _eventCallbacks;
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
 };
 

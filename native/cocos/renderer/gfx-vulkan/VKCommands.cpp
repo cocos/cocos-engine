@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <boost/functional/hash.hpp>
+#include "base/std/container/map.h"
 #include "base/std/container/unordered_set.h"
 #include "VKStd.h"
 
@@ -303,7 +304,7 @@ struct AttachmentStatistics final {
 
     uint32_t                  loadSubpass{VK_SUBPASS_EXTERNAL};
     uint32_t                  storeSubpass{VK_SUBPASS_EXTERNAL};
-    map<uint32_t, SubpassRef> records; // ordered
+    ccstd::map<uint32_t, SubpassRef> records; // ordered
 
     void clear() {
         loadSubpass  = VK_SUBPASS_EXTERNAL;

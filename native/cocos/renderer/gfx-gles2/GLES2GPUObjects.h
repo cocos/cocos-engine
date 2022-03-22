@@ -27,7 +27,7 @@
 
 #include "gfx-base/GFXDef.h"
 #include "gfx-gles-common/GLESCommandPool.h"
-
+#include "base/std/container/map.h"
 #include "GLES2Std.h"
 #include "GLES2Wrangler.h"
 
@@ -86,7 +86,7 @@ private:
     GLES2GPUStateCache *      _stateCache{nullptr};
     GLES2GPUConstantRegistry *_constantRegistry{nullptr};
 
-    map<size_t, EGLContext> _sharedContexts;
+    ccstd::map<size_t, EGLContext> _sharedContexts;
 
     StringArray _extensions;
 };

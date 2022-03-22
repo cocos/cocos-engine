@@ -21,8 +21,6 @@
 
 #ifdef __cplusplus
     #include <string>
-    #include <map>
-    #include <list>
     #include <memory>
     #include <functional>
     #include <thread>

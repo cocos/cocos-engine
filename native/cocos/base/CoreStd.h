@@ -45,7 +45,6 @@
 #include <exception>
 #include <functional>
 #include <list>
-#include <map>
 #include <mutex>
 #include <string>
 #include <thread>

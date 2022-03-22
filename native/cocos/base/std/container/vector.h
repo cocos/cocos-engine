@@ -29,8 +29,7 @@
 #include "boost/container/pmr/polymorphic_allocator.hpp"
 
 namespace ccstd {
-template <class T>
-using vector = std::vector<T>;
+using std::vector;
 
 namespace pmr {
 template <class T>

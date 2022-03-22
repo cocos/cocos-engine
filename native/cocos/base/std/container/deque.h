@@ -29,8 +29,7 @@
 #include "boost/container/pmr/polymorphic_allocator.hpp"
 
 namespace ccstd {
-template <class T>
-using deque = std::deque<T>;
+using std::deque;
 
 namespace pmr {
 template <class T>

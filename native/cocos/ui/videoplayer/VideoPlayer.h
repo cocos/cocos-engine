@@ -27,10 +27,10 @@
 #pragma once
 
 #include <functional>
-#include <map>
 #include <string>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
+#include "base/std/container/map.h"
 
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
@@ -167,7 +167,7 @@ protected:
     Source      _videoSource;
 
     int                                          _videoPlayerIndex;
-    std::map<std::string, ccVideoPlayerCallback> _eventCallback;
+    ccstd::map<std::string, ccVideoPlayerCallback> _eventCallback;
 
     void *_videoView;
 };

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "base/std/container/map.h"
 #include "base/Macros.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
@@ -84,7 +85,7 @@ private:
     GLES3GPUStateCache *      _stateCache{nullptr};
     GLES3GPUConstantRegistry *_constantRegistry{nullptr};
 
-    map<size_t, EGLContext> _sharedContexts;
+    ccstd::map<size_t, EGLContext> _sharedContexts;
 
     StringArray _extensions;
 };
