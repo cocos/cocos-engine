@@ -157,7 +157,7 @@ struct CCWGPUBindGroupLayoutObject {
 struct CCWGPUBindGroupObject {
     WGPUBindGroup                     bindgroup = wgpuDefaultHandle;
     ccstd::vector<WGPUBindGroupEntry> bindGroupEntries;
-    ccstd::set<uint8_t>                 bindingSet;
+    ccstd::set<uint8_t>               bindingSet;
 };
 
 struct CCWGPUPipelineLayoutObject {

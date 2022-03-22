@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include <boost/functional/hash.hpp>
+#include "VKStd.h"
 #include "base/std/container/map.h"
 #include "base/std/container/unordered_set.h"
-#include "VKStd.h"
 
 #include "VKCommands.h"
 #include "VKDevice.h"

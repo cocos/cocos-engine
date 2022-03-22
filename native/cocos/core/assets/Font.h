@@ -83,9 +83,9 @@ struct FontFaceInfo {
     FontFaceInfo(uint32_t size, uint32_t width, uint32_t height, ccstd::vector<uint32_t> chars);
 
     // only used in freetype, for bitmap font, fontSize is determined by file.
-    uint32_t              fontSize{1U};
-    uint32_t              textureWidth{DEFAULT_FREETYPE_TEXTURE_SIZE};
-    uint32_t              textureHeight{DEFAULT_FREETYPE_TEXTURE_SIZE};
+    uint32_t                fontSize{1U};
+    uint32_t                textureWidth{DEFAULT_FREETYPE_TEXTURE_SIZE};
+    uint32_t                textureHeight{DEFAULT_FREETYPE_TEXTURE_SIZE};
     ccstd::vector<uint32_t> preLoadedCharacters;
     //~
 };
@@ -105,13 +105,13 @@ public:
     virtual const FontGlyph *getGlyph(uint32_t code)                          = 0;
     virtual float            getKerning(uint32_t prevCode, uint32_t nextCode) = 0;
 
-    inline Font *                             getFont() const { return _font; }
-    inline uint32_t                           getFontSize() const { return _fontSize; }
-    inline uint32_t                           getLineHeight() const { return _lineHeight; }
+    inline Font *                               getFont() const { return _font; }
+    inline uint32_t                             getFontSize() const { return _fontSize; }
+    inline uint32_t                             getLineHeight() const { return _lineHeight; }
     inline const ccstd::vector<gfx::Texture *> &getTextures() const { return _textures; }
-    inline gfx::Texture *                     getTexture(uint32_t page) const { return _textures[page]; }
-    inline uint32_t                           getTextureWidth() const { return _textureWidth; }
-    inline uint32_t                           getTextureHeight() const { return _textureHeight; }
+    inline gfx::Texture *                       getTexture(uint32_t page) const { return _textures[page]; }
+    inline uint32_t                             getTextureWidth() const { return _textureWidth; }
+    inline uint32_t                             getTextureHeight() const { return _textureHeight; }
 
 protected:
     virtual void doInit(const FontFaceInfo &info) = 0;
@@ -121,7 +121,7 @@ protected:
     uint32_t                                            _lineHeight{0U};
     std::unordered_map<uint32_t, FontGlyph>             _glyphs;
     std::unordered_map<KerningPair, float, KerningHash> _kernings;
-    ccstd::vector<gfx::Texture *>                         _textures;
+    ccstd::vector<gfx::Texture *>                       _textures;
     uint32_t                                            _textureWidth{0U};
     uint32_t                                            _textureHeight{0U};
 };
@@ -140,18 +140,18 @@ public:
 
     virtual FontFace *createFace(const FontFaceInfo &info) = 0;
 
-    inline FontType                    getType() const { return _type; }
-    inline const std::string &         getPath() const { return _path; }
+    inline FontType                      getType() const { return _type; }
+    inline const std::string &           getPath() const { return _path; }
     inline const ccstd::vector<uint8_t> &getData() const { return _data; }
-    inline FontFace *                  getFace(uint32_t fontSize) { return _faces[fontSize]; }
-    void                               releaseFaces();
+    inline FontFace *                    getFace(uint32_t fontSize) { return _faces[fontSize]; }
+    void                                 releaseFaces();
 
 protected:
     void load(const std::string &path);
 
     FontType                                 _type{FontType::INVALID};
     std::string                              _path;
-    ccstd::vector<uint8_t>                     _data;
+    ccstd::vector<uint8_t>                   _data;
     std::unordered_map<uint32_t, FontFace *> _faces;
 };
 

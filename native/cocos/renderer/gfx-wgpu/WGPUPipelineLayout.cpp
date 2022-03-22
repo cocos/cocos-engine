@@ -25,10 +25,10 @@
 
 #include "WGPUPipelineLayout.h"
 #include <emscripten/html5_webgpu.h>
-#include "base/std/container/vector.h"
 #include "WGPUDescriptorSetLayout.h"
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {

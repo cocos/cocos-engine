@@ -26,7 +26,6 @@
 #include "WGPUPipelineState.h"
 #include <emscripten/html5_webgpu.h>
 #include <numeric>
-#include "base/std/container/vector.h"
 #include "WGPUDescriptorSetLayout.h"
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
@@ -34,6 +33,7 @@
 #include "WGPURenderPass.h"
 #include "WGPUShader.h"
 #include "WGPUUtils.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {
