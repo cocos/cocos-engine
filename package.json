@@ -10,7 +10,7 @@
   "module": "index.js",
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
-    "postinstall": "gulp build-debug-infos && gulp build-declarations && npm run fetch-ral",
+    "postinstall": "gulp build-debug-infos && gulp build-declarations && npm run fetch-ral && npm run install:typedoc-plugin",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
@@ -22,7 +22,8 @@
     "fetch-ral": "node ./scripts/fetch-ral.js",
     "clear-platform": "node ./native/utils/clear-platform.js",
     "update:native-external": "node ./native/utils/update-external.js",
-    "test": "gulp test"
+    "test": "gulp test",
+    "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install"
   },
   "repository": {
     "type": "git",
