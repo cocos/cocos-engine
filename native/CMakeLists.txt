@@ -372,7 +372,7 @@ elseif(IOS)
     )
 endif()
 
-if(WINDOWS OR LINUX)
+if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
 cocos_source_files(
     cocos/platform/SDLHelper.h
     cocos/platform/SDLHelper.cpp
