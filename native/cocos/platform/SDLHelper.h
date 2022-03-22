@@ -39,20 +39,20 @@ public:
     SDLHelper(IEventDispatch* delegate);
     ~SDLHelper();
 
-    bool      init();
+    int      init();
     void      swapWindow();
-    void      createWindow();
-    int       getEvent(OSEvent* ev);
+    bool      createWindow(const char* title,
+                           int w, int h, int flags);
     bool      createWindow(const char* title,
                            int x, int y, int w,
                            int h, int flags);
 
     void      pollEvent(bool* quit);
-
     uintptr_t getWindowHandler() const;
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
     uintptr_t getDisplay() const;
 #endif
+    void setCursorEnabled(bool value);
 
 private:
     void               dispatchSDLEvent(const SDL_Event& sdlEvent, bool* quit);

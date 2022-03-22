@@ -26,12 +26,10 @@
 #pragma once
 
 #include "platform/UniversalPlatform.h"
-#include "platform/linux/modules/SystemWindow.h"
 
 namespace cc {
-class SDLHelper;
-class CC_DLL LinuxPlatform : public UniversalPlatform,
-                             public SystemWindow::Delegate {
+class SystemWindow;
+class CC_DLL LinuxPlatform : public UniversalPlatform {
 public:
     LinuxPlatform();
     /**
@@ -45,18 +43,9 @@ public:
 
     int32_t loop() override;
 
-    // override from SystemWindow::Delegate
-    bool      createWindow(const char* title,
-                           int x, int y, int w,
-                           int h, int flags) override;
-    uintptr_t getWindowHandler() const override;
-    uintptr_t getDisplay() const;
-
 private:
-    void                       pollEvent() override;
-    bool                       _inited{false};
-    bool                       _quit{false};
-    std::unique_ptr<SDLHelper> _sdl;
+    bool                          _quit{false};
+    std::shared_ptr<SystemWindow> _window{nullptr};
 };
 
 } // namespace cc

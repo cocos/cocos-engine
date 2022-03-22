@@ -35,6 +35,7 @@ namespace cc {
 class CC_DLL ISystemWindow : public OSInterface {
 public:
     using Size        = cc::Vec2;
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
     using WindowFlags = enum {
         /* !!! FIXME: change this to name = (1<<x). */
         CC_WINDOW_FULLSCREEN         = 0x00000001, /**< fullscreen window */
@@ -74,6 +75,17 @@ public:
     virtual bool      createWindow(const char* title,
                                    int x, int y, int w,
                                    int h, int flags) = 0;
+    /**
+     * @briefCreate a centered window.
+     *@param title: Window title
+     *@param w: Window width
+     *@param h: Window height
+     *@param flags: Window flag
+     */
+    virtual bool      createWindow(const char* title,
+                                   int         w,
+                                   int h, int flags) = 0;
+#endif
     virtual uintptr_t getWindowHandler() const       = 0;
     virtual Size      getViewSize() const            = 0;
     /**
@@ -82,13 +94,6 @@ public:
     virtual void setCursorEnabled(bool value) = 0;
 
     virtual void copyTextToClipboard(const std::string& text) = 0;
-    /**
-     @brief Create default sytem window interface.
-     @return sytem window interface.
-     */
-    static OSInterface::Ptr createSystemWindowInterface();
-
-private:
 };
 
 } // namespace cc

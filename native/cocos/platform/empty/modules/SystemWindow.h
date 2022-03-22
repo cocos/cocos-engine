@@ -29,9 +29,6 @@
 
 #include "platform/interfaces/modules/ISystemWindow.h"
 
-struct SDL_Window;
-struct SDL_WindowEvent;
-
 namespace cc {
 
 class CC_DLL SystemWindow : public ISystemWindow {
@@ -39,14 +36,6 @@ public:
     explicit SystemWindow();
     ~SystemWindow() override;
 
-    class Delegate {
-    public:
-        virtual ~Delegate()                              = default;
-        virtual bool      createWindow(const char* title,
-                                       int x, int y, int w,
-                                       int h, int flags) = 0;
-        virtual uintptr_t getWindowHandler() const       = 0;
-    };
 
     bool      createWindow(const char* title,
                            int x, int y, int w,

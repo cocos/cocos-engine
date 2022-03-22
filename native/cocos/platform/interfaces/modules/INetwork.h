@@ -37,13 +37,6 @@ public:
         WWAN
     };
     virtual NetworkType getNetworkType() const = 0;
-    /**
-     @brief Create default network interface.
-     @return network interface.
-     */
-    static OSInterface::Ptr createNetworkInterface();
-
-private:
 };
 
 } // namespace cc

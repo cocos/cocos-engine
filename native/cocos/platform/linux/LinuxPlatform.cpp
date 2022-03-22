@@ -28,9 +28,15 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#include "platform/interfaces/OSInterface.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/SDLHelper.h"
+
+#include "modules/Accelerometer.h"
+#include "modules/Battery.h"
+#include "modules/Network.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
+#include "modules/SystemWindow.h"
+#include "modules/Vibrator.h"
 
 namespace {
 
@@ -38,14 +44,21 @@ namespace {
 
 namespace cc {
 LinuxPlatform::LinuxPlatform() {
-    _sdl = std::make_unique<SDLHelper>(this);
 }
+
 LinuxPlatform::~LinuxPlatform() {
 }
 
 int32_t LinuxPlatform::init() {
-    UniversalPlatform::init();
-    return _sdl->init() ? 0 : -1;
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    _window = std::make_shared<SystemWindow>(this);
+    registerInterface(_window);
+    registerInterface(std::make_shared<Vibrator>());
+    return _window->init();
 }
 
 static long getCurrentMillSecond() {
@@ -66,12 +79,12 @@ int32_t LinuxPlatform::loop() {
     while (!_quit) {
         curTime         = getCurrentMillSecond();
 		desiredInterval = static_cast<long>(1000.0 / getFps());
-        pollEvent();
+        _window->pollEvent(&_quit);
         actualInterval = curTime - lastTime;
         if (actualInterval >= desiredInterval) {
             lastTime = getCurrentMillSecond();
             runTask();
-            _sdl->swapWindow();
+            _window->swapWindow();
         } else {
             usleep((desiredInterval - curTime + lastTime) * 1000);
         }
@@ -79,24 +92,6 @@ int32_t LinuxPlatform::loop() {
 
     onDestory();
     return 0;
-}
-
-void LinuxPlatform::pollEvent() {
-    _sdl->pollEvent(&_quit);
-}
-
-bool LinuxPlatform::createWindow(const char *title,
-                                 int x, int y, int w,
-                                 int h, int flags) {
-   return _sdl->createWindow(title, x, y, w, h, flags);
-}
-
-uintptr_t LinuxPlatform::getWindowHandler() const {
-    return _sdl->getWindowHandler();
-}
-
-uintptr_t LinuxPlatform::getDisplay() const {
-    return _sdl->getDisplay();
 }
 
 } // namespace cc

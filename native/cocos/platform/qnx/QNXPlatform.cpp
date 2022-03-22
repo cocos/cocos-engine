@@ -29,7 +29,13 @@
 #include <unistd.h>
 
 #include "platform/interfaces/OSInterface.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
+#include "modules/Accelerometer.h"
+#include "modules/Battery.h"
+#include "modules/Network.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
+#include "modules/SystemWindow.h"
+#include "modules/Vibrator.h"
 
 namespace {
 
@@ -39,18 +45,19 @@ namespace cc {
 QnxPlatform::QnxPlatform() {
     // _sdl = std::make_unique<SDLHelper>(this);
 }
+
 QnxPlatform::~QnxPlatform() {
-    if (_screenWin) {
-        screen_destroy_window(_screenWin);
-    }
-    if (_screenCtx) {
-        screen_destroy_context(_screenCtx);
-    }
 }
 
 int32_t QnxPlatform::init() {
-    UniversalPlatform::init();
-    // return _sdl->init() ? 0 : -1;
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    _window = std::make_shared<SystemWindow>();
+    registerInterface(_window);
+    registerInterface(std::make_shared<Vibrator>());
     return 0;
 }
 
@@ -90,52 +97,6 @@ int32_t QnxPlatform::loop() {
 
 void QnxPlatform::pollEvent() {
     //_sdl->pollEvent(&_quit);
-}
-
-bool QnxPlatform::createWindow(const char *title,
-                               int x, int y, int w,
-                               int h, int flags) {
-    if (_inited) {
-        return true;
-    }
-    int rc;
-
-    //Create the screen context
-    rc = screen_create_context(&_screenCtx, SCREEN_APPLICATION_CONTEXT);
-    if (rc) {
-        perror("screen_create_window");
-        return EXIT_FAILURE;
-    }
-
-    //Create the screen window that will be render onto
-    rc = screen_create_window(&_screenWin, _screenCtx);
-    if (rc) {
-        perror("screen_create_window");
-        return EXIT_FAILURE;
-    }
-
-    screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_FORMAT, (const int[]){SCREEN_FORMAT_RGBX8888});
-    screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_USAGE, (const int[]){SCREEN_USAGE_OPENGL_ES2});
-
-    int size[2] = {w, h}; /* size of the window on screen */
-    rc          = screen_set_window_property_iv(_screenWin, SCREEN_PROPERTY_SIZE, size);
-
-    int dpi = 0;
-    screen_get_window_property_iv(_screenWin, SCREEN_PROPERTY_DPI, &dpi);
-    fprintf(stdout, "[glError] %d\n", dpi);
-
-    rc = screen_create_window_buffers(_screenWin, 2);
-    if (rc) {
-        perror("screen_create_window_buffers");
-        return EXIT_FAILURE;
-    }
-    // return _sdl->createWindow(title, x, y, w, h, flags);
-    return true;
-}
-
-uintptr_t QnxPlatform::getWindowHandler() const {
-    // return _sdl->getWindowHandler();
-    return reinterpret_cast<uintptr_t>(_screenWin);
 }
 
 } // namespace cc

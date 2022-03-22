@@ -36,13 +36,7 @@ public:
      * @return 0.0 ~ 1.0
      */
     virtual float getBatteryLevel() const = 0;
-    /**
-     @brief Create default battery interface.
-     @return battery interface.
-     */
-    static OSInterface::Ptr createBatteryInterface();
 
-private:
 };
 
 } // namespace cc

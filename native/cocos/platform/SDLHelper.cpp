@@ -158,13 +158,13 @@ SDLHelper::~SDLHelper() {
     }
 }
 
-bool SDLHelper::init() {
+int SDLHelper::init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         // Display error message
         CC_LOG_ERROR("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-        return false;
+        return -1;
     }
-    return true;
+    return 0;
 }
 void SDLHelper::dispatchWindowEvent(const SDL_WindowEvent &wevent) {
     WindowEvent ev;
@@ -333,11 +333,16 @@ void SDLHelper::pollEvent(bool *quit) {
 }
 
 bool SDLHelper::createWindow(const char *title,
+                             int w, int h, int flags) {
+    return createWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, flags);
+}
+
+bool SDLHelper::createWindow(const char *title,
                              int x, int y, int w,
                              int h, int flags) {
     // Create window
     int sdlFlags = windowFlagsToSDLWindowFlag(flags);
-    _handle      = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, sdlFlags);
+    _handle      = SDL_CreateWindow(title, x, y, w, h, sdlFlags);
     if (_handle == nullptr) {
         // Display error message
         CC_LOG_ERROR("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -345,6 +350,10 @@ bool SDLHelper::createWindow(const char *title,
     }
     _windowCreated = true;
     return true;
+}
+
+void SDLHelper::setCursorEnabled(bool value) {
+    SDL_SetRelativeMouseMode(value ? SDL_FALSE : SDL_TRUE);
 }
 
 void SDLHelper::swapWindow() {
