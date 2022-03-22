@@ -465,7 +465,7 @@ export class MeshRenderer extends RenderableComponent {
     }
 
     protected _updateModels () {
-        if (!this.enabledInHierarchy || !this._mesh) {
+        if (!this.enabledInHierarchy) {
             return;
         }
 
@@ -479,7 +479,9 @@ export class MeshRenderer extends RenderableComponent {
         }
 
         if (this._model) {
-            this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            if (this._mesh) {
+                this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            }
             this._updateModelParams();
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBias();
