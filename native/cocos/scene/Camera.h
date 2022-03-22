@@ -363,7 +363,7 @@ private:
     float                 _clearDepth{1.0F};
 
     IntrusivePtr<pipeline::GeometryRenderer> _geometryRenderer;
-	
+
     static const ccstd::vector<float> FSTOPS;
     static const ccstd::vector<float> SHUTTERS;
     static const ccstd::vector<float> ISOS;

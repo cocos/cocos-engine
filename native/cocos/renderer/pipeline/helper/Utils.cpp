@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "renderer/pipeline/helper/Utils.h"
-#include "renderer/pipeline/PipelineStateManager.h"
-#include "profiler/DebugRenderer.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "pipeline/Define.h"
+#include "profiler/DebugRenderer.h"
+#include "renderer/pipeline/PipelineStateManager.h"
 #include "scene/Camera.h"
 #include "scene/Model.h"
 #include "scene/Pass.h"
@@ -71,7 +71,7 @@ void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, sc
     }
 }
 
-void renderDebugRenderer(gfx::RenderPass* renderPass, gfx::CommandBuffer* cmdBuff, PipelineSceneData* sceneData, const scene::Camera* camera) {
+void renderDebugRenderer(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData, const scene::Camera *camera) {
     if (camera != profilerCamera) {
         return;
     }

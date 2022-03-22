@@ -222,7 +222,7 @@ void DebugRenderer::destroyInstance() {
 }
 
 void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info) {
-    _device    = device;
+    _device = device;
 
     static const gfx::AttributeList ATTRIBUTES = {
         {"a_position", gfx::Format::RG32F},
@@ -244,7 +244,7 @@ void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info)
     }
 }
 
-void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData* sceneData) {
+void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData) {
     CC_PROFILE(DebugRendererRender);
     if (!_buffer || _buffer->empty()) {
         return;
