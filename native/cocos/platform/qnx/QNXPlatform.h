@@ -29,13 +29,10 @@
 #include "platform/UniversalPlatform.h"
 #include "platform/qnx/modules/SystemWindow.h"
 
-struct SDL_WindowEvent;
-struct SDL_Window;
-
 namespace cc {
 
-class QnxPlatform : public UniversalPlatform,
-                    public SystemWindow::Delegate {
+class CC_DLL QnxPlatform : public UniversalPlatform,
+                           public SystemWindow::Delegate {
 public:
     QnxPlatform();
     /**
@@ -59,11 +56,10 @@ public:
     }
 
 private:
-    SDL_Window*      _handle;
-    void             pollEvent() override;
-    void             handleWindowEvent(SDL_WindowEvent& wevent);
-    bool             _inited{false};
-    bool             _quit{false};
+    void pollEvent() override;
+    bool _inited{false};
+    bool _quit{false};
+    // std::unique_ptr<SDLHelper> _sdl;
     screen_context_t _screenCtx;
     screen_window_t  _screenWin;
 };

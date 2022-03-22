@@ -210,8 +210,8 @@ export class RenderableComponent extends Component {
             return;
         }
 
-        // Or else it's a Material proper
-        // Should skip identity check if there is any MaterialInstance
+        // Skip identity check if it's a Material property
+        // Or if there is a MaterialInstance already
         if (matInst !== this._materials[index] || curInst) {
             this.setMaterial(matInst as Material, index);
         }

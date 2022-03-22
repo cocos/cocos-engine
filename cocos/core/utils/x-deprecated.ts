@@ -23,12 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- * Note, naming this file with prefix `x-` exclude it from regular deprecated modules.
- */
-
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable func-names */

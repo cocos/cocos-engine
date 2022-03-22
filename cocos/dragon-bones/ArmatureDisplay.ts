@@ -156,6 +156,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
     set dragonAsset (value) {
         this._dragonAsset = value;
+        this.destroyRenderData();
         this._refresh();
         if (EDITOR) {
             this._defaultArmatureIndex = 0;
@@ -522,6 +523,7 @@ export class ArmatureDisplay extends Renderable2D {
         this.initFactory();
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
+        this._useVertexOpacity = true;
     }
 
     initFactory () {

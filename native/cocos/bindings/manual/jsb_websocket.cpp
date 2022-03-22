@@ -154,6 +154,7 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
 void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
+    se::Object *wsObj = nullptr;
 
     if (CC_CURRENT_APPLICATION() == nullptr) {
         return;
@@ -165,8 +166,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
             CC_LOG_INFO("WebSocket js instance was destroyted, don't need to invoke onclose callback!");
             break;
         }
-
-        se::Object *     wsObj = iter->second;
+        wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("close"));
         se::Value target;
@@ -180,7 +180,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
             args.push_back(se::Value(jsObj));
             func.toObject()->call(args, wsObj);
         } else {
-            SE_REPORT_ERROR("Can't get onclose function!");
+            SE_LOGD("Can't get onclose function!");
         }
 
         //JS Websocket object now can be GC, since the connection is closed.
@@ -227,6 +227,7 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
     }
 
     wsObj->unroot();
+    se::ScriptEngine::getInstance()->getGlobalObject()->detachObject(wsObj);
 }
 
 void JsbWebSocketDelegate::setJSDelegate(const se::Value &jsDelegate) {
@@ -302,7 +303,7 @@ static bool webSocketConstructor(se::State &s) {
             cobj           = new (std::nothrow) cc::network::WebSocket();
             auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
             if (cobj->init(*delegate, url, &protocols, caFilePath)) {
-                delegate->setJSDelegate(se::Value(obj, true));
+                delegate->setJSDelegate(se::Value(obj));
                 cobj->retain();     // release in finalize function and onClose delegate method
                 delegate->retain(); // release in finalize function and onClose delegate method
             } else {

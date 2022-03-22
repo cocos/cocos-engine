@@ -199,6 +199,29 @@ export class RichText extends Component {
 
     /**
      * @en
+     * Vertical Alignment of each line in RichText.
+     *
+     * @zh
+     * 文本内容的竖直对齐方式。
+     */
+    @type(VerticalTextAlignment)
+    @tooltip('i18n:richtext.vertical_align')
+    get verticalAlign () {
+        return this._verticalAlign;
+    }
+
+    set verticalAlign (value) {
+        if (this._verticalAlign === value) {
+            return;
+        }
+
+        this._verticalAlign = value;
+        this._layoutDirty = true;
+        this._updateRichTextStatus();
+    }
+
+    /**
+     * @en
      * Font size of RichText.
      *
      * @zh
@@ -275,7 +298,7 @@ export class RichText extends Component {
      * 是否使用系统字体。
      */
     @tooltip('i18n:richtext.use_system_font')
-    @displayOrder(11)
+    @displayOrder(12)
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
@@ -422,6 +445,8 @@ export class RichText extends Component {
     // protected _updateRichTextStatus =
     @serializable
     protected _horizontalAlign = HorizontalTextAlignment.LEFT;
+    @serializable
+    protected _verticalAlign = VerticalTextAlignment.TOP;
     @serializable
     protected _fontSize = 40;
     @serializable
@@ -789,6 +814,13 @@ export class RichText extends Component {
             if (label) {
                 label.string = stringToken;
             }
+        }
+
+        // set vertical alignments
+        // because horizontal alignment is applied with line offsets in method "_updateRichTextPosition"
+        const labelComp: Label = labelSegment.comp as Label;
+        if (labelComp.verticalAlign !== this._verticalAlign) {
+            labelComp.verticalAlign = this._verticalAlign;
         }
 
         labelSegment.styleIndex = styleIndex;

@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
 import { errorID, warnID, error } from '../platform/debug';

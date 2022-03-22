@@ -29,7 +29,7 @@
 
 namespace cc {
 class JniNativeGlue;
-class AndroidPlatform : public UniversalPlatform {
+class CC_DLL AndroidPlatform : public UniversalPlatform {
 public:
     AndroidPlatform();
     void    pollEvent() override;

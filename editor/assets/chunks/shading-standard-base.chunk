@@ -107,15 +107,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float NH = max(dot(N, H), 0.0);
   float NL = max(dot(N, L), 0.0);
   vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
-  vec3 diffuseContrib = diffuse;
-
-  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    if (s.lightmap_test > 0.0001) {
-      finalColor = s.lightmap.rgb;
-    }
-  #else
-    diffuseContrib /= PI;
-  #endif
+  vec3 diffuseContrib = diffuse / PI;
 
   // Cook-Torrance Microfacet Specular BRDF
   vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
@@ -130,6 +122,12 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   dirlightContrib *= shadow;
   finalColor *= dirlightContrib;
+
+  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    if (s.lightmap_test > 0.0001) {
+      finalColor = diffuse * s.lightmap.rgb * shadow;
+    }
+  #endif
 
   float fAmb = 0.5 - N.y * 0.5;
   vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);

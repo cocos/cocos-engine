@@ -3,6 +3,7 @@ import './clip-motion';
 import './animation-blend-1d';
 import './animation-blend-2d';
 import './animation-blend-direct';
+import './animation-mask';
 
 import type { MotionStateStatus } from './animation-controller';
 
@@ -11,6 +12,7 @@ export { AnimationController } from './animation-controller';
 export type { ClipStatus, TransitionStatus, MotionStateStatus } from './animation-controller';
 export { VariableType } from './parametric';
 export { StateMachineComponent } from './state-machine-component';
+export type { Value } from './variable';
 
 /**
  * @deprecated Since v3.4-preview-2. Use `MotionStateStatus` instead.

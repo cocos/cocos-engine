@@ -1,16 +1,14 @@
 <!--
-    EN: Here only receive bug report or suggestions for improvement. Feature request please send to the forum: http://discuss.cocos2d-x.org/c/creator
-    中: 这里只接收 bug 反馈或改进建议。新功能需求请发到论坛：http://forum.cocos.com/c/Creator
+    EN: Here only receive bug report or suggestions for improvement. Feature request please send to the forum: https://discuss.cocos2d-x.org/c/creator
+    中: 这里只接收 bug 反馈或改进建议。新功能需求请发到论坛：https://forum.cocos.com/c/Creator
 -->
 
 ### Creator version?（版本号）
-
 
 ### Affected platform?（受影响的平台）
 <!-- Mac Editor / Windows Editor / Web / iOS / Android / Simulator ... -->
 
 ### How to reproduce?（如何重现）
-
 
 ### JavaScript output or error produced?（报错信息和调用栈）
 <!--

@@ -424,6 +424,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
     for (size_t i = 0, n = drawOrder.size(); i < n; ++i) {
         isFull = 0;
         slot   = drawOrder[i];
+
+        if (slot->getBone().isActive() == false) {
+            continue;
+        }
+
         if (_startSlotIndex >= 0 && _startSlotIndex == slot->getData().getIndex()) {
             inRange = true;
         }
