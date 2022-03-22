@@ -31,7 +31,8 @@
 #include "LayoutGraphTypes.h"
 #include "RenderGraphGraphs.h"
 #include "boost/lexical_cast.hpp"
-#include "range.h"
+#include "Range.h"
+
 namespace cc {
 
 namespace render {
@@ -235,7 +236,7 @@ void processComputePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph
     }
 }
 
-void processCopyPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const CopyPass &pass) {
+void processCopyPass(RAG &rag, const LGD &/*lgd*/, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const CopyPass &pass) {
     auto  vertID    = add_vertex(rag, passID);
     auto &node      = get(RAG::AccessNode, rag, vertID);
     bool  dependent = false;
@@ -375,7 +376,7 @@ void buildAccessGraph(const RenderGraph &renderGraph, const LayoutGraphData &lgd
 
 // execution order BUT NOT LOGICALLY
 bool isPassExecAdjecent(uint32_t passL, uint32_t passR) {
-    return passL ^ passR == 1;
+    return (passL ^ passR) == 1;
 }
 
 struct BarrierVisitor : public boost::bfs_visitor<> {
@@ -383,7 +384,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     using Edge   = ResourceAccessGraph::edge_descriptor;
     using Graph  = ResourceAccessGraph;
 
-    BarrierVisitor(BarrierMap &barriers) : barrierMap(barriers) {
+    explicit BarrierVisitor(BarrierMap &barriers) : barrierMap(barriers) {
     }
 
     void discover_vertex(Vertex u, const Graph &g) {
@@ -421,6 +422,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         std::vector<Barrier> &srcRearBarriers  = barrierMap[from].rearBarriers;
         std::vector<Barrier> &dstFrontBarriers = barrierMap[to].frontBarriers;
 
+        // NOLINTNEXTLINE
         for (uint32_t i = 0; i < commonResources.size(); ++i) {
             const uint32_t resourceID     = commonResources[i].resourceID;
             auto           findAccessByID = [resourceID](const ResourceAccessDesc &resAccess) { return resAccess.resourceID == resourceID; };
@@ -620,7 +622,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     BarrierMap &           barrierMap;
 };
 
-void FrameGraphDispatcher::buildBarriers() {
+// NOLINTNEXTLINE
+void FrameGraphDispatcher::buildBarriers() const {
     {
         // record resource current in-access and out-access for every single node
         ResourceAccessGraph rag(scratch);

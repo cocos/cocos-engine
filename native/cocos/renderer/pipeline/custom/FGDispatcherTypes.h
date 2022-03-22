@@ -232,8 +232,7 @@ struct FrameGraphDispatcher {
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-                    void buildBarriers();
-                    
+    void buildBarriers() const;
 
     ResourceGraph&                          resourceGraph;
     RenderGraph&                            graph;
