@@ -34,7 +34,7 @@
 
 namespace cc {
 namespace pipeline {
-map<scene::Pass *, map<uint, BatchedBuffer *>> BatchedBuffer::buffers;
+ccstd::map<scene::Pass *, ccstd::map<uint, BatchedBuffer *>> BatchedBuffer::buffers;
 BatchedBuffer *                                BatchedBuffer::get(scene::Pass *pass) {
     return BatchedBuffer::get(pass, 0);
 }
@@ -47,7 +47,7 @@ BatchedBuffer *BatchedBuffer::get(scene::Pass *pass, uint extraKey) {
 
 void BatchedBuffer::destroyBatchedBuffer() {
     for (auto &pair : BatchedBuffer::buffers) {
-        const map<uint, BatchedBuffer *> &bufferItem = pair.second;
+        const ccstd::map<uint, BatchedBuffer *> &bufferItem = pair.second;
         for (const auto &item : bufferItem) {
             BatchedBuffer *batchedBuffer = item.second;
             if (batchedBuffer) {

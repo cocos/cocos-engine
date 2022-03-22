@@ -219,7 +219,7 @@ struct CCWGPUStateCache {
     uint32_t minAttachmentHeight = 0;
 
     ccstd::vector<CCWGPUDescriptorSetObject>  descriptorSets;
-    std::map<StencilFace, CCWGPUStencilMasks> stencilMasks;
+    ccstd::map<StencilFace, CCWGPUStencilMasks> stencilMasks;
 };
 
 struct CCWGPUCommandBufferObject {
@@ -234,7 +234,7 @@ struct CCWGPUCommandBufferObject {
     WGPURenderPassDescriptor renderPassDescriptor;
     CCWGPUStateCache         stateCache;
 
-    std::map<uint32_t, CCWGPUBuffer *> redundantVertexBufferMap;
+    ccstd::map<uint32_t, CCWGPUBuffer *> redundantVertexBufferMap;
 };
 
 struct CCWGPUQueryPoolObject {

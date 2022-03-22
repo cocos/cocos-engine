@@ -29,8 +29,7 @@
 #include "boost/container/pmr/polymorphic_allocator.hpp"
 
 namespace ccstd {
-template <class T>
-using queue = std::queue<T>;
+using std::queue;
 
 namespace pmr {
 template <class T>

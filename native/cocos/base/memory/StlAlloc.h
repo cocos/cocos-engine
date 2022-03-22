@@ -26,17 +26,10 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <map>
 #include <string>
 #include <unordered_map>
 
 namespace cc {
-
-template <typename K, typename V, typename P = std::less<K>>
-using map = std::map<K, V, P>;
-
-template <typename K, typename V, typename P = std::less<K>>
-using multimap = std::multimap<K, V, P>;
 
 template <typename K, typename V, typename H = std::hash<K>, typename P = std::equal_to<K>>
 using unordered_map = std::unordered_map<K, V, H, P>;

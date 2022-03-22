@@ -29,6 +29,7 @@
 
     // clang-format off
     #include "base/Macros.h"
+    #include "base/std/container/map.h"
     #include "uv.h"
 // clang-format on
 
@@ -36,7 +37,6 @@
     #include <atomic>
     #include <functional>
     #include <list>
-    #include <map>
     #include <memory>
     #include <mutex>
     #include <string>
@@ -136,7 +136,7 @@ public:
         return (int)_readyState;
     }
 
-    std::map<std::string, std::string> getHeaders();
+    ccstd::map<std::string, std::string> getHeaders();
 
     ccstd::vector<std::string> getProtocols();
 
@@ -191,7 +191,7 @@ private:
     void onDestroyClient();
 
     struct lws *                          _wsi = nullptr;
-    std::map<std::string, std::string>    _headers;
+    ccstd::map<std::string, std::string>    _headers;
     std::list<std::shared_ptr<DataFrame>> _sendQueue;
     std::shared_ptr<DataFrame>            _prevPkg;
     bool                                  _closed      = false;
