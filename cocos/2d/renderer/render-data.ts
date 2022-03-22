@@ -82,9 +82,9 @@ export class BaseRenderData {
     }
 
     public vertexAccessor: StaticVBAccessor = null!;
-    
+
     public chunk: StaticVBChunk = null!;
-    
+
     public dataHash = 0;
     public isMeshBuffer = false;
 
