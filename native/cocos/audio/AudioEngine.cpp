@@ -25,13 +25,13 @@
 ****************************************************************************/
 
 #include "audio/include/AudioEngine.h"
-#include "base/Log.h"
-#include "base/Utils.h"
-#include "platform/FileUtils.h"
-#include "base/std/container/queue.h"
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+#include "base/Log.h"
+#include "base/Utils.h"
+#include "base/std/container/queue.h"
+#include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "audio/android/AudioEngine-inl.h"
@@ -134,7 +134,7 @@ private:
         }
     }
 
-    ccstd::vector<std::thread>        _workers;
+    ccstd::vector<std::thread>          _workers;
     ccstd::queue<std::function<void()>> _taskQueue;
 
     std::mutex              _queueMutex;

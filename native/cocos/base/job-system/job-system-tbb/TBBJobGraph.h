@@ -26,8 +26,8 @@
 #pragma once
 
 #include <tbb/flow_graph.h>
-#include "base/std/container/vector.h"
 #include "base/std/container/deque.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 

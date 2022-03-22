@@ -26,7 +26,6 @@
 #include "WGPUCommandBuffer.h"
 #include <webgpu/webgpu.h>
 #include <limits>
-#include "base/std/container/vector.h"
 #include "WGPUBuffer.h"
 #include "WGPUDescriptorSet.h"
 #include "WGPUDescriptorSetLayout.h"
@@ -40,6 +39,7 @@
 #include "WGPUSwapchain.h"
 #include "WGPUTexture.h"
 #include "WGPUUtils.h"
+#include "base/std/container/vector.h"
 namespace cc {
 namespace gfx {
 

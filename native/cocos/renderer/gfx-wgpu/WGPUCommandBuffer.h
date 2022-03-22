@@ -27,8 +27,8 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 #include <functional>
-#include "gfx-base/GFXCommandBuffer.h"
 #include "base/std/container/vector.h"
+#include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
 namespace gfx {

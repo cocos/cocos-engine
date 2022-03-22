@@ -32,8 +32,8 @@
 
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
-#include "base/std/container/set.h"
 #include "base/std/container/deque.h"
+#include "base/std/container/set.h"
 #include "base/std/container/vector.h"
 #include "platform/FileUtils.h"
 
@@ -110,7 +110,7 @@ public:
         bool ret = false;
         do {
             std::string dir;
-            size_t found = _tempFileName.find_last_of("/\\");
+            size_t      found = _tempFileName.find_last_of("/\\");
             if (found == std::string::npos) {
                 _errCode         = DownloadTask::ERROR_INVALID_PARAMS;
                 _errCodeInternal = 0;
@@ -159,7 +159,7 @@ public:
 
     size_t writeDataProc(unsigned char *buffer, size_t size, size_t count) {
         std::lock_guard<std::mutex> lock(_mutex);
-        size_t            ret = 0;
+        size_t                      ret = 0;
         if (_fp) {
             ret = fwrite(buffer, size, count, _fp);
         } else {
@@ -196,15 +196,15 @@ private:
     int64_t _totalBytesReceived;
 
     // error
-    int    _errCode;
-    int    _errCodeInternal;
+    int         _errCode;
+    int         _errCodeInternal;
     std::string _errDescription;
 
     // for saving data
-    std::string                _fileName;
-    std::string                _tempFileName;
+    std::string                  _fileName;
+    std::string                  _tempFileName;
     ccstd::vector<unsigned char> _buf;
-    FILE *                _fp;
+    FILE *                       _fp;
 
     void _initInternal() {
         _acceptRanges       = (false);
@@ -218,7 +218,7 @@ private:
         _header.reserve(384); // pre alloc header string buffer
     }
 };
-int         DownloadTaskCURL::_sSerialId;
+int                     DownloadTaskCURL::_sSerialId;
 ccstd::set<std::string> DownloadTaskCURL::_sStoragePathSet;
 
 typedef std::pair<std::shared_ptr<const DownloadTask>, DownloadTaskCURL *> TaskWrapper;
@@ -612,7 +612,7 @@ private:
         DLLOG("----DownloaderCURL::Impl::_threadProc end");
     }
 
-    std::thread             _thread;
+    std::thread               _thread;
     ccstd::deque<TaskWrapper> _requestQueue;
     ccstd::set<TaskWrapper>   _processSet;
     ccstd::deque<TaskWrapper> _finishedQueue;
