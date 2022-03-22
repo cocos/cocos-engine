@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#import "base/std/container/set.h"
 #import "MTLStd.h"
-
 #import "MTLDevice.h"
 #import "MTLGPUObjects.h"
 #import "MTLPipelineLayout.h"
@@ -34,7 +34,6 @@
 #import "MTLShader.h"
 #import "MTLTexture.h"
 #import "MTLUtils.h"
-
 
 #import <Metal/MTLComputePipeline.h>
 #import <Metal/MTLDevice.h>
@@ -274,7 +273,7 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
     bindingIndices.reserve(outputNum);
     bindingOffsets.reserve(outputNum);
     MTLPixelFormat     mtlPixelFormat;
-    std::set<uint32_t> inputs;
+    ccstd::set<uint32_t> inputs;
     uint32_t           depthStencilTexIndex = INVALID_BINDING;
     if (!subpasses.empty()) {
         for (size_t passIndex = 0; passIndex < subpasses.size(); ++passIndex) {

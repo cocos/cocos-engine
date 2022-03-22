@@ -28,6 +28,7 @@
 #include "WGPUDescriptorSetLayout.h"
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {
@@ -41,7 +42,7 @@ void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     _gpuPipelineLayoutObj = CC_NEW(CCWGPUPipelineLayoutObject);
 }
 
-void CCWGPUPipelineLayout::prepare(const std::set<uint8_t> &setInUse) {
+void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
     ccstd::vector<WGPUBindGroupLayout> layouts;
     // _bgLayouts.clear();
     for (size_t i = 0; i < _setLayouts.size(); i++) {

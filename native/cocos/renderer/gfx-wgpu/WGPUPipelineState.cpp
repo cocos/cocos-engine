@@ -33,6 +33,7 @@
 #include "WGPURenderPass.h"
 #include "WGPUShader.h"
 #include "WGPUUtils.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {
@@ -53,7 +54,7 @@ void CCWGPUPipelineState::check(RenderPass *renderPass) {
     }
 }
 
-void CCWGPUPipelineState::prepare(const std::set<uint8_t> &setInUse) {
+void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
     auto *pipelineLayout = static_cast<CCWGPUPipelineLayout *>(_pipelineLayout);
 
     const DepthStencilAttachment &dsAttachment = _renderPass->getDepthStencilAttachment();

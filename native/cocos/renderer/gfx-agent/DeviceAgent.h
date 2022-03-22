@@ -26,6 +26,7 @@
 #pragma once
 
 #include "base/Agent.h"
+#include "base/std/container/unordered_set.h"
 #include "base/threading/Semaphore.h"
 #include "gfx-base/GFXDevice.h"
 
@@ -83,7 +84,7 @@ public:
     PipelineState *      createPipelineState() override;
 
     Sampler *       getSampler(const SamplerInfo &info) override;
-    GeneralBarrier * getGeneralBarrier(const GeneralBarrierInfo &info) override;
+    GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info) override;
     TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info) override;
 
     void          copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
@@ -117,7 +118,7 @@ protected:
     uint32_t  _currentIndex = 0U;
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 
-    unordered_set<CommandBufferAgent *> _cmdBuffRefs;
+    ccstd::unordered_set<CommandBufferAgent *> _cmdBuffRefs;
 };
 
 } // namespace gfx

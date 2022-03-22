@@ -27,6 +27,7 @@
 
 #include "VKStd.h"
 #include "VKUtils.h"
+#include "base/std/container/unordered_set.h"
 
 #define TBB_USE_EXCEPTIONS 0 // no-rtti for now
 #include "tbb/concurrent_unordered_map.h"
@@ -235,11 +236,11 @@ struct CCVKGPUSwapchain {
 };
 
 struct CCVKGPUCommandBuffer {
-    VkCommandBuffer                 vkCommandBuffer  = VK_NULL_HANDLE;
-    VkCommandBufferLevel            level            = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    uint32_t                        queueFamilyIndex = 0U;
-    bool                            began            = false;
-    mutable unordered_set<VkBuffer> recordedBuffers;
+    VkCommandBuffer                        vkCommandBuffer  = VK_NULL_HANDLE;
+    VkCommandBufferLevel                   level            = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    uint32_t                               queueFamilyIndex = 0U;
+    bool                                   began            = false;
+    mutable ccstd::unordered_set<VkBuffer> recordedBuffers;
 };
 
 struct CCVKGPUQueue {
@@ -381,7 +382,7 @@ public:
     CCVKGPUGeneralBarrier defaultColorBarrier;
     CCVKGPUGeneralBarrier defaultDepthStencilBarrier;
 
-    unordered_set<CCVKGPUSwapchain *> swapchains;
+    ccstd::unordered_set<CCVKGPUSwapchain *> swapchains;
 
     CCVKGPUCommandBufferPool *getCommandBufferPool();
     CCVKGPUDescriptorSetPool *getDescriptorSetPool(uint32_t layoutID);
@@ -602,9 +603,9 @@ private:
     CCVKGPUDevice *_device = nullptr;
 
     struct DescriptorSetPool {
-        VkDescriptorPool               vkPool = VK_NULL_HANDLE;
-        unordered_set<VkDescriptorSet> activeSets;
-        ccstd::vector<VkDescriptorSet> freeSets;
+        VkDescriptorPool                      vkPool = VK_NULL_HANDLE;
+        ccstd::unordered_set<VkDescriptorSet> activeSets;
+        ccstd::vector<VkDescriptorSet>        freeSets;
     };
     ccstd::vector<DescriptorSetPool> _pools;
 
@@ -865,7 +866,7 @@ private:
         }
     }
 
-    using DescriptorSetList = unordered_set<const CCVKGPUDescriptorSet *>;
+    using DescriptorSetList = ccstd::unordered_set<const CCVKGPUDescriptorSet *>;
 
     CCVKGPUDevice *                       _device = nullptr;
     ccstd::vector<DescriptorSetList>      _setsToBeUpdated;
@@ -1043,8 +1044,8 @@ private:
 
     template <typename T>
     struct DescriptorInfo {
-        unordered_set<const CCVKGPUDescriptorSet *> sets;
-        CachedArray<T *>                            descriptors;
+        ccstd::unordered_set<const CCVKGPUDescriptorSet *> sets;
+        CachedArray<T *>                                   descriptors;
     };
 
     unordered_map<const VkDescriptorBufferInfo *, uint32_t>                          _bufferInstanceIndices;
@@ -1298,9 +1299,9 @@ public:
     inline void cancel(CCVKGPUTexture *gpuTexture) { _texturesToBeChecked.erase(gpuTexture); }
 
 private:
-    unordered_set<CCVKGPUBuffer *>  _buffersToBeChecked;
-    unordered_set<CCVKGPUTexture *> _texturesToBeChecked;
-    CCVKGPUDevice *                 _device = nullptr;
+    ccstd::unordered_set<CCVKGPUBuffer *>  _buffersToBeChecked;
+    ccstd::unordered_set<CCVKGPUTexture *> _texturesToBeChecked;
+    CCVKGPUDevice *                        _device = nullptr;
 };
 
 /**

@@ -26,6 +26,7 @@
 #pragma once
 
 #include "TFJobSystem.h"
+#include "base/std/container/deque.h"
 #include "taskflow/taskflow.hpp"
 
 namespace cc {
@@ -56,8 +57,8 @@ public:
 private:
     tf::Executor *_executor = nullptr;
 
-    tf::Taskflow    _flow;
-    deque<tf::Task> _tasks; // existing tasks cannot be invalidated
+    tf::Taskflow           _flow;
+    ccstd::deque<tf::Task> _tasks; // existing tasks cannot be invalidated
 
     std::future<void> _future;
     bool              _pending = false;

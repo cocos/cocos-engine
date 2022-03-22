@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "RenderFlow.h"
+#include <algorithm>
 #include "RenderStage.h"
 
 namespace cc {

@@ -25,7 +25,7 @@
 
 #pragma once
 #include <emscripten/bind.h>
-#include <set>
+#include "base/std/container/set.h"
 #include "gfx-base/GFXPipelineState.h"
 
 namespace cc {
@@ -42,7 +42,7 @@ public:
 
     void check(RenderPass *renderPass);
 
-    void prepare(const std::set<uint8_t> &setInUse);
+    void prepare(const ccstd::set<uint8_t> &setInUse);
 
     void *ppl() const { return _ppl; }
 

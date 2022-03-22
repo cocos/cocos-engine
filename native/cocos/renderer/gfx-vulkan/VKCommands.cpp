@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include <boost/functional/hash.hpp>
-
 #include "VKStd.h"
+#include "base/std/container/unordered_set.h"
 
 #include "VKCommands.h"
 #include "VKDevice.h"
@@ -341,7 +341,7 @@ private:
             return !memcmp(&lhs.srcSubpass, &rhs.srcSubpass, size);
         }
     };
-    unordered_set<VkSubpassDependency2, DependencyHasher, DependencyComparer> _hashes;
+    ccstd::unordered_set<VkSubpassDependency2, DependencyHasher, DependencyComparer> _hashes;
 };
 
 void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRenderPass) {

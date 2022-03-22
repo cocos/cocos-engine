@@ -29,7 +29,6 @@
 #include "network/HttpClient.h"
 #include <curl/curl.h>
 #include <errno.h>
-#include <queue>
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/memory/Memory.h"

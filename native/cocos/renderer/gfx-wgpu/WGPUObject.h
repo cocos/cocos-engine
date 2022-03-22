@@ -28,6 +28,7 @@
 #include <utility>
 #include "WGPUDef.h"
 #include "base/Utils.h"
+#include "base/std/container/vector.h"
 #include "gfx-base/GFXDef.h"
 
 class WGPURenderPassDescriptor;
@@ -156,7 +157,7 @@ struct CCWGPUBindGroupLayoutObject {
 struct CCWGPUBindGroupObject {
     WGPUBindGroup                     bindgroup = wgpuDefaultHandle;
     ccstd::vector<WGPUBindGroupEntry> bindGroupEntries;
-    std::set<uint8_t>                 bindingSet;
+    ccstd::set<uint8_t>               bindingSet;
 };
 
 struct CCWGPUPipelineLayoutObject {

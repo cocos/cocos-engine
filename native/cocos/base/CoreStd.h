@@ -42,14 +42,11 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
-#include <deque>
 #include <exception>
 #include <functional>
 #include <list>
 #include <map>
 #include <mutex>
-#include <queue>
-#include <set>
 #include <string>
 #include <thread>
 #include <unordered_map>

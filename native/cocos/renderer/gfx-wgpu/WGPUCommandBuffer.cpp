@@ -39,6 +39,7 @@
 #include "WGPUSwapchain.h"
 #include "WGPUTexture.h"
 #include "WGPUUtils.h"
+#include "base/std/container/vector.h"
 namespace cc {
 namespace gfx {
 
@@ -269,7 +270,7 @@ void CCWGPUCommandBuffer::bindStates() {
         return;
     }
 
-    std::set<uint8_t> setInUse;
+    ccstd::set<uint8_t> setInUse;
     for (const auto &descriptorSet : _gpuCommandBufferObj->stateCache.descriptorSets) {
         setInUse.insert(descriptorSet.index);
     }
