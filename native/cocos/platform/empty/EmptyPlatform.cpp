@@ -29,7 +29,13 @@
 #include <unistd.h>
 
 #include "platform/interfaces/OSInterface.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
+#include "modules/Accelerometer.h"
+#include "modules/Battery.h"
+#include "modules/Network.h"
+#include "modules/Screen.h"
+#include "modules/System.h"
+#include "modules/SystemWindow.h"
+#include "modules/Vibrator.h"
 
 namespace cc {
 EmptyPlatform::EmptyPlatform() = default;
@@ -37,9 +43,13 @@ EmptyPlatform::~EmptyPlatform() {
 }
 
 int32_t EmptyPlatform::init() {
-    UniversalPlatform::init();
-
-    //init
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<Vibrator>());
     return 0;
 }
 
@@ -51,16 +61,6 @@ int32_t EmptyPlatform::loop() {
 }
 
 void EmptyPlatform::pollEvent() {
-}
-
-bool EmptyPlatform::createWindow(const char *title,
-                                 int x, int y, int w,
-                                 int h, int flags) {
-    return true;
-}
-
-uintptr_t EmptyPlatform::getWindowHandler() const {
-    return -1;
 }
 
 } // namespace cc
