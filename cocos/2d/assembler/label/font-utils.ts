@@ -155,8 +155,8 @@ class LetterTexture {
             const width = safeMeasureText(this.context, this.char, this.labelInfo.fontDesc);
             const blank = this.labelInfo.margin * 2 + bleed;
             this.width = parseFloat(width.toFixed(2)) + blank;
-            this.height = this.labelInfo.fontSize + blank;
-            this.offsetY = 0;
+            this.height = (1 + BASELINE_RATIO) * this.labelInfo.fontSize + blank;
+            this.offsetY = -(this.labelInfo.fontSize * BASELINE_RATIO);
         }
 
         if (this.canvas.width !== this.width) {

@@ -1166,7 +1166,7 @@ export class RichText extends Component {
                 const position = segment.node.position.clone();
                 // adjust img align (from <img align=top|center|bottom>)
                 const lineHeightSet = this._lineHeight;
-                const lineHeightReal = this._lineHeight * (1 + BASELINE_RATIO); // single line node height
+                const lineHeightReal = this._lineHeight; // single line node height
                 switch (segment.node._uiProps.uiTransformComp!.anchorY) {
                 case 1:
                     position.y += (lineHeightSet + ((lineHeightReal - lineHeightSet) / 2));

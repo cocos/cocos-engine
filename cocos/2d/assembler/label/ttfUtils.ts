@@ -240,7 +240,7 @@ export const ttfUtils =  {
         const lineHeight = this._getLineHeight();
         const drawStartY = lineHeight * (_splitStrings.length - 1);
         // TOP，ttf font rect anchor locates at middle-bottom(87%), no at bottom(100%), so we need minus 0.26 / 2
-        let firstLinelabelY = _fontSize * (1 - BASELINE_RATIO / 2);
+        let firstLinelabelY = _fontSize * (1 - BASELINE_RATIO);
         if (_vAlign !== VerticalTextAlignment.TOP) {
             // free space in vertical direction
             const blank = drawStartY + _canvasPadding.height + _fontSize - _canvasSize.height;
