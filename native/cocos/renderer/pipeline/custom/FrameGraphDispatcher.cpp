@@ -340,7 +340,7 @@ void buildAccessGraph(const RenderGraph &renderGraph, const LayoutGraphData &lgd
     numPasses += renderGraph.movePasses.size();
     numPasses += renderGraph.raytracePasses.size();
 
-    rag.reserve(numPasses);
+    rag.reserve(static_cast<ResourceAccessGraph::vertices_size_type>(numPasses));
     rag.resourceNames.reserve(128);
     rag.resourceIndex.reserve(128);
 
