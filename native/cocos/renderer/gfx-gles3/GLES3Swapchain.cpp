@@ -64,15 +64,17 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
     }
 
     #if CC_SWAPPY_ENABLED
+    bool enableSwappy = true;
     auto* platform               = static_cast<AndroidPlatform*>(cc::BasePlatform::getPlatform());
-    _gpuSwapchain->swappyEnabled = SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
+    enableSwappy &= SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
     int32_t fps                  = cc::BasePlatform::getPlatform()->getFps();
-    if (_gpuSwapchain->swappyEnabled) {
+    if (enableSwappy) {
         if (!fps)
             SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
         else
             SwappyGL_setSwapIntervalNS(1000000000L / fps); //ns
-        SwappyGL_setWindow(window);
+        enableSwappy &= SwappyGL_setWindow(window);
+        _gpuSwapchain->swappyEnabled = enableSwappy;
     } else {
         CC_LOG_ERROR("Failed to enable Swappy in current GL swapchain, fallback instead.");
     }
@@ -172,7 +174,7 @@ void GLES3Swapchain::doCreateSurface(void* windowHandle) {
 
 #if CC_SWAPPY_ENABLED
     if (_gpuSwapchain->swappyEnabled) {
-        SwappyGL_setWindow(window);
+        _gpuSwapchain->swappyEnabled &= SwappyGL_setWindow(window);
     }
 #endif
 

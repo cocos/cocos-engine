@@ -301,8 +301,10 @@ void GLES3GPUContext::makeCurrent(const GLES3GPUSwapchain *drawSwapchain, const 
 void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
 #if CC_SWAPPY_ENABLED
     if (swapchain->swappyEnabled) {
-        SwappyGL_swap(eglDisplay, swapchain->eglSurface);
-        return;
+        // fallback to normal eglswap if swappy swap failed.
+        if(SwappyGL_swap(eglDisplay, swapchain->eglSurface)) {
+           return;
+        }
     }
 #endif
     if (_eglCurrentInterval != swapchain->eglSwapInterval) {

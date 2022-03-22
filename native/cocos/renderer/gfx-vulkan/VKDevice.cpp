@@ -154,21 +154,19 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     uint32_t swappyRequiredExtensionCount = 0;
     SwappyVk_determineDeviceExtensions(_gpuContext->physicalDevice, availableExtensionCount,
                                        _gpuDevice->extensions.data(), &swappyRequiredExtensionCount, nullptr);
-    auto *swappyRequiredExtensions     = static_cast<char **>(malloc(swappyRequiredExtensionCount * sizeof(char *)));
-    auto *swappyRequiredExtensionsData = (char *)malloc(swappyRequiredExtensionCount * (VK_MAX_EXTENSION_NAME_SIZE + 1));
+    std::vector<char*> swappyRequiredExtensions(swappyRequiredExtensionCount);
+    std::vector<char> swappyRequiredExtensionsData(swappyRequiredExtensionCount * (VK_MAX_EXTENSION_NAME_SIZE + 1));
     for (uint32_t i = 0; i < swappyRequiredExtensionCount; i++) {
         swappyRequiredExtensions[i] = &swappyRequiredExtensionsData[i * (VK_MAX_EXTENSION_NAME_SIZE + 1)];
     }
     SwappyVk_determineDeviceExtensions(_gpuContext->physicalDevice, availableExtensionCount,
-                                       _gpuDevice->extensions.data(), &swappyRequiredExtensionCount, swappyRequiredExtensions);
+                                       _gpuDevice->extensions.data(), &swappyRequiredExtensionCount, swappyRequiredExtensions.data());
     vector<String> swappyRequiredExtList(swappyRequiredExtensionCount);
 
     for (size_t i = 0; i < swappyRequiredExtensionCount; ++i) {
         swappyRequiredExtList[i] = swappyRequiredExtensions[i];
         requestedExtensions.push_back(swappyRequiredExtList[i].c_str());
     }
-    free(swappyRequiredExtensions);
-    free(swappyRequiredExtensionsData);
 #endif
 
     // just filter out the unsupported layers & extensions
