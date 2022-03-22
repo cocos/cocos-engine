@@ -44,7 +44,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include <map>
+#include "base/std/container/map.h"
 #include "base/Data.h"
 #include "base/Locked.h"
 #include "platform/FileUtils.h"

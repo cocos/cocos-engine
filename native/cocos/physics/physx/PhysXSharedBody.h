@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <map>
+#include "base/std/container/map.h"
 #include "base/Macros.h"
 #include "core/scene-graph/Node.h"
 #include "physics/physx/PhysXInc.h"
@@ -82,7 +82,7 @@ public:
     inline uint32_t getMask() const { return _mFilterData.word1; }
 
 private:
-    static std::map<Node *, PhysXSharedBody *> sharedBodesMap;
+    static ccstd::map<Node *, PhysXSharedBody *> sharedBodesMap;
     const uint32_t                             _mID;
     uint8_t                                    _mRef;
     bool                                       _mIsStatic;

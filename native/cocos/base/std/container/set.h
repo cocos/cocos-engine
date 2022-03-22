@@ -4,10 +4,7 @@
 #include "boost/container/pmr/polymorphic_allocator.hpp"
 
 namespace ccstd {
-template <
-    class Key,
-    class Compare = std::less<Key>>
-using set = std::set<Key, Compare>;
+using std::set;
 
 namespace pmr {
 template <

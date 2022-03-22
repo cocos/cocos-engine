@@ -47,6 +47,7 @@
             "overrides": {
                 "cocos/core/pipeline/index.ts": "cocos/core/pipeline/index.jsb.ts",
                 "cocos/core/pipeline/render-pipeline.ts": "cocos/core/pipeline/render-pipeline.jsb.ts",
+                "cocos/core/pipeline/geometry-renderer.ts": "cocos/core/pipeline/geometry-renderer.jsb.ts",
                 "cocos/core/pipeline/custom/index.ts": "cocos/core/pipeline/custom/index.jsb.ts",
                 "cocos/core/renderer/core/native-pools.ts": "cocos/core/renderer/core/native-pools.jsb.ts",
                 "cocos/core/renderer/core/material-instance.ts": "cocos/core/renderer/core/material-instance.jsb.ts",

@@ -584,7 +584,7 @@ ccstd::vector<std::string> WebSocketServerConnection::getProtocols() {
     return ret;
 }
 
-std::map<std::string, std::string> WebSocketServerConnection::getHeaders() {
+ccstd::map<std::string, std::string> WebSocketServerConnection::getHeaders() {
     if (!_wsi) return {};
     return _headers;
 }

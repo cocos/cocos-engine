@@ -4,11 +4,7 @@
 #include "boost/container/pmr/polymorphic_allocator.hpp"
 
 namespace ccstd {
-template <
-    class Key,
-    class Hash     = std::hash<Key>,
-    class KeyEqual = std::equal_to<Key>>
-using unordered_set = std::unordered_set<Key, Hash, KeyEqual>;
+using std::unordered_set;
 
 namespace pmr {
 template <

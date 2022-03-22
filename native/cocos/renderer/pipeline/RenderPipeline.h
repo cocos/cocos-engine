@@ -51,7 +51,6 @@ class PipelineUBO;
 class PipelineSceneData;
 class GlobalDSManager;
 class RenderStage;
-class GeometryRenderer;
 struct CC_DLL RenderPipelineInfo {
     uint           tag = 0;
     RenderFlowList flows;
@@ -78,7 +77,7 @@ public:
 
     inline const RenderFlowList &                  getFlows() const { return _flows; }
     inline uint                                    getTag() const { return _tag; }
-    inline const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
+    inline const ccstd::map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
     inline const MacroRecord &                     getMacros() const { return _macros; }
     inline void                                    setValue(const String &name, int32_t value) { _macros[name] = value; }
     inline void                                    setValue(const String &name, bool value) { _macros[name] = value; }
@@ -116,9 +115,6 @@ public:
     inline scene::Model *getProfiler() const { return _profiler; }
     inline void          setProfiler(scene::Model *value) { _profiler = value; }
 
-    inline GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer; }
-    void                     setGeometryRenderer(GeometryRenderer *geometryRenderer);
-
     inline bool isClusterEnabled() const { return _clusterEnabled; }
     inline void setClusterEnabled(bool enable) { _clusterEnabled = enable; }
 
@@ -136,7 +132,7 @@ protected:
     gfx::CommandBufferList           _commandBuffers;
     gfx::QueryPoolList               _queryPools;
     RenderFlowList                   _flows;
-    map<String, InternalBindingInst> _globalBindings;
+    ccstd::map<String, InternalBindingInst> _globalBindings;
     MacroRecord                      _macros;
     uint                             _tag = 0;
     String                           _constantMacros;
@@ -147,7 +143,7 @@ protected:
     PipelineUBO *                   _pipelineUBO{nullptr};
     scene::Model *                  _profiler{nullptr};
     IntrusivePtr<PipelineSceneData> _pipelineSceneData;
-    IntrusivePtr<GeometryRenderer>  _geometryRenderer;
+
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
     uint                                                          _width{0};

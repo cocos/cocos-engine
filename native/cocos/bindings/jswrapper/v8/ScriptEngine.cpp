@@ -34,6 +34,7 @@
     #include "Object.h"
     #include "Utils.h"
     #include "platform/FileUtils.h"
+    #include "base/std/container/map.h"
 
     #include <sstream>
 
@@ -52,7 +53,7 @@ const unsigned int JSB_STACK_FRAME_LIMIT = 20;
 
     #ifdef CC_DEBUG
 unsigned int                    jsbInvocationCount = 0;
-std::map<std::string, unsigned> jsbFunctionInvokedRecords;
+ccstd::map<std::string, unsigned> jsbFunctionInvokedRecords;
     #endif
 
     #define RETRUN_VAL_IF_FAIL(cond, val) \

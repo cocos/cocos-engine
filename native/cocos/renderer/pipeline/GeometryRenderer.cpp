@@ -54,7 +54,7 @@ constexpr uint32_t GEOMETRY_NO_DEPTH_TEST_PASS_NUM = 1U;
 constexpr uint32_t GEOMETRY_DEPTH_TEST_PASS_NUM    = 2U;
 constexpr uint32_t GEOMETRY_VERTICES_PER_LINE      = 2U;
 constexpr uint32_t GEOMETRY_VERTICES_PER_TRIANGLE  = 3U;
-constexpr uint32_t GEOMETRY_MAX_LINES              = 100000U;
+constexpr uint32_t GEOMETRY_MAX_LINES              = 10000U;
 constexpr uint32_t GEOMETRY_MAX_DASHED_LINES       = 10000U;
 constexpr uint32_t GEOMETRY_MAX_TRIANGLES          = 10000U;
 
@@ -145,9 +145,8 @@ GeometryRenderer::~GeometryRenderer() {
     CC_SAFE_DELETE(_buffers);
 }
 
-void GeometryRenderer::activate(gfx::Device *device, RenderPipeline *pipeline, const GeometryRendererInfo &info) {
-    _device   = device;
-    _pipeline = pipeline;
+void GeometryRenderer::activate(gfx::Device *device, const GeometryRendererInfo &info) {
+    _device = device;
 
     static const gfx::AttributeList POS_COLOR_ATTRIBUTES = {
         {"a_position", gfx::Format::RGB32F},
@@ -165,51 +164,11 @@ void GeometryRenderer::activate(gfx::Device *device, RenderPipeline *pipeline, c
     }
 }
 
-void GeometryRenderer::flushFromJSB(uint32_t type, uint32_t index, void *vb, uint32_t vertexCount) {
-    auto geometryType = static_cast<GeometryType>(type);
-    switch (geometryType) {
-        case GeometryType::LINE: {
-            auto &lines = _buffers->lines[index];
-
-            for (auto i = 0U; i < vertexCount; i++) {
-                auto *vertex = static_cast<PosColorVertex *>(vb) + i;
-                lines._vertices.push_back(*vertex);
-            }
-            break;
-        }
-        case GeometryType::DASHED_LINE: {
-            auto &dashedLines = _buffers->dashedLines[index];
-
-            for (auto i = 0U; i < vertexCount; i++) {
-                auto *vertex = static_cast<PosColorVertex *>(vb) + i;
-                dashedLines._vertices.push_back(*vertex);
-            }
-            break;
-        }
-        case GeometryType::TRIANGLE: {
-            auto &triangles = _buffers->triangles[index];
-
-            for (auto i = 0U; i < vertexCount; i++) {
-                auto *vertex = static_cast<PosNormColorVertex *>(vb) + i;
-                triangles._vertices.push_back(*vertex);
-            }
-            break;
-        }
-        default:
-            break;
-    }
-}
-
-void GeometryRenderer::render(scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
-    if (!camera->getWindow() || !camera->getWindow()->getSwapchain()) {
-        return;
-    }
-
+void GeometryRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData) {
     update();
 
-    const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto &passes    = sceneData->getGeometryRendererPasses();
-    const auto &shaders   = sceneData->getGeometryRendererShaders();
+    const auto &passes  = sceneData->getGeometryRendererPasses();
+    const auto &shaders = sceneData->getGeometryRendererShaders();
 
     uint32_t       offset                               = 0U;
     const uint32_t passCount[GEOMETRY_DEPTH_TYPE_COUNT] = {GEOMETRY_NO_DEPTH_TEST_PASS_NUM, GEOMETRY_DEPTH_TEST_PASS_NUM};
@@ -380,7 +339,7 @@ void GeometryRenderer::addQuad(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, c
     }
 }
 
-void GeometryRenderer::addBoundingBox(const geometry::AABB *aabb, gfx::Color color, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
+void GeometryRenderer::addBoundingBox(const geometry::AABB &aabb, gfx::Color color, bool wireframe, bool depthTest, bool unlit, bool useTransform, const Mat4 &transform) {
     /**
     *     2---3
     *    /   /
@@ -390,8 +349,8 @@ void GeometryRenderer::addBoundingBox(const geometry::AABB *aabb, gfx::Color col
     *   4---5
     * 
     */
-    const Vec3 min = aabb->getCenter() - aabb->getHalfExtents();
-    const Vec3 max = aabb->getCenter() + aabb->getHalfExtents();
+    const Vec3 min = aabb.getCenter() - aabb.getHalfExtents();
+    const Vec3 max = aabb.getCenter() + aabb.getHalfExtents();
 
     Vec3 v0{min.x, min.y, min.z};
     Vec3 v1{max.x, min.y, min.z};
@@ -446,8 +405,8 @@ void GeometryRenderer::addCross(const Vec3 &center, float size, gfx::Color color
     addLine(Vec3(center.x, center.y, center.z - halfSize), Vec3(center.x, center.y, center.z + halfSize), color, depthTest);
 }
 
-void GeometryRenderer::addFrustum(const geometry::Frustum *frustum, gfx::Color color, bool depthTest) {
-    const auto &vertices = frustum->vertices;
+void GeometryRenderer::addFrustum(const geometry::Frustum &frustum, gfx::Color color, bool depthTest) {
+    const auto &vertices = frustum.vertices;
 
     addLine(vertices[0], vertices[1], color, depthTest);
     addLine(vertices[1], vertices[2], color, depthTest);

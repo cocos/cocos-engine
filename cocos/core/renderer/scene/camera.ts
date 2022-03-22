@@ -35,6 +35,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import { preTransforms } from '../../math/mat4';
 import { warnID } from '../../platform/debug';
+import { GeometryRenderer } from '../../pipeline/geometry-renderer';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -163,6 +164,8 @@ export class Camera {
     private _visibility = CAMERA_DEFAULT_MASK;
     private _exposure = 0;
     private _clearStencil = 0;
+    private _geometryRenderer = new GeometryRenderer();
+
     constructor (device: Device) {
         this._device = device;
         this._apertureValue = FSTOPS[this._aperture];
@@ -171,6 +174,7 @@ export class Camera {
 
         this._aspect = this.screenScale = 1;
         this._frustum.accurate = true;
+        this._geometryRenderer.activate(device);
 
         if (!correctionMatrices.length) {
             const ySign = device.capabilities.clipSpaceSignY;
@@ -227,6 +231,7 @@ export class Camera {
             this.window = null!;
         }
         this._name = null;
+        this._geometryRenderer.destroy();
     }
 
     public attachToScene (scene: RenderScene) {
@@ -613,6 +618,10 @@ export class Camera {
 
     set clearStencil (stencil: number) {
         this._clearStencil = stencil;
+    }
+
+    get geometryRenderer () {
+        return this._geometryRenderer;
     }
 
     public changeTargetWindow (window: RenderWindow | null = null) {

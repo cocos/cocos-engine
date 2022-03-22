@@ -33,7 +33,7 @@
 
 namespace cc {
 namespace pipeline {
-map<scene::Pass *, map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
+ccstd::map<scene::Pass *, ccstd::map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
 InstancedBuffer *                                InstancedBuffer::get(scene::Pass *pass) {
     return InstancedBuffer::get(pass, 0);
 }
@@ -47,7 +47,7 @@ InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint extraKey) {
 
 void InstancedBuffer::destroyInstancedBuffer() {
     for (auto &pair : InstancedBuffer::buffers) {
-        const map<uint, InstancedBuffer *> &instanceItem = pair.second;
+        const ccstd::map<uint, InstancedBuffer *> &instanceItem = pair.second;
         for (const auto &item : instanceItem) {
             InstancedBuffer *instanceBuffer = item.second;
             if (instanceBuffer) {

@@ -26,7 +26,7 @@
 #pragma once
 
 #include <cstring>
-#include <map>
+#include "base/std/container/map.h"
 #include "StringHandle.h"
 #include "base/Macros.h"
 #include "base/std/container/vector.h"
@@ -59,7 +59,7 @@ private:
     char const * doHandleToString(const StringHandle &handle) const noexcept;
     StringHandle doFind(const char *str) const noexcept;
 
-    std::map<char const *, StringHandle, StringCompare> _stringToHandles{};
+    ccstd::map<char const *, StringHandle, StringCompare> _stringToHandles{};
     ccstd::vector<char const *>                         _handleToStrings{};
     mutable ReadWriteLock                               _readWriteLock{};
 };
