@@ -35,7 +35,6 @@ namespace cc {
 class CC_DLL ISystemWindow : public OSInterface {
 public:
     using Size        = cc::Vec2;
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
     using WindowFlags = enum {
         /* !!! FIXME: change this to name = (1<<x). */
         CC_WINDOW_FULLSCREEN         = 0x00000001, /**< fullscreen window */
@@ -72,9 +71,11 @@ public:
      *@param h: Window height
      *@param flags: Window flag
      */
-    virtual bool      createWindow(const char* title,
-                                   int x, int y, int w,
-                                   int h, int flags) = 0;
+    virtual bool createWindow(const char* title,
+                              int x, int y, int w,
+                              int h, int flags) {
+        return true;
+    }
     /**
      * @briefCreate a centered window.
      *@param title: Window title
@@ -84,8 +85,9 @@ public:
      */
     virtual bool      createWindow(const char* title,
                                    int         w,
-                                   int h, int flags) = 0;
-#endif
+                                   int h, int flags) {
+        return true;
+    }
     virtual uintptr_t getWindowHandler() const       = 0;
     virtual Size      getViewSize() const            = 0;
     /**

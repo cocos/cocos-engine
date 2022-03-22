@@ -45,7 +45,7 @@ public:
     int32_t loop() override;
 
 private:
-    void pollEvent() override;
+    bool _quit{false};
 };
 
 } // namespace cc

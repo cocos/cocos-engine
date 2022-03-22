@@ -511,8 +511,8 @@ if(USE_SERVER_MODE)
         cocos/platform/empty/modules/Screen.h
         cocos/platform/empty/modules/Network.cpp
         cocos/platform/empty/modules/Network.h
-        cocos/platform/empty/modules/Vibrate.cpp
-        cocos/platform/empty/modules/Vibrate.h
+        cocos/platform/empty/modules/Vibrator.cpp
+        cocos/platform/empty/modules/Vibrator.h
         cocos/platform/empty/modules/System.cpp
         cocos/platform/empty/modules/System.h
         cocos/platform/empty/modules/SystemWindow.cpp

@@ -24,10 +24,6 @@
 ****************************************************************************/
 
 #include "platform/empty/EmptyPlatform.h"
-
-#include <sys/time.h>
-#include <unistd.h>
-
 #include "platform/interfaces/OSInterface.h"
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
@@ -36,6 +32,9 @@
 #include "modules/System.h"
 #include "modules/SystemWindow.h"
 #include "modules/Vibrator.h"
+
+#include <chrono>
+#include <thread>
 
 namespace cc {
 EmptyPlatform::EmptyPlatform() = default;
@@ -55,12 +54,9 @@ int32_t EmptyPlatform::init() {
 
 int32_t EmptyPlatform::loop() {
     while (!_quit) {
-        usleep(1000);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     return 0;
-}
-
-void EmptyPlatform::pollEvent() {
 }
 
 } // namespace cc
