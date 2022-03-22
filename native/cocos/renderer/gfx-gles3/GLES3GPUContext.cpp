@@ -300,8 +300,11 @@ void GLES3GPUContext::makeCurrent(const GLES3GPUSwapchain *drawSwapchain, const 
 
 void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
 #if CC_SWAPPY_ENABLED
-    SwappyGL_swap(eglDisplay, swapchain->eglSurface);
-#else
+    if (swapchain->swappyEnabled) {
+        SwappyGL_swap(eglDisplay, swapchain->eglSurface);
+        return;
+    }
+#endif
     if (_eglCurrentInterval != swapchain->eglSwapInterval) {
         if (!eglSwapInterval(eglDisplay, swapchain->eglSwapInterval)) {
             CC_LOG_ERROR("eglSwapInterval() - FAILED.");
@@ -310,7 +313,6 @@ void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
         _eglCurrentInterval = swapchain->eglSwapInterval;
     }
     EGL_CHECK(eglSwapBuffers(eglDisplay, swapchain->eglSurface));
-#endif
 }
 
 EGLContext GLES3GPUContext::getSharedContext() {

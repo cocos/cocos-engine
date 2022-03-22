@@ -105,14 +105,6 @@ public:
      * @brief Processing destroy message
      */
     virtual void onDestory();
-    /**
-     * @brief get Android::acrivity
-     */
-    inline virtual void* getActivity() { return nullptr; }
-    /**
-     * @brief get Android::JNIEnv
-     */
-    inline virtual void* getEnv() { return nullptr; }
 
 private:
     ThreadCallback _mainTask{nullptr};

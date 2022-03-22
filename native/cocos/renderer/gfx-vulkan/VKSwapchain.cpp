@@ -33,7 +33,7 @@
 #include "VKUtils.h"
 
 #if CC_SWAPPY_ENABLED
-    #include "platform/UniversalPlatform.h"
+    #include "platform/android/AndroidPlatform.h"
     #include "swappy/swappyVK.h"
     #include "swappy/swappy_common.h"
 #endif
@@ -216,7 +216,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 
     // Android Game Frame Pacing:swappy
 #if CC_SWAPPY_ENABLED
-    auto *  platform = static_cast<UniversalPlatform *>(cc::BasePlatform::getPlatform());
+    auto *  platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
     int32_t fps      = cc::BasePlatform::getPlatform()->getFps();
 
     uint64_t frameRefreshIntervalNS;
@@ -226,7 +226,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
                                             gpuDevice->vkDevice,
                                             _gpuSwapchain->vkSwapchain,
                                             &frameRefreshIntervalNS);
-    SwappyVk_setSwapIntervalNS(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, fps ? 1000000000L / 30 : frameRefreshIntervalNS);
+    SwappyVk_setSwapIntervalNS(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, fps ? 1000000000L / fps : frameRefreshIntervalNS);
     SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(info.windowHandle));
 #endif
 }

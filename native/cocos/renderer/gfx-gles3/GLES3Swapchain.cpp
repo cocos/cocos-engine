@@ -29,7 +29,7 @@
 #include "GLES3Texture.h"
 
 #if CC_SWAPPY_ENABLED
-    #include "platform/UniversalPlatform.h"
+    #include "platform/android/AndroidPlatform.h"
     #include "swappy/swappyGL.h"
 #endif
 
@@ -64,14 +64,19 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
     }
 
     #if CC_SWAPPY_ENABLED
-    auto* platform = static_cast<UniversalPlatform*>(cc::BasePlatform::getPlatform());
-    SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
-    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
-    if (!fps)
-        SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
-    else
-        SwappyGL_setSwapIntervalNS(1000000000L / fps); //ns
-    SwappyGL_setWindow(window);
+    auto* platform               = static_cast<AndroidPlatform*>(cc::BasePlatform::getPlatform());
+    _gpuSwapchain->swappyEnabled = SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
+    int32_t fps                  = cc::BasePlatform::getPlatform()->getFps();
+    if (_gpuSwapchain->swappyEnabled) {
+        if (!fps)
+            SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
+        else
+            SwappyGL_setSwapIntervalNS(1000000000L / fps); //ns
+        SwappyGL_setWindow(window);
+    } else {
+        CC_LOG_ERROR("Failed to enable Swappy in current GL swapchain, fallback instead.");
+    }
+
     #endif
 
     auto width  = static_cast<int32_t>(info.width);
@@ -122,7 +127,9 @@ void GLES3Swapchain::doDestroy() {
     if (!_gpuSwapchain) return;
 
 #if CC_SWAPPY_ENABLED
-    SwappyGL_destroy();
+    if (_gpuSwapchain->swappyEnabled) {
+        SwappyGL_destroy();
+    }
 #endif
 
     CC_SAFE_DESTROY(_depthStencilTexture)
@@ -164,7 +171,9 @@ void GLES3Swapchain::doCreateSurface(void* windowHandle) {
     CC_UNUSED_PARAM(height);
 
 #if CC_SWAPPY_ENABLED
-    SwappyGL_setWindow(window);
+    if (_gpuSwapchain->swappyEnabled) {
+        SwappyGL_setWindow(window);
+    }
 #endif
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
