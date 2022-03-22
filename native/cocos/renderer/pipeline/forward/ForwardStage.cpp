@@ -39,7 +39,6 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/UIPhase.h"
-#include "profiler/DebugRenderer.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/RenderWindow.h"
@@ -217,7 +216,7 @@ void ForwardStage::render(scene::Camera *camera) {
     };
 
     auto offset      = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
-    auto forwardExec = [this, camera, offset](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
+    auto forwardExec = [this, camera, offset, pipeline](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
         auto *renderPass = table.getRenderPass();
         auto *cmdBuff    = _pipeline->getCommandBuffers()[0];
         cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);
@@ -232,10 +231,10 @@ void ForwardStage::render(scene::Camera *camera) {
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
-        _pipeline->getGeometryRenderer()->render(camera, renderPass, cmdBuff);
+        camera->getGeometryRenderer()->render(renderPass, cmdBuff, pipeline->getPipelineSceneData());
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
-        CC_DEBUG_RENDERER->render(renderPass, cmdBuff);
+        renderDebugRenderer(renderPass, cmdBuff, _pipeline->getPipelineSceneData(), camera);
     };
 
     // add pass

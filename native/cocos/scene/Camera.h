@@ -42,6 +42,11 @@
 
 namespace cc {
 class Node;
+
+namespace pipeline {
+class GeometryRenderer;
+}
+
 namespace scene {
 
 // As RenderScene includes Camera.h, so use forward declaration here.
@@ -305,6 +310,8 @@ public:
     inline float getScreenScale() const { return _screenScale; }
     inline void  setScreenScale(float val) { _screenScale = val; }
 
+    inline pipeline::GeometryRenderer *getGeometryRenderer() const { return _geometryRenderer.get(); }
+
     void detachCamera();
 
 protected:
@@ -355,6 +362,8 @@ private:
     gfx::ClearFlagBit     _clearFlag{gfx::ClearFlagBit::NONE};
     float                 _clearDepth{1.0F};
 
+    IntrusivePtr<pipeline::GeometryRenderer> _geometryRenderer;
+	
     static const ccstd::vector<float> FSTOPS;
     static const ccstd::vector<float> SHUTTERS;
     static const ccstd::vector<float> ISOS;

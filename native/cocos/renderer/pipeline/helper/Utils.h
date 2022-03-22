@@ -41,6 +41,7 @@ class RenderPass;
 } // namespace gfx
 
 namespace pipeline {
+class PipelineSceneData;
 
 inline void srgbToLinear(cc::Vec4 *out, const cc::Vec4 &gamma) {
     out->x = gamma.x * gamma.x;
@@ -70,6 +71,7 @@ extern const scene::Camera *profilerCamera;
 
 void decideProfilerCamera(const ccstd::vector<scene::Camera *> &cameras);
 void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera);
+void renderDebugRenderer(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData, const scene::Camera *camera);
 
 } // namespace pipeline
 } // namespace cc

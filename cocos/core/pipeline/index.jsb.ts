@@ -28,7 +28,6 @@ declare const nr: any;
 import { getPhaseID } from './pass-phase';
 import { setClassName } from '../../core/utils/js';
 import { PipelineEventType } from './pipeline-event';
-import { GeometryRenderer } from './geometry-renderer';
 import * as pipeline from './define';
 export { pipeline };
 nr.getPhaseID = getPhaseID;
@@ -49,6 +48,7 @@ export const LightingStage = nr.LightingStage;
 export const PostProcessStage = nr.PostProcessStage;
 export const GbufferStage = nr.GbufferStage;
 export const BloomStage = nr.BloomStage;
+export const GeometryRenderer = nr.GeometryRenderer;
 export { PipelineEventType } from './pipeline-event';
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
@@ -61,12 +61,9 @@ const forwardPipelineProto = ForwardPipeline.prototype;
 forwardPipelineProto._ctor = function() {
     this._tag = 0;
     this._flows = [];
-    // noinspection JSConstantReassignment
-    this.geometryRenderer = new GeometryRenderer();
 };
 
 forwardPipelineProto.init = function () {
-      this.setGeometryRenderer(this.geometryRenderer.native);
       for (let i = 0; i < this._flows.length; i++) {
           this._flows[i].init(this);
       }
@@ -165,8 +162,6 @@ deferredPipelineProto._ctor = function() {
     this._flows = [];
     this.renderTextures = [];
     this.materials = [];
-    // noinspection JSConstantReassignment
-    this.geometryRenderer = new GeometryRenderer();
 }
 
 const oldDeferredOnLoaded = deferredPipelineProto.onLoaded;
@@ -174,7 +169,6 @@ const oldDeferredOnLoaded = deferredPipelineProto.onLoaded;
 deferredPipelineProto.onLoaded = function () {
     if (oldDeferredOnLoaded) oldDeferredOnLoaded.call(this);
 
-    this.setGeometryRenderer(this.geometryRenderer.native);
     for (let i = 0; i < this._flows.length; i++) {
         this._flows[i].init(this);
     }

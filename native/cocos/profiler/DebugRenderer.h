@@ -33,7 +33,7 @@
 namespace cc {
 
 namespace pipeline {
-class RenderPipeline;
+class PipelineSceneData;
 }
 
 namespace gfx {
@@ -85,8 +85,8 @@ public:
     static DebugRenderer *getInstance();
     static void           destroyInstance();
 
-    void activate(gfx::Device *device, pipeline::RenderPipeline *pipeline, const DebugRendererInfo &info = DebugRendererInfo());
-    void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
+    void activate(gfx::Device *device, const DebugRendererInfo &info = DebugRendererInfo());
+    void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData);
     void destroy();
 
     void addText(const std::string &text, const Vec2 &screenPos, const DebugTextInfo &info = DebugTextInfo());
@@ -98,11 +98,10 @@ private:
     static void addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color);
     uint32_t    getLineHeight(bool bold = false, bool italic = false);
 
-    static DebugRenderer *    instance;
-    gfx::Device *             _device{nullptr};
-    pipeline::RenderPipeline *_pipeline{nullptr};
-    DebugVertexBuffer *       _buffer{nullptr};
-    DebugFontArray            _fonts;
+    static DebugRenderer *instance;
+    gfx::Device *         _device{nullptr};
+    DebugVertexBuffer *   _buffer{nullptr};
+    DebugFontArray        _fonts;
 
     friend class Profiler;
 };
