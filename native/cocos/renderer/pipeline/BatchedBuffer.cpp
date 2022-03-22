@@ -35,7 +35,7 @@
 namespace cc {
 namespace pipeline {
 ccstd::map<scene::Pass *, ccstd::map<uint, BatchedBuffer *>> BatchedBuffer::buffers;
-BatchedBuffer *                                BatchedBuffer::get(scene::Pass *pass) {
+BatchedBuffer *                                              BatchedBuffer::get(scene::Pass *pass) {
     return BatchedBuffer::get(pass, 0);
 }
 BatchedBuffer *BatchedBuffer::get(scene::Pass *pass, uint extraKey) {

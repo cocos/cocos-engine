@@ -28,10 +28,10 @@
 #pragma once
 
 #include <functional>
-#include "base/std/container/map.h"
 #include <memory>
 #include <string>
 #include "base/Macros.h"
+#include "base/std/container/map.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
@@ -49,9 +49,9 @@ public:
     const static int ERROR_IMPL_INTERNAL  = -3;
     const static int ERROR_ABORT          = -4;
 
-    std::string                        identifier;
-    std::string                        requestURL;
-    std::string                        storagePath;
+    std::string                          identifier;
+    std::string                          requestURL;
+    std::string                          storagePath;
     ccstd::map<std::string, std::string> header;
 
     DownloadTask();

@@ -218,7 +218,7 @@ struct CCWGPUStateCache {
     uint32_t minAttachmentWidth  = 0;
     uint32_t minAttachmentHeight = 0;
 
-    ccstd::vector<CCWGPUDescriptorSetObject>  descriptorSets;
+    ccstd::vector<CCWGPUDescriptorSetObject>    descriptorSets;
     ccstd::map<StencilFace, CCWGPUStencilMasks> stencilMasks;
 };
 

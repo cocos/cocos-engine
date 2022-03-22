@@ -302,8 +302,8 @@ struct AttachmentStatistics final {
         bool hasDepth() const { return usage == SubpassUsage::DEPTH || usage == SubpassUsage::DEPTH_RESOLVE; }
     };
 
-    uint32_t                  loadSubpass{VK_SUBPASS_EXTERNAL};
-    uint32_t                  storeSubpass{VK_SUBPASS_EXTERNAL};
+    uint32_t                         loadSubpass{VK_SUBPASS_EXTERNAL};
+    uint32_t                         storeSubpass{VK_SUBPASS_EXTERNAL};
     ccstd::map<uint32_t, SubpassRef> records; // ordered
 
     void clear() {
