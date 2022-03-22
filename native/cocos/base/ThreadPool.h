@@ -26,16 +26,15 @@
 
 #pragma once
 
-#include "base/Utils.h"
-
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <queue>
 #include <thread>
+#include "base/std/container/queue.h"
+#include "base/Utils.h"
 
 namespace cc {
 
@@ -181,7 +180,7 @@ private:
         }
 
     private:
-        std::queue<T> q;
+        ccstd::queue<T> q;
         std::mutex    mutex;
     };
 

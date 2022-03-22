@@ -26,9 +26,9 @@
 #pragma once
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
-#include <deque>
 #include <functional>
 #include "gfx-base/GFXCommandBuffer.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {

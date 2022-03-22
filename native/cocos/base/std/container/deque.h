@@ -1,8 +1,8 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
-
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ 
  http://www.cocos.com
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
-
+ 
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,39 +21,19 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 
 #pragma once
 
-#include "base/std/container/unordered_set.h"
-#include "base/CoreStd.h"
+#include <deque>
+#include "boost/container/pmr/polymorphic_allocator.hpp"
 
-namespace cc {
+namespace ccstd {
+template <class T>
+using deque = std::deque<T>;
 
-namespace gfx {
-class Device;
-class RenderPass;
-class CommandBuffer;
-} // namespace gfx
-
-namespace pipeline {
-
-class InstancedBuffer;
-
-class CC_DLL RenderInstancedQueue final {
-public:
-    RenderInstancedQueue()  = default;
-    ~RenderInstancedQueue() = default;
-
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
-    void add(InstancedBuffer *instancedBuffer);
-    void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
-    void clear();
-    bool empty() { return _queues.empty(); }
-
-private:
-    ccstd::unordered_set<InstancedBuffer *> _queues;
-};
-
-} // namespace pipeline
-} // namespace cc
+namespace pmr {
+template <class T>
+using deque = std::deque<T, boost::container::pmr::polymorphic_allocator<T>>;
+}
+} // namespace ccstd

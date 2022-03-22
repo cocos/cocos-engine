@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <algorithm>
 #include "RenderFlow.h"
 #include "RenderStage.h"
 

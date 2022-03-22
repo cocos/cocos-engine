@@ -27,6 +27,7 @@
 
 #include <tbb/flow_graph.h>
 #include "base/std/container/vector.h"
+#include "base/std/container/deque.h"
 
 namespace cc {
 
@@ -64,7 +65,7 @@ private:
     tbb::flow::graph _graph;
 
     using TBBJobNode = tbb::flow::continue_node<tbb::flow::continue_msg>;
-    deque<TBBJobNode> _nodes; // existing nodes cannot be invalidated
+    ccstd::deque<TBBJobNode> _nodes; // existing nodes cannot be invalidated
 
     struct TBBParallelJob {
         uint predecessor = 0u;

@@ -31,7 +31,6 @@
 #include <functional>
 #include <future>
 #include <list>
-#include <queue>
 #include <thread>
 #include "Event.h"
 #include "concurrentqueue/concurrentqueue.h"

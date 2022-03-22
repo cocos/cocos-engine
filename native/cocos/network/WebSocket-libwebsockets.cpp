@@ -50,11 +50,11 @@
 #include <list>
 #include <memory> // for std::shared_ptr
 #include <mutex>
-#include <queue>
 #include <string>
 #include <thread>
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
+#include "base/std/container/queue.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
 

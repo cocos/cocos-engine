@@ -26,6 +26,7 @@
 #pragma once
 
 #include "base/Agent.h"
+#include "base/std/container/unordered_set.h"
 #include "base/threading/Semaphore.h"
 #include "gfx-base/GFXDevice.h"
 
@@ -117,7 +118,7 @@ protected:
     uint32_t  _currentIndex = 0U;
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 
-    unordered_set<CommandBufferAgent *> _cmdBuffRefs;
+    ccstd::unordered_set<CommandBufferAgent *> _cmdBuffRefs;
 };
 
 } // namespace gfx

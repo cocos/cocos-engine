@@ -1,6 +1,7 @@
 #pragma once
 #include <emscripten/val.h>
 #include "../gfx-base/GFXDef-common.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {

@@ -25,9 +25,8 @@
 ****************************************************************************/
 
 #include "network/DownloaderImpl-apple.h"
-#include <queue>
 #import <Foundation/Foundation.h>
-
+#include "base/std/container/queue.h"
 #include "network/Downloader.h"
 #include "base/UTF8.h"
 
@@ -53,7 +52,7 @@
 @interface DownloaderAppleImpl : NSObject <NSURLSessionDataDelegate, NSURLSessionDownloadDelegate> {
     const cc::network::DownloaderApple *_outer;
     cc::network::DownloaderHints _hints;
-    std::queue<NSURLSessionTask *> _taskQueue;
+    ccstd::queue<NSURLSessionTask *> _taskQueue;
 }
 @property (nonatomic, strong) NSURLSession *downloadSession;
 @property (nonatomic, strong) NSMutableDictionary *taskDict; // ocTask: DownloadTaskWrapper

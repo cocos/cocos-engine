@@ -32,6 +32,7 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 #include "WGPUDef.h"
+#include "base/std/container/vector.h"
 #include "gfx-base/GFXDevice.h"
 
 #define EMSArraysToU8Vec(v, i) (emscripten::convertJSArrayToNumberVector<uint8_t>(v[i]))

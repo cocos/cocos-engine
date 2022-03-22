@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "base/std/container/queue.h"
 #include "gfx-base/GFXCommandBuffer.h"
 
 #include "VKGPUObjects.h"
@@ -96,7 +97,7 @@ protected:
     ccstd::vector<VkImageMemoryBarrier> _imageMemoryBarriers;
     ccstd::vector<VkCommandBuffer>      _vkCommandBuffers;
 
-    queue<VkCommandBuffer> _pendingQueue;
+    ccstd::queue<VkCommandBuffer> _pendingQueue;
 };
 
 } // namespace gfx

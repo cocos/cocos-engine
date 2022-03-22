@@ -25,7 +25,7 @@
 
 #pragma once
 #include <emscripten/bind.h>
-#include <set>
+#include "base/std/container/set.h"
 #include "gfx-base/GFXPipelineLayout.h"
 
 namespace cc {
@@ -41,7 +41,7 @@ public:
     inline CCWGPUPipelineLayoutObject *gpuPipelineLayoutObject() { return _gpuPipelineLayoutObj; }
 
     //bindgroup not ready yet so delay creation
-    void prepare(const std::set<uint8_t> &setInUse);
+    void prepare(const ccstd::set<uint8_t> &setInUse);
 
     // const ccstd::vector<void*> & layouts()const{return _bgLayouts;}
 
