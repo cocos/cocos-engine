@@ -97,9 +97,9 @@ export class WebGL2Texture extends Texture {
             this._viewInfo.type = info.type;
             this._viewInfo.format = info.format;
             this._viewInfo.baseLevel = 0;
-            this._viewInfo.levelCount = 1;
+            this._viewInfo.levelCount = info.levelCount;
             this._viewInfo.baseLayer = 0;
-            this._viewInfo.layerCount = 1;
+            this._viewInfo.layerCount = info.layerCount;
 
             this._gpuTextureView = {
                 gpuTexture: this._gpuTexture,

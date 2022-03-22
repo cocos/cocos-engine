@@ -31,10 +31,10 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
-import { TextureType, TextureInfo } from '../gfx';
+import { TextureType, TextureInfo, TextureViewInfo } from '../gfx';
 import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
-import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
+import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
 
@@ -68,6 +68,20 @@ export interface ITexture2DCreateInfo {
      * @default 1
      */
     mipmapLevel?: number;
+
+    /**
+     * @en The selected base mipmap level
+     * @zh 选择使用的最小 mipmap 层级。
+     * @default 1
+     */
+    baseLevel?: number;
+
+    /**
+     * @en The selected maximum mipmap level
+     * @zh 选择使用的最大 mipmap 层级。
+     * @default 1
+     */
+    maxLevel?: number;
 }
 
 /**
@@ -95,6 +109,8 @@ export class Texture2D extends SimpleTexture {
                 height: imageAsset.height,
                 format: imageAsset.format,
                 mipmapLevel: this._mipmaps.length,
+                baseLevel: this._baseLevel,
+                maxLevel: this._maxLevel,
             });
             this._mipmaps.forEach((mipmap, level) => {
                 this._assignImage(mipmap, level);
@@ -104,6 +120,8 @@ export class Texture2D extends SimpleTexture {
                 width: 0,
                 height: 0,
                 mipmapLevel: this._mipmaps.length,
+                baseLevel: this._baseLevel,
+                maxLevel: this._maxLevel,
             });
         }
     }
@@ -150,6 +168,7 @@ export class Texture2D extends SimpleTexture {
         this._height = info.height;
         this._setGFXFormat(info.format);
         this._setMipmapLevel(info.mipmapLevel || 1);
+        this._setMipRange(info.baseLevel || 0, info.maxLevel === undefined ? (info.baseLevel || 0) : info.maxLevel);
         this._tryReset();
     }
 
@@ -162,14 +181,18 @@ export class Texture2D extends SimpleTexture {
      * @param height Pixel height
      * @param format Pixel format
      * @param mipmapLevel Mipmap level count
+     * @param baseLevel Mipmap base level
+     * @param maxLevel Mipmap maximum level
      * @deprecated since v1.0 please use [[reset]] instead
      */
-    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1) {
+    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1, baseLevel = 0, maxLevel = 0) {
         this.reset({
             width,
             height,
             format,
             mipmapLevel,
+            baseLevel,
+            maxLevel,
         });
     }
 
@@ -277,6 +300,12 @@ export class Texture2D extends SimpleTexture {
         texInfo.width = this._width;
         texInfo.height = this._height;
         return Object.assign(texInfo, presumed);
+    }
+
+    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
+        const texViewInfo = new TextureViewInfo();
+        texViewInfo.type = TextureType.TEX2D;
+        return Object.assign(texViewInfo, presumed);
     }
 
     public initDefault (uuid?: string) {
