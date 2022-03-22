@@ -219,14 +219,14 @@ private:
     }
 };
 int         DownloadTaskCURL::_sSerialId;
-ccstd::set<sstd::tring> DownloadTaskCURL::_sStoragePathSet;
+ccstd::set<std::string> DownloadTaskCURL::_sStoragePathSet;
 
-typedef std::pair<shared_ptr<const DownloadTask>, DownloadTaskCURL *> TaskWrapper;
+typedef std::pair<std::shared_ptr<const DownloadTask>, DownloadTaskCURL *> TaskWrapper;
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Implementation DownloaderCURL::Impl
 // This class shared by DownloaderCURL and work thread.
-class DownloaderCURL::Impl : public enable_shared_from_this<DownloaderCURL::Impl> {
+class DownloaderCURL::Impl : public std::enable_shared_from_this<DownloaderCURL::Impl> {
 public:
     DownloaderHints hints;
 
@@ -411,7 +411,7 @@ private:
         DLLOG("++++DownloaderCURL::Impl::_threadProc begin %p", this);
         // the holder prevent DownloaderCURL::Impl class instance be destruct in main thread
         auto     holder                    = this->shared_from_this();
-        auto     thisThreadId              = this_thread::get_id();
+        auto     thisThreadId              = std::this_thread::get_id();
         uint32_t countOfMaxProcessingTasks = this->hints.countOfMaxProcessingTasks;
         // init curl content
         CURLM *                            curlmHandle = curl_multi_init();
@@ -423,7 +423,7 @@ private:
         do {
             // check the thread should exit or not
             {
-                std::lock_guard<mutex> lock(_threadMutex);
+                std::lock_guard<std::mutex> lock(_threadMutex);
                 // if the Impl stoped, this->_thread.reset will be called, thus _thread.get_id() not equal with thisThreadId
                 if (thisThreadId != this->_thread.get_id()) {
                     break;
@@ -456,7 +456,7 @@ private:
 
                 // do wait action
                 if (maxfd == -1) {
-                    this_thread::sleep_for(chrono::milliseconds(CC_CURL_POLL_TIMEOUT_MS));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(CC_CURL_POLL_TIMEOUT_MS));
                     rc = 0;
                 } else {
                     struct timeval timeout;
@@ -543,7 +543,7 @@ private:
 
                         // remove from _processSet
                         {
-                            std::lock_guard<mutex> lock(_processMutex);
+                            std::lock_guard<std::mutex> lock(_processMutex);
                             if (_processSet.end() != _processSet.find(wrapper)) {
                                 _processSet.erase(wrapper);
                             }
@@ -551,7 +551,7 @@ private:
 
                         // add to finishedQueue
                         {
-                            std::lock_guard<mutex> lock(_finishedMutex);
+                            std::lock_guard<std::mutex> lock(_finishedMutex);
                             _finishedQueue.push_back(wrapper);
                         }
                     }
@@ -564,7 +564,7 @@ private:
                 // get task wrapper from request queue
                 TaskWrapper wrapper;
                 {
-                    std::lock_guard<mutex> lock(_requestMutex);
+                    std::lock_guard<std::mutex> lock(_requestMutex);
                     if (_requestQueue.size()) {
                         wrapper = _requestQueue.front();
                         _requestQueue.pop_front();
@@ -583,7 +583,7 @@ private:
 
                 if (nullptr == curlHandle) {
                     wrapper.second->setErrorProc(DownloadTask::ERROR_IMPL_INTERNAL, 0, "Alloc curl handle failed.");
-                    std::lock_guard<mutex> lock(_finishedMutex);
+                    std::lock_guard<std::mutex> lock(_finishedMutex);
                     _finishedQueue.push_back(wrapper);
                     continue;
                 }
@@ -595,14 +595,14 @@ private:
                 mcode = curl_multi_add_handle(curlmHandle, curlHandle);
                 if (CURLM_OK != mcode) {
                     wrapper.second->setErrorProc(DownloadTask::ERROR_IMPL_INTERNAL, mcode, curl_multi_strerror(mcode));
-                    std::lock_guard<mutex> lock(_finishedMutex);
+                    std::lock_guard<std::mutex> lock(_finishedMutex);
                     _finishedQueue.push_back(wrapper);
                     continue;
                 }
 
                 DLLOG("    _threadProc task create curl handle:%p", curlHandle);
                 coTaskMap[curlHandle] = wrapper;
-                std::lock_guard<mutex> lock(_processMutex);
+                std::lock_guard<std::mutex> lock(_processMutex);
                 _processSet.insert(wrapper);
             }
         } while (coTaskMap.size());
@@ -649,7 +649,7 @@ DownloaderCURL::DownloaderCURL(const DownloaderHints &hints)
     _schedulerKey = key;
 
     if (auto sche = _scheduler.lock()) {
-        sche->schedule(bind(&DownloaderCURL::_onSchedule, this, placeholders::_1),
+        sche->schedule(std::bind(&DownloaderCURL::_onSchedule, this, std::placeholders::_1),
                        this,
                        0.1f,
                        true,
@@ -688,7 +688,7 @@ void DownloaderCURL::abort(const std::unique_ptr<IDownloadTask> &task) {
 }
 
 void DownloaderCURL::_onSchedule(float) {
-    vector<TaskWrapper> tasks;
+    ccstd::vector<TaskWrapper> tasks;
 
     // update processing tasks
     _impl->getProcessTasks(tasks);
@@ -696,7 +696,7 @@ void DownloaderCURL::_onSchedule(float) {
         const DownloadTask &task   = *wrapper.first;
         DownloadTaskCURL &  coTask = *wrapper.second;
 
-        lock_guard<mutex> lock(coTask._mutex);
+        std::lock_guard<std::mutex> lock(coTask._mutex);
         if (coTask._bytesReceived) {
             _currTask = &coTask;
             onTaskProgress(task,
