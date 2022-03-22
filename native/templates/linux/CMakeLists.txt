@@ -21,14 +21,14 @@ set(PROJ_COMMON_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.h
 )
 
-include_resources(${RES_DIR}/assets)
+include_resources(${RES_DIR}/data)
 
 add_executable(${APP_NAME} 
     ${PROJ_SOURCES} 
     ${PROJ_COMMON_SOURCES}
     ${ASSET_FILES}
 )
-source_group(TREE ${RES_DIR}/assets PREFIX "Resources" FILES ${ASSET_FILES})
+source_group(TREE ${RES_DIR}/data PREFIX "Resources" FILES ${ASSET_FILES})
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} PREFIX "Source Files" FILES ${PROJ_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR}/../common PREFIX "Source Files" FILES ${PROJ_COMMON_SOURCES})
 
@@ -41,18 +41,15 @@ LINK_FLAGS "-pthread -lsndio ")
 
 
 target_link_libraries(${APP_NAME} dl cocos2d)
-target_include_directories(${APP_NAME} PRIVATE
-    ${RES_DIR}/assets/proj
-)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${APP_NAME})
 
-if(EXISTS ${RES_DIR}/assets/jsb-adapter)
+if(EXISTS ${RES_DIR}/data/jsb-adapter)
     set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
     add_custom_target(copy_resource ALL
         COMMAND ${CMAKE_COMMAND} -E echo "Copying resources to ${bin_dir}"
         COMMAND ${CMAKE_COMMAND} -E make_directory ${bin_dir}/Resources
-        COMMAND robocopy "${RES_DIR}/assets/" "${bin_dir}/Resources/" /MIR || (exit 0)
+        COMMAND robocopy "${RES_DIR}/data/" "${bin_dir}/Resources/" /MIR || (exit 0)
         COMMAND ${CMAKE_COMMAND} -E echo "Copying resources done!"
     )
     add_dependencies(${APP_NAME} copy_resource)

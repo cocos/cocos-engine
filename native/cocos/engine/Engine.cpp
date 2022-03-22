@@ -81,7 +81,9 @@ namespace cc {
 
 Engine::Engine() {
     _scheduler = std::make_shared<Scheduler>();
+    FileUtils::getInstance()->addSearchPath("data", true);
     FileUtils::getInstance()->addSearchPath("Resources", true);
+    FileUtils::getInstance()->addSearchPath("Resources/data", true);
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }

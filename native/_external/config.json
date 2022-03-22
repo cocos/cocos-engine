@@ -1,0 +1,9 @@
+{
+    "version": "v3d-gfx-93",
+    "from": {
+        "type": "github",
+        "owner": "cocos-creator",
+        "name": "engine-native-external",
+        "checkout": "v3d-gfx-93"
+    }
+}
