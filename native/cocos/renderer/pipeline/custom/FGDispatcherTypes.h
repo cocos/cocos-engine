@@ -66,6 +66,7 @@ struct Range {
 };
 
 struct ResourceAccessDesc {
+    bool                    external{false};
     uint32_t                resourceID{0xFFFFFFFF};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit    access{gfx::MemoryAccessBit::NONE};

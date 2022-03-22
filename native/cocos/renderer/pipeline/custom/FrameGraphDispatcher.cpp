@@ -100,6 +100,7 @@ void addAccessNode(RAG &                   rag,
         }
 
         node.attachemntStatus.emplace_back(ResourceAccessDesc{
+            false,
             rescID,
             visibility,
             access,
@@ -108,18 +109,20 @@ void addAccessNode(RAG &                   rag,
     }
 }
 
-AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, uint32_t vertexID, PassType passType, const PmrString &rescName, gfx::ShaderStageFlagBit visibility, gfx::MemoryAccessBit access) {
+AccessVertex dependencyCheck(RAG &rag, AccessTable &accessRecord, ResourceAccessNode &node, uint32_t vertexID, PassType passType, const PmrString &rescName, gfx::ShaderStageFlagBit visibility, gfx::MemoryAccessBit access) {
     AccessVertex lastVertexID = 0xFFFFFFFF;
     CC_EXPECTS(rag.resourceIndex.find(rescName) != rag.resourceIndex.end());
     auto resourceID = rag.resourceIndex[rescName];
     auto iter       = accessRecord.find(resourceID);
     if (iter == accessRecord.end()) {
+        bool external = static_cast<bool>(access & gfx::MemoryAccessBit::READ_ONLY);
         accessRecord.emplace(
             resourceID,
             ResourceTransition{
-                static_cast<bool>(access & gfx::MemoryAccessBit::READ_ONLY),
+                external,
                 {},
                 {vertexID, passType, access, visibility}});
+        node.attachemntStatus.back().external = external;
     } else {
         ResourceTransition &trans = iter->second;
         if (access == gfx::MemoryAccessBit::READ_ONLY && trans.currStatus.access == gfx::MemoryAccessBit::READ_ONLY) {
@@ -181,7 +184,7 @@ void processRasterPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph,
         gfx::ShaderStageFlagBit visibility = getVisibilityByDescName(lgd, passID, pair.first);
         auto                    access     = toGfxAccess(rasterView.accessType);
         addAccessNode(rag, rescGraph, node, PassType::Raster, rasterView.slotName, visibility, access, Range{});
-        auto lastVertId = dependencyCheck(rag, accessRecord, vertID, PassType::Raster, rasterView.slotName, visibility, access);
+        auto lastVertId = dependencyCheck(rag, accessRecord, node, vertID, PassType::Raster, rasterView.slotName, visibility, access);
         if (lastVertId != 0xFFFFFFFF) {
             auto res = add_edge(lastVertId, vertID, rag);
             CC_ENSURES(res.second);
@@ -194,7 +197,7 @@ void processRasterPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph,
         for (const auto &computeView : values) {
             auto access = toGfxAccess(computeView.accessType);
             addAccessNode(rag, rescGraph, node, PassType::Compute, computeView.name, visibility, access, Range{});
-            auto lastVertId = dependencyCheck(rag, accessRecord, vertID, PassType::Compute, computeView.name, visibility, access);
+            auto lastVertId = dependencyCheck(rag, accessRecord, node, vertID, PassType::Compute, computeView.name, visibility, access);
             if (lastVertId != 0xFFFFFFFF) {
                 auto res = add_edge(lastVertId, vertID, rag);
                 CC_ENSURES(res.second);
@@ -218,7 +221,7 @@ void processComputePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph
         for (const auto &computeView : values) {
             auto access = toGfxAccess(computeView.accessType);
             addAccessNode(rag, rescGraph, node, PassType::Compute, computeView.name, visibility, access, Range{});
-            auto lastVertId = dependencyCheck(rag, accessRecord, vertID, PassType::Compute, computeView.name, visibility, access);
+            auto lastVertId = dependencyCheck(rag, accessRecord, node, vertID, PassType::Compute, computeView.name, visibility, access);
             if (lastVertId != 0xFFFFFFFF) {
                 auto res = add_edge(lastVertId, vertID, rag);
                 CC_ENSURES(res.second);
@@ -253,13 +256,13 @@ void processCopyPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, A
         };
         addAccessNode(rag, rescGraph, node, PassType::Copy, pair.source, defaultVisibility, gfx::MemoryAccessBit::READ_ONLY, sourceRange);
         addAccessNode(rag, rescGraph, node, PassType::Copy, pair.target, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY, targetRange);
-        uint32_t lastVertSrc = dependencyCheck(rag, accessRecord, vertID, PassType::Copy, pair.source, defaultVisibility, gfx::MemoryAccessBit::READ_ONLY);
+        uint32_t lastVertSrc = dependencyCheck(rag, accessRecord, node, vertID, PassType::Copy, pair.source, defaultVisibility, gfx::MemoryAccessBit::READ_ONLY);
         if (lastVertSrc != 0xFFFFFFFF) {
             auto res = add_edge(lastVertSrc, vertID, rag);
             CC_ENSURES(res.second);
             dependent = true;
         }
-        uint32_t lastVertDst = dependencyCheck(rag, accessRecord, vertID, PassType::Copy, pair.source, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY);
+        uint32_t lastVertDst = dependencyCheck(rag, accessRecord, node, vertID, PassType::Copy, pair.source, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY);
         if (lastVertDst != 0xFFFFFFFF) {
             auto res = add_edge(lastVertDst, vertID, rag);
             CC_ENSURES(res.second);
@@ -286,7 +289,7 @@ void processRaytracePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGrap
         for (const auto &computeView : values) {
             auto access = toGfxAccess(computeView.accessType);
             addAccessNode(rag, rescGraph, node, PassType::Compute, computeView.name, visibility, access, Range{});
-            auto lastVertId = dependencyCheck(rag, accessRecord, vertID, PassType::Compute, computeView.name, visibility, access);
+            auto lastVertId = dependencyCheck(rag, accessRecord, node, vertID, PassType::Compute, computeView.name, visibility, access);
             if (lastVertId != 0xFFFFFFFF) {
                 auto res = add_edge(lastVertId, vertID, rag);
                 CC_ENSURES(res.second);
@@ -301,13 +304,13 @@ void processRaytracePass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGrap
 }
 
 void processPresentPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph, AccessTable &accessRecord, uint32_t passID, const PresentPass &pass) {
-    auto  vertID = add_vertex(rag, passID);
-    auto &node   = get(RAG::AccessNode, rag, vertID);
+    auto  vertID    = add_vertex(rag, passID);
+    auto &node      = get(RAG::AccessNode, rag, vertID);
     bool  dependent = false;
     addAccessNode(rag, rescGraph, node, PassType::Present, "", defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY, Range{});
     for (const auto &pair : pass.presents) {
         gfx::ShaderStageFlagBit visibility = getVisibilityByDescName(lgd, passID, pair.first);
-        auto                    lastVertId = dependencyCheck(rag, accessRecord, vertID, PassType::Present, pair.first, visibility, gfx::MemoryAccessBit::WRITE_ONLY);
+        auto                    lastVertId = dependencyCheck(rag, accessRecord, node, vertID, PassType::Present, pair.first, visibility, gfx::MemoryAccessBit::WRITE_ONLY);
         if (lastVertId != 0xFFFFFFFF) {
             auto res = add_edge(lastVertId, vertID, rag);
             CC_ENSURES(res.second);
@@ -315,12 +318,11 @@ void processPresentPass(RAG &rag, const LGD &lgd, const ResourceGraph &rescGraph
         }
     }
     if (!dependent) {
-        // LOG("~~~~~~~~~~ Found an empty pippeline! ~~~~~~~~~~");
+        // LOG("~~~~~~~~~~ Found an empty pipeline! ~~~~~~~~~~");
         auto res = add_edge(EXPECT_START_ID, vertID, rag);
         CC_ENSURES(res.second);
     }
     rag.presentPasses.push_back(vertID);
-
 }
 // status of resource access
 void buildAccessGraph(const RenderGraph &renderGraph, const LayoutGraphData &lgd, const ResourceGraph &rescGragh, ResourceAccessGraph &rag) {
@@ -567,13 +569,55 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                 }
             }
         }
+
+        //----------------------------------------------check external----------------------------------------------
+        for (const ResourceAccessDesc &rescAccess : toAccess.attachemntStatus) {
+            uint32_t rescID      = rescAccess.resourceID;
+            bool     externalRes = rescAccess.external;
+            if (rescAccess.external) {
+                //first meet external
+                if (externalSet.find(rescID) == externalSet.end()) {
+                    barrierMap[to].rearBarriers.emplace_back(Barrier{
+                        rescID,
+                        0xFFFFFFFF,
+                        to,
+                        rescAccess.visibility,
+                        gfx::ShaderStageFlagBit::NONE,
+                        rescAccess.access,
+                        gfx::MemoryAccessBit::NONE,
+                        toAccess.passType,
+                        rescAccess.range,
+                        Range{},
+                    });
+
+                    externalSet.insert(rescID);
+                } else {
+                    if (out_degree(to, g) == 0) {
+                        barrierMap[to].frontBarriers.emplace_back(Barrier{
+                            rescID,
+                            to,
+                            0xFFFFFFFF,
+                            gfx::ShaderStageFlagBit::NONE,
+                            rescAccess.visibility,
+                            gfx::MemoryAccessBit::NONE,
+                            rescAccess.access,
+                            toAccess.passType,
+                            Range{},
+                            rescAccess.range,
+                        });
+                    }
+                }
+            }
+        }
+        //---------------------------------------------------------------------------------------------------------
     }
 
     void examine_edge(Edge e, const Graph &g) {
         batchBarriers(e, g);
     }
 
-    BarrierMap &barrierMap;
+    std::set<AccessVertex> externalSet;
+    BarrierMap &           barrierMap;
 };
 
 void FrameGraphDispatcher::buildBarriers() {
@@ -591,7 +635,6 @@ void FrameGraphDispatcher::buildBarriers() {
             BarrierVisitor             visitor(batchedBarriers);
             auto                       colors = rag.colors(scratch);
             boost::queue<AccessVertex> q;
-            
 
             boost::breadth_first_visit(
                 rag,
