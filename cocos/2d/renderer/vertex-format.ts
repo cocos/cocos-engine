@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { AttributeName, Format, FormatInfos, Attribute } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 

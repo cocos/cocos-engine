@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 /* eslint-disable new-cap */
 import { IBaseConstraint } from '../../spec/i-physics-constraint';

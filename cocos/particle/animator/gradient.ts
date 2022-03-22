@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { CCClass } from '../../core/data/class';

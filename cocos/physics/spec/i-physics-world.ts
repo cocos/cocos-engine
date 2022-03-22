@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { IVec3Like } from '../../core/math/type-define';
 import { PhysicsRayResult } from '../framework/physics-ray-result';

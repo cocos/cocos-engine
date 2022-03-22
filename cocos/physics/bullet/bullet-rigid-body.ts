@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Vec3 } from '../../core';
 import { BulletWorld } from './bullet-world';

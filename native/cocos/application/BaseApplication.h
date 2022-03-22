@@ -30,7 +30,7 @@
 
 namespace cc {
 
-class BaseApplication {
+class CC_DLL BaseApplication {
 public:
     virtual ~BaseApplication() = default;
     /**

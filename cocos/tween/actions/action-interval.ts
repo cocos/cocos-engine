@@ -25,11 +25,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { FiniteTimeAction, Action } from './action';
 import { macro, logID, errorID } from '../../core';
 import { ActionInstant } from './action-instant';

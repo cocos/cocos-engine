@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../2d/renderer/base';
@@ -247,7 +244,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     _nodeR = nodeColor.r / 255;
     _nodeG = nodeColor.g / 255;
     _nodeB = nodeColor.b / 255;
-    _nodeA = nodeColor.a / 255;
+    _nodeA = comp.node._uiProps.opacity;
 
     _useTint = comp.useTint || comp.isAnimationCached();
     // x y u v color1 color2 or x y u v color

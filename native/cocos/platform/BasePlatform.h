@@ -39,7 +39,7 @@ namespace cc {
 
 class OSInterface;
 
-class BasePlatform {
+class CC_DLL BasePlatform {
 public:
     BasePlatform();
     /**

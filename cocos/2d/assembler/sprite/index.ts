@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Renderable2D } from '../../framework/renderable-2d';
 import { IAssemblerManager } from '../../renderer/base';

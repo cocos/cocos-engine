@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
