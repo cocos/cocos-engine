@@ -35,8 +35,7 @@ exports.methods = {
             $group.querySelectorAll('.tab-content').forEach((child) => {
                 if (child.getAttribute('name') === tabName) {
                     child.style.display = 'block';
-                }
-                else {
+                } else {
                     child.style.display = 'none';
                 }
             });
@@ -58,8 +57,10 @@ exports.methods = {
         $content.setAttribute('class', 'tab-content');
         $content.setAttribute('name', tabName);
         $group.appendChild($content);
+
         const $label = document.createElement('ui-label');
-        $label.value = tabName;
+        $label.value = this.getName(tabName);
+
         const $button = document.createElement('ui-button');
         $button.setAttribute('name', tabName);
         $button.appendChild($label);
@@ -74,10 +75,18 @@ exports.methods = {
         });
         if (child) {
             child.before(newChild);
-        }
-        else {
+        } else {
             parent.appendChild(newChild);
         }
+    },
+    getName(name) {
+        name = name.trim().replace(/^\S/, (str) => str.toUpperCase());
+        name = name.replace(/_/g, ' ');
+        name = name.replace(/ \S/g, (str) => ` ${str.toUpperCase()}`);
+        // 驼峰转中间空格
+        name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+        return name.trim();
     },
 };
 /**
@@ -123,12 +132,10 @@ async function update(dump) {
                     }
                 }
                 $panel.appendChildByDisplayOrder($panel.$groups[key].tabs[name], $prop, info.displayOrder);
-            }
-            else {
+            } else {
                 $panel.appendChildByDisplayOrder($section, $prop, info.displayOrder);
             }
-        }
-        else if (!$prop.isConnected || !$prop.parentElement) {
+        } else if (!$prop.isConnected || !$prop.parentElement) {
             $panel.appendChildByDisplayOrder($section, $prop, info.displayOrder);
         }
         $prop.render(info);

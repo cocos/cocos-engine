@@ -783,10 +783,11 @@ const cacheManager = require('./jsb-cache-manager');
             this.defaultSkin && this._nativeSkeleton.setSkin(this.defaultSkin);
             this.animation = this.defaultAnimation;
         } else if (this._nativeSkeleton) {
-                this._nativeSkeleton.stopSchedule();
-                this._nativeSkeleton._comp = null;
-                this._nativeSkeleton = null;
-            }
+            this._nativeSkeleton.stopSchedule();
+            this._nativeSkeleton._comp = null;
+            this._nativeSkeleton = null;
+        }
+        this._needUpdateSkeltonData = false;
     };
 
     const _onDestroy = skeleton.onDestroy;

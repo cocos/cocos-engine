@@ -40,6 +40,11 @@ source_group(TREE ${CMAKE_CURRENT_LIST_DIR} PREFIX "Source Files" FILES ${PROJ_S
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR}/../common PREFIX "Source Files" FILES ${PROJ_COMMON_SOURCES})
 
 target_link_libraries(${LIB_NAME} cocos2d)
+
+target_compile_definitions(${LIB_NAME} PRIVATE
+    GAME_NAME="${APP_NAME}"
+)
+
 target_include_directories(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes
     ${CMAKE_CURRENT_LIST_DIR}/service

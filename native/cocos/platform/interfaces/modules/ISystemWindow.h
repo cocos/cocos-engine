@@ -32,7 +32,7 @@
 
 namespace cc {
 
-class ISystemWindow : public OSInterface {
+class CC_DLL ISystemWindow : public OSInterface {
 public:
     using Size        = cc::Vec2;
     using WindowFlags = enum {

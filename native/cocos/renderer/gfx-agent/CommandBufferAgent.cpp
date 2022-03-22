@@ -50,6 +50,12 @@ CommandBufferAgent::CommandBufferAgent(CommandBuffer *actor)
 }
 
 void CommandBufferAgent::flushCommands(uint32_t count, CommandBufferAgent *const *cmdBuffs, bool multiThreaded) {
+    // don't even touch the job system if we are only recording sequentially
+    if (count == 1) {
+        cmdBuffs[0]->getMessageQueue()->flushMessages();
+        return;
+    }
+
     uint32_t jobThreadCount    = JobSystem::getInstance()->threadCount();
     uint32_t workForThisThread = (count - 1) / jobThreadCount + 1; // ceil(count / jobThreadCount)
 
