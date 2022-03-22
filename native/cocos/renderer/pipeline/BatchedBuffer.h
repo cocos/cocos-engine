@@ -75,10 +75,10 @@ public:
 
 private:
     static ccstd::map<scene::Pass *, ccstd::map<uint, BatchedBuffer *>> buffers;
-    DynamicOffsetList                                     _dynamicOffsets;
-    BatchedItemList                                       _batches;
-    const scene::Pass *                                   _pass   = nullptr;
-    gfx::Device *                                         _device = nullptr;
+    DynamicOffsetList                                                   _dynamicOffsets;
+    BatchedItemList                                                     _batches;
+    const scene::Pass *                                                 _pass   = nullptr;
+    gfx::Device *                                                       _device = nullptr;
 };
 
 } // namespace pipeline

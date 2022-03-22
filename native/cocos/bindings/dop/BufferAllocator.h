@@ -26,11 +26,11 @@
 #pragma once
 
 #include "PoolType.h"
-#include "cocos/base/std/container/map.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/Object.h"
 #include "cocos/base/TypeDef.h"
 #include "cocos/base/memory/StlAlloc.h"
+#include "cocos/base/std/container/map.h"
 #include "cocos/bindings/jswrapper/Object.h"
 
 namespace se {
@@ -41,13 +41,13 @@ public:
     ~BufferAllocator() override;
 
     se::Object *alloc(uint index, uint bytes);
-    void    free(uint index);
+    void        free(uint index);
 
 private:
     static constexpr uint BUFFER_MASK = ~(1 << 30);
 
     ccstd::map<uint, se::Object *> _buffers;
-    PoolType                _type = PoolType::UNKNOWN;
+    PoolType                       _type = PoolType::UNKNOWN;
 };
 
 } // namespace se

@@ -191,7 +191,7 @@ private:
     void onDestroyClient();
 
     struct lws *                          _wsi = nullptr;
-    ccstd::map<std::string, std::string>    _headers;
+    ccstd::map<std::string, std::string>  _headers;
     std::list<std::shared_ptr<DataFrame>> _sendQueue;
     std::shared_ptr<DataFrame>            _prevPkg;
     bool                                  _closed      = false;

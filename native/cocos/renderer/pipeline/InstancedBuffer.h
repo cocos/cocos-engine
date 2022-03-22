@@ -26,8 +26,8 @@
 #pragma once
 
 #include "Define.h"
-#include "base/std/container/map.h"
 #include "base/RefCounted.h"
+#include "base/std/container/map.h"
 #include "scene/Model.h"
 #include "scene/Pass.h"
 
@@ -81,11 +81,11 @@ public:
 
 private:
     static ccstd::map<scene::Pass *, ccstd::map<uint, InstancedBuffer *>> buffers;
-    InstancedItemList                                       _instances;
-    const scene::Pass *                                     _pass             = nullptr;
-    bool                                                    _hasPendingModels = false;
-    DynamicOffsetList                                       _dynamicOffsets;
-    gfx::Device *                                           _device = nullptr;
+    InstancedItemList                                                     _instances;
+    const scene::Pass *                                                   _pass             = nullptr;
+    bool                                                                  _hasPendingModels = false;
+    DynamicOffsetList                                                     _dynamicOffsets;
+    gfx::Device *                                                         _device = nullptr;
 };
 
 } // namespace pipeline
