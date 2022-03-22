@@ -33,8 +33,8 @@
 #include <memory>
 #include <mutex>
 #include <thread>
-#include "base/std/container/queue.h"
 #include "base/Utils.h"
+#include "base/std/container/queue.h"
 
 namespace cc {
 
@@ -181,7 +181,7 @@ private:
 
     private:
         ccstd::queue<T> q;
-        std::mutex    mutex;
+        std::mutex      mutex;
     };
 
     struct Task {

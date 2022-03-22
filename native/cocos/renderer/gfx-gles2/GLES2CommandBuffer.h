@@ -78,9 +78,9 @@ protected:
 
     virtual void bindStates();
 
-    GLES2GPUCommandAllocator *_cmdAllocator  = nullptr;
-    GLES2CmdPackage *         _curCmdPackage = nullptr;
-    ccstd::queue<GLES2CmdPackage *>  _pendingPackages, _freePackages;
+    GLES2GPUCommandAllocator *      _cmdAllocator  = nullptr;
+    GLES2CmdPackage *               _curCmdPackage = nullptr;
+    ccstd::queue<GLES2CmdPackage *> _pendingPackages, _freePackages;
 
     uint32_t                               _curSubpassIdx       = 0U;
     GLES2GPUPipelineState *                _curGPUPipelineState = nullptr;

@@ -84,7 +84,7 @@ public:
     PipelineState *      createPipelineState() override;
 
     Sampler *       getSampler(const SamplerInfo &info) override;
-    GeneralBarrier * getGeneralBarrier(const GeneralBarrierInfo &info) override;
+    GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info) override;
     TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info) override;
 
     void          copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
