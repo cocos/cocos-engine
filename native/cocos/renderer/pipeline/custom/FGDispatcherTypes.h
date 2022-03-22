@@ -47,12 +47,12 @@ namespace cc {
 namespace render {
 
 enum class PassType {
-    Raster,
-    Compute,
-    Copy,
-    Move,
-    Raytrace,
-    Present,
+    RASTER,
+    COMPUTE,
+    COPY,
+    MOVE,
+    RAYTRACE,
+    PRESENT,
 };
 
 struct NullTag {};
@@ -74,7 +74,7 @@ struct ResourceAccessDesc {
 };
 
 struct ResourceAccessNode {
-    PassType                        passType{PassType::Raster};
+    PassType                        passType{PassType::RASTER};
     std::vector<ResourceAccessDesc> attachemntStatus;
 };
 
@@ -211,7 +211,7 @@ struct Barrier {
     gfx::ShaderStageFlagBit        endVisibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit           beginAccess{gfx::MemoryAccessBit::NONE};
     gfx::MemoryAccessBit           endAccess{gfx::MemoryAccessBit::NONE};
-    PassType                       passType{PassType::Raster};
+    PassType                       passType{PassType::RASTER};
     Range                          fromRange;
     Range                          toRange;
 };
