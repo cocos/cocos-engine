@@ -383,9 +383,9 @@ export class WebPipeline extends Pipeline {
         if (renderWindow.swapchain === null) {
             assert(renderWindow.framebuffer.colorTextures.length === 1
                 && renderWindow.framebuffer.colorTextures[0] !== null);
-            return this._resourceGraph.addVertex<ResourceGraphValue.PersistentTexture>(
-                ResourceGraphValue.PersistentTexture,
-                renderWindow.framebuffer.colorTextures[0]!,
+            return this._resourceGraph.addVertex<ResourceGraphValue.Framebuffer>(
+                ResourceGraphValue.Framebuffer,
+                renderWindow.framebuffer,
                 name, desc,
                 new ResourceTraits(ResourceResidency.EXTERNAL),
                 new ResourceStates(),

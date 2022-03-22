@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import { Buffer, Texture } from '../../gfx';
+import { Buffer, Framebuffer, Texture } from '../../gfx';
 import { assert } from '../../platform/debug';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
@@ -147,6 +147,9 @@ class ResourceVisitor implements ResourceGraphVisitor {
     }
 
     persistentTexture (value: Texture) {
+        this.dependency();
+    }
+    framebuffer (value: Framebuffer) {
         this.dependency();
     }
     swapchain (value: RenderSwapchain) {

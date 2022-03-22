@@ -474,6 +474,8 @@ class ResourceVisitor implements ResourceGraphVisitor {
     persistentTexture (value: Texture) {
         this.createDeviceTex(value);
     }
+    framebuffer (value: Framebuffer) {
+    }
     swapchain (value: RenderSwapchain) {
         this.createDeviceTex(value);
     }

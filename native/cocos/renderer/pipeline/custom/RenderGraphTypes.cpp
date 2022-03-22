@@ -44,6 +44,7 @@ ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
   resources(alloc),
   buffers(alloc),
   textures(alloc),
+  framebuffers(alloc),
   swapchains(alloc),
   valueIndex(alloc) {}
 
@@ -56,6 +57,7 @@ ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
   resources(std::move(rhs.resources), alloc),
   buffers(std::move(rhs.buffers), alloc),
   textures(std::move(rhs.textures), alloc),
+  framebuffers(std::move(rhs.framebuffers), alloc),
   swapchains(std::move(rhs.swapchains), alloc),
   valueIndex(std::move(rhs.valueIndex), alloc) {}
 
@@ -68,6 +70,7 @@ ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& all
   resources(rhs.resources, alloc),
   buffers(rhs.buffers, alloc),
   textures(rhs.textures, alloc),
+  framebuffers(rhs.framebuffers, alloc),
   swapchains(rhs.swapchains, alloc),
   valueIndex(rhs.valueIndex, alloc) {}
 

@@ -31,7 +31,7 @@
 /* eslint-disable max-len */
 import * as impl from './graph';
 import { Camera } from '../../renderer/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency } from './types';
 
 export class ResourceDesc {
@@ -79,6 +79,7 @@ export const enum ResourceGraphValue {
     Managed,
     PersistentBuffer,
     PersistentTexture,
+    Framebuffer,
     Swapchain,
 }
 
@@ -86,6 +87,7 @@ interface ResourceGraphValueType {
     [ResourceGraphValue.Managed]: ManagedResource
     [ResourceGraphValue.PersistentBuffer]: Buffer
     [ResourceGraphValue.PersistentTexture]: Texture
+    [ResourceGraphValue.Framebuffer]: Framebuffer
     [ResourceGraphValue.Swapchain]: RenderSwapchain
 }
 
@@ -93,10 +95,15 @@ export interface ResourceGraphVisitor {
     managed(value: ManagedResource): unknown;
     persistentBuffer(value: Buffer): unknown;
     persistentTexture(value: Texture): unknown;
+    framebuffer(value: Framebuffer): unknown;
     swapchain(value: RenderSwapchain): unknown;
 }
 
-type ResourceGraphObject = ManagedResource | Buffer | Texture | RenderSwapchain;
+type ResourceGraphObject = ManagedResource
+| Buffer
+| Texture
+| Framebuffer
+| RenderSwapchain;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -474,6 +481,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return visitor.persistentBuffer(vert._object as Buffer);
         case ResourceGraphValue.PersistentTexture:
             return visitor.persistentTexture(vert._object as Texture);
+        case ResourceGraphValue.Framebuffer:
+            return visitor.framebuffer(vert._object as Framebuffer);
         case ResourceGraphValue.Swapchain:
             return visitor.swapchain(vert._object as RenderSwapchain);
         default:
@@ -497,6 +506,13 @@ export class ResourceGraph implements impl.BidirectionalGraph
     getPersistentTexture (v: number): Texture {
         if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
             return this._vertices[v]._object as Texture;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getFramebuffer (v: number): Framebuffer {
+        if (this._vertices[v]._id === ResourceGraphValue.Framebuffer) {
+            return this._vertices[v]._object as Framebuffer;
         } else {
             throw Error('value id not match');
         }
@@ -525,6 +541,13 @@ export class ResourceGraph implements impl.BidirectionalGraph
     tryGetPersistentTexture (v: number): Texture | null {
         if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
             return this._vertices[v]._object as Texture;
+        } else {
+            return null;
+        }
+    }
+    tryGetFramebuffer (v: number): Framebuffer | null {
+        if (this._vertices[v]._id === ResourceGraphValue.Framebuffer) {
+            return this._vertices[v]._object as Framebuffer;
         } else {
             return null;
         }
