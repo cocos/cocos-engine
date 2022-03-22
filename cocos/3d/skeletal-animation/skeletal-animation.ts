@@ -41,10 +41,10 @@ import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
 import { legacyCC } from '../../core/global-exports';
-import { AnimationManager } from '../../core/animation/animation-manager';
 import { js } from '../../core/utils/js';
 import type { AnimationState } from '../../core/animation/animation-state';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { getGlobalAnimationManager } from '../../core/animation/global-animation-manager';
 
 @ccclass('cc.SkeletalAnimation.Socket')
 export class Socket {
@@ -119,7 +119,7 @@ export class SkeletalAnimation extends Animation {
 
     set sockets (val) {
         if (!this._useBakedAnimation) {
-            const animMgr = legacyCC.director.getAnimationManager() as AnimationManager;
+            const animMgr = getGlobalAnimationManager();
             animMgr.removeSockets(this.node, this._sockets);
             animMgr.addSockets(this.node, val);
         }
@@ -154,9 +154,9 @@ export class SkeletalAnimation extends Animation {
         });
 
         if (this._useBakedAnimation) {
-            (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets);
+            getGlobalAnimationManager().removeSockets(this.node, this._sockets);
         } else {
-            (legacyCC.director.getAnimationManager() as AnimationManager).addSockets(this.node, this._sockets);
+            getGlobalAnimationManager().addSockets(this.node, this._sockets);
             this._currentBakedState = null;
         }
     }
@@ -182,7 +182,7 @@ export class SkeletalAnimation extends Animation {
     public onDestroy () {
         super.onDestroy();
         (legacyCC.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
-        (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets);
+        getGlobalAnimationManager().removeSockets(this.node, this._sockets);
         this._removeAllUsers();
     }
 

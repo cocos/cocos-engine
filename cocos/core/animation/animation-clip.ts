@@ -52,6 +52,8 @@ import { ObjectTrack } from './tracks/object-track';
 import type { ExoticAnimation } from './exotic-animation/exotic-animation';
 import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
+import type { AnimationMask } from './marionette/animation-mask';
+import { getGlobalAnimationManager } from './global-animation-manager';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -309,6 +311,10 @@ export class AnimationClip extends Asset {
         } = context;
 
         const binder: Binder = (binding: TrackBinding) => {
+            if (context.mask && binding.isMaskedOff(context.mask)) {
+                return undefined;
+            }
+
             const trackTarget = binding.createRuntimeBinding(
                 target,
                 this.enableTrsBlending ? context.pose : undefined,
@@ -804,6 +810,11 @@ interface AnimationClipEvalContext {
     target: unknown;
 
     /**
+     * The animation mask applied.
+     */
+    mask?: AnimationMask;
+
+    /**
      * Path to the root bone.
      */
     rootMotion?: RootMotionOptions;
@@ -1159,7 +1170,7 @@ class EventEvaluator {
 
     private _doFire (eventIndex: number, delay: boolean) {
         if (delay) {
-            legacyCC.director.getAnimationManager().pushDelayEvent(this._checkAndFire, this, [eventIndex]);
+            getGlobalAnimationManager().pushDelayEvent(this._checkAndFire, this, [eventIndex]);
         } else {
             this._checkAndFire(eventIndex);
         }

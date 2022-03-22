@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 /* eslint-disable func-names */
 import CANNON from '@cocos/cannon';

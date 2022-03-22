@@ -34,7 +34,7 @@
 Game::Game() : cc::CocosApplication() {}
 
 int Game::init() {
-    createWindow("My game", 0, 0, 800, 600,
+    createWindow(GAME_NAME, 0, 0, 800, 600,
                  cc::ISystemWindow::CC_WINDOW_SHOWN |
                      cc::ISystemWindow::CC_WINDOW_RESIZABLE |
                      cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS);

@@ -132,10 +132,7 @@ public:
     void        recycleMemoryChunk(uint8_t *chunk) const noexcept;
     static void freeChunksInFreeQueue(MessageQueue *mainMessageQueue) noexcept;
 
-    inline void     setImmediateMode(bool immediateMode) noexcept { _immediateMode = immediateMode; }
-    inline uint32_t getPendingMessageCount() const noexcept { return _writer.pendingMessageCount; }
-    inline uint32_t getWrittenMessageCount() const noexcept { return _writer.writtenMessageCount; }
-    inline uint32_t getNewMessageCount() const noexcept { return _reader.newMessageCount; }
+    inline void setImmediateMode(bool immediateMode) noexcept { _immediateMode = immediateMode; }
 
 private:
     class ALIGNAS(64) MemoryAllocator final {

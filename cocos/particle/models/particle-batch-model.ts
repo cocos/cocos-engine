@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,

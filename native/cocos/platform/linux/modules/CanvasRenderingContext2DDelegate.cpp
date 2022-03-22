@@ -24,8 +24,6 @@
 ****************************************************************************/
 
 #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_syswm.h"
 #include "platform/linux/LinuxPlatform.h"
 
 namespace {
@@ -39,13 +37,10 @@ namespace cc {
 static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
     LinuxPlatform *platform = dynamic_cast<LinuxPlatform *>(BasePlatform::getPlatform());
     CCASSERT(platform != nullptr, "Platform pointer can't be null");
-    SDL_GetWindowWMInfo(reinterpret_cast<SDL_Window *>(platform->getWindow()), &wmInfo);
-    _dis = wmInfo.info.x11.display;
-    _win = wmInfo.info.x11.window;
+    _dis = reinterpret_cast<Display*>(platform->getDisplay());
+    _win = reinterpret_cast<Drawable>(platform->getWindowHandler());
 }
 
 CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {

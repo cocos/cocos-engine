@@ -621,7 +621,6 @@ export class EditBox extends Component {
         // update
         const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
         transform!.setAnchorPoint(0, 1);
-        placeholderLabel.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
             placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
             placeholderLabel.enableWrapText = true;

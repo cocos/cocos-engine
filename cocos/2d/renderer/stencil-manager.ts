@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
 import { Mask } from '../components/mask';

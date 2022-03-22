@@ -48,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 // and https://github.com/PatriceJiang/okio/tree/cocos2dx-rename-1.15.0
 import org.cocos2dx.okhttp3.Call;
 import org.cocos2dx.okhttp3.Callback;
+import org.cocos2dx.okhttp3.Dispatcher;
 import org.cocos2dx.okhttp3.OkHttpClient;
 import org.cocos2dx.okhttp3.Request;
 import org.cocos2dx.okhttp3.Response;
@@ -56,6 +57,7 @@ public class CocosDownloader {
 
     private int _id;
     private OkHttpClient _httpClient = null;
+    private static Dispatcher dispatcher = null;
 
     private String _tempFileNameSuffix;
     private int _countOfMaxProcessingTasks;
@@ -91,14 +93,20 @@ public class CocosDownloader {
         CocosDownloader downloader = new CocosDownloader();
         downloader._id = id;
 
+        if(dispatcher == null) {
+            dispatcher = new Dispatcher();
+        }
+
         if (timeoutInSeconds > 0) {
             downloader._httpClient = new OkHttpClient().newBuilder()
+                    .dispatcher(dispatcher)
                     .followRedirects(true)
                     .followSslRedirects(true)
                     .callTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                     .build();
         } else {
             downloader._httpClient = new OkHttpClient().newBuilder()
+                    .dispatcher(dispatcher)
                     .followRedirects(true)
                     .followSslRedirects(true)
                     .build();
@@ -179,6 +187,17 @@ public class CocosDownloader {
 
                     final Request request = builder.build();
                     task = downloader._httpClient.newCall(request);
+                    if (null == task) {
+                        final String errStr = "Can't create DownloadTask for " + url;
+                        CocosHelper.runOnGameThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
+                            }
+                        });
+                    } else {
+                        downloader._taskMap.put(id, task);
+                    }
                     task.enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
@@ -200,7 +219,7 @@ public class CocosDownloader {
                                         if (file.exists() && file.isFile()) {
                                             file.delete();
                                         }
-                                    } 
+                                    }
                                     downloader.onFinish(id, -2, response.message(), null);
                                     return;
                                 }
@@ -289,18 +308,6 @@ public class CocosDownloader {
                         }
                     });
                 } while (false);
-
-                if (null == task) {
-                    final String errStr = "Can't create DownloadTask for " + url;
-                    CocosHelper.runOnGameThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
-                        }
-                    });
-                } else {
-                    downloader._taskMap.put(id, task);
-                }
             }
         };
         downloader.enqueueTask(taskRunnable);
@@ -355,9 +362,9 @@ public class CocosDownloader {
 
     private void runNextTaskIfExists() {
         synchronized (_taskQueue) {
-            while (_runningTaskCount < _countOfMaxProcessingTasks && 
+            while (_runningTaskCount < _countOfMaxProcessingTasks &&
                 CocosDownloader.this._taskQueue.size() > 0) {
-                
+
                 Runnable taskRunnable = CocosDownloader.this._taskQueue.poll();
                 GlobalObject.getActivity().runOnUiThread(taskRunnable);
                 _runningTaskCount += 1;

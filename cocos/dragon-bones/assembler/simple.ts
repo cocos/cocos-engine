@@ -420,7 +420,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     _nodeR = nodeColor.r / 255;
     _nodeG = nodeColor.g / 255;
     _nodeB = nodeColor.b / 255;
-    _nodeA = nodeColor.a / 255;
+    _nodeA = comp.node._uiProps.opacity;
     if (nodeColor._val !== 0xffffffff) {
         _handleVal |= NEED_COLOR;
     }

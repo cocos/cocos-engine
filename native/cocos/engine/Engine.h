@@ -39,7 +39,7 @@ namespace cc {
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS      16666667L
 
-class Engine : public BaseEngine {
+class CC_DLL Engine : public BaseEngine {
 public:
     /**
      @brief Constructor of Engine.

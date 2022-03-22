@@ -381,7 +381,14 @@ elseif(IOS)
     )
 endif()
 
-############ platformex
+if(WINDOWS OR LINUX)
+cocos_source_files(
+    cocos/platform/SDLHelper.h
+    cocos/platform/SDLHelper.cpp
+)
+endif()
+
+############ platform
 cocos_source_files(
     cocos/platform/IEventDispatch.h
     cocos/platform/BasePlatform.cpp
@@ -825,9 +832,15 @@ if(ANDROID OR OHOS)
 endif()
 
 if(NOT APPLE AND USE_SOCKET)
+    if(ANDROID)
+    cocos_source_files(
+        NO_WERROR    cocos/network/WebSocket-okhttp.cpp
+    )
+    else()
     cocos_source_files(
         NO_WERROR    cocos/network/WebSocket-libwebsockets.cpp
     )
+    endif()
 endif()
 
 if(WINDOWS OR LINUX OR QNX)

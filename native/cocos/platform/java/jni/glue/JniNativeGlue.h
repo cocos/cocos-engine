@@ -25,9 +25,10 @@
 
 #pragma once
 
+#include <functional>
 #include <future>
 #include <memory>
-#include <functional>
+#include "base/Macros.h"
 #include "platform/java/jni/glue/MessagePipe.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
@@ -45,15 +46,15 @@ using ResourceManagerType = ResourceManager;
 using NativeWindowType    = NativeLayer;
 #endif
 
-using NativeActivity      = void*; //jobject
-using NativeEnv           = void*; //jnienv
+using NativeActivity = void*; //jobject
+using NativeEnv      = void*; //jnienv
 
 namespace cc {
 
 class IEventDispatch;
 class OSEvent;
 
-class JniNativeGlue {
+class CC_DLL JniNativeGlue {
 public:
     enum class JniCommand {
         JNI_CMD_TERM_WINDOW = 0,
@@ -135,8 +136,8 @@ private:
     IEventDispatch*              _eventDispatcher{nullptr};
     std::unique_ptr<MessagePipe> _messagePipe{nullptr};
 
-    std::function<NativeEnv(void)>          _envGetter;
-    std::function<NativeActivity (void)>    _activityGetter;
+    std::function<NativeEnv(void)>      _envGetter;
+    std::function<NativeActivity(void)> _activityGetter;
 };
 
 } // namespace cc

@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Buffer } from './base/buffer';
 import { CommandBuffer } from './base/command-buffer';

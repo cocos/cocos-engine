@@ -21,7 +21,6 @@ import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
-import { RenderData } from '../2d';
 
 export const timeScale = 1.0;
 
@@ -183,7 +182,9 @@ export class Skeleton extends Renderable2D {
     set skeletonData (value: SkeletonData) {
         if (value) value.resetEnums();
         if (this._skeletonData !== value) {
+            this.destroyRenderData();
             this._skeletonData = value as any;
+            this._needUpdateSkeltonData = true;
             this.defaultSkin = '';
             this.defaultAnimation = '';
             if (EDITOR) {
@@ -541,6 +542,8 @@ export class Skeleton extends Renderable2D {
     protected _headAniInfo: AnimationItem | null = null;
     // Is animation complete.
     protected _isAniComplete = true;
+    // Is need update skeltonData
+    protected _needUpdateSkeltonData = true;
 
     @serializable
     protected _useTint = false;
@@ -614,7 +617,6 @@ export class Skeleton extends Renderable2D {
         this._skeleton = null;
         this._rootBone = null;
         this._listener = null;
-        // this._materialCache = {};
         this._debugRenderer = null;
         this._startSlotIndex = -1;
         this._endSlotIndex = -1;
@@ -623,6 +625,7 @@ export class Skeleton extends Renderable2D {
         this.attachUtil = new AttachUtil();
         setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
+        this._useVertexOpacity = true;
     }
 
     /**
@@ -724,7 +727,7 @@ export class Skeleton extends Renderable2D {
         this._updateUseTint();
         this._indexBoneSockets();
         this._updateSocketBindings();
-        // this._updateBatch();
+
         if (EDITOR) { this._refreshInspector(); }
     }
 
@@ -742,6 +745,7 @@ export class Skeleton extends Renderable2D {
     public setAnimationCacheMode (cacheMode: AnimationCacheMode) {
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
+            this._needUpdateSkeltonData = true;
             this._updateSkeletonData();
             this._updateUseTint();
             this._updateSocketBindings();
@@ -759,6 +763,7 @@ export class Skeleton extends Renderable2D {
     }
 
     public updateAnimation (dt: number) {
+        this.markForUpdateRenderData();
         if (EDITOR) return;
         if (this.paused) return;
 
@@ -1499,7 +1504,6 @@ export class Skeleton extends Renderable2D {
                 this._playCount = 0;
                 this._isAniComplete = true;
                 this._emitCacheCompleteEvent();
-                this.markForUpdateRenderData();
                 return;
             }
             this._accTime = 0;
@@ -1507,7 +1511,6 @@ export class Skeleton extends Renderable2D {
             this._emitCacheCompleteEvent();
         }
         this._curFrame = frames[frameIdx];
-        this.markForUpdateRenderData();
     }
 
     protected _updateRealtime (dt: number) {
@@ -1519,7 +1522,6 @@ export class Skeleton extends Renderable2D {
                 state.update(dt);
                 state.apply(skeleton);
             }
-            this.markForUpdateRenderData();
         }
     }
 
@@ -1600,10 +1602,11 @@ export class Skeleton extends Renderable2D {
     }
 
     protected _updateSkeletonData () {
-        if (!this.skeletonData) {
+        if (!this.skeletonData || this._needUpdateSkeltonData === false) {
             return;
         }
 
+        this._needUpdateSkeltonData = false;
         const data = this.skeletonData.getRuntimeData();
         if (!data) {
             return;

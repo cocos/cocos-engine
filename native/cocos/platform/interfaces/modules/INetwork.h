@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class INetwork : public OSInterface {
+class CC_DLL INetwork : public OSInterface {
 public:
     enum class NetworkType {
         NONE,

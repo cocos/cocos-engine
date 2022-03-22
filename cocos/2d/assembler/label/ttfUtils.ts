@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { SpriteFrame } from '../../assets';
 import { Texture2D } from '../../../core/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
@@ -350,7 +345,7 @@ export const ttfUtils =  {
     },
 
     _calDynamicAtlas (comp: Label) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
+        if (comp.cacheMode !== Label.CacheMode.BITMAP || !_canvas || _canvas.width <= 0 || _canvas.height <= 0) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
         // TODO update material and uv

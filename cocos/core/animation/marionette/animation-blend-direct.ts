@@ -48,6 +48,7 @@ export class AnimationBlendDirect extends AnimationBlend {
     public [createEval] (context: MotionEvalContext) {
         const myEval = new AnimationBlendDirectEval(
             context,
+            this,
             this._items,
             this._items.map(({ weight }) => weight),
         );

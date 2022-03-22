@@ -23,10 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { getError } from '../platform/debug';
 import { CompleteCallback, IDownloadParseOptions } from './shared';

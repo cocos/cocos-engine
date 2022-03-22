@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { Device, Attribute } from '../../core/gfx';
 import { MeshBuffer } from './mesh-buffer';

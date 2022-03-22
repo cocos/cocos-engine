@@ -27,10 +27,7 @@
  * @packageDocumentation
  * @module core/math
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 export interface IColorLike {
     r: number;
     g: number;

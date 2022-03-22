@@ -60,7 +60,6 @@ bool SystemWindow::createWindow(const char *title,
 }
 
 uintptr_t SystemWindow::getWindowHandler() const {
-    //return _handle;
     WindowsPlatform *platform = dynamic_cast<WindowsPlatform *>(BasePlatform::getPlatform());
     CCASSERT(platform != nullptr, "Platform pointer can't be null");
     return platform->getWindowHandler();

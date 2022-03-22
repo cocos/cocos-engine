@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { maskAssembler as mask, maskEndAssembler as maskEnd } from './mask-assembler';
 
