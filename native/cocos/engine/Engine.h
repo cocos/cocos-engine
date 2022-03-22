@@ -28,10 +28,10 @@
 #include "base/TypeDef.h"
 #include "math/Vec2.h"
 
+#include <memory>
+#include "base/std/container/map.h"
 #include "bindings/event/EventDispatcher.h"
 #include "engine/BaseEngine.h"
-#include "base/std/container/map.h"
-#include <memory>
 
 namespace cc {
 

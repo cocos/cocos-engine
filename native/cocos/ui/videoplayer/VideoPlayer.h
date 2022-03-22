@@ -166,7 +166,7 @@ protected:
     std::string _videoURL;
     Source      _videoSource;
 
-    int                                          _videoPlayerIndex;
+    int                                            _videoPlayerIndex;
     ccstd::map<std::string, ccVideoPlayerCallback> _eventCallback;
 
     void *_videoView;

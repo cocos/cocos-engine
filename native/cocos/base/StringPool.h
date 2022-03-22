@@ -26,9 +26,9 @@
 #pragma once
 
 #include <cstring>
-#include "base/std/container/map.h"
 #include "StringHandle.h"
 #include "base/Macros.h"
+#include "base/std/container/map.h"
 #include "base/std/container/vector.h"
 #include "threading/ReadWriteLock.h"
 
@@ -60,8 +60,8 @@ private:
     StringHandle doFind(const char *str) const noexcept;
 
     ccstd::map<char const *, StringHandle, StringCompare> _stringToHandles{};
-    ccstd::vector<char const *>                         _handleToStrings{};
-    mutable ReadWriteLock                               _readWriteLock{};
+    ccstd::vector<char const *>                           _handleToStrings{};
+    mutable ReadWriteLock                                 _readWriteLock{};
 };
 
 using ThreadSafeStringPool = StringPool<true>;

@@ -32,11 +32,10 @@ namespace ccstd {
 using std::map;
 
 namespace pmr {
-template<
-class Key,
-class T,
-class Compare = std::less<Key>
->
+template <
+    class Key,
+    class T,
+    class Compare = std::less<Key>>
 using map = std::map<Key, T, Compare, boost::container::pmr::polymorphic_allocator<T>>;
 }
 } // namespace ccstd
