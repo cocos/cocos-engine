@@ -38,7 +38,7 @@ ohos {
 
     // sync resource
     def resOutputDir ="${projectDir}/src/main/resources/rawfile"
-    def resSourceDir = "${RES_PATH}/assets"
+    def resSourceDir = "${RES_PATH}/data"
     assert file("${resSourceDir}/main.js").exists()
     assert file(resOutputDir).exists()
     task syncResourcesToRawfile(type: Sync) {
