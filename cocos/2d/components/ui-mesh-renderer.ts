@@ -105,7 +105,7 @@ export class UIMeshRenderer extends Component {
             // @ts-expect-error: UIMeshRenderer do not attachToScene
             this._modelComponent._detachFromScene();
             for (const m of this._models) {
-                render.commitModel.call(render, this, m, this._modelComponent!.material);
+                render.commitModel(this, m, this._modelComponent!.material);
             }
             return true;
         }
