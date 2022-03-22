@@ -622,7 +622,6 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     BarrierMap &           barrierMap;
 };
 
-// NOLINTNEXTLINE
 void FrameGraphDispatcher::buildBarriers() const {
     {
         // record resource current in-access and out-access for every single node
