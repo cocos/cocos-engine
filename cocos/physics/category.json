@@ -1,8 +1,6 @@
 {
-    "category": {
-        "title": {
-            "zh": "物理系统",
-            "en": "Physics System"
-        }
+    "title": {
+        "zh": "物理系统",
+        "en": "Physics System"
     }
 }
