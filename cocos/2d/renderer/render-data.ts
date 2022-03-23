@@ -80,7 +80,9 @@ export class BaseRenderData {
     get vertexFormat () {
         return this._vertexFormat;
     }
+
     public chunk: StaticVBChunk = null!;
+
     public dataHash = 0;
     public isMeshBuffer = false;
 
