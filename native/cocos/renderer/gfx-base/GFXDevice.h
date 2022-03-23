@@ -103,9 +103,9 @@ public:
     inline CommandBuffer *   getCommandBuffer() const { return _cmdBuff; }
     inline const DeviceCaps &getCapabilities() const { return _caps; }
     inline API               getGfxAPI() const { return _api; }
-    inline const String &    getDeviceName() const { return _deviceName; }
-    inline const String &    getRenderer() const { return _renderer; }
-    inline const String &    getVendor() const { return _vendor; }
+    inline const ccstd::string &    getDeviceName() const { return _deviceName; }
+    inline const ccstd::string &    getRenderer() const { return _renderer; }
+    inline const ccstd::string &    getVendor() const { return _vendor; }
     inline bool              hasFeature(Feature feature) const { return _features[toNumber(feature)]; }
     inline FormatFeature     getFormatFeatures(Format format) const { return _formatFeatures[toNumber(format)]; }
 
@@ -153,10 +153,10 @@ protected:
     // For context switching between threads
     virtual void bindContext(bool bound) {}
 
-    String             _deviceName;
-    String             _renderer;
-    String             _vendor;
-    String             _version;
+    ccstd::string             _deviceName;
+    ccstd::string             _renderer;
+    ccstd::string             _vendor;
+    ccstd::string             _version;
     API                _api{API::UNKNOWN};
     DeviceCaps         _caps;
     BindingMappingInfo _bindingMappingInfo;

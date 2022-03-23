@@ -60,7 +60,7 @@ static int getSystemAPILevel() {
 }
 
 struct AudioFileIndicator {
-    std::string extension;
+    ccstd::string extension;
     int         smallSizeIndicator;
 };
 
@@ -95,7 +95,7 @@ AudioPlayerProvider::~AudioPlayerProvider() {
     SL_SAFE_DELETE(_threadPool);
 }
 
-IAudioPlayer *AudioPlayerProvider::getAudioPlayer(const std::string &audioFilePath) {
+IAudioPlayer *AudioPlayerProvider::getAudioPlayer(const ccstd::string &audioFilePath) {
     // Pcm data decoding by OpenSLES API only supports in API level 17 and later.
     if (getSystemAPILevel() < 17) {
         AudioFileInfo info = getFileInfo(audioFilePath);
@@ -132,7 +132,7 @@ IAudioPlayer *AudioPlayerProvider::getAudioPlayer(const std::string &audioFilePa
                 std::thread::id threadId = std::this_thread::get_id();
 
                 void *      infoPtr = &info;
-                std::string url     = info.url;
+                ccstd::string url     = info.url;
                 preloadEffect(
                     info, [infoPtr, url, threadId, pcmData, isSucceed, isReturnFromCache, isPreloadFinished](bool succeed, PcmData data) {
                         // If the callback is in the same thread as caller's, it means that we found it
@@ -176,7 +176,7 @@ IAudioPlayer *AudioPlayerProvider::getAudioPlayer(const std::string &audioFilePa
     return player;
 }
 
-void AudioPlayerProvider::preloadEffect(const std::string &audioFilePath, const PreloadCallback &cb) {
+void AudioPlayerProvider::preloadEffect(const ccstd::string &audioFilePath, const PreloadCallback &cb) {
     // Pcm data decoding by OpenSLES API only supports in API level 17 and later.
     if (getSystemAPILevel() < 17) {
         PcmData data;
@@ -214,7 +214,7 @@ void AudioPlayerProvider::preloadEffect(const AudioFileInfo &info, const Preload
     }
 
     if (isSmallFile(info)) {
-        std::string audioFilePath = info.url;
+        ccstd::string audioFilePath = info.url;
 
         // 1. First time check, if it wasn't in the cache, goto 2 step
         _pcmCacheMutex.lock();
@@ -301,7 +301,7 @@ void AudioPlayerProvider::preloadEffect(const AudioFileInfo &info, const Preload
 }
 
 AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
-    const std::string &audioFilePath) {
+    const ccstd::string &audioFilePath) {
     AudioFileInfo info;
     long          fileSize = 0; //NOLINT(google-runtime-int)
     off_t         start    = 0;
@@ -309,7 +309,7 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
     int           assetFd  = -1;
 
     if (audioFilePath[0] != '/') {
-        std::string relativePath;
+        ccstd::string relativePath;
         size_t      position = audioFilePath.find("@assets/");
 
         if (0 == position) {
@@ -353,8 +353,8 @@ bool AudioPlayerProvider::isSmallFile(const AudioFileInfo &info) { //NOLINT(read
     auto &      audioFileInfo = const_cast<AudioFileInfo &>(info);
     size_t      judgeCount    = sizeof(gAudioFileIndicator) / sizeof(gAudioFileIndicator[0]);
     size_t      pos           = audioFileInfo.url.rfind('.');
-    std::string extension;
-    if (pos != std::string::npos) {
+    ccstd::string extension;
+    if (pos != ccstd::string::npos) {
         extension = audioFileInfo.url.substr(pos);
     }
     auto iter = std::find_if(std::begin(gAudioFileIndicator), std::end(gAudioFileIndicator),
@@ -371,7 +371,7 @@ bool AudioPlayerProvider::isSmallFile(const AudioFileInfo &info) { //NOLINT(read
     return info.length < gAudioFileIndicator[0].smallSizeIndicator;
 }
 
-float AudioPlayerProvider::getDurationFromFile(const std::string &filePath) {
+float AudioPlayerProvider::getDurationFromFile(const ccstd::string &filePath) {
     std::lock_guard<std::mutex> lk(_pcmCacheMutex);
     auto                        iter = _pcmCache.find(filePath);
     if (iter != _pcmCache.end()) {
@@ -380,7 +380,7 @@ float AudioPlayerProvider::getDurationFromFile(const std::string &filePath) {
     return 0;
 }
 
-void AudioPlayerProvider::clearPcmCache(const std::string &audioFilePath) {
+void AudioPlayerProvider::clearPcmCache(const ccstd::string &audioFilePath) {
     std::lock_guard<std::mutex> lk(_pcmCacheMutex);
     auto                        iter = _pcmCache.find(audioFilePath);
     if (iter != _pcmCache.end()) {
@@ -396,7 +396,7 @@ void AudioPlayerProvider::clearAllPcmCaches() {
     _pcmCache.clear();
 }
 
-PcmAudioPlayer *AudioPlayerProvider::obtainPcmAudioPlayer(const std::string &url,
+PcmAudioPlayer *AudioPlayerProvider::obtainPcmAudioPlayer(const ccstd::string &url,
                                                           const PcmData &    pcmData) {
     PcmAudioPlayer *pcmPlayer = nullptr;
     if (pcmData.isValid()) {

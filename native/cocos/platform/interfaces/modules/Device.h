@@ -87,7 +87,7 @@ public:
     /**
      *  Gets device model information.
      */
-    static std::string getDeviceModel();
+    static ccstd::string getDeviceModel();
 
     /**
      * Controls whether the screen should remain on.

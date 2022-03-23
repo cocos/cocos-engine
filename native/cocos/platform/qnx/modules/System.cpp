@@ -35,7 +35,7 @@ OSType System::getOSType() const {
     return OSType::QNX;
 }
 
-std::string System::getDeviceModel() const {
+ccstd::string System::getDeviceModel() const {
     return "QNX";
 }
 
@@ -52,7 +52,7 @@ System::LanguageType System::getCurrentLanguage() const {
     return getLanguageTypeByISO2(pLanguageName);
 }
 
-std::string System::getCurrentLanguageCode() const {
+ccstd::string System::getCurrentLanguageCode() const {
     static char code[3]       = {0};
     char *      pLanguageName = getenv("LANG");
     if (!pLanguageName) {
@@ -67,14 +67,14 @@ std::string System::getCurrentLanguageCode() const {
     return code;
 }
 
-std::string System::getSystemVersion() const {
+ccstd::string System::getSystemVersion() const {
     struct utsname u;
     uname(&u);
     return u.version;
 }
 
-bool System::openURL(const std::string &url) {
-    //std::string op = std::string("xdg-open '").append(url).append("'");
+bool System::openURL(const ccstd::string &url) {
+    //ccstd::string op = ccstd::string("xdg-open '").append(url).append("'");
     //return system(op.c_str()) == 0;
     return false;
 }

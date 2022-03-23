@@ -1000,7 +1000,7 @@ GLuint GLES3GPUSampler::getGLSampler(uint16_t minLod, uint16_t maxLod) {
 // NOLINTNEXTLINE(google-readability-function-size, readability-function-size)
 void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     GLenum glShaderStage = 0;
-    String shaderStageStr;
+    ccstd::string shaderStageStr;
     GLint  status;
 
     for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
@@ -1029,7 +1029,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         }
         GL_CHECK(gpuStage.glShader = glCreateShader(glShaderStage));
         uint32_t    version      = device->constantRegistry()->glMinorVersion ? 310 : 300;
-        String      shaderSource = StringUtil::format("#version %u es\n", version) + gpuStage.source;
+        ccstd::string      shaderSource = StringUtil::format("#version %u es\n", version) + gpuStage.source;
         const char *source       = shaderSource.c_str();
         GL_CHECK(glShaderSource(gpuStage.glShader, 1, (const GLchar **)&source, nullptr));
         GL_CHECK(glCompileShader(gpuStage.glShader));
@@ -1219,7 +1219,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     ccstd::vector<GLES3GPUUniformSamplerTexture> glActiveSamplerTextures;
     ccstd::vector<GLint>                         glActiveSamplerLocations;
     const GLESBindingMapping &                   bindingMappings = device->bindingMappings();
-    ccstd::unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
+    ccstd::unordered_map<ccstd::string, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
     // sampler bindings in the flexible set comes strictly after buffer bindings
     // so we need to subtract the buffer count for these samplers

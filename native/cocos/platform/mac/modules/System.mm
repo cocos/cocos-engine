@@ -40,7 +40,7 @@ OSType System::getOSType() const {
     return OSType::MAC;
 }
 
-std::string System::getDeviceModel() const {
+ccstd::string System::getDeviceModel() const {
     struct utsname systemInfo;
     uname(&systemInfo);
     return systemInfo.machine;
@@ -78,21 +78,21 @@ System::LanguageType System::getCurrentLanguage() const {
     return LanguageType::ENGLISH;
 }
 
-std::string System::getCurrentLanguageCode() const {
+ccstd::string System::getCurrentLanguageCode() const {
     NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
     NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
     NSString *      currentLanguage = [languages objectAtIndex:0];
     return [currentLanguage UTF8String];
 }
 
-std::string System::getSystemVersion() const {
+ccstd::string System::getSystemVersion() const {
     NSOperatingSystemVersion v           = NSProcessInfo.processInfo.operatingSystemVersion;
     char                     version[50] = {0};
     snprintf(version, sizeof(version), "%d.%d.%d", (int)v.majorVersion, (int)v.minorVersion, (int)v.patchVersion);
     return version;
 }
 
-bool System::openURL(const std::string &url) {
+bool System::openURL(const ccstd::string &url) {
     NSString *msg   = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
     NSURL *   nsUrl = [NSURL URLWithString:msg];
     return [[NSWorkspace sharedWorkspace] openURL:nsUrl];

@@ -70,7 +70,7 @@ void SystemWindow::setCursorEnabled(bool value) {
     SDL_SetRelativeMouseMode(value ? SDL_FALSE : SDL_TRUE);
 }
 
-void SystemWindow::copyTextToClipboard(const std::string &text) {
+void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
     SDL_SetClipboardText(text.c_str());
 }
 

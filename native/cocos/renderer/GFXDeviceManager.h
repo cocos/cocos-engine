@@ -117,8 +117,8 @@ public:
         return DETACH_DEVICE_THREAD;
     }
 
-    static std::string getGFXName() {
-        std::string gfx = "unknown";
+    static ccstd::string getGFXName() {
+        ccstd::string gfx = "unknown";
 #ifdef CC_USE_NVN
         gfx = "NVN";
 #elif defined(CC_USE_VULKAN)

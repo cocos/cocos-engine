@@ -77,9 +77,9 @@ public:
     inline GLES2GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES2GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
-    inline bool checkExtension(const String &extension) const {
+    inline bool checkExtension(const ccstd::string &extension) const {
         return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
-            return ext.find(extension) != String::npos;
+            return ext.find(extension) != ccstd::string::npos;
         });
     }
 

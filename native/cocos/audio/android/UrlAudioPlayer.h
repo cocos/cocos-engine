@@ -44,7 +44,7 @@ public:
 
     virtual void setId(int id) override { _id = id; };
 
-    virtual std::string getUrl() const override { return _url; };
+    virtual ccstd::string getUrl() const override { return _url; };
 
     virtual State getState() const override { return _state; };
 
@@ -82,7 +82,7 @@ private:
     UrlAudioPlayer(SLEngineItf engineItf, SLObjectItf outputMixObject, ICallerThreadUtils *callerThreadUtils);
     virtual ~UrlAudioPlayer();
 
-    bool prepare(const std::string &url, SLuint32 locatorType, std::shared_ptr<AssetFd> assetFd, int start, int length);
+    bool prepare(const ccstd::string &url, SLuint32 locatorType, std::shared_ptr<AssetFd> assetFd, int start, int length);
 
     static void stopAll();
 
@@ -100,7 +100,7 @@ private:
     ICallerThreadUtils *_callerThreadUtils;
 
     int         _id;
-    std::string _url;
+    ccstd::string _url;
 
     std::shared_ptr<AssetFd> _assetFd;
 

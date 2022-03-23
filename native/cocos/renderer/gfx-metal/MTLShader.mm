@@ -142,7 +142,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
     
     auto* spvData = spirv->getOutputData();
     size_t unitSize = sizeof(std::remove_pointer<decltype(spvData)>::type);
-    String mtlShaderSrc = mu::spirv2MSL(spirv->getOutputData(), spirv->getOutputSize()/unitSize, stage.stage, _gpuShader);
+    ccstd::string mtlShaderSrc = mu::spirv2MSL(spirv->getOutputData(), spirv->getOutputSize()/unitSize, stage.stage, _gpuShader);
 
     NSString * rawSrc = [NSString stringWithUTF8String:stage.source.c_str()];
     NSString *     shader  = [NSString stringWithUTF8String:mtlShaderSrc.c_str()];
@@ -150,7 +150,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
     MTLCompileOptions *opts = [[MTLCompileOptions alloc] init];
     //opts.languageVersion = MTLLanguageVersion2_3;
     id<MTLLibrary> &library = isVertexShader ? _vertLibrary : isFragmentShader ? _fragLibrary : _cmptLibrary;
-    String shaderStage = isVertexShader ? "vertex" : isFragmentShader ? "fragment" : "compute";
+    ccstd::string shaderStage = isVertexShader ? "vertex" : isFragmentShader ? "fragment" : "compute";
     
     if(isFragmentShader) {
         if(@available(iOS 11.0, *)) {

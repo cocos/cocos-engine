@@ -237,9 +237,9 @@ const ccstd::vector<float> &getDefaultFloatArrayFromType(gfx::Type type) {
     }
 }
 
-const std::string &getDefaultStringFromType(gfx::Type type) {
-    static const std::string DEFAULT_TEXTURE_STR{"default-texture"};
-    static const std::string DEFAULT_CUBE_TEXTURE_STR{"default-cube-texture"};
+const ccstd::string &getDefaultStringFromType(gfx::Type type) {
+    static const ccstd::string DEFAULT_TEXTURE_STR{"default-texture"};
+    static const ccstd::string DEFAULT_CUBE_TEXTURE_STR{"default-cube-texture"};
 
     switch (type) {
         case gfx::Type::SAMPLER2D:

@@ -114,14 +114,14 @@ void CocosApplication::onClose() {
     // TODO(cc): Handling close events
 }
 
-void CocosApplication::setJsDebugIpAndPort(const std::string &serverAddr, uint32_t port, bool isWaitForConnect) {
+void CocosApplication::setJsDebugIpAndPort(const ccstd::string &serverAddr, uint32_t port, bool isWaitForConnect) {
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
     // Enable debugger here
     jsb_enable_debugger(serverAddr, port, isWaitForConnect);
 #endif
 }
 
-void CocosApplication::runJsScript(const std::string &filePath) {
+void CocosApplication::runJsScript(const ccstd::string &filePath) {
     jsb_run_script(filePath);
 }
 
@@ -130,7 +130,7 @@ void CocosApplication::handleException(const char *location, const char *message
     CC_LOG_ERROR("\nUncaught Exception:\n - location :  %s\n - msg : %s\n - detail : \n      %s\n", location, message, stack);
 }
 
-void CocosApplication::setXXTeaKey(const std::string &key) {
+void CocosApplication::setXXTeaKey(const ccstd::string &key) {
     jsb_set_xxtea_key(key);
 }
 

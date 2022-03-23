@@ -39,7 +39,7 @@ public:
     void initialize(int vulkanMinorVersion);
     void destroy();
 
-    void compileGLSL(ShaderStageFlagBit type, const String &source);
+    void compileGLSL(ShaderStageFlagBit type, const ccstd::string &source);
     void compressInputLocations(gfx::AttributeList &attributes);
 
     inline uint32_t *getOutputData() {

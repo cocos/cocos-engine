@@ -68,7 +68,7 @@ private:
      */
     void dumpMemoryLeak();
 
-    static void log(const std::string &msg);
+    static void log(const ccstd::string &msg);
 
     /**
      * Register all malloc hooks

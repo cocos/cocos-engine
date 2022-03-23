@@ -73,7 +73,7 @@ uint nextPOT(uint x) {
 }
 
 // painfully slow to execute, use with caution
-std::string getStacktrace(uint skip, uint maxDepth) {
+ccstd::string getStacktrace(uint skip, uint maxDepth) {
     return boost::stacktrace::to_string(boost::stacktrace::stacktrace(skip, maxDepth));
 }
 

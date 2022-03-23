@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #pragma once
-#include <string>
+#include "base/std/container/string.h"
 #include "core/event/CallbacksInvoker.h"
 
 namespace cc {

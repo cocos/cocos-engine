@@ -81,7 +81,7 @@ public:
      */
     virtual void setCursorEnabled(bool value) = 0;
 
-    virtual void copyTextToClipboard(const std::string &text) = 0;
+    virtual void copyTextToClipboard(const ccstd::string &text) = 0;
     /**
      @brief Create default sytem window interface.
      @return sytem window interface.

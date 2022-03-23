@@ -32,7 +32,7 @@
 
 namespace cc {
 
-std::wstring StringUtf8ToWideChar(const std::string &strUtf8) {
+std::wstring StringUtf8ToWideChar(const ccstd::string &strUtf8) {
     std::wstring ret;
     if (!strUtf8.empty()) {
         int nNum = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, nullptr, 0);
@@ -51,8 +51,8 @@ std::wstring StringUtf8ToWideChar(const std::string &strUtf8) {
     return ret;
 }
 
-std::string StringWideCharToUtf8(const std::wstring &strWideChar) {
-    std::string ret;
+ccstd::string StringWideCharToUtf8(const std::wstring &strWideChar) {
+    ccstd::string ret;
     if (!strWideChar.empty()) {
         int nNum = WideCharToMultiByte(CP_UTF8, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
         if (nNum) {
@@ -71,8 +71,8 @@ std::string StringWideCharToUtf8(const std::wstring &strWideChar) {
     return ret;
 }
 
-std::string UTF8StringToMultiByte(const std::string &strUtf8) {
-    std::string ret;
+ccstd::string UTF8StringToMultiByte(const ccstd::string &strUtf8) {
+    ccstd::string ret;
     if (!strUtf8.empty()) {
         std::wstring strWideChar = StringUtf8ToWideChar(strUtf8);
         int          nNum        = WideCharToMultiByte(CP_ACP, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);

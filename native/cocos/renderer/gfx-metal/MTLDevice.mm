@@ -103,7 +103,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 
     initFormatFeatures(gpuFamily);
 
-    String compressedFormats;
+    ccstd::string compressedFormats;
 
     if (getFormatFeatures(Format::BC1_SRGB_ALPHA) != FormatFeature::NONE) {
         compressedFormats += "dxt ";

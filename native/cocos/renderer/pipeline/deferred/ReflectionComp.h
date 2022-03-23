@@ -10,7 +10,7 @@
 
 namespace cc {
 
-using ComputeShaderSource = String;
+using ComputeShaderSource = ccstd::string;
 
 template <typename T>
 struct ShaderSources {

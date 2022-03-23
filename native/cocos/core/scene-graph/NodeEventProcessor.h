@@ -26,7 +26,7 @@
 #pragma once
 
 #include <functional>
-#include <string>
+#include "base/std/container/string.h"
 #include "cocos/base/Any.h"
 #include "core/event/CallbacksInvoker.h"
 //#include "core/event/Event.h"

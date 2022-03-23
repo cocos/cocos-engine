@@ -31,7 +31,7 @@
 
 namespace cc {
 
-Scene::Scene(const std::string &name)
+Scene::Scene(const ccstd::string &name)
 : Node(name) {
     // _activeInHierarchy is initalized to 'false', so doesn't need to set it to false again
     //    _activeInHierarchy = false;

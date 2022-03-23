@@ -27,8 +27,9 @@
 
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
-#include "base/std/container/vector.h"
 #include "math/Math.h"
+#include "base/std/container/string.h"
+#include "base/std/container/vector.h"
 
 /**
  * Some general guide lines:
@@ -1059,7 +1060,7 @@ struct ALIGNAS(8) SamplerInfo {
 };
 
 struct Uniform {
-    String   name;
+    ccstd::string   name;
     Type     type{Type::UNKNOWN};
     uint32_t count{0};
 
@@ -1071,7 +1072,7 @@ using UniformList = ccstd::vector<Uniform>;
 struct UniformBlock {
     uint32_t    set{0};
     uint32_t    binding{0};
-    String      name;
+    ccstd::string      name;
     UniformList members;
     uint32_t    count{0};
 
@@ -1083,7 +1084,7 @@ using UniformBlockList = ccstd::vector<UniformBlock>;
 struct UniformSamplerTexture {
     uint32_t set{0};
     uint32_t binding{0};
-    String   name;
+    ccstd::string   name;
     Type     type{Type::UNKNOWN};
     uint32_t count{0};
 
@@ -1095,7 +1096,7 @@ using UniformSamplerTextureList = ccstd::vector<UniformSamplerTexture>;
 struct UniformSampler {
     uint32_t set{0};
     uint32_t binding{0};
-    String   name;
+    ccstd::string   name;
     uint32_t count{0};
 
     EXPOSE_COPY_FN(UniformSampler)
@@ -1106,7 +1107,7 @@ using UniformSamplerList = ccstd::vector<UniformSampler>;
 struct UniformTexture {
     uint32_t set{0};
     uint32_t binding{0};
-    String   name;
+    ccstd::string   name;
     Type     type{Type::UNKNOWN};
     uint32_t count{0};
 
@@ -1118,7 +1119,7 @@ using UniformTextureList = ccstd::vector<UniformTexture>;
 struct UniformStorageImage {
     uint32_t     set{0};
     uint32_t     binding{0};
-    String       name;
+    ccstd::string       name;
     Type         type{Type::UNKNOWN};
     uint32_t     count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
@@ -1131,7 +1132,7 @@ using UniformStorageImageList = ccstd::vector<UniformStorageImage>;
 struct UniformStorageBuffer {
     uint32_t     set{0};
     uint32_t     binding{0};
-    String       name;
+    ccstd::string       name;
     uint32_t     count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
 
@@ -1143,7 +1144,7 @@ using UniformStorageBufferList = ccstd::vector<UniformStorageBuffer>;
 struct UniformInputAttachment {
     uint32_t set{0};
     uint32_t binding{0};
-    String   name;
+    ccstd::string   name;
     uint32_t count{0};
 
     EXPOSE_COPY_FN(UniformInputAttachment)
@@ -1153,7 +1154,7 @@ using UniformInputAttachmentList = ccstd::vector<UniformInputAttachment>;
 
 struct ShaderStage {
     ShaderStageFlagBit stage{ShaderStageFlagBit::NONE};
-    String             source;
+    ccstd::string             source;
 
     EXPOSE_COPY_FN(ShaderStage)
 };
@@ -1161,7 +1162,7 @@ struct ShaderStage {
 using ShaderStageList = ccstd::vector<ShaderStage>;
 
 struct Attribute {
-    String   name;
+    ccstd::string   name;
     Format   format{Format::UNKNOWN};
     bool     isNormalized{false};
     uint32_t stream{0};
@@ -1195,7 +1196,7 @@ constexpr const char *ATTR_NAME_BATCH_ID   = "a_batch_id";
 constexpr const char *ATTR_NAME_BATCH_UV   = "a_batch_uv";
 
 struct ShaderInfo {
-    String                     name;
+    ccstd::string                     name;
     ShaderStageList            stages;
     AttributeList              attributes;
     UniformBlockList           blocks;
@@ -1483,7 +1484,7 @@ struct QueryPoolInfo {
 };
 
 struct FormatInfo {
-    const String     name;
+    const ccstd::string     name;
     const uint32_t   size{0};
     const uint32_t   count{0};
     const FormatType type{FormatType::NONE};

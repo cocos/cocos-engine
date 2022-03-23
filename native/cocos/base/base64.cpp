@@ -29,12 +29,12 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <string>
+#include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
 
-std::string alphabet{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"};
+ccstd::string alphabet{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"};
 
 int doBase64Decode(const unsigned char *input, unsigned int inputLen, unsigned char *output, unsigned int *outputLen) {
     static ccstd::vector<char> inalphabet(256);

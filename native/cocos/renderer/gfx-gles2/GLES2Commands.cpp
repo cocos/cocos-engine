@@ -859,7 +859,7 @@ void cmdFuncGLES2DestroySampler(GLES2Device *device, GLES2GPUSampler *gpuSampler
 
 void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     GLenum glShaderType = 0;
-    String shaderTypeStr;
+    ccstd::string shaderTypeStr;
     GLint  status;
 
     for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
@@ -1043,7 +1043,7 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
         if (offset) {
             glName[offset - glName] = '\0';
         }
-        String name = glName;
+        ccstd::string name = glName;
 
         bool isSampler = (glType == GL_SAMPLER_2D) ||
                          (glType == GL_SAMPLER_3D_OES) ||
@@ -1091,7 +1091,7 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     ccstd::vector<GLES2GPUUniformSamplerTexture> glActiveSamplerTextures;
     ccstd::vector<GLint>                         glActiveSamplerLocations;
     const GLESBindingMapping &                   bindingMappings = device->bindingMappings();
-    ccstd::unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
+    ccstd::unordered_map<ccstd::string, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
     // sampler bindings in the flexible set comes strictly after buffer bindings
     // so we need to subtract the buffer count for these samplers

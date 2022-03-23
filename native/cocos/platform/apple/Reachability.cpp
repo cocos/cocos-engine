@@ -105,7 +105,7 @@ cc::Reachability::NetworkStatus getNetworkStatusForFlags(SCNetworkReachabilityFl
 
 namespace cc {
 
-Reachability *Reachability::createWithHostName(const std::string &hostName) {
+Reachability *Reachability::createWithHostName(const ccstd::string &hostName) {
     Reachability *           returnValue  = nullptr;
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(nullptr, hostName.c_str());
     if (reachability != nullptr) {

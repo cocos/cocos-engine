@@ -75,7 +75,7 @@ AudioDecoder::~AudioDecoder() {
     ALOGV("~AudioDecoder() %p", this);
 }
 
-bool AudioDecoder::init(const std::string &url, int sampleRate) {
+bool AudioDecoder::init(const ccstd::string &url, int sampleRate) {
     _url        = url;
     _sampleRate = sampleRate;
     return true;

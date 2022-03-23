@@ -40,7 +40,7 @@ OSType System::getOSType() const {
     return OSType::IPHONE;
 }
 
-std::string System::getDeviceModel() const {
+ccstd::string System::getDeviceModel() const {
     struct utsname systemInfo;
     uname(&systemInfo);
     return systemInfo.machine;
@@ -78,19 +78,19 @@ System::LanguageType System::getCurrentLanguage() const {
     return LanguageType::ENGLISH;
 }
 
-std::string System::getCurrentLanguageCode() const {
+ccstd::string System::getCurrentLanguageCode() const {
     NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
     NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
     NSString *      currentLanguage = [languages objectAtIndex:0];
     return [currentLanguage UTF8String];
 }
 
-std::string System::getSystemVersion() const {
+ccstd::string System::getSystemVersion() const {
     NSString *systemVersion = [UIDevice currentDevice].systemVersion;
     return [systemVersion UTF8String];
 }
 
-bool System::openURL(const std::string &url) {
+bool System::openURL(const ccstd::string &url) {
     NSString *   msg   = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
     NSURL *      nsUrl = [NSURL URLWithString:msg];
     __block BOOL flag  = false;

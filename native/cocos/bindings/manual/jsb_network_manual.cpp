@@ -38,8 +38,8 @@ static bool js_cocos2dx_network_Downloader_createDownloadFileTask(se::State &s) 
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        std::string arg0;
-        std::string arg1;
+        ccstd::string arg0;
+        ccstd::string arg1;
         ok &= sevalue_to_native(args[0], &arg0);
         ok &= sevalue_to_native(args[1], &arg1);
         SE_PRECONDITION2(ok, false,
@@ -55,9 +55,9 @@ static bool js_cocos2dx_network_Downloader_createDownloadFileTask(se::State &s) 
         return true;
     }
     if (argc == 3) {
-        std::string arg0;
-        std::string arg1;
-        std::string arg2;
+        ccstd::string arg0;
+        ccstd::string arg1;
+        ccstd::string arg2;
         ok &= sevalue_to_native(args[0], &arg0);
         ok &= sevalue_to_native(args[1], &arg1);
         ok &= sevalue_to_native(args[2], &arg2);
@@ -132,14 +132,14 @@ static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(reada
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        std::function<void(const cc::network::DownloadTask &, int, int, const std::string &)> arg0;
+        std::function<void(const cc::network::DownloadTask &, int, int, const ccstd::string &)> arg0;
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction()) {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto *thisObj = s.thisObject();
-                auto  lambda  = [=](const cc::network::DownloadTask &larg0, int larg1, int larg2, const std::string &larg3) -> void {
+                auto  lambda  = [=](const cc::network::DownloadTask &larg0, int larg1, int larg2, const ccstd::string &larg3) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
 

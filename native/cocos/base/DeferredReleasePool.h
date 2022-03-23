@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include <string>
+#include "base/std/container/string.h"
 #include "base/RefCounted.h"
 #include "base/std/container/vector.h"
 

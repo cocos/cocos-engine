@@ -83,7 +83,7 @@ FontFace::~FontFace() {
 /**
  * Font
  */
-Font::Font(FontType type, const std::string &path)
+Font::Font(FontType type, const ccstd::string &path)
 : _type(type), _path(path) {
     load(path);
 }
@@ -93,7 +93,7 @@ Font::~Font() {
     CC_PROFILE_MEMORY_DEC(Font, _data.size());
 }
 
-void Font::load(const std::string &path) {
+void Font::load(const ccstd::string &path) {
     Data data = FileUtils::getInstance()->getDataFromFile(path);
     if (data.isNull()) {
         CC_LOG_WARNING("Font load failed, path: %s.", path.c_str());

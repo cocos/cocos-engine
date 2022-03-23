@@ -50,21 +50,21 @@
 using namespace cc; //NOLINT
 static int gInitialized = 0;
 
-static void splitFilename(std::string &str) {
+static void splitFilename(ccstd::string &str) {
     size_t found = 0;
     found        = str.find_last_of("/\\");
-    if (found != std::string::npos) {
+    if (found != ccstd::string::npos) {
         str = str.substr(found + 1);
     }
 }
 
-void localStorageInit(const std::string &fullpath) {
+void localStorageInit(const ccstd::string &fullpath) {
     if (fullpath.empty()) {
         return;
     }
 
     if (!gInitialized) {
-        std::string strDBFilename = fullpath;
+        ccstd::string strDBFilename = fullpath;
         splitFilename(strDBFilename);
         if (JniHelper::callStaticBooleanMethod(JCLS_LOCALSTORAGE, "init", strDBFilename, "data")) {
             gInitialized = 1;
@@ -80,13 +80,13 @@ void localStorageFree() {
 }
 
 /** sets an item in the LS */
-void localStorageSetItem(const std::string &key, const std::string &value) {
+void localStorageSetItem(const ccstd::string &key, const ccstd::string &value) {
     assert(gInitialized);
     JniHelper::callStaticVoidMethod(JCLS_LOCALSTORAGE, "setItem", key, value);
 }
 
 /** gets an item from the LS */
-bool localStorageGetItem(const std::string &key, std::string *outItem) {
+bool localStorageGetItem(const ccstd::string &key, ccstd::string *outItem) {
     assert(gInitialized);
     JniMethodInfo t;
 
@@ -109,7 +109,7 @@ bool localStorageGetItem(const std::string &key, std::string *outItem) {
 }
 
 /** removes an item from the LS */
-void localStorageRemoveItem(const std::string &key) {
+void localStorageRemoveItem(const ccstd::string &key) {
     assert(gInitialized);
     JniHelper::callStaticVoidMethod(JCLS_LOCALSTORAGE, "removeItem", key);
 }
@@ -121,7 +121,7 @@ void localStorageClear() {
 }
 
 /** gets an key from the JS. */
-void localStorageGetKey(const int nIndex, std::string *outKey) {
+void localStorageGetKey(const int nIndex, ccstd::string *outKey) {
     assert(gInitialized);
     outKey->assign(JniHelper::callStaticStringMethod(JCLS_LOCALSTORAGE, "getKey", nIndex));
 }

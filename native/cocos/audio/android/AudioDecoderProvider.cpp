@@ -34,9 +34,9 @@
 
 namespace cc {
 
-AudioDecoder *AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
+AudioDecoder *AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
     AudioDecoder *decoder = nullptr;
-    std::string extension = FileUtils::getInstance()->getFileExtension(url);
+    ccstd::string extension = FileUtils::getInstance()->getFileExtension(url);
     ALOGV("url:%s, extension:%s", url.c_str(), extension.c_str());
     if (extension == ".ogg") {
         decoder = new AudioDecoderOgg();

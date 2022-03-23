@@ -78,7 +78,7 @@ void RenderTexture::resize(uint32_t width, uint32_t height) {
     if (_window != nullptr) {
         _window->resize(_width, _height);
     }
-    // emit(std::string("resize"), _window); //TODO(xwx): not inherit form Eventify in Asset base class
+    // emit(ccstd::string("resize"), _window); //TODO(xwx): not inherit form Eventify in Asset base class
 }
 
 gfx::Texture *RenderTexture::getGFXTexture() const {
@@ -127,7 +127,7 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     }
 }
 
-void RenderTexture::initDefault(const cc::optional<std::string> &uuid) {
+void RenderTexture::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     _width  = 1;
     _height = 1;

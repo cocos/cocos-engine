@@ -1087,7 +1087,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     register_vector<Color>("ColorList");
     register_vector<TextureBlit>("TextureBlitList");
     register_vector<DrawInfo>("DrawInfoList");
-    register_vector<String>("StringList");
+    register_vector<ccstd::string>("StringList");
     register_vector<Buffer *>("BufferList");
     register_vector<Swapchain *>("SwapchainList");
     register_vector<SPVShaderStageInstance>("SPVShaderStageList");

@@ -56,7 +56,7 @@ protected:
 
     bool _inited{false};
 
-    String _initStack;
+    ccstd::string _initStack;
 };
 
 } // namespace gfx

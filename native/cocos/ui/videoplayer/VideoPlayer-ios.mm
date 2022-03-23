@@ -53,7 +53,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
                 :(int)top
                 :(int)width
                 :(int)height;
-- (void)setURL:(int)videoSource :(std::string &)videoUrl;
+- (void)setURL:(int)videoSource :(ccstd::string &)videoUrl;
 - (void)play;
 - (void)pause;
 - (void)resume;
@@ -138,7 +138,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
     return (self.playerController.player && self.playerController.player.rate != 0);
 }
 
-- (void)setURL:(int)videoSource :(std::string &)videoUrl {
+- (void)setURL:(int)videoSource :(ccstd::string &)videoUrl {
     [self cleanup];
     [self initPlayerController];
 
@@ -303,8 +303,8 @@ VideoPlayer::~VideoPlayer() {
     }
 }
 
-void VideoPlayer::setURL(const std::string &videoUrl) {
-    if (videoUrl.find("://") == std::string::npos) {
+void VideoPlayer::setURL(const ccstd::string &videoUrl) {
+    if (videoUrl.find("://") == ccstd::string::npos) {
         _videoURL = FileUtils::getInstance()->fullPathForFilename(videoUrl);
         _videoSource = VideoPlayer::Source::FILENAME;
     } else {
@@ -368,7 +368,7 @@ void VideoPlayer::setVisible(bool visible) {
     }
 }
 
-void VideoPlayer::addEventListener(const std::string &name, const VideoPlayer::ccVideoPlayerCallback &callback) {
+void VideoPlayer::addEventListener(const ccstd::string &name, const VideoPlayer::ccVideoPlayerCallback &callback) {
     _eventCallback[name] = callback;
 }
 

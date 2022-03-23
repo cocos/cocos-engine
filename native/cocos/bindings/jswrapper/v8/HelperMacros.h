@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <chrono>
 #include <map>
-#include <string>
+#include "base/std/container/string.h"
 #include <tuple>
 #include <type_traits>
 #include <typeinfo>

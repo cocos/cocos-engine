@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <string>
+#include "base/std/container/string.h"
 
 namespace cc {
 
@@ -39,14 +39,14 @@ public:
     /**
      * @param [category] You can specify a unique category to avoid id collision with other instance of IdGenerator.
      */
-    explicit IDGenerator(const std::string &category);
+    explicit IDGenerator(const ccstd::string &category);
 
-    std::string getNewId();
+    ccstd::string getNewId();
 
 private:
     uint32_t _id{0};
 
-    std::string _prefix;
+    ccstd::string _prefix;
 };
 
 /*

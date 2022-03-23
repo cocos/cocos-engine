@@ -175,7 +175,7 @@ static bool configureCURL(HttpClient *client, HttpRequest *request, CURL *handle
         return false;
     }
 
-    std::string sslCaFilename = client->getSSLVerification();
+    ccstd::string sslCaFilename = client->getSSLVerification();
     if (sslCaFilename.empty()) {
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
@@ -232,7 +232,7 @@ public:
             return false;
 
         /* get custom header data (if set) */
-        ccstd::vector<std::string> headers = request->getHeaders();
+        ccstd::vector<ccstd::string> headers = request->getHeaders();
         if (!headers.empty()) {
             /* append custom headers one by one */
             for (auto &header : headers)
@@ -241,7 +241,7 @@ public:
             if (!setOption(CURLOPT_HTTPHEADER, _headers))
                 return false;
         }
-        std::string cookieFilename = client->getCookieFilename();
+        ccstd::string cookieFilename = client->getCookieFilename();
         if (!cookieFilename.empty()) {
             if (!setOption(CURLOPT_COOKIEFILE, cookieFilename.c_str())) {
                 return false;
@@ -344,13 +344,13 @@ void HttpClient::destroyInstance() {
 void HttpClient::enableCookies(const char *cookieFile) {
     std::lock_guard<std::mutex> lock(_cookieFileMutex);
     if (cookieFile) {
-        _cookieFilename = std::string(cookieFile);
+        _cookieFilename = ccstd::string(cookieFile);
     } else {
         _cookieFilename = (FileUtils::getInstance()->getWritablePath() + "cookieFile.txt");
     }
 }
 
-void HttpClient::setSSLVerification(const std::string &caFile) {
+void HttpClient::setSSLVerification(const ccstd::string &caFile) {
     std::lock_guard<std::mutex> lock(_sslCaFileMutex);
     _sslCaFilename = caFile;
 }
@@ -560,12 +560,12 @@ int HttpClient::getTimeoutForRead() {
     return _timeoutForRead;
 }
 
-const std::string &HttpClient::getCookieFilename() {
+const ccstd::string &HttpClient::getCookieFilename() {
     std::lock_guard<std::mutex> lock(_cookieFileMutex);
     return _cookieFilename;
 }
 
-const std::string &HttpClient::getSSLVerification() {
+const ccstd::string &HttpClient::getSSLVerification() {
     std::lock_guard<std::mutex> lock(_sslCaFileMutex);
     return _sslCaFilename;
 }

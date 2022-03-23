@@ -1116,11 +1116,11 @@ getPath(
     return output;
 }
 
-inline std::string
+inline ccstd::string
 getPath(
     LayoutGraph::vertex_descriptor u0, const LayoutGraph& g,
     boost::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
-    std::string output;
+    ccstd::string output;
     getPath(output, u0, g, prefix, parent);
     return output;
 }
@@ -1149,9 +1149,9 @@ getPath(
     return output;
 }
 
-inline std::string
+inline ccstd::string
 getPath(LayoutGraph::vertex_descriptor parent, boost::string_view name, const LayoutGraph& g) {
-    std::string output;
+    ccstd::string output;
     getPath(output, parent, name, g);
     return output;
 }
@@ -1248,7 +1248,7 @@ inline void addPathImpl(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_de
 }
 
 inline void removePathImpl(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
-    // notice: here we use std::string, not std::pmr::string
+    // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
     auto iter     = g.pathIndex.find(boost::string_view(pathName));
@@ -1816,11 +1816,11 @@ getPath(
     return output;
 }
 
-inline std::string
+inline ccstd::string
 getPath(
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
     boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
-    std::string output;
+    ccstd::string output;
     getPath(output, u0, g, prefix, parent);
     return output;
 }
@@ -1849,9 +1849,9 @@ getPath(
     return output;
 }
 
-inline std::string
+inline ccstd::string
 getPath(LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g) {
-    std::string output;
+    ccstd::string output;
     getPath(output, parent, name, g);
     return output;
 }
@@ -1948,7 +1948,7 @@ inline void addPathImpl(LayoutGraphData::vertex_descriptor u, LayoutGraphData::v
 }
 
 inline void removePathImpl(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
-    // notice: here we use std::string, not std::pmr::string
+    // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
     auto iter     = g.pathIndex.find(boost::string_view(pathName));

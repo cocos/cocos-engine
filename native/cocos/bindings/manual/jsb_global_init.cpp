@@ -26,7 +26,7 @@
 // clang-format off
 #include "base/Macros.h"
 // clang-format: off
-#include <string>
+#include "base/std/container/string.h"
 #include "uv.h"
 // clang-format on
 
@@ -53,13 +53,13 @@ se::Object *__glObj  = nullptr; //NOLINT
 
 static std::basic_string<unsigned char> xxteaKey;
 
-void jsb_set_xxtea_key(const std::string &key) { //NOLINT
+void jsb_set_xxtea_key(const ccstd::string &key) { //NOLINT
     xxteaKey.assign(key.begin(), key.end());
 }
 
 static const char *BYTE_CODE_FILE_EXT = ".jsc"; //NOLINT
 
-static std::string removeFileExt(const std::string &filePath) {
+static ccstd::string removeFileExt(const ccstd::string &filePath) {
     size_t pos = filePath.rfind('.');
     if (0 < pos) {
         return filePath.substr(0, pos);
@@ -94,12 +94,12 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
     static se::ScriptEngine::FileOperationDelegate delegate;
     if (!delegate.isValid()) {
-        delegate.onGetDataFromFile = [](const std::string &path, const std::function<void(const uint8_t *, size_t)> &readCallback) -> void {
+        delegate.onGetDataFromFile = [](const ccstd::string &path, const std::function<void(const uint8_t *, size_t)> &readCallback) -> void {
             assert(!path.empty());
 
             Data fileData;
 
-            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+            ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
@@ -137,10 +137,10 @@ void jsb_init_file_operation_delegate() { //NOLINT
             readCallback(fileData.getBytes(), fileData.getSize());
         };
 
-        delegate.onGetStringFromFile = [](const std::string &path) -> std::string {
+        delegate.onGetStringFromFile = [](const ccstd::string &path) -> ccstd::string {
             assert(!path.empty());
 
-            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+            ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 Data fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
@@ -162,13 +162,13 @@ void jsb_init_file_operation_delegate() { //NOLINT
                         return "";
                     }
 
-                    std::string ret(reinterpret_cast<const char *>(unpackedData), unpackedLen);
+                    ccstd::string ret(reinterpret_cast<const char *>(unpackedData), unpackedLen);
                     free(unpackedData);
                     free(data);
 
                     return ret;
                 }
-                std::string ret(reinterpret_cast<const char *>(data), dataLen);
+                ccstd::string ret(reinterpret_cast<const char *>(data), dataLen);
                 free(data);
                 return ret;
             }
@@ -180,16 +180,16 @@ void jsb_init_file_operation_delegate() { //NOLINT
             return "";
         };
 
-        delegate.onGetFullPath = [](const std::string &path) -> std::string {
+        delegate.onGetFullPath = [](const ccstd::string &path) -> ccstd::string {
             assert(!path.empty());
-            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+            ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 return FileUtils::getInstance()->fullPathForFilename(byteCodePath);
             }
             return FileUtils::getInstance()->fullPathForFilename(path);
         };
 
-        delegate.onCheckFileExist = [](const std::string &path) -> bool {
+        delegate.onCheckFileExist = [](const ccstd::string &path) -> bool {
             assert(!path.empty());
             return FileUtils::getInstance()->isFileExist(path);
         };
@@ -200,7 +200,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
     }
 }
 
-bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect) { //NOLINT
+bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect) { //NOLINT
     if (debuggerServerAddr.empty() || port == 0) {
         return false;
     }

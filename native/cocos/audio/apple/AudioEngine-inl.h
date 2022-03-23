@@ -45,7 +45,7 @@ public:
     ~AudioEngineImpl();
 
     bool  init();
-    int   play2d(const std::string &fileFullPath, bool loop, float volume);
+    int   play2d(const ccstd::string &fileFullPath, bool loop, float volume);
     void  setVolume(int audioID, float volume);
     void  setLoop(int audioID, bool loop);
     bool  pause(int audioID);
@@ -53,14 +53,14 @@ public:
     void  stop(int audioID);
     void  stopAll();
     float getDuration(int audioID);
-    float getDurationFromFile(const std::string &fileFullPath);
+    float getDurationFromFile(const ccstd::string &fileFullPath);
     float getCurrentTime(int audioID);
     bool  setCurrentTime(int audioID, float time);
-    void  setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback);
+    void  setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
 
-    void        uncache(const std::string &filePath);
+    void        uncache(const ccstd::string &filePath);
     void        uncacheAll();
-    AudioCache *preload(const std::string &filePath, std::function<void(bool)> callback);
+    AudioCache *preload(const ccstd::string &filePath, std::function<void(bool)> callback);
     void        update(float dt);
 
 private:
@@ -76,7 +76,7 @@ private:
     std::list<ALuint> _unusedSourcesPool;
 
     //filePath,bufferInfo
-    ccstd::unordered_map<std::string, AudioCache> _audioCaches;
+    ccstd::unordered_map<ccstd::string, AudioCache> _audioCaches;
 
     //audioID,AudioInfo
     ccstd::unordered_map<int, AudioPlayer *> _audioPlayers;

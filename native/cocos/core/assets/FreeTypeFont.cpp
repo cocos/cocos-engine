@@ -299,7 +299,7 @@ void FreeTypeFontFace::destroyFreeType() {
 /**
  * FreeTypeFont
  */
-FreeTypeFont::FreeTypeFont(const std::string &path)
+FreeTypeFont::FreeTypeFont(const ccstd::string &path)
 : Font(FontType::FREETYPE, path) {
 }
 
