@@ -100,7 +100,7 @@ private:
     ICallerThreadUtils *_callerThreadUtils;
 
     ccstd::unordered_map<std::string, PcmData> _pcmCache;
-    std::mutex                               _pcmCacheMutex;
+    std::mutex                                 _pcmCacheMutex;
 
     struct PreloadCallbackParam {
         PreloadCallback callback;
@@ -108,7 +108,7 @@ private:
     };
 
     ccstd::unordered_map<std::string, ccstd::vector<PreloadCallbackParam>> _preloadCallbackMap;
-    std::mutex                                                           _preloadCallbackMutex;
+    std::mutex                                                             _preloadCallbackMutex;
 
     std::mutex              _preloadWaitMutex;
     std::condition_variable _preloadWaitCond;

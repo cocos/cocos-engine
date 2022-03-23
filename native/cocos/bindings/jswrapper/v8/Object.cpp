@@ -28,11 +28,11 @@
 #include "v8/HelperMacros.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-    #include "base/std/container/unordered_map.h"
     #include "../MappingUtils.h"
     #include "Class.h"
     #include "ScriptEngine.h"
     #include "Utils.h"
+    #include "base/std/container/unordered_map.h"
 
     #include <array>
     #include <memory>

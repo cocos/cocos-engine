@@ -289,8 +289,8 @@ private:
 
     // Used for "selectors with interval"
     ccstd::unordered_map<void *, HashTimerEntry *> _hashForTimers;
-    struct HashTimerEntry *                      _currentTarget         = nullptr;
-    bool                                         _currentTargetSalvaged = false;
+    struct HashTimerEntry *                        _currentTarget         = nullptr;
+    bool                                           _currentTargetSalvaged = false;
     // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
     bool _updateHashLocked = false;
 

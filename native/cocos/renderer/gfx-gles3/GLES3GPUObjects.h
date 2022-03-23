@@ -299,12 +299,12 @@ struct GLES3GPUAttribute {
 using GLES3GPUAttributeList = ccstd::vector<GLES3GPUAttribute>;
 
 struct GLES3GPUInputAssembler {
-    AttributeList                 attributes;
-    GLES3GPUBufferList            gpuVertexBuffers;
-    GLES3GPUBuffer *              gpuIndexBuffer    = nullptr;
-    GLES3GPUBuffer *              gpuIndirectBuffer = nullptr;
-    GLES3GPUAttributeList         glAttribs;
-    GLenum                        glIndexType = 0;
+    AttributeList                        attributes;
+    GLES3GPUBufferList                   gpuVertexBuffers;
+    GLES3GPUBuffer *                     gpuIndexBuffer    = nullptr;
+    GLES3GPUBuffer *                     gpuIndirectBuffer = nullptr;
+    GLES3GPUAttributeList                glAttribs;
+    GLenum                               glIndexType = 0;
     ccstd::unordered_map<size_t, GLuint> glVAOs;
 };
 
@@ -455,35 +455,35 @@ struct GLES3ObjectCache {
 
 class GLES3GPUStateCache final {
 public:
-    GLuint                          glArrayBuffer        = 0;
-    GLuint                          glElementArrayBuffer = 0;
-    GLuint                          glUniformBuffer      = 0;
-    ccstd::vector<GLuint>           glBindUBOs;
-    ccstd::vector<GLuint>           glBindUBOOffsets;
-    GLuint                          glShaderStorageBuffer = 0;
-    ccstd::vector<GLuint>           glBindSSBOs;
-    ccstd::vector<GLuint>           glBindSSBOOffsets;
-    GLuint                          glDispatchIndirectBuffer = 0;
-    GLuint                          glVAO                    = 0;
-    uint32_t                        texUint                  = 0;
-    ccstd::vector<GLuint>           glTextures;
-    ccstd::vector<GLuint>           glImages;
-    ccstd::vector<GLuint>           glSamplers;
-    GLuint                          glProgram = 0;
-    ccstd::vector<bool>             glEnabledAttribLocs;
-    ccstd::vector<bool>             glCurrentAttribLocs;
-    GLuint                          glReadFramebuffer = 0;
-    GLuint                          glDrawFramebuffer = 0;
-    GLuint                          glRenderbuffer    = 0;
-    Viewport                        viewport;
-    Rect                            scissor;
-    RasterizerState                 rs;
-    DepthStencilState               dss;
-    BlendState                      bs;
-    bool                            isCullFaceEnabled    = true;
-    bool                            isStencilTestEnabled = false;
+    GLuint                                 glArrayBuffer        = 0;
+    GLuint                                 glElementArrayBuffer = 0;
+    GLuint                                 glUniformBuffer      = 0;
+    ccstd::vector<GLuint>                  glBindUBOs;
+    ccstd::vector<GLuint>                  glBindUBOOffsets;
+    GLuint                                 glShaderStorageBuffer = 0;
+    ccstd::vector<GLuint>                  glBindSSBOs;
+    ccstd::vector<GLuint>                  glBindSSBOOffsets;
+    GLuint                                 glDispatchIndirectBuffer = 0;
+    GLuint                                 glVAO                    = 0;
+    uint32_t                               texUint                  = 0;
+    ccstd::vector<GLuint>                  glTextures;
+    ccstd::vector<GLuint>                  glImages;
+    ccstd::vector<GLuint>                  glSamplers;
+    GLuint                                 glProgram = 0;
+    ccstd::vector<bool>                    glEnabledAttribLocs;
+    ccstd::vector<bool>                    glCurrentAttribLocs;
+    GLuint                                 glReadFramebuffer = 0;
+    GLuint                                 glDrawFramebuffer = 0;
+    GLuint                                 glRenderbuffer    = 0;
+    Viewport                               viewport;
+    Rect                                   scissor;
+    RasterizerState                        rs;
+    DepthStencilState                      dss;
+    BlendState                             bs;
+    bool                                   isCullFaceEnabled    = true;
+    bool                                   isStencilTestEnabled = false;
     ccstd::unordered_map<String, uint32_t> texUnitCacheMap;
-    GLES3ObjectCache                gfxStateCache;
+    GLES3ObjectCache                       gfxStateCache;
 
     void initialize(size_t texUnits, size_t imageUnits, size_t uboBindings, size_t ssboBindings, size_t vertexAttributes) {
         glBindUBOs.resize(uboBindings, 0U);
