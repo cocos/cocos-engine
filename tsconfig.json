@@ -13,6 +13,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "isolatedModules": true,
+    "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
         "cc.decorator": [
