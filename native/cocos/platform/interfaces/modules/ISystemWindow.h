@@ -71,9 +71,23 @@ public:
      *@param h: Window height
      *@param flags: Window flag
      */
+    virtual bool createWindow(const char* title,
+                              int x, int y, int w,
+                              int h, int flags) {
+        return true;
+    }
+    /**
+     * @briefCreate a centered window.
+     *@param title: Window title
+     *@param w: Window width
+     *@param h: Window height
+     *@param flags: Window flag
+     */
     virtual bool      createWindow(const char* title,
-                                   int x, int y, int w,
-                                   int h, int flags) = 0;
+                                   int         w,
+                                   int h, int flags) {
+        return true;
+    }
     virtual uintptr_t getWindowHandler() const       = 0;
     virtual Size      getViewSize() const            = 0;
     /**
@@ -82,13 +96,6 @@ public:
     virtual void setCursorEnabled(bool value) = 0;
 
     virtual void copyTextToClipboard(const std::string& text) = 0;
-    /**
-     @brief Create default sytem window interface.
-     @return sytem window interface.
-     */
-    static OSInterface::Ptr createSystemWindowInterface();
-
-private:
 };
 
 } // namespace cc

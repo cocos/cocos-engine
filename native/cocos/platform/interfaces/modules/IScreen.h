@@ -62,12 +62,6 @@ public:
     virtual void setKeepScreenOn(bool keepScreenOn) = 0;
 
     virtual Vec4 getSafeAreaEdge() const = 0;
-    /**
-     @brief Create default screen interface.
-     @return screen interface.
-     */
-    static OSInterface::Ptr createScreenInterface();
 
-private:
 };
 } // namespace cc

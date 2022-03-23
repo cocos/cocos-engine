@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/linux/modules/Vibrate.h"
+#include "platform/empty/modules/Vibrator.h"
 
 #include "base/Macros.h"
 

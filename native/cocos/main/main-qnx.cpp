@@ -25,7 +25,6 @@
 
 #include <iostream>
 
-#include "SDL2/SDL_main.h"
 #include "platform/BasePlatform.h"
 
 int main(int argc, char** argv) {

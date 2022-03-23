@@ -78,6 +78,7 @@ public:
      * @brief Processing close events.
      */
     virtual void onClose();
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
     /**
      * @brief Create window.
      * @param title: Window title
@@ -90,6 +91,16 @@ public:
     virtual void createWindow(const char* title,
                               int32_t x, int32_t y, int32_t w,
                               int32_t h, int32_t flags);
+    /**
+     * @brief Create a centered window.
+     * @param title: Window title
+     * @param w: Window width
+     * @param h: Window height
+     * @param flags: Window flag
+     */
+    virtual void createWindow(const char* title, int32_t w,
+                              int32_t h, int32_t flags);
+#endif
     /**
      * @brief Set the js debugging server Addr and port
      * @param serverAddr:Server address.
