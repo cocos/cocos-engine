@@ -9,7 +9,7 @@ set(CC_PROJ_SOURCES)
 set(CC_COMMON_SOURCES)
 set(CC_ALL_SOURCES)
 
-include(${CMAKE_CURRENT_LIST_DIR}/../common/CMakeLists.txt)
+include(${CC_PROJECT_DIR}/../common/CMakeLists.txt)
 
 cc_windows_before_target(${EXECUTABLE_NAME})
 add_executable(${EXECUTABLE_NAME}
