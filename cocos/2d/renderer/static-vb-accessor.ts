@@ -50,26 +50,16 @@ const _entryPool = new Pool<IFreeEntry>(() => ({
  * @internal
  */
 export class StaticVBChunk {
-    // public ib: Uint16Array;
-    //
-
     constructor (
         public vertexAccessor: StaticVBAccessor,
         public bufferId: number,
+        public meshBuffer: MeshBuffer,
         public vertexOffset: number,
         public vb: Float32Array,
         indexCount: number,
-        public meshBuffer: MeshBuffer,
     ) {
-        // this.ib = new Uint16Array(indexCount);
+        assertIsTrue(meshBuffer === vertexAccessor.getMeshBuffer(bufferId));
     }
-    // setIndexBuffer (indices: ArrayLike<number>) {
-    //     assertIsTrue(indices.length === this.ib.length);
-    //     for (let i = 0; i < indices.length; ++i) {
-    //         const vid = indices[i];
-    //         this.ib[i] = this.vertexOffset + vid;
-    //     }
-    // }
 }
 
 export class StaticVBAccessor extends BufferAccessor {
@@ -181,8 +171,7 @@ export class StaticVBAccessor extends BufferAccessor {
             const vb = new Float32Array(buf.vData.buffer, entry.offset, byteLength >> 2).fill(0);
             this._allocateChunkFromEntry(bid, eid, entry, byteLength);
 
-            const mb = this.getMeshBuffer(bid);
-            return new StaticVBChunk(this, bid, vertexOffset, vb, indexCount, mb);
+            return new StaticVBChunk(this, bid, buf, vertexOffset, vb, indexCount);
         } else {
             warnID(9004, byteLength);
             return null;

@@ -81,8 +81,6 @@ export class BaseRenderData {
         return this._vertexFormat;
     }
 
-    public vertexAccessor: StaticVBAccessor = null!;
-
     public chunk: StaticVBChunk = null!;
 
     public dataHash = 0;
