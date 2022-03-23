@@ -1,4 +1,8 @@
 module.exports = {
+    dialog: {
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+    },
     assets: {
         'label-atlas': {
             SpriteFrameTip: 'SpriteFrame',
@@ -73,6 +77,8 @@ module.exports = {
         image: {
             type: 'Type',
             typeTip: 'Type',
+            bakeOfflineMipmaps: 'Bake Offline Mipmaps',
+            bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
             isRGBE: 'Is RGBE',
@@ -288,7 +294,7 @@ module.exports = {
             animationBakeRate: {
                 name: 'Animation Bake Rate',
                 title: 'Specify the animation bake rate in frames per second (fps).',
-                auto: '自动',
+                auto: 'Auto',
             },
             promoteSingleRootNode: {
                 name: 'Promote single root node',
@@ -326,6 +332,13 @@ module.exports = {
         },
         animationGraph: {
             edit: 'Edit',
+        },
+        animationMask: {
+            importSkeleton: 'Import Skeleton',
+            clearAllNodes: 'Clear',
+            clearAllNodesWarn: 'Are you sure to clear all data of this Animation Mask?',
+            illegalFbx: 'Import Skeleton Failed: this fbx asset has not contained sub prefab asset.',
+            nodeEnableTip: 'Whether enable this joint;<br>Alt + Click can toggle the children state.',
         },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
     },

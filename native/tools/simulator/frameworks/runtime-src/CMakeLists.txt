@@ -153,6 +153,9 @@ target_link_libraries(${LIB_NAME} cocos2d simulator)
 target_include_directories(${LIB_NAME} PRIVATE
     Classes
 )
+target_compile_definitions(${LIB_NAME} PRIVATE
+    GAME_NAME="${APP_NAME}"
+)
 
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} PREFIX "Source Files" FILES ${PROJ_SOURCES})
 

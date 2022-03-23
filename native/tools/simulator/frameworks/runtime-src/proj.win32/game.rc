@@ -47,9 +47,9 @@ END
 
 IDR_MENU_COCOS MENU
 BEGIN
-    POPUP "°ïÖú(&H)"
+    POPUP "ï¿½ï¿½ï¿½ï¿½(&H)"
     BEGIN
-        MENUITEM "¹ØÓÚ(&A)",                      ID_HELP_ABOUT
+        MENUITEM "ï¿½ï¿½ï¿½ï¿½(&A)",                      ID_HELP_ABOUT
     END
 END
 
@@ -169,12 +169,10 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "game Module"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "game"
             VALUE "LegalCopyright", "Copyright "
             VALUE "OriginalFilename", "game.exe"
-            VALUE "ProductName", "game Module"
             VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END

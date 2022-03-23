@@ -41,3 +41,5 @@ platforms/runtime/platforms/vivo-mini-game/ral.min.js
 scripts/runtime-web-adapter
 
 native/external/
+
+scripts/typedoc-plugin/lib/

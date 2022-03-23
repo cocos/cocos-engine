@@ -27,11 +27,6 @@
 import { RUNTIME_BASED } from 'internal:constants';
 import Pool from '../../core/utils/pool';
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 export const BASELINE_RATIO = 0.26;
 let _BASELINE_OFFSET = 0;
 if (RUNTIME_BASED) {

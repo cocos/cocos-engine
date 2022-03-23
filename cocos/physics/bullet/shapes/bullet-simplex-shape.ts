@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { BulletShape } from './bullet-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';

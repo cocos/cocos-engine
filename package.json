@@ -10,7 +10,7 @@
   "module": "index.js",
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
-    "postinstall": "gulp build-debug-infos && gulp build-declarations && npm run fetch-ral",
+    "postinstall": "gulp build-debug-infos && gulp build-declarations && npm run fetch-ral && npm run install:typedoc-plugin",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
@@ -22,7 +22,8 @@
     "fetch-ral": "node ./scripts/fetch-ral.js",
     "clear-platform": "node ./native/utils/clear-platform.js",
     "update:native-external": "node ./native/utils/update-external.js",
-    "test": "gulp test"
+    "test": "gulp test",
+    "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install"
   },
   "repository": {
     "type": "git",
@@ -33,7 +34,6 @@
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
     "@cocos/build-engine": "4.2.21-beta.7",
-    "@cocos/typedoc-plugin-internal-external": "^1.0.1",
     "@cocos/typedoc-plugin-localization": "^1.0.0",
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^24.9.1",
@@ -41,8 +41,8 @@
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "async": "^2.6.1",
-    "child_process": "^1.0.2",
     "chalk": "^2.4.1",
+    "child_process": "^1.0.2",
     "commander": "^2.20.3",
     "dat.gui": "^0.7.5",
     "del": "^6.0.0",
@@ -53,6 +53,8 @@
     "fs-extra": "^7.0.1",
     "ftp": "0.3.10",
     "gulp": "^4.0.2",
+    "gulp-sequence": "^1.0.0",
+    "gulp-zip": "^5.0.2",
     "http-server": "^0.12.3",
     "jest": "^26.6.3",
     "jest-extended": "^1.1.0",
@@ -64,14 +66,12 @@
     "tmp": "^0.2.1",
     "tree-kill": "^1.2.0",
     "ts-jest": "^26.5.4",
-    "typedoc": "^0.17.7",
-    "typedoc-plugin-external-module-name": "^4.0.3",
+    "typedoc": "^0.22.13",
+    "typedoc-plugin-cc": "file:scripts/typedoc-plugin",
     "typescript": "^4.3.5",
     "vconsole": "^3.3.0",
-    "yargs": "^12.0.5",
-    "gulp-sequence": "^1.0.0",
-    "gulp-zip": "^5.0.2",
-    "which": "^2.0.2"
+    "which": "^2.0.2",
+    "yargs": "^12.0.5"
   },
   "dependencies": {
     "@cocos/box2d": "1.0.1",

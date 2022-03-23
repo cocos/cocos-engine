@@ -622,7 +622,7 @@ export class AssetManager {
      * @zh
      * 释放所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
      *
-     * @hidden
+     * @engineInternal
      *
      */
     public releaseUnusedAssets () {

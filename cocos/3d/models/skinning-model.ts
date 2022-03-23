@@ -23,10 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { JSB } from 'internal:constants';
 import { Material } from '../../core/assets/material';

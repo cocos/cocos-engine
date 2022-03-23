@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import { ccclass } from 'cc.decorator';
 import * as animation from './animation';
 import * as easing from '../easing/easing';
