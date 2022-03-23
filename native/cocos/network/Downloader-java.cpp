@@ -43,8 +43,8 @@
 #endif
 #define JNI_DOWNLOADER(FUNC) JNI_METHOD1(ORG_DOWNLOADER_CLASS_NAME, FUNC)
 
-std::unordered_map<int, cc::network::DownloaderJava *> sDownloaderMap;
-std::mutex                                             sDownloaderMutex;
+ccstd::unordered_map<int, cc::network::DownloaderJava *> sDownloaderMap;
+std::mutex                                               sDownloaderMutex;
 
 static void insertDownloaderJava(int id, cc::network::DownloaderJava *downloaderPtr) {
     std::lock_guard<std::mutex> guard(sDownloaderMutex);

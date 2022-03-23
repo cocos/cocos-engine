@@ -26,8 +26,8 @@
 #pragma once
 
 #include <cstdint>
-#include <unordered_map>
 #include "base/Macros.h"
+#include "base/std/container/unordered_map.h"
 
 using uint   = std::uint32_t;
 using ushort = std::uint16_t;
@@ -40,7 +40,7 @@ using FlagBits = std::uint32_t;
 using index_t = int32_t;
 #define CC_INVALID_INDEX (-1)
 
-#define Record std::unordered_map // NOLINT(readability-identifier-naming)
+#define Record ccstd::unordered_map // NOLINT(readability-identifier-naming)
 
 #define CC_ENUM_CONVERSION_OPERATOR(T) \
     inline std::underlying_type<T>::type toNumber(const T v) { return static_cast<std::underlying_type<T>::type>(v); }

@@ -310,7 +310,7 @@ public:
     /**
      *  @brief Sets a pointer to private data on an object.
      *  @param[in] data A void* to set as the object's private data.
-     *  @note This method will associate private data with se::Object by std::unordered_map::emplace.
+     *  @note This method will associate private data with se::Object by ccstd::unordered_map::emplace.
      *        It's used for search a se::Object via a void* private data.
      */
     template <typename T>
@@ -472,7 +472,7 @@ private:
     friend class ScriptEngine;
 };
 // NOLINTNEXTLINE
-extern std::unique_ptr<std::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
+extern std::unique_ptr<ccstd::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
 
 } // namespace se
 

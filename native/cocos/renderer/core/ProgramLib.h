@@ -29,8 +29,8 @@
 #include <numeric>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 #include "base/RefVector.h"
+#include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 #include "core/Types.h"
 #include "core/assets/EffectAsset.h"

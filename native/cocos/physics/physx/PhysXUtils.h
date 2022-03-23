@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <unordered_map>
 #include "base/Macros.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
@@ -124,13 +124,13 @@ inline T pxAbsMax(const T &a, const T &b) {
 
 void pxSetFromTwoVectors(physx::PxQuat &out, const physx::PxVec3 &a, const physx::PxVec3 &b);
 
-inline std::unordered_map<uintptr_t, uintptr_t> &getPxShapeMap() {
-    static std::unordered_map<uintptr_t, uintptr_t> m;
+inline ccstd::unordered_map<uintptr_t, uintptr_t> &getPxShapeMap() {
+    static ccstd::unordered_map<uintptr_t, uintptr_t> m;
     return m;
 }
 
-inline std::unordered_map<uint16_t, uintptr_t> &getPxMaterialMap() {
-    static std::unordered_map<uint16_t, uintptr_t> m;
+inline ccstd::unordered_map<uint16_t, uintptr_t> &getPxMaterialMap() {
+    static ccstd::unordered_map<uint16_t, uintptr_t> m;
     return m;
 }
 

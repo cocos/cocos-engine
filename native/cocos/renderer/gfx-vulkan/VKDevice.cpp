@@ -873,7 +873,7 @@ void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
         CCASSERT(result == VK_SUCCESS || result == VK_NOT_READY, "Unexpected error code.");
     }
 
-    std::unordered_map<uint32_t, uint64_t> mapResults;
+    ccstd::unordered_map<uint32_t, uint64_t> mapResults;
     for (auto queryId = 0U; queryId < queryCount; queryId++) {
         uint32_t offset = queryId * width;
         if (bWait || results[offset + 1] > 0) {

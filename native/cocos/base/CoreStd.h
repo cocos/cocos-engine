@@ -48,7 +48,6 @@
 #include <mutex>
 #include <string>
 #include <thread>
-#include <unordered_map>
 
 #include "base/CachedArray.h"
 #include "base/Log.h"

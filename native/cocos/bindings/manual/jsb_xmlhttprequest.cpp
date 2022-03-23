@@ -35,8 +35,8 @@
 #include <functional>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 #include "base/Config.h"
+#include "base/std/container/unordered_map.h"
 #include "cocos/base/Data.h"
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
@@ -50,7 +50,7 @@ using namespace cc::network; //NOLINT
 
 namespace {
 // NOLINTNEXTLINE(readability-identifier-naming)
-std::unordered_map<int, std::string> _httpStatusCodeMap = {
+ccstd::unordered_map<int, std::string> _httpStatusCodeMap = {
     {100, "Continue"},
     {101, "Switching Protocols"},
     {102, "Processing"},
@@ -183,8 +183,8 @@ private:
     void sendRequest();
     void setHttpRequestHeader();
 
-    std::unordered_map<std::string, std::string> _httpHeader;
-    std::unordered_map<std::string, std::string> _requestHeader;
+    ccstd::unordered_map<std::string, std::string> _httpHeader;
+    ccstd::unordered_map<std::string, std::string> _requestHeader;
 
     std::string _url;
     std::string _method;

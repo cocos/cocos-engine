@@ -27,7 +27,7 @@
 
 #include <functional>
 #include <string>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
 namespace se {
@@ -300,8 +300,8 @@ private:
         uint32_t            listenerID;
         struct Node *       next = nullptr;
     };
-    static std::unordered_map<std::string, Node *> listeners;
-    static uint32_t                                hashListenerId; //simple increment hash
+    static ccstd::unordered_map<std::string, Node *> listeners;
+    static uint32_t                                  hashListenerId; //simple increment hash
 };
 
 } // end of namespace cc

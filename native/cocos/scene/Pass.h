@@ -55,7 +55,7 @@ struct PassDynamicsValue {
     bool  dirty{false};
     float value{0.F};
 };
-using IPassDynamics = std::unordered_map<uint32_t, PassDynamicsValue>;
+using IPassDynamics = ccstd::unordered_map<uint32_t, PassDynamicsValue>;
 
 enum class BatchingSchemes {
     NONE       = 0,

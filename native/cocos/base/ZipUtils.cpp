@@ -460,8 +460,8 @@ public:
     Locked<unzFile, std::recursive_mutex> zipFile;
     std::unique_ptr<ourmemory_s>          memfs;
 
-    // std::unordered_map is faster if available on the platform
-    using FileListContainer = std::unordered_map<std::string, struct ZipEntryInfo>;
+    // ccstd::unordered_map is faster if available on the platform
+    using FileListContainer = ccstd::unordered_map<std::string, struct ZipEntryInfo>;
     FileListContainer fileList;
 };
 

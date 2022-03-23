@@ -101,9 +101,9 @@ IGeometry wireframed(IGeometry &geometry) {
     }
 
     // const offsets = [ [ 0, 1 ], [ 1, 2 ], [ 2, 0 ] ];
-    ccstd::vector<ccstd::vector<uint32_t>> offsets{{0, 1}, {1, 2}, {2, 0}};
-    ccstd::vector<uint32_t>                lines;
-    std::unordered_map<uint32_t, uint32_t> lineIDs;
+    ccstd::vector<ccstd::vector<uint32_t>>   offsets{{0, 1}, {1, 2}, {2, 0}};
+    ccstd::vector<uint32_t>                  lines;
+    ccstd::unordered_map<uint32_t, uint32_t> lineIDs;
     for (uint32_t i = 0; i < indices->size(); i += 3) {
         for (uint32_t k = 0; k < 3; ++k) {
             const uint32_t i1 = (*indices)[i + offsets[k][0]];

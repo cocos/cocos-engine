@@ -1219,7 +1219,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     ccstd::vector<GLES3GPUUniformSamplerTexture> glActiveSamplerTextures;
     ccstd::vector<GLint>                         glActiveSamplerLocations;
     const GLESBindingMapping &                   bindingMappings = device->bindingMappings();
-    unordered_map<String, uint32_t> &            texUnitCacheMap = device->stateCache()->texUnitCacheMap;
+    ccstd::unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
     // sampler bindings in the flexible set comes strictly after buffer bindings
     // so we need to subtract the buffer count for these samplers
@@ -1784,7 +1784,7 @@ void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES
                 }
             }
 
-            std::unordered_map<uint32_t, uint64_t> mapResults;
+            ccstd::unordered_map<uint32_t, uint64_t> mapResults;
             for (auto queryId = 0U; queryId < queryCount; queryId++) {
                 uint32_t glID = queryPool->getId(queryId);
                 auto     iter = mapResults.find(glID);

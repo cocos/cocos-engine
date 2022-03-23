@@ -465,10 +465,10 @@ struct CC_DLL UBOShadow {
 };
 
 struct CC_DLL DescriptorSetLayoutInfos {
-    gfx::DescriptorSetLayoutBindingList               bindings;
-    unordered_map<String, gfx::UniformBlock>          blocks;
-    unordered_map<String, gfx::UniformSamplerTexture> samplers;
-    unordered_map<String, gfx::UniformStorageImage>   storeImages;
+    gfx::DescriptorSetLayoutBindingList                      bindings;
+    ccstd::unordered_map<String, gfx::UniformBlock>          blocks;
+    ccstd::unordered_map<String, gfx::UniformSamplerTexture> samplers;
+    ccstd::unordered_map<String, gfx::UniformStorageImage>   storeImages;
 };
 extern CC_DLL DescriptorSetLayoutInfos globalDescriptorSetLayout;
 extern CC_DLL DescriptorSetLayoutInfos localDescriptorSetLayout;

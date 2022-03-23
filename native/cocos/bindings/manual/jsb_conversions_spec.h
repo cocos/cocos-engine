@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include <unordered_map>
 #include "base/Ptr.h"
 #include "base/Value.h"
+#include "base/std/container/unordered_map.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "cocos/base/Any.h"
 #include "cocos/base/Optional.h"
@@ -473,7 +473,7 @@ bool nativevalue_to_se(const cc::Data &from, se::Value &to, se::Object *ctx); //
 
 bool nativevalue_to_se(const cc::Value &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
-bool nativevalue_to_se(const std::unordered_map<std::string, cc::Value> &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+bool nativevalue_to_se(const ccstd::unordered_map<std::string, cc::Value> &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 bool nativevalue_to_se(const cc::Vec2 &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 

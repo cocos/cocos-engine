@@ -28,7 +28,7 @@
 #define __AUDIO_ENGINE_INL_H_
 
 #include <list>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 
 #include "audio/apple/AudioCache.h"
 #include "audio/apple/AudioPlayer.h"
@@ -76,11 +76,11 @@ private:
     std::list<ALuint> _unusedSourcesPool;
 
     //filePath,bufferInfo
-    std::unordered_map<std::string, AudioCache> _audioCaches;
+    ccstd::unordered_map<std::string, AudioCache> _audioCaches;
 
     //audioID,AudioInfo
-    std::unordered_map<int, AudioPlayer *> _audioPlayers;
-    std::mutex                             _threadMutex;
+    ccstd::unordered_map<int, AudioPlayer *> _audioPlayers;
+    std::mutex                               _threadMutex;
 
     bool _lazyInitLoop;
 

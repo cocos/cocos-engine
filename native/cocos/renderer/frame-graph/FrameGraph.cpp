@@ -71,7 +71,7 @@ void FrameGraph::present(const TextureHandle &input, gfx::Texture *target, bool 
 
             if (useMoveSemantic) {
                 // using a global map here so that the user don't need to worry about importing the targets every frame
-                static std::unordered_map<uint32_t, std::pair<StringHandle, Texture>> presentTargets;
+                static ccstd::unordered_map<uint32_t, std::pair<StringHandle, Texture>> presentTargets;
                 if (!presentTargets.count(target->getTypedID())) {
                     auto name = FrameGraph::stringToHandle(StringUtil::format("Present Target %d", target->getTypedID()).c_str());
                     presentTargets.emplace(std::piecewise_construct, std::forward_as_tuple(target->getTypedID()), std::forward_as_tuple(name, Texture{target}));

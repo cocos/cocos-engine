@@ -247,13 +247,13 @@ struct GLES2GPUAttribute {
 using GLES2GPUAttributeList = ccstd::vector<GLES2GPUAttribute>;
 
 struct GLES2GPUInputAssembler {
-    AttributeList                 attributes;
-    GLES2GPUBufferList            gpuVertexBuffers;
-    GLES2GPUBuffer *              gpuIndexBuffer    = nullptr;
-    GLES2GPUBuffer *              gpuIndirectBuffer = nullptr;
-    GLES2GPUAttributeList         glAttribs;
-    GLenum                        glIndexType = 0;
-    unordered_map<size_t, GLuint> glVAOs;
+    AttributeList                        attributes;
+    GLES2GPUBufferList                   gpuVertexBuffers;
+    GLES2GPUBuffer *                     gpuIndexBuffer    = nullptr;
+    GLES2GPUBuffer *                     gpuIndirectBuffer = nullptr;
+    GLES2GPUAttributeList                glAttribs;
+    GLenum                               glIndexType = 0;
+    ccstd::unordered_map<size_t, GLuint> glVAOs;
 };
 
 struct GLES2GPURenderPass {
@@ -391,27 +391,27 @@ struct GLES2ObjectCache {
 
 class GLES2GPUStateCache {
 public:
-    GLuint                          glArrayBuffer        = 0;
-    GLuint                          glElementArrayBuffer = 0;
-    GLuint                          glUniformBuffer      = 0;
-    GLuint                          glVAO                = 0;
-    uint32_t                        texUint              = 0;
-    ccstd::vector<GLuint>           glTextures;
-    GLuint                          glProgram = 0;
-    ccstd::vector<bool>             glEnabledAttribLocs;
-    ccstd::vector<bool>             glCurrentAttribLocs;
-    GLuint                          glFramebuffer  = 0;
-    GLuint                          glRenderbuffer = 0;
-    GLuint                          glReadFBO      = 0;
-    Viewport                        viewport;
-    Rect                            scissor;
-    RasterizerState                 rs;
-    DepthStencilState               dss;
-    BlendState                      bs;
-    bool                            isCullFaceEnabled    = true;
-    bool                            isStencilTestEnabled = false;
-    unordered_map<String, uint32_t> texUnitCacheMap;
-    GLES2ObjectCache                gfxStateCache;
+    GLuint                                 glArrayBuffer        = 0;
+    GLuint                                 glElementArrayBuffer = 0;
+    GLuint                                 glUniformBuffer      = 0;
+    GLuint                                 glVAO                = 0;
+    uint32_t                               texUint              = 0;
+    ccstd::vector<GLuint>                  glTextures;
+    GLuint                                 glProgram = 0;
+    ccstd::vector<bool>                    glEnabledAttribLocs;
+    ccstd::vector<bool>                    glCurrentAttribLocs;
+    GLuint                                 glFramebuffer  = 0;
+    GLuint                                 glRenderbuffer = 0;
+    GLuint                                 glReadFBO      = 0;
+    Viewport                               viewport;
+    Rect                                   scissor;
+    RasterizerState                        rs;
+    DepthStencilState                      dss;
+    BlendState                             bs;
+    bool                                   isCullFaceEnabled    = true;
+    bool                                   isStencilTestEnabled = false;
+    ccstd::unordered_map<String, uint32_t> texUnitCacheMap;
+    GLES2ObjectCache                       gfxStateCache;
 
     void initialize(size_t texUnits, size_t vertexAttributes) {
         glTextures.resize(texUnits, 0U);
@@ -565,7 +565,7 @@ private:
         GLuint glFramebuffer{0};
         bool   isExternal{false};
     };
-    using CacheMap = unordered_map<GLuint, FramebufferRecord>;
+    using CacheMap = ccstd::unordered_map<GLuint, FramebufferRecord>;
     CacheMap _renderbufferMap; // renderbuffer -> framebuffer
     CacheMap _textureMap;      // texture -> framebuffer
 };
@@ -588,7 +588,7 @@ public:
     void update(GLES2GPUTexture *texture);
 
 private:
-    unordered_map<GLES2GPUTexture *, ccstd::vector<GLES2GPUFramebuffer *>> _framebuffers;
+    ccstd::unordered_map<GLES2GPUTexture *, ccstd::vector<GLES2GPUFramebuffer *>> _framebuffers;
 };
 
 } // namespace gfx

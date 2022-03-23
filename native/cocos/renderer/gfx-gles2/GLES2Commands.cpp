@@ -1091,7 +1091,7 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     ccstd::vector<GLES2GPUUniformSamplerTexture> glActiveSamplerTextures;
     ccstd::vector<GLint>                         glActiveSamplerLocations;
     const GLESBindingMapping &                   bindingMappings = device->bindingMappings();
-    unordered_map<String, uint32_t> &            texUnitCacheMap = device->stateCache()->texUnitCacheMap;
+    ccstd::unordered_map<String, uint32_t> &     texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
     // sampler bindings in the flexible set comes strictly after buffer bindings
     // so we need to subtract the buffer count for these samplers

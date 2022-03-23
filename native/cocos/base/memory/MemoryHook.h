@@ -30,9 +30,9 @@
 
     #include "../Macros.h"
     #include "CallStack.h"
+    #include "base/std/container/unordered_map.h"
 
     #include <mutex>
-    #include <unordered_map>
 
 typedef void *(*MallocType)(size_t size);
 typedef void (*FreeType)(void *ptr);
@@ -56,7 +56,7 @@ public:
     /**
      * RecordMap's key is memory address.
      */
-    using RecordMap = std::unordered_map<uint64_t, MemoryRecord>;
+    using RecordMap = ccstd::unordered_map<uint64_t, MemoryRecord>;
 
     void   addRecord(uint64_t address, size_t size);
     void   removeRecord(uint64_t address);

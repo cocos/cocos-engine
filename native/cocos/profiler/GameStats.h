@@ -29,9 +29,9 @@
 #include <mutex>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include "base/StringUtil.h"
+#include "base/std/container/unordered_map.h"
 
 namespace cc {
 
@@ -170,8 +170,8 @@ struct CoreStats {
 
 struct MemoryStats {
     // memory stats
-    std::mutex                                     mutex;
-    std::unordered_map<std::string, MemoryCounter> memories;
+    std::mutex                                       mutex;
+    ccstd::unordered_map<std::string, MemoryCounter> memories;
 
     inline void update(const std::string &name, uint64_t value) {
         std::lock_guard<std::mutex> lock(mutex);
@@ -192,9 +192,9 @@ struct MemoryStats {
 // assume update in main thread only.
 struct ObjectStats {
     // render stats: drawcalls, instances, triangles, etc
-    std::unordered_map<std::string, ObjectCounter> renders;
+    ccstd::unordered_map<std::string, ObjectCounter> renders;
     // object stats
-    std::unordered_map<std::string, ObjectCounter> objects;
+    ccstd::unordered_map<std::string, ObjectCounter> objects;
 
     inline void onFrameBegin() {
         for (auto &item : renders) {

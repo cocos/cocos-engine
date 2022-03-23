@@ -414,11 +414,11 @@ private:
         auto     thisThreadId              = std::this_thread::get_id();
         uint32_t countOfMaxProcessingTasks = this->hints.countOfMaxProcessingTasks;
         // init curl content
-        CURLM *                            curlmHandle = curl_multi_init();
-        unordered_map<CURL *, TaskWrapper> coTaskMap;
-        int                                runningHandles = 0;
-        CURLMcode                          mcode          = CURLM_OK;
-        int                                rc             = 0; // select return code
+        CURLM *                                   curlmHandle = curl_multi_init();
+        ccstd::unordered_map<CURL *, TaskWrapper> coTaskMap;
+        int                                       runningHandles = 0;
+        CURLMcode                                 mcode          = CURLM_OK;
+        int                                       rc             = 0; // select return code
 
         do {
             // check the thread should exit or not

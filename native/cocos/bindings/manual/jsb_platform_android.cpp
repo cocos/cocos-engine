@@ -39,9 +39,9 @@
 
 using namespace cc;
 
-static std::unordered_map<std::string, std::string> _fontFamilyNameMap;
+static ccstd::unordered_map<std::string, std::string> _fontFamilyNameMap;
 
-const std::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
+const ccstd::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
     return _fontFamilyNameMap;
 }
 

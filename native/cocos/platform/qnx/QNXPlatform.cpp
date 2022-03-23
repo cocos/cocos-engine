@@ -38,7 +38,7 @@
 
 namespace {
 
-std::unordered_map<int, cc::KeyCode> gKeyMap = {
+ccstd::unordered_map<int, cc::KeyCode> gKeyMap = {
     {SDLK_APPLICATION, cc::KeyCode::CONTEXT_MENU},
     {SDLK_SCROLLLOCK, cc::KeyCode::SCROLLLOCK},
     {SDLK_PAUSE, cc::KeyCode::PAUSE},
@@ -115,7 +115,7 @@ int sdlKeycodeToCocosCode(int sdlCode, int mode) {
     }
 }
 
-std::unordered_map<cc::ISystemWindow::WindowFlags, SDL_WindowFlags> gWindowFlagMap = {
+ccstd::unordered_map<cc::ISystemWindow::WindowFlags, SDL_WindowFlags> gWindowFlagMap = {
     {cc::ISystemWindow::CC_WINDOW_FULLSCREEN, SDL_WINDOW_FULLSCREEN},
     {cc::ISystemWindow::CC_WINDOW_OPENGL, SDL_WINDOW_OPENGL},
     {cc::ISystemWindow::CC_WINDOW_SHOWN, SDL_WINDOW_SHOWN},

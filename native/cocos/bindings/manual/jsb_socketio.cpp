@@ -40,7 +40,7 @@ se::Class *__jsb_SocketIO_class = nullptr; // NOLINT
 class JSB_SocketIODelegate : public cc::RefCounted, public cc::network::SocketIO::SIODelegate {
 public:
     //c++11 map to callbacks
-    using JSB_SIOCallbackRegistry = std::unordered_map<std::string /* eventName */, se::ValueArray /* 0:callbackFunc, 1:target */>;
+    using JSB_SIOCallbackRegistry = ccstd::unordered_map<std::string /* eventName */, se::ValueArray /* 0:callbackFunc, 1:target */>;
 
     JSB_SocketIODelegate() = default;
 

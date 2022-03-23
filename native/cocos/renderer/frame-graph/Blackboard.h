@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <unordered_map>
 #include "Handle.h"
 #include "base/Macros.h"
+#include "base/std/container/unordered_map.h"
 
 namespace cc {
 namespace framegraph {
@@ -49,7 +49,7 @@ public:
     inline bool       has(const KeyType &name) const noexcept;
 
 private:
-    using Container = std::unordered_map<KeyType, ValueType, typename KeyType::Hasher>;
+    using Container = ccstd::unordered_map<KeyType, ValueType, typename KeyType::Hasher>;
     Container _container;
 };
 

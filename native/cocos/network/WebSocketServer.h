@@ -41,7 +41,7 @@
     #include <mutex>
     #include <string>
     #include <thread>
-    #include <unordered_map>
+    #include "base/std/container/unordered_map.h"
 
     #if CC_PLATFORM == CC_PLATFORM_OHOS
         #include "libwebsockets.h"
@@ -270,8 +270,8 @@ private:
     lws_context *_ctx   = nullptr;
     uv_async_t   _async = {0};
 
-    mutable std::mutex                                                           _connsMtx;
-    std::unordered_map<struct lws *, std::shared_ptr<WebSocketServerConnection>> _conns;
+    mutable std::mutex                                                             _connsMtx;
+    ccstd::unordered_map<struct lws *, std::shared_ptr<WebSocketServerConnection>> _conns;
 
     // Attention: do not reference **this** in callbacks
     std::function<void(const std::string &)>                        _onlistening;

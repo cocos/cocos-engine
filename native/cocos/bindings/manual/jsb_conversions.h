@@ -705,9 +705,9 @@ bool sevalue_to_native(const se::Value &from, cc::variant<Args...> *to, se::Obje
 
 template <typename T>
 bool sevalue_to_native(const se::Value &from, cc::optional<T> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
-/// std::unordered_map<std::string, V>
+/// ccstd::unordered_map<std::string, V>
 template <typename V>
-bool sevalue_to_native(const se::Value &from, std::unordered_map<std::string, V> *to, se::Object *ctx); //NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<std::string, V> *to, se::Object *ctx); //NOLINT(readability-identifier-naming)
 // std::tuple
 template <typename... Args>
 bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
@@ -1105,9 +1105,9 @@ bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Objec
     return result;
 }
 
-////////////// std::unordered_map
+////////////// ccstd::unordered_map
 template <typename V>
-bool sevalue_to_native(const se::Value &from, std::unordered_map<std::string, V> *to, se::Object *ctx) { //NOLINT
+bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<std::string, V> *to, se::Object *ctx) { //NOLINT
     se::Object *               jsmap = from.toObject();
     ccstd::vector<std::string> allKeys;
     jsmap->getAllKeys(&allKeys);
@@ -1231,7 +1231,7 @@ template <typename T>
 inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::Object *ctx); // NOLINT
 
 template <typename K, typename V>
-inline bool nativevalue_to_se(const std::unordered_map<K, V> &from, se::Value &to, se::Object *ctx); // NOLINT
+inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value &to, se::Object *ctx); // NOLINT
 
 template <typename T>
 inline bool nativevalue_to_se(const cc::TypedArrayTemp<T> &typedArray, se::Value &to, se::Object *ctx); // NOLINT
@@ -1283,7 +1283,7 @@ typename std::enable_if<!std::is_convertible<T, std::string>::value, void>::type
 }
 
 template <typename K, typename V>
-inline bool nativevalue_to_se(const std::unordered_map<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT
+inline bool nativevalue_to_se(const ccstd::unordered_map<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::Object *ret = se::Object::createPlainObject();
     se::Value   value;
     bool        ok = true;

@@ -26,8 +26,8 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
 #include "base/Ptr.h"
+#include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 #include "cocos/base/Variant.h"
 #include "core/assets/EffectAsset.h"

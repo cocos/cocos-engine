@@ -40,7 +40,7 @@ namespace gfx {
 namespace anoymous {
 WGPUBindGroupLayout defaultBindgroupLayout = wgpuDefaultHandle;
 
-std::unordered_map<size_t, WGPUBindGroupLayout> layoutPool;
+ccstd::unordered_map<size_t, WGPUBindGroupLayout> layoutPool;
 } // namespace anoymous
 
 using namespace emscripten;

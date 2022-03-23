@@ -1552,7 +1552,7 @@ void CCVKGPURecycleBin::clear() {
 VkSampleCountFlagBits CCVKGPUContext::getSampleCountForAttachments(Format format, VkFormat vkFormat, SampleCount sampleCount) const {
     if (sampleCount <= SampleCount::ONE) return VK_SAMPLE_COUNT_1_BIT;
 
-    static unordered_map<Format, VkSampleCountFlags> cacheMap;
+    static ccstd::unordered_map<Format, VkSampleCountFlags> cacheMap;
     if (!cacheMap.count(format)) {
         bool              hasDepth = GFX_FORMAT_INFOS[toNumber(format)].hasDepth;
         VkImageUsageFlags usages   = hasDepth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;

@@ -32,17 +32,17 @@
     #include "Class.h"
     #include "ScriptEngine.h"
     #include "Utils.h"
+    #include "base/std/container/unordered_map.h"
 
     #include <array>
     #include <memory>
     #include <sstream>
-    #include <unordered_map>
 
     #define JSB_FUNC_DEFAULT_MAX_ARG_COUNT (10)
 
 namespace se {
 //NOLINTNEXTLINE
-std::unique_ptr<std::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
+std::unique_ptr<ccstd::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
 
 namespace {
 v8::Isolate *__isolate = nullptr; //NOLINT
@@ -99,7 +99,7 @@ void Object::setIsolate(v8::Isolate *isolate) {
 }
 
 void Object::setup() {
-    __objectMap = std::make_unique<std::unordered_map<Object *, void *>>();
+    __objectMap = std::make_unique<ccstd::unordered_map<Object *, void *>>();
 }
 
 void Object::cleanup() {

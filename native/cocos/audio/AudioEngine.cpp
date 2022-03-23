@@ -59,13 +59,13 @@ const int   AudioEngine::INVALID_AUDIO_ID = -1;
 const float AudioEngine::TIME_UNKNOWN     = -1.0F;
 
 //audio file path,audio IDs
-std::unordered_map<std::string, std::list<int>> AudioEngine::sAudioPathIDMap;
+ccstd::unordered_map<std::string, std::list<int>> AudioEngine::sAudioPathIDMap;
 //profileName,ProfileHelper
-std::unordered_map<std::string, AudioEngine::ProfileHelper> AudioEngine::sAudioPathProfileHelperMap;
-unsigned int                                                AudioEngine::sMaxInstances         = MAX_AUDIOINSTANCES;
-AudioEngine::ProfileHelper *                                AudioEngine::sDefaultProfileHelper = nullptr;
-std::unordered_map<int, AudioEngine::AudioInfo>             AudioEngine::sAudioIDInfoMap;
-AudioEngineImpl *                                           AudioEngine::sAudioEngineImpl = nullptr;
+ccstd::unordered_map<std::string, AudioEngine::ProfileHelper> AudioEngine::sAudioPathProfileHelperMap;
+unsigned int                                                  AudioEngine::sMaxInstances         = MAX_AUDIOINSTANCES;
+AudioEngine::ProfileHelper *                                  AudioEngine::sDefaultProfileHelper = nullptr;
+ccstd::unordered_map<int, AudioEngine::AudioInfo>             AudioEngine::sAudioIDInfoMap;
+AudioEngineImpl *                                             AudioEngine::sAudioEngineImpl = nullptr;
 
 float              AudioEngine::sVolumeFactor       = 1.0F;
 uint32_t           AudioEngine::sOnPauseListenerID  = 0;

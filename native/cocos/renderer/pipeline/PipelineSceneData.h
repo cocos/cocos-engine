@@ -55,37 +55,37 @@ public:
 
     virtual void updatePipelineSceneData() {}
 
-    inline void                                                                setShadowFramebuffer(const scene::Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap.emplace(light, framebuffer); }
-    inline const std::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
-    inline const RenderObjectList &                                            getRenderObjects() const { return _renderObjects; }
-    inline const RenderObjectList &                                            getDirShadowObjects() const { return _dirShadowObjects; }
-    inline void                                                                setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
-    inline void                                                                setDirShadowObjects(RenderObjectList &&ro) { _dirShadowObjects = std::forward<RenderObjectList>(ro); }
-    inline const RenderObjectList &                                            isCastShadowObjects() const { return _castShadowObjects; }
-    inline void                                                                setCastShadowObjects(RenderObjectList &&ro) { _castShadowObjects = std::forward<RenderObjectList>(ro); }
-    inline const ccstd::vector<const scene::Light *> &                         getValidPunctualLights() const { return _validPunctualLights; }
-    inline void                                                                setValidPunctualLights(ccstd::vector<const scene::Light *> &&validPunctualLights) { _validPunctualLights = std::forward<ccstd::vector<const scene::Light *>>(validPunctualLights); }
-    inline bool                                                                isHDR() const { return _isHDR; }
-    inline void                                                                setHDR(bool val) { _isHDR = val; }
-    inline scene::Shadows *                                                    getShadows() const { return _shadow; }
-    inline scene::Ambient *                                                    getAmbient() const { return _ambient; }
-    inline scene::Skybox *                                                     getSkybox() const { return _skybox; }
-    inline scene::Fog *                                                        getFog() const { return _fog; }
-    inline scene::Octree *                                                     getOctree() const { return _octree; }
-    inline gfx::InputAssembler *                                               getOcclusionQueryInputAssembler() const { return _occlusionQueryInputAssembler; }
-    inline scene::Pass *                                                       getOcclusionQueryPass() const { return _occlusionQueryPass; }
-    inline gfx::Shader *                                                       getOcclusionQueryShader() const { return _occlusionQueryShader; }
-    inline const ccstd::vector<IntrusivePtr<Material>> &                       getGeometryRendererMaterials() const { return _geometryRendererMaterials; }
-    inline const ccstd::vector<scene::Pass *> &                                getGeometryRendererPasses() const { return _geometryRendererPasses; }
-    inline const ccstd::vector<gfx::Shader *> &                                getGeometryRendererShaders() const { return _geometryRendererShaders; }
-    inline scene::Pass *                                                       getDebugRendererPass() const { return _debugRendererPass; }
-    inline gfx::Shader *                                                       getDebugRendererShader() const { return _debugRendererShader; }
-    inline void                                                                addRenderObject(RenderObject &&obj) { _renderObjects.emplace_back(obj); }
-    inline void                                                                clearRenderObjects() { _renderObjects.clear(); }
-    inline void                                                                addValidPunctualLight(scene::Light *light) { _validPunctualLights.emplace_back(light); }
-    inline void                                                                clearValidPunctualLights() { _validPunctualLights.clear(); }
-    inline float                                                               getShadingScale() const { return _shadingScale; }
-    inline void                                                                setShadingScale(float val) { _shadingScale = val; }
+    inline void                                                                  setShadowFramebuffer(const scene::Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap.emplace(light, framebuffer); }
+    inline const ccstd::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
+    inline const RenderObjectList &                                              getRenderObjects() const { return _renderObjects; }
+    inline const RenderObjectList &                                              getDirShadowObjects() const { return _dirShadowObjects; }
+    inline void                                                                  setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
+    inline void                                                                  setDirShadowObjects(RenderObjectList &&ro) { _dirShadowObjects = std::forward<RenderObjectList>(ro); }
+    inline const RenderObjectList &                                              isCastShadowObjects() const { return _castShadowObjects; }
+    inline void                                                                  setCastShadowObjects(RenderObjectList &&ro) { _castShadowObjects = std::forward<RenderObjectList>(ro); }
+    inline const ccstd::vector<const scene::Light *> &                           getValidPunctualLights() const { return _validPunctualLights; }
+    inline void                                                                  setValidPunctualLights(ccstd::vector<const scene::Light *> &&validPunctualLights) { _validPunctualLights = std::forward<ccstd::vector<const scene::Light *>>(validPunctualLights); }
+    inline bool                                                                  isHDR() const { return _isHDR; }
+    inline void                                                                  setHDR(bool val) { _isHDR = val; }
+    inline scene::Shadows *                                                      getShadows() const { return _shadow; }
+    inline scene::Ambient *                                                      getAmbient() const { return _ambient; }
+    inline scene::Skybox *                                                       getSkybox() const { return _skybox; }
+    inline scene::Fog *                                                          getFog() const { return _fog; }
+    inline scene::Octree *                                                       getOctree() const { return _octree; }
+    inline gfx::InputAssembler *                                                 getOcclusionQueryInputAssembler() const { return _occlusionQueryInputAssembler; }
+    inline scene::Pass *                                                         getOcclusionQueryPass() const { return _occlusionQueryPass; }
+    inline gfx::Shader *                                                         getOcclusionQueryShader() const { return _occlusionQueryShader; }
+    inline const ccstd::vector<IntrusivePtr<Material>> &                         getGeometryRendererMaterials() const { return _geometryRendererMaterials; }
+    inline const ccstd::vector<scene::Pass *> &                                  getGeometryRendererPasses() const { return _geometryRendererPasses; }
+    inline const ccstd::vector<gfx::Shader *> &                                  getGeometryRendererShaders() const { return _geometryRendererShaders; }
+    inline scene::Pass *                                                         getDebugRendererPass() const { return _debugRendererPass; }
+    inline gfx::Shader *                                                         getDebugRendererShader() const { return _debugRendererShader; }
+    inline void                                                                  addRenderObject(RenderObject &&obj) { _renderObjects.emplace_back(obj); }
+    inline void                                                                  clearRenderObjects() { _renderObjects.clear(); }
+    inline void                                                                  addValidPunctualLight(scene::Light *light) { _validPunctualLights.emplace_back(light); }
+    inline void                                                                  clearValidPunctualLights() { _validPunctualLights.clear(); }
+    inline float                                                                 getShadingScale() const { return _shadingScale; }
+    inline void                                                                  setShadingScale(float val) { _shadingScale = val; }
 
     scene::Pass *getOcclusionQueryPass();
 
@@ -126,7 +126,7 @@ protected:
     bool            _isHDR{true};
     float           _shadingScale{1.0F};
 
-    std::unordered_map<const scene::Light *, gfx::Framebuffer *> _shadowFrameBufferMap;
+    ccstd::unordered_map<const scene::Light *, gfx::Framebuffer *> _shadowFrameBufferMap;
 };
 
 } // namespace pipeline

@@ -27,10 +27,10 @@
 
 #include <string>
 #include <type_traits>
-#include <unordered_map>
 #include "base/Data.h"
 #include "base/Macros.h"
 #include "base/Value.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
@@ -542,7 +542,7 @@ public:
     virtual long getFileSize(const std::string &filepath); //NOLINT(google-runtime-int)
 
     /** Returns the full path cache. */
-    const std::unordered_map<std::string, std::string> &getFullPathCache() const { return _fullPathCache; }
+    const ccstd::unordered_map<std::string, std::string> &getFullPathCache() const { return _fullPathCache; }
 
     static std::string normalizePath(const std::string &path);
     static std::string getFileDir(const std::string &path);
@@ -622,7 +622,7 @@ protected:
      *  The full path cache. When a file is found, it will be added into this cache.
      *  This variable is used for improving the performance of file search.
      */
-    mutable std::unordered_map<std::string, std::string> _fullPathCache;
+    mutable ccstd::unordered_map<std::string, std::string> _fullPathCache;
 
     /**
      * Writable path.
