@@ -27,6 +27,7 @@ THE SOFTWARE.
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace cc {
 
