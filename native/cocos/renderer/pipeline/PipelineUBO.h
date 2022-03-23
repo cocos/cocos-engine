@@ -49,7 +49,7 @@ public:
     void destroy();
     void updateGlobalUBO(const scene::Camera *camera);
     void updateCameraUBO(const scene::Camera *camera);
-    void updateMultiCameraUBO(const vector<scene::Camera *> &cameras);
+    void updateMultiCameraUBO(const ccstd::vector<scene::Camera *> &cameras);
     void updateShadowUBO(const scene::Camera *camera);
     void updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light);
     void updateShadowUBORange(uint offset, const Mat4 *data);
@@ -64,12 +64,12 @@ private:
     std::array<float, UBOGlobal::COUNT> _globalUBO;
     std::array<float, UBOShadow::COUNT> _shadowUBO;
 
-    std::vector<gfx::Buffer *> _ubos;
-    void                       initCombineSignY();
-    std::vector<float>         _cameraUBOs;
-    gfx::Buffer *              _cameraBuffer{nullptr};
-    uint                       _currentCameraUBOOffset{0};
-    uint                       _alignedCameraUBOSize{0};
+    ccstd::vector<gfx::Buffer *> _ubos;
+    void                         initCombineSignY();
+    ccstd::vector<float>         _cameraUBOs;
+    gfx::Buffer *                _cameraBuffer{nullptr};
+    uint                         _currentCameraUBOOffset{0};
+    uint                         _alignedCameraUBOSize{0};
 };
 
 } // namespace pipeline

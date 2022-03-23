@@ -36,6 +36,7 @@
 #include "GLES3QueryPool.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Texture.h"
+#include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
 
 namespace cc {
@@ -256,6 +257,7 @@ void GLES3CommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, u
 }
 
 void GLES3CommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(GLES3CommandBufferDraw);
     if (_isStateInvalid) {
         bindStates();
     }
@@ -394,7 +396,7 @@ void GLES3CommandBuffer::bindStates() {
     cmd->gpuDescriptorSets  = _curGPUDescriptorSets;
 
     if (_curGPUPipelineState) {
-        vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
         cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
         for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];

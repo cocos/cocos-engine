@@ -39,10 +39,10 @@ MIDDLEWARE_BEGIN
  */
 class IMiddleware {
 public:
-    IMiddleware() = default;
-    virtual ~IMiddleware() = default;
-    virtual void update(float dt) = 0;
-    virtual void render(float dt) = 0;
+    IMiddleware()                           = default;
+    virtual ~IMiddleware()                  = default;
+    virtual void     update(float dt)       = 0;
+    virtual void     render(float dt)       = 0;
     virtual uint32_t getRenderOrder() const = 0;
 };
 
@@ -117,9 +117,9 @@ public:
 private:
     void clearRemoveList();
 
-    std::vector<IMiddleware *> _updateList;
-    std::vector<IMiddleware *> _removeList;
-    std::map<int, MeshBuffer *> _mbMap;
+    ccstd::vector<IMiddleware *> _updateList;
+    ccstd::vector<IMiddleware *> _removeList;
+    std::map<int, MeshBuffer *>  _mbMap;
 
     SharedBufferManager _renderInfo;
     SharedBufferManager _attachInfo;

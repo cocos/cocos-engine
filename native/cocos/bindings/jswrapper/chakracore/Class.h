@@ -143,11 +143,11 @@ private:
 
     JsNativeFunction _ctor;
 
-    std::vector<JSFunctionSpec> _funcs;
-    std::vector<JSFunctionSpec> _staticFuncs;
-    std::vector<JSPropertySpec> _properties;
-    std::vector<JSPropertySpec> _staticProperties;
-    JsFinalizeCallback          _finalizeOp;
+    ccstd::vector<JSFunctionSpec> _funcs;
+    ccstd::vector<JSFunctionSpec> _staticFuncs;
+    ccstd::vector<JSPropertySpec> _properties;
+    ccstd::vector<JSPropertySpec> _staticProperties;
+    JsFinalizeCallback            _finalizeOp;
 
     friend class ScriptEngine;
     friend class Object;

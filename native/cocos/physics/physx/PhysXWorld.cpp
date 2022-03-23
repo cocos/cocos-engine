@@ -276,8 +276,8 @@ bool PhysXWorld::raycast(RaycastOptions &opt) {
     return true;
 }
 
-std::vector<RaycastResult> &PhysXWorld::raycastResult() {
-    static std::vector<RaycastResult> hits;
+ccstd::vector<RaycastResult> &PhysXWorld::raycastResult() {
+    static ccstd::vector<RaycastResult> hits;
     return hits;
 }
 

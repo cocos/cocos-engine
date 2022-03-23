@@ -27,12 +27,12 @@
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include "base/StringUtil.h"
+#include "base/std/container/vector.h"
 namespace cc {
 
 using ShaderInfo      = std::unordered_map<std::string, GzipedString>;
-using ShaderSource    = std::vector<std::vector<ShaderInfo>>;
+using ShaderSource    = ccstd::vector<ccstd::vector<ShaderInfo>>;
 using ShaderSourceMap = std::unordered_map<std::string, const ShaderSource *>;
 
 class ShaderSourceAssembly final {

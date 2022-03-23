@@ -35,6 +35,7 @@
 #include "VKQueue.h"
 #include "VKRenderPass.h"
 #include "VKTexture.h"
+#include "profiler/Profiler.h"
 #include "states/VKGeneralBarrier.h"
 #include "states/VKTextureBarrier.h"
 
@@ -140,9 +141,9 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         framebuffer = _curGPUFBO->swapchain->vkSwapchainFramebufferListMap[_curGPUFBO][_curGPUFBO->swapchain->curImageIndex];
     }
 
-    vector<VkClearValue> &clearValues     = _curGPURenderPass->clearValues;
-    bool                  depthEnabled    = _curGPURenderPass->depthStencilAttachment.format != Format::UNKNOWN;
-    size_t                attachmentCount = depthEnabled ? clearValues.size() - 1 : clearValues.size();
+    ccstd::vector<VkClearValue> &clearValues     = _curGPURenderPass->clearValues;
+    bool                         depthEnabled    = _curGPURenderPass->depthStencilAttachment.format != Format::UNKNOWN;
+    size_t                       attachmentCount = depthEnabled ? clearValues.size() - 1 : clearValues.size();
 
     for (size_t i = 0U; i < attachmentCount; ++i) {
         clearValues[i].color = {{colors[i].x, colors[i].y, colors[i].z, colors[i].w}};
@@ -365,6 +366,7 @@ void CCVKCommandBuffer::nextSubpass() {
 }
 
 void CCVKCommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(CCVKCmdBufDraw);
     if (_firstDirtyDescriptorSet < _curGPUDescriptorSets.size()) {
         bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
     }
@@ -461,6 +463,7 @@ void CCVKCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) 
 }
 
 void CCVKCommandBuffer::updateBuffer(Buffer *buffer, const void *data, uint32_t size) {
+    CC_PROFILE(CCVKCmdBufUpdateBuffer);
     CCVKGPUBuffer *gpuBuffer = static_cast<CCVKBuffer *>(buffer)->gpuBuffer();
     cmdFuncCCVKUpdateBuffer(CCVKDevice::getInstance(), gpuBuffer, data, size, _gpuCommandBuffer);
 }
@@ -556,11 +559,11 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
 }
 
 void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
-    CCVKDevice *           device               = CCVKDevice::getInstance();
-    CCVKGPUDevice *        gpuDevice            = device->gpuDevice();
-    CCVKGPUPipelineLayout *pipelineLayout       = _curGPUPipelineState->gpuPipelineLayout;
-    vector<uint32_t> &     dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
-    uint32_t               descriptorSetCount   = utils::toUint(pipelineLayout->setLayouts.size());
+    CCVKDevice *             device               = CCVKDevice::getInstance();
+    CCVKGPUDevice *          gpuDevice            = device->gpuDevice();
+    CCVKGPUPipelineLayout *  pipelineLayout       = _curGPUPipelineState->gpuPipelineLayout;
+    ccstd::vector<uint32_t> &dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
+    uint32_t                 descriptorSetCount   = utils::toUint(pipelineLayout->setLayouts.size());
     _curDynamicOffsets.resize(pipelineLayout->dynamicOffsetCount);
 
     uint32_t dirtyDescriptorSetCount = descriptorSetCount - _firstDirtyDescriptorSet;

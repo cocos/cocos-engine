@@ -38,6 +38,8 @@ export * from './pass-phase';
 export { RenderPipeline } from './render-pipeline';
 export { RenderFlow } from './render-flow';
 export { RenderStage } from './render-stage';
+export { PipelineSceneData } from './pipeline-scene-data';
+export { GeometryRenderer } from './geometry-renderer';
 
 export { ForwardPipeline } from './forward/forward-pipeline';
 export { ForwardFlow } from './forward/forward-flow';

@@ -35,6 +35,7 @@
 #include "GLES2PipelineState.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Texture.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -255,6 +256,7 @@ void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, u
 }
 
 void GLES2CommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(GLES2CommandBufferDraw);
     if (_isStateInvalid) {
         bindStates();
     }
@@ -384,7 +386,7 @@ void GLES2CommandBuffer::bindStates() {
     cmd->gpuDescriptorSets = _curGPUDescriptorSets;
 
     if (_curGPUPipelineState) {
-        vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
         cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
         for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];

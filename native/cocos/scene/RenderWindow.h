@@ -62,7 +62,7 @@ public:
      */
     void resize(uint32_t width, uint32_t height);
 
-    void extractRenderCameras(std::vector<Camera *> &cameras);
+    void extractRenderCameras(ccstd::vector<Camera *> &cameras);
 
     /**
      * @zh
@@ -114,18 +114,18 @@ public:
      */
     inline gfx::Framebuffer *getFramebuffer() const { return _frameBuffer.get(); }
 
-    inline const std::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
+    inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
 
 private:
-    uint32_t                          _width{1};
-    uint32_t                          _height{1};
-    gfx::Swapchain *                  _swapchain{nullptr};
-    std::string                       _title;
-    IntrusivePtr<gfx::RenderPass>     _renderPass;
-    IntrusivePtr<gfx::Texture>        _depthStencilTexture;
-    IntrusivePtr<gfx::Framebuffer>    _frameBuffer;
-    std::vector<IntrusivePtr<Camera>> _cameras;
-    RefVector<gfx::Texture *>         _colorTextures;
+    uint32_t                            _width{1};
+    uint32_t                            _height{1};
+    gfx::Swapchain *                    _swapchain{nullptr};
+    std::string                         _title;
+    IntrusivePtr<gfx::RenderPass>       _renderPass;
+    IntrusivePtr<gfx::Texture>          _depthStencilTexture;
+    IntrusivePtr<gfx::Framebuffer>      _frameBuffer;
+    ccstd::vector<IntrusivePtr<Camera>> _cameras;
+    RefVector<gfx::Texture *>           _colorTextures;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderWindow);
 };

@@ -29,12 +29,12 @@
 namespace cc {
 IGeometry circle(cc::optional<ICircleOptions> &options) {
     if (!options.has_value()) options = ICircleOptions();
-    const uint32_t     segments = options->segments;
-    std::vector<float> positions(3 * (segments + 1));
+    const uint32_t       segments = options->segments;
+    ccstd::vector<float> positions(3 * (segments + 1));
     positions[0] = 0;
     positions[1] = 0;
     positions[2] = 0;
-    std::vector<uint32_t> indices(1 + segments * 2);
+    ccstd::vector<uint32_t> indices(1 + segments * 2);
     indices[0]       = 0;
     const float step = math::PI * 2 / static_cast<float>(segments);
     for (uint32_t iSegment = 0; iSegment < segments; ++iSegment) {

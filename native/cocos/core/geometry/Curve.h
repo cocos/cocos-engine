@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 namespace cc {
 namespace geometry {
 
@@ -38,13 +37,13 @@ struct Keyframe {
     float outTangent = 0;
 };
 
-float evalOptCurve(float t, const std::vector<float> &coefs);
+float evalOptCurve(float t, const ccstd::vector<float> &coefs);
 
 struct OptimizedKey {
-    float              index;
-    float              time;
-    float              endTime;
-    std::vector<float> coefficient;
+    float                index;
+    float                time;
+    float                endTime;
+    ccstd::vector<float> coefficient;
     OptimizedKey() {
         index   = -1;
         time    = 0;
@@ -66,18 +65,18 @@ private:
     // _curve ! : RealCurve;
 
 public:
-    static std::vector<KeyFrame> defaultKF = [ {
-                                                  time : 0,
-                                                  value : 1,
-                                                  inTangent : 0,
-                                                  outTangent : 0,
-                                              },
-                                               {
-                                                   time : 1,
-                                                   value : 1,
-                                                   inTangent : 0,
-                                                   outTangent : 0,
-                                               } ];
+    static ccstd::vector<KeyFrame> defaultKF = [ {
+                                                    time : 0,
+                                                    value : 1,
+                                                    inTangent : 0,
+                                                    outTangent : 0,
+                                                },
+                                                 {
+                                                     time : 1,
+                                                     value : 1,
+                                                     inTangent : 0,
+                                                     outTangent : 0,
+                                                 } ];
 
     /**
      * For internal usage only.

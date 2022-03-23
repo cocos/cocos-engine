@@ -48,7 +48,7 @@ protected:
     void doResize(uint32_t size, uint32_t count) override;
     void doDestroy() override;
 
-    vector<uint8_t> _buffer;
+    ccstd::vector<uint8_t> _buffer;
 
     uint64_t _lastUpdateFrame{0U};
     uint64_t _totalUpdateTimes{0U};

@@ -40,9 +40,9 @@ public:
     void destroy();
 
     inline const DescriptorSetLayoutBindingList &getBindings() const { return _bindings; }
-    inline const vector<uint32_t> &              getDynamicBindings() const { return _dynamicBindings; }
-    inline const vector<uint32_t> &              getBindingIndices() const { return _bindingIndices; }
-    inline const vector<uint32_t> &              getDescriptorIndices() const { return _descriptorIndices; }
+    inline const ccstd::vector<uint32_t> &       getDynamicBindings() const { return _dynamicBindings; }
+    inline const ccstd::vector<uint32_t> &       getBindingIndices() const { return _bindingIndices; }
+    inline const ccstd::vector<uint32_t> &       getDescriptorIndices() const { return _descriptorIndices; }
     inline uint32_t                              getDescriptorCount() const { return _descriptorCount; }
 
 protected:
@@ -51,9 +51,9 @@ protected:
 
     DescriptorSetLayoutBindingList _bindings;
     uint32_t                       _descriptorCount = 0U;
-    vector<uint32_t>               _bindingIndices;
-    vector<uint32_t>               _descriptorIndices;
-    vector<uint32_t>               _dynamicBindings;
+    ccstd::vector<uint32_t>        _bindingIndices;
+    ccstd::vector<uint32_t>        _descriptorIndices;
+    ccstd::vector<uint32_t>        _dynamicBindings;
 };
 
 } // namespace gfx

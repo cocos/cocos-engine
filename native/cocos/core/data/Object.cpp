@@ -24,15 +24,13 @@
 ****************************************************************************/
 
 #include "core/data/Object.h"
-
-#include <vector>
-
+#include "base/std/container/vector.h"
 #include "core/platform/Debug.h"
 
 namespace cc {
 
 namespace {
-std::vector<CCObject *> objectsToDestroy;
+ccstd::vector<CCObject *> objectsToDestroy;
 }
 
 /* static */

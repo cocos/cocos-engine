@@ -26,7 +26,7 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -35,7 +35,7 @@ namespace cc {
  * @zh 拼接字符串为路径。
  * @example {@link cocos/core/utils/CCPath/join.js}
  */
-std::string join(const std::vector<std::string> &segments);
+std::string join(const ccstd::vector<std::string> &segments);
 
 /**
  * @en Get the ext name of a path including '.', like '.png'.

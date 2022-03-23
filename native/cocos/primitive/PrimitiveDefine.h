@@ -24,13 +24,11 @@
 ****************************************************************************/
 #pragma once
 
-#include <vector>
 #include "cocos/base/Optional.h"
-
-#include "renderer/gfx-base/GFXDef.h"
-
+#include "core/TypedArray.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
+#include "renderer/gfx-base/GFXDef.h"
 
 namespace cc {
 
@@ -58,6 +56,11 @@ struct IGeometryOptions {
     bool includeUV{true};
 };
 
+struct CustomAttribute {
+    gfx::Attribute       attr;
+    ccstd::vector<float> values;
+};
+
 /**
  * @en
  * The definition of the geometry, this struct can build a mesh.
@@ -71,7 +74,7 @@ struct IGeometry {
      * @zh
      * 顶点位置。
      */
-    std::vector<float> positions;
+    ccstd::vector<float> positions;
 
     /**
      * @en
@@ -79,7 +82,7 @@ struct IGeometry {
      * @zh
      * 顶点法线。
      */
-    cc::optional<std::vector<float>> normals;
+    cc::optional<ccstd::vector<float>> normals;
 
     /**
      * @en
@@ -87,7 +90,7 @@ struct IGeometry {
      * @zh
      * 纹理坐标。
      */
-    cc::optional<std::vector<float>> uvs;
+    cc::optional<ccstd::vector<float>> uvs;
 
     /**
      * @en
@@ -95,7 +98,7 @@ struct IGeometry {
      * @zh
      * 顶点切线。
      */
-    cc::optional<std::vector<float>> tangents;
+    cc::optional<ccstd::vector<float>> tangents;
 
     /**
      * @en
@@ -103,7 +106,7 @@ struct IGeometry {
      * @zh
      * 顶点颜色。
      */
-    cc::optional<std::vector<float>> colors;
+    cc::optional<ccstd::vector<float>> colors;
 
     /**
      * @en
@@ -113,12 +116,13 @@ struct IGeometry {
      */
     cc::optional<gfx::AttributeList> attributes;
 
-    struct CustomAttribute {
-        gfx::Attribute     attr;
-        std::vector<float> values;
-    };
-
-    cc::optional<std::vector<CustomAttribute>> customAttributes;
+    /**
+     * @en
+     * Custom attributes
+     * @zh
+     * 定制属性列表。
+     */
+    cc::optional<ccstd::vector<CustomAttribute>> customAttributes;
 
     /**
      * @en
@@ -150,7 +154,116 @@ struct IGeometry {
      * @zh
      * 几何索引，当使用索引绘制时。
      */
-    cc::optional<std::vector<uint32_t>> indices; //cjh uint16_t ?
+    cc::optional<ccstd::vector<uint32_t>> indices; //cjh uint16_t ?
+
+    /**
+     * @en
+     * Topology of the geometry vertices. Default is TRIANGLE_LIST.
+     * @zh
+     * 几何顶点的拓扑图元。默认值是TRIANGLE_LIST。
+     */
+    cc::optional<gfx::PrimitiveMode> primitiveMode;
+
+    /**
+     * @en
+     * whether rays casting from the back face of this geometry could collide with it
+     * @zh
+     * 是否是双面，用于判断来自于几何体背面的射线检测。
+     */
+    cc::optional<bool> doubleSided;
+};
+
+struct DynamicCustomAttribute {
+    gfx::Attribute attr;
+    Float32Array   values;
+};
+
+/**
+ * @en
+ * The definition of the dynamic geometry, this struct can build a dynamic mesh.
+ * @zh
+ * 几何体信息。
+ */
+struct IDynamicGeometry {
+    /**
+     * @en
+     * Vertex positions: 3 float components.
+     * @zh
+     * 顶点位置：3个float分量。
+     */
+    Float32Array positions;
+
+    /**
+     * @en
+     * Vertex normals: 3 float components.
+     * @zh
+     * 顶点法线：3个float分量。
+     */
+    cc::optional<Float32Array> normals;
+
+    /**
+     * @en
+     * Texture coordinates: 2 float components.
+     * @zh
+     * 纹理坐标：2个float分量。
+     */
+    cc::optional<Float32Array> uvs;
+
+    /**
+     * @en
+     * Vertex Tangents: 4 float components.
+     * @zh
+     * 顶点切线：4个float分量。
+     */
+    cc::optional<Float32Array> tangents;
+
+    /**
+     * @en
+     * Vertex colors: 4 float components.
+     * @zh
+     * 顶点颜色：4个float分量。
+     */
+    cc::optional<Float32Array> colors;
+
+    /**
+     * @en
+     * Custom attributes
+     * @zh
+     * 定制属性列表。
+     */
+    cc::optional<ccstd::vector<DynamicCustomAttribute>> customAttributes;
+
+    /**
+     * @en
+     * Min position, it is more efficient to calculate bounding box by user.
+     * @zh
+     * 最小位置。包围盒大小由用户提供，更高效。
+     */
+    cc::optional<Vec3> minPos;
+
+    /**
+     * @en
+     * Max position, it is more efficient to calculate bounding box by user.
+     * @zh
+     * 最大位置。包围盒大小由用户提供，更高效。
+     */
+    cc::optional<Vec3> maxPos;
+
+    /**
+     * @en
+     * 16 bits Geometry indices, if one needs indexed-draw.
+     * @zh
+     * 16位几何索引，当使用索引绘制时。
+     */
+    cc::optional<Uint16Array> indices16;
+
+    /**
+     * @en
+     * 32 bits Geometry indices, if one needs indexed-draw.
+     * @zh
+     * 32位几何索引，当使用索引绘制时。
+     */
+    cc::optional<Uint32Array> indices32;
 
     /**
      * @en

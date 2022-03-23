@@ -27,8 +27,8 @@ THE SOFTWARE.
 
 #include "audio/android/AudioMixerController.h"
 #include "audio/android/AudioMixer.h"
-#include "audio/android/Track.h"
 #include "audio/android/OpenSLHelper.h"
+#include "audio/android/Track.h"
 
 #include <algorithm>
 
@@ -77,19 +77,19 @@ bool AudioMixerController::addTrack(Track *track) {
 }
 
 template <typename T>
-static void removeItemFromVector(std::vector<T> &v, T item) {
+static void removeItemFromVector(ccstd::vector<T> &v, T item) {
     auto iter = std::find(v.begin(), v.end(), item);
     if (iter != v.end()) {
         v.erase(iter);
     }
 }
 
-void AudioMixerController::initTrack(Track *track, std::vector<Track *> &tracksToRemove) {
+void AudioMixerController::initTrack(Track *track, ccstd::vector<Track *> &tracksToRemove) {
     if (track->isInitialized())
         return;
 
     uint32_t channelMask = audio_channel_out_mask_from_count(2);
-    int32_t name = _mixer->getTrackName(channelMask, AUDIO_FORMAT_PCM_16_BIT,
+    int32_t  name        = _mixer->getTrackName(channelMask, AUDIO_FORMAT_PCM_16_BIT,
                                         AUDIO_SESSION_OUTPUT_MIX);
     if (name < 0) {
         // If we could not get the track name, it means that there're MAX_NUM_TRACKS tracks
@@ -124,9 +124,9 @@ void AudioMixerController::initTrack(Track *track, std::vector<Track *> &tracksT
         _mixer->enable(name);
 
         std::lock_guard<std::mutex> lk(track->_volumeDirtyMutex);
-        gain_minifloat_packed_t volume = track->getVolumeLR();
-        float lVolume = float_from_gain(gain_minifloat_unpack_left(volume));
-        float rVolume = float_from_gain(gain_minifloat_unpack_right(volume));
+        gain_minifloat_packed_t     volume  = track->getVolumeLR();
+        float                       lVolume = float_from_gain(gain_minifloat_unpack_left(volume));
+        float                       rVolume = float_from_gain(gain_minifloat_unpack_right(volume));
 
         _mixer->setParameter(name, AudioMixer::VOLUME, AudioMixer::VOLUME0, &lVolume);
         _mixer->setParameter(name, AudioMixer::VOLUME, AudioMixer::VOLUME1, &rVolume);
@@ -142,7 +142,7 @@ void AudioMixerController::mixOneFrame() {
 
     auto mixStart = clockNow();
 
-    std::vector<Track *> tracksToRemove;
+    ccstd::vector<Track *> tracksToRemove;
     tracksToRemove.reserve(_activeTracks.size());
 
     // FOR TESTING BEGIN
@@ -185,9 +185,9 @@ void AudioMixerController::mixOneFrame() {
             std::lock_guard<std::mutex> lk(track->_volumeDirtyMutex);
 
             if (track->isVolumeDirty()) {
-                gain_minifloat_packed_t volume = track->getVolumeLR();
-                float lVolume = float_from_gain(gain_minifloat_unpack_left(volume));
-                float rVolume = float_from_gain(gain_minifloat_unpack_right(volume));
+                gain_minifloat_packed_t volume  = track->getVolumeLR();
+                float                   lVolume = float_from_gain(gain_minifloat_unpack_left(volume));
+                float                   rVolume = float_from_gain(gain_minifloat_unpack_right(volume));
 
                 ALOGV("Track (name: %d)'s volume is dirty, update volume to L: %f, R: %f", name, lVolume, rVolume);
 
@@ -256,7 +256,7 @@ void AudioMixerController::mixOneFrame() {
 
     _activeTracksMutex.unlock();
 
-    auto mixEnd = clockNow();
+    auto  mixEnd      = clockNow();
     float mixInterval = intervalInMS(mixStart, mixEnd);
     ALOGV_IF(mixInterval > 1.0f, "Mix a frame waste: %fms", mixInterval);
 

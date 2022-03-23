@@ -27,7 +27,7 @@
 
 #include <cstdint>
 #include <functional>
-#include <vector>
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -69,7 +69,7 @@ public:
      * @en The underlying array of all pool elements.
      * @zh 实际对象池数组。
      */
-    inline const std::vector<T *> &getData() const { return _data; }
+    inline const ccstd::vector<T *> &getData() const { return _data; }
 
     /**
      * @en Resets the object pool. Only changes the length to 0
@@ -99,8 +99,8 @@ public:
     void removeAt(uint32_t idx);
 
 private:
-    uint32_t         _count{0};
-    std::vector<T *> _data;
+    uint32_t           _count{0};
+    ccstd::vector<T *> _data;
 };
 
 } // namespace cc

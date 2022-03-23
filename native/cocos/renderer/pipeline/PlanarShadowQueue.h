@@ -54,10 +54,10 @@ public:
     void destroy();
 
 private:
-    RenderPipeline *                  _pipeline       = nullptr;
-    RenderInstancedQueue *            _instancedQueue = nullptr;
-    std::vector<const scene::Model *> _castModels;
-    std::vector<const scene::Model *> _pendingModels;
+    RenderPipeline *                    _pipeline       = nullptr;
+    RenderInstancedQueue *              _instancedQueue = nullptr;
+    ccstd::vector<const scene::Model *> _castModels;
+    ccstd::vector<const scene::Model *> _pendingModels;
 };
 } // namespace pipeline
 } // namespace cc

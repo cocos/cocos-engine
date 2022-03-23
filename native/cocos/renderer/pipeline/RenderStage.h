@@ -67,16 +67,16 @@ public:
 protected:
     gfx::Rect _renderArea;
     // Generate quad ia, cannot be updated inside renderpass
-    gfx::InputAssembler * _inputAssembler{nullptr};
-    RenderQueueDescList   _renderQueueDescriptors;
-    vector<RenderQueue *> _renderQueues;
-    RenderPipeline *      _pipeline = nullptr;
-    RenderFlow *          _flow     = nullptr;
-    gfx::Device *         _device   = nullptr;
-    String                _name;
-    uint                  _priority    = 0;
-    uint                  _tag         = 0;
-    gfx::ColorList        _clearColors = {{0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}};
+    gfx::InputAssembler *        _inputAssembler{nullptr};
+    RenderQueueDescList          _renderQueueDescriptors;
+    ccstd::vector<RenderQueue *> _renderQueues;
+    RenderPipeline *             _pipeline = nullptr;
+    RenderFlow *                 _flow     = nullptr;
+    gfx::Device *                _device   = nullptr;
+    String                       _name;
+    uint                         _priority    = 0;
+    uint                         _tag         = 0;
+    gfx::ColorList               _clearColors = {{0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}};
 };
 
 } // namespace pipeline

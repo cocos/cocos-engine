@@ -31,7 +31,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "base/Macros.h"
 #include "platform/FileUtils.h"

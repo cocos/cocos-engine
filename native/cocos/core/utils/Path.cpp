@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "core/utils/Path.h"
-#include "base/StringUtil.h"
 #include <cstring>
+#include "base/StringUtil.h"
 
 namespace cc {
 
@@ -45,7 +45,7 @@ std::string &removeLastSlash(std::string &path) {
 
 } // namespace
 
-std::string join(const std::vector<std::string> &segments) {
+std::string join(const ccstd::vector<std::string> &segments) {
     std::string result;
 
     for (const auto &segment : segments) {

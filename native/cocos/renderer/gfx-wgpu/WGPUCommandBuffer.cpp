@@ -39,6 +39,7 @@
 #include "WGPUSwapchain.h"
 #include "WGPUTexture.h"
 #include "WGPUUtils.h"
+#include "base/std/container/vector.h"
 namespace cc {
 namespace gfx {
 
@@ -107,8 +108,8 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
     Texture *                     dsTexture          = ccFrameBuffer->getDepthStencilTexture();
     CCWGPUSwapchain *             swapchain          = ccFrameBuffer->swapchain();
 
-    WGPURenderPassDescriptor &                 renderPassDesc = _gpuCommandBufferObj->renderPassDescriptor;
-    std::vector<WGPURenderPassColorAttachment> colorAttachments;
+    WGPURenderPassDescriptor &                   renderPassDesc = _gpuCommandBufferObj->renderPassDescriptor;
+    ccstd::vector<WGPURenderPassColorAttachment> colorAttachments;
     if (colorConfigs.empty()) {
         renderPassDesc.nextInChain          = nullptr;
         renderPassDesc.label                = "swapchain";
@@ -137,7 +138,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
         }
     }
 
-    std::vector<WGPURenderPassDepthStencilAttachment> depthStencils;
+    ccstd::vector<WGPURenderPassDepthStencilAttachment> depthStencils;
     if (dsTexture) {
         WGPURenderPassDepthStencilAttachment depthStencil = {
             .view            = static_cast<CCWGPUTexture *>(dsTexture)->gpuTextureObject()->selfView,
@@ -269,14 +270,14 @@ void CCWGPUCommandBuffer::bindStates() {
         return;
     }
 
-    std::set<uint8_t> setInUse;
+    ccstd::set<uint8_t> setInUse;
     for (const auto &descriptorSet : _gpuCommandBufferObj->stateCache.descriptorSets) {
         setInUse.insert(descriptorSet.index);
     }
 
     // printf("ppl binding %p\n", pipelineState);
 
-    // std::vector<void*> wgpuLayouts;
+    // ccstd::vector<void*> wgpuLayouts;
 
     if (pipelineState->getBindPoint() == PipelineBindPoint::GRAPHICS) {
         //bindgroup & descriptorset

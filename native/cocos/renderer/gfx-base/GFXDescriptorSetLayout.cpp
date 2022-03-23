@@ -44,8 +44,8 @@ void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
     _descriptorCount  = 0U;
 
     if (bindingCount) {
-        uint32_t         maxBinding = 0U;
-        vector<uint32_t> flattenedIndices(bindingCount);
+        uint32_t                maxBinding = 0U;
+        ccstd::vector<uint32_t> flattenedIndices(bindingCount);
         for (uint32_t i = 0U; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
             if (binding.binding > maxBinding) maxBinding = binding.binding;

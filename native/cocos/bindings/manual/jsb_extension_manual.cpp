@@ -85,7 +85,7 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State &s) {
             onSuccess(texture);
         } else {
             auto downloader               = new (std::nothrow) cc::network::Downloader();
-            downloader->onDataTaskSuccess = [downloader, url, onSuccess, onError](const cc::network::DownloadTask &task, std::vector<unsigned char> &data) {
+            downloader->onDataTaskSuccess = [downloader, url, onSuccess, onError](const cc::network::DownloadTask &task, ccstd::vector<unsigned char> &data) {
                 Image *    img = new (std::nothrow) Image();
                 Texture2D *tex = nullptr;
                 do {
@@ -165,7 +165,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State &s) {
     };
 
     auto downloader               = new (std::nothrow) cc::network::Downloader();
-    downloader->onDataTaskSuccess = [=](const cc::network::DownloadTask &task, std::vector<unsigned char> &data) {
+    downloader->onDataTaskSuccess = [=](const cc::network::DownloadTask &task, ccstd::vector<unsigned char> &data) {
         bool success = false;
 
         Image *image = new (std::nothrow) Image();

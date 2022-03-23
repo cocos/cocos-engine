@@ -61,14 +61,14 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
         indexCount += radialSegments * cntCap * 3;
     }
 
-    std::vector<uint32_t> indices(indexCount);
-    std::vector<float>    positions(vertCount * 3);
-    std::vector<float>    normals(vertCount * 3);
-    std::vector<float>    uvs(vertCount * 2);
-    const float           maxRadius = std::max(radiusTop, radiusBottom);
-    const Vec3            minPos(-maxRadius, -halfHeight, -maxRadius);
-    const Vec3            maxPos(maxRadius, halfHeight, maxRadius);
-    const float           boundingRadius = sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
+    ccstd::vector<uint32_t> indices(indexCount);
+    ccstd::vector<float>    positions(vertCount * 3);
+    ccstd::vector<float>    normals(vertCount * 3);
+    ccstd::vector<float>    uvs(vertCount * 2);
+    const float             maxRadius = std::max(radiusTop, radiusBottom);
+    const Vec3              minPos(-maxRadius, -halfHeight, -maxRadius);
+    const Vec3              maxPos(maxRadius, halfHeight, maxRadius);
+    const float             boundingRadius = sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
 
     uint32_t index       = 0;
     uint32_t indexOffset = 0;
@@ -77,7 +77,7 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
     // internal functions
     // =======================
     auto generateTorso = [&]() {
-        std::vector<std::vector<uint32_t>> indexArray;
+        ccstd::vector<ccstd::vector<uint32_t>> indexArray;
 
         // this will be used to calculate the normal
         const float r = radiusTop - radiusBottom;
@@ -85,8 +85,8 @@ IGeometry cylinder(float radiusTop, float radiusBottom, float height, const cc::
         const float slope = r * r / height * sign(r);
         // generate positions, normals and uvs
         for (uint32_t y = 0; y <= heightSegments; y++) {
-            std::vector<uint32_t> indexRow;
-            const float           v = static_cast<float>(y) / static_cast<float>(heightSegments);
+            ccstd::vector<uint32_t> indexRow;
+            const float             v = static_cast<float>(y) / static_cast<float>(heightSegments);
 
             // calculate the radius of the current row
             const float radius = v * r + radiusBottom;

@@ -131,7 +131,7 @@ private:
     static void setContext(JSContext *cx);
     static void cleanup();
 
-    static void onTraceCallback(JSTracer* trc, JSObject* obj);
+    static void onTraceCallback(JSTracer *trc, JSObject *obj);
 
     const char *_name;
     Object *    _parent;
@@ -143,11 +143,11 @@ private:
     JSClass    _jsCls;
     JSClassOps _classOps;
 
-    std::vector<JSFunctionSpec> _funcs;
-    std::vector<JSFunctionSpec> _staticFuncs;
-    std::vector<JSPropertySpec> _properties;
-    std::vector<JSPropertySpec> _staticProperties;
-    JSFinalizeOp                _finalizeOp;
+    ccstd::vector<JSFunctionSpec> _funcs;
+    ccstd::vector<JSFunctionSpec> _staticFuncs;
+    ccstd::vector<JSPropertySpec> _properties;
+    ccstd::vector<JSPropertySpec> _staticProperties;
+    JSFinalizeOp                  _finalizeOp;
 
     friend class ScriptEngine;
     friend class Object;

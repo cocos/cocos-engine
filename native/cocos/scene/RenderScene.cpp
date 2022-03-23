@@ -31,8 +31,9 @@
 #include "3d/models/SkinningModel.h"
 #include "base/Log.h"
 #include "core/scene-graph/Node.h"
-#include "renderer/pipeline/RenderPipeline.h"
+#include "profiler/Profiler.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
@@ -62,6 +63,8 @@ void RenderScene::setMainLight(DirectionalLight *dl) {
 }
 
 void RenderScene::update(uint32_t stamp) {
+    CC_PROFILE(RenderSceneUpdate);
+
     if (_mainLight) {
         _mainLight->update();
     }
@@ -77,6 +80,10 @@ void RenderScene::update(uint32_t stamp) {
             model->updateUBOs(stamp);
         }
     }
+
+    CC_PROFILE_OBJECT_UPDATE(Models, _models.size());
+    CC_PROFILE_OBJECT_UPDATE(Cameras, _cameras.size());
+    CC_PROFILE_OBJECT_UPDATE(DrawBatch2D, _batches.size());
 }
 
 void RenderScene::destroy() {

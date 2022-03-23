@@ -3218,3 +3218,11 @@ Graph update has been interrupted since too many transitions(greater than %s) oc
 ### 14100
 
 Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead
+
+### 14200
+
+Can not update a static mesh.
+
+### 14201
+
+The primitiveIndex is out of range.

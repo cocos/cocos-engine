@@ -26,7 +26,6 @@
 #pragma once
 
 #include <tuple>
-#include <vector>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "core/TypedArray.h"
@@ -57,9 +56,9 @@ class Octree;
 class Pass;
 struct IMacroPatch;
 struct InstancedAttributeBlock {
-    Uint8Array                  buffer;
-    std::vector<TypedArray>     views;
-    std::vector<gfx::Attribute> attributes;
+    Uint8Array                    buffer;
+    ccstd::vector<TypedArray>     views;
+    ccstd::vector<gfx::Attribute> attributes;
 };
 
 class Model : public RefCounted {
@@ -78,20 +77,21 @@ public:
     Model();
     ~Model() override;
 
-    void                              initialize();
-    virtual void                      destroy();
-    void                              updateWorldBound();
-    void                              updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
-    void                              updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
-    void                              createBoundingShape(const cc::optional<Vec3> &minPos, const cc::optional<Vec3> &maxPos);
-    virtual void                      initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat);
-    void                              setSubModelMesh(index_t idx, RenderingSubMesh *subMesh) const;
-    virtual void                      setSubModelMaterial(index_t idx, Material *mat);
-    void                              onGlobalPipelineStateChanged() const;
-    void                              onMacroPatchesStateChanged();
-    void                              updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
-    virtual std::vector<IMacroPatch> &getMacroPatches(index_t subModelIndex);
-    virtual void                      updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, Pass *pass);
+    void                                initialize();
+    virtual void                        destroy();
+    void                                updateWorldBound();
+    void                                updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
+    void                                updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
+    void                                createBoundingShape(const cc::optional<Vec3> &minPos, const cc::optional<Vec3> &maxPos);
+    virtual void                        initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat);
+    void                                setSubModelMesh(index_t idx, RenderingSubMesh *subMesh) const;
+    virtual void                        setSubModelMaterial(index_t idx, Material *mat);
+    void                                onGlobalPipelineStateChanged() const;
+    void                                onMacroPatchesStateChanged();
+    void                                onGeometryChanged();
+    void                                updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
+    virtual ccstd::vector<IMacroPatch> &getMacroPatches(index_t subModelIndex);
+    virtual void                        updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass);
 
     virtual void updateTransform(uint32_t stamp);
     virtual void updateUBOs(uint32_t stamp);
@@ -132,35 +132,35 @@ public:
         if (scene) _localDataUpdated = true;
     }
 
-    inline bool                                       isInited() const { return _inited; };
-    inline bool                                       isCastShadow() const { return _castShadow; }
-    inline bool                                       isEnabled() const { return _enabled; }
-    inline bool                                       isInstancingEnabled() const { return _instMatWorldIdx >= 0; };
-    inline int32_t                                    getInstMatWorldIdx() const { return _instMatWorldIdx; }
-    inline const std::vector<gfx::Attribute> &        getInstanceAttributes() const { return _instanceAttributeBlock.attributes; }
-    inline InstancedAttributeBlock *                  getInstancedAttributeBlock() { return &_instanceAttributeBlock; }
-    inline const uint8_t *                            getInstancedBuffer() const { return _instanceAttributeBlock.buffer.buffer()->getData(); }
-    inline uint32_t                                   getInstancedBufferSize() const { return _instanceAttributeBlock.buffer.length(); }
-    inline gfx::Buffer *                              getLocalBuffer() const { return _localBuffer.get(); }
-    inline gfx::Buffer *                              getWorldBoundBuffer() const { return _worldBoundBuffer.get(); }
-    inline Float32Array                               getLocalData() const { return _localData; }
-    inline geometry::AABB *                           getModelBounds() const { return _modelBounds; }
-    inline Node *                                     getNode() const { return _node.get(); }
-    inline bool                                       isReceiveShadow() const { return _receiveShadow; }
-    inline const std::vector<IntrusivePtr<SubModel>> &getSubModels() const { return _subModels; }
-    inline Node *                                     getTransform() const { return _transform.get(); }
-    inline bool                                       isLocalDataUpdated() const { return _localDataUpdated; }
-    inline uint32_t                                   getUpdateStamp() const { return _updateStamp; }
-    inline Layers::Enum                               getVisFlags() const { return _visFlags; }
-    inline geometry::AABB *                           getWorldBounds() const { return _worldBounds; }
-    inline Type                                       getType() const { return _type; };
-    inline void                                       setType(Type type) { _type = type; }
-    inline OctreeNode *                               getOctreeNode() const { return _octreeNode; }
-    inline RenderScene *                              getScene() const { return _scene; }
-    inline void                                       setDynamicBatching(bool val) { _isDynamicBatching = val; }
-    inline bool                                       isDynamicBatching() const { return _isDynamicBatching; }
-    inline float                                      getShadowBias() const { return _shadowBias; }
-    inline float                                      getShadowNormalBias() const { return _shadowNormalBias; }
+    inline bool                                         isInited() const { return _inited; };
+    inline bool                                         isCastShadow() const { return _castShadow; }
+    inline bool                                         isEnabled() const { return _enabled; }
+    inline bool                                         isInstancingEnabled() const { return _instMatWorldIdx >= 0; };
+    inline int32_t                                      getInstMatWorldIdx() const { return _instMatWorldIdx; }
+    inline const ccstd::vector<gfx::Attribute> &        getInstanceAttributes() const { return _instanceAttributeBlock.attributes; }
+    inline InstancedAttributeBlock *                    getInstancedAttributeBlock() { return &_instanceAttributeBlock; }
+    inline const uint8_t *                              getInstancedBuffer() const { return _instanceAttributeBlock.buffer.buffer()->getData(); }
+    inline uint32_t                                     getInstancedBufferSize() const { return _instanceAttributeBlock.buffer.length(); }
+    inline gfx::Buffer *                                getLocalBuffer() const { return _localBuffer.get(); }
+    inline gfx::Buffer *                                getWorldBoundBuffer() const { return _worldBoundBuffer.get(); }
+    inline Float32Array                                 getLocalData() const { return _localData; }
+    inline geometry::AABB *                             getModelBounds() const { return _modelBounds; }
+    inline Node *                                       getNode() const { return _node.get(); }
+    inline bool                                         isReceiveShadow() const { return _receiveShadow; }
+    inline const ccstd::vector<IntrusivePtr<SubModel>> &getSubModels() const { return _subModels; }
+    inline Node *                                       getTransform() const { return _transform.get(); }
+    inline bool                                         isLocalDataUpdated() const { return _localDataUpdated; }
+    inline uint32_t                                     getUpdateStamp() const { return _updateStamp; }
+    inline Layers::Enum                                 getVisFlags() const { return _visFlags; }
+    inline geometry::AABB *                             getWorldBounds() const { return _worldBounds; }
+    inline Type                                         getType() const { return _type; };
+    inline void                                         setType(Type type) { _type = type; }
+    inline OctreeNode *                                 getOctreeNode() const { return _octreeNode; }
+    inline RenderScene *                                getScene() const { return _scene; }
+    inline void                                         setDynamicBatching(bool val) { _isDynamicBatching = val; }
+    inline bool                                         isDynamicBatching() const { return _isDynamicBatching; }
+    inline float                                        getShadowBias() const { return _shadowBias; }
+    inline float                                        getShadowNormalBias() const { return _shadowNormalBias; }
 
     void initLocalDescriptors(index_t subModelIndex);
     void initWorldBoundDescriptors(index_t subModelIndex);
@@ -203,22 +203,22 @@ protected:
     bool _receiveShadow{false};
     bool _isDynamicBatching{false};
 
-    int32_t                             _instMatWorldIdx{-1};
-    Layers::Enum                        _visFlags{Layers::Enum::NONE};
-    uint32_t                            _updateStamp{0};
-    IntrusivePtr<Node>                  _transform;
-    IntrusivePtr<Node>                  _node;
-    Float32Array                        _localData;
-    std::tuple<uint8_t *, uint32_t>     _instancedBuffer{nullptr, 0};
-    IntrusivePtr<gfx::Buffer>           _localBuffer;
-    IntrusivePtr<gfx::Buffer>           _worldBoundBuffer;
-    InstancedAttributeBlock             _instanceAttributeBlock{};
-    std::vector<IntrusivePtr<SubModel>> _subModels;
+    int32_t                               _instMatWorldIdx{-1};
+    Layers::Enum                          _visFlags{Layers::Enum::NONE};
+    uint32_t                              _updateStamp{0};
+    IntrusivePtr<Node>                    _transform;
+    IntrusivePtr<Node>                    _node;
+    Float32Array                          _localData;
+    std::tuple<uint8_t *, uint32_t>       _instancedBuffer{nullptr, 0};
+    IntrusivePtr<gfx::Buffer>             _localBuffer;
+    IntrusivePtr<gfx::Buffer>             _worldBoundBuffer;
+    InstancedAttributeBlock               _instanceAttributeBlock{};
+    ccstd::vector<IntrusivePtr<SubModel>> _subModels;
 
     IntrusivePtr<Texture2D> _lightmap;
     Vec4                    _lightmapUVParam;
 
-    std::vector<IMacroPatch> _macroPatches;
+    ccstd::vector<IMacroPatch> _macroPatches;
 
     // For JS
     CallbacksInvoker _eventProcessor;

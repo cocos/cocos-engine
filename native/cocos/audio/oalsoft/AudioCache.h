@@ -30,7 +30,6 @@
 #include <memory>
 #include <mutex>
 #include <string>
-#include <vector>
 #if defined(OPENAL_PLAIN_INCLUDES)
     #include <al.h>
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
@@ -42,6 +41,7 @@
 #endif
 #include "audio/oalsoft/AudioMacros.h"
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 class AudioEngineImpl;
@@ -91,11 +91,11 @@ protected:
     ALsizei  _queBufferSize[QUEUEBUFFER_NUM];
     uint32_t _queBufferFrames;
 
-    std::mutex                         _playCallbackMutex;
-    std::vector<std::function<void()>> _playCallbacks;
+    std::mutex                           _playCallbackMutex;
+    ccstd::vector<std::function<void()>> _playCallbacks;
 
     // loadCallbacks doesn't need mutex since it's invoked only in Cocos thread.
-    std::vector<std::function<void(bool)>> _loadCallbacks;
+    ccstd::vector<std::function<void(bool)>> _loadCallbacks;
 
     std::mutex _readDataTaskMutex;
 

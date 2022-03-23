@@ -26,8 +26,7 @@
 #pragma once
 
 #include <string>
-#include <vector>
-
+#include "base/std/container/vector.h"
 #include "math/Math.h"
 
 namespace cc {
@@ -40,7 +39,7 @@ namespace macro {
     * 引擎默认支持的图片格式，支持的格式可能在不同的构建平台和设备类型上有所差别。
     * 目前所有平台和设备支持的格式有 ['.webp', '.jpg', '.jpeg', '.bmp', '.png']. The iOS mobile platform also supports the PVR format。
     */
-extern const std::vector<std::string> SUPPORT_TEXTURE_FORMATS;
+extern const ccstd::vector<std::string> SUPPORT_TEXTURE_FORMATS;
 /**
     * @en Key map for keyboard event
     * @zh 键盘事件的按键值。
@@ -221,7 +220,7 @@ enum class KEY {
     * @readonly
     * DELETE may be used as platform's macro, such as winnt.h,thus use DELETE_ instead here.
     */
-    DELETE_ = 46,// NOLINT(readability-identifier-naming) 
+    DELETE_ = 46, // NOLINT(readability-identifier-naming)
 
     /**
     * @en The a key

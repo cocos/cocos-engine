@@ -273,9 +273,9 @@ void WebSocketServer::listenAsync(std::shared_ptr<WebSocketServer> &server, int 
     }).detach();
 }
 
-std::vector<std::shared_ptr<WebSocketServerConnection>> WebSocketServer::getConnections() const {
-    std::lock_guard<std::mutex>                             guard(_connsMtx);
-    std::vector<std::shared_ptr<WebSocketServerConnection>> ret;
+ccstd::vector<std::shared_ptr<WebSocketServerConnection>> WebSocketServer::getConnections() const {
+    std::lock_guard<std::mutex>                               guard(_connsMtx);
+    ccstd::vector<std::shared_ptr<WebSocketServerConnection>> ret;
     for (auto itr : _conns) {
         ret.emplace_back(itr.second);
     }
@@ -472,7 +472,7 @@ int WebSocketServerConnection::onDrainData() {
     int            finish_len = 0;
     int            flags      = 0;
 
-    std::vector<char> buff(SEND_BUFF + LWS_PRE);
+    ccstd::vector<char> buff(SEND_BUFF + LWS_PRE);
 
     if (!_sendQueue.empty()) {
         std::shared_ptr<DataFrame> frag = _sendQueue.front();
@@ -525,9 +525,9 @@ void WebSocketServerConnection::onHTTP() {
 
     _headers.clear();
 
-    int               n = 0, len;
-    std::vector<char> buf(256);
-    const char *      c;
+    int                 n = 0, len;
+    ccstd::vector<char> buf(256);
+    const char *        c;
     do {
         lws_token_indexes idx = static_cast<lws_token_indexes>(n);
         c                     = (const char *)lws_token_to_string(idx);
@@ -570,8 +570,8 @@ void WebSocketServerConnection::onDestroyClient() {
     }
 }
 
-std::vector<std::string> WebSocketServerConnection::getProtocols() {
-    std::vector<std::string> ret;
+ccstd::vector<std::string> WebSocketServerConnection::getProtocols() {
+    ccstd::vector<std::string> ret;
     if (_wsi) {
         //TODO cause abort
         //const struct lws_protocols* protos = lws_get_protocol(_wsi);
@@ -584,7 +584,7 @@ std::vector<std::string> WebSocketServerConnection::getProtocols() {
     return ret;
 }
 
-std::map<std::string, std::string> WebSocketServerConnection::getHeaders() {
+ccstd::map<std::string, std::string> WebSocketServerConnection::getHeaders() {
     if (!_wsi) return {};
     return _headers;
 }

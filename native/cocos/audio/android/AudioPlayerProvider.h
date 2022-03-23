@@ -107,8 +107,8 @@ private:
         bool            isPreloadInPlay2d;
     };
 
-    std::unordered_map<std::string, std::vector<PreloadCallbackParam>> _preloadCallbackMap;
-    std::mutex                                                         _preloadCallbackMutex;
+    std::unordered_map<std::string, ccstd::vector<PreloadCallbackParam>> _preloadCallbackMap;
+    std::mutex                                                           _preloadCallbackMutex;
 
     std::mutex              _preloadWaitMutex;
     std::condition_variable _preloadWaitCond;

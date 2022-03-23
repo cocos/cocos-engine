@@ -28,11 +28,10 @@
 #include <string>
 #include <type_traits>
 #include <unordered_map>
-#include <vector>
-
 #include "base/Data.h"
 #include "base/Macros.h"
 #include "base/Value.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -67,9 +66,9 @@ public:
     }
 };
 
-template <typename T, typename Allocator>
-class ResizableBufferAdapter<std::vector<T, Allocator>> : public ResizableBuffer {
-    using BufferType = std::vector<T, Allocator>;
+template <typename T>
+class ResizableBufferAdapter<ccstd::vector<T>> : public ResizableBuffer {
+    using BufferType = ccstd::vector<T>;
     BufferType *_buffer;
 
 public:
@@ -174,20 +173,20 @@ public:
      *      - read file in binary mode (does not convert CRLF to LF).
      *      - does not truncate the string when '\0' is found (returned string of getContents may have '\0' in the middle.).
      *
-     *  The template version of can accept cc::Data, std::basic_string and std::vector.
+     *  The template version of can accept cc::Data, std::basic_string and ccstd::vector.
      *
      *  @code
      *  std::string sbuf;
      *  FileUtils::getInstance()->getContents("path/to/file", &sbuf);
      *
-     *  std::vector<int> vbuf;
+     *  ccstd::vector<int> vbuf;
      *  FileUtils::getInstance()->getContents("path/to/file", &vbuf);
      *
      *  Data dbuf;
      *  FileUtils::getInstance()->getContents("path/to/file", &dbuf);
      *  @endcode
      *
-     *  Note: if you read to std::vector<T> and std::basic_string<T> where T is not 8 bit type,
+     *  Note: if you read to ccstd::vector<T> and std::basic_string<T> where T is not 8 bit type,
      *  you may get 0 ~ sizeof(T)-1 bytes padding.
      *
      *  - To write a new buffer class works with getContents, just extend ResizableBuffer.
@@ -319,7 +318,7 @@ public:
      *  In js:var setSearchPaths(var jsval);
      *  @lua NA
      */
-    virtual void setSearchPaths(const std::vector<std::string> &searchPaths);
+    virtual void setSearchPaths(const ccstd::vector<std::string> &searchPaths);
 
     /**
      * Get default resource root path.
@@ -348,13 +347,13 @@ public:
      *  @see fullPathForFilename(const char*).
      *  @lua NA
      */
-    virtual const std::vector<std::string> &getSearchPaths() const;
+    virtual const ccstd::vector<std::string> &getSearchPaths() const;
 
     /**
      *  Gets the original search path array set by 'setSearchPaths' or 'addSearchPath'.
      *  @return The array of the original search paths
      */
-    virtual const std::vector<std::string> &getOriginalSearchPaths() const;
+    virtual const ccstd::vector<std::string> &getOriginalSearchPaths() const;
 
     /**
      *  Gets the writable path.
@@ -480,7 +479,7 @@ public:
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return File paths in a string vector
      */
-    virtual std::vector<std::string> listFiles(const std::string &dirPath) const;
+    virtual ccstd::vector<std::string> listFiles(const std::string &dirPath) const;
 
     /**
      *  List all files recursively in a directory.
@@ -488,7 +487,7 @@ public:
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return File paths in a string vector
      */
-    virtual void listFilesRecursively(const std::string &dirPath, std::vector<std::string> *files) const;
+    virtual void listFilesRecursively(const std::string &dirPath, ccstd::vector<std::string> *files) const;
 
     /**
      *  Creates a directory.
@@ -603,12 +602,12 @@ protected:
      * The vector contains search paths.
      * The lower index of the element in this vector, the higher priority for this search path.
      */
-    std::vector<std::string> _searchPathArray;
+    ccstd::vector<std::string> _searchPathArray;
 
     /**
      * The search paths which was set by 'setSearchPaths' / 'addSearchPath'.
      */
-    std::vector<std::string> _originalSearchPaths;
+    ccstd::vector<std::string> _originalSearchPaths;
 
     /**
      *  The default root path of resources.

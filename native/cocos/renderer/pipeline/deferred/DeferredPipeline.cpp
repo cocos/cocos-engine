@@ -40,6 +40,7 @@
 #include "gfx-base/GFXSwapchain.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
 #include "pipeline/ClusterLightCulling.h"
+#include "profiler/Profiler.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {
@@ -102,7 +103,8 @@ bool DeferredPipeline::activate(gfx::Swapchain *swapchain) {
     return true;
 }
 
-void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
+void DeferredPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
+    CC_PROFILE(DeferredPipelineRender);
     auto *device               = gfx::Device::getInstance();
     bool  enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {

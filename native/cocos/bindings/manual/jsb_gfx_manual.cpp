@@ -95,7 +95,7 @@ bool js_gfx_Device_copyTextureToBuffers(se::State &s) { // NOLINT(readability-id
     CC_UNUSED bool ok   = true;
     if (argc == 3) {
         cc::gfx::Texture *             arg0 = nullptr;
-        cc::vector<uint8_t *>          arg1;
+        ccstd::vector<uint8_t *>       arg1;
         cc::gfx::BufferTextureCopyList arg2;
         if (args[1].isObject()) {
             se::Object *dataObj = args[1].toObject();

@@ -33,7 +33,6 @@
 
 #include <functional>
 #include <string>
-#include <vector>
 
 /**
  * @addtogroup network
@@ -239,16 +238,16 @@ public:
      *
      * @param pHeaders the string vector of custom-defined headers.
      */
-    inline void setHeaders(const std::vector<std::string> &headers) {
+    inline void setHeaders(const ccstd::vector<std::string> &headers) {
         _headers = headers;
     }
 
     /**
      * Get custom headers.
      *
-     * @return std::vector<std::string> the string vector of custom-defined headers.
+     * @return ccstd::vector<std::string> the string vector of custom-defined headers.
      */
-    inline std::vector<std::string> getHeaders() const {
+    inline ccstd::vector<std::string> getHeaders() const {
         return _headers;
     }
 
@@ -262,14 +261,14 @@ public:
 
 protected:
     // properties
-    Type                     _requestType{Type::UNKNOWN}; /// kHttpRequestGet, kHttpRequestPost or other enums
-    std::string              _url;                        /// target url that this request is sent to
-    std::vector<char>        _requestData;                /// used for POST
-    std::string              _tag;                        /// user defined tag, to identify different requests in response callback
-    ccHttpRequestCallback    _callback;                   /// C++11 style callbacks
-    void *                   _userData{nullptr};          /// You can add your customed data here
-    std::vector<std::string> _headers;                    /// custom http headers
-    float                    _timeoutInSeconds{10.F};
+    Type                       _requestType{Type::UNKNOWN}; /// kHttpRequestGet, kHttpRequestPost or other enums
+    std::string                _url;                        /// target url that this request is sent to
+    ccstd::vector<char>        _requestData;                /// used for POST
+    std::string                _tag;                        /// user defined tag, to identify different requests in response callback
+    ccHttpRequestCallback      _callback;                   /// C++11 style callbacks
+    void *                     _userData{nullptr};          /// You can add your customed data here
+    ccstd::vector<std::string> _headers;                    /// custom http headers
+    float                      _timeoutInSeconds{10.F};
 };
 
 } // namespace network

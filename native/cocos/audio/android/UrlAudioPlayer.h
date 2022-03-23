@@ -25,13 +25,12 @@ THE SOFTWARE.
 
 #pragma once
 
+#include <memory>
+#include <mutex>
+#include <thread>
+#include "audio/android/AssetFd.h"
 #include "audio/android/IAudioPlayer.h"
 #include "audio/android/OpenSLHelper.h"
-#include "audio/android/AssetFd.h"
-#include <mutex>
-#include <vector>
-#include <memory>
-#include <thread>
 
 namespace cc {
 
@@ -96,29 +95,29 @@ private:
     void setVolumeToSLPlayer(float volume);
 
 private:
-    SLEngineItf _engineItf;
-    SLObjectItf _outputMixObj;
+    SLEngineItf         _engineItf;
+    SLObjectItf         _outputMixObj;
     ICallerThreadUtils *_callerThreadUtils;
 
-    int _id;
+    int         _id;
     std::string _url;
 
     std::shared_ptr<AssetFd> _assetFd;
 
     SLObjectItf _playObj;
-    SLPlayItf _playItf;
-    SLSeekItf _seekItf;
+    SLPlayItf   _playItf;
+    SLSeekItf   _seekItf;
     SLVolumeItf _volumeItf;
 
     float _volume;
     float _duration;
-    bool _isLoop;
-    bool _isAudioFocus;
+    bool  _isLoop;
+    bool  _isAudioFocus;
     State _state;
 
     PlayEventCallback _playEventCallback;
 
-    std::thread::id _callerThreadId;
+    std::thread::id       _callerThreadId;
     std::shared_ptr<bool> _isDestroyed;
 
     friend class SLUrlAudioPlayerCallbackProxy;

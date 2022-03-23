@@ -132,7 +132,7 @@ void Object::cleanup() {
     NativePtrToObjectMap::clear();
 
     if (__objectMap) {
-        std::vector<Object *> toReleaseObjects;
+        ccstd::vector<Object *> toReleaseObjects;
         for (const auto &e : *__objectMap) {
             obj = e.first;
             cls = obj->_getClass();
@@ -201,12 +201,11 @@ Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
 }
 
 /* static */
-Object *Object::createExternalArrayBufferObject(void* contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void* freeUserData/* = nullptr*/) {
+Object *Object::createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData /* = nullptr*/) {
     std::shared_ptr<v8::BackingStore> backingStore = v8::ArrayBuffer::NewBackingStore(contents, byteLength, freeFunc, freeUserData);
-    Object* obj = nullptr;
-    v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, backingStore);
-    if (!jsobj.IsEmpty())
-    {
+    Object *                          obj          = nullptr;
+    v8::Local<v8::ArrayBuffer>        jsobj        = v8::ArrayBuffer::New(__isolate, backingStore);
+    if (!jsobj.IsEmpty()) {
         obj = Object::_createJSObject(nullptr, jsobj);
     }
     return obj;
@@ -616,11 +615,11 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     size_t argc = args.size();
 
     std::array<v8::Local<v8::Value>, JSB_FUNC_DEFAULT_MAX_ARG_COUNT> argv;
-    std::unique_ptr<std::vector<v8::Local<v8::Value>>>               vecArgs;
+    std::unique_ptr<ccstd::vector<v8::Local<v8::Value>>>             vecArgs;
     v8::Local<v8::Value> *                                           pArgv = argv.data();
 
     if (argc > JSB_FUNC_DEFAULT_MAX_ARG_COUNT) {
-        vecArgs = std::make_unique<std::vector<v8::Local<v8::Value>>>();
+        vecArgs = std::make_unique<ccstd::vector<v8::Local<v8::Value>>>();
         vecArgs->resize(argc);
         pArgv = vecArgs->data();
     }
@@ -748,7 +747,7 @@ bool Object::setArrayElement(uint32_t index, const Value &data) {
     return ret.IsJust() && ret.FromJust();
 }
 
-bool Object::getAllKeys(std::vector<std::string> *allKeys) const {
+bool Object::getAllKeys(ccstd::vector<std::string> *allKeys) const {
     assert(allKeys != nullptr);
     auto *                    thiz    = const_cast<Object *>(this);
     v8::Local<v8::Context>    context = __isolate->GetCurrentContext();
@@ -878,7 +877,7 @@ std::string Object::toStringExt() const {
     if (isArrayBuffer()) return "[arraybuffer]";
     if (isTypedArray()) return "[typedarray]";
 
-    std::vector<std::string> keys;
+    ccstd::vector<std::string> keys;
     getAllKeys(&keys);
     std::stringstream ss;
     ss << "{";

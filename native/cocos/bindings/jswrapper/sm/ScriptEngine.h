@@ -87,7 +87,7 @@ public:
      *  @note This method just add a callback to a vector, callbacks is invoked in `start` method.
      */
     void addPermanentRegisterCallback(RegisterCallback cb);
-    
+
     /**
          *  @brief Starts the script engine.
          *  @return true if succeed, otherwise false.
@@ -152,7 +152,10 @@ public:
      *  @param[in] pathBc The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
      *  @return true if succeed, otherwise false.
      */
-    bool saveByteCodeToFile(const std::string &path, const std::string &pathBc) { assert(false); return false; } //cjh
+    bool saveByteCodeToFile(const std::string &path, const std::string &pathBc) {
+        assert(false);
+        return false;
+    } //cjh
 
     /**
      * @brief Grab a snapshot of the current JavaScript execution stack.
@@ -231,7 +234,7 @@ public:
     /**
      * @brief Throw JS exception
      */
-    void throwException(const std::string &errorMessage) { assert(false); } //cjh 
+    void throwException(const std::string &errorMessage) { assert(false); } //cjh
 
     /**
          *  @brief Clears all exceptions.
@@ -291,7 +294,6 @@ public:
      * @brief Handle all exceptions throwed by promise
      */
     void handlePromiseExceptions();
-    
 
     // Private API used in wrapper
     JSContext *_getContext() { return _cx; }
@@ -302,13 +304,13 @@ private:
     ScriptEngine();
     ~ScriptEngine();
 
-    static void onWeakPointerCompartmentCallback(JSTracer* trc, JS::Compartment *comp, void *data);
+    static void onWeakPointerCompartmentCallback(JSTracer *trc, JS::Compartment *comp, void *data);
     static void onWeakPointerZoneGroupCallback(JSTracer *trc, void *data);
 
     bool getScript(const std::string &path, JS::MutableHandleScript script);
     bool compileScript(const std::string &path, JS::MutableHandleScript script);
 
-    JSContext *    _cx;
+    JSContext *_cx;
     JS::Realm *_oldCompartment;
 
     Object *_globalObj;
@@ -316,15 +318,15 @@ private:
 
     FileOperationDelegate _fileOperationDelegate;
 
-    std::vector<RegisterCallback>         _registerCallbackArray;
-    std::vector<RegisterCallback>         _permRegisterCallbackArray;
+    ccstd::vector<RegisterCallback>       _registerCallbackArray;
+    ccstd::vector<RegisterCallback>       _permRegisterCallbackArray;
     std::chrono::steady_clock::time_point _startTime;
 
-    std::vector<std::function<void()>> _beforeInitHookArray;
-    std::vector<std::function<void()>> _afterInitHookArray;
+    ccstd::vector<std::function<void()>> _beforeInitHookArray;
+    ccstd::vector<std::function<void()>> _afterInitHookArray;
 
-    std::vector<std::function<void()>> _beforeCleanupHookArray;
-    std::vector<std::function<void()>> _afterCleanupHookArray;
+    ccstd::vector<std::function<void()>> _beforeCleanupHookArray;
+    ccstd::vector<std::function<void()>> _afterCleanupHookArray;
 
     ExceptionCallback _exceptionCallback;
     // name ~> JSScript map

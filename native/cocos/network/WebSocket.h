@@ -29,11 +29,11 @@
 
 #include "base/Macros.h"
 #include "base/RefCounted.h"
+#include "base/std/container/vector.h"
 #include "platform/StdC.h"
 
 #include <algorithm>
 #include <string>
-#include <vector>
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
         #define OBJC_CLASS(name) @class name
@@ -166,10 +166,10 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate &                delegate,
-              const std::string &             url,
-              const std::vector<std::string> *protocols  = nullptr,
-              const std::string &             caFilePath = "");
+    bool init(const Delegate &                  delegate,
+              const std::string &               url,
+              const ccstd::vector<std::string> *protocols  = nullptr,
+              const std::string &               caFilePath = "");
 
     /**
      *  @brief Sends string data to websocket server.

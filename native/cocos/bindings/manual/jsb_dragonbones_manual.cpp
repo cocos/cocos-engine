@@ -436,7 +436,7 @@ bool register_all_dragonbones_manual(se::Object *obj) {
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject *obj, int type) {
         //std::string typeName = typeid(*obj).name();
 
-        se::Object* seObj = nullptr;
+        se::Object *seObj = nullptr;
 
         auto iter = se::NativePtrToObjectMap::find(obj);
         if (iter != se::NativePtrToObjectMap::end()) {
@@ -494,7 +494,7 @@ bool register_all_dragonbones_manual(se::Object *obj) {
         factory->stopSchedule();
 
         // Copy the dragonbones object vector since vector element will be deleted in BaseObject destructor.
-        std::vector<dragonBones::BaseObject *> allDragonBonesObjects = dragonBones::BaseObject::getAllObjects();
+        ccstd::vector<dragonBones::BaseObject *> allDragonBonesObjects = dragonBones::BaseObject::getAllObjects();
         CC_LOG_INFO("Starting to cleanup dragonbones object, count: %d\n", (int)allDragonBonesObjects.size());
         for (auto dbObj : allDragonBonesObjects) {
             if (!dbObj->isInPool()) {

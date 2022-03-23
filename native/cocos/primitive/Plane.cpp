@@ -39,12 +39,12 @@ IGeometry plane(cc::optional<IPlaneOptions> options) {
     const float hw = width * 0.5F;
     const float hl = length * 0.5F;
 
-    std::vector<float>    positions;
-    std::vector<float>    uvs;
-    std::vector<uint32_t> indices;
-    const Vec3            minPos(-hw, 0, -hl);
-    const Vec3            maxPos(hw, 0, hl);
-    const float           boundingRadius = sqrt(width * width + length * length);
+    ccstd::vector<float>    positions;
+    ccstd::vector<float>    uvs;
+    ccstd::vector<uint32_t> indices;
+    const Vec3              minPos(-hw, 0, -hl);
+    const Vec3              maxPos(hw, 0, hl);
+    const float             boundingRadius = sqrt(width * width + length * length);
 
     Vec3 c00(-hw, 0, hl);
     Vec3 c10(hw, 0, hl);
@@ -93,8 +93,8 @@ IGeometry plane(cc::optional<IPlaneOptions> options) {
     result.indices        = indices;
 
     if (options->includeNormal) {
-        const uint32_t     nVertex = (vSegments + 1) * (uSegments + 1);
-        std::vector<float> normals(3 * nVertex);
+        const uint32_t       nVertex = (vSegments + 1) * (uSegments + 1);
+        ccstd::vector<float> normals(3 * nVertex);
         for (uint32_t i = 0; i < nVertex; ++i) {
             normals[i * 3 + 0] = 0;
             normals[i * 3 + 1] = 1;

@@ -42,6 +42,7 @@
 #include "frame-graph/Handle.h"
 #include "gfx-base/GFXDevice.h"
 #include "pipeline/Define.h"
+#include "profiler/Profiler.h"
 #include "scene/RenderScene.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
@@ -389,7 +390,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         // no need to bind localSet in cluster
         if (!_pipeline->isClusterEnabled()) {
-            vector<uint> dynamicOffsets = {0};
+            ccstd::vector<uint> dynamicOffsets = {0};
             cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
         }
 
@@ -499,7 +500,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
 
         // no need to bind localSet in cluster
         if (!_pipeline->isClusterEnabled()) {
-            vector<uint> dynamicOffsets = {0};
+            ccstd::vector<uint> dynamicOffsets = {0};
             cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
         }
 
@@ -513,7 +514,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         }
 
         _planarShadowQueue->recordCommandBuffer(_device, table.getRenderPass(), cmdBuff);
-        _pipeline->getGeometryRenderer()->render(table.getRenderPass(), cmdBuff);
+        camera->getGeometryRenderer()->render(table.getRenderPass(), cmdBuff, pipeline->getPipelineSceneData());
     };
 
     if (!_isTransparentQueueEmpty) {
@@ -854,6 +855,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
 }
 
 void LightingStage::render(scene::Camera *camera) {
+    CC_PROFILE(LightingStageRender);
     auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
     pipeline->getPipelineUBO()->updateShadowUBO(camera);
     putTransparentObj2Queue();

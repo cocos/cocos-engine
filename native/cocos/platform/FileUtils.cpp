@@ -40,9 +40,9 @@
 #include <sys/stat.h>
 #include <regex>
 
-#include "base/memory/Memory.h"
 #include "base/Data.h"
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 #include "platform/SAXParser.h"
 
 #include "tinydir/tinydir.h"
@@ -678,11 +678,11 @@ std::string FileUtils::fullPathFromRelativeFile(const std::string &filename, con
     return relativeFile.substr(0, relativeFile.rfind('/') + 1) + filename;
 }
 
-const std::vector<std::string> &FileUtils::getSearchPaths() const {
+const ccstd::vector<std::string> &FileUtils::getSearchPaths() const {
     return _searchPathArray;
 }
 
-const std::vector<std::string> &FileUtils::getOriginalSearchPaths() const {
+const ccstd::vector<std::string> &FileUtils::getOriginalSearchPaths() const {
     return _originalSearchPaths;
 }
 
@@ -707,7 +707,7 @@ void FileUtils::setDefaultResourceRootPath(const std::string &path) {
     }
 }
 
-void FileUtils::setSearchPaths(const std::vector<std::string> &searchPaths) {
+void FileUtils::setSearchPaths(const ccstd::vector<std::string> &searchPaths) {
     bool existDefaultRootPath = false;
     _originalSearchPaths      = searchPaths;
 
@@ -809,9 +809,9 @@ bool FileUtils::isDirectoryExist(const std::string &dirPath) const {
     return false;
 }
 
-std::vector<std::string> FileUtils::listFiles(const std::string &dirPath) const {
-    std::string              fullpath = fullPathForFilename(dirPath);
-    std::vector<std::string> files;
+ccstd::vector<std::string> FileUtils::listFiles(const std::string &dirPath) const {
+    std::string                fullpath = fullPathForFilename(dirPath);
+    ccstd::vector<std::string> files;
     if (isDirectoryExist(fullpath)) {
         tinydir_dir dir;
 #ifdef UNICODE
@@ -859,7 +859,7 @@ std::vector<std::string> FileUtils::listFiles(const std::string &dirPath) const 
     return files;
 }
 
-void FileUtils::listFilesRecursively(const std::string &dirPath, std::vector<std::string> *files) const { // NOLINT(misc-no-recursion)
+void FileUtils::listFilesRecursively(const std::string &dirPath, ccstd::vector<std::string> *files) const { // NOLINT(misc-no-recursion)
     std::string fullpath = fullPathForFilename(dirPath);
     if (!fullpath.empty() && isDirectoryExist(fullpath)) {
         tinydir_dir dir;
@@ -981,10 +981,10 @@ bool FileUtils::createDirectory(const std::string &path) {
     }
 
     // Split the path
-    size_t                   start = 0;
-    size_t                   found = path.find_first_of("/\\", start);
-    std::string              subpath;
-    std::vector<std::string> dirs;
+    size_t                     start = 0;
+    size_t                     found = path.find_first_of("/\\", start);
+    std::string                subpath;
+    ccstd::vector<std::string> dirs;
 
     if (found != std::string::npos) {
         while (true) {

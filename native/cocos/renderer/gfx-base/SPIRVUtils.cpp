@@ -137,9 +137,9 @@ void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const String &source) {
 }
 
 void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
-    static std::vector<Id>  ids;
-    static vector<uint32_t> activeLocations;
-    static vector<uint32_t> newLocations;
+    static ccstd::vector<Id>       ids;
+    static ccstd::vector<uint32_t> activeLocations;
+    static ccstd::vector<uint32_t> newLocations;
 
     uint32_t *code     = _output.data();
     uint32_t  codeSize = utils::toUint(_output.size());

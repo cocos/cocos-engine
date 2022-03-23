@@ -59,7 +59,7 @@ private:
 
     std::unique_ptr<glslang::TShader>  _shader{nullptr};
     std::unique_ptr<glslang::TProgram> _program{nullptr};
-    vector<uint32_t>                   _output;
+    ccstd::vector<uint32_t>            _output;
 
     static SPIRVUtils instance;
 };

@@ -144,9 +144,9 @@ std::string CallStack::basename(const std::string &path) {
     }
 }
 
-std::vector<void *> CallStack::backtrace() {
+ccstd::vector<void *> CallStack::backtrace() {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    std::vector<void *> callstack;
+    ccstd::vector<void *> callstack;
     callstack.reserve(MAX_STACK_FRAMES);
 
     pthread_once(&s_once, init_once);
@@ -158,7 +158,7 @@ std::vector<void *> CallStack::backtrace() {
     return callstack;
 
     #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    std::vector<void *> callstack;
+    ccstd::vector<void *> callstack;
     callstack.reserve(MAX_STACK_FRAMES);
 
     void *array[MAX_STACK_FRAMES];
@@ -169,7 +169,7 @@ std::vector<void *> CallStack::backtrace() {
     return callstack;
 
     #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
-    std::vector<void *> callstack;
+    ccstd::vector<void *> callstack;
     callstack.reserve(MAX_STACK_FRAMES);
 
     void *array[MAX_STACK_FRAMES];
@@ -184,10 +184,10 @@ std::vector<void *> CallStack::backtrace() {
     #endif
 }
 
-std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void *> &callstack) {
+ccstd::vector<StackFrame> CallStack::backtraceSymbols(const ccstd::vector<void *> &callstack) {
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    std::vector<StackFrame> frames;
-    size_t                  size = callstack.size();
+    ccstd::vector<StackFrame> frames;
+    size_t                    size = callstack.size();
     for (size_t i = 0; i < size; i++) {
         Dl_info    info;
         StackFrame frame;
@@ -217,8 +217,8 @@ std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void *> &c
         return {};
     }
 
-    std::vector<StackFrame> frames;
-    char **                 strs = ::backtrace_symbols(&callstack[0], size);
+    ccstd::vector<StackFrame> frames;
+    char **                   strs = ::backtrace_symbols(&callstack[0], size);
     for (size_t i = 0; i < size; i++) {
         StackFrame frame;
         frame.file = strs[i];
@@ -228,7 +228,7 @@ std::vector<StackFrame> CallStack::backtraceSymbols(const std::vector<void *> &c
     return frames;
 
     #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
-    std::vector<StackFrame> frames;
+    ccstd::vector<StackFrame> frames;
 
         #if _WIN64
     using PTR_DWORD = DWORD64;

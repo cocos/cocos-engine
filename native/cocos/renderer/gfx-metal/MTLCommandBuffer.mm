@@ -42,6 +42,7 @@
 #import "MTLSwapchain.h"
 #import "MTLTexture.h"
 #import "TargetConditionals.h"
+#import "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -199,7 +200,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         }
     } else {
         // TODO: cache state.
-        vector<bool> visited(colorAttachments.size(), false);
+        ccstd::vector<bool> visited(colorAttachments.size(), false);
         for (size_t i = 0; i < subpasses.size(); ++i) {
             for (size_t j = 0; j < subpasses[i].inputs.size(); ++j) {
                 uint32_t input = subpasses[i].inputs[j];
@@ -526,6 +527,7 @@ void CCMTLCommandBuffer::nextSubpass() {
 }
 
 void CCMTLCommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(CCMTLCommandBufferDraw);
     if (_firstDirtyDescriptorSet < _GPUDescriptorSets.size()) {
         bindDescriptorSets();
     }
@@ -579,11 +581,11 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
                 } else {
                     if (drawInfo.instanceCount == 0) {
                         [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                       vertexStart:drawInfo.firstIndex
+                                       vertexStart:drawInfo.firstVertex
                                        vertexCount:drawInfo.vertexCount];
                     } else {
                         [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                       vertexStart:drawInfo.firstIndex
+                                       vertexStart:drawInfo.firstVertex
                                        vertexCount:drawInfo.vertexCount
                                      instanceCount:drawInfo.instanceCount];
                     }
@@ -611,11 +613,11 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
         } else if (info.vertexCount) {
             if (info.instanceCount == 0) {
                 [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                               vertexStart:info.firstIndex
+                               vertexStart:info.firstVertex
                                vertexCount:info.vertexCount];
             } else {
                 [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                               vertexStart:info.firstIndex
+                               vertexStart:info.firstVertex
                                vertexCount:info.vertexCount
                              instanceCount:info.instanceCount];
             }
@@ -639,6 +641,7 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
 }
 
 void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
+    CC_PROFILE(CCMTLCmdBufUpdateBuffer);
     if (!buff) {
         CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: buffer is nullptr.");
         return;
@@ -664,8 +667,8 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     }
 
     uint                            totalSize = 0;
-    vector<uint>                    bufferSize(count);
-    vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
+    ccstd::vector<uint>                    bufferSize(count);
+    ccstd::vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
     auto                            format          = texture->getFormat();
     auto *                          mtlTexture      = static_cast<CCMTLTexture *>(texture);
     auto                            convertedFormat = mtlTexture->getConvertedFormat();
@@ -930,7 +933,7 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
     } else {
         id<MTLCommandBuffer> mtlCommandBuffer = getMTLCommandBuffer();
 
-        std::vector<std::pair<uint8_t*, uint32_t>> stagingAddrs(count);
+        ccstd::vector<std::pair<uint8_t*, uint32_t>> stagingAddrs(count);
         for (size_t i = 0; i < count; ++i) {
             uint32_t      width         = regions[i].texExtent.width;
             uint32_t      height        = regions[i].texExtent.height;

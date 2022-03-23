@@ -39,7 +39,7 @@ const cc::gfx::SamplerInfo JOINT_TEXTURE_SAMPLER_INFO{
     cc::gfx::Address::CLAMP,
 };
 
-std::vector<cc::scene::IMacroPatch> myPatches{
+ccstd::vector<cc::scene::IMacroPatch> myPatches{
     {"CC_USE_SKINNING", true},
     {"CC_USE_BAKED_ANIMATION", true}};
 
@@ -155,7 +155,7 @@ void BakedSkinningModel::applyJointTexture(const cc::optional<IJointTextureHandl
     }
 }
 
-std::vector<scene::IMacroPatch> &BakedSkinningModel::getMacroPatches(index_t subModelIndex) {
+ccstd::vector<scene::IMacroPatch> &BakedSkinningModel::getMacroPatches(index_t subModelIndex) {
     auto &patches = Super::getMacroPatches(subModelIndex);
     patches.reserve(patches.size() + myPatches.size());
     patches.insert(std::end(patches), std::begin(myPatches), std::end(myPatches));
@@ -176,7 +176,7 @@ void BakedSkinningModel::updateLocalDescriptors(index_t subModelIndex, gfx::Desc
     }
 }
 
-void BakedSkinningModel::updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, scene::Pass *pass) {
+void BakedSkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) {
     Super::updateInstancedAttributes(attributes, pass);
     _instAnimInfoIdx = getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
     updateInstancedJointTextureInfo();
@@ -201,14 +201,14 @@ void BakedSkinningModel::syncAnimInfoForJS(gfx::Buffer *buffer, const Float32Arr
     _jointMedium.animInfo.dirtyForJSB    = &dirty[0];
 }
 
-void BakedSkinningModel::syncDataForJS(const std::vector<cc::optional<geometry::AABB>> &boundsInfo,
-                                       const cc::optional<geometry::AABB> &             modelBound,
-                                       float                                            jointTextureInfo0,
-                                       float                                            jointTextureInfo1,
-                                       float                                            jointTextureInfo2,
-                                       float                                            jointTextureInfo3,
-                                       gfx::Texture *                                   tex,
-                                       const Float32Array &                             animInfoData) {
+void BakedSkinningModel::syncDataForJS(const ccstd::vector<cc::optional<geometry::AABB>> &boundsInfo,
+                                       const cc::optional<geometry::AABB> &               modelBound,
+                                       float                                              jointTextureInfo0,
+                                       float                                              jointTextureInfo1,
+                                       float                                              jointTextureInfo2,
+                                       float                                              jointTextureInfo3,
+                                       gfx::Texture *                                     tex,
+                                       const Float32Array &                               animInfoData) {
     _jointMedium.boundsInfo = boundsInfo;
 
     if (modelBound.has_value()) {

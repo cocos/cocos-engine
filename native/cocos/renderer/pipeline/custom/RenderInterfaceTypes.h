@@ -40,7 +40,6 @@ namespace cc {
 class Mat4;
 class Mat4;
 class Quaternion;
-class Color;
 class Vec4;
 class Vec3;
 class Vec2;
@@ -80,7 +79,7 @@ public:
 
     virtual bool activate(gfx::Swapchain * swapchain) = 0;
     virtual bool destroy() noexcept = 0;
-    virtual void render(const std::vector<const scene::Camera*>& cameras) = 0;
+    virtual void render(const ccstd::vector<scene::Camera*>& cameras) = 0;
 
     virtual const MacroRecord           &getMacros() const = 0;
     virtual pipeline::GlobalDSManager   *getGlobalDSManager() const = 0;
@@ -94,6 +93,9 @@ public:
     virtual void  setShadingScale(float scale) = 0;
 
     virtual void onGlobalPipelineStateChanged() = 0;
+
+    virtual void setValue(const std::string& name, int32_t value) = 0;
+    virtual void setValue(const std::string& name, bool value) = 0;
 };
 
 inline PipelineRuntime::~PipelineRuntime() noexcept = default;
@@ -125,7 +127,7 @@ public:
 
     virtual void setMat4(const std::string& name, const cc::Mat4& mat) = 0;
     virtual void setQuaternion(const std::string& name, const cc::Quaternion& quat) = 0;
-    virtual void setColor(const std::string& name, const cc::Color& color) = 0;
+    virtual void setColor(const std::string& name, const gfx::Color& color) = 0;
     virtual void setVec4(const std::string& name, const cc::Vec4& vec) = 0;
     virtual void setVec2(const std::string& name, const cc::Vec2& vec) = 0;
     virtual void setFloat(const std::string& name, float v) = 0;
@@ -244,6 +246,8 @@ public:
 
     virtual ~SceneVisitor() noexcept = 0;
 
+    virtual const pipeline::PipelineSceneData* getPipelineSceneData() const = 0;
+
     virtual void setViewport(const gfx::Viewport &vp) = 0;
     virtual void setScissor(const gfx::Rect &rect) = 0;
     virtual void bindPipelineState(gfx::PipelineState* pso) = 0;
@@ -305,7 +309,7 @@ public:
     virtual ComputePassBuilder *addComputePass(const std::string& layoutName) = 0;
     virtual MovePassBuilder    *addMovePass(const std::string& name) = 0;
     virtual CopyPassBuilder    *addCopyPass(const std::string& name) = 0;
-    virtual void                addPresentPass(const std::string& name, const std::string& swapchainName) = 0;
+    virtual void                presentAll() = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
 };

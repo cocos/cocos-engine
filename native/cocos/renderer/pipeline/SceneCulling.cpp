@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include <array>
-#include <vector>
 
 #include "Define.h"
 #include "PipelineSceneData.h"
@@ -36,6 +35,7 @@
 #include "core/scene-graph/Node.h"
 #include "gfx-base/GFXDevice.h"
 #include "math/Quaternion.h"
+#include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/Light.h"
@@ -330,6 +330,7 @@ void quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera 
     }
 }
 void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
+    CC_PROFILE(SceneCulling);
     PipelineSceneData *const        sceneData  = pipeline->getPipelineSceneData();
     const scene::Shadows *          shadowInfo = sceneData->getShadows();
     const scene::Skybox *           skyBox     = sceneData->getSkybox();
@@ -385,7 +386,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         }
 
         if (isShadowMap) {
-            std::vector<scene::Model *> casters;
+            ccstd::vector<scene::Model *> casters;
             casters.reserve(scene->getModels().size() / 4);
             octree->queryVisibility(camera, dirLightFrustum, true, casters);
 
@@ -394,7 +395,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
             }
         }
 
-        std::vector<scene::Model *> models;
+        ccstd::vector<scene::Model *> models;
         models.reserve(scene->getModels().size() / 4);
         octree->queryVisibility(camera, camera->getFrustum(), false, models);
         for (const auto *model : models) {

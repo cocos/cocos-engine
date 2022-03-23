@@ -29,14 +29,14 @@
 
 #include "3d/assets/Mesh.h"
 #include "3d/assets/Skeleton.h"
+#include "core/platform/Debug.h"
 #include "core/scene-graph/Node.h"
 #include "renderer/gfx-base/GFXBuffer.h"
-#include "core/platform/Debug.h"
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 
 namespace {
-void getRelevantBuffers(std::vector<index_t> &outIndices, std::vector<int32_t> &outBuffers, const std::vector<std::vector<int32_t>> &jointMaps, int32_t targetJoint) {
+void getRelevantBuffers(ccstd::vector<index_t> &outIndices, ccstd::vector<int32_t> &outBuffers, const ccstd::vector<ccstd::vector<int32_t>> &jointMaps, int32_t targetJoint) {
     for (int32_t i = 0; i < jointMaps.size(); i++) {
         index_t index = CC_INVALID_INDEX;
         for (int32_t j = 0; j < jointMaps[i].size(); j++) {
@@ -52,7 +52,7 @@ void getRelevantBuffers(std::vector<index_t> &outIndices, std::vector<int32_t> &
     }
 }
 
-std::vector<cc::scene::IMacroPatch> myPatches{{"CC_USE_SKINNING", true}};
+ccstd::vector<cc::scene::IMacroPatch> myPatches{{"CC_USE_SKINNING", true}};
 
 } // namespace
 namespace cc {
@@ -96,10 +96,10 @@ void SkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *m
         auto *          target = skinningRoot->getChildByPath(skeleton->getJoints()[index]);
         if (!bound || !target) continue;
 
-        auto *               transform = cc::getTransform(target, skinningRoot);
-        const Mat4 &         bindPose  = skeleton->getBindposes()[index];
-        std::vector<index_t> indices;
-        std::vector<index_t> buffers;
+        auto *                 transform = cc::getTransform(target, skinningRoot);
+        const Mat4 &           bindPose  = skeleton->getBindposes()[index];
+        ccstd::vector<index_t> indices;
+        ccstd::vector<index_t> buffers;
         if (!jointMaps.has_value()) {
             indices.emplace_back(index);
             buffers.emplace_back(0);
@@ -171,7 +171,7 @@ void SkinningModel::initSubModel(index_t idx, RenderingSubMesh *subMeshData, Mat
     iaInfo.vertexBuffers = original;
 }
 
-std::vector<scene::IMacroPatch> &SkinningModel::getMacroPatches(index_t subModelIndex) {
+ccstd::vector<scene::IMacroPatch> &SkinningModel::getMacroPatches(index_t subModelIndex) {
     auto &patches = Super::getMacroPatches(subModelIndex);
     patches.reserve(myPatches.size() + patches.size());
     patches.insert(std::begin(patches), std::begin(myPatches), std::end(myPatches));
@@ -193,7 +193,7 @@ void SkinningModel::updateLocalDescriptors(index_t submodelIdx, gfx::DescriptorS
     }
 }
 
-void SkinningModel::updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, scene::Pass *pass) {
+void SkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) {
     if (pass->getBatchingScheme() != scene::BatchingSchemes::NONE) {
         // TODO(holycanvas): #9203 better to print the complete path instead of only the current node
         debug::warnID(3936, getNode()->getName());

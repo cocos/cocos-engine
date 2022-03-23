@@ -32,6 +32,7 @@
 #include "core/geometry/AABB.h"
 #include "math/Mat4.h"
 #include "math/Vec3.h"
+#include "primitive/PrimitiveDefine.h"
 #include "renderer/gfx-base/GFXDef.h"
 
 namespace cc {
@@ -81,7 +82,7 @@ public:
          * @en The vertex bundle references used by the sub mesh.
          * @zh 此子网格引用的顶点块，索引至网格的顶点块数组。
          */
-        std::vector<uint32_t> vertexBundelIndices;
+        ccstd::vector<uint32_t> vertexBundelIndices;
 
         /**
          * @en The primitive mode of the sub mesh
@@ -103,6 +104,40 @@ public:
         cc::optional<uint32_t> jointMapIndex;
     };
 
+    struct IDynamicInfo {
+        /**
+         * @en max submesh count
+         * @zh 最大子模型个数。
+         */
+        uint32_t maxSubMeshes{0U};
+
+        /**
+         * @en max submesh vertex count
+         * @zh 子模型最大顶点个数。
+         */
+        uint32_t maxSubMeshVertices{0U};
+
+        /**
+         * @en max submesh index count
+         * @zh 子模型最大索引个数。
+         */
+        uint32_t maxSubMeshIndices{0U};
+    };
+
+    struct IDynamicStruct {
+        /**
+         * @en dynamic mesh info
+         * @zh 动态模型信息。
+         */
+        IDynamicInfo info;
+
+        /**
+         * @en dynamic submesh bounds
+         * @zh 动态子模型包围盒。
+         */
+        ccstd::vector<geometry::AABB> bounds;
+    };
+
     /**
      * @en The structure of the mesh
      * @zh 描述了网格的结构。
@@ -112,13 +147,13 @@ public:
          * @en All vertex bundles of the mesh
          * @zh 此网格所有的顶点块。
          */
-        std::vector<IVertexBundle> vertexBundles;
+        ccstd::vector<IVertexBundle> vertexBundles;
 
         /**
          * @en All sub meshes
          * @zh 此网格的所有子网格。
          */
-        std::vector<ISubMesh> primitives;
+        ccstd::vector<ISubMesh> primitives;
 
         /**
          * @en The minimum position of all vertices in the mesh
@@ -137,13 +172,19 @@ public:
          * @zh 此网格使用的关节索引映射关系列表，数组长度应为子模型中实际使用到的所有关节，
          * 每个元素都对应一个原骨骼资源里的索引，按子模型 VB 内的实际索引排列。
          */
-        cc::optional<std::vector<std::vector<index_t>>> jointMaps;
+        cc::optional<ccstd::vector<ccstd::vector<index_t>>> jointMaps;
 
         /**
          * @en The morph information of the mesh
          * @zh 网格的形变数据
          */
         cc::optional<Morph> morph;
+
+        /**
+         * @en The specific data of the dynamic mesh
+         * @zh 动态网格特有数据
+         */
+        cc::optional<IDynamicStruct> dynamic;
     };
 
     struct ICreateInfo {
@@ -230,13 +271,13 @@ public:
      */
     void setHash(uint64_t hash) { _hash = hash; }
 
-    using JointBufferIndicesType = std::vector<index_t>;
+    using JointBufferIndicesType = ccstd::vector<index_t>;
     /**
      * The index of the joint buffer of all sub meshes in the joint map buffers
      */
     const JointBufferIndicesType &getJointBufferIndices();
 
-    using RenderingSubMeshList = std::vector<IntrusivePtr<RenderingSubMesh>>;
+    using RenderingSubMeshList = ccstd::vector<IntrusivePtr<RenderingSubMesh>>;
     /**
      * @en The sub meshes for rendering. Mesh could be split into different sub meshes for rendering.
      * @zh 此网格创建的渲染网格。
@@ -283,7 +324,7 @@ public:
      */
     void reset(ICreateInfo &&info);
 
-    using BoneSpaceBounds = std::vector<IntrusivePtr<geometry::AABB>>;
+    using BoneSpaceBounds = ccstd::vector<IntrusivePtr<geometry::AABB>>;
     /**
      * @en Get [[AABB]] bounds in the skeleton's bone space
      * @zh 获取骨骼变换空间内下的 [[AABB]] 包围盒
@@ -365,6 +406,14 @@ public:
      * @returns Return false if failed to access the indices data, return true otherwise.
      */
     bool copyIndices(index_t primitiveIndex, TypedArray &outputArray);
+
+    /**
+     * @en update dynamic sub mesh geometry
+     * @zh 更新动态子网格的几何数据
+     * @param primitiveIndex: sub mesh index
+     * @param geometry: sub mesh geometry data
+     */
+    void updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometry);
 
 private:
     using AccessorType = std::function<void(const IVertexBundle &vertexBundle, int32_t iAttribute)>;

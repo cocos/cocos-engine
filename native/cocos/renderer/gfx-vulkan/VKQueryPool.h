@@ -26,7 +26,6 @@
 #pragma once
 
 #include <mutex>
-#include <vector>
 #include "VKStd.h"
 #include "gfx-base/GFXQueryPool.h"
 
@@ -49,8 +48,8 @@ protected:
     void doInit(const QueryPoolInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPUQueryPool *    _gpuQueryPool{nullptr};
-    std::vector<uint32_t> _ids;
+    CCVKGPUQueryPool *      _gpuQueryPool{nullptr};
+    ccstd::vector<uint32_t> _ids;
 };
 
 } // namespace gfx

@@ -32,9 +32,9 @@
 #include "math/Vec2.h"
 
 namespace {
-std::vector<cc::Node *> cachedArray(16);
-cc::Node *              currentHovered = nullptr;
-cc::Vec2                pos;
+ccstd::vector<cc::Node *> cachedArray(16);
+cc::Node *                currentHovered = nullptr;
+cc::Vec2                  pos;
 
 //bool touchStartHandler(cc::event::EventListener *listener, cc::event::Touch *touch, cc::event::Event *event) {
 //    auto *touchEvent = static_cast<cc::event::EventTouch *>(event);
@@ -246,9 +246,9 @@ cc::Vec2                pos;
 //}
 //
 //template <typename T, typename Enabled = std::enable_if_t<std::is_base_of<cc::Component, T>::value, T>>
-//std::vector<cc::event::IListenerMask> searchComponentsInParent(cc::Node *node) {
+//ccstd::vector<cc::event::IListenerMask> searchComponentsInParent(cc::Node *node) {
 //    index_t                               index = 0;
-//    std::vector<cc::event::IListenerMask> list;
+//    ccstd::vector<cc::event::IListenerMask> list;
 //
 //    for (cc::Node *curr = node; curr != nullptr && cc::Node::isNode(curr); curr = curr->getParent(), ++index) {
 //        auto *comp = curr->getComponent<T>();
@@ -259,7 +259,7 @@ cc::Vec2                pos;
 //            info.comp  = comp;
 //        }
 //    }
-//    return list.empty() ? std::vector<cc::event::IListenerMask>() : list;
+//    return list.empty() ? ccstd::vector<cc::event::IListenerMask>() : list;
 //}
 
 } // namespace
@@ -273,7 +273,7 @@ NodeEventProcessor::~NodeEventProcessor() {
     //    delete _mouseListener;
 }
 
-bool NodeEventProcessor::checkListeners(cc::Node *node, const std::vector<CallbacksInvoker::KeyType> &events) {
+bool NodeEventProcessor::checkListeners(cc::Node *node, const ccstd::vector<CallbacksInvoker::KeyType> &events) {
     if (!node->isPersistNode()) {
         if (node->getEventProcessor()->_bubblingTargets) {
             for (const auto &event : events) {
@@ -295,7 +295,7 @@ bool NodeEventProcessor::checkListeners(cc::Node *node, const std::vector<Callba
 }
 
 void NodeEventProcessor::reattach() {
-    //    std::vector<event::IListenerMask> currMask;
+    //    ccstd::vector<event::IListenerMask> currMask;
     //    _node->walk(
     //        [&](Node *node) {
     //            if (currMask.empty()) {
@@ -446,7 +446,7 @@ void NodeEventProcessor::targetOff(const CallbacksInvoker::KeyType &target) {
     //    }
 }
 
-void NodeEventProcessor::getCapturingTargets(const CallbacksInvoker::KeyType &type, std::vector<Node *> &targets) const {
+void NodeEventProcessor::getCapturingTargets(const CallbacksInvoker::KeyType &type, ccstd::vector<Node *> &targets) const {
     auto *parent = _node->getParent();
     while (parent != nullptr) {
         if (parent->getEventProcessor()->_capturingTargets != nullptr && parent->getEventProcessor()->_capturingTargets->hasEventListener(type)) {
@@ -456,7 +456,7 @@ void NodeEventProcessor::getCapturingTargets(const CallbacksInvoker::KeyType &ty
     }
 }
 
-void NodeEventProcessor::getBubblingTargets(const CallbacksInvoker::KeyType &type, std::vector<Node *> &targets) const {
+void NodeEventProcessor::getBubblingTargets(const CallbacksInvoker::KeyType &type, ccstd::vector<Node *> &targets) const {
     auto *parent = _node->getParent();
     while (parent != nullptr) {
         if (parent->getEventProcessor()->_bubblingTargets != nullptr && parent->getEventProcessor()->_bubblingTargets->hasEventListener(type)) {

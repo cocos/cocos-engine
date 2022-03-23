@@ -79,19 +79,19 @@ private:
     // [McDonald 12] Efficient Buffer Management
     ITextureBufferHandle mcDonaldAlloc(uint32_t size);
 
-    gfx::Device *                     _device{nullptr};
-    gfx::Format                       _format{gfx::Format::UNKNOWN};
-    uint32_t                          _formatSize{0};
-    std::vector<ITextureBuffer>       _chunks;
-    uint32_t                          _chunkCount{0};
-    std::vector<ITextureBufferHandle> _handles;
-    gfx::BufferTextureCopy            _region0;
-    gfx::BufferTextureCopy            _region1;
-    gfx::BufferTextureCopy            _region2;
-    roundUpType                       _roundUpFn{nullptr};
-    bool                              _useMcDonaldAlloc{false};
-    uint32_t                          _channels{4};
-    uint32_t                          _alignment{1};
+    gfx::Device *                       _device{nullptr};
+    gfx::Format                         _format{gfx::Format::UNKNOWN};
+    uint32_t                            _formatSize{0};
+    ccstd::vector<ITextureBuffer>       _chunks;
+    uint32_t                            _chunkCount{0};
+    ccstd::vector<ITextureBufferHandle> _handles;
+    gfx::BufferTextureCopy              _region0;
+    gfx::BufferTextureCopy              _region1;
+    gfx::BufferTextureCopy              _region2;
+    roundUpType                         _roundUpFn{nullptr};
+    bool                                _useMcDonaldAlloc{false};
+    uint32_t                            _channels{4};
+    uint32_t                            _alignment{1};
     CC_DISALLOW_COPY_MOVE_ASSIGN(TextureBufferPool);
 };
 

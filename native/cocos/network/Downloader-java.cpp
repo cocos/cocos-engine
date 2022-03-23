@@ -145,12 +145,12 @@ IDownloadTask *DownloaderJava::createCoTask(std::shared_ptr<const DownloadTask> 
                                        JCLS_DOWNLOADER,
                                        "createTask",
                                        "(" JARG_DOWNLOADER "I" JARG_STR JARG_STR "[" JARG_STR ")V")) {
-        jclass                                    jclassString = methodInfo.env->FindClass("java/lang/String");
-        jstring                                   jstrURL      = methodInfo.env->NewStringUTF(task->requestURL.c_str());
-        jstring                                   jstrPath     = methodInfo.env->NewStringUTF(task->storagePath.c_str());
-        jobjectArray                              jarrayHeader = methodInfo.env->NewObjectArray(task->header.size() * 2, jclassString, nullptr);
-        const std::map<std::string, std::string> &headMap      = task->header;
-        int                                       index        = 0;
+        jclass                                      jclassString = methodInfo.env->FindClass("java/lang/String");
+        jstring                                     jstrURL      = methodInfo.env->NewStringUTF(task->requestURL.c_str());
+        jstring                                     jstrPath     = methodInfo.env->NewStringUTF(task->storagePath.c_str());
+        jobjectArray                                jarrayHeader = methodInfo.env->NewObjectArray(task->header.size() * 2, jclassString, nullptr);
+        const ccstd::map<std::string, std::string> &headMap      = task->header;
+        int                                         index        = 0;
         for (const auto &it : headMap) {
             methodInfo.env->SetObjectArrayElement(jarrayHeader, index++, methodInfo.env->NewStringUTF(it.first.c_str()));
             methodInfo.env->SetObjectArrayElement(jarrayHeader, index++, methodInfo.env->NewStringUTF(it.second.c_str()));
@@ -194,7 +194,7 @@ void DownloaderJava::abort(const std::unique_ptr<IDownloadTask> &task) {
 
             DownloadTaskAndroid *coTask = iter->second;
             _taskMap.erase(iter);
-            std::vector<unsigned char> emptyBuffer;
+            ccstd::vector<unsigned char> emptyBuffer;
             onTaskFinish(*coTask->task,
                          DownloadTask::ERROR_ABORT,
                          DownloadTask::ERROR_ABORT,
@@ -218,7 +218,7 @@ void DownloaderJava::onProcessImpl(int taskId, int64_t dl, int64_t dlNow, int64_
     onTaskProgress(*coTask->task, dl, dlNow, dlTotal, transferDataToBuffer);
 }
 
-void DownloaderJava::onFinishImpl(int taskId, int errCode, const char *errStr, const std::vector<unsigned char> &data) {
+void DownloaderJava::onFinishImpl(int taskId, int errCode, const char *errStr, const ccstd::vector<unsigned char> &data) {
     DLLOG("DownloaderJava::onFinishImpl(taskId: %d, errCode: %d, errStr: %s)", taskId, errCode, (errStr) ? errStr : "null");
     auto iter = _taskMap.find(taskId);
     if (_taskMap.end() == iter) {
@@ -255,8 +255,8 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jclass
 }
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*clazz*/, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data) {
-    std::string          errStrTmp;
-    std::vector<uint8_t> dataTmp;
+    std::string            errStrTmp;
+    ccstd::vector<uint8_t> dataTmp;
     if (errStr) {
         const char *nativeErrStr = env->GetStringUTFChars(errStr, JNI_FALSE);
         errStrTmp                = nativeErrStr;
@@ -275,7 +275,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*claz
             DLLOG("_nativeOnFinish can't find downloader id: %d for task: %d", id, taskId);
             return;
         }
-        std::vector<unsigned char> buf;
+        ccstd::vector<unsigned char> buf;
         if (!errStrTmp.empty()) {
             // failure
             downloader->onFinishImpl((int)taskId, (int)errCode, errStrTmp.c_str(), buf);

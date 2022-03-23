@@ -52,15 +52,15 @@ using namespace cc; //NOLINT
 
 static LegacyThreadPool *gThreadPool = nullptr;
 
-static std::shared_ptr<cc::network::Downloader>                                               gLocalDownloader = nullptr;
-static std::map<std::string, std::function<void(const std::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
-static uint64_t                                                                               gLocalDownloaderTaskId = 1000000;
+static std::shared_ptr<cc::network::Downloader>                                                 gLocalDownloader = nullptr;
+static ccstd::map<std::string, std::function<void(const std::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
+static uint64_t                                                                                 gLocalDownloaderTaskId = 1000000;
 
 static cc::network::Downloader *localDownloader() {
     if (!gLocalDownloader) {
         gLocalDownloader                    = std::make_shared<cc::network::Downloader>();
-        gLocalDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask & task,
-                                                  const std::vector<unsigned char> &data) {
+        gLocalDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask &   task,
+                                                  const ccstd::vector<unsigned char> &data) {
             if (data.empty()) {
                 SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
                 return;
@@ -272,7 +272,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
         void *      ptr;
     };
 
-    std::vector<NamePtrStruct> namePtrArray;
+    ccstd::vector<NamePtrStruct> namePtrArray;
 
     for (const auto &e : se::NativePtrToObjectMap::instance()) {
         se::Object *jsobj = e.second;

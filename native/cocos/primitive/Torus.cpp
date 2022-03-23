@@ -31,13 +31,13 @@ IGeometry torus(float radius, float tube, const cc::optional<ITorusOptions> &opt
     const uint32_t tubularSegments = opts.has_value() ? opts->tubularSegments : 32;
     const float    arc             = opts.has_value() ? opts->arc : math::PI_2;
 
-    std::vector<float>    positions;
-    std::vector<float>    normals;
-    std::vector<float>    uvs;
-    std::vector<uint32_t> indices;
-    const Vec3            minPos(-radius - tube, -tube, -radius - tube);
-    const Vec3            maxPos(radius + tube, tube, radius + tube);
-    const float           boundingRadius = radius + tube;
+    ccstd::vector<float>    positions;
+    ccstd::vector<float>    normals;
+    ccstd::vector<float>    uvs;
+    ccstd::vector<uint32_t> indices;
+    const Vec3              minPos(-radius - tube, -tube, -radius - tube);
+    const Vec3              maxPos(radius + tube, tube, radius + tube);
+    const float             boundingRadius = radius + tube;
 
     for (uint32_t j = 0; j <= radialSegments; j++) {
         for (uint32_t i = 0; i <= tubularSegments; i++) {

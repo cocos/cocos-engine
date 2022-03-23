@@ -179,7 +179,7 @@ inline void remove_edge(RenderDependencyGraph::out_edge_iterator iter, RenderDep
 
 template <class Predicate>
 inline void remove_out_edge_if(RenderDependencyGraph::vertex_descriptor u, Predicate&& pred, RenderDependencyGraph& g) { // NOLINT
-    std::vector<PmrList<RenderDependencyGraph::edge_type>::iterator> garbage;
+    ccstd::vector<PmrList<RenderDependencyGraph::edge_type>::iterator> garbage;
     for (auto pair = out_edges(u, g); pair.first != pair.second; ++pair.first) {
         auto& outIter = pair.first;
         auto& outEnd = pair.second;
@@ -202,7 +202,7 @@ inline void remove_out_edge_if(RenderDependencyGraph::vertex_descriptor u, Predi
 
 template <class Predicate>
 inline void remove_in_edge_if(RenderDependencyGraph::vertex_descriptor v, Predicate&& pred, RenderDependencyGraph& g) { // NOLINT
-    std::vector<PmrList<RenderDependencyGraph::edge_type>::iterator> garbage;
+    ccstd::vector<PmrList<RenderDependencyGraph::edge_type>::iterator> garbage;
     for (auto pair = in_edges(v, g); pair.first != pair.second; ++pair.first) {
         auto& inIter = pair.first;
         auto& inEnd = pair.second;

@@ -46,9 +46,9 @@
 
 using namespace cc;
 
-static spine::Cocos2dTextureLoader                    textureLoader;
+static spine::Cocos2dTextureLoader                       textureLoader;
 static cc::RefMap<std::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
-static middleware::Texture2D *                        _getPreloadedAtlasTexture(const char *path) {
+static middleware::Texture2D *                           _getPreloadedAtlasTexture(const char *path) {
     assert(_preloadedAtlasTextures);
     auto it = _preloadedAtlasTextures->find(path);
     return it != _preloadedAtlasTextures->end() ? it->second : nullptr;
@@ -128,7 +128,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     }
 
     if (skeletonData) {
-        std::vector<int> texturesIndex;
+        ccstd::vector<int> texturesIndex;
         for (auto it = textures.begin(); it != textures.end(); it++) {
             texturesIndex.push_back(it->second->getRealTextureIndex());
         }

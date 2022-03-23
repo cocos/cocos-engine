@@ -47,6 +47,7 @@ public:
     bool        initBuiltinRes(gfx::Device *device);
     inline bool isInitialized() const { return _isInitialized; }
 
+    void   addAsset(const std::string &uuid, Asset *asset);
     Asset *getAsset(const std::string &uuid);
 
     template <typename T, typename Enabled = std::enable_if_t<std::is_base_of<Asset, T>::value>>
@@ -67,7 +68,7 @@ private:
 
     gfx::Device *                            _device{nullptr};
     Record<std::string, IntrusivePtr<Asset>> _resources;
-    std::vector<IntrusivePtr<Material>>      _materialsToBeCompiled;
+    ccstd::vector<IntrusivePtr<Material>>    _materialsToBeCompiled;
     bool                                     _isInitialized{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BuiltinResMgr);

@@ -263,8 +263,8 @@ static bool webSocketConstructor(se::State &s) {
         se::Object *            obj  = s.thisObject();
         cc::network::WebSocket *cobj = nullptr;
         if (argc >= 2) {
-            std::string              caFilePath;
-            std::vector<std::string> protocols;
+            std::string                caFilePath;
+            ccstd::vector<std::string> protocols;
 
             if (args[1].isString()) {
                 std::string protocol;

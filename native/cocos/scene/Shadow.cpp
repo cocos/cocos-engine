@@ -115,6 +115,7 @@ void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
     setMaxReceived(shadowsInfo.getMaxReceived());
     setSize(shadowsInfo.getSize());
     setShadowColor(shadowsInfo.getShadowColor());
+    _shadowMapDirty = false;
 }
 
 void Shadows::destroy() {
@@ -129,7 +130,7 @@ void Shadows::destroy() {
     }
 }
 
-gfx::Shader *Shadows::getPlanarShader(const std::vector<IMacroPatch> &patches) {
+gfx::Shader *Shadows::getPlanarShader(const ccstd::vector<IMacroPatch> &patches) {
     if (!_material) {
         createMaterial();
     }
@@ -138,7 +139,7 @@ gfx::Shader *Shadows::getPlanarShader(const std::vector<IMacroPatch> &patches) {
     return passes[0]->getShaderVariant(patches);
 }
 
-gfx::Shader *Shadows::getPlanarInstanceShader(const std::vector<IMacroPatch> &patches) {
+gfx::Shader *Shadows::getPlanarInstanceShader(const ccstd::vector<IMacroPatch> &patches) {
     if (!_instancingMaterial) {
         createInstanceMaterial();
     }

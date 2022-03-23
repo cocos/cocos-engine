@@ -27,7 +27,6 @@
 #include <boost/functional/hash.hpp>
 
 #include "BatchedBuffer.h"
-#include "GeometryRenderer.h"
 #include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
@@ -38,8 +37,10 @@
 #include "frame-graph/FrameGraph.h"
 #include "gfx-base/GFXDevice.h"
 #include "helper/Utils.h"
+#include "profiler/DebugRenderer.h"
 #include "scene/Camera.h"
 #include "scene/Skybox.h"
+
 namespace cc {
 namespace pipeline {
 
@@ -81,9 +82,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
     _pipelineSceneData->activate(_device);
-
-    CC_ASSERT(_geometryRenderer != nullptr);
-    _geometryRenderer->activate(_device, this);
+    CC_DEBUG_RENDERER->activate(_device);
 
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
@@ -97,7 +96,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     return true;
 }
 
-void RenderPipeline::render(const vector<scene::Camera *> &cameras) {
+void RenderPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     for (auto *const flow : _flows) {
         for (auto *camera : cameras) {
             flow->render(camera);
@@ -135,7 +134,7 @@ bool RenderPipeline::destroy() {
     CC_SAFE_DESTROY_AND_DELETE(_globalDSManager);
     CC_SAFE_DESTROY_AND_DELETE(_pipelineUBO);
     CC_SAFE_DESTROY_NULL(_pipelineSceneData);
-    CC_SAFE_DESTROY_NULL(_geometryRenderer);
+    CC_DEBUG_RENDERER->destroy();
 
     for (auto *const queryPool : _queryPools) {
         queryPool->destroy();
@@ -218,7 +217,7 @@ bool RenderPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer *
     return (*quadIA) != nullptr;
 }
 
-void RenderPipeline::ensureEnoughSize(const vector<scene::Camera *> &cameras) {
+void RenderPipeline::ensureEnoughSize(const ccstd::vector<scene::Camera *> &cameras) {
     for (auto *camera : cameras) {
         _width  = std::max(camera->getWindow()->getWidth(), _width);
         _height = std::max(camera->getWindow()->getHeight(), _height);
@@ -353,10 +352,6 @@ void RenderPipeline::framegraphGC() {
     if (++frameCount % (INTERVAL_IN_SECONDS * 60) == 0) {
         framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);
     }
-}
-
-void RenderPipeline::setGeometryRenderer(GeometryRenderer *geometryRenderer) {
-    _geometryRenderer = geometryRenderer;
 }
 
 } // namespace pipeline

@@ -31,11 +31,11 @@
 
 #include <functional>
 #include <mutex>
-#include <set>
 #include <unordered_map>
-#include <vector>
 
 #include "base/RefCounted.h"
+#include "base/std/container/set.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -250,7 +250,7 @@ public:
             priority is higher than minPriority will be paused.
       @since v2.0.0
       */
-    std::set<void *> pauseAllTargetsWithMinPriority(int minPriority);
+    ccstd::set<void *> pauseAllTargetsWithMinPriority(int minPriority);
 
     /** Calls a function on the cocos2d thread. Useful when you need to call a cocos2d function from another thread.
      This function is thread safe.
@@ -274,12 +274,12 @@ public:
 private:
     // Hash Element used for "selectors with interval"
     struct HashTimerEntry {
-        std::vector<Timer *> timers;
-        void *               target;
-        int                  timerIndex;
-        Timer *              currentTimer;
-        bool                 currentTimerSalvaged;
-        bool                 paused;
+        ccstd::vector<Timer *> timers;
+        void *                 target;
+        int                    timerIndex;
+        Timer *                currentTimer;
+        bool                   currentTimerSalvaged;
+        bool                   paused;
     };
 
     void removeHashElement(struct HashTimerEntry *element);
@@ -295,8 +295,8 @@ private:
     bool _updateHashLocked = false;
 
     // Used for "perform Function"
-    std::vector<std::function<void()>> _functionsToPerform;
-    std::mutex                         _performMutex;
+    ccstd::vector<std::function<void()>> _functionsToPerform;
+    std::mutex                           _performMutex;
 };
 
 // end of base group

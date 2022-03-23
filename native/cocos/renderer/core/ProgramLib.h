@@ -30,7 +30,6 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include "base/RefVector.h"
 #include "cocos/base/Optional.h"
 #include "core/Types.h"
@@ -41,6 +40,10 @@
 
 namespace cc {
 class EffectAsset;
+
+namespace render {
+class PipelineRuntime;
+} // namespace render
 
 struct IDefineRecord : public IDefineInfo {
     std::function<int32_t(const MacroValue &)> map{nullptr};
@@ -53,21 +56,21 @@ struct IMacroInfo {
 };
 
 struct ITemplateInfo {
-    std::vector<gfx::Attribute>                  gfxAttributes;
-    gfx::ShaderInfo                              shaderInfo;
-    std::vector<int32_t>                         blockSizes;
-    RefVector<gfx::DescriptorSetLayout *>           setLayouts;
-    IntrusivePtr<gfx::PipelineLayout>            pipelineLayout;
-    Record<std::string, uint32_t>                handleMap;
-    std::vector<gfx::DescriptorSetLayoutBinding> bindings;
-    int32_t                                      samplerStartBinding{-1};
+    ccstd::vector<gfx::Attribute>                  gfxAttributes;
+    gfx::ShaderInfo                                shaderInfo;
+    ccstd::vector<int32_t>                         blockSizes;
+    RefVector<gfx::DescriptorSetLayout *>          setLayouts;
+    IntrusivePtr<gfx::PipelineLayout>              pipelineLayout;
+    Record<std::string, uint32_t>                  handleMap;
+    ccstd::vector<gfx::DescriptorSetLayoutBinding> bindings;
+    int32_t                                        samplerStartBinding{-1};
 };
 
 struct IProgramInfo : public IShaderInfo {
-    std::string                effectName;
-    std::vector<IDefineRecord> defines;
-    std::string                constantMacros;
-    bool                       uber{false}; // macro number exceeds default limits, will fallback to string hash
+    std::string                  effectName;
+    ccstd::vector<IDefineRecord> defines;
+    std::string                  constantMacros;
+    bool                         uber{false}; // macro number exceeds default limits, will fallback to string hash
 
     void copyFrom(const IShaderInfo &o);
 };
@@ -150,7 +153,7 @@ public:
      * @param key The shader cache key, if already known
      */
     gfx::Shader *getGFXShader(gfx::Device *device, const std::string &name, MacroRecord &defines,
-                              pipeline::RenderPipeline *pipeline, std::string *key = nullptr);
+                              render::PipelineRuntime *pipeline, std::string *key = nullptr);
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);

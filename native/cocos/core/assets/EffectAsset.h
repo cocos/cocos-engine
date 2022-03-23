@@ -42,7 +42,7 @@ namespace cc {
 
 using IPropertyHandleInfo = std::tuple<std::string, uint32_t, gfx::Type>;
 
-using IPropertyValue = cc::optional<cc::variant<std::vector<float>, std::string>>;
+using IPropertyValue = cc::optional<cc::variant<ccstd::vector<float>, std::string>>;
 
 struct IPropertyInfo {
     int32_t                           type;        // auto-extracted from shader
@@ -284,7 +284,7 @@ struct BlendTargetInfo {
     }
 };
 
-using BlendTargetInfoList = std::vector<BlendTargetInfo>;
+using BlendTargetInfoList = ccstd::vector<BlendTargetInfo>;
 
 struct BlendStateInfo {
     cc::optional<bool>                isA2C;
@@ -392,15 +392,15 @@ struct IPassInfoFull final { //cjh } : public IPassInfo {
 using IPassInfo = IPassInfoFull;
 
 struct ITechniqueInfo {
-    std::vector<IPassInfoFull> passes;
-    cc::optional<std::string>  name;
+    ccstd::vector<IPassInfoFull> passes;
+    cc::optional<std::string>    name;
 };
 
 struct IBlockInfo {
-    int32_t                   binding{-1};
-    std::string               name;
-    std::vector<gfx::Uniform> members;
-    gfx::ShaderStageFlags     stageFlags{gfx::ShaderStageFlags::NONE};
+    int32_t                     binding{-1};
+    std::string                 name;
+    ccstd::vector<gfx::Uniform> members;
+    gfx::ShaderStageFlags       stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct ISamplerTextureInfo {
@@ -460,27 +460,27 @@ struct IAttributeInfo {
     bool        isInstanced{false};
     uint32_t    location{0U};
 
-    std::vector<std::string> defines;
+    ccstd::vector<std::string> defines;
 };
 
 struct IDefineInfo {
-    std::string                            name;
-    std::string                            type;
-    cc::optional<std::vector<int32_t>>     range; //cjh number is float?  ?: number[];
-    cc::optional<std::vector<std::string>> options;
-    cc::optional<std::string>              defaultVal;
+    std::string                              name;
+    std::string                              type;
+    cc::optional<ccstd::vector<int32_t>>     range; //cjh number is float?  ?: number[];
+    cc::optional<ccstd::vector<std::string>> options;
+    cc::optional<std::string>                defaultVal;
 };
 
 struct IBuiltin {
-    std::string              name;
-    std::vector<std::string> defines;
+    std::string                name;
+    ccstd::vector<std::string> defines;
 };
 
 struct IBuiltinInfo {
-    std::vector<IBuiltin> buffers;
-    std::vector<IBuiltin> blocks;
-    std::vector<IBuiltin> samplerTextures;
-    std::vector<IBuiltin> images;
+    ccstd::vector<IBuiltin> buffers;
+    ccstd::vector<IBuiltin> blocks;
+    ccstd::vector<IBuiltin> samplerTextures;
+    ccstd::vector<IBuiltin> images;
 };
 
 using BuiltinsStatisticsType = std::unordered_map<std::string, int32_t>;
@@ -497,21 +497,21 @@ struct IShaderSource {
 };
 
 struct IShaderInfo {
-    std::string                       name;
-    uint64_t                          hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
-    IShaderSource                     glsl4;
-    IShaderSource                     glsl3;
-    IShaderSource                     glsl1;
-    IBuiltins                         builtins;
-    std::vector<IDefineInfo>          defines;
-    std::vector<IAttributeInfo>       attributes;
-    std::vector<IBlockInfo>           blocks;
-    std::vector<ISamplerTextureInfo>  samplerTextures;
-    std::vector<ISamplerInfo>         samplers;
-    std::vector<ITextureInfo>         textures;
-    std::vector<IBufferInfo>          buffers;
-    std::vector<IImageInfo>           images;
-    std::vector<IInputAttachmentInfo> subpassInputs;
+    std::string                         name;
+    uint64_t                            hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
+    IShaderSource                       glsl4;
+    IShaderSource                       glsl3;
+    IShaderSource                       glsl1;
+    IBuiltins                           builtins;
+    ccstd::vector<IDefineInfo>          defines;
+    ccstd::vector<IAttributeInfo>       attributes;
+    ccstd::vector<IBlockInfo>           blocks;
+    ccstd::vector<ISamplerTextureInfo>  samplerTextures;
+    ccstd::vector<ISamplerInfo>         samplers;
+    ccstd::vector<ITextureInfo>         textures;
+    ccstd::vector<IBufferInfo>          buffers;
+    ccstd::vector<IImageInfo>           images;
+    ccstd::vector<IInputAttachmentInfo> subpassInputs;
 
     const IShaderSource *getSource(const std::string &version) const {
         if (version == "glsl1") return &glsl1;
@@ -521,7 +521,7 @@ struct IShaderInfo {
     }
 };
 
-using IPreCompileInfoValueType = cc::variant<std::vector<bool>, std::vector<int32_t>, std::vector<std::string>>;
+using IPreCompileInfoValueType = cc::variant<ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<std::string>>;
 using IPreCompileInfo          = std::unordered_map<std::string, IPreCompileInfoValueType>;
 
 class EffectAsset final : public Asset {
@@ -556,13 +556,13 @@ public:
      */
     static RegisteredEffectAssetMap &getAll() { return EffectAsset::effects; }
 
-    inline void setTechniques(const std::vector<ITechniqueInfo> &val) { _techniques = val; }
-    inline void setShaders(const std::vector<IShaderInfo> &val) { _shaders = val; }
-    inline void setCombinations(const std::vector<IPreCompileInfo> &val) { _combinations = val; }
+    inline void setTechniques(const ccstd::vector<ITechniqueInfo> &val) { _techniques = val; }
+    inline void setShaders(const ccstd::vector<IShaderInfo> &val) { _shaders = val; }
+    inline void setCombinations(const ccstd::vector<IPreCompileInfo> &val) { _combinations = val; }
 
-    inline const std::vector<ITechniqueInfo> & getTechniques() const { return _techniques; }
-    inline const std::vector<IShaderInfo> &    getShaders() const { return _shaders; }
-    inline const std::vector<IPreCompileInfo> &getCombinations() const { return _combinations; }
+    inline const ccstd::vector<ITechniqueInfo> & getTechniques() const { return _techniques; }
+    inline const ccstd::vector<IShaderInfo> &    getShaders() const { return _shaders; }
+    inline const ccstd::vector<IPreCompileInfo> &getCombinations() const { return _combinations; }
 
     /*
     @serializable
@@ -580,11 +580,11 @@ public:
     bool validate() const override;
 
 protected:
-    static std::vector<MacroRecord> doCombine(const std::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
-    static std::vector<MacroRecord> generateRecords(const std::string &key, const IPreCompileInfoValueType &value);
-    static std::vector<MacroRecord> insertInfoValue(const std::vector<MacroRecord> &records,
-                                                    const std::string &             key,
-                                                    const IPreCompileInfoValueType &value);
+    static ccstd::vector<MacroRecord> doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
+    static ccstd::vector<MacroRecord> generateRecords(const std::string &key, const IPreCompileInfoValueType &value);
+    static ccstd::vector<MacroRecord> insertInfoValue(const ccstd::vector<MacroRecord> &records,
+                                                      const std::string &               key,
+                                                      const IPreCompileInfoValueType &  value);
 
     void precompile();
 
@@ -596,7 +596,7 @@ public:
 
     @serializable
     @editable*/
-    std::vector<ITechniqueInfo> _techniques;
+    ccstd::vector<ITechniqueInfo> _techniques;
 
     /**
      * @en The shaders used by the current effect.
@@ -604,7 +604,7 @@ public:
 
     @serializable
     @editable*/
-    std::vector<IShaderInfo> _shaders;
+    ccstd::vector<IShaderInfo> _shaders;
 
     /**
      * @en The preprocess macro combinations for the shader
@@ -612,7 +612,7 @@ public:
 
     @serializable
     @editable*/
-    std::vector<IPreCompileInfo> _combinations;
+    ccstd::vector<IPreCompileInfo> _combinations;
     //
 protected:
     static RegisteredEffectAssetMap effects; //cjh TODO: how to clear when game exits.

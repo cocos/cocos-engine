@@ -133,6 +133,12 @@ public:
     const IGeometricInfo &getGeometricInfo();
 
     /**
+     * @en Invalidate the geometric info of the sub mesh after geometry changed.
+     * @zh 网格更新后，设置（用于射线检测的）几何信息为无效，需要重新计算。
+     */
+    inline void invalidateGeometricInfo() { _geometricInfo.reset(); }
+
+    /**
      * @en Primitive mode used by the sub mesh
      * @zh 图元类型。
      */
@@ -142,13 +148,16 @@ public:
      * @en Flatted vertex buffers
      * @zh 扁平化的顶点缓冲区。
      */
-    inline const std::vector<IFlatBuffer> &getFlatBuffers() const { return _flatBuffers; }
-    inline void                            setFlatBuffers(const std::vector<IFlatBuffer> &flatBuffers) { _flatBuffers = flatBuffers; }
+    inline const ccstd::vector<IFlatBuffer> &getFlatBuffers() const { return _flatBuffers; }
+    inline void                              setFlatBuffers(const ccstd::vector<IFlatBuffer> &flatBuffers) { _flatBuffers = flatBuffers; }
 
     void genFlatBuffers();
 
     inline const gfx::InputAssemblerInfo &getIaInfo() const { return _iaInfo; }
     inline gfx::InputAssemblerInfo &      getIaInfo() { return _iaInfo; }
+
+    inline void                         setDrawInfo(const gfx::DrawInfo &info) { _drawInfo = info; }
+    inline cc::optional<gfx::DrawInfo> &getDrawInfo() { return _drawInfo; }
 
     /**
      * @en The vertex buffer for joint after mapping
@@ -180,12 +189,12 @@ private:
     Mesh *                 _mesh{nullptr};
     cc::optional<uint32_t> _subMeshIdx;
 
-    std::vector<IFlatBuffer> _flatBuffers;
+    ccstd::vector<IFlatBuffer> _flatBuffers;
 
     // As gfx::InputAssemblerInfo needs the data structure, so not use IntrusivePtr.
     RefVector<gfx::Buffer *> _jointMappedBuffers;
 
-    std::vector<uint32_t> _jointMappedBufferIndices;
+    ccstd::vector<uint32_t> _jointMappedBufferIndices;
 
     cc::optional<VertexIdChannel> _vertexIdChannel;
 
@@ -203,6 +212,8 @@ private:
     gfx::PrimitiveMode _primitiveMode{gfx::PrimitiveMode::TRIANGLE_LIST};
 
     gfx::InputAssemblerInfo _iaInfo;
+
+    cc::optional<gfx::DrawInfo> _drawInfo;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderingSubMesh);
 };

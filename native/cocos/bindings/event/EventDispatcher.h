@@ -28,7 +28,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
-#include <vector>
+#include "base/std/container/vector.h"
 
 namespace se {
 class Value;
@@ -124,8 +124,8 @@ public:
         UNKNOWN
     };
 
-    std::vector<TouchInfo> touches;
-    Type                   type = Type::UNKNOWN;
+    ccstd::vector<TouchInfo> touches;
+    Type                     type = Type::UNKNOWN;
 };
 
 class MouseEvent : public OSEvent {
@@ -293,7 +293,7 @@ public:
     static void     dispatchCustomEvent(const CustomEvent &event);
 
 private:
-    static void doDispatchEvent(const char *eventName, const char *jsFunctionName, const std::vector<se::Value> &args);
+    static void doDispatchEvent(const char *eventName, const char *jsFunctionName, const ccstd::vector<se::Value> &args);
 
     struct Node {
         CustomEventListener listener;

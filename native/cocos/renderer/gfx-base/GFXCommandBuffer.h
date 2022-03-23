@@ -28,8 +28,9 @@
 #include "GFXBuffer.h"
 #include "GFXInputAssembler.h"
 #include "GFXObject.h"
-#include "base/Utils.h"
 #include "base/RefCounted.h"
+#include "base/Utils.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {
@@ -64,7 +65,7 @@ public:
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter)                                                                                     = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count)                                                                                                                                              = 0;
     virtual void dispatch(const DispatchInfo &info)                                                                                                                                                                   = 0;
-    virtual void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                            = 0;
+    virtual void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                           = 0;
     virtual void beginQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                        = 0;
     virtual void endQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                          = 0;
     virtual void resetQueryPool(QueryPool *queryPool)                                                                                                                                                                 = 0;
@@ -79,7 +80,7 @@ public:
     inline void execute(const CommandBufferList &cmdBuffs, uint32_t count);
 
     inline void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet);
-    inline void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const vector<uint32_t> &dynamicOffsets);
+    inline void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const ccstd::vector<uint32_t> &dynamicOffsets);
 
     inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil, const CommandBufferList &secondaryCBs);
     inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil);
@@ -138,7 +139,7 @@ void CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet
     bindDescriptorSet(set, descriptorSet, 0, nullptr);
 }
 
-void CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const vector<uint32_t> &dynamicOffsets) {
+void CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const ccstd::vector<uint32_t> &dynamicOffsets) {
     bindDescriptorSet(set, descriptorSet, utils::toUint(dynamicOffsets.size()), dynamicOffsets.data());
 }
 

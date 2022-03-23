@@ -25,14 +25,13 @@
 ****************************************************************************/
 
 #include "audio/include/AudioEngine.h"
-#include "base/Log.h"
-#include "base/Utils.h"
-#include "platform/FileUtils.h"
-
 #include <condition_variable>
 #include <mutex>
-#include <queue>
 #include <thread>
+#include "base/Log.h"
+#include "base/Utils.h"
+#include "base/std/container/queue.h"
+#include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "audio/android/AudioEngine-inl.h"
@@ -68,10 +67,10 @@ AudioEngine::ProfileHelper *                                AudioEngine::sDefaul
 std::unordered_map<int, AudioEngine::AudioInfo>             AudioEngine::sAudioIDInfoMap;
 AudioEngineImpl *                                           AudioEngine::sAudioEngineImpl = nullptr;
 
-float            AudioEngine::sVolumeFactor = 1.0F;
-uint32_t         AudioEngine::sOnPauseListenerID  = 0;
-uint32_t         AudioEngine::sOnResumeListenerID = 0;
-std::vector<int> AudioEngine::sBreakAudioID;
+float              AudioEngine::sVolumeFactor       = 1.0F;
+uint32_t           AudioEngine::sOnPauseListenerID  = 0;
+uint32_t           AudioEngine::sOnResumeListenerID = 0;
+ccstd::vector<int> AudioEngine::sBreakAudioID;
 
 AudioEngine::AudioEngineThreadPool *AudioEngine::sThreadPool = nullptr;
 bool                                AudioEngine::sIsEnabled  = true;
@@ -135,8 +134,8 @@ private:
         }
     }
 
-    std::vector<std::thread>          _workers;
-    std::queue<std::function<void()>> _taskQueue;
+    ccstd::vector<std::thread>          _workers;
+    ccstd::queue<std::function<void()>> _taskQueue;
 
     std::mutex              _queueMutex;
     std::condition_variable _taskCondition;

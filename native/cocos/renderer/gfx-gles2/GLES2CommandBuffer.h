@@ -26,6 +26,7 @@
 #pragma once
 
 #include "GLES2Std.h"
+#include "base/std/container/queue.h"
 #include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
@@ -77,16 +78,16 @@ protected:
 
     virtual void bindStates();
 
-    GLES2GPUCommandAllocator *_cmdAllocator  = nullptr;
-    GLES2CmdPackage *         _curCmdPackage = nullptr;
-    queue<GLES2CmdPackage *>  _pendingPackages, _freePackages;
+    GLES2GPUCommandAllocator *      _cmdAllocator  = nullptr;
+    GLES2CmdPackage *               _curCmdPackage = nullptr;
+    ccstd::queue<GLES2CmdPackage *> _pendingPackages, _freePackages;
 
-    uint32_t                        _curSubpassIdx       = 0U;
-    GLES2GPUPipelineState *         _curGPUPipelineState = nullptr;
-    vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
-    vector<vector<uint32_t>>        _curDynamicOffsets;
-    GLES2GPUInputAssembler *        _curGPUInputAssember = nullptr;
-    DynamicStates                   _curDynamicStates;
+    uint32_t                               _curSubpassIdx       = 0U;
+    GLES2GPUPipelineState *                _curGPUPipelineState = nullptr;
+    ccstd::vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
+    ccstd::vector<ccstd::vector<uint32_t>> _curDynamicOffsets;
+    GLES2GPUInputAssembler *               _curGPUInputAssember = nullptr;
+    DynamicStates                          _curDynamicStates;
 
     bool _isStateInvalid = false;
 };

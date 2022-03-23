@@ -46,7 +46,7 @@ public:
 
     // designed called by internal
     void onProcessImpl(int taskId, int64_t dl, int64_t dlNow, int64_t dlTotal);
-    void onFinishImpl(int taskId, int errCode, const char *errStr, const std::vector<unsigned char> &data);
+    void onFinishImpl(int taskId, int errCode, const char *errStr, const ccstd::vector<unsigned char> &data);
 
 protected:
     int                                            _id;

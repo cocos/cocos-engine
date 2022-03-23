@@ -26,22 +26,22 @@ THE SOFTWARE.
 #pragma once
 
 #include <stdio.h>
-#include <string>
-#include <vector>
 #include <memory>
+#include <string>
+#include "base/std/container/vector.h"
 
 namespace cc {
 
 struct PcmData {
-    std::shared_ptr<std::vector<char>> pcmBuffer;
-    int numChannels;
-    int sampleRate;
-    int bitsPerSample;
-    int containerSize;
-    int channelMask;
-    int endianness;
-    int numFrames;
-    float duration; // in seconds
+    std::shared_ptr<ccstd::vector<char>> pcmBuffer;
+    int                                  numChannels;
+    int                                  sampleRate;
+    int                                  bitsPerSample;
+    int                                  containerSize;
+    int                                  channelMask;
+    int                                  endianness;
+    int                                  numFrames;
+    float                                duration; // in seconds
 
     PcmData();
 

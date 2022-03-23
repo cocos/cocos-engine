@@ -157,7 +157,7 @@ void JointTexturePool::clear() {
     _textureBuffers.clear();
 }
 
-void JointTexturePool::registerCustomTextureLayouts(const std::vector<ICustomJointTextureLayout> &layouts) {
+void JointTexturePool::registerCustomTextureLayouts(const ccstd::vector<ICustomJointTextureLayout> &layouts) {
     for (const auto &layout : layouts) {
         auto chunkIdx = static_cast<index_t>(_customPool->createChunk(layout.textureLength));
         for (const auto &content : layout.contents) {
@@ -177,11 +177,11 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
         texture = _textureBuffers[hash];
     }
 
-    const std::vector<std::string> &joints    = skeleton->getJoints();
-    const std::vector<Mat4> &       bindPoses = skeleton->getBindposes();
-    Float32Array                    textureBuffer;
-    bool                            buildTexture = false;
-    auto                            jointCount   = static_cast<uint32_t>(joints.size());
+    const ccstd::vector<std::string> &joints    = skeleton->getJoints();
+    const ccstd::vector<Mat4> &       bindPoses = skeleton->getBindposes();
+    Float32Array                      textureBuffer;
+    bool                              buildTexture = false;
+    auto                              jointCount   = static_cast<uint32_t>(joints.size());
     if (!texture.has_value()) {
         uint32_t             bufSize = jointCount * 12;
         ITextureBufferHandle handle;
@@ -231,7 +231,7 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
         }
     }
 
-    std::vector<geometry::AABB> bounds;
+    ccstd::vector<geometry::AABB> bounds;
     texture.value()->bounds[static_cast<uint32_t>(mesh->getHash())] = bounds;
     geometry::AABB::fromPoints(v3Min, v3Max, &bounds[0]);
     if (buildTexture) {
@@ -253,8 +253,8 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
 //             return texture;
 //         }
 //     }
-//     const std::vector<std::string> &joints    = skeleton->getJoints();
-//     const std::vector<Mat4> &       bindPoses = skeleton->getBindposes();
+//     const ccstd::vector<std::string> &joints    = skeleton->getJoints();
+//     const ccstd::vector<Mat4> &       bindPoses = skeleton->getBindposes();
 //     // const clipData = SkelAnimDataHub.getOrExtract(clip);
 //     // const { frames } = clipData;
 //     Float32Array textureBuffer;
@@ -286,7 +286,7 @@ cc::optional<IJointTextureHandle *> JointTexturePool::getDefaultPoseTexture(Skel
 //         texture->refCount++;
 //     }
 //     auto                        boneSpaceBounds = mesh->getBoneSpaceBounds(skeleton);
-//     std::vector<geometry::AABB> bounds;
+//     ccstd::vector<geometry::AABB> bounds;
 //     texture->bounds[mesh->getHash()] = bounds;
 
 //     // for (uint32_t f = 0; f < frames; ++f) { // TODO(xwx): frames not define
@@ -490,7 +490,7 @@ void JointAnimationInfo::destroy(const std::string &nodeID) {
 }
 
 const IAnimInfo &JointAnimationInfo::switchClip(IAnimInfo &info /*, AnimationClip *clip */) {
-//    info.currentClip = clip;
+    //    info.currentClip = clip;
     info.data[0] = -1;
     info.buffer->update(info.data.buffer()->getData());
     info.dirty = false;

@@ -303,8 +303,8 @@ void Pass::resetUniform(const std::string &name) {
 
     if (givenDefaultOpt.has_value()) {
         const auto &value = givenDefaultOpt.value();
-        if (cc::holds_alternative<std::vector<float>>(value)) {
-            const auto &floatArr = cc::get<std::vector<float>>(value);
+        if (cc::holds_alternative<ccstd::vector<float>>(value)) {
+            const auto &floatArr = cc::get<ccstd::vector<float>>(value);
             auto        iter     = type2writer.find(type);
             if (iter != type2writer.end()) {
                 iter->second(block.data, floatArr.data(), static_cast<int32_t>(ofs));
@@ -364,7 +364,7 @@ void Pass::resetUBOs() {
             const auto &   block        = _blocks[u.binding];
             const auto &   info         = _properties[cur.name];
             const auto &   givenDefault = info.value;
-            const auto &   value        = (givenDefault.has_value() ? cc::get<std::vector<float>>(givenDefault.value()) : getDefaultFloatArrayFromType(cur.type));
+            const auto &   value        = (givenDefault.has_value() ? cc::get<ccstd::vector<float>>(givenDefault.value()) : getDefaultFloatArrayFromType(cur.type));
             const uint32_t size         = (gfx::getTypeSize(cur.type) >> 2) * cur.count;
             for (size_t k = 0; (k + value.size()) <= size; k += value.size()) {
                 std::copy(value.begin(), value.end(), block.data + ofs + k);
@@ -404,7 +404,7 @@ gfx::Shader *Pass::getShaderVariant() {
     return getShaderVariant({});
 }
 
-gfx::Shader *Pass::getShaderVariant(const std::vector<IMacroPatch> &patches) {
+gfx::Shader *Pass::getShaderVariant(const ccstd::vector<IMacroPatch> &patches) {
     if (!_shader && !tryCompile()) {
         CC_LOG_WARNING("pass resources incomplete");
         return nullptr;
@@ -423,7 +423,6 @@ gfx::Shader *Pass::getShaderVariant(const std::vector<IMacroPatch> &patches) {
         }
     }
 #endif
-
 
     auto *pipeline = _root->getPipeline();
     for (const auto &patch : patches) {
@@ -509,13 +508,13 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     _descriptorSet = _device->createDescriptorSet(dsInfo);
 
     // calculate total size required
-    const auto &                blocks     = _shaderInfo->blocks;
-    const auto *                tmplInfo   = programLib->getTemplateInfo(info.program);
-    const std::vector<int32_t> &blockSizes = tmplInfo->blockSizes;
-    const auto &                handleMap  = tmplInfo->handleMap;
+    const auto &                  blocks     = _shaderInfo->blocks;
+    const auto *                  tmplInfo   = programLib->getTemplateInfo(info.program);
+    const ccstd::vector<int32_t> &blockSizes = tmplInfo->blockSizes;
+    const auto &                  handleMap  = tmplInfo->handleMap;
 
-    const auto            alignment = device->getCapabilities().uboOffsetAlignment;
-    std::vector<uint32_t> startOffsets;
+    const auto              alignment = device->getCapabilities().uboOffsetAlignment;
+    ccstd::vector<uint32_t> startOffsets;
     startOffsets.reserve(blocks.size());
     uint32_t lastSize   = 0;
     uint32_t lastOffset = 0;

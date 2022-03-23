@@ -49,7 +49,7 @@ namespace cc {
 namespace gfx {
 
 DeviceValidator *DeviceValidator::instance = nullptr;
-bool DeviceValidator::allowStacktraceJS{true};
+bool             DeviceValidator::allowStacktraceJS{true};
 
 DeviceValidator *DeviceValidator::getInstance() {
     return DeviceValidator::instance;
@@ -141,7 +141,7 @@ void DeviceValidator::doDestroy() {
 }
 
 void DeviceValidator::acquire(Swapchain *const *swapchains, uint32_t count) {
-    static vector<Swapchain *> swapchainActors;
+    static ccstd::vector<Swapchain *> swapchainActors;
     swapchainActors.resize(count);
 
     for (uint32_t i = 0U; i < count; ++i) {
@@ -315,7 +315,7 @@ void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint32_t cou
 
     /////////// execute ///////////
 
-    static vector<CommandBuffer *> cmdBuffActors;
+    static ccstd::vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);
 
     for (uint32_t i = 0U; i < count; ++i) {

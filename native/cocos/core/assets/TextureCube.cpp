@@ -49,9 +49,9 @@ void forEachFace(const ITextureCubeMipmap &mipmap, const ForEachFaceCallback &ca
 } // namespace
 
 /* static */
-TextureCube *TextureCube::fromTexture2DArray(const std::vector<Texture2D *> &textures) {
-    size_t                          nMipmaps = textures.size() / 6;
-    std::vector<ITextureCubeMipmap> mipmaps;
+TextureCube *TextureCube::fromTexture2DArray(const ccstd::vector<Texture2D *> &textures) {
+    size_t                            nMipmaps = textures.size() / 6;
+    ccstd::vector<ITextureCubeMipmap> mipmaps;
     mipmaps.reserve(nMipmaps);
     for (size_t i = 0; i < nMipmaps; i++) {
         size_t x = i * 6;
@@ -75,7 +75,7 @@ TextureCube::TextureCube() = default;
 
 TextureCube::~TextureCube() = default;
 
-void TextureCube::setMipmaps(const std::vector<ITextureCubeMipmap> &value) {
+void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     _mipmaps = value;
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {
@@ -104,7 +104,7 @@ void TextureCube::setMipmaps(const std::vector<ITextureCubeMipmap> &value) {
     }
 }
 
-void TextureCube::setMipmapsForJS(const std::vector<ITextureCubeMipmap> &value) {
+void TextureCube::setMipmapsForJS(const ccstd::vector<ITextureCubeMipmap> &value) {
     _mipmaps = value;
 }
 

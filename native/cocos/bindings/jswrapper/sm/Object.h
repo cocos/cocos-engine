@@ -119,8 +119,8 @@ public:
          */
     static Object *createArrayBufferObject(const void *data, size_t byteLength);
 
-    using BufferContentsFreeFunc = void (*)(void* contents, size_t byteLength, void* userData);
-    static Object *createExternalArrayBufferObject(void* contents, size_t nbytes, BufferContentsFreeFunc freeFunc, void* freeUserData = nullptr);
+    using BufferContentsFreeFunc = void (*)(void *contents, size_t byteLength, void *userData);
+    static Object *createExternalArrayBufferObject(void *contents, size_t nbytes, BufferContentsFreeFunc freeFunc, void *freeUserData = nullptr);
 
     /**
          *  @brief Creates a JavaScript Object from a JSON formatted string.
@@ -275,7 +275,7 @@ public:
          *  @param[out] allKeys A string vector to store all property names.
          *  @return true if succeed, otherwise false.
          */
-    bool getAllKeys(std::vector<std::string> *allKeys) const;
+    bool getAllKeys(ccstd::vector<std::string> *allKeys) const;
 
     void               setPrivateObject(PrivateObjectBase *data);
     PrivateObjectBase *getPrivateObject() const;
@@ -411,7 +411,7 @@ public:
 
     // Private API used in wrapper
     static Object *_createJSObject(Class *cls, JSObject *obj);
-    static Object *_createJSObjectForConstructor(Class *cls, const JS::CallArgs& args);
+    static Object *_createJSObjectForConstructor(Class *cls, const JS::CallArgs &args);
     void           _setFinalizeCallback(JSFinalizeOp finalizeCb);
     bool           _isNativeFunction(JSNative func) const;
     JSObject *     _getJSObject() const;
@@ -425,16 +425,16 @@ private:
 
     static void setContext(JSContext *cx);
     static void cleanup();
-    static void onTraceCallback(JSTracer* trc, void* data);
+    static void onTraceCallback(JSTracer *trc, void *data);
 
     void trace(JSTracer *tracer);
-    bool updateAfterGC(JSTracer* trc, void *data);
+    bool updateAfterGC(JSTracer *trc, void *data);
 
     void protect();
     void unprotect();
     void reset();
 
-    JS::Heap<JSObject *>        _heap; /* should be untouched if in rooted mode */
+    JS::Heap<JSObject *>       _heap; /* should be untouched if in rooted mode */
     JS::PersistentRootedObject _root; /* should be null if not in rooted mode */
 
     PrivateObjectBase *    _privateObject{nullptr};

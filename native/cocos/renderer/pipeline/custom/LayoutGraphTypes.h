@@ -101,6 +101,7 @@ struct DescriptorBlock {
 
     PmrTransparentMap<PmrString, Descriptor>     descriptors;
     PmrTransparentMap<PmrString, UniformBlockDB> uniformBlocks;
+    PmrTransparentMap<gfx::Type, Descriptor>     merged;
     uint32_t                                     capacity{0};
     uint32_t                                     start{0};
     uint32_t                                     count{0};

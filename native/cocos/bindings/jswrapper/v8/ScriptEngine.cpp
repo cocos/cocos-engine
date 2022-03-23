@@ -33,6 +33,7 @@
     #include "MissingSymbols.h"
     #include "Object.h"
     #include "Utils.h"
+    #include "base/std/container/map.h"
     #include "platform/FileUtils.h"
 
     #include <sstream>
@@ -51,8 +52,8 @@
 const unsigned int JSB_STACK_FRAME_LIMIT = 20;
 
     #ifdef CC_DEBUG
-unsigned int                    jsbInvocationCount = 0;
-std::map<std::string, unsigned> jsbFunctionInvokedRecords;
+unsigned int                      jsbInvocationCount = 0;
+ccstd::map<std::string, unsigned> jsbFunctionInvokedRecords;
     #endif
 
     #define RETRUN_VAL_IF_FAIL(cond, val) \
@@ -328,7 +329,7 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
     });
 
     if (itr == _promiseArray.end()) { //Not found, create one
-        _promiseArray.emplace_back(std::make_unique<v8::Persistent<v8::Promise>>(), std::vector<PromiseExceptionMsg>{});
+        _promiseArray.emplace_back(std::make_unique<v8::Persistent<v8::Promise>>(), ccstd::vector<PromiseExceptionMsg>{});
         std::get<0>(_promiseArray.back())->Reset(_isolate, promise);
         current = &_promiseArray.back();
     } else {
@@ -963,7 +964,7 @@ bool ScriptEngine::runByteCodeFile(const std::string &pathBc, Value *ret /* = nu
 
     // generate dummy code
     if (filesize > 0) {
-        std::vector<char> codeBuffer;
+        ccstd::vector<char> codeBuffer;
         codeBuffer.resize(filesize + 1);
         std::fill(codeBuffer.begin(), codeBuffer.end(), ' ');
         codeBuffer[0]            = '\"';

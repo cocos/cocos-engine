@@ -74,7 +74,7 @@ using MacroRecord = Record<std::string, MacroValue>;
 
 using MaterialProperty = cc::variant<cc::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, IntrusivePtr<TextureBase> /*10*/, IntrusivePtr<gfx::Texture> /*11*/>;
 
-using MaterialPropertyList = std::vector<MaterialProperty>;
+using MaterialPropertyList = ccstd::vector<MaterialProperty>;
 
 using MaterialPropertyVariant = cc::variant<cc::monostate /*0*/, MaterialProperty /*1*/, MaterialPropertyList /*2*/>;
 
@@ -92,8 +92,8 @@ extern const std::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer; /
  * @zh 根据指定的 Uniform 类型来获取默认值
  * @param type The type of the uniform
  */
-const std::vector<float> &getDefaultFloatArrayFromType(gfx::Type type);
-const std::string &       getDefaultStringFromType(gfx::Type type);
+const ccstd::vector<float> &getDefaultFloatArrayFromType(gfx::Type type);
+const std::string &         getDefaultStringFromType(gfx::Type type);
 
 /**
  * @en Combination of preprocess macros

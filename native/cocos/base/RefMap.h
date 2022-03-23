@@ -30,6 +30,7 @@
 #include "base/Log.h"
 #include "base/Random.h"
 #include "base/RefCounted.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -134,8 +135,8 @@ public:
     }
 
     /** Returns all keys in the map. */
-    std::vector<K> keys() const {
-        std::vector<K> keys;
+    ccstd::vector<K> keys() const {
+        ccstd::vector<K> keys;
 
         if (!_data.empty()) {
             keys.reserve(_data.size());
@@ -148,8 +149,8 @@ public:
     }
 
     /** Returns all keys that matches the object. */
-    std::vector<K> keys(V object) const {
-        std::vector<K> keys;
+    ccstd::vector<K> keys(V object) const {
+        ccstd::vector<K> keys;
 
         if (!_data.empty()) {
             keys.reserve(_data.size() / 10);
@@ -245,7 +246,7 @@ public:
      *
      * @param keys Keys of elements to be erased.
      */
-    void erase(const std::vector<K> &keys) {
+    void erase(const ccstd::vector<K> &keys) {
         for (const auto &key : keys) {
             this->erase(key);
         }

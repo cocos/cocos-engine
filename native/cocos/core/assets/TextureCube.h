@@ -59,9 +59,9 @@ struct ITextureCubeSerializeMipmapData {
 };
 
 struct ITextureCubeSerializeData {
-    std::string                                  base;
-    bool                                         rgbe{false};
-    std::vector<ITextureCubeSerializeMipmapData> mipmaps;
+    std::string                                    base;
+    bool                                           rgbe{false};
+    ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
 };
 
 /**
@@ -109,7 +109,7 @@ public:
      * const textureCube = TextureCube.fromTexture2DArray(textures);
      * ```
      */
-    static TextureCube *fromTexture2DArray(const std::vector<Texture2D *> &textures);
+    static TextureCube *fromTexture2DArray(const ccstd::vector<Texture2D *> &textures);
 
     /**
      * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.
@@ -117,13 +117,13 @@ public:
      * @zh 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
      * 当设置 Mipmap 时，贴图的尺寸以及像素格式可能会改变。
      */
-    const std::vector<ITextureCubeMipmap> &getMipmaps() const {
+    const ccstd::vector<ITextureCubeMipmap> &getMipmaps() const {
         return _mipmaps;
     }
 
-    void setMipmaps(const std::vector<ITextureCubeMipmap> &value);
+    void setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value);
 
-    void setMipmapsForJS(const std::vector<ITextureCubeMipmap> &value);
+    void setMipmapsForJS(const ccstd::vector<ITextureCubeMipmap> &value);
 
     /**
      * @en Level 0 mipmap image.
@@ -179,7 +179,7 @@ public:
     bool isRGBE{false};
 
     /*@serializable*/
-    std::vector<ITextureCubeMipmap> _mipmaps;
+    ccstd::vector<ITextureCubeMipmap> _mipmaps;
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(TextureCube);

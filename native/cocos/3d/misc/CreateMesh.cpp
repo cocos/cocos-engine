@@ -18,21 +18,30 @@ gfx::AttributeList defAttrs = {
 };
 } // namespace
 
-Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOptions &options /* = {}*/) {
+Mesh *MeshUtils::createMesh(const IGeometry &geometry, Mesh *out /*= nullptr*/, const ICreateMeshOptions &options /*= {}*/) {
+    if (!out) {
+        out = new Mesh();
+    }
+
+    out->reset(createMeshInfo(geometry, options));
+    return out;
+}
+
+Mesh::ICreateInfo MeshUtils::createMeshInfo(const IGeometry &geometry, const ICreateMeshOptions &options /* = {}*/) {
     // Collect attributes and calculate length of result vertex buffer.
     gfx::AttributeList attributes;
     uint32_t           stride = 0;
     struct Channel {
-        uint32_t           offset{0};
-        std::vector<float> data; // float?
-        gfx::Attribute     attribute;
+        uint32_t             offset{0};
+        ccstd::vector<float> data; // float?
+        gfx::Attribute       attribute;
     };
-    std::vector<Channel> channels;
-    uint32_t             vertCount = 0;
+    ccstd::vector<Channel> channels;
+    uint32_t               vertCount = 0;
 
     const gfx::Attribute *attr = nullptr;
 
-    std::vector<float> positions(geometry.positions);
+    ccstd::vector<float> positions(geometry.positions);
 
     if (!positions.empty()) {
         attr = nullptr;
@@ -181,9 +190,9 @@ Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOpt
     uint32_t         idxCount  = 0;
     const uint32_t   idxStride = 2;
     if (geometry.indices.has_value()) {
-        const std::vector<uint32_t> &indices = geometry.indices.value();
-        idxCount                             = static_cast<uint32_t>(indices.size());
-        indexBuffer                          = new ArrayBuffer(idxStride * idxCount);
+        const ccstd::vector<uint32_t> &indices = geometry.indices.value();
+        idxCount                               = static_cast<uint32_t>(indices.size());
+        indexBuffer                            = new ArrayBuffer(idxStride * idxCount);
         DataView indexBufferView(indexBuffer);
         writeBuffer(indexBufferView, indices, gfx::Format::R16UI);
     }
@@ -238,10 +247,137 @@ Mesh::ICreateInfo createMeshInfo(const IGeometry &geometry, const ICreateMeshOpt
     return createInfo;
 }
 
-Mesh *createMesh(const IGeometry &geometry, const ICreateMeshOptions &options /* = {}*/) {
-    auto *out = new Mesh();
-    out->reset(createMeshInfo(geometry, options));
+static inline uint32_t getPadding(uint32_t length, uint32_t align) {
+    if (align > 0U) {
+        const uint32_t remainder = length % align;
+        if (remainder != 0U) {
+            const uint32_t padding = align - remainder;
+            return padding;
+        }
+    }
+
+    return 0U;
+}
+
+Mesh *MeshUtils::createDynamicMesh(index_t primitiveIndex, const IDynamicGeometry &geometry, Mesh *out /*= nullptr*/, const ICreateDynamicMeshOptions &options /*= {}*/) {
+    if (!out) {
+        out = new Mesh();
+    }
+
+    out->reset(MeshUtils::createDynamicMeshInfo(geometry, options));
+    out->initialize();
+    out->updateSubMesh(primitiveIndex, geometry);
+
     return out;
+}
+
+Mesh::ICreateInfo MeshUtils::createDynamicMeshInfo(const IDynamicGeometry &geometry, const ICreateDynamicMeshOptions &options /* = {}*/) {
+    gfx::AttributeList attributes;
+    uint32_t           stream = 0U;
+
+    if (!geometry.positions.empty()) {
+        attributes.push_back({gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F, false, stream++, false, 0U});
+    }
+
+    if (geometry.normals.has_value() && !geometry.normals.value().empty()) {
+        attributes.push_back({gfx::ATTR_NAME_NORMAL, gfx::Format::RGB32F, false, stream++, false, 0U});
+    }
+
+    if (geometry.uvs.has_value() && !geometry.uvs.value().empty()) {
+        attributes.push_back({gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F, false, stream++, false, 0U});
+    }
+
+    if (geometry.tangents.has_value() && !geometry.tangents.value().empty()) {
+        attributes.push_back({gfx::ATTR_NAME_TANGENT, gfx::Format::RGBA32F, false, stream++, false, 0U});
+    }
+
+    if (geometry.colors.has_value() && !geometry.colors.value().empty()) {
+        attributes.push_back({gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F, false, stream++, false, 0U});
+    }
+
+    if (geometry.customAttributes.has_value()) {
+        for (const auto &ca : geometry.customAttributes.value()) {
+            auto attr   = ca.attr;
+            attr.stream = stream++;
+            attributes.emplace_back(attr);
+        }
+    }
+
+    ccstd::vector<Mesh::IVertexBundle> vertexBundles;
+    ccstd::vector<Mesh::ISubMesh>      primitives;
+    uint32_t                           dataSize = 0U;
+
+    for (auto i = 0U; i < options.maxSubMeshes; i++) {
+        Mesh::ISubMesh primitive;
+        primitive.primitiveMode = geometry.primitiveMode.has_value() ? geometry.primitiveMode.value() : gfx::PrimitiveMode::TRIANGLE_LIST;
+
+        // add vertex buffers
+        for (const auto &attr : attributes) {
+            const auto &formatInfo       = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
+            uint32_t    vertexBufferSize = options.maxSubMeshVertices * formatInfo.size;
+
+            Mesh::IBufferView vertexView = {
+                dataSize,
+                vertexBufferSize,
+                0U,
+                formatInfo.size};
+
+            Mesh::IVertexBundle vertexBundle = {
+                0U,
+                vertexView,
+                {attr}};
+
+            const auto vertexBundleIndex = static_cast<uint32_t>(vertexBundles.size());
+            primitive.vertexBundelIndices.emplace_back(vertexBundleIndex);
+            vertexBundles.emplace_back(vertexBundle);
+            dataSize += vertexBufferSize;
+        }
+
+        // add index buffer
+        uint32_t stride = 0U;
+        if (geometry.indices16.has_value() && !geometry.indices16.value().empty()) {
+            stride = sizeof(uint16_t);
+        } else if (geometry.indices32.has_value() && !geometry.indices32.value().empty()) {
+            stride = sizeof(uint32_t);
+        }
+
+        if (stride > 0U) {
+            dataSize += getPadding(dataSize, stride);
+            uint32_t indexBufferSize = options.maxSubMeshIndices * stride;
+
+            Mesh::IBufferView indexView = {
+                dataSize,
+                indexBufferSize,
+                0U,
+                stride};
+
+            primitive.indexView = indexView;
+            dataSize += indexBufferSize;
+        }
+
+        primitives.emplace_back(primitive);
+    }
+
+    Mesh::IDynamicInfo dynamicInfo = {options.maxSubMeshes,
+                                      options.maxSubMeshVertices,
+                                      options.maxSubMeshIndices};
+
+    Mesh::IDynamicStruct dynamicStruct;
+    dynamicStruct.info = dynamicInfo;
+    dynamicStruct.bounds.resize(options.maxSubMeshes);
+    for (auto &bound : dynamicStruct.bounds) {
+        bound.setValid(false);
+    }
+
+    Mesh::IStruct meshStruct;
+    meshStruct.vertexBundles = vertexBundles;
+    meshStruct.primitives    = primitives;
+    meshStruct.dynamic       = std::move(dynamicStruct);
+
+    Mesh::ICreateInfo createInfo;
+    createInfo.structInfo = std::move(meshStruct);
+    createInfo.data       = Uint8Array(dataSize);
+    return createInfo;
 }
 
 } // namespace cc

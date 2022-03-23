@@ -26,11 +26,11 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -98,29 +98,29 @@ public:
     inline DirectionalLight *getMainLight() const { return _mainLight.get(); }
     void                     setMainLight(DirectionalLight *dl);
 
-    inline uint64_t                                      generateModelId() { return _modelId++; }
-    inline const std::string &                           getName() const { return _name; }
-    inline const std::vector<IntrusivePtr<Camera>> &     getCameras() const { return _cameras; }
-    inline const std::vector<IntrusivePtr<SphereLight>> &getSphereLights() const { return _sphereLights; }
-    inline const std::vector<IntrusivePtr<SpotLight>> &  getSpotLights() const { return _spotLights; }
-    inline const std::vector<IntrusivePtr<Model>> &      getModels() const { return _models; }
-    inline Octree *                                      getOctree() const { return _octree; }
-    void                                                 updateOctree(Model *model);
+    inline uint64_t                                        generateModelId() { return _modelId++; }
+    inline const std::string &                             getName() const { return _name; }
+    inline const ccstd::vector<IntrusivePtr<Camera>> &     getCameras() const { return _cameras; }
+    inline const ccstd::vector<IntrusivePtr<SphereLight>> &getSphereLights() const { return _sphereLights; }
+    inline const ccstd::vector<IntrusivePtr<SpotLight>> &  getSpotLights() const { return _spotLights; }
+    inline const ccstd::vector<IntrusivePtr<Model>> &      getModels() const { return _models; }
+    inline Octree *                                        getOctree() const { return _octree; }
+    void                                                   updateOctree(Model *model);
     // FIXME: remove getDrawBatch2Ds
-    inline const std::vector<DrawBatch2D *> &getBatches() const { return _batches; }
-    inline const std::vector<DrawBatch2D *> &getDrawBatch2Ds() const { return _batches; }
+    inline const ccstd::vector<DrawBatch2D *> &getBatches() const { return _batches; }
+    inline const ccstd::vector<DrawBatch2D *> &getDrawBatch2Ds() const { return _batches; }
 
 private:
-    std::string                                 _name;
-    uint64_t                                    _modelId{0};
-    IntrusivePtr<DirectionalLight>              _mainLight;
-    std::vector<IntrusivePtr<Model>>            _models;
-    std::vector<IntrusivePtr<Camera>>           _cameras;
-    std::vector<IntrusivePtr<DirectionalLight>> _directionalLights;
-    std::vector<IntrusivePtr<SphereLight>>      _sphereLights;
-    std::vector<IntrusivePtr<SpotLight>>        _spotLights;
-    std::vector<DrawBatch2D *>                  _batches;
-    Octree *                                    _octree{nullptr};
+    std::string                                   _name;
+    uint64_t                                      _modelId{0};
+    IntrusivePtr<DirectionalLight>                _mainLight;
+    ccstd::vector<IntrusivePtr<Model>>            _models;
+    ccstd::vector<IntrusivePtr<Camera>>           _cameras;
+    ccstd::vector<IntrusivePtr<DirectionalLight>> _directionalLights;
+    ccstd::vector<IntrusivePtr<SphereLight>>      _sphereLights;
+    ccstd::vector<IntrusivePtr<SpotLight>>        _spotLights;
+    ccstd::vector<DrawBatch2D *>                  _batches;
+    Octree *                                      _octree{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderScene);
 };

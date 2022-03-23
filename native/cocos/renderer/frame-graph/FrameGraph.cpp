@@ -27,10 +27,10 @@
 
 #include <algorithm>
 #include <fstream>
-#include <set>
 #include "PassNodeBuilder.h"
 #include "Resource.h"
 #include "base/StringUtil.h"
+#include "base/std/container/set.h"
 #include "frame-graph/ResourceEntry.h"
 
 namespace cc {
@@ -230,7 +230,7 @@ void FrameGraph::cull() {
         }
     }
 
-    static std::vector<const ResourceNode *> stack;
+    static ccstd::vector<const ResourceNode *> stack;
     stack.clear();
     stack.reserve(_resourceNodes.size());
 
@@ -377,7 +377,7 @@ void FrameGraph::computeStoreActionAndMemoryless() {
         lastPassSubpassEnable = passNode->_subpass && !passNode->_subpassEnd;
     }
 
-    static std::set<VirtualResource *> renderTargets;
+    static ccstd::set<VirtualResource *> renderTargets;
     renderTargets.clear();
 
     for (const auto &passNode : _passNodes) {
@@ -439,7 +439,7 @@ void FrameGraph::generateDevicePasses() {
 
     ID passId = 1;
 
-    static std::vector<PassNode *> subpassNodes;
+    static ccstd::vector<PassNode *> subpassNodes;
     subpassNodes.clear();
 
     for (const auto &passNode : _passNodes) {

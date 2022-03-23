@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <functional>
-#include <vector>
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -147,7 +147,7 @@ public:
      * 添加一个指定数组中的所有元素到当前数组末尾
      * @param array The given array to be appended
      */
-    void concat(const std::vector<T *> &array) {
+    void concat(const ccstd::vector<T *> &array) {
         size_t freeSize         = _array.capacity() - _length;
         size_t elementsToConcat = std::min(freeSize, array.size());
         _array.insert(_array.begin() + _length, array.begin(), array.begin() + elementsToConcat);
@@ -182,8 +182,8 @@ public:
         return -1;
     }
 
-    std::vector<T *> _array;
-    uint32_t         _length{0};
+    ccstd::vector<T *> _array;
+    uint32_t           _length{0};
 
 private:
     CompareFn _compareFn{nullptr};

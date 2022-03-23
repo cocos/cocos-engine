@@ -29,6 +29,7 @@
 
     // clang-format off
     #include "base/Macros.h"
+    #include "base/std/container/map.h"
     #include "uv.h"
 // clang-format on
 
@@ -36,13 +37,11 @@
     #include <atomic>
     #include <functional>
     #include <list>
-    #include <map>
     #include <memory>
     #include <mutex>
     #include <string>
     #include <thread>
     #include <unordered_map>
-    #include <vector>
 
     #if CC_PLATFORM == CC_PLATFORM_OHOS
         #include "libwebsockets.h"
@@ -98,7 +97,7 @@ public:
     unsigned char *getData() { return _underlyingData.data() + LWS_PRE; }
 
 private:
-    std::vector<unsigned char>               _underlyingData;
+    ccstd::vector<unsigned char>             _underlyingData;
     int                                      _consumed = 0;
     bool                                     _isBinary = false;
     std::function<void(const std::string &)> _callback;
@@ -137,9 +136,9 @@ public:
         return (int)_readyState;
     }
 
-    std::map<std::string, std::string> getHeaders();
+    ccstd::map<std::string, std::string> getHeaders();
 
-    std::vector<std::string> getProtocols();
+    ccstd::vector<std::string> getProtocols();
 
     inline void setOnClose(std::function<void(int, const std::string &)> cb) {
         _onclose = cb;
@@ -192,7 +191,7 @@ private:
     void onDestroyClient();
 
     struct lws *                          _wsi = nullptr;
-    std::map<std::string, std::string>    _headers;
+    ccstd::map<std::string, std::string>  _headers;
     std::list<std::shared_ptr<DataFrame>> _sendQueue;
     std::shared_ptr<DataFrame>            _prevPkg;
     bool                                  _closed      = false;
@@ -222,7 +221,7 @@ public:
     static void listenAsync(std::shared_ptr<WebSocketServer> &server, int port, const std::string &host, std::function<void(const std::string &errorMsg)> callback);
     void        closeAsync(std::function<void(const std::string &errorMsg)> callback = nullptr);
 
-    std::vector<std::shared_ptr<WebSocketServerConnection>> getConnections() const;
+    ccstd::vector<std::shared_ptr<WebSocketServerConnection>> getConnections() const;
 
     void setOnListening(std::function<void(const std::string &)> cb) {
         _onlistening = cb;

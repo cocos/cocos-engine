@@ -241,7 +241,7 @@ index_t TextureBufferPool::findAvailableSpace(uint32_t size, index_t chunkIdx) c
         isFound = true;
     } else {
         start = 0; // try to find from head again
-        std::vector<ITextureBufferHandle> handles;
+        ccstd::vector<ITextureBufferHandle> handles;
         for (auto h : _handles) {
             if (h.chunkIdx == chunkIdx) {
                 handles.emplace_back(h);

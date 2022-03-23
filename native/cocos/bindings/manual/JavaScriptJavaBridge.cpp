@@ -68,7 +68,7 @@ public:
         FUNCTION
     };
 
-    using ValueTypes = std::vector<ValueType>;
+    using ValueTypes = ccstd::vector<ValueType>;
 
     using ReturnValue = union {
         int          intValue;
@@ -541,9 +541,9 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
 
         JavaScriptJavaBridge::CallInfo call(clsName.c_str(), methodName.c_str(), methodSig.c_str());
         if (call.isValid() && call.getArgumentsCount() == (argc - 3)) {
-            int                  count = argc - 3;
-            auto *               jargs = new jvalue[count];
-            std::vector<jobject> toReleaseObjects;
+            int                    count = argc - 3;
+            auto *                 jargs = new jvalue[count];
+            ccstd::vector<jobject> toReleaseObjects;
             for (int i = 0; i < count; ++i) {
                 int index = i + 3;
                 switch (call.argumentTypeAtIndex(i)) {

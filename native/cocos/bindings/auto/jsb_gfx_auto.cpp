@@ -17053,6 +17053,25 @@ static bool js_gfx_InputAssembler_initialize(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_gfx_InputAssembler_initialize)
 
+static bool js_gfx_InputAssembler_setDrawInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::InputAssembler>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_InputAssembler_setDrawInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::DrawInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_InputAssembler_setDrawInfo : Error processing arguments");
+        cobj->setDrawInfo(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_gfx_InputAssembler_setDrawInfo)
+
 static bool js_gfx_InputAssembler_setFirstIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::InputAssembler>(s);
@@ -17211,7 +17230,7 @@ bool js_register_gfx_InputAssembler(se::Object* obj) // NOLINT(readability-ident
     cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer_asGetter), nullptr);
     cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer_asGetter), nullptr);
     cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash_asGetter), nullptr);
-    cls->defineProperty("drawInfo", _SE(js_gfx_InputAssembler_getDrawInfo_asGetter), nullptr);
+    cls->defineProperty("drawInfo", _SE(js_gfx_InputAssembler_getDrawInfo_asGetter), _SE(js_gfx_InputAssembler_setDrawInfo_asSetter));
     cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount_asGetter), _SE(js_gfx_InputAssembler_setVertexCount_asSetter));
     cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex_asGetter), _SE(js_gfx_InputAssembler_setFirstVertex_asSetter));
     cls->defineProperty("indexCount", _SE(js_gfx_InputAssembler_getIndexCount_asGetter), _SE(js_gfx_InputAssembler_setIndexCount_asSetter));
@@ -21730,6 +21749,40 @@ static bool js_gfx_DeviceManager_destroy_static(se::State& s) // NOLINT(readabil
     return false;
 }
 SE_BIND_FUNC(js_gfx_DeviceManager_destroy_static)
+
+static bool js_gfx_DeviceManager_getGFXName_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::string result = cc::gfx::DeviceManager::getGFXName();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_DeviceManager_getGFXName_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DeviceManager_getGFXName_static)
+
+static bool js_gfx_DeviceManager_isDetachDeviceThread_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cc::gfx::DeviceManager::isDetachDeviceThread();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_DeviceManager_isDetachDeviceThread_static : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DeviceManager_isDetachDeviceThread_static)
 static bool js_cc_gfx_DeviceManager_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     return true;
@@ -21743,6 +21796,8 @@ bool js_register_gfx_DeviceManager(se::Object* obj) // NOLINT(readability-identi
     cls->defineStaticFunction("addSurfaceEventListener", _SE(js_gfx_DeviceManager_addSurfaceEventListener_static));
     cls->defineStaticFunction("create", _SE(js_gfx_DeviceManager_create_static));
     cls->defineStaticFunction("destroy", _SE(js_gfx_DeviceManager_destroy_static));
+    cls->defineStaticFunction("getGFXName", _SE(js_gfx_DeviceManager_getGFXName_static));
+    cls->defineStaticFunction("isDetachDeviceThread", _SE(js_gfx_DeviceManager_isDetachDeviceThread_static));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DeviceManager_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DeviceManager>(cls);

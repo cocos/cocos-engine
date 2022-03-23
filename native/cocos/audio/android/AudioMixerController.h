@@ -25,13 +25,12 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "audio/android/utils/Errors.h"
-
-#include <thread>
-#include <mutex>
-#include <condition_variable>
 #include <atomic>
-#include <vector>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#include "audio/android/utils/Errors.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -41,7 +40,7 @@ class AudioMixer;
 class AudioMixerController {
 public:
     struct OutputBuffer {
-        void *buf;
+        void * buf;
         size_t size;
     };
 
@@ -54,8 +53,8 @@ public:
     bool addTrack(Track *track);
     bool hasPlayingTacks();
 
-    void pause();
-    void resume();
+    void        pause();
+    void        resume();
     inline bool isPaused() const { return _isPaused; };
 
     void mixOneFrame();
@@ -64,7 +63,7 @@ public:
 
 private:
     void destroy();
-    void initTrack(Track *track, std::vector<Track *> &tracksToRemove);
+    void initTrack(Track *track, ccstd::vector<Track *> &tracksToRemove);
 
 private:
     int _bufferSizeInFrames;
@@ -73,8 +72,8 @@ private:
 
     AudioMixer *_mixer;
 
-    std::mutex _activeTracksMutex;
-    std::vector<Track *> _activeTracks;
+    std::mutex             _activeTracksMutex;
+    ccstd::vector<Track *> _activeTracks;
 
     OutputBuffer _mixingBuffer;
 

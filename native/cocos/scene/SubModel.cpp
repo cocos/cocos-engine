@@ -28,6 +28,7 @@
 #include "core/platform/Debug.h"
 #include "pipeline/Define.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
 #include "scene/Model.h"
 #include "scene/Pass.h"
@@ -52,7 +53,7 @@ void SubModel::update() {
     _worldBoundDescriptorSet->update();
 }
 
-void SubModel::setPasses(const std::shared_ptr<std::vector<IntrusivePtr<Pass>>> &pPasses) {
+void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses) {
     if (!pPasses || pPasses->size() > MAX_PASS_COUNT) {
         debug::errorID(12004, MAX_PASS_COUNT);
         return;
@@ -90,7 +91,7 @@ Pass *SubModel::getPass(uint index) const {
     return passes[index];
 }
 
-void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<std::vector<IntrusivePtr<Pass>>> &pPasses, const std::vector<IMacroPatch> &patches) {
+void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses, const ccstd::vector<IMacroPatch> &patches) {
     _device = Root::getInstance()->getDevice();
     if (!pPasses->empty()) {
         dsInfo.layout = (*pPasses)[0]->getLocalSetLayout();
@@ -154,7 +155,7 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<std::
 // This is a temporary solution
 // It should not be written in a fixed way, or modified by the user
 void SubModel::initPlanarShadowShader() {
-    const auto *pipeline   = static_cast<pipeline::ForwardPipeline *>(Root::getInstance()->getPipeline());
+    const auto *pipeline   = Root::getInstance()->getPipeline();
     Shadows *   shadowInfo = pipeline->getPipelineSceneData()->getShadows();
     if (shadowInfo != nullptr) {
         _planarShader = shadowInfo->getPlanarShader(_patches);
@@ -167,7 +168,7 @@ void SubModel::initPlanarShadowShader() {
 // This is a temporary solution
 // It should not be written in a fixed way, or modified by the user
 void SubModel::initPlanarShadowInstanceShader() {
-    const auto *pipeline   = static_cast<pipeline::ForwardPipeline *>(Root::getInstance()->getPipeline());
+    const auto *pipeline   = Root::getInstance()->getPipeline();
     Shadows *   shadowInfo = pipeline->getPipelineSceneData()->getShadows();
     if (shadowInfo != nullptr) {
         _planarInstanceShader = shadowInfo->getPlanarInstanceShader(_patches);
@@ -204,7 +205,7 @@ void SubModel::onPipelineStateChanged() {
     flushPassInfo();
 }
 
-void SubModel::onMacroPatchesStateChanged(const std::vector<IMacroPatch> &patches) {
+void SubModel::onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches) {
     _patches           = patches;
     const auto &passes = *_passes;
     if (passes.empty()) return;
@@ -214,6 +215,18 @@ void SubModel::onMacroPatchesStateChanged(const std::vector<IMacroPatch> &patche
         pass->endChangeStatesSilently();
     }
     flushPassInfo();
+}
+
+void SubModel::onGeometryChanged() {
+    if (!_subMesh) {
+        return;
+    }
+
+    // update draw info
+    const auto &drawInfo = _subMesh->getDrawInfo();
+    if (drawInfo.has_value()) {
+        _inputAssembler->setDrawInfo(drawInfo.value());
+    }
 }
 
 void SubModel::flushPassInfo() {

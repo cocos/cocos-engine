@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "GLES3Std.h"
 #include "gfx-base/GFXQueryPool.h"
 
@@ -53,8 +52,8 @@ protected:
     void doInit(const QueryPoolInfo &info) override;
     void doDestroy() override;
 
-    GLES3GPUQueryPool *   _gpuQueryPool = nullptr;
-    std::vector<uint32_t> _ids;
+    GLES3GPUQueryPool *     _gpuQueryPool = nullptr;
+    ccstd::vector<uint32_t> _ids;
 };
 
 } // namespace gfx

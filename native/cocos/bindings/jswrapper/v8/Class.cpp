@@ -41,8 +41,8 @@ namespace se {
 
 namespace {
 //        std::unordered_map<std::string, Class *> __clsMap;
-v8::Isolate *        __isolate = nullptr; // NOLINT
-std::vector<Class *> __allClasses;        // NOLINT
+v8::Isolate *          __isolate = nullptr; // NOLINT
+ccstd::vector<Class *> __allClasses;        // NOLINT
 
 void invalidConstructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
     v8::Local<v8::Object> thisObj         = args.This();

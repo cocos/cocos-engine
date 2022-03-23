@@ -29,8 +29,8 @@
 
 #include <sstream>
 #include <string>
-#include <vector>
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "platform/java/jni/JniHelper.h"
@@ -137,7 +137,7 @@ CC_DLL jstring newStringUTFJNI(JNIEnv *env, const std::string &utf8Str, bool *re
 /**
  *  @brief Trims the unicode spaces at the end of char16_t vector.
  */
-CC_DLL void trimUTF16Vector(std::vector<char16_t> &str); //NOLINT
+CC_DLL void trimUTF16Vector(ccstd::vector<char16_t> &str); //NOLINT
 
 /**
  *  @brief Whether the character is a whitespace character.
@@ -173,12 +173,12 @@ CC_DLL long getCharacterCountInUTF8String(const std::string &utf8); //NOLINT
  *  @param c     The character to be searched for.
  *  @returns The index of the last character that is not \p c.
  */
-CC_DLL unsigned int getIndexOfLastNotChar16(const std::vector<char16_t> &str, char16_t c);
+CC_DLL unsigned int getIndexOfLastNotChar16(const ccstd::vector<char16_t> &str, char16_t c);
 
 /**
  *  @brief Gets char16_t vector from a given utf16 string.
  */
-CC_DLL std::vector<char16_t> getChar16VectorFromUTF16String(const std::u16string &utf16);
+CC_DLL ccstd::vector<char16_t> getChar16VectorFromUTF16String(const std::u16string &utf16);
 
 /**
 * Utf8 sequence
@@ -191,7 +191,7 @@ public:
         std::string _char;
         bool        isAnsi() { return _char.size() == 1; }
     };
-    using CharUTF8Store = std::vector<CharUTF8>;
+    using CharUTF8Store = ccstd::vector<CharUTF8>;
 
     StringUTF8() = default;
     explicit StringUTF8(const std::string &newStr);

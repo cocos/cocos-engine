@@ -32,7 +32,7 @@
     #error WebSocket must be compiled with ARC enabled
 #endif
 
-static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
+static ccstd::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
 
 @interface WebSocketImpl : NSObject <SRWebSocketDelegate> {
 }
@@ -204,7 +204,7 @@ void WebSocket::closeAllConnections() {
 WebSocket::WebSocket()
 : _impl(nil) {
     if (__websocketInstances == nullptr) {
-        __websocketInstances = new (std::nothrow) std::vector<WebSocket *>();
+        __websocketInstances = new (std::nothrow) ccstd::vector<WebSocket *>();
     }
 
     __websocketInstances->push_back(this);
@@ -225,7 +225,7 @@ WebSocket::~WebSocket() {
 
 bool WebSocket::init(const Delegate &                delegate,
                      const std::string &             url,
-                     const std::vector<std::string> *protocols /* = nullptr*/,
+                     const ccstd::vector<std::string> *protocols /* = nullptr*/,
                      const std::string &             caFilePath /* = ""*/) {
     if (url.empty())
         return false;

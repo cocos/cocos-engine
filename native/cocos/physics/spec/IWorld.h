@@ -27,8 +27,8 @@
 
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include "base/TypeDef.h"
+#include "base/std/container/vector.h"
 #include "math/Vec3.h"
 
 namespace cc {
@@ -62,11 +62,11 @@ struct ContactPoint {
 };
 
 struct ContactEventPair {
-    uintptr_t                 shapeA;
-    uintptr_t                 shapeB;
-    ETouchState               state;
-    std::vector<ContactPoint> contacts;
-    static constexpr uint8_t  COUNT = 4;
+    uintptr_t                   shapeA;
+    uintptr_t                   shapeB;
+    ETouchState                 state;
+    ccstd::vector<ContactPoint> contacts;
+    static constexpr uint8_t    COUNT = 4;
     ContactEventPair(const uintptr_t a, const uintptr_t b)
     : shapeA(a),
       shapeB(b),
@@ -110,25 +110,25 @@ class IPhysicsWorld {
 public:
     virtual ~IPhysicsWorld() = default;
     ;
-    virtual void                                            setGravity(float x, float y, float z)      = 0;
-    virtual void                                            setAllowSleep(bool v)                      = 0;
-    virtual void                                            step(float s)                              = 0;
-    virtual void                                            emitEvents()                               = 0;
-    virtual void                                            syncSceneToPhysics()                       = 0;
-    virtual void                                            syncSceneWithCheck()                       = 0;
-    virtual void                                            destroy()                                  = 0;
-    virtual void                                            setCollisionMatrix(uint32_t i, uint32_t m) = 0;
-    virtual std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs()                     = 0;
-    virtual std::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs()                     = 0;
-    virtual bool                                            raycast(RaycastOptions &opt)               = 0;
-    virtual bool                                            raycastClosest(RaycastOptions &opt)        = 0;
-    virtual std::vector<RaycastResult> &                    raycastResult()                            = 0;
-    virtual RaycastResult &                                 raycastClosestResult()                     = 0;
-    virtual uintptr_t                                       createConvex(ConvexDesc &desc)             = 0;
-    virtual uintptr_t                                       createTrimesh(TrimeshDesc &desc)           = 0;
-    virtual uintptr_t                                       createHeightField(HeightFieldDesc &desc)   = 0;
-    virtual uintptr_t                                       createMaterial(uint16_t id, float f, float df, float r,
-                                                                           uint8_t m0, uint8_t m1)     = 0;
+    virtual void                                              setGravity(float x, float y, float z)      = 0;
+    virtual void                                              setAllowSleep(bool v)                      = 0;
+    virtual void                                              step(float s)                              = 0;
+    virtual void                                              emitEvents()                               = 0;
+    virtual void                                              syncSceneToPhysics()                       = 0;
+    virtual void                                              syncSceneWithCheck()                       = 0;
+    virtual void                                              destroy()                                  = 0;
+    virtual void                                              setCollisionMatrix(uint32_t i, uint32_t m) = 0;
+    virtual ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs()                     = 0;
+    virtual ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs()                     = 0;
+    virtual bool                                              raycast(RaycastOptions &opt)               = 0;
+    virtual bool                                              raycastClosest(RaycastOptions &opt)        = 0;
+    virtual ccstd::vector<RaycastResult> &                    raycastResult()                            = 0;
+    virtual RaycastResult &                                   raycastClosestResult()                     = 0;
+    virtual uintptr_t                                         createConvex(ConvexDesc &desc)             = 0;
+    virtual uintptr_t                                         createTrimesh(TrimeshDesc &desc)           = 0;
+    virtual uintptr_t                                         createHeightField(HeightFieldDesc &desc)   = 0;
+    virtual uintptr_t                                         createMaterial(uint16_t id, float f, float df, float r,
+                                                                             uint8_t m0, uint8_t m1)     = 0;
 };
 
 } // namespace physics

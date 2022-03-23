@@ -26,8 +26,8 @@
 #pragma once
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
-#include <deque>
 #include <functional>
+#include "base/std/container/vector.h"
 #include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
@@ -78,7 +78,7 @@ public:
     void updateIndirectBuffer(Buffer *buffer, const DrawInfoList &list);
 
     void updateBuffer(Buffer *buff, const emscripten::val &v, uint size) {
-        std::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
+        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
         updateBuffer(buff, reinterpret_cast<const void *>(buffer.data()), size);
     }
 

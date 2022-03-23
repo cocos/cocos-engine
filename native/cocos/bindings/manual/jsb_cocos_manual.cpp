@@ -605,8 +605,8 @@ static bool js_engine_FileUtils_listFilesRecursively(const se::State &s) { // NO
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        std::string              arg0;
-        std::vector<std::string> arg1;
+        std::string                arg0;
+        ccstd::vector<std::string> arg1;
         ok &= sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_listFilesRecursively : Error processing arguments");
         cobj->listFilesRecursively(arg0, &arg1);

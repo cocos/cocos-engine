@@ -27,6 +27,7 @@
 
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
+#include "base/std/container/vector.h"
 #include "math/Math.h"
 
 /**
@@ -77,12 +78,12 @@ class QueryPool;
 class Window;
 class Context;
 
-using TextureBarrierList = vector<TextureBarrier *>;
-using BufferDataList     = vector<const uint8_t *>;
-using BufferSrcList      = vector<uint8_t *>;
-using CommandBufferList  = vector<CommandBuffer *>;
-using QueryPoolList      = vector<QueryPool *>;
-using IndexList          = vector<uint32_t>;
+using TextureBarrierList = ccstd::vector<TextureBarrier *>;
+using BufferDataList     = ccstd::vector<const uint8_t *>;
+using BufferSrcList      = ccstd::vector<uint8_t *>;
+using CommandBufferList  = ccstd::vector<CommandBuffer *>;
+using QueryPoolList      = ccstd::vector<QueryPool *>;
+using IndexList          = ccstd::vector<uint32_t>;
 
 constexpr uint32_t MAX_ATTACHMENTS  = 4U;
 constexpr uint32_t INVALID_BINDING  = ~0U;
@@ -91,10 +92,10 @@ constexpr uint32_t SUBPASS_EXTERNAL = ~0U;
 // Although the standard is not limited, some devices do not support up to 65536 queries
 constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767;
 
-using BufferList              = vector<Buffer *>;
-using TextureList             = vector<Texture *>;
-using SamplerList             = vector<Sampler *>;
-using DescriptorSetLayoutList = vector<DescriptorSetLayout *>;
+using BufferList              = ccstd::vector<Buffer *>;
+using TextureList             = ccstd::vector<Texture *>;
+using SamplerList             = ccstd::vector<Sampler *>;
+using DescriptorSetLayoutList = ccstd::vector<DescriptorSetLayout *>;
 
 enum class ObjectType : uint32_t {
     UNKNOWN,
@@ -719,7 +720,7 @@ enum class DynamicStateFlagBit : uint32_t {
 using DynamicStateFlags = DynamicStateFlagBit;
 CC_ENUM_BITWISE_OPERATORS(DynamicStateFlagBit);
 
-using DynamicStateList = vector<DynamicStateFlagBit>;
+using DynamicStateList = ccstd::vector<DynamicStateFlagBit>;
 
 enum class StencilFace : uint32_t {
     FRONT = 0x1,
@@ -879,7 +880,7 @@ struct TextureBlit {
 
     EXPOSE_COPY_FN(TextureBlit)
 };
-using TextureBlitList = vector<TextureBlit>;
+using TextureBlitList = ccstd::vector<TextureBlit>;
 
 struct BufferTextureCopy {
     uint32_t            buffStride{0};
@@ -890,7 +891,7 @@ struct BufferTextureCopy {
 
     EXPOSE_COPY_FN(BufferTextureCopy)
 };
-using BufferTextureCopyList = vector<BufferTextureCopy>;
+using BufferTextureCopyList = ccstd::vector<BufferTextureCopy>;
 
 struct Viewport {
     int32_t  left{0};
@@ -911,7 +912,7 @@ struct Color {
 
     EXPOSE_COPY_FN(Color)
 };
-using ColorList = vector<Color>;
+using ColorList = ccstd::vector<Color>;
 
 /**
  * For non-vulkan backends, to maintain compatibility and maximize
@@ -989,7 +990,7 @@ struct DrawInfo {
     EXPOSE_COPY_FN(DrawInfo)
 };
 
-using DrawInfoList = vector<DrawInfo>;
+using DrawInfoList = ccstd::vector<DrawInfo>;
 
 struct DispatchInfo {
     uint32_t groupCountX{0};
@@ -1002,7 +1003,7 @@ struct DispatchInfo {
     EXPOSE_COPY_FN(DispatchInfo)
 };
 
-using DispatchInfoList = vector<DispatchInfo>;
+using DispatchInfoList = ccstd::vector<DispatchInfo>;
 
 struct IndirectBuffer {
     DrawInfoList drawInfos;
@@ -1065,7 +1066,7 @@ struct Uniform {
     EXPOSE_COPY_FN(Uniform)
 };
 
-using UniformList = vector<Uniform>;
+using UniformList = ccstd::vector<Uniform>;
 
 struct UniformBlock {
     uint32_t    set{0};
@@ -1077,7 +1078,7 @@ struct UniformBlock {
     EXPOSE_COPY_FN(UniformBlock)
 };
 
-using UniformBlockList = vector<UniformBlock>;
+using UniformBlockList = ccstd::vector<UniformBlock>;
 
 struct UniformSamplerTexture {
     uint32_t set{0};
@@ -1089,7 +1090,7 @@ struct UniformSamplerTexture {
     EXPOSE_COPY_FN(UniformSamplerTexture)
 };
 
-using UniformSamplerTextureList = vector<UniformSamplerTexture>;
+using UniformSamplerTextureList = ccstd::vector<UniformSamplerTexture>;
 
 struct UniformSampler {
     uint32_t set{0};
@@ -1100,7 +1101,7 @@ struct UniformSampler {
     EXPOSE_COPY_FN(UniformSampler)
 };
 
-using UniformSamplerList = vector<UniformSampler>;
+using UniformSamplerList = ccstd::vector<UniformSampler>;
 
 struct UniformTexture {
     uint32_t set{0};
@@ -1112,7 +1113,7 @@ struct UniformTexture {
     EXPOSE_COPY_FN(UniformTexture)
 };
 
-using UniformTextureList = vector<UniformTexture>;
+using UniformTextureList = ccstd::vector<UniformTexture>;
 
 struct UniformStorageImage {
     uint32_t     set{0};
@@ -1125,7 +1126,7 @@ struct UniformStorageImage {
     EXPOSE_COPY_FN(UniformStorageImage)
 };
 
-using UniformStorageImageList = vector<UniformStorageImage>;
+using UniformStorageImageList = ccstd::vector<UniformStorageImage>;
 
 struct UniformStorageBuffer {
     uint32_t     set{0};
@@ -1137,7 +1138,7 @@ struct UniformStorageBuffer {
     EXPOSE_COPY_FN(UniformStorageBuffer)
 };
 
-using UniformStorageBufferList = vector<UniformStorageBuffer>;
+using UniformStorageBufferList = ccstd::vector<UniformStorageBuffer>;
 
 struct UniformInputAttachment {
     uint32_t set{0};
@@ -1148,7 +1149,7 @@ struct UniformInputAttachment {
     EXPOSE_COPY_FN(UniformInputAttachment)
 };
 
-using UniformInputAttachmentList = vector<UniformInputAttachment>;
+using UniformInputAttachmentList = ccstd::vector<UniformInputAttachment>;
 
 struct ShaderStage {
     ShaderStageFlagBit stage{ShaderStageFlagBit::NONE};
@@ -1157,7 +1158,7 @@ struct ShaderStage {
     EXPOSE_COPY_FN(ShaderStage)
 };
 
-using ShaderStageList = vector<ShaderStage>;
+using ShaderStageList = ccstd::vector<ShaderStage>;
 
 struct Attribute {
     String   name;
@@ -1170,7 +1171,7 @@ struct Attribute {
     EXPOSE_COPY_FN(Attribute)
 };
 
-using AttributeList = vector<Attribute>;
+using AttributeList = ccstd::vector<Attribute>;
 
 constexpr const char *ATTR_NAME_POSITION   = "a_position";
 constexpr const char *ATTR_NAME_NORMAL     = "a_normal";
@@ -1231,7 +1232,7 @@ struct ALIGNAS(8) ColorAttachment {
     EXPOSE_COPY_FN(ColorAttachment)
 };
 
-using ColorAttachmentList = vector<ColorAttachment>;
+using ColorAttachmentList = ccstd::vector<ColorAttachment>;
 
 struct ALIGNAS(8) DepthStencilAttachment {
     Format          format{Format::UNKNOWN};
@@ -1263,7 +1264,7 @@ struct SubpassInfo {
     EXPOSE_COPY_FN(SubpassInfo)
 };
 
-using SubpassInfoList = vector<SubpassInfo>;
+using SubpassInfoList = ccstd::vector<SubpassInfo>;
 
 struct ALIGNAS(8) SubpassDependency {
     uint32_t        srcSubpass{0};
@@ -1276,7 +1277,7 @@ struct ALIGNAS(8) SubpassDependency {
     EXPOSE_COPY_FN(SubpassDependency)
 };
 
-using SubpassDependencyList = vector<SubpassDependency>;
+using SubpassDependencyList = ccstd::vector<SubpassDependency>;
 
 struct RenderPassInfo {
     ColorAttachmentList    colorAttachments;
@@ -1293,7 +1294,7 @@ struct ALIGNAS(8) GeneralBarrierInfo {
 
     EXPOSE_COPY_FN(GeneralBarrierInfo)
 };
-using GeneralBarrierInfoList = vector<GeneralBarrierInfo>;
+using GeneralBarrierInfoList = ccstd::vector<GeneralBarrierInfo>;
 
 struct ALIGNAS(8) TextureBarrierInfo {
     AccessFlags prevAccesses{AccessFlagBit::NONE};
@@ -1306,7 +1307,7 @@ struct ALIGNAS(8) TextureBarrierInfo {
 
     EXPOSE_COPY_FN(TextureBarrierInfo)
 };
-using TextureBarrierInfoList = vector<TextureBarrierInfo>;
+using TextureBarrierInfoList = ccstd::vector<TextureBarrierInfo>;
 
 struct FramebufferInfo {
     RenderPass *renderPass{nullptr};
@@ -1325,7 +1326,7 @@ struct DescriptorSetLayoutBinding {
 
     EXPOSE_COPY_FN(DescriptorSetLayoutBinding)
 };
-using DescriptorSetLayoutBindingList = vector<DescriptorSetLayoutBinding>;
+using DescriptorSetLayoutBindingList = ccstd::vector<DescriptorSetLayoutBinding>;
 
 struct DescriptorSetLayoutInfo {
     DescriptorSetLayoutBindingList bindings;
@@ -1419,7 +1420,7 @@ struct BlendTarget {
     EXPOSE_COPY_FN(BlendTarget)
 };
 
-using BlendTargetList = vector<BlendTarget>;
+using BlendTargetList = ccstd::vector<BlendTarget>;
 
 // The memory layout of this structure should exactly match a plain `Uint32Array`
 struct BlendState {

@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <vector>
 #include "Handle.h"
 #include "base/Macros.h"
 
@@ -52,8 +51,8 @@ private:
 
     inline PassInsertPoint get(StringHandle name) const;
 
-    StringPool                   _stringPool;
-    std::vector<PassInsertPoint> _insertPoints{};
+    StringPool                     _stringPool;
+    ccstd::vector<PassInsertPoint> _insertPoints{};
 };
 
 //////////////////////////////////////////////////////////////////////////

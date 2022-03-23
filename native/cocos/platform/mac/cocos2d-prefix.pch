@@ -20,10 +20,7 @@
 #endif
 
 #ifdef __cplusplus
-    #include <vector>
     #include <string>
-    #include <map>
-    #include <list>
     #include <memory>
     #include <functional>
     #include <thread>

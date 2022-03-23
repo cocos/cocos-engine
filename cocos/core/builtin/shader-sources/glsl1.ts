@@ -14,6 +14,12 @@ export const glsl1 = [
   ],
   [
     {
+      "vert": "\nprecision mediump float;\nuniform mediump vec4 cc_screenSize;\nuniform highp vec4 cc_cameraPos;\n#define PI           3.14159265359\n#define PI2          6.28318530718\n#define EPSILON      1e-6\n#define LOG2         1.442695\n#define FP_MAX       65504.0\n#define FP_SCALE     0.0009765625\n#define FP_SCALE_INV 1024.0\nattribute vec2 a_position;\nattribute vec2 a_texCoord;\nattribute vec4 a_color;\nvarying vec2 v_texCoord;\nvarying vec4 v_color;\nvec4 vert () {\nvec2 position = a_position * cc_screenSize.zw;\nposition = position * vec2(2.0, -2.0) + vec2(-1.0, 1.0);\nposition = cc_cameraPos.w == 0.0 ? vec2(position.x, -position.y) : position;\nv_texCoord = a_texCoord;\nv_color = a_color;\nreturn vec4(position, 0.0, 1.0);\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nvec4 CCFragOutput (vec4 color) {\nreturn color;\n}\nvarying vec2 v_texCoord;\nvarying vec4 v_color;\nuniform sampler2D mainTexture;\nvec4 frag () {\nvec4 color = vec4(v_color.rgb, v_color.a * texture2D(mainTexture, v_texCoord).r);\nreturn CCFragOutput(color);\n}\nvoid main() { gl_FragColor = frag(); }",
+    }
+  ],
+  [
+    {
       "vert": "\nprecision mediump float;\nuniform highp mat4 cc_matViewProj;\nattribute highp vec3 a_position;\nattribute vec4 a_color;\nvarying vec4 v_color;\nvec4 vert () {\nvec4 pos = cc_matViewProj * vec4(a_position, 1);\npos.z -= 0.000001;\nv_color = a_color;\nreturn pos;\n}\nvoid main() { gl_Position = vert(); }",
       "frag": "\nprecision mediump float;\nvec4 CCFragOutput (vec4 color) {\nreturn color;\n}\nvarying vec4 v_color;\nvec4 front() {\n#if USE_FORWARD_PIPELINE\nreturn CCFragOutput(v_color);\n#else\nreturn v_color;\n#endif\n}\nvoid main() { gl_FragColor = front(); }",
     },

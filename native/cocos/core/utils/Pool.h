@@ -173,8 +173,8 @@ public:
     int32_t getCount() const { return _count; }
 
 private:
-    std::vector<T>  _pool;
-    CleanUpFunction _cleanup{nullptr};
+    ccstd::vector<T> _pool;
+    CleanUpFunction  _cleanup{nullptr};
 
     /**
      * @en

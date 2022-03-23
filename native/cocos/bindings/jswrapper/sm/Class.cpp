@@ -44,7 +44,7 @@ bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return true;
 }
 
-std::vector<Class *> __allClasses;
+ccstd::vector<Class *> __allClasses;
 
 } // namespace
 
@@ -111,8 +111,8 @@ void Class::destroy() {
 }
 
 /* static */
-void Class::onTraceCallback(JSTracer* trc, JSObject* obj) {
-    auto* seObj = reinterpret_cast<Object*>(internal::SE_JS_GetPrivate(obj, 1));
+void Class::onTraceCallback(JSTracer *trc, JSObject *obj) {
+    auto *seObj = reinterpret_cast<Object *>(internal::SE_JS_GetPrivate(obj, 1));
     if (seObj != nullptr) {
         JS::TraceEdge(trc, &seObj->_heap, "seObj");
     }
@@ -123,8 +123,8 @@ bool Class::install() {
     //
     //        __clsMap.emplace(_name, this);
 
-    _jsCls.name = _name;
-    _jsCls.flags       = JSCLASS_USERBIT1 | JSCLASS_HAS_RESERVED_SLOTS(2) | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
+    _jsCls.name  = _name;
+    _jsCls.flags = JSCLASS_USERBIT1 | JSCLASS_HAS_RESERVED_SLOTS(2) | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
     if (_finalizeOp != nullptr) {
         _classOps.finalize = _finalizeOp;
     } else {
@@ -208,7 +208,7 @@ bool Class::defineFinalizeFunction(JSFinalizeOp func) {
 //    }
 
 void Class::_createJSObjectWithClass(Class *cls, JS::MutableHandleObject outObj) {
-    JSObject *proto = cls->_proto != nullptr ? cls->_proto->_getJSObject() : nullptr;
+    JSObject *       proto = cls->_proto != nullptr ? cls->_proto->_getJSObject() : nullptr;
     JS::RootedObject jsProto(__cx, proto);
     outObj.set(JS_NewObjectWithGivenProto(__cx, &cls->_jsCls, jsProto));
 }

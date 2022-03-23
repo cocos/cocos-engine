@@ -27,6 +27,7 @@
 
 #include "Define.h"
 #include "base/RefCounted.h"
+#include "base/std/container/map.h"
 #include "scene/Model.h"
 #include "scene/Pass.h"
 
@@ -52,8 +53,8 @@ struct CC_DLL InstancedItem {
     gfx::DescriptorSet * descriptorSet = nullptr;
     gfx::Texture *       lightingMap   = nullptr;
 };
-using InstancedItemList = vector<InstancedItem>;
-using DynamicOffsetList = vector<uint>;
+using InstancedItemList = ccstd::vector<InstancedItem>;
+using DynamicOffsetList = ccstd::vector<uint>;
 
 class InstancedBuffer : public RefCounted {
 public:
@@ -79,12 +80,12 @@ public:
     inline const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
 
 private:
-    static map<scene::Pass *, map<uint, InstancedBuffer *>> buffers;
-    InstancedItemList                                       _instances;
-    const scene::Pass *                                     _pass             = nullptr;
-    bool                                                    _hasPendingModels = false;
-    DynamicOffsetList                                       _dynamicOffsets;
-    gfx::Device *                                           _device = nullptr;
+    static ccstd::map<scene::Pass *, ccstd::map<uint, InstancedBuffer *>> buffers;
+    InstancedItemList                                                     _instances;
+    const scene::Pass *                                                   _pass             = nullptr;
+    bool                                                                  _hasPendingModels = false;
+    DynamicOffsetList                                                     _dynamicOffsets;
+    gfx::Device *                                                         _device = nullptr;
 };
 
 } // namespace pipeline

@@ -328,6 +328,11 @@ cocos_source_files(
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
     cocos/base/Variant.h
+    cocos/base/std/container/deque.h
+    cocos/base/std/container/queue.h
+    cocos/base/std/container/set.h
+    cocos/base/std/container/vector.h
+    cocos/base/std/container/unordered_set.h
 )
 
 ############ application
@@ -1222,15 +1227,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderExampleReflection.h
                  cocos/renderer/pipeline/custom/RenderExampleTypes.cpp
                  cocos/renderer/pipeline/custom/RenderExampleTypes.h
-                 cocos/renderer/pipeline/custom/RenderExecutorFwd.h
-                 cocos/renderer/pipeline/custom/RenderExecutorGraphs.h
-                 cocos/renderer/pipeline/custom/RenderExecutorJsb.cpp
-                 cocos/renderer/pipeline/custom/RenderExecutorJsb.h
-                 cocos/renderer/pipeline/custom/RenderExecutorNames.h
-                 cocos/renderer/pipeline/custom/RenderExecutorReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderExecutorReflection.h
-                 cocos/renderer/pipeline/custom/RenderExecutorTypes.cpp
-                 cocos/renderer/pipeline/custom/RenderExecutorTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
                  cocos/renderer/pipeline/custom/RenderGraphGraphs.h
                  cocos/renderer/pipeline/custom/RenderGraphJsb.cpp
@@ -1324,6 +1320,15 @@ cocos_source_files(
     cocos/primitive/Torus.h
     cocos/primitive/Transform.cpp
     cocos/primitive/Transform.h
+)
+
+##### profiler
+cocos_source_files(
+    cocos/profiler/DebugRenderer.h
+    cocos/profiler/DebugRenderer.cpp
+    cocos/profiler/Profiler.h
+    cocos/profiler/Profiler.cpp
+    cocos/profiler/GameStats.h
 )
 
 ##### components
@@ -1833,6 +1838,12 @@ cocos_source_files(
     cocos/core/assets/TextureBase.h
     cocos/core/assets/TextureCube.cpp
     cocos/core/assets/TextureCube.h
+    cocos/core/assets/BitmapFont.h
+    cocos/core/assets/BitmapFont.cpp
+    cocos/core/assets/Font.h
+    cocos/core/assets/Font.cpp
+    cocos/core/assets/FreeTypeFont.h
+    cocos/core/assets/FreeTypeFont.cpp
 
     # builtin
     cocos/core/builtin/BuiltinResMgr.cpp

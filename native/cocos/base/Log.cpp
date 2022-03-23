@@ -28,7 +28,7 @@
 #include <cstdarg>
 #include <ctime>
 #include <string>
-#include <vector>
+#include "base/std/container/vector.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #ifndef WIN32_LEAN_AND_MEAN
@@ -60,8 +60,8 @@ LogLevel Log::slogLevel = LogLevel::LEVEL_DEBUG;
 LogLevel Log::slogLevel = LogLevel::INFO;
 #endif
 
-FILE *                         Log::slogFile = nullptr;
-const std::vector<std::string> LOG_LEVEL_DESCS{"FATAL", "ERROR", "WARN", "INFO", "DEBUG"};
+FILE *                           Log::slogFile = nullptr;
+const ccstd::vector<std::string> LOG_LEVEL_DESCS{"FATAL", "ERROR", "WARN", "INFO", "DEBUG"};
 
 void Log::setLogFile(const std::string &filename) {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)

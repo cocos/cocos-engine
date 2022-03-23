@@ -24,14 +24,15 @@
 ****************************************************************************/
 
 #include "MainFlow.h"
+#include "BloomStage.h"
 #include "DeferredPipeline.h"
 #include "GbufferStage.h"
 #include "LightingStage.h"
-#include "BloomStage.h"
 #include "PostProcessStage.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "pipeline/SceneCulling.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace pipeline {
@@ -71,6 +72,7 @@ void MainFlow::activate(RenderPipeline *pipeline) {
 }
 
 void MainFlow::render(scene::Camera *camera) {
+    CC_PROFILE(MainFlowRender);
     RenderFlow::render(camera);
 }
 

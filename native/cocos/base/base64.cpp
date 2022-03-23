@@ -30,23 +30,23 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include <vector>
+#include "base/std/container/vector.h"
 
 namespace cc {
 
 std::string alphabet{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"};
 
 int doBase64Decode(const unsigned char *input, unsigned int inputLen, unsigned char *output, unsigned int *outputLen) {
-    static std::vector<char> inalphabet(256);
-    static std::vector<char> decoder(256);
-    int                      i;
-    int                      bits;
-    int                      c = 0;
-    int                      charCount;
-    int                      errors    = 0;
-    unsigned int             inputIdx  = 0;
-    unsigned int             outputIdx = 0;
-    int                      length    = static_cast<int>(alphabet.length());
+    static ccstd::vector<char> inalphabet(256);
+    static ccstd::vector<char> decoder(256);
+    int                        i;
+    int                        bits;
+    int                        c = 0;
+    int                        charCount;
+    int                        errors    = 0;
+    unsigned int               inputIdx  = 0;
+    unsigned int               outputIdx = 0;
+    int                        length    = static_cast<int>(alphabet.length());
     for (i = length - 1; i >= 0; i--) {
         inalphabet[alphabet[i]] = 1;
         decoder[alphabet[i]]    = i;

@@ -26,7 +26,6 @@
 #pragma once
 
 #include <utility>
-#include <vector>
 #include "3d/models/MorphModel.h"
 #include "core/animation/SkeletalAnimationUtils.h"
 #include "math/Mat4.h"
@@ -40,12 +39,12 @@ class AABB;
 }
 
 struct JointInfo {
-    geometry::AABB *     bound{nullptr};
-    Node *               target{nullptr};
-    Mat4                 bindpose;
-    IJointTransform *    transform{nullptr};
-    std::vector<index_t> buffers;
-    std::vector<index_t> indices;
+    geometry::AABB *       bound{nullptr};
+    Node *                 target{nullptr};
+    Mat4                   bindpose;
+    IJointTransform *      transform{nullptr};
+    ccstd::vector<index_t> buffers;
+    ccstd::vector<index_t> indices;
 };
 
 class SkinningModel final : public MorphModel {
@@ -59,9 +58,9 @@ public:
     void updateUBOs(uint32_t stamp) override;
     void destroy() override;
 
-    void                             initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) override;
-    std::vector<scene::IMacroPatch> &getMacroPatches(index_t subModelIndex) override;
-    void                             updateInstancedAttributes(const std::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
+    void                               initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) override;
+    ccstd::vector<scene::IMacroPatch> &getMacroPatches(index_t subModelIndex) override;
+    void                               updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
 
     void bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *mesh);
 
@@ -69,10 +68,10 @@ private:
     static void uploadJointData(uint32_t base, const Mat4 &mat, float *dst);
     void        ensureEnoughBuffers(index_t count);
 
-    std::vector<index_t>                                           _bufferIndices;
-    std::vector<IntrusivePtr<gfx::Buffer>>                         _buffers;
-    std::vector<JointInfo>                                         _joints;
-    std::vector<std::array<float, pipeline::UBOSkinning::COUNT> *> _dataArray;
+    ccstd::vector<index_t>                                           _bufferIndices;
+    ccstd::vector<IntrusivePtr<gfx::Buffer>>                         _buffers;
+    ccstd::vector<JointInfo>                                         _joints;
+    ccstd::vector<std::array<float, pipeline::UBOSkinning::COUNT> *> _dataArray;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(SkinningModel);
 };

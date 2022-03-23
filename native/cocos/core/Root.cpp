@@ -27,10 +27,13 @@
 // #include "core/Director.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
+#include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/NativePipelineTypes.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
 #include "scene/Camera.h"
@@ -98,6 +101,11 @@ void Root::initialize(gfx::Swapchain *swapchain) {
 void Root::destroy() {
     destroyScenes();
 
+    if (_usesCustomPipeline) {
+        _pipelineRuntime->destroy();
+    }
+    _pipelineRuntime.reset();
+
     CC_SAFE_DESTROY_NULL(_pipeline);
     // TODO(minggo):
     //    CC_SAFE_DESTROY(_batcher2D);
@@ -114,34 +122,101 @@ void Root::resize(uint32_t width, uint32_t height) {
     }
 }
 
+namespace {
+
+class RenderPipelineBridge final : public render::PipelineRuntime {
+public:
+    explicit RenderPipelineBridge(pipeline::RenderPipeline *pipelineIn)
+    : pipeline(pipelineIn) {}
+
+    bool activate(gfx::Swapchain *swapchain) override {
+        return pipeline->activate(swapchain);
+    }
+    bool destroy() noexcept override {
+        return pipeline->destroy();
+    }
+    void render(const ccstd::vector<scene::Camera *> &cameras) override {
+        pipeline->render(cameras);
+    }
+    const MacroRecord &getMacros() const override {
+        return pipeline->getMacros();
+    }
+    pipeline::GlobalDSManager *getGlobalDSManager() const override {
+        return pipeline->getGlobalDSManager();
+    }
+    gfx::DescriptorSetLayout *getDescriptorSetLayout() const override {
+        return pipeline->getDescriptorSetLayout();
+    }
+    pipeline::PipelineSceneData *getPipelineSceneData() const override {
+        return pipeline->getPipelineSceneData();
+    }
+    const std::string &getConstantMacros() const override {
+        return pipeline->getConstantMacros();
+    }
+    scene::Model *getProfiler() const override {
+        return pipeline->getProfiler();
+    }
+    void setProfiler(scene::Model *profiler) override {
+        pipeline->setProfiler(profiler);
+    }
+    float getShadingScale() const override {
+        return pipeline->getShadingScale();
+    }
+    void setShadingScale(float scale) override {
+        pipeline->setShadingScale(scale);
+    }
+    void onGlobalPipelineStateChanged() override {
+        pipeline->onGlobalPipelineStateChanged();
+    }
+    void setValue(const std::string &name, int32_t value) override {
+        pipeline->setValue(name, value);
+    }
+    void setValue(const std::string &name, bool value) override {
+        pipeline->setValue(name, value);
+    }
+    pipeline::RenderPipeline *pipeline = nullptr;
+};
+
+} // namespace
+
 bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
-    if (rppl != nullptr && dynamic_cast<pipeline::DeferredPipeline *>(rppl) != nullptr) {
-        _useDeferredPipeline = true;
-    }
-
-    bool isCreateDefaultPipeline{false};
-    if (!rppl) {
-        rppl = new pipeline::ForwardPipeline();
-        rppl->initialize({});
-        isCreateDefaultPipeline = true;
-    }
-
-    _pipeline = rppl;
-
-    // now cluster just enabled in deferred pipeline
-    if (!_useDeferredPipeline || !_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) {
-        // disable cluster
-        _pipeline->setClusterEnabled(false);
-    }
-    _pipeline->setBloomEnabled(false);
-
-    if (!_pipeline->activate(_mainWindow->getSwapchain())) {
-        if (isCreateDefaultPipeline) {
-            CC_SAFE_DESTROY_AND_DELETE(_pipeline);
+    if (!_usesCustomPipeline) {
+        if (rppl != nullptr && dynamic_cast<pipeline::DeferredPipeline *>(rppl) != nullptr) {
+            _useDeferredPipeline = true;
         }
 
-        _pipeline = nullptr;
-        return false;
+        bool isCreateDefaultPipeline{false};
+        if (!rppl) {
+            rppl = new pipeline::ForwardPipeline();
+            rppl->initialize({});
+            isCreateDefaultPipeline = true;
+        }
+
+        _pipeline        = rppl;
+        _pipelineRuntime = std::make_unique<RenderPipelineBridge>(rppl);
+
+        // now cluster just enabled in deferred pipeline
+        if (!_useDeferredPipeline || !_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) {
+            // disable cluster
+            _pipeline->setClusterEnabled(false);
+        }
+        _pipeline->setBloomEnabled(false);
+
+        if (!_pipeline->activate(_mainWindow->getSwapchain())) {
+            if (isCreateDefaultPipeline) {
+                CC_SAFE_DESTROY_AND_DELETE(_pipeline);
+            }
+
+            _pipeline = nullptr;
+            return false;
+        }
+    } else {
+        _pipelineRuntime = std::make_unique<render::NativePipeline>();
+        if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
+            _pipelineRuntime->destroy();
+            _pipelineRuntime.reset();
+            return false;
+        }
     }
 
     // TODO(minggo):
@@ -170,7 +245,7 @@ void Root::onGlobalPipelineStateChanged() {
         scene->onGlobalPipelineStateChanged();
     }
 
-    _pipeline->onGlobalPipelineStateChanged();
+    _pipelineRuntime->onGlobalPipelineStateChanged();
 }
 
 void Root::activeWindow(scene::RenderWindow *window) {
@@ -210,7 +285,7 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         window->extractRenderCameras(_cameraList);
     }
 
-    if (_pipeline != nullptr && !_cameraList.empty()) {
+    if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
         _swapchains.clear();
         _swapchains.emplace_back(_swapchain);
         _device->acquire(_swapchains);
@@ -226,12 +301,14 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
             scene->update(stamp);
         }
 
+        CC_PROFILER_UPDATE;
+
         _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_COMMIT, this);
 
         std::stable_sort(_cameraList.begin(), _cameraList.end(), [](const auto *a, const auto *b) {
             return a->getPriority() < b->getPriority();
         });
-        _pipeline->render(_cameraList);
+        _pipelineRuntime->render(_cameraList);
         _device->present();
     }
 
@@ -292,7 +369,7 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
     if (light == nullptr) {
         return;
     }
-    
+
     if (light->getScene() != nullptr) {
         if (light->getType() == scene::LightType::DIRECTIONAL) {
             light->getScene()->removeDirectionalLight(static_cast<scene::DirectionalLight *>(light));

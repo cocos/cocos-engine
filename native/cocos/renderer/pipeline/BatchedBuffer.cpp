@@ -34,8 +34,8 @@
 
 namespace cc {
 namespace pipeline {
-map<scene::Pass *, map<uint, BatchedBuffer *>> BatchedBuffer::buffers;
-BatchedBuffer *                                BatchedBuffer::get(scene::Pass *pass) {
+ccstd::map<scene::Pass *, ccstd::map<uint, BatchedBuffer *>> BatchedBuffer::buffers;
+BatchedBuffer *                                              BatchedBuffer::get(scene::Pass *pass) {
     return BatchedBuffer::get(pass, 0);
 }
 BatchedBuffer *BatchedBuffer::get(scene::Pass *pass, uint extraKey) {
@@ -47,7 +47,7 @@ BatchedBuffer *BatchedBuffer::get(scene::Pass *pass, uint extraKey) {
 
 void BatchedBuffer::destroyBatchedBuffer() {
     for (auto &pair : BatchedBuffer::buffers) {
-        const map<uint, BatchedBuffer *> &bufferItem = pair.second;
+        const ccstd::map<uint, BatchedBuffer *> &bufferItem = pair.second;
         for (const auto &item : bufferItem) {
             BatchedBuffer *batchedBuffer = item.second;
             if (batchedBuffer) {
@@ -175,9 +175,9 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     }
 
     // Create a new batch
-    vector<gfx::Buffer *> vbs(flatBuffersCount, nullptr);
-    vector<uint8_t *>     vbDatas(flatBuffersCount, nullptr);
-    vector<gfx::Buffer *> totalVBs(flatBuffersCount + 1, nullptr);
+    ccstd::vector<gfx::Buffer *> vbs(flatBuffersCount, nullptr);
+    ccstd::vector<uint8_t *>     vbDatas(flatBuffersCount, nullptr);
+    ccstd::vector<gfx::Buffer *> totalVBs(flatBuffersCount + 1, nullptr);
 
     for (uint i = 0; i < flatBuffersCount; ++i) {
         const auto &flatBuffer = flatBuffers[i];
@@ -208,8 +208,8 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
     indexBuffer->update(indexData, static_cast<uint>(indexBufferSize));
     totalVBs[flatBuffersCount] = indexBuffer;
 
-    vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();
-    gfx::Attribute         attrib     = {
+    ccstd::vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();
+    gfx::Attribute                attrib     = {
         "a_dyn_batch_id",
         gfx::Format::R32F,
         false,

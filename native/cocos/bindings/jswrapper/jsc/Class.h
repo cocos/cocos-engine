@@ -142,11 +142,11 @@ private:
     JSClassRef        _jsCls;
     JSClassDefinition _jsClsDef;
 
-    std::vector<JSStaticFunction> _funcs;
-    std::vector<JSStaticFunction> _staticFuncs;
-    std::vector<JSPropertySpec>   _properties;
-    std::vector<JSPropertySpec>   _staticProperties;
-    JSObjectFinalizeCallback      _finalizeOp;
+    ccstd::vector<JSStaticFunction> _funcs;
+    ccstd::vector<JSStaticFunction> _staticFuncs;
+    ccstd::vector<JSPropertySpec>   _properties;
+    ccstd::vector<JSPropertySpec>   _staticProperties;
+    JSObjectFinalizeCallback        _finalizeOp;
 
     friend class ScriptEngine;
     friend class Object;

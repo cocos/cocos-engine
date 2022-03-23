@@ -158,7 +158,7 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
 
     /////////// execute ///////////
 
-    static vector<CommandBuffer *> secondaryCBActors;
+    static ccstd::vector<CommandBuffer *> secondaryCBActors;
     secondaryCBActors.resize(secondaryCBCount);
 
     CommandBuffer **actorSecondaryCBs = nullptr;
@@ -213,7 +213,7 @@ void CommandBufferValidator::execute(CommandBuffer *const *cmdBuffs, uint32_t co
 
     /////////// execute ///////////
 
-    static vector<CommandBuffer *> cmdBuffActors;
+    static ccstd::vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);
 
     for (uint32_t i = 0U; i < count; ++i) {
@@ -460,7 +460,7 @@ void CommandBufferValidator::pipelineBarrier(const GeneralBarrier *barrier, cons
 
     /////////// execute ///////////
 
-    static vector<Texture *> textureActors;
+    static ccstd::vector<Texture *> textureActors;
     textureActors.resize(textureBarrierCount);
 
     Texture **actorTextures = nullptr;

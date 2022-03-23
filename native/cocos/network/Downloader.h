@@ -28,12 +28,11 @@
 #pragma once
 
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
-#include <vector>
-
 #include "base/Macros.h"
+#include "base/std/container/map.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace network {
@@ -50,10 +49,10 @@ public:
     const static int ERROR_IMPL_INTERNAL  = -3;
     const static int ERROR_ABORT          = -4;
 
-    std::string                        identifier;
-    std::string                        requestURL;
-    std::string                        storagePath;
-    std::map<std::string, std::string> header;
+    std::string                          identifier;
+    std::string                          requestURL;
+    std::string                          storagePath;
+    ccstd::map<std::string, std::string> header;
 
     DownloadTask();
     virtual ~DownloadTask();
@@ -75,8 +74,8 @@ public:
     Downloader(const DownloaderHints &hints);
     ~Downloader();
 
-    std::function<void(const DownloadTask &              task,
-                       const std::vector<unsigned char> &data)>
+    std::function<void(const DownloadTask &                task,
+                       const ccstd::vector<unsigned char> &data)>
         onDataTaskSuccess;
 
     std::function<void(const DownloadTask &task)> onFileTaskSuccess;
@@ -109,7 +108,7 @@ public:
 
     std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string &srcUrl, const std::string &storagePath, const std::string &identifier = "");
 
-    std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string &srcUrl, const std::string &storagePath, const std::map<std::string, std::string> &header, const std::string &identifier = "");
+    std::shared_ptr<const DownloadTask> createDownloadFileTask(const std::string &srcUrl, const std::string &storagePath, const ccstd::map<std::string, std::string> &header, const std::string &identifier = "");
 
     void abort(const DownloadTask &task);
 

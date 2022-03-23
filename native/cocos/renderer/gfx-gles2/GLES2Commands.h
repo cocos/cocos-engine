@@ -52,11 +52,11 @@ public:
 
 class GLES2CmdBindStates final : public GLESCmd {
 public:
-    GLES2GPUPipelineState *         gpuPipelineState  = nullptr;
-    GLES2GPUInputAssembler *        gpuInputAssembler = nullptr;
-    vector<GLES2GPUDescriptorSet *> gpuDescriptorSets;
-    vector<uint32_t>                dynamicOffsets;
-    DynamicStates                   dynamicStates;
+    GLES2GPUPipelineState *                gpuPipelineState  = nullptr;
+    GLES2GPUInputAssembler *               gpuInputAssembler = nullptr;
+    ccstd::vector<GLES2GPUDescriptorSet *> gpuDescriptorSets;
+    ccstd::vector<uint32_t>                dynamicOffsets;
+    DynamicStates                          dynamicStates;
 
     GLES2CmdBindStates() : GLESCmd(GLESCmdType::BIND_STATES) {}
 

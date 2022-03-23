@@ -375,6 +375,14 @@ export class MeshRenderer extends RenderableComponent {
         }
     }
 
+    public onGeometryChanged () {
+        if (this._model && this._mesh) {
+            this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            this._model.updateWorldBound();
+            this._model.onGeometryChanged();
+        }
+    }
+
     /**
      * @zh 获取子网格指定外形的权重。
      * @en Gets the weight at specified shape of specified sub mesh.

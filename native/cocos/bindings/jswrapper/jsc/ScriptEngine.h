@@ -302,12 +302,12 @@ private:
     void callExceptionCallback(const char *, const char *, const char *);
 
     std::chrono::steady_clock::time_point _startTime;
-    std::vector<RegisterCallback>         _registerCallbackArray;
-    std::vector<std::function<void()>>    _beforeInitHookArray;
-    std::vector<std::function<void()>>    _afterInitHookArray;
+    ccstd::vector<RegisterCallback>       _registerCallbackArray;
+    ccstd::vector<std::function<void()>>  _beforeInitHookArray;
+    ccstd::vector<std::function<void()>>  _afterInitHookArray;
 
-    std::vector<std::function<void()>> _beforeCleanupHookArray;
-    std::vector<std::function<void()>> _afterCleanupHookArray;
+    ccstd::vector<std::function<void()>> _beforeCleanupHookArray;
+    ccstd::vector<std::function<void()>> _afterCleanupHookArray;
 
     JSGlobalContextRef _cx;
 

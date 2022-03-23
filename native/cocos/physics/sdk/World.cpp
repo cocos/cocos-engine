@@ -71,11 +71,11 @@ void World::destroy() {
     _impl->destroy();
 }
 
-std::vector<std::shared_ptr<TriggerEventPair>> &World::getTriggerEventPairs() {
+ccstd::vector<std::shared_ptr<TriggerEventPair>> &World::getTriggerEventPairs() {
     return _impl->getTriggerEventPairs();
 }
 
-std::vector<std::shared_ptr<ContactEventPair>> &World::getContactEventPairs() {
+ccstd::vector<std::shared_ptr<ContactEventPair>> &World::getContactEventPairs() {
     return _impl->getContactEventPairs();
 }
 
@@ -99,7 +99,7 @@ bool World::raycast(RaycastOptions &opt) {
     return _impl->raycast(opt);
 }
 
-std::vector<RaycastResult> &World::raycastResult() {
+ccstd::vector<RaycastResult> &World::raycastResult() {
     return _impl->raycastResult();
 }
 

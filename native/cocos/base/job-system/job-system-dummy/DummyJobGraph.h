@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <unordered_set>
-#include <vector>
+#include "base/std/container/unordered_set.h"
+#include "base/std/container/vector.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/TypeDef.h"
 
@@ -55,8 +55,8 @@ public:
 private:
     bool excuted(DummyGraphNode *n) const;
 
-    int                           _generation{0};
-    std::vector<DummyGraphNode *> _nodes;
+    int                             _generation{0};
+    ccstd::vector<DummyGraphNode *> _nodes;
 };
 
 class DummyGraphNodeTaskItf {
@@ -99,11 +99,11 @@ private:
     void precede(DummyGraphNode *other);
     void reset();
 
-    DummyGraphNodeTaskItf *              _callback{nullptr};
-    std::unordered_set<DummyGraphNode *> _successors{};
-    std::unordered_set<DummyGraphNode *> _predecessors{};
-    DummyGraphNode *                     _next{nullptr};
-    int                                  _generation{0};
+    DummyGraphNodeTaskItf *                _callback{nullptr};
+    ccstd::unordered_set<DummyGraphNode *> _successors{};
+    ccstd::unordered_set<DummyGraphNode *> _predecessors{};
+    DummyGraphNode *                       _next{nullptr};
+    int                                    _generation{0};
     friend class DummyGraph;
 };
 

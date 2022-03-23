@@ -35,7 +35,7 @@ void MaterialInstance::overridePipelineStates(const PassOverrides &overrides, in
         return;
     }
 
-    std::vector<IPassInfoFull> &passInfos = _effectAsset->_techniques[getTechniqueIndex()].passes;
+    ccstd::vector<IPassInfoFull> &passInfos = _effectAsset->_techniques[getTechniqueIndex()].passes;
     if (passIdx == CC_INVALID_INDEX) {
         for (size_t i = 0, len = passes.size(); i < len; i++) {
             auto *pass = passes[i].get();
@@ -61,9 +61,9 @@ bool MaterialInstance::destroy() {
     return true;
 }
 
-std::vector<IntrusivePtr<scene::Pass>> MaterialInstance::createPasses() {
-    std::vector<IntrusivePtr<scene::Pass>> passes;
-    auto &                                 parentPasses = _parent->getPasses();
+ccstd::vector<IntrusivePtr<scene::Pass>> MaterialInstance::createPasses() {
+    ccstd::vector<IntrusivePtr<scene::Pass>> passes;
+    auto &                                   parentPasses = _parent->getPasses();
 
     passes.reserve(parentPasses->size());
     for (auto &parentPass : *parentPasses) {

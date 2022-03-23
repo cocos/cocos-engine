@@ -31,9 +31,9 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { Buffer, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
+import { Buffer, Color, DescriptorSet, DescriptorSetLayout, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { Color, Mat4, Quat, Vec2, Vec4 } from '../../math';
+import { Mat4, Quat, Vec2, Vec4 } from '../../math';
 import { MacroRecord } from '../../renderer/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { QueueHint, ResourceResidency, TaskType } from './types';
@@ -121,6 +121,7 @@ export abstract class CopyPassBuilder {
 }
 
 export abstract class SceneVisitor {
+    public abstract get pipelineSceneData(): PipelineSceneData;
     public abstract setViewport(vp: Viewport): void;
     public abstract setScissor(rect: Rect): void;
     public abstract bindPipelineState(pso: PipelineState): void;
@@ -154,7 +155,7 @@ export abstract class Pipeline extends PipelineRuntime {
     public abstract addComputePass(layoutName: string): ComputePassBuilder;
     public abstract addMovePass(name: string): MovePassBuilder;
     public abstract addCopyPass(name: string): CopyPassBuilder;
-    public abstract addPresentPass(name: string, swapchainName: string): void;
+    public abstract presentAll(): void;
     public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
 }
 

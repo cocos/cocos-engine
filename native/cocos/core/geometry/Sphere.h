@@ -134,7 +134,7 @@ public:
     void        mergeFrustum(const Frustum &frustum);
     inline void merge(const AABB *aabb) { mergeAABB(aabb); }
     inline void merge(const Vec3 &point) { mergePoint(point); }
-    void        merge(const std::vector<Vec3> &points);
+    void        merge(const ccstd::vector<Vec3> &points);
     inline void merge(const Frustum &frustum) { mergeFrustum(frustum); }
     bool        interset(const Frustum &frustum) const;
     int         interset(const Plane &plane) const;

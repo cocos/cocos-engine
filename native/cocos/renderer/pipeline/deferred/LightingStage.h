@@ -74,7 +74,7 @@ private:
 
     gfx::Buffer *             _deferredLitsBufs{nullptr};
     gfx::Buffer *             _deferredLitsBufView{nullptr};
-    std::vector<float>        _lightBufferData;
+    ccstd::vector<float>      _lightBufferData;
     uint                      _lightBufferStride{0};
     uint                      _lightBufferElementCount{0};
     bool                      _isTransparentQueueEmpty{true};
@@ -87,8 +87,8 @@ private:
     RenderQueue *   _reflectionRenderQueue{nullptr};
     uint            _reflectionPhaseID{0};
 
-    std::vector<RenderElem> _reflectionElems;
-    uint                    _denoiseIndex = 0; // use to get corrrect texture string handle
+    ccstd::vector<RenderElem> _reflectionElems;
+    uint                      _denoiseIndex = 0; // use to get corrrect texture string handle
 
     gfx::Sampler *_defaultSampler{nullptr};
 

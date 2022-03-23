@@ -29,7 +29,7 @@
 /// @cond DO_NOT_SHOW
 
 #include <string>
-#include <vector>
+#include "base/std/container/vector.h"
 
 struct CookiesInfo {
     std::string domain;
@@ -48,13 +48,13 @@ public:
     void writeFile();
     void setCookieFileName(const std::string &fileName);
 
-    const std::vector<CookiesInfo> *getCookies() const;
-    const CookiesInfo *             getMatchCookie(const std::string &url) const;
-    void                            updateOrAddCookie(CookiesInfo *cookie);
+    const ccstd::vector<CookiesInfo> *getCookies() const;
+    const CookiesInfo *               getMatchCookie(const std::string &url) const;
+    void                              updateOrAddCookie(CookiesInfo *cookie);
 
 private:
-    std::string              _cookieFileName;
-    std::vector<CookiesInfo> _cookies;
+    std::string                _cookieFileName;
+    ccstd::vector<CookiesInfo> _cookies;
 };
 
 /// @endcond

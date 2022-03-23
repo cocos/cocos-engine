@@ -39,15 +39,15 @@
 namespace cc {
 namespace framegraph {
 
-DevicePass::DevicePass(const FrameGraph &graph, std::vector<PassNode *> const &subpassNodes) {
-    std::vector<RenderTargetAttachment> attachments;
+DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const &subpassNodes) {
+    ccstd::vector<RenderTargetAttachment> attachments;
 
     for (const PassNode *passNode : subpassNodes) {
         append(graph, passNode, &attachments);
     }
 
     std::sort(attachments.begin(), attachments.end(), RenderTargetAttachment::Sorter());
-    std::vector<const gfx::Texture *> renderTargets;
+    ccstd::vector<const gfx::Texture *> renderTargets;
 
     for (auto &attachment : attachments) {
         const ResourceNode &resourceNode = graph.getResourceNode(attachment.textureHandle);
@@ -98,7 +98,7 @@ void DevicePass::execute() {
     end(cmdBuff);
 }
 
-void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::vector<RenderTargetAttachment> *attachments) {
+void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, ccstd::vector<RenderTargetAttachment> *attachments) {
     _subpasses.emplace_back();
     Subpass &subpass = _subpasses.back();
 
@@ -131,7 +131,7 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::
 }
 
 void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &attachment,
-                        std::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const std::vector<Handle> &reads) {
+                        ccstd::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const ccstd::vector<Handle> &reads) {
     RenderTargetAttachment::Usage usage{attachment.desc.usage};
     uint32_t                      slot{attachment.desc.slot};
     if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
@@ -199,11 +199,11 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
 void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     if (_attachments.empty()) return;
 
-    gfx::RenderPassInfo            rpInfo;
-    gfx::FramebufferInfo           fboInfo;
-    float                          clearDepth   = 1.F;
-    uint32_t                       clearStencil = 0;
-    static std::vector<gfx::Color> clearColors;
+    gfx::RenderPassInfo              rpInfo;
+    gfx::FramebufferInfo             fboInfo;
+    float                            clearDepth   = 1.F;
+    uint32_t                         clearStencil = 0;
+    static ccstd::vector<gfx::Color> clearColors;
     clearColors.clear();
 
     bool hasDefaultViewport{false};

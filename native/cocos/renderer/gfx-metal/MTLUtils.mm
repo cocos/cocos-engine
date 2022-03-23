@@ -554,7 +554,7 @@ Format mu::convertGFXPixelFormat(Format format) {
 MTLPixelFormat mu::toMTLPixelFormat(Format format) {
     switch (format) {
         case Format::A8: return MTLPixelFormatA8Unorm;
-        case Format::R8: return MTLPixelFormatR8Uint;
+        case Format::R8: return MTLPixelFormatR8Unorm;
         case Format::R8SN: return MTLPixelFormatR8Snorm;
         case Format::R8UI: return MTLPixelFormatR8Uint;
         case Format::R16F: return MTLPixelFormatR16Float;

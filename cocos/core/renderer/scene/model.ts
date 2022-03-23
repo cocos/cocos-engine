@@ -380,6 +380,13 @@ export class Model {
         }
     }
 
+    public onGeometryChanged () {
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].onGeometryChanged();
+        }
+    }
+
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
         this._localDataUpdated = true;

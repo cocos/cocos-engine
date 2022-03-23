@@ -897,6 +897,7 @@ export class SubpassGraph implements impl.BidirectionalGraph
 }
 
 export class RasterPass {
+    isValid = false;
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly subpassGraph: SubpassGraph = new SubpassGraph();
@@ -1017,15 +1018,17 @@ export class Blit {
     shader: string;
 }
 
-export class PresentPass {
-    constructor (resourceName = '', syncInterval = 0, flags = 0) {
-        this.resourceName = resourceName;
+export class Present {
+    constructor (syncInterval = 0, flags = 0) {
         this.syncInterval = syncInterval;
         this.flags = flags;
     }
-    resourceName: string;
     syncInterval: number;
     flags: number;
+}
+
+export class PresentPass {
+    readonly presents: Map<string, Present> = new Map<string, Present>();
 }
 
 export class RenderData {

@@ -81,12 +81,12 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 
     uint32_t surfaceFormatCount = 0U;
     VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &surfaceFormatCount, nullptr));
-    vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
+    ccstd::vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
     VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &surfaceFormatCount, surfaceFormats.data()));
 
     uint32_t presentModeCount = 0U;
     VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &presentModeCount, nullptr));
-    vector<VkPresentModeKHR> presentModes(presentModeCount);
+    ccstd::vector<VkPresentModeKHR> presentModes(presentModeCount);
     VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &presentModeCount, presentModes.data()));
 
     VkFormat        colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
@@ -125,7 +125,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 
     // Select a present mode for the swapchain
 
-    vector<VkPresentModeKHR> presentModePriorityList;
+    ccstd::vector<VkPresentModeKHR> presentModePriorityList;
 
     switch (_vsyncMode) {
         case VsyncMode::OFF: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
@@ -156,7 +156,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     // Find a supported composite alpha format (not all devices support alpha opaque)
     VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     // Simply select the first composite alpha format available
-    vector<VkCompositeAlphaFlagBitsKHR> compositeAlphaFlags = {
+    ccstd::vector<VkCompositeAlphaFlagBitsKHR> compositeAlphaFlags = {
         VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
         VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
         VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
@@ -306,11 +306,11 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     _colorTexture->resize(newWidth, newHeight);
     _depthStencilTexture->resize(newWidth, newHeight);
 
-    bool                         hasStencil = GFX_FORMAT_INFOS[toNumber(_depthStencilTexture->getFormat())].hasStencil;
-    vector<VkImageMemoryBarrier> barriers(imageCount * 2, VkImageMemoryBarrier{});
-    VkPipelineStageFlags         srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkPipelineStageFlags         dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    ThsvsImageBarrier            tempBarrier{};
+    bool                                hasStencil = GFX_FORMAT_INFOS[toNumber(_depthStencilTexture->getFormat())].hasStencil;
+    ccstd::vector<VkImageMemoryBarrier> barriers(imageCount * 2, VkImageMemoryBarrier{});
+    VkPipelineStageFlags                srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags                dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    ThsvsImageBarrier                   tempBarrier{};
     tempBarrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     tempBarrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     tempBarrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;

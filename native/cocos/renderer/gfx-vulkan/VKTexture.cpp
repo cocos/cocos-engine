@@ -28,6 +28,7 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKSwapchain.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -58,6 +59,7 @@ void CCVKTexture::doInit(const TextureInfo & /*info*/) {
 
     if (!_gpuTexture->memoryless) {
         CCVKDevice::getInstance()->getMemoryStatus().textureSize += _size;
+        CC_PROFILE_MEMORY_INC(Texture, _size);
     }
 
     _gpuTextureView = CC_NEW(CCVKGPUTextureView);
@@ -94,6 +96,7 @@ void CCVKTexture::doDestroy() {
         if (!_isTextureView) {
             if (!_gpuTexture->memoryless) {
                 CCVKDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+                CC_PROFILE_MEMORY_DEC(Texture, _size);
             }
             CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTexture);
             CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuTexture);
@@ -109,6 +112,7 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
     if (!_gpuTexture->memoryless) {
         CCVKDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+        CC_PROFILE_MEMORY_DEC(Texture, _size);
     }
 
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTextureView);
@@ -122,6 +126,7 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
     if (!_gpuTexture->memoryless) {
         CCVKDevice::getInstance()->getMemoryStatus().textureSize += size;
+        CC_PROFILE_MEMORY_INC(Texture, size);
     }
 
     cmdFuncCCVKCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);

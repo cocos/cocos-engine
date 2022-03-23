@@ -30,14 +30,13 @@
 
 #include <cerrno>
 #include <cstdio>
-#include <queue>
 #include <sstream>
 #include "application/ApplicationManager.h"
-#include "platform/FileUtils.h"
-#include "platform/java/jni/JniHelper.h"
-
 #include "base/Log.h"
 #include "base/UTF8.h"
+#include "base/std/container/queue.h"
+#include "platform/FileUtils.h"
+#include "platform/java/jni/JniHelper.h"
 
 #ifndef JCLS_HTTPCLIENT
     #define JCLS_HTTPCLIENT "com/cocos/lib/CocosHttpURLConnection"
@@ -47,9 +46,9 @@ namespace cc {
 
 namespace network {
 
-using HttpRequestHeaders     = std::vector<std::string>;
+using HttpRequestHeaders     = ccstd::vector<std::string>;
 using HttpRequestHeadersIter = HttpRequestHeaders::iterator;
-using HttpCookies            = std::vector<std::string>;
+using HttpCookies            = ccstd::vector<std::string>;
 using HttpCookiesIter        = HttpCookies::iterator;
 
 static HttpClient *gHttpClient = nullptr; // pointer to singleton
@@ -66,7 +65,7 @@ struct CookiesInfo {
 
 //static size_t writeData(void *ptr, size_t size, size_t nmemb, void *stream)
 static size_t writeData(void *buffer, size_t sizes, HttpResponse *response) {
-    auto *recvBuffer = static_cast<std::vector<char> *>(response->getResponseData());
+    auto *recvBuffer = static_cast<ccstd::vector<char> *>(response->getResponseData());
     recvBuffer->clear();
     recvBuffer->insert(recvBuffer->end(), static_cast<char *>(buffer), (static_cast<char *>(buffer)) + sizes);
     return sizes;
@@ -74,7 +73,7 @@ static size_t writeData(void *buffer, size_t sizes, HttpResponse *response) {
 
 //static size_t writeHeaderData(void *ptr, size_t size, size_t nmemb, void *stream)
 size_t writeHeaderData(void *buffer, size_t sizes, HttpResponse *response) {
-    auto *recvBuffer = static_cast<std::vector<char> *>(response->getResponseHeader());
+    auto *recvBuffer = static_cast<ccstd::vector<char> *>(response->getResponseHeader());
     recvBuffer->clear();
     recvBuffer->insert(recvBuffer->end(), static_cast<char *>(buffer), static_cast<char *>(buffer) + sizes);
     return sizes;
@@ -433,7 +432,7 @@ private:
             return;
         }
 
-        std::vector<CookiesInfo> cookiesInfoVec;
+        ccstd::vector<CookiesInfo> cookiesInfoVec;
         cookiesInfoVec.clear();
 
         for (auto &cookies : cookiesVec) {
@@ -445,10 +444,10 @@ private:
                 continue;
             }
 
-            CookiesInfo              co;
-            std::stringstream        streamInfo(cookies);
-            std::string              item;
-            std::vector<std::string> elems;
+            CookiesInfo                co;
+            std::stringstream          streamInfo(cookies);
+            std::string                item;
+            ccstd::vector<std::string> elems;
 
             while (std::getline(streamInfo, item, '\t')) {
                 elems.push_back(item);
@@ -669,7 +668,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
     int   contentLength = urlConnection.getResponseHeaderByKeyInt("Content-Length");
     char *contentInfo   = urlConnection.getResponseContent(response);
     if (nullptr != contentInfo) {
-        auto *recvBuffer = static_cast<std::vector<char> *>(response->getResponseData());
+        auto *recvBuffer = static_cast<ccstd::vector<char> *>(response->getResponseData());
         recvBuffer->clear();
         recvBuffer->insert(recvBuffer->begin(), contentInfo, contentInfo + urlConnection.getContentLength());
     }

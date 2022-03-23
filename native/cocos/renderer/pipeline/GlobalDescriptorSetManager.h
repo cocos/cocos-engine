@@ -27,6 +27,7 @@
 
 #include "base/CoreStd.h"
 #include "base/Ptr.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {
@@ -67,7 +68,7 @@ private:
     IntrusivePtr<gfx::DescriptorSetLayout>         _descriptorSetLayout;
     gfx::DescriptorSet *                           _globalDescriptorSet = nullptr;
     std::unordered_map<uint, gfx::DescriptorSet *> _descriptorSetMap{};
-    std::vector<gfx::Buffer *>                     _shadowUBOs;
+    ccstd::vector<gfx::Buffer *>                   _shadowUBOs;
 };
 
 } // namespace pipeline

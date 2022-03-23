@@ -114,7 +114,7 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
 }
 
 void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    static vector<uint> lightPassIndices;
+    static ccstd::vector<uint> lightPassIndices;
 
     clear();
 
@@ -215,7 +215,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
     const auto *sceneData       = _pipeline->getPipelineSceneData();
     const auto *shadowInfo      = sceneData->getShadows();
 
-    size_t      offset  = 0;
+    size_t offset = 0;
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
 
@@ -385,7 +385,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     }
 }
 
-bool RenderAdditiveLightQueue::getLightPassIndex(const scene::Model *model, vector<uint> *lightPassIndices) const {
+bool RenderAdditiveLightQueue::getLightPassIndex(const scene::Model *model, ccstd::vector<uint> *lightPassIndices) const {
     lightPassIndices->clear();
     bool hasValidLightPass = false;
 

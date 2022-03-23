@@ -30,6 +30,7 @@
 #include "base/Object.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
+#include "base/std/container/vector.h"
 #include "renderer/gfx-base/GFXDef.h"
 
 namespace cc {
@@ -59,7 +60,7 @@ struct CC_DLL RenderObject {
     float               depth = 0;
     const scene::Model *model = nullptr;
 };
-using RenderObjectList = vector<struct RenderObject>;
+using RenderObjectList = ccstd::vector<struct RenderObject>;
 
 struct CC_DLL RenderTargetInfo {
     uint width  = 0;
@@ -73,10 +74,10 @@ struct CC_DLL RenderPass {
     uint                   passIndex = 0;
     const scene::SubModel *subModel  = nullptr;
 };
-using RenderPassList = vector<RenderPass>;
+using RenderPassList = ccstd::vector<RenderPass>;
 
 using ColorDesc     = gfx::ColorAttachment;
-using ColorDescList = vector<ColorDesc>;
+using ColorDescList = ccstd::vector<ColorDesc>;
 
 using DepthStencilDesc = gfx::DepthStencilAttachment;
 
@@ -85,7 +86,7 @@ struct CC_DLL RenderPassDesc {
     ColorDescList    colorAttachments;
     DepthStencilDesc depthStencilAttachment;
 };
-using RenderPassDescList = vector<RenderPassDesc>;
+using RenderPassDescList = ccstd::vector<RenderPassDesc>;
 
 struct CC_DLL RenderTextureDesc {
     String            name;
@@ -95,15 +96,15 @@ struct CC_DLL RenderTextureDesc {
     int               width  = -1;
     int               height = -1;
 };
-using RenderTextureDescList = vector<RenderTextureDesc>;
+using RenderTextureDescList = ccstd::vector<RenderTextureDesc>;
 
 struct CC_DLL FrameBufferDesc {
-    String         name;
-    uint           renderPass = 0;
-    vector<String> colorTextures;
-    String         depthStencilTexture;
+    String                name;
+    uint                  renderPass = 0;
+    ccstd::vector<String> colorTextures;
+    String                depthStencilTexture;
 };
-using FrameBufferDescList = vector<FrameBufferDesc>;
+using FrameBufferDescList = ccstd::vector<FrameBufferDesc>;
 
 enum class RenderFlowType : uint8_t {
     SCENE,
@@ -112,10 +113,10 @@ enum class RenderFlowType : uint8_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(RenderFlowType)
 
-using RenderStageList = vector<RenderStage *>;
-using RenderFlowList  = vector<RenderFlow *>;
-using LightList       = vector<scene::Light *>;
-using UintList        = vector<uint>;
+using RenderStageList = ccstd::vector<RenderStage *>;
+using RenderFlowList  = ccstd::vector<RenderFlow *>;
+using LightList       = ccstd::vector<scene::Light *>;
+using UintList        = ccstd::vector<uint>;
 
 enum class CC_DLL RenderPassStage {
     DEFAULT = 100,
@@ -160,7 +161,7 @@ struct CC_DLL RenderQueueDesc {
     RenderQueueSortMode sortMode      = RenderQueueSortMode::FRONT_TO_BACK;
     StringArray         stages;
 };
-using RenderQueueDescList = std::vector<RenderQueueDesc>;
+using RenderQueueDescList = ccstd::vector<RenderQueueDesc>;
 
 uint getPhaseID(const String &phase);
 

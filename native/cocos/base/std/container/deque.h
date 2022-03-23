@@ -1,8 +1,8 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
-
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ 
  http://www.cocos.com
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
-
+ 
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,16 +21,18 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 
-/**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- */
-// clang-format off
-#include "cocos/renderer/pipeline/custom/JsbConversion.h"
-#include "cocos/renderer/pipeline/custom/RenderExecutorJsb.h"
-#include "cocos/renderer/pipeline/custom/RenderExecutorTypes.h"
+#pragma once
 
-// clang-format on
+#include <deque>
+#include "boost/container/pmr/polymorphic_allocator.hpp"
+
+namespace ccstd {
+using std::deque;
+
+namespace pmr {
+template <class T>
+using deque = std::deque<T, boost::container::pmr::polymorphic_allocator<T>>;
+}
+} // namespace ccstd

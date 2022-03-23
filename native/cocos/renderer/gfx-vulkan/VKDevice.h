@@ -135,13 +135,13 @@ protected:
 
     void initFormatFeature();
 
-    CCVKGPUDevice *       _gpuDevice  = nullptr;
-    CCVKGPUContext *      _gpuContext = nullptr;
-    vector<CCVKTexture *> _depthStencilTextures;
+    CCVKGPUDevice *              _gpuDevice  = nullptr;
+    CCVKGPUContext *             _gpuContext = nullptr;
+    ccstd::vector<CCVKTexture *> _depthStencilTextures;
 
-    vector<CCVKGPUFencePool *>         _gpuFencePools;
-    vector<CCVKGPURecycleBin *>        _gpuRecycleBins;
-    vector<CCVKGPUStagingBufferPool *> _gpuStagingBufferPools;
+    ccstd::vector<CCVKGPUFencePool *>         _gpuFencePools;
+    ccstd::vector<CCVKGPURecycleBin *>        _gpuRecycleBins;
+    ccstd::vector<CCVKGPUStagingBufferPool *> _gpuStagingBufferPools;
 
     CCVKGPUBufferHub *       _gpuBufferHub{nullptr};
     CCVKGPUTransportHub *    _gpuTransportHub{nullptr};
@@ -151,8 +151,8 @@ protected:
     CCVKGPUFramebufferHub *  _gpuFramebufferHub{nullptr};
     CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub{nullptr};
 
-    vector<const char *> _layers;
-    vector<const char *> _extensions;
+    ccstd::vector<const char *> _layers;
+    ccstd::vector<const char *> _extensions;
 };
 
 } // namespace gfx

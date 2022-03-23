@@ -53,7 +53,7 @@
 #include <cmath>
 #include <cstdint>
 #include <sstream>
-#include <vector>
+#include "base/std/container/vector.h"
 
 namespace CSSColorParser {
 
@@ -63,7 +63,7 @@ struct NamedColor {
     Color       color;
 };
 
-const std::vector<NamedColor> NAMED_COLORS = {
+const ccstd::vector<NamedColor> NAMED_COLORS = {
     {"transparent", {0, 0, 0, 0}},
     {"aliceblue", {240, 248, 255, 1}},
     {"antiquewhite", {250, 235, 215, 1}},
@@ -267,10 +267,10 @@ float cssHueToRgb(float m1, float m2, float h) {
     return m1;
 }
 
-std::vector<std::string> split(const std::string &s, char delim) {
-    std::vector<std::string> elems;
-    std::stringstream        ss(s);
-    std::string              item;
+ccstd::vector<std::string> split(const std::string &s, char delim) {
+    ccstd::vector<std::string> elems;
+    std::stringstream          ss(s);
+    std::string                item;
     while (std::getline(ss, item, delim)) {
         elems.push_back(item);
     }
@@ -324,8 +324,8 @@ Color parse(const std::string &cssStr) {
     size_t op = str.find_first_of('(');
     size_t ep = str.find_first_of(')');
     if (op != std::string::npos && ep + 1 == str.length()) {
-        const std::string              fname = str.substr(0, op);
-        const std::vector<std::string> params =
+        const std::string                fname = str.substr(0, op);
+        const ccstd::vector<std::string> params =
             split(str.substr(op + 1, ep - (op + 1)), ',');
 
         float alpha = 1.0f;

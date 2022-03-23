@@ -27,6 +27,7 @@
 
 #include "BufferAllocator.h"
 #include "PoolType.h"
+#include "base/std/container/vector.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/Object.h"
 #include "cocos/base/TypeDef.h"
@@ -57,15 +58,15 @@ public:
 private:
     static constexpr uint POOL_FLAG = 1 << 30;
 
-    BufferAllocator   _allocator;
-    cc::vector<Chunk> _chunks;
-    uint              _entryBits       = 1 << 8;
-    uint              _chunkMask       = 0;
-    uint              _entryMask       = 0;
-    uint              _bytesPerChunk   = 0;
-    uint              _entriesPerChunk = 0;
-    uint              _bytesPerEntry   = 0;
-    PoolType          _type            = PoolType::UNKNOWN;
+    BufferAllocator      _allocator;
+    ccstd::vector<Chunk> _chunks;
+    uint                 _entryBits       = 1 << 8;
+    uint                 _chunkMask       = 0;
+    uint                 _entryMask       = 0;
+    uint                 _bytesPerChunk   = 0;
+    uint                 _entriesPerChunk = 0;
+    uint                 _bytesPerEntry   = 0;
+    PoolType             _type            = PoolType::UNKNOWN;
 };
 
 } // namespace se

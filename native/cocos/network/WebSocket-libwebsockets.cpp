@@ -50,12 +50,11 @@
 #include <list>
 #include <memory> // for std::shared_ptr
 #include <mutex>
-#include <queue>
 #include <string>
 #include <thread>
-#include <vector>
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
+#include "base/std/container/queue.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
 
@@ -210,7 +209,7 @@ public:
 
     bool init(const cc::network::WebSocket::Delegate &delegate,
               const std::string &                     url,
-              const std::vector<std::string> *        protocols  = nullptr,
+              const ccstd::vector<std::string> *      protocols  = nullptr,
               const std::string &                     caFilePath = "");
 
     void                              send(const std::string &message);
@@ -243,7 +242,7 @@ private:
     cc::network::WebSocket::State _readyState;
     std::mutex                    _readyStateMutex;
     std::string                   _url;
-    std::vector<char>             _receivedData;
+    ccstd::vector<char>           _receivedData;
 
     struct lws *          _wsInstance;
     struct lws_protocols *_lwsProtocols;
@@ -256,7 +255,7 @@ private:
     std::mutex              _closeMutex;
     std::condition_variable _closeCondition;
 
-    std::vector<std::string> _enabledExtensions;
+    ccstd::vector<std::string> _enabledExtensions;
 
     enum class CloseState {
         NONE,
@@ -280,11 +279,11 @@ enum WsMsg {
 
 class WsThreadHelper;
 
-static std::vector<WebSocketImpl *> *websocketInstances{nullptr};
-static std::recursive_mutex          instanceMutex;
-static struct lws_context *          wsContext{nullptr};
-static WsThreadHelper *              wsHelper{nullptr};
-static std::atomic_bool              wsPolling{false};
+static ccstd::vector<WebSocketImpl *> *websocketInstances{nullptr};
+static std::recursive_mutex            instanceMutex;
+static struct lws_context *            wsContext{nullptr};
+static WsThreadHelper *                wsHelper{nullptr};
+static std::atomic_bool                wsPolling{false};
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 static std::string getFileNameForPath(const std::string &filePath) {
@@ -576,8 +575,8 @@ private:
     unsigned char *_payload{nullptr};
     ssize_t        _payloadLength{0};
 
-    ssize_t                    _frameLength{0};
-    std::vector<unsigned char> _data;
+    ssize_t                      _frameLength{0};
+    ccstd::vector<unsigned char> _data;
 };
 
 //
@@ -611,7 +610,7 @@ WebSocketImpl::WebSocketImpl(cc::network::WebSocket *ws)
     {
         std::lock_guard<std::recursive_mutex> lk(instanceMutex);
         if (websocketInstances == nullptr) {
-            websocketInstances = new (std::nothrow) std::vector<WebSocketImpl *>();
+            websocketInstances = new (std::nothrow) ccstd::vector<WebSocketImpl *>();
         }
         websocketInstances->push_back(this);
     }
@@ -661,7 +660,7 @@ WebSocketImpl::~WebSocketImpl() {
 
 bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
                          const std::string &                     url,
-                         const std::vector<std::string> *        protocols /* = nullptr*/,
+                         const ccstd::vector<std::string> *      protocols /* = nullptr*/,
                          const std::string &                     caFilePath /* = ""*/) {
     _delegate   = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
     _url        = url;
@@ -1154,7 +1153,7 @@ int WebSocketImpl::onClientReceivedData(void *in, ssize_t len) {
     //    LOGD("remainingSize: %d, isFinalFragment: %d\n", (int)remainingSize, isFinalFragment);
 
     if (remainingSize == 0 && isFinalFragment) {
-        auto *frameData = new (std::nothrow) std::vector<char>(std::move(_receivedData));
+        auto *frameData = new (std::nothrow) ccstd::vector<char>(std::move(_receivedData));
 
         // reset capacity of received data buffer
         _receivedData.reserve(WS_RESERVE_RECEIVE_BUFFER_SIZE);
@@ -1353,10 +1352,10 @@ WebSocket::~WebSocket() {
     delete _impl;
 }
 
-bool WebSocket::init(const Delegate &                delegate,
-                     const std::string &             url,
-                     const std::vector<std::string> *protocols /* = nullptr*/,
-                     const std::string &             caFilePath /* = ""*/) {
+bool WebSocket::init(const Delegate &                  delegate,
+                     const std::string &               url,
+                     const ccstd::vector<std::string> *protocols /* = nullptr*/,
+                     const std::string &               caFilePath /* = ""*/) {
     return _impl->init(delegate, url, protocols, caFilePath);
 }
 

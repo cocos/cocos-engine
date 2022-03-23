@@ -28,7 +28,7 @@
 
 #include "audio/include/Export.h"
 #include "base/Macros.h"
-
+#include "base/std/container/vector.h"
 #include "bindings/event/CustomEventTypes.h"
 #include "bindings/event/EventDispatcher.h"
 
@@ -320,8 +320,8 @@ protected:
     static void addTask(const std::function<void()> &task);
     static void remove(int audioID);
 
-    static void pauseAll(std::vector<int> *pausedAudioIDs);
-    static void resumeAll(std::vector<int> *pausedAudioIDs);
+    static void pauseAll(ccstd::vector<int> *pausedAudioIDs);
+    static void resumeAll(ccstd::vector<int> *pausedAudioIDs);
 
     struct ProfileHelper {
         AudioProfile profile;
@@ -373,10 +373,10 @@ protected:
     static bool sIsEnabled;
 
 private:
-    static float sVolumeFactor;
-    static uint32_t sOnPauseListenerID;
-    static uint32_t sOnResumeListenerID;
-    static std::vector<int> sBreakAudioID;
+    static float              sVolumeFactor;
+    static uint32_t           sOnPauseListenerID;
+    static uint32_t           sOnResumeListenerID;
+    static ccstd::vector<int> sBreakAudioID;
 
     static void onEnterBackground(const CustomEvent &);
     static void onEnterForeground(const CustomEvent &);

@@ -104,7 +104,7 @@ static bool isNumberString(const std::string &str) {
 namespace {
 
 template <typename T>
-bool std_vector_T_to_seval(const std::vector<T> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
+bool std_vector_T_to_seval(const ccstd::vector<T> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     assert(ret != nullptr);
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
     bool             ok = true;
@@ -344,7 +344,7 @@ bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) { // NOLINT
 
     cc::ValueMap &dict = *ret;
 
-    std::vector<std::string> allKeys;
+    ccstd::vector<std::string> allKeys;
     SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
     bool      ok = false;
@@ -375,7 +375,7 @@ bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret) {
 
     cc::ValueMapIntKey &dict = *ret;
 
-    std::vector<std::string> allKeys;
+    ccstd::vector<std::string> allKeys;
     SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
     bool      ok = false;
@@ -790,13 +790,13 @@ bool sevalue_to_native(const se::Value &from, cc::MacroValue *to, se::Object * /
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, std::vector<cc::MacroRecord> *to, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &from, ccstd::vector<cc::MacroRecord> *to, se::Object * /*ctx*/) {
     if (from.isNullOrUndefined()) {
         to->clear();
         return true;
     }
 
-    SE_PRECONDITION2(from.isObject(), false, "sevalue_to_native(std::vector<cc::MacroRecord>), not an object");
+    SE_PRECONDITION2(from.isObject(), false, "sevalue_to_native(ccstd::vector<cc::MacroRecord>), not an object");
     auto *fromObj = from.toObject();
     CC_ASSERT(fromObj->isArray());
     uint32_t len = 0;
@@ -809,8 +809,8 @@ bool sevalue_to_native(const se::Value &from, std::vector<cc::MacroRecord> *to, 
             if (!ok || !arrElement.isObject()) {
                 continue;
             }
-            cc::MacroRecord          macroRecord;
-            std::vector<std::string> keys;
+            cc::MacroRecord            macroRecord;
+            ccstd::vector<std::string> keys;
             ok = arrElement.toObject()->getAllKeys(&keys);
             if (ok) {
                 se::Value seMacroVal;
@@ -955,24 +955,24 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
     obj->getArrayLength(&len);
     if (len == 0) {
         // TODO(PatriceJiang): judge type of empty array?
-        *to = std::vector<bool>{};
+        *to = ccstd::vector<bool>{};
         return false;
     }
 
     se::Value firstEle;
     obj->getArrayElement(0, &firstEle);
     if (firstEle.isBoolean()) {
-        std::vector<bool> result;
+        ccstd::vector<bool> result;
         sevalue_to_native(from, &result, ctx);
         return true;
     }
     if (firstEle.isNumber()) {
-        std::vector<float> result;
+        ccstd::vector<float> result;
         sevalue_to_native(from, &result, ctx);
         return true;
     }
     if (firstEle.isString()) {
-        std::vector<std::string> result;
+        ccstd::vector<std::string> result;
         sevalue_to_native(from, &result, ctx);
         return true;
     }
@@ -981,11 +981,11 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::variant<std::vector<float>, std::string> *to, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, std::string> *to, se::Object * /*ctx*/) {
     if (from.isObject() && from.toObject()->isArray()) {
-        uint32_t           len = 0;
-        bool               ok  = from.toObject()->getArrayLength(&len);
-        std::vector<float> arr;
+        uint32_t             len = 0;
+        bool                 ok  = from.toObject()->getArrayLength(&len);
+        ccstd::vector<float> arr;
         arr.resize(len);
         for (uint32_t i = 0; i < len; ++i) {
             se::Value e;
@@ -1041,7 +1041,7 @@ bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer **to, se::Object *
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, std::vector<bool> *to, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Object * /*ctx*/) {
     if (from.isNullOrUndefined()) {
         to->clear();
         return true;
@@ -1060,7 +1060,7 @@ bool sevalue_to_native(const se::Value &from, std::vector<bool> *to, se::Object 
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, std::vector<unsigned char> *to, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/) {
     if (from.isNullOrUndefined()) {
         to->clear();
         return true;
@@ -1203,8 +1203,8 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, cc::mid
     assert(v.isObject());
     se::Object *obj = v.toObject();
 
-    std::vector<std::string> allKeys;
-    bool                     ok = obj->getAllKeys(&allKeys);
+    ccstd::vector<std::string> allKeys;
+    bool                       ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
         return false;
@@ -1537,7 +1537,7 @@ bool nativevalue_to_se(const cc::Mat4 &from, se::Value &to, se::Object * /*ctx*/
 
 #if USE_PHYSICS_PHYSX
 
-bool nativevalue_to_se(const std::vector<std::shared_ptr<cc::physics::TriggerEventPair>> &from, se::Value &to, se::Object * /*ctx*/) {
+bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::TriggerEventPair>> &from, se::Value &to, se::Object * /*ctx*/) {
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::TriggerEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::TriggerEventPair::COUNT;
@@ -1549,7 +1549,7 @@ bool nativevalue_to_se(const std::vector<std::shared_ptr<cc::physics::TriggerEve
     return true;
 }
 
-bool nativevalue_to_se(const std::vector<cc::physics::ContactPoint> &from, se::Value &to, se::Object * /*ctx*/) {
+bool nativevalue_to_se(const ccstd::vector<cc::physics::ContactPoint> &from, se::Value &to, se::Object * /*ctx*/) {
     const auto       contactCount = from.size();
     se::HandleObject array(se::Object::createArrayObject(contactCount));
     for (size_t i = 0; i < contactCount; i++) {
@@ -1572,7 +1572,7 @@ bool nativevalue_to_se(const std::vector<cc::physics::ContactPoint> &from, se::V
     return true;
 }
 
-bool nativevalue_to_se(const std::vector<std::shared_ptr<cc::physics::ContactEventPair>> &from, se::Value &to, se::Object *ctx) {
+bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactEventPair>> &from, se::Value &to, se::Object *ctx) {
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::ContactEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::ContactEventPair::COUNT;

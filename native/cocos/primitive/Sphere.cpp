@@ -32,13 +32,13 @@ IGeometry sphere(float radius, const cc::optional<ISphereOptions> &opts) {
     // lat === latitude
     // lon === longitude
 
-    std::vector<float>    positions;
-    std::vector<float>    normals;
-    std::vector<float>    uvs;
-    std::vector<uint32_t> indices;
-    const Vec3            minPos(-radius, -radius, -radius);
-    const Vec3            maxPos(radius, radius, radius);
-    const float           boundingRadius = radius;
+    ccstd::vector<float>    positions;
+    ccstd::vector<float>    normals;
+    ccstd::vector<float>    uvs;
+    ccstd::vector<uint32_t> indices;
+    const Vec3              minPos(-radius, -radius, -radius);
+    const Vec3              maxPos(radius, radius, radius);
+    const float             boundingRadius = radius;
 
     for (uint32_t lat = 0; lat <= segments; lat++) {
         const float theta    = static_cast<float>(lat) * math::PI / static_cast<float>(segments);

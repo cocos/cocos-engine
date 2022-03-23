@@ -26,6 +26,7 @@
 #pragma once
 
 #include "base/CoreStd.h"
+#include "base/std/container/unordered_set.h"
 
 namespace cc {
 
@@ -51,7 +52,7 @@ public:
     bool empty() { return _queues.empty(); }
 
 private:
-    unordered_set<InstancedBuffer *> _queues;
+    ccstd::unordered_set<InstancedBuffer *> _queues;
 };
 
 } // namespace pipeline

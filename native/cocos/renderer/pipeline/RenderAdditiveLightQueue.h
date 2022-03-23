@@ -47,8 +47,8 @@ struct AdditiveLightPass {
     const scene::SubModel *subModel = nullptr;
     const scene::Pass *    pass     = nullptr;
     gfx::Shader *          shader   = nullptr;
-    vector<uint>           dynamicOffsets;
-    vector<uint>           lights;
+    ccstd::vector<uint>    dynamicOffsets;
+    ccstd::vector<uint>    lights;
 };
 
 class RenderAdditiveLightQueue final {
@@ -67,21 +67,21 @@ private:
     void addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx);
     void updateUBOs(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    bool getLightPassIndex(const scene::Model *model, vector<uint> *lightPassIndices) const;
+    bool getLightPassIndex(const scene::Model *model, ccstd::vector<uint> *lightPassIndices) const;
     void lightCulling(const scene::Model *model);
 
-    RenderPipeline *                  _pipeline = nullptr;
-    vector<vector<scene::SubModel *>> _sortedSubModelsArray;
-    vector<vector<uint>>              _sortedPSOCIArray;
-    vector<const scene::Light *>      _validPunctualLights;
-    vector<uint>                      _lightIndices;
-    vector<AdditiveLightPass>         _lightPasses;
-    vector<uint>                      _dynamicOffsets;
-    vector<float>                     _lightBufferData;
-    RenderInstancedQueue *            _instancedQueue       = nullptr;
-    RenderBatchedQueue *              _batchedQueue         = nullptr;
-    gfx::Buffer *                     _lightBuffer          = nullptr;
-    gfx::Buffer *                     _firstLightBufferView = nullptr;
+    RenderPipeline *                                _pipeline = nullptr;
+    ccstd::vector<ccstd::vector<scene::SubModel *>> _sortedSubModelsArray;
+    ccstd::vector<ccstd::vector<uint>>              _sortedPSOCIArray;
+    ccstd::vector<const scene::Light *>             _validPunctualLights;
+    ccstd::vector<uint>                             _lightIndices;
+    ccstd::vector<AdditiveLightPass>                _lightPasses;
+    ccstd::vector<uint>                             _dynamicOffsets;
+    ccstd::vector<float>                            _lightBufferData;
+    RenderInstancedQueue *                          _instancedQueue       = nullptr;
+    RenderBatchedQueue *                            _batchedQueue         = nullptr;
+    gfx::Buffer *                                   _lightBuffer          = nullptr;
+    gfx::Buffer *                                   _firstLightBufferView = nullptr;
 
     std::array<float, UBOShadow::COUNT> _shadowUBO{};
 

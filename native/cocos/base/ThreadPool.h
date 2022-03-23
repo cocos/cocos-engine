@@ -26,17 +26,15 @@
 
 #pragma once
 
-#include "base/Utils.h"
-
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <queue>
 #include <thread>
-#include <vector>
+#include "base/Utils.h"
+#include "base/std/container/queue.h"
 
 namespace cc {
 
@@ -145,10 +143,10 @@ private:
 
     void stretchPool(int count);
 
-    std::vector<std::unique_ptr<std::thread>>       _threads;
-    std::vector<std::shared_ptr<std::atomic<bool>>> _abortFlags;
-    std::vector<std::shared_ptr<std::atomic<bool>>> _idleFlags;
-    std::vector<std::shared_ptr<std::atomic<bool>>> _initedFlags;
+    ccstd::vector<std::unique_ptr<std::thread>>       _threads;
+    ccstd::vector<std::shared_ptr<std::atomic<bool>>> _abortFlags;
+    ccstd::vector<std::shared_ptr<std::atomic<bool>>> _idleFlags;
+    ccstd::vector<std::shared_ptr<std::atomic<bool>>> _initedFlags;
 
     template <typename T>
     class ThreadSafeQueue {
@@ -182,8 +180,8 @@ private:
         }
 
     private:
-        std::queue<T> q;
-        std::mutex    mutex;
+        ccstd::queue<T> q;
+        std::mutex      mutex;
     };
 
     struct Task {

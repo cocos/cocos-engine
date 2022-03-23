@@ -29,7 +29,7 @@
 namespace cc {
 
 namespace {
-std::vector<IJointTransform *>                     stack; //cjh TODO: how to release ?
+ccstd::vector<IJointTransform *>                   stack; //cjh TODO: how to release ?
 std::unordered_map<std::string, IJointTransform *> pool;
 } // namespace
 
