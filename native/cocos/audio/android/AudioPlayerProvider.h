@@ -28,10 +28,10 @@ THE SOFTWARE.
 #include "audio/android/IAudioPlayer.h"
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/PcmData.h"
+#include "base/std/container/unordered_map.h"
 
 #include <condition_variable>
 #include <memory>
-#include <unordered_map>
 
 namespace cc {
 // Manage PcmAudioPlayer& UrlAudioPlayer
@@ -99,7 +99,7 @@ private:
     FdGetterCallback    _fdGetterCallback;
     ICallerThreadUtils *_callerThreadUtils;
 
-    std::unordered_map<std::string, PcmData> _pcmCache;
+    ccstd::unordered_map<std::string, PcmData> _pcmCache;
     std::mutex                               _pcmCacheMutex;
 
     struct PreloadCallbackParam {
@@ -107,7 +107,7 @@ private:
         bool            isPreloadInPlay2d;
     };
 
-    std::unordered_map<std::string, ccstd::vector<PreloadCallbackParam>> _preloadCallbackMap;
+    ccstd::unordered_map<std::string, ccstd::vector<PreloadCallbackParam>> _preloadCallbackMap;
     std::mutex                                                           _preloadCallbackMutex;
 
     std::mutex              _preloadWaitMutex;

@@ -29,7 +29,7 @@
 #include <numeric>
 #include <sstream>
 #include <string>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "base/RefVector.h"
 #include "cocos/base/Optional.h"
 #include "core/Types.h"

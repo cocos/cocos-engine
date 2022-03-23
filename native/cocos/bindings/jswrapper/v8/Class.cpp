@@ -40,7 +40,7 @@ namespace se {
 // ------------------------------------------------------- Object
 
 namespace {
-//        std::unordered_map<std::string, Class *> __clsMap;
+//        ccstd::unordered_map<std::string, Class *> __clsMap;
 v8::Isolate *          __isolate = nullptr; // NOLINT
 ccstd::vector<Class *> __allClasses;        // NOLINT
 

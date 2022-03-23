@@ -29,7 +29,7 @@
 
 #include <functional>
 #include <string>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "base/Macros.h"
 #include "base/RefMap.h"
 
@@ -158,7 +158,7 @@ private:
 //c++11 style callbacks entities will be created using CC_CALLBACK (which uses std::bind)
 using SIOEvent = std::function<void(SIOClient *, const std::string &)>;
 //c++11 map to callbacks
-using EventRegistry = std::unordered_map<std::string, SIOEvent>;
+using EventRegistry = ccstd::unordered_map<std::string, SIOEvent>;
 
 /**
  * A single connection to a socket.io endpoint.

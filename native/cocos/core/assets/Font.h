@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #pragma once
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "core/assets/Asset.h"
 
@@ -119,8 +119,8 @@ protected:
     Font *                                              _font{nullptr};
     uint32_t                                            _fontSize{1U};
     uint32_t                                            _lineHeight{0U};
-    std::unordered_map<uint32_t, FontGlyph>             _glyphs;
-    std::unordered_map<KerningPair, float, KerningHash> _kernings;
+    ccstd::unordered_map<uint32_t, FontGlyph>             _glyphs;
+    ccstd::unordered_map<KerningPair, float, KerningHash> _kernings;
     ccstd::vector<gfx::Texture *>                       _textures;
     uint32_t                                            _textureWidth{0U};
     uint32_t                                            _textureHeight{0U};
@@ -152,7 +152,7 @@ protected:
     FontType                                 _type{FontType::INVALID};
     std::string                              _path;
     ccstd::vector<uint8_t>                   _data;
-    std::unordered_map<uint32_t, FontFace *> _faces;
+    ccstd::unordered_map<uint32_t, FontFace *> _faces;
 };
 
 } // namespace cc

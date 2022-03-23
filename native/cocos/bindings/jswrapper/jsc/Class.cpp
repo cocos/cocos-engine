@@ -43,7 +43,7 @@ namespace se {
     #define JS_PS_END JS_PSGS(0, 0, 0, 0)
 
 namespace {
-//        std::unordered_map<std::string, Class *> __clsMap;
+//        ccstd::unordered_map<std::string, Class *> __clsMap;
 JSContextRef           __cx = nullptr;
 ccstd::vector<Class *> __allClasses;
 

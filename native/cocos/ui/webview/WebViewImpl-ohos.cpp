@@ -26,7 +26,7 @@
 
 #include <cstdlib>
 #include <string>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 
 #include "WebView-inl.h"
 
@@ -159,7 +159,7 @@ std::string getUrlStringByFileName(const std::string &fileName) {
 
 namespace cc {
 
-static std::unordered_map<int, WebViewImpl *> sWebViewImpls;
+static ccstd::unordered_map<int, WebViewImpl *> sWebViewImpls;
 
 WebViewImpl::WebViewImpl(WebView *webView) : _viewTag(-1),
                                              _webView(webView) {

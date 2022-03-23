@@ -70,7 +70,7 @@ private:
     jclass _globalKls = {};
 };
 #if CC_CACHE_CLASS_ID
-std::unordered_map<const char *, JClassWrapper> _cachedJClasses;
+ccstd::unordered_map<const char *, JClassWrapper> _cachedJClasses;
 #endif
 }; // namespace
 

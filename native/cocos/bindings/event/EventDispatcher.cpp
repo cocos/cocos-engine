@@ -44,7 +44,7 @@ bool                        inited                = false;
 
 namespace cc {
 
-std::unordered_map<std::string, EventDispatcher::Node *> EventDispatcher::listeners;
+ccstd::unordered_map<std::string, EventDispatcher::Node *> EventDispatcher::listeners;
 uint32_t                                                 EventDispatcher::hashListenerId = 1;
 
 bool EventDispatcher::initialized() {

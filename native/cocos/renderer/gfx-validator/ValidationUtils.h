@@ -109,7 +109,7 @@ private:
         BufferInfo             info;
         ccstd::vector<uint8_t> data;
     };
-    unordered_map<uint32_t, BufferData> _bufferMap;
+    ccstd::unordered_map<uint32_t, BufferData> _bufferMap;
 };
 
 //////////////////////////////////////////////////////////////////////////

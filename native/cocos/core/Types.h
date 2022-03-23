@@ -26,7 +26,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include <utility>
 #include "cocos/base/Optional.h"
 

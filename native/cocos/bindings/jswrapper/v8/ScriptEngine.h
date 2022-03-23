@@ -335,7 +335,7 @@ public:
         void                       clear();
 
     private:
-        std::unordered_map<std::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
+        ccstd::unordered_map<std::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
     };
 
     inline VMStringPool &  _getStringPool() { return _stringPool; }         // NOLINT(readability-identifier-naming)

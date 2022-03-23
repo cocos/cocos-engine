@@ -176,9 +176,9 @@ protected:
     uint32_t     _numTriangles{0U};
     MemoryStatus _memoryStatus;
 
-    unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>>                      _samplers;
-    unordered_map<GeneralBarrierInfo, GeneralBarrier *, Hasher<GeneralBarrierInfo>> _generalBarriers;
-    unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
+    ccstd::unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>>                      _samplers;
+    ccstd::unordered_map<GeneralBarrierInfo, GeneralBarrier *, Hasher<GeneralBarrierInfo>> _generalBarriers;
+    ccstd::unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
 
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference

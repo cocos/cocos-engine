@@ -28,6 +28,7 @@
 
 #include "base/Macros.h"
 #include "base/memory/StlAlloc.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
@@ -35,8 +36,8 @@ namespace cc {
 class Value;
 
 using ValueVector    = ccstd::vector<Value>;
-using ValueMap       = unordered_map<String, Value>;
-using ValueMapIntKey = unordered_map<int, Value>;
+using ValueMap       = ccstd::unordered_map<String, Value>;
+using ValueMapIntKey = ccstd::unordered_map<int, Value>;
 
 CC_DLL extern const ValueVector    VALUE_VECTOR_NULL;
 CC_DLL extern const ValueMap       VALUE_MAP_NULL;

@@ -28,7 +28,7 @@
 #include <memory>
 #include <string>
 #include <typeinfo>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 
 #include "base/Log.h"
 #include "base/Macros.h"
@@ -285,7 +285,7 @@ public:
     }
 
 private:
-    std::unordered_map<KeyType, CallbackList> _callbackTable;
+    ccstd::unordered_map<KeyType, CallbackList> _callbackTable;
     static CallbackInfoBase::ID               cbIDCounter;
 };
 

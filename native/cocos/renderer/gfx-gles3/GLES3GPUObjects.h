@@ -191,7 +191,7 @@ public:
     GLuint getGLSampler(uint16_t minLod, uint16_t maxLod);
 
 private:
-    unordered_map<uint32_t, GLuint> _cache;
+    ccstd::unordered_map<uint32_t, GLuint> _cache;
 };
 
 struct GLES3GPUInput {
@@ -305,7 +305,7 @@ struct GLES3GPUInputAssembler {
     GLES3GPUBuffer *              gpuIndirectBuffer = nullptr;
     GLES3GPUAttributeList         glAttribs;
     GLenum                        glIndexType = 0;
-    unordered_map<size_t, GLuint> glVAOs;
+    ccstd::unordered_map<size_t, GLuint> glVAOs;
 };
 
 struct GLES3GPUGeneralBarrier {
@@ -482,7 +482,7 @@ public:
     BlendState                      bs;
     bool                            isCullFaceEnabled    = true;
     bool                            isStencilTestEnabled = false;
-    unordered_map<String, uint32_t> texUnitCacheMap;
+    ccstd::unordered_map<String, uint32_t> texUnitCacheMap;
     GLES3ObjectCache                gfxStateCache;
 
     void initialize(size_t texUnits, size_t imageUnits, size_t uboBindings, size_t ssboBindings, size_t vertexAttributes) {
@@ -644,7 +644,7 @@ private:
         GLuint glFramebuffer{0};
         bool   isExternal{false};
     };
-    using CacheMap = unordered_map<GLuint, ccstd::vector<FramebufferRecord>>;
+    using CacheMap = ccstd::unordered_map<GLuint, ccstd::vector<FramebufferRecord>>;
     CacheMap _renderbufferMap; // renderbuffer -> mip level -> framebuffer
     CacheMap _textureMap;      // texture -> mip level -> framebuffer
 };
@@ -667,7 +667,7 @@ public:
     void update(GLES3GPUTexture *texture);
 
 private:
-    unordered_map<GLES3GPUTexture *, ccstd::vector<GLES3GPUFramebuffer *>> _framebuffers;
+    ccstd::unordered_map<GLES3GPUTexture *, ccstd::vector<GLES3GPUFramebuffer *>> _framebuffers;
 };
 
 } // namespace gfx

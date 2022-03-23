@@ -26,8 +26,7 @@
 
 #pragma once
 
-#include <unordered_map>
-
+#include "base/std/container/unordered_map.h"
 #include "audio/oalsoft/AudioCache.h"
 #include "audio/oalsoft/AudioPlayer.h"
 #include "cocos/base/RefCounted.h"
@@ -69,13 +68,13 @@ private:
     ALuint _alSources[MAX_AUDIOINSTANCES];
 
     //source,used
-    std::unordered_map<ALuint, bool> _alSourceUsed;
+    ccstd::unordered_map<ALuint, bool> _alSourceUsed;
 
     //filePath,bufferInfo
-    std::unordered_map<std::string, AudioCache> _audioCaches;
+    ccstd::unordered_map<std::string, AudioCache> _audioCaches;
 
     //audioID,AudioInfo
-    std::unordered_map<int, AudioPlayer *> _audioPlayers;
+    ccstd::unordered_map<int, AudioPlayer *> _audioPlayers;
     std::mutex                             _threadMutex;
 
     bool _lazyInitLoop;

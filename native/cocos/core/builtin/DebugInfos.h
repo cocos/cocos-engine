@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include <string>
 
 namespace cc {
 
-extern std::unordered_map<int, std::string> debugInfos;
+extern ccstd::unordered_map<int, std::string> debugInfos;
 
 }

@@ -56,7 +56,7 @@ public:
     virtual void updatePipelineSceneData() {}
 
     inline void                                                                setShadowFramebuffer(const scene::Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap.emplace(light, framebuffer); }
-    inline const std::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
+    inline const ccstd::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
     inline const RenderObjectList &                                            getRenderObjects() const { return _renderObjects; }
     inline const RenderObjectList &                                            getDirShadowObjects() const { return _dirShadowObjects; }
     inline void                                                                setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
@@ -126,7 +126,7 @@ protected:
     bool            _isHDR{true};
     float           _shadingScale{1.0F};
 
-    std::unordered_map<const scene::Light *, gfx::Framebuffer *> _shadowFrameBufferMap;
+    ccstd::unordered_map<const scene::Light *, gfx::Framebuffer *> _shadowFrameBufferMap;
 };
 
 } // namespace pipeline

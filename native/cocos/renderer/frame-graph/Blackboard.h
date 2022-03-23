@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "Handle.h"
 #include "base/Macros.h"
 
@@ -49,7 +49,7 @@ public:
     inline bool       has(const KeyType &name) const noexcept;
 
 private:
-    using Container = std::unordered_map<KeyType, ValueType, typename KeyType::Hasher>;
+    using Container = ccstd::unordered_map<KeyType, ValueType, typename KeyType::Hasher>;
     Container _container;
 };
 

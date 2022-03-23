@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 
 #include "3d/assets/Skeleton.h"
@@ -66,7 +66,7 @@ public:
     uint64_t                                                    skeletonHash{0};
     bool                                                        readyToBeDeleted{false};
     ITextureBufferHandle                                        handle;
-    std::unordered_map<uint32_t, ccstd::vector<geometry::AABB>> bounds;
+    ccstd::unordered_map<uint32_t, ccstd::vector<geometry::AABB>> bounds;
     cc::optional<ccstd::vector<IInternalJointAnimInfo>>         animInfos;
 
     static IJointTextureHandle *createJoinTextureHandle() {
@@ -116,11 +116,11 @@ private:
 
     gfx::Device *                                       _device{nullptr};
     IntrusivePtr<TextureBufferPool>                     _pool;
-    std::unordered_map<uint64_t, IJointTextureHandle *> _textureBuffers;
+    ccstd::unordered_map<uint64_t, IJointTextureHandle *> _textureBuffers;
     uint32_t                                            _formatSize{0};
     uint32_t                                            _pixelsPerJoint{0};
     IntrusivePtr<TextureBufferPool>                     _customPool;
-    std::unordered_map<uint64_t, index_t>               _chunkIdxMap; // hash -> chunkIdx
+    ccstd::unordered_map<uint64_t, index_t>               _chunkIdxMap; // hash -> chunkIdx
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointTexturePool);
 };
@@ -146,7 +146,7 @@ public:
     void                    clear();
 
 private:
-    std::unordered_map<std::string, IAnimInfo> _pool; // pre node
+    ccstd::unordered_map<std::string, IAnimInfo> _pool; // pre node
     gfx::Device *                              _device{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointAnimationInfo);

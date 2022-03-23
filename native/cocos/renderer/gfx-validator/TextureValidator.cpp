@@ -42,7 +42,7 @@ struct EnumHasher final {
     }
 };
 
-unordered_map<Format, Feature, EnumHasher> featureCheckMap{};
+ccstd::unordered_map<Format, Feature, EnumHasher> featureCheckMap{};
 } // namespace
 
 TextureValidator::TextureValidator(Texture *actor)

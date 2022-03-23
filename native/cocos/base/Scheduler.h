@@ -31,10 +31,10 @@
 
 #include <functional>
 #include <mutex>
-#include <unordered_map>
 
 #include "base/RefCounted.h"
 #include "base/std/container/set.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
@@ -288,7 +288,7 @@ private:
     // update specific
 
     // Used for "selectors with interval"
-    std::unordered_map<void *, HashTimerEntry *> _hashForTimers;
+    ccstd::unordered_map<void *, HashTimerEntry *> _hashForTimers;
     struct HashTimerEntry *                      _currentTarget         = nullptr;
     bool                                         _currentTargetSalvaged = false;
     // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.

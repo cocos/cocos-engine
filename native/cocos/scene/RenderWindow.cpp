@@ -36,7 +36,7 @@ namespace scene {
 
 namespace {
 
-const std::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> ORIENTATION_MAP{
+const ccstd::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> ORIENTATION_MAP{
     {IScreen::Orientation::PORTRAIT, gfx::SurfaceTransform::IDENTITY},
     {IScreen::Orientation::LANDSCAPE_RIGHT, gfx::SurfaceTransform::ROTATE_90},
     {IScreen::Orientation::PORTRAIT_UPSIDE_DOWN, gfx::SurfaceTransform::ROTATE_180},

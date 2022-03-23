@@ -319,7 +319,7 @@ void Profiler::printStats() {
         renderer->addText("TotalMax", {totalMaxOffset, yOffset}, titleInfo);
         rightLines++;
 
-        std::unordered_map<std::string, MemoryCounter> memories;
+        ccstd::unordered_map<std::string, MemoryCounter> memories;
         {
             std::lock_guard<std::mutex> lock(_memoryStats.mutex);
             memories = _memoryStats.memories;
