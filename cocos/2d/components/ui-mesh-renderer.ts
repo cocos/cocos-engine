@@ -99,9 +99,9 @@ export class UIMeshRenderer extends Component {
             const models = this._modelComponent._collectModels();
             // @ts-expect-error: UIMeshRenderer do not attachToScene
             this._modelComponent._detachFromScene();
-            for (const m of models) {
-                if (m.enabled) {
-                    render.commitModel(this, m, this._modelComponent.material);
+            for (let i = 0; i < models.length; i++) {
+                if (models[i].enabled) {
+                    render.commitModel(this, models[i], this._modelComponent.material);
                 }
             }
             return true;
