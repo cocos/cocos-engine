@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 import { EDITOR } from 'internal:constants';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { Graphics } from '../../2d';

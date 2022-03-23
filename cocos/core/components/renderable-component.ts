@@ -48,9 +48,6 @@ const _matInsInfo: IMaterialInstanceInfo = {
 
 @ccclass('cc.RenderableComponent')
 export class RenderableComponent extends Component {
-    @type([Material])
-    protected _materials: (Material | null)[] = [];
-
     @serializable
     protected _visFlags = Layers.Enum.NONE;
 
@@ -85,6 +82,10 @@ export class RenderableComponent extends Component {
         }
     }
 
+    // _materials should be defined after sharedMaterials for Editor reset component reason
+    @type([Material])
+    protected _materials: (Material | null)[] = [];
+
     /**
      * @en The materials of the model.
      * @zh 模型材质。
@@ -97,16 +98,14 @@ export class RenderableComponent extends Component {
     }
 
     set materials (val: (Material | MaterialInstance | null)[]) {
-        const dLen = val.length - this._materials.length;
-        if (dLen > 0) {
-            this._materials.length = val.length;
-            this._materialInstances.length = val.length;
-        } else if (dLen < 0) {
-            for (let i = this._materials.length - dLen; i < this._materials.length; ++i) {
-                this.setMaterialInstance(null, i);
-            }
+        const newLength = val.length;
+        const oldLength = this._materials.length;
+        for (let i = newLength; i < oldLength; i++) {
+            this.setMaterialInstance(null, i);
         }
-        for (let i = 0; i < this._materialInstances.length; i++) {
+        this._materials.length = newLength;
+        this._materialInstances.length = newLength;
+        for (let i = 0; i < newLength; i++) {
             // they could be either undefined or null
             // eslint-disable-next-line eqeqeq
             if (this._materialInstances[i] != val[i]) {
@@ -208,8 +207,8 @@ export class RenderableComponent extends Component {
             return;
         }
 
-        // Or else it's a Material proper
-        // Should skip identity check if there is any MaterialInstance
+        // Skip identity check if it's a Material property
+        // Or if there is a MaterialInstance already
         if (matInst !== this._materials[index] || curInst) {
             this.setMaterial(matInst as Material, index);
         }

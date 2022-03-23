@@ -25,9 +25,11 @@
 
 #pragma once
 
+#include "base/Macros.h"
+
 namespace cc {
 
-class OSInterfaceManager {
+class CC_DLL OSInterfaceManager {
 public:
     virtual ~OSInterfaceManager() = default;
 

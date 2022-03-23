@@ -30,8 +30,8 @@
 
 namespace cc {
 class SDLHelper;
-class LinuxPlatform : public UniversalPlatform,
-                      public SystemWindow::Delegate {
+class CC_DLL LinuxPlatform : public UniversalPlatform,
+                             public SystemWindow::Delegate {
 public:
     LinuxPlatform();
     /**
@@ -46,16 +46,16 @@ public:
     int32_t loop() override;
 
     // override from SystemWindow::Delegate
-    bool               createWindow(const char* title,
-                                    int x, int y, int w,
-                                    int h, int flags) override;
-    uintptr_t          getWindowHandler() const override;
-    uintptr_t          getDisplay() const;
+    bool      createWindow(const char* title,
+                           int x, int y, int w,
+                           int h, int flags) override;
+    uintptr_t getWindowHandler() const override;
+    uintptr_t getDisplay() const;
 
 private:
-    void               pollEvent() override;
-    bool               _inited{false};
-    bool               _quit{false};
+    void                       pollEvent() override;
+    bool                       _inited{false};
+    bool                       _quit{false};
     std::unique_ptr<SDLHelper> _sdl;
 };
 

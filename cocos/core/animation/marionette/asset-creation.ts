@@ -1,6 +1,6 @@
 export { InvalidTransitionError, VariableNotDefinedError } from './errors';
-export { AnimationGraph, LayerBlending, isAnimationTransition, StateMachine, SubStateMachine } from './animation-graph';
-export type { Transition, AnimationTransition, Layer, State, Variable } from './animation-graph';
+export { AnimationGraph, isAnimationTransition, StateMachine, SubStateMachine, EmptyStateTransition, EmptyState } from './animation-graph';
+export type { Transition, AnimationTransition, Layer, State, VariableDescription } from './animation-graph';
 export { BinaryCondition, UnaryCondition, TriggerCondition } from './condition';
 export type { Condition } from './condition';
 export type { Value } from './variable';
@@ -12,5 +12,4 @@ export { AnimationBlend1D } from './animation-blend-1d';
 export { AnimationBlend2D } from './animation-blend-2d';
 export { VariableType } from './parametric';
 export { BindableNumber, BindableBoolean } from './parametric';
-
-export { __getDemoGraphs } from './__tmp__/get-demo-graphs';
+export { AnimationMask } from './animation-mask';

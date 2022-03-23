@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IVec3Like, Quat, Vec3 } from '../../../core';

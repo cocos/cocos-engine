@@ -31,15 +31,20 @@ list(APPEND PROJ_SOURCES
 )
 
 if(NOT CUSTOM_COPY_RESOURCE_HOOK)
-    include_resources(${RES_DIR}/assets)
+    include_resources(${RES_DIR}/data)
 endif()
 
 add_executable(${LIB_NAME} ${PROJ_SOURCES} ${ASSET_FILES} ${PROJ_COMMON_SOURCES})
-source_group(TREE ${RES_DIR}/assets PREFIX "Resources" FILES ${ASSET_FILES})
+source_group(TREE ${RES_DIR}/data PREFIX "Resources" FILES ${ASSET_FILES})
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} PREFIX "Source Files" FILES ${PROJ_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR}/../common PREFIX "Source Files" FILES ${PROJ_COMMON_SOURCES})
 
 target_link_libraries(${LIB_NAME} cocos2d)
+
+target_compile_definitions(${LIB_NAME} PRIVATE
+    GAME_NAME="${APP_NAME}"
+)
+
 target_include_directories(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes
     ${CMAKE_CURRENT_LIST_DIR}/service

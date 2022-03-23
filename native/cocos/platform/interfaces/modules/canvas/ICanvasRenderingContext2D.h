@@ -54,14 +54,14 @@ namespace cc {
 //    void addColorStop(float offset, const std::string &color);
 //};
 
-class ICanvasGradient {
+class CC_DLL ICanvasGradient {
 public:
     ICanvasGradient()                                                 = default;
     virtual ~ICanvasGradient()                                        = default; // NOLINT(performance-trivially-destructible)
     virtual void addColorStop(float offset, const std::string &color) = 0;
 };
 
-class ICanvasRenderingContext2D : public OSInterface {
+class CC_DLL ICanvasRenderingContext2D : public OSInterface {
 public:
     class Delegate {
     public:

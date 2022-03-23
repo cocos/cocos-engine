@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class Screen : public IScreen {
+class CC_DLL Screen : public IScreen {
 public:
     int         getDPI() const override;
     float       getDevicePixelRatio() const override;

@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class Vibrator : public IVibrator {
+class CC_DLL Vibrator : public IVibrator {
 public:
     /**
      * Vibrator for the specified amount of time.

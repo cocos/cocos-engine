@@ -23,9 +23,4 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import '../cocos/physics/physx/instantiate';

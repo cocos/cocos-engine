@@ -29,7 +29,7 @@
 
 namespace cc {
 
-class IBattery : public OSInterface {
+class CC_DLL IBattery : public OSInterface {
 public:
     /**
      * Gets battery level, only avaiable on iOS and Android.

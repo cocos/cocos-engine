@@ -94,8 +94,8 @@ CCProgram terrain-vs %{
     uv2 = a_position.xz * UVScale.z;
     uv3 = a_position.xz * UVScale.w;
     #if USE_LIGHTMAP
-      luv.xy = lightMapUVParam.xy + a_texCoord * lightMapUVParam.zw;
-      luv.z = lightMapUVParam.z;
+      luv.xy = lightMapUVParam.xy + a_texCoord * lightMapUVParam.z;
+      luv.z = lightMapUVParam.w;
     #endif
 
     v_position = worldPos;
@@ -272,8 +272,8 @@ CCProgram terrain-fs %{
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       vec4 lightColor = texture(lightMap, luv.xy);
-      s.lightmap = UnpackLightingmap(lightColor);
-      s.lightmap_test = luv.z; /*u scale*/
+      s.lightmap = lightColor.xyz * luv.z;
+      s.lightmap_test = luv.z; /*lum*/
     #endif
   }
 

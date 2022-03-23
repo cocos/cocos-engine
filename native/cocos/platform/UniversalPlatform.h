@@ -29,7 +29,7 @@
 #include "platform/IEventDispatch.h"
 
 namespace cc {
-class UniversalPlatform : public BasePlatform, public IEventDispatch {
+class CC_DLL UniversalPlatform : public BasePlatform, public IEventDispatch {
 public:
     /**
      * @brief Implement basic platform initialization.

@@ -29,7 +29,7 @@
 #include "platform/interfaces/OSInterface.h"
 
 namespace cc {
-class IScreen : public OSInterface {
+class CC_DLL IScreen : public OSInterface {
 public:
     virtual int   getDPI() const              = 0;
     virtual float getDevicePixelRatio() const = 0;

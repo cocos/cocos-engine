@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+
 
 import { warnID } from '../../core/platform/debug';
 import { safeMeasureText } from './text-utils';
