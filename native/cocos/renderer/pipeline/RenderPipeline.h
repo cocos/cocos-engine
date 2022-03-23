@@ -26,7 +26,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "Define.h"
 #include "base/CoreStd.h"
 #include "core/assets/Asset.h"
@@ -150,10 +150,10 @@ protected:
     uint                                                          _height{0};
     gfx::Buffer *                                                 _quadIB{nullptr};
     ccstd::vector<gfx::Buffer *>                                  _quadVB;
-    std::unordered_map<Vec4, gfx::InputAssembler *, Hasher<Vec4>> _quadIA;
+    ccstd::unordered_map<Vec4, gfx::InputAssembler *, Hasher<Vec4>> _quadIA;
 
     framegraph::FrameGraph                            _fg;
-    unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
+    ccstd::unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
 
     // use cluster culling or not
     bool _clusterEnabled{false};

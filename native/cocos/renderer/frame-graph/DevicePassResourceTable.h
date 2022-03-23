@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "Handle.h"
 #include "RenderTargetAttachment.h"
 #include "Resource.h"
@@ -58,7 +58,7 @@ public:
     uint32_t         getSubpassIndex() const { return _subpassIndex; }
 
 private:
-    using ResourceDictionary = std::unordered_map<Handle, gfx::GFXObject *, Handle::Hasher>;
+    using ResourceDictionary = ccstd::unordered_map<Handle, gfx::GFXObject *, Handle::Hasher>;
 
     static gfx::GFXObject *get(const ResourceDictionary &from, Handle handle) noexcept;
     void                   extract(const FrameGraph &graph, const PassNode *passNode, ccstd::vector<const gfx::Texture *> const &renderTargets) noexcept;

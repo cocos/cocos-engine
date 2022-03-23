@@ -31,7 +31,7 @@
 #import <Metal/MTLSampler.h>
 #import <Metal/MTLTexture.h>
 #import <Metal/MTLVertexDescriptor.h>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef.h"
 
 namespace cc {

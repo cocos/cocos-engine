@@ -40,8 +40,8 @@ namespace cc {
 namespace gfx {
 namespace {
 
-std::unordered_map<size_t, PipelineState*> pipelineMap;
-std::unordered_map<size_t, RenderPass*> renderPassMap;
+ccstd::unordered_map<size_t, PipelineState*> pipelineMap;
+ccstd::unordered_map<size_t, RenderPass*> renderPassMap;
 
 EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {

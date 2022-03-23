@@ -41,7 +41,7 @@
 
 namespace cc {
 namespace pipeline {
-std::unordered_map<size_t, cc::gfx::RenderPass *> ShadowFlow::renderPassHashMap;
+ccstd::unordered_map<size_t, cc::gfx::RenderPass *> ShadowFlow::renderPassHashMap;
 
 RenderFlowInfo ShadowFlow::initInfo = {
     "ShadowFlow",

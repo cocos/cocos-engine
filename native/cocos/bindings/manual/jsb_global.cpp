@@ -121,7 +121,7 @@ bool jsb_set_extend_property(const char *ns, const char *clsName) { //NOLINT
 
 namespace {
 
-std::unordered_map<std::string, se::Value> gModuleCache;
+ccstd::unordered_map<std::string, se::Value> gModuleCache;
 
 static bool require(se::State &s) { //NOLINT
     const auto &args = s.args();

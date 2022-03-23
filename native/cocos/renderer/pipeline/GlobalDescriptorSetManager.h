@@ -45,7 +45,7 @@ public:
     GlobalDSManager()  = default;
     ~GlobalDSManager() = default;
 
-    inline std::unordered_map<uint, gfx::DescriptorSet *> getDescriptorSetMap() const { return _descriptorSetMap; }
+    inline ccstd::unordered_map<uint, gfx::DescriptorSet *> getDescriptorSetMap() const { return _descriptorSetMap; }
     inline gfx::Sampler *                                 getLinearSampler() const { return _linearSampler; }
     inline gfx::Sampler *                                 getPointSampler() const { return _pointSampler; }
     inline gfx::DescriptorSetLayout *                     getDescriptorSetLayout() const { return _descriptorSetLayout; }
@@ -67,7 +67,7 @@ private:
     gfx::Sampler *                                 _pointSampler  = nullptr;
     IntrusivePtr<gfx::DescriptorSetLayout>         _descriptorSetLayout;
     gfx::DescriptorSet *                           _globalDescriptorSet = nullptr;
-    std::unordered_map<uint, gfx::DescriptorSet *> _descriptorSetMap{};
+    ccstd::unordered_map<uint, gfx::DescriptorSet *> _descriptorSetMap{};
     ccstd::vector<gfx::Buffer *>                   _shadowUBOs;
 };
 

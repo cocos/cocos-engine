@@ -4044,7 +4044,7 @@ extern PFN_vkGetDeviceProcAddr   vkGetDeviceProcAddr;
 //#define VMA_USE_STL_CONTAINERS 1
 
 /* Set this macro to 1 to make the library including and using STL containers:
-std::pair, ccstd::vector, std::list, std::unordered_map.
+std::pair, ccstd::vector, std::list, ccstd::unordered_map.
 
 Set it to 0 or undefined to make the library using its own implementation of
 the containers.
@@ -4078,7 +4078,7 @@ Library has its own container implementation.
 #endif
 
 #if VMA_USE_STL_UNORDERED_MAP
-    #include <unordered_map>
+    #include "base/std/container/unordered_map.h"
 #endif
 
 #if VMA_USE_STL_LIST
@@ -5960,7 +5960,7 @@ private:
         #define VmaPair std::pair
 
         #define VMA_MAP_TYPE(KeyT, ValueT) \
-            std::unordered_map<KeyT, ValueT, std::hash<KeyT>, std::equal_to<KeyT>, VmaStlAllocator<std::pair<KeyT, ValueT> > >
+            ccstd::unordered_map<KeyT, ValueT, std::hash<KeyT>, std::equal_to<KeyT>, VmaStlAllocator<std::pair<KeyT, ValueT> > >
 
     #else // #if VMA_USE_STL_UNORDERED_MAP
 
@@ -5974,7 +5974,7 @@ struct VmaPair
     VmaPair(const T1& firstSrc, const T2& secondSrc) : first(firstSrc), second(secondSrc) { }
 };
 
-/* Class compatible with subset of interface of std::unordered_map.
+/* Class compatible with subset of interface of ccstd::unordered_map.
 KeyT, ValueT must be POD because they will be stored in VmaVector.
 */
 template<typename KeyT, typename ValueT>

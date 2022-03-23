@@ -28,7 +28,7 @@
 #import <Metal/MTLCommandBuffer.h>
 #import <Metal/MTLRenderCommandEncoder.h>
 #import <Metal/MTLRenderPass.h>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "MTLCommandEncoder.h"
 #include "MTLStd.h"
 #include "MTLUtils.h"
@@ -299,12 +299,12 @@ protected:
     Viewport                                      _viewport;
     Rect                                          _scissorRect;
     Color                                         _blendColor;
-    std::unordered_map<uint, BufferBinding>       _vertexBufferMap;
-    std::unordered_map<uint, BufferBinding>       _fragmentBufferMap;
-    std::unordered_map<uint, id<MTLTexture>>      _vertexTextureMap;
-    std::unordered_map<uint, id<MTLTexture>>      _fragmentTextureMap;
-    std::unordered_map<uint, id<MTLSamplerState>> _vertexSamplerMap;
-    std::unordered_map<uint, id<MTLSamplerState>> _fragmentSamplerMap;
+    ccstd::unordered_map<uint, BufferBinding>       _vertexBufferMap;
+    ccstd::unordered_map<uint, BufferBinding>       _fragmentBufferMap;
+    ccstd::unordered_map<uint, id<MTLTexture>>      _vertexTextureMap;
+    ccstd::unordered_map<uint, id<MTLTexture>>      _fragmentTextureMap;
+    ccstd::unordered_map<uint, id<MTLSamplerState>> _vertexSamplerMap;
+    ccstd::unordered_map<uint, id<MTLSamplerState>> _fragmentSamplerMap;
 };
 
 } // namespace gfx

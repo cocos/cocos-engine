@@ -26,16 +26,14 @@
 #pragma once
 
 #include <map>
+#include <utility>
 #include "boost/container/pmr/polymorphic_allocator.hpp"
 
 namespace ccstd {
 using std::map;
 
 namespace pmr {
-template <
-    class Key,
-    class T,
-    class Compare = std::less<Key>>
-using map = std::map<Key, T, Compare, boost::container::pmr::polymorphic_allocator<T>>;
+template <class Key, class T, class Compare = std::less<Key>>
+using map = std::map<Key, T, Compare, boost::container::pmr::polymorphic_allocator<std::pair<const Key,T>>>;
 }
 } // namespace ccstd

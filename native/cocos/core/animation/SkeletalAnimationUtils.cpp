@@ -30,7 +30,7 @@ namespace cc {
 
 namespace {
 ccstd::vector<IJointTransform *>                   stack; //cjh TODO: how to release ?
-std::unordered_map<std::string, IJointTransform *> pool;
+ccstd::unordered_map<std::string, IJointTransform *> pool;
 } // namespace
 
 Mat4 getWorldMatrix(IJointTransform *transform, int32_t stamp) {

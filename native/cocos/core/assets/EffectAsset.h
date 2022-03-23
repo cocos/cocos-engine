@@ -27,7 +27,7 @@
 
 #include <string>
 #include <tuple>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 
 #include "base/Value.h"
@@ -347,7 +347,7 @@ struct IPassStates {
 };
 using PassOverrides = IPassStates;
 
-using PassPropertyInfoMap = std::unordered_map<std::string, IPropertyInfo>;
+using PassPropertyInfoMap = ccstd::unordered_map<std::string, IPropertyInfo>;
 
 struct IPassInfoFull final { //cjh } : public IPassInfo {
     // IPassStates
@@ -483,7 +483,7 @@ struct IBuiltinInfo {
     ccstd::vector<IBuiltin> images;
 };
 
-using BuiltinsStatisticsType = std::unordered_map<std::string, int32_t>;
+using BuiltinsStatisticsType = ccstd::unordered_map<std::string, int32_t>;
 
 struct IBuiltins {
     IBuiltinInfo           globals;
@@ -522,7 +522,7 @@ struct IShaderInfo {
 };
 
 using IPreCompileInfoValueType = cc::variant<ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<std::string>>;
-using IPreCompileInfo          = std::unordered_map<std::string, IPreCompileInfoValueType>;
+using IPreCompileInfo          = ccstd::unordered_map<std::string, IPreCompileInfoValueType>;
 
 class EffectAsset final : public Asset {
 public:
@@ -549,7 +549,7 @@ public:
      */
     static EffectAsset *get(const std::string &name);
 
-    using RegisteredEffectAssetMap = std::unordered_map<std::string, IntrusivePtr<EffectAsset>>;
+    using RegisteredEffectAssetMap = ccstd::unordered_map<std::string, IntrusivePtr<EffectAsset>>;
     /**
      * @en Get all registered effect assets.
      * @zh 获取所有已注册的 effect 资源。

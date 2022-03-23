@@ -97,8 +97,8 @@ struct CCMTLGPUSubpassAttachment {
 };
 
 struct CCMTLGPUShader {
-    unordered_map<uint, CCMTLGPUUniformBlock> blocks;
-    unordered_map<uint, CCMTLGPUSamplerBlock> samplers;
+    ccstd::unordered_map<uint, CCMTLGPUUniformBlock> blocks;
+    ccstd::unordered_map<uint, CCMTLGPUSamplerBlock> samplers;
 
     ccstd::vector<CCMTLGPUSubpassAttachment> inputs;
     ccstd::vector<CCMTLGPUSubpassAttachment> outputs;

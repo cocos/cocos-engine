@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,40 +21,24 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 
 #pragma once
 
-#include "base/std/container/unordered_map.h"
+#include <unordered_map>
+#include <utility>
+#include "boost/container/pmr/polymorphic_allocator.hpp"
 
-namespace se {
+namespace ccstd {
+using std::unordered_map;
 
-class Object;
+namespace pmr {
+template <
+class Key,
+class T,
+class Hash = std::hash<Key>,
+class Pred = std::equal_to<Key>>
+using unordered_map = std::unordered_map<Key, T, Hash, Pred, boost::container::pmr::polymorphic_allocator<std::pair<const Key, T>>>;
+}
+} // namespace ccstd
 
-class NativePtrToObjectMap {
-public:
-    // key: native ptr, value: se::Object
-    using Map = ccstd::unordered_map<void *, Object *>;
-
-    static bool init();
-    static void destroy();
-
-    static Map::iterator find(void *nativeObj);
-    static Map::iterator erase(Map::iterator iter);
-    static void          erase(void *nativeObj);
-    static void          clear();
-    static size_t        size();
-
-    static const Map &instance();
-
-    static Map::iterator begin();
-    static Map::iterator end();
-
-private:
-    static void emplace(void *nativeObj, Object *seObj);
-    static Map *__nativePtrToObjectMap;
-
-    friend class Object;
-};
-
-} // namespace se

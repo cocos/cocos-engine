@@ -51,7 +51,7 @@ public:
 protected:
     int                                            _id;
     _jobject *                                     _impl;
-    std::unordered_map<int, DownloadTaskAndroid *> _taskMap;
+    ccstd::unordered_map<int, DownloadTaskAndroid *> _taskMap;
 };
 } // namespace network
 } // namespace cc

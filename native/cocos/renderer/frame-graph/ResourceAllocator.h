@@ -26,7 +26,7 @@
 #pragma once
 
 #include <algorithm>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "base/memory/Memory.h"
 #include "gfx-base/GFXDef.h"
 
@@ -55,8 +55,8 @@ private:
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator()         = default;
 
-    std::unordered_map<DescriptorType, DeviceResourcePool, gfx::Hasher<DescriptorType>> _pool{};
-    std::unordered_map<DeviceResourceType *, int64_t>                                   _ages{};
+    ccstd::unordered_map<DescriptorType, DeviceResourcePool, gfx::Hasher<DescriptorType>> _pool{};
+    ccstd::unordered_map<DeviceResourceType *, int64_t>                                   _ages{};
     uint64_t                                                                            _age{0};
 };
 

@@ -26,16 +26,16 @@
 
 #pragma once
 
-#include <unordered_map>
 #include "base/Log.h"
 #include "base/Random.h"
 #include "base/RefCounted.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
 
 /**
- * Similar to std::unordered_map, but it will manage reference count automatically internally.
+ * Similar to ccstd::unordered_map, but it will manage reference count automatically internally.
  * Which means it will invoke RefCounted::addRef() when adding an element, and invoke RefCounted::release() when removing an element.
  * @warning The element should be `RefCounted` or its sub-class.
  */
@@ -47,9 +47,9 @@ public:
     // ------------------------------------------
 
     /** Iterator, can be used to loop the Map. */
-    using iterator = typename std::unordered_map<K, V>::iterator;
+    using iterator = typename ccstd::unordered_map<K, V>::iterator;
     /** Const iterator, can be used to loop the Map. */
-    using const_iterator = typename std::unordered_map<K, V>::const_iterator;
+    using const_iterator = typename ccstd::unordered_map<K, V>::const_iterator;
 
     /** Return iterator to beginning. */
     iterator begin() { return _data.begin(); }
@@ -306,7 +306,7 @@ private:
         }
     }
 
-    std::unordered_map<K, V> _data;
+    ccstd::unordered_map<K, V> _data;
 };
 
 } // namespace cc

@@ -36,7 +36,7 @@
 #include <functional>
 #include <list>
 #include <string>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 
 #ifdef ERROR
     #undef ERROR
@@ -353,13 +353,13 @@ protected:
     };
 
     //audioID,audioAttribute
-    static std::unordered_map<int, AudioInfo> sAudioIDInfoMap;
+    static ccstd::unordered_map<int, AudioInfo> sAudioIDInfoMap;
 
     //audio file path,audio IDs
-    static std::unordered_map<std::string, std::list<int>> sAudioPathIDMap;
+    static ccstd::unordered_map<std::string, std::list<int>> sAudioPathIDMap;
 
     //profileName,ProfileHelper
-    static std::unordered_map<std::string, ProfileHelper> sAudioPathProfileHelperMap;
+    static ccstd::unordered_map<std::string, ProfileHelper> sAudioPathProfileHelperMap;
 
     static unsigned int sMaxInstances;
 

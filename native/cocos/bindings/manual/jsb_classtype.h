@@ -60,5 +60,5 @@ public:
     }
 
 private:
-    static std::unordered_map<std::string, se::Class *> jsbClassTypeMap;
+    static ccstd::unordered_map<std::string, se::Class *> jsbClassTypeMap;
 };

@@ -253,7 +253,7 @@ struct GLES2GPUInputAssembler {
     GLES2GPUBuffer *              gpuIndirectBuffer = nullptr;
     GLES2GPUAttributeList         glAttribs;
     GLenum                        glIndexType = 0;
-    unordered_map<size_t, GLuint> glVAOs;
+    ccstd::unordered_map<size_t, GLuint> glVAOs;
 };
 
 struct GLES2GPURenderPass {
@@ -410,7 +410,7 @@ public:
     BlendState                      bs;
     bool                            isCullFaceEnabled    = true;
     bool                            isStencilTestEnabled = false;
-    unordered_map<String, uint32_t> texUnitCacheMap;
+    ccstd::unordered_map<String, uint32_t> texUnitCacheMap;
     GLES2ObjectCache                gfxStateCache;
 
     void initialize(size_t texUnits, size_t vertexAttributes) {
@@ -565,7 +565,7 @@ private:
         GLuint glFramebuffer{0};
         bool   isExternal{false};
     };
-    using CacheMap = unordered_map<GLuint, FramebufferRecord>;
+    using CacheMap = ccstd::unordered_map<GLuint, FramebufferRecord>;
     CacheMap _renderbufferMap; // renderbuffer -> framebuffer
     CacheMap _textureMap;      // texture -> framebuffer
 };
@@ -588,7 +588,7 @@ public:
     void update(GLES2GPUTexture *texture);
 
 private:
-    unordered_map<GLES2GPUTexture *, ccstd::vector<GLES2GPUFramebuffer *>> _framebuffers;
+    ccstd::unordered_map<GLES2GPUTexture *, ccstd::vector<GLES2GPUFramebuffer *>> _framebuffers;
 };
 
 } // namespace gfx

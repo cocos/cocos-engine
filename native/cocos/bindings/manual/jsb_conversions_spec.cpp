@@ -1448,7 +1448,7 @@ bool nativevalue_to_se(const cc::Value &from, se::Value &to, se::Object * /*unus
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool nativevalue_to_se(const std::unordered_map<std::string, cc::Value> &from, se::Value &to, se::Object * /*unused*/) {
+bool nativevalue_to_se(const ccstd::unordered_map<std::string, cc::Value> &from, se::Value &to, se::Object * /*unused*/) {
     return ccvaluemap_to_seval(from, &to);
 }
 

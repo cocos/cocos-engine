@@ -40,7 +40,7 @@ struct cc::KeyboardEvent keyboardEvent;
 
 // key values in web, refer to http://docs.cocos.com/creator/api/en/enums/KEY.html
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-std::unordered_map<int, int> keyCodeMap = {
+ccstd::unordered_map<int, int> keyCodeMap = {
     {AKEYCODE_BACK, 6},
     {AKEYCODE_ENTER, 13},
     {AKEYCODE_MENU, 18},
@@ -50,7 +50,7 @@ std::unordered_map<int, int> keyCodeMap = {
     {AKEYCODE_DPAD_RIGHT, 1001},
     {AKEYCODE_DPAD_CENTER, 1005}};
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
-std::unordered_map<int, int> keyCodeMap = {};
+ccstd::unordered_map<int, int> keyCodeMap = {};
 #endif
 //NOLINTNEXTLINE
 void dispatchKeyCodeEvent(int keyCode, cc::KeyboardEvent &event) {

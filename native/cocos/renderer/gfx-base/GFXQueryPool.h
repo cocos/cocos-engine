@@ -27,7 +27,7 @@
 
 #include <cstdint>
 #include <mutex>
-#include <unordered_map>
+#include "base/std/container/unordered_map.h"
 #include "GFXObject.h"
 
 namespace cc {
@@ -68,7 +68,7 @@ protected:
     uint32_t                               _maxQueryObjects{0};
     bool                                   _forceWait{true};
     std::mutex                             _mutex;
-    std::unordered_map<uint32_t, uint64_t> _results;
+    ccstd::unordered_map<uint32_t, uint64_t> _results;
 };
 
 } // namespace gfx

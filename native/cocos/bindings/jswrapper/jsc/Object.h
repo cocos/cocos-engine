@@ -252,7 +252,7 @@ public:
     /**
          *  @brief Sets a pointer to private data on an object.
          *  @param[in] data A void* to set as the object's private data.
-         *  @note This method will associate private data with se::Object by std::unordered_map::emplace.
+         *  @note This method will associate private data with se::Object by ccstd::unordered_map::emplace.
          *        It's used for search a se::Object via a void* private data.
          */
     void setPrivateData(void *data);

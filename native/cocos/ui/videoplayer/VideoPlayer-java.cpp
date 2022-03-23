@@ -30,7 +30,7 @@
     #include <jni.h>
     #include <cstdlib>
     #include <string>
-    #include <unordered_map>
+    #include "base/std/container/unordered_map.h"
     #include "platform/FileUtils.h"
     #include "platform/java/jni/JniHelper.h"
 
@@ -65,7 +65,7 @@ int createVideoWidgetJNI() {
 
 //-----------------------------------------------------------------------------------------------------------
 
-static std::unordered_map<int, VideoPlayer *> sAllVideoPlayers;
+static ccstd::unordered_map<int, VideoPlayer *> sAllVideoPlayers;
 
 VideoPlayer::VideoPlayer()
 : _videoPlayerIndex(-1),

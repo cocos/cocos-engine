@@ -332,7 +332,7 @@ void CCMTLDevice::getQueryPoolResults(QueryPool *queryPool) {
     gpuQueryPool->semaphore->wait();
     uint64_t *results = queryCount > 0U ? static_cast<uint64_t *>(gpuQueryPool->visibilityResultBuffer.contents) : nullptr;
 
-    std::unordered_map<uint32_t, uint64_t> mapResults;
+    ccstd::unordered_map<uint32_t, uint64_t> mapResults;
     for (auto queryId = 0U; queryId < queryCount; queryId++) {
         uint32_t id   = mtlQueryPool->_ids[queryId];
         auto     iter = mapResults.find(id);

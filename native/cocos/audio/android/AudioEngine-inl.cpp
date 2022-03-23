@@ -34,7 +34,6 @@
 #include <sys/types.h>
 #include <mutex>
 #include <thread>
-#include <unordered_map>
 
 #include "application/ApplicationManager.h"
 #include "audio/include/AudioEngine.h"

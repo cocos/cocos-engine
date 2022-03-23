@@ -44,7 +44,7 @@ public:
     inline void               addId(uint32_t id) { _ids.push_back(id); }
     inline uint32_t           getId(uint32_t index) const { return _ids[index]; }
     inline std::mutex &       getMutex() { return _mutex; }
-    inline void               setResults(std::unordered_map<uint32_t, uint64_t> &&results) { _results = results; }
+    inline void               setResults(ccstd::unordered_map<uint32_t, uint64_t> &&results) { _results = results; }
 
 protected:
     friend class GLES3CommandBuffer;

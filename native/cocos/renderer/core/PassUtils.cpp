@@ -31,7 +31,7 @@
 
 namespace cc {
 
-const std::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader = {
+const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader = {
     {gfx::Type::UNKNOWN, [](const float * /*a*/, MaterialProperty & /*v*/, index_t /*idx*/) {
          CC_LOG_ERROR("type2reader unknown type");
      }},
@@ -99,7 +99,7 @@ const std::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader = {
      }},
 };
 
-const std::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
+const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
     {gfx::Type::UNKNOWN, [](float * /*a*/, const MaterialProperty & /*v*/, index_t /*idx*/) {
          CC_LOG_ERROR("type2writer unknown type");
      }},
