@@ -299,13 +299,15 @@ export class Texture2D extends SimpleTexture {
         const texInfo = new TextureInfo(TextureType.TEX2D);
         texInfo.width = this._width;
         texInfo.height = this._height;
-        return Object.assign(texInfo, presumed);
+        Object.assign(texInfo, presumed);
+        return texInfo;
     }
 
     protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
         const texViewInfo = new TextureViewInfo();
         texViewInfo.type = TextureType.TEX2D;
-        return Object.assign(texViewInfo, presumed);
+        Object.assign(texViewInfo, presumed);
+        return texViewInfo;
     }
 
     public initDefault (uuid?: string) {

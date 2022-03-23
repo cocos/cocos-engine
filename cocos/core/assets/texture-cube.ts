@@ -152,6 +152,7 @@ export class TextureCube extends SimpleTexture {
      * const textureCube = TextureCube.fromTexture2DArray(textures);
      * ```
      */
+
     public static fromTexture2DArray (textures: Texture2D[], out?: TextureCube) {
         const mipmaps: ITextureCubeMipmap[] = [];
         const nMipmaps = textures.length / 6;
@@ -303,7 +304,8 @@ export class TextureCube extends SimpleTexture {
         texViewInfo.type = TextureType.CUBE;
         texViewInfo.baseLayer = 0;
         texViewInfo.layerCount = 6;
-        return Object.assign(texViewInfo, presumed);
+        Object.assign(texViewInfo, presumed);
+        return texViewInfo;
     }
 
     public initDefault (uuid?: string) {
