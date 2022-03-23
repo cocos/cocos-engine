@@ -91,7 +91,6 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
             forEachFace(_mipmaps[level], [this, level](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
                 assignImage(face, static_cast<uint32_t>(level), static_cast<uint32_t>(faceIndex));
             });
-            ;
         }
 
     } else {
