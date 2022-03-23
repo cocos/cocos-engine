@@ -28,9 +28,9 @@
 #include <SLES/OpenSLES_Android.h>
 #include <functional>
 #include <string>
-#include "base/std/container/unordered_map.h"
 #include "base/RefCounted.h"
 #include "base/Utils.h"
+#include "base/std/container/unordered_map.h"
 
 #define MAX_AUDIOINSTANCES 13
 

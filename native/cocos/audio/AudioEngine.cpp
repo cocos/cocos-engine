@@ -62,10 +62,10 @@ const float AudioEngine::TIME_UNKNOWN     = -1.0F;
 ccstd::unordered_map<std::string, std::list<int>> AudioEngine::sAudioPathIDMap;
 //profileName,ProfileHelper
 ccstd::unordered_map<std::string, AudioEngine::ProfileHelper> AudioEngine::sAudioPathProfileHelperMap;
-unsigned int                                                AudioEngine::sMaxInstances         = MAX_AUDIOINSTANCES;
-AudioEngine::ProfileHelper *                                AudioEngine::sDefaultProfileHelper = nullptr;
+unsigned int                                                  AudioEngine::sMaxInstances         = MAX_AUDIOINSTANCES;
+AudioEngine::ProfileHelper *                                  AudioEngine::sDefaultProfileHelper = nullptr;
 ccstd::unordered_map<int, AudioEngine::AudioInfo>             AudioEngine::sAudioIDInfoMap;
-AudioEngineImpl *                                           AudioEngine::sAudioEngineImpl = nullptr;
+AudioEngineImpl *                                             AudioEngine::sAudioEngineImpl = nullptr;
 
 float              AudioEngine::sVolumeFactor       = 1.0F;
 uint32_t           AudioEngine::sOnPauseListenerID  = 0;

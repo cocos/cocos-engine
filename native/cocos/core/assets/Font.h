@@ -116,14 +116,14 @@ public:
 protected:
     virtual void doInit(const FontFaceInfo &info) = 0;
 
-    Font *                                              _font{nullptr};
-    uint32_t                                            _fontSize{1U};
-    uint32_t                                            _lineHeight{0U};
+    Font *                                                _font{nullptr};
+    uint32_t                                              _fontSize{1U};
+    uint32_t                                              _lineHeight{0U};
     ccstd::unordered_map<uint32_t, FontGlyph>             _glyphs;
     ccstd::unordered_map<KerningPair, float, KerningHash> _kernings;
-    ccstd::vector<gfx::Texture *>                       _textures;
-    uint32_t                                            _textureWidth{0U};
-    uint32_t                                            _textureHeight{0U};
+    ccstd::vector<gfx::Texture *>                         _textures;
+    uint32_t                                              _textureWidth{0U};
+    uint32_t                                              _textureHeight{0U};
 };
 
 /**
@@ -149,9 +149,9 @@ public:
 protected:
     void load(const std::string &path);
 
-    FontType                                 _type{FontType::INVALID};
-    std::string                              _path;
-    ccstd::vector<uint8_t>                   _data;
+    FontType                                   _type{FontType::INVALID};
+    std::string                                _path;
+    ccstd::vector<uint8_t>                     _data;
     ccstd::unordered_map<uint32_t, FontFace *> _faces;
 };
 

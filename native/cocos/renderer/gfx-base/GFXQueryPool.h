@@ -27,8 +27,8 @@
 
 #include <cstdint>
 #include <mutex>
-#include "base/std/container/unordered_map.h"
 #include "GFXObject.h"
+#include "base/std/container/unordered_map.h"
 
 namespace cc {
 namespace gfx {
@@ -64,10 +64,10 @@ protected:
     virtual void doInit(const QueryPoolInfo &info) = 0;
     virtual void doDestroy()                       = 0;
 
-    QueryType                              _type{QueryType::OCCLUSION};
-    uint32_t                               _maxQueryObjects{0};
-    bool                                   _forceWait{true};
-    std::mutex                             _mutex;
+    QueryType                                _type{QueryType::OCCLUSION};
+    uint32_t                                 _maxQueryObjects{0};
+    bool                                     _forceWait{true};
+    std::mutex                               _mutex;
     ccstd::unordered_map<uint32_t, uint64_t> _results;
 };
 

@@ -286,7 +286,7 @@ public:
 
 private:
     ccstd::unordered_map<KeyType, CallbackList> _callbackTable;
-    static CallbackInfoBase::ID               cbIDCounter;
+    static CallbackInfoBase::ID                 cbIDCounter;
 };
 
 template <typename Target, typename... Args>

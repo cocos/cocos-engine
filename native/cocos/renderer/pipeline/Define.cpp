@@ -523,7 +523,7 @@ bool supportsR32FloatTexture(gfx::Device *device) {
 }
 
 static ccstd::unordered_map<String, uint32_t> phases; //cjh how to clear this global variable when exiting game?
-static uint32_t                             phaseNum = 0;
+static uint32_t                               phaseNum = 0;
 
 uint getPhaseID(const String &phaseName) {
     auto iter = phases.find(phaseName);

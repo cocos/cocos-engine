@@ -30,9 +30,9 @@
 #include <jni.h>
 #include <functional>
 #include <string>
-#include "base/std/container/unordered_map.h"
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "math/Vec3.h"
 

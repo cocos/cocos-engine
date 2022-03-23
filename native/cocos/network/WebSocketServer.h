@@ -270,7 +270,7 @@ private:
     lws_context *_ctx   = nullptr;
     uv_async_t   _async = {0};
 
-    mutable std::mutex                                                           _connsMtx;
+    mutable std::mutex                                                             _connsMtx;
     ccstd::unordered_map<struct lws *, std::shared_ptr<WebSocketServerConnection>> _conns;
 
     // Attention: do not reference **this** in callbacks

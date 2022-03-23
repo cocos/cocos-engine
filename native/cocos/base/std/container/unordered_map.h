@@ -34,11 +34,10 @@ using std::unordered_map;
 
 namespace pmr {
 template <
-class Key,
-class T,
-class Hash = std::hash<Key>,
-class Pred = std::equal_to<Key>>
+    class Key,
+    class T,
+    class Hash = std::hash<Key>,
+    class Pred = std::equal_to<Key>>
 using unordered_map = std::unordered_map<Key, T, Hash, Pred, boost::container::pmr::polymorphic_allocator<std::pair<const Key, T>>>;
 }
 } // namespace ccstd
-

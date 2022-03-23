@@ -60,14 +60,14 @@ struct IInternalJointAnimInfo {
 
 class IJointTextureHandle {
 public:
-    uint32_t                                                    pixelOffset{0};
-    uint32_t                                                    refCount{0};
-    uint64_t                                                    clipHash{0};
-    uint64_t                                                    skeletonHash{0};
-    bool                                                        readyToBeDeleted{false};
-    ITextureBufferHandle                                        handle;
+    uint32_t                                                      pixelOffset{0};
+    uint32_t                                                      refCount{0};
+    uint64_t                                                      clipHash{0};
+    uint64_t                                                      skeletonHash{0};
+    bool                                                          readyToBeDeleted{false};
+    ITextureBufferHandle                                          handle;
     ccstd::unordered_map<uint32_t, ccstd::vector<geometry::AABB>> bounds;
-    cc::optional<ccstd::vector<IInternalJointAnimInfo>>         animInfos;
+    cc::optional<ccstd::vector<IInternalJointAnimInfo>>           animInfos;
 
     static IJointTextureHandle *createJoinTextureHandle() {
         return new IJointTextureHandle();
@@ -114,12 +114,12 @@ public:
 private:
     // const IInternalJointAnimInfo &createAnimInfos(Skeleton *skeleton, AnimationClip *clip, Node *skinningRoot); // TODO(xwx): AnimationClip not define
 
-    gfx::Device *                                       _device{nullptr};
-    IntrusivePtr<TextureBufferPool>                     _pool;
+    gfx::Device *                                         _device{nullptr};
+    IntrusivePtr<TextureBufferPool>                       _pool;
     ccstd::unordered_map<uint64_t, IJointTextureHandle *> _textureBuffers;
-    uint32_t                                            _formatSize{0};
-    uint32_t                                            _pixelsPerJoint{0};
-    IntrusivePtr<TextureBufferPool>                     _customPool;
+    uint32_t                                              _formatSize{0};
+    uint32_t                                              _pixelsPerJoint{0};
+    IntrusivePtr<TextureBufferPool>                       _customPool;
     ccstd::unordered_map<uint64_t, index_t>               _chunkIdxMap; // hash -> chunkIdx
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointTexturePool);
@@ -147,7 +147,7 @@ public:
 
 private:
     ccstd::unordered_map<std::string, IAnimInfo> _pool; // pre node
-    gfx::Device *                              _device{nullptr};
+    gfx::Device *                                _device{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointAnimationInfo);
 };

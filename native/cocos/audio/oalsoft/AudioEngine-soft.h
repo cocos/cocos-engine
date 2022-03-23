@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include "base/std/container/unordered_map.h"
 #include "audio/oalsoft/AudioCache.h"
 #include "audio/oalsoft/AudioPlayer.h"
+#include "base/std/container/unordered_map.h"
 #include "cocos/base/RefCounted.h"
 
 namespace cc {
@@ -75,7 +75,7 @@ private:
 
     //audioID,AudioInfo
     ccstd::unordered_map<int, AudioPlayer *> _audioPlayers;
-    std::mutex                             _threadMutex;
+    std::mutex                               _threadMutex;
 
     bool _lazyInitLoop;
 

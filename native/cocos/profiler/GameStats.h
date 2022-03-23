@@ -29,9 +29,9 @@
 #include <mutex>
 #include <sstream>
 #include <string>
-#include "base/std/container/unordered_map.h"
 #include <utility>
 #include "base/StringUtil.h"
+#include "base/std/container/unordered_map.h"
 
 namespace cc {
 
@@ -170,7 +170,7 @@ struct CoreStats {
 
 struct MemoryStats {
     // memory stats
-    std::mutex                                     mutex;
+    std::mutex                                       mutex;
     ccstd::unordered_map<std::string, MemoryCounter> memories;
 
     inline void update(const std::string &name, uint64_t value) {

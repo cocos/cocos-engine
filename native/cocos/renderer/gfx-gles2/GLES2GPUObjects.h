@@ -247,12 +247,12 @@ struct GLES2GPUAttribute {
 using GLES2GPUAttributeList = ccstd::vector<GLES2GPUAttribute>;
 
 struct GLES2GPUInputAssembler {
-    AttributeList                 attributes;
-    GLES2GPUBufferList            gpuVertexBuffers;
-    GLES2GPUBuffer *              gpuIndexBuffer    = nullptr;
-    GLES2GPUBuffer *              gpuIndirectBuffer = nullptr;
-    GLES2GPUAttributeList         glAttribs;
-    GLenum                        glIndexType = 0;
+    AttributeList                        attributes;
+    GLES2GPUBufferList                   gpuVertexBuffers;
+    GLES2GPUBuffer *                     gpuIndexBuffer    = nullptr;
+    GLES2GPUBuffer *                     gpuIndirectBuffer = nullptr;
+    GLES2GPUAttributeList                glAttribs;
+    GLenum                               glIndexType = 0;
     ccstd::unordered_map<size_t, GLuint> glVAOs;
 };
 
@@ -391,27 +391,27 @@ struct GLES2ObjectCache {
 
 class GLES2GPUStateCache {
 public:
-    GLuint                          glArrayBuffer        = 0;
-    GLuint                          glElementArrayBuffer = 0;
-    GLuint                          glUniformBuffer      = 0;
-    GLuint                          glVAO                = 0;
-    uint32_t                        texUint              = 0;
-    ccstd::vector<GLuint>           glTextures;
-    GLuint                          glProgram = 0;
-    ccstd::vector<bool>             glEnabledAttribLocs;
-    ccstd::vector<bool>             glCurrentAttribLocs;
-    GLuint                          glFramebuffer  = 0;
-    GLuint                          glRenderbuffer = 0;
-    GLuint                          glReadFBO      = 0;
-    Viewport                        viewport;
-    Rect                            scissor;
-    RasterizerState                 rs;
-    DepthStencilState               dss;
-    BlendState                      bs;
-    bool                            isCullFaceEnabled    = true;
-    bool                            isStencilTestEnabled = false;
+    GLuint                                 glArrayBuffer        = 0;
+    GLuint                                 glElementArrayBuffer = 0;
+    GLuint                                 glUniformBuffer      = 0;
+    GLuint                                 glVAO                = 0;
+    uint32_t                               texUint              = 0;
+    ccstd::vector<GLuint>                  glTextures;
+    GLuint                                 glProgram = 0;
+    ccstd::vector<bool>                    glEnabledAttribLocs;
+    ccstd::vector<bool>                    glCurrentAttribLocs;
+    GLuint                                 glFramebuffer  = 0;
+    GLuint                                 glRenderbuffer = 0;
+    GLuint                                 glReadFBO      = 0;
+    Viewport                               viewport;
+    Rect                                   scissor;
+    RasterizerState                        rs;
+    DepthStencilState                      dss;
+    BlendState                             bs;
+    bool                                   isCullFaceEnabled    = true;
+    bool                                   isStencilTestEnabled = false;
     ccstd::unordered_map<String, uint32_t> texUnitCacheMap;
-    GLES2ObjectCache                gfxStateCache;
+    GLES2ObjectCache                       gfxStateCache;
 
     void initialize(size_t texUnits, size_t vertexAttributes) {
         glTextures.resize(texUnits, 0U);
