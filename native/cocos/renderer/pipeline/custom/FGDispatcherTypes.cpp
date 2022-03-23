@@ -29,59 +29,38 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 // clang-format off
-#pragma once
-#include <boost/variant2/variant.hpp>
-#include "cocos/renderer/gfx-base/GFXDef-common.h"
-#include "cocos/renderer/pipeline/PipelineSceneData.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
-#include "cocos/scene/Camera.h"
+#include "FGDispatcherTypes.h"
 
 namespace cc {
 
 namespace render {
 
-struct ResourceDesc;
-struct ResourceTraits;
-struct RenderSwapchain;
-struct ResourceStates;
-struct ManagedResource;
-struct ManagedTag;
-struct PersistentBufferTag;
-struct PersistentTextureTag;
-struct FramebufferTag;
-struct SwapchainTag;
-struct ResourceGraph;
+ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
+: vertices(alloc),
+  passID(alloc),
+  access(alloc),
+  passIndex(alloc),
+  resourceNames(alloc),
+  resourceIndex(alloc) {}
 
-enum class AttachmentType;
-enum class AccessType;
+// ContinuousContainer
+void ResourceAccessGraph::reserve(vertices_size_type sz) {
+    vertices.reserve(sz);
+    passID.reserve(sz);
+    access.reserve(sz);
+}
 
-struct RasterView;
+ResourceAccessGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
+: outEdges(alloc),
+  inEdges(alloc) {}
 
-enum class ClearValueType;
+ResourceAccessGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
+: outEdges(std::move(rhs.outEdges), alloc),
+  inEdges(std::move(rhs.inEdges), alloc) {}
 
-struct ComputeView;
-struct RasterSubpass;
-struct SubpassGraph;
-struct RasterPass;
-struct ComputePass;
-struct CopyPair;
-struct CopyPass;
-struct MovePair;
-struct MovePass;
-struct RaytracePass;
-struct QueueTag;
-struct SceneTag;
-struct DispatchTag;
-struct BlitTag;
-struct PresentTag;
-struct RenderQueue;
-struct SceneData;
-struct Dispatch;
-struct Blit;
-struct Present;
-struct PresentPass;
-struct RenderData;
-struct RenderGraph;
+ResourceAccessGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
+: outEdges(rhs.outEdges, alloc),
+  inEdges(rhs.inEdges, alloc) {}
 
 } // namespace render
 

@@ -38,6 +38,7 @@
 #include "cocos/base/Ptr.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXSwapchain.h"
 #include "cocos/renderer/gfx-base/GFXTexture.h"
 #include "cocos/renderer/gfx-base/states/GFXSampler.h"
@@ -101,6 +102,7 @@ struct ManagedResource {
 struct ManagedTag {};
 struct PersistentBufferTag {};
 struct PersistentTextureTag {};
+struct FramebufferTag {};
 struct SwapchainTag {};
 
 struct ResourceGraph {
@@ -191,13 +193,14 @@ struct ResourceGraph {
     using edges_size_type = uint32_t;
 
     // PolymorphicGraph
-    using VertexTag         = boost::variant2::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, SwapchainTag>;
-    using VertexValue       = boost::variant2::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, RenderSwapchain*>;
-    using VertexConstValue = boost::variant2::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const RenderSwapchain*>;
+    using VertexTag         = boost::variant2::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
+    using VertexValue       = boost::variant2::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
+    using VertexConstValue = boost::variant2::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
     using VertexHandle      = boost::variant2::variant<
         impl::ValueHandle<ManagedTag, vertex_descriptor>,
         impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
         impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
+        impl::ValueHandle<FramebufferTag, vertex_descriptor>,
         impl::ValueHandle<SwapchainTag, vertex_descriptor>>;
 
     // ContinuousContainer
@@ -241,10 +244,11 @@ struct ResourceGraph {
     boost::container::pmr::vector<ResourceTraits> traits;
     boost::container::pmr::vector<ResourceStates> states;
     // PolymorphicGraph
-    boost::container::pmr::vector<ManagedResource>            resources;
-    boost::container::pmr::vector<IntrusivePtr<gfx::Buffer>>  buffers;
-    boost::container::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
-    boost::container::pmr::vector<RenderSwapchain>            swapchains;
+    boost::container::pmr::vector<ManagedResource>                resources;
+    boost::container::pmr::vector<IntrusivePtr<gfx::Buffer>>      buffers;
+    boost::container::pmr::vector<IntrusivePtr<gfx::Texture>>     textures;
+    boost::container::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
+    boost::container::pmr::vector<RenderSwapchain>                swapchains;
     // UuidGraph
     PmrUnorderedMap<PmrString, vertex_descriptor> valueIndex;
 };
@@ -475,6 +479,7 @@ struct RasterPass {
     RasterPass& operator=(RasterPass&& rhs) = default;
     RasterPass& operator=(RasterPass const& rhs) = default;
 
+    bool                                                                     isValid{false};
     PmrTransparentMap<PmrString, RasterView>                                 rasterViews;
     PmrTransparentMap<PmrString, boost::container::pmr::vector<ComputeView>> computeViews;
     SubpassGraph                                                             subpassGraph;
@@ -912,6 +917,8 @@ struct RenderGraph {
     } static constexpr Layout{}; // NOLINT
     struct DataTag {
     } static constexpr Data{}; // NOLINT
+    struct ValidTag {
+    } static constexpr Valid{}; // NOLINT
 
     // Owners
     boost::container::pmr::vector<Object> objects;
@@ -921,6 +928,7 @@ struct RenderGraph {
     boost::container::pmr::vector<PmrString>  names;
     boost::container::pmr::vector<PmrString>  layoutNodes;
     boost::container::pmr::vector<RenderData> data;
+    boost::container::pmr::vector<bool>       valid;
     // PolymorphicGraph
     boost::container::pmr::vector<RasterPass>   rasterPasses;
     boost::container::pmr::vector<ComputePass>  computePasses;

@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import { Buffer, Texture } from '../../gfx';
+import { Buffer, Framebuffer, Texture } from '../../gfx';
 import { assert } from '../../platform/debug';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
@@ -31,54 +31,65 @@ import { AccessType, Blit, ComputePass, CopyPass, Dispatch, ManagedResource, Mov
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
 import { ResourceResidency } from './types';
 
-class PassInfo {
-    private _passID: number;
-    private _queueID: number;
-    private _sceneID: number;
+class PassVisitor implements RenderGraphVisitor {
+    public passID = 0xFFFFFFFF;
     // output resourcetexture id
-    private _resID: number;
-    constructor (resID: number, passID: number, queueID: number, sceneID: number) {
-        this._passID = passID;
-        this._queueID = queueID;
-        this._sceneID = sceneID;
-        this._resID = resID;
-    }
-    get resID () { return this._resID; }
-    get passID () { return this._passID; }
-    get queueID () { return this._queueID; }
-    get sceneID () { return this._sceneID; }
-}
-
-class RasterSceneVisitor implements RenderGraphVisitor {
+    public resID = 0xFFFFFFFF;
+    private _currPass: RasterPass | null = null;
     private readonly _context: CompilerContext;
-    private _passInfo: PassInfo | null = null;
+    protected _queueID = 0xFFFFFFFF;
+    protected _sceneID = 0xFFFFFFFF;
     constructor (context: CompilerContext) {
         this._context = context;
     }
-    set passInfo (passInfo: PassInfo | null) {
-        this._passInfo = passInfo;
-    }
-    get passInfo () { return this._passInfo; }
     raster (pass: RasterPass) {
+        // Since the pass is valid, there is no need to continue traversing.
+        if (pass.isValid) {
+            return;
+        }
+        this._currPass = pass;
+        const rg = this._context.renderGraph;
+        for (const q of rg.children(this.passID)) {
+            const queueID = q.target as number;
+            assert(rg.holds(RenderGraphValue.Queue, queueID));
+            this._queueID = queueID;
+            rg.visitVertex(this, queueID);
+        }
     }
-    compute (value: ComputePass) {
+    compute (pass: ComputePass) {
     }
-    copy (value: CopyPass) {
+    copy (pass: CopyPass) {
+
     }
-    move (value: MovePass) {
+    move (pass: MovePass) {
+
     }
-    present (value: PresentPass) {
+    present (pass: PresentPass) {
+
     }
-    raytrace (value: RaytracePass) {
+    raytrace (pass: RaytracePass) {
+
     }
     queue (value: RenderQueue) {
+        // It is possible that the pass has already been found in the first for loop
+        if (this._currPass!.isValid) {
+            return;
+        }
+        const rg = this._context.renderGraph;
+        for (const s of rg.children(this._queueID)) {
+            const sceneID = s.target as number;
+            this._sceneID = sceneID;
+            rg.visitVertex(this, sceneID);
+        }
     }
     scene (value: SceneData) {
-        const outputId = this.passInfo!.resID;
-        const passId = this.passInfo!.passID;
+        if (this._currPass!.isValid) {
+            return;
+        }
+        const outputId = this.resID;
         const outputName = this._context.resourceGraph.vertexName(outputId);
         const readViews: Map<string, RasterView> = new Map();
-        const pass = this._context.renderGraph.tryGetRaster(passId)!;
+        const pass = this._currPass!;
         for (const [name, raster] of pass.rasterViews) {
             // find the pass
             if (name === outputName
@@ -109,66 +120,7 @@ class RasterSceneVisitor implements RenderGraphVisitor {
     }
 }
 
-class PassVisitor implements RenderGraphVisitor {
-    public passID = 0xFFFFFFFF;
-    // output resourcetexture id
-    public resID = 0xFFFFFFFF;
-    private readonly _context: CompilerContext;
-
-    constructor (context: CompilerContext) {
-        this._context = context;
-    }
-    raster (pass: RasterPass) {
-        // Since the pass is valid, there is no need to continue traversing.
-        if (pass.isValid) {
-            return;
-        }
-        const rg = this._context.renderGraph;
-        const sceneVisitor = new RasterSceneVisitor(this._context);
-        for (const q of rg.children(this.passID)) {
-            // It is possible that the pass has already been found in the first for loop
-            if (pass.isValid) {
-                return;
-            }
-            const queueID = q.target as number;
-            assert(rg.holds(RenderGraphValue.Queue, queueID));
-            // const queue = rg.value(RenderGraphValue.Queue, queueID);
-            for (const s of rg.children(queueID)) {
-                if (pass.isValid) {
-                    return;
-                }
-                const sceneID = s.target as number;
-                const passInfo = new PassInfo(this.resID, this.passID, queueID, sceneID);
-                sceneVisitor.passInfo = passInfo;
-                rg.visitVertex(sceneVisitor, sceneID);
-            }
-        }
-    }
-    compute (pass: ComputePass) {
-    }
-    copy (pass: CopyPass) {
-
-    }
-    move (pass: MovePass) {
-
-    }
-    present (pass: PresentPass) {
-
-    }
-    raytrace (pass: RaytracePass) {
-
-    }
-    queue (value: RenderQueue) {
-    }
-    scene (value: SceneData) {
-    }
-    blit (value: Blit) {
-    }
-    dispatch (value: Dispatch) {
-    }
-}
-
-export class ResourceVisitor implements ResourceGraphVisitor {
+class ResourceVisitor implements ResourceGraphVisitor {
     private readonly _context: CompilerContext;
     public resID = 0xFFFFFFFF;
     constructor (context: CompilerContext) {
@@ -195,6 +147,9 @@ export class ResourceVisitor implements ResourceGraphVisitor {
     }
 
     persistentTexture (value: Texture) {
+        this.dependency();
+    }
+    framebuffer (value: Framebuffer) {
         this.dependency();
     }
     swapchain (value: RenderSwapchain) {

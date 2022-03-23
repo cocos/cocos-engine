@@ -31,7 +31,7 @@
 /* eslint-disable max-len */
 import * as impl from './graph';
 import { Camera } from '../../renderer/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, SampleCount, Sampler, StoreOp, Swapchain, Texture, TextureFlagBit } from '../../gfx';
 import { QueueHint, ResourceDimension, ResourceFlags, ResourceResidency } from './types';
 
 export class ResourceDesc {
@@ -79,6 +79,7 @@ export const enum ResourceGraphValue {
     Managed,
     PersistentBuffer,
     PersistentTexture,
+    Framebuffer,
     Swapchain,
 }
 
@@ -86,6 +87,7 @@ interface ResourceGraphValueType {
     [ResourceGraphValue.Managed]: ManagedResource
     [ResourceGraphValue.PersistentBuffer]: Buffer
     [ResourceGraphValue.PersistentTexture]: Texture
+    [ResourceGraphValue.Framebuffer]: Framebuffer
     [ResourceGraphValue.Swapchain]: RenderSwapchain
 }
 
@@ -93,10 +95,15 @@ export interface ResourceGraphVisitor {
     managed(value: ManagedResource): unknown;
     persistentBuffer(value: Buffer): unknown;
     persistentTexture(value: Texture): unknown;
+    framebuffer(value: Framebuffer): unknown;
     swapchain(value: RenderSwapchain): unknown;
 }
 
-type ResourceGraphObject = ManagedResource | Buffer | Texture | RenderSwapchain;
+type ResourceGraphObject = ManagedResource
+| Buffer
+| Texture
+| Framebuffer
+| RenderSwapchain;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -474,6 +481,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return visitor.persistentBuffer(vert._object as Buffer);
         case ResourceGraphValue.PersistentTexture:
             return visitor.persistentTexture(vert._object as Texture);
+        case ResourceGraphValue.Framebuffer:
+            return visitor.framebuffer(vert._object as Framebuffer);
         case ResourceGraphValue.Swapchain:
             return visitor.swapchain(vert._object as RenderSwapchain);
         default:
@@ -497,6 +506,13 @@ export class ResourceGraph implements impl.BidirectionalGraph
     getPersistentTexture (v: number): Texture {
         if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
             return this._vertices[v]._object as Texture;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getFramebuffer (v: number): Framebuffer {
+        if (this._vertices[v]._id === ResourceGraphValue.Framebuffer) {
+            return this._vertices[v]._object as Framebuffer;
         } else {
             throw Error('value id not match');
         }
@@ -525,6 +541,13 @@ export class ResourceGraph implements impl.BidirectionalGraph
     tryGetPersistentTexture (v: number): Texture | null {
         if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
             return this._vertices[v]._object as Texture;
+        } else {
+            return null;
+        }
+    }
+    tryGetFramebuffer (v: number): Framebuffer | null {
+        if (this._vertices[v]._id === ResourceGraphValue.Framebuffer) {
+            return this._vertices[v]._object as Framebuffer;
         } else {
             return null;
         }
@@ -1142,24 +1165,37 @@ export class RenderGraphDataMap implements impl.PropertyMap {
     readonly _data: RenderData[];
 }
 
+export class RenderGraphValidMap implements impl.PropertyMap {
+    constructor (readonly valid: boolean[]) {
+        this._valid = valid;
+    }
+    get (v: number): boolean {
+        return this._valid[v];
+    }
+    readonly _valid: boolean[];
+}
+
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum RenderGraphComponent {
     Name,
     Layout,
     Data,
+    Valid,
 }
 
 interface RenderGraphComponentType {
     [RenderGraphComponent.Name]: string;
     [RenderGraphComponent.Layout]: string;
     [RenderGraphComponent.Data]: RenderData;
+    [RenderGraphComponent.Valid]: boolean;
 }
 
 interface RenderGraphComponentPropertyMap {
     [RenderGraphComponent.Name]: RenderGraphNameMap;
     [RenderGraphComponent.Layout]: RenderGraphLayoutMap;
     [RenderGraphComponent.Data]: RenderGraphDataMap;
+    [RenderGraphComponent.Valid]: RenderGraphValidMap;
 }
 
 //-----------------------------------------------------------------
@@ -1243,6 +1279,7 @@ export class RenderGraph implements impl.BidirectionalGraph
         name: string,
         layout: string,
         data: RenderData,
+        valid: boolean,
         u = 0xFFFFFFFF,
     ): number {
         const vert = new RenderGraphVertex(id, object);
@@ -1251,6 +1288,7 @@ export class RenderGraph implements impl.BidirectionalGraph
         this._names.push(name);
         this._layoutNodes.push(layout);
         this._data.push(data);
+        this._valid.push(valid);
 
         // ReferenceGraph
         if (u !== 0xFFFFFFFF) {
@@ -1320,6 +1358,7 @@ export class RenderGraph implements impl.BidirectionalGraph
         this._names.splice(u, 1);
         this._layoutNodes.splice(u, 1);
         this._data.splice(u, 1);
+        this._valid.splice(u, 1);
 
         const sz = this._vertices.length;
         if (u === sz) {
@@ -1393,7 +1432,7 @@ export class RenderGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): RenderGraphNameMap | RenderGraphLayoutMap | RenderGraphDataMap {
+    get (tag: string): RenderGraphNameMap | RenderGraphLayoutMap | RenderGraphDataMap | RenderGraphValidMap {
         switch (tag) {
         // Components
         case 'Name':
@@ -1402,6 +1441,8 @@ export class RenderGraph implements impl.BidirectionalGraph
             return new RenderGraphLayoutMap(this._layoutNodes);
         case 'Data':
             return new RenderGraphDataMap(this._data);
+        case 'Valid':
+            return new RenderGraphValidMap(this._valid);
         default:
             throw Error('property map not found');
         }
@@ -1416,6 +1457,8 @@ export class RenderGraph implements impl.BidirectionalGraph
             return this._layoutNodes[v] as RenderGraphComponentType[T];
         case RenderGraphComponent.Data:
             return this._data[v] as RenderGraphComponentType[T];
+        case RenderGraphComponent.Valid:
+            return this._valid[v] as RenderGraphComponentType[T];
         default:
             throw Error('component not found');
         }
@@ -1428,6 +1471,8 @@ export class RenderGraph implements impl.BidirectionalGraph
             return new RenderGraphLayoutMap(this._layoutNodes) as RenderGraphComponentPropertyMap[T];
         case RenderGraphComponent.Data:
             return new RenderGraphDataMap(this._data) as RenderGraphComponentPropertyMap[T];
+        case RenderGraphComponent.Valid:
+            return new RenderGraphValidMap(this._valid) as RenderGraphComponentPropertyMap[T];
         default:
             throw Error('component map not found');
         }
@@ -1440,6 +1485,9 @@ export class RenderGraph implements impl.BidirectionalGraph
     }
     getData (v: number): RenderData {
         return this._data[v];
+    }
+    getValid (v: number): boolean {
+        return this._valid[v];
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
@@ -1748,10 +1796,11 @@ export class RenderGraph implements impl.BidirectionalGraph
         }
     }
 
-    readonly components: string[] = ['Name', 'Layout', 'Data'];
+    readonly components: string[] = ['Name', 'Layout', 'Data', 'Valid'];
     readonly _vertices: RenderGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _layoutNodes: string[] = [];
     readonly _data: RenderData[] = [];
+    readonly _valid: boolean[] = [];
     readonly index: Map<string, number> = new Map<string, number>();
 }

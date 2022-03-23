@@ -283,6 +283,13 @@ inline void remove_vertex_value_impl(const ResourceGraph::VertexHandle& h, Resou
                 }
                 impl::reindexVectorHandle<PersistentTextureTag>(g.vertices, h.value);
             },
+            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
+                g.framebuffers.erase(g.framebuffers.begin() + std::ptrdiff_t(h.value));
+                if (h.value == g.framebuffers.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<FramebufferTag>(g.vertices, h.value);
+            },
             [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 g.swapchains.erase(g.swapchains.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.swapchains.size()) {
@@ -348,6 +355,15 @@ void addVertexImpl( // NOLINT
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Framebuffer>>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.framebuffers.size())};
+    g.framebuffers.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
     std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderSwapchain>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>{
         gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.swapchains.size())};
@@ -408,6 +424,17 @@ void addVertexImpl(PersistentTextureTag /*tag*/, Tuple &&val, ResourceGraph &g, 
             vert.handle = impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.textures.size())};
             g.textures.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(FramebufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    invoke_hpp::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.framebuffers.size())};
+            g.framebuffers.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Tuple>(val));
 }
@@ -1324,6 +1351,23 @@ struct property_map<cc::render::RenderGraph, T cc::render::RenderData::*> {
         T cc::render::RenderData::*>;
 };
 
+// Vertex Component
+template <>
+struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::ValidTag> {
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::RenderGraph,
+        const container::pmr::vector<bool>,
+        bool,
+        const bool&>;
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::RenderGraph,
+        container::pmr::vector<bool>,
+        bool,
+        bool&>;
+};
+
 } // namespace boost
 
 namespace cc {
@@ -1450,6 +1494,9 @@ id(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             [](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
                 return h.value;
             },
+            [](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
+                return h.value;
+            },
             [](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 return h.value;
             }),
@@ -1469,6 +1516,9 @@ tag(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             },
             [](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>&) {
                 return ResourceGraph::VertexTag{PersistentTextureTag{}};
+            },
+            [](const impl::ValueHandle<FramebufferTag, vertex_descriptor>&) {
+                return ResourceGraph::VertexTag{FramebufferTag{}};
             },
             [](const impl::ValueHandle<SwapchainTag, vertex_descriptor>&) {
                 return ResourceGraph::VertexTag{SwapchainTag{}};
@@ -1490,6 +1540,9 @@ value(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept {
             [&](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexValue{&g.textures[h.value]};
             },
+            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexValue{&g.framebuffers[h.value]};
+            },
             [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexValue{&g.swapchains[h.value]};
             }),
@@ -1509,6 +1562,9 @@ value(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             },
             [&](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexConstValue{&g.textures[h.value]};
+            },
+            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexConstValue{&g.framebuffers[h.value]};
             },
             [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexConstValue{&g.swapchains[h.value]};
@@ -1546,6 +1602,14 @@ holds<PersistentTextureTag>(ResourceGraph::vertex_descriptor v, const ResourceGr
 
 template <>
 inline bool
+holds<FramebufferTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
+    return boost::variant2::holds_alternative<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
 holds<SwapchainTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
     return boost::variant2::holds_alternative<
         impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>>(
@@ -1577,6 +1641,14 @@ inline bool
 holds_alternative<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
     return boost::variant2::holds_alternative<
         impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
+holds_alternative<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
+    return boost::variant2::holds_alternative<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -1620,6 +1692,15 @@ get<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, ResourceGrap
 }
 
 template <>
+inline IntrusivePtr<gfx::Framebuffer>&
+get<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = boost::variant2::get<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.framebuffers[handle.value];
+}
+
+template <>
 inline RenderSwapchain&
 get<RenderSwapchain>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = boost::variant2::get<
@@ -1660,6 +1741,15 @@ get<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, const Resour
 }
 
 template <>
+inline const IntrusivePtr<gfx::Framebuffer>&
+get<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = boost::variant2::get<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.framebuffers[handle.value];
+}
+
+template <>
 inline const RenderSwapchain&
 get<RenderSwapchain>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
     const auto& handle = boost::variant2::get<
@@ -1692,6 +1782,14 @@ get(PersistentTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGr
     return g.textures[handle.value];
 }
 
+inline IntrusivePtr<gfx::Framebuffer>&
+get(FramebufferTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = boost::variant2::get<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.framebuffers[handle.value];
+}
+
 inline RenderSwapchain&
 get(SwapchainTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = boost::variant2::get<
@@ -1722,6 +1820,14 @@ get(PersistentTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, const Reso
         impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.textures[handle.value];
+}
+
+inline const IntrusivePtr<gfx::Framebuffer>&
+get(FramebufferTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = boost::variant2::get<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.framebuffers[handle.value];
 }
 
 inline const RenderSwapchain&
@@ -1783,6 +1889,23 @@ get_if<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, ResourceG
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.textures[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline IntrusivePtr<gfx::Framebuffer>*
+get_if<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
+    IntrusivePtr<gfx::Framebuffer>* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = boost::variant2::get_if<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.framebuffers[pHandle->value];
     }
     return ptr;
 }
@@ -1855,6 +1978,23 @@ get_if<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, const Res
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.textures[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline const IntrusivePtr<gfx::Framebuffer>*
+get_if<IntrusivePtr<gfx::Framebuffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
+    const IntrusivePtr<gfx::Framebuffer>* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = boost::variant2::get_if<
+        impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.framebuffers[pHandle->value];
     }
     return ptr;
 }
@@ -2132,6 +2272,17 @@ template <class T>
 inline typename boost::property_map<RenderGraph, T RenderData::*>::type
 get(T RenderData::*memberPointer, RenderGraph& g) noexcept {
     return {g.data, memberPointer};
+}
+
+// Vertex Component
+inline typename boost::property_map<RenderGraph, RenderGraph::ValidTag>::const_type
+get(RenderGraph::ValidTag /*tag*/, const RenderGraph& g) noexcept {
+    return {g.valid};
+}
+
+inline typename boost::property_map<RenderGraph, RenderGraph::ValidTag>::type
+get(RenderGraph::ValidTag /*tag*/, RenderGraph& g) noexcept {
+    return {g.valid};
 }
 
 // PolymorphicGraph
@@ -3183,6 +3334,7 @@ add_vertex(RenderGraph& g, Tag t, PmrString&& name) { // NOLINT
         std::forward_as_tuple(std::move(name)), // names
         std::forward_as_tuple(),                // layoutNodes
         std::forward_as_tuple(),                // data
+        std::forward_as_tuple(),                // valid
         std::forward_as_tuple(),                // PolymorphicType
         g);
 }
@@ -3195,6 +3347,7 @@ add_vertex(RenderGraph& g, Tag t, const char* name) { // NOLINT
         std::forward_as_tuple(name), // names
         std::forward_as_tuple(),     // layoutNodes
         std::forward_as_tuple(),     // data
+        std::forward_as_tuple(),     // valid
         std::forward_as_tuple(),     // PolymorphicType
         g);
 }

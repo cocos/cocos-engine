@@ -34,8 +34,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, RenderScene, Camera, SKYBOX_FLAG, Light, LightType, ShadowType, DirectionalLight, Shadows } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { LayoutGraphData } from './layout-graph';
-import { RenderDependencyGraph } from './render-dependency-graph';
-import { ExecutorExample } from './executor';
+import { Executor } from './executor';
 import { WebImplExample } from './web-pipeline-impl';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { assert, macro } from '../../platform';
@@ -133,7 +132,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         const sceneData = new SceneData(name);
         sceneData.camera = camera;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, name, '', new RenderData(), this._vertID,
+            RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
         setCameraValues(this, camera, this._pipeline,
             camera.scene ? camera.scene : legacyCC.director.getScene().renderScene);
@@ -141,12 +140,12 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
     addScene (sceneName: string): void {
         const sceneData = new SceneData(sceneName);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), this._vertID,
+            RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
         );
     }
     addFullscreenQuad (shader: string, layoutName = '', name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(shader), name, '', new RenderData(), this._vertID,
+            RenderGraphValue.Blit, new Blit(shader), name, '', new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -192,7 +191,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         const queue = new RenderQueue(hint);
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, layoutName, data, this._vertID,
+            RenderGraphValue.Queue, queue, name, layoutName, data, false, this._vertID,
         );
         return new WebRasterQueueBuilder(data, this._renderGraph, queueID, queue, this._pipeline);
     }
@@ -200,7 +199,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit,
             new Blit(shader),
-            name, layoutName, new RenderData(), this._vertID,
+            name, layoutName, new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -226,7 +225,7 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
         this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
             RenderGraphValue.Dispatch,
             new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-            name, layoutName, new RenderData(), this._vertID,
+            name, layoutName, new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -254,7 +253,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         const queue = new RenderQueue();
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, layoutName, data, this._vertID,
+            RenderGraphValue.Queue, queue, name, layoutName, data, false, this._vertID,
         );
         return new WebComputeQueueBuilder(data, this._renderGraph, queueID, queue, this._pipeline);
     }
@@ -267,7 +266,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
             RenderGraphValue.Dispatch,
             new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-            name, layoutName, new RenderData(), this._vertID,
+            name, layoutName, new RenderData(), false, this._vertID,
         );
     }
     private readonly _renderGraph: RenderGraph;
@@ -384,9 +383,9 @@ export class WebPipeline extends Pipeline {
         if (renderWindow.swapchain === null) {
             assert(renderWindow.framebuffer.colorTextures.length === 1
                 && renderWindow.framebuffer.colorTextures[0] !== null);
-            return this._resourceGraph.addVertex<ResourceGraphValue.PersistentTexture>(
-                ResourceGraphValue.PersistentTexture,
-                renderWindow.framebuffer.colorTextures[0]!,
+            return this._resourceGraph.addVertex<ResourceGraphValue.Framebuffer>(
+                ResourceGraphValue.Framebuffer,
+                renderWindow.framebuffer,
                 name, desc,
                 new ResourceTraits(ResourceResidency.EXTERNAL),
                 new ResourceStates(),
@@ -452,17 +451,16 @@ export class WebPipeline extends Pipeline {
             this._compiler = new Compiler(this, this._resourceGraph, this._renderGraph, this._layoutGraph);
         }
         this._compiler.compile();
-        // if (!this._renderDependencyGraph) {
-        //     this._renderDependencyGraph = new RenderDependencyGraph(this, this._renderGraph,
-        //         this._resourceGraph, this._layoutGraph);
-        // }
-        // this._renderDependencyGraph.reset();
-        // this._renderDependencyGraph.build();
     }
 
-    renderContext () {
-        // if (!this._renderDependencyGraph) { throw new Error('RenderDependencyGraph is not initialized'); }
-        // this._renderDependencyGraph.execute();
+    execute () {
+        if (!this._renderGraph) {
+            throw new Error('Cannot run without creating rendergraph');
+        }
+        if (!this._executor) {
+            this._executor = new Executor(this, this._device, this._resourceGraph);
+        }
+        this._executor.execute(this._renderGraph);
     }
     protected _buildShadowPass (automata: WebPipeline,
         light: Readonly<Light>,
@@ -599,11 +597,10 @@ export class WebPipeline extends Pipeline {
                 forwardPass
                     .addQueue(QueueHint.RENDER_TRANSPARENT)
                     .addSceneOfCamera(camera);
-                // this.addPresentPass(`CameraPresentPass${i.toString()}`, forwardPassRTName);
             }
         }
         this.compile();
-        this.renderContext();
+        this.execute();
         this.endFrame();
     }
 
@@ -611,7 +608,7 @@ export class WebPipeline extends Pipeline {
         const pass = new RasterPass();
         const data = new RenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Raster>(
-            RenderGraphValue.Raster, pass, name, layoutName, data,
+            RenderGraphValue.Raster, pass, name, layoutName, data, false,
         );
         const result = new WebRasterPassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height);
@@ -621,24 +618,24 @@ export class WebPipeline extends Pipeline {
         const pass = new ComputePass();
         const data = new RenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.Compute>(
-            RenderGraphValue.Compute, pass, name, layoutName, new RenderData(),
+            RenderGraphValue.Compute, pass, name, layoutName, new RenderData(), false,
         );
         return new WebComputePassBuilder(data, this._renderGraph!, vertID, pass, this._pipelineSceneData);
     }
     addMovePass (name = 'Move'): MovePassBuilder {
         const pass = new MovePass();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Move>(RenderGraphValue.Move, pass, name, '', new RenderData());
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Move>(RenderGraphValue.Move, pass, name, '', new RenderData(), false);
         return new WebMovePassBuilder(this._renderGraph!, vertID, pass);
     }
     addCopyPass (name = 'Copy'): CopyPassBuilder {
         const pass = new CopyPass();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', new RenderData());
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', new RenderData(), false);
         return new WebCopyPassBuilder(this._renderGraph!, vertID, pass);
     }
     presentAll (): void {
         const pass = new PresentPass();
         // TODO: add swapchains to present pass
-        this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, '', '', new RenderData());
+        this._renderGraph!.addVertex<RenderGraphValue.Present>(RenderGraphValue.Present, pass, '', '', new RenderData(), false);
     }
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         return new WebSceneTransversal(camera);
@@ -674,5 +671,5 @@ export class WebPipeline extends Pipeline {
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
     private _renderGraph: RenderGraph | null = null;
     private _compiler: Compiler | null = null;
-    // private _renderDependencyGraph: RenderDependencyGraph | null = null;
+    private _executor: Executor | null = null;
 }
