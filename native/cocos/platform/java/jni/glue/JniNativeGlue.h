@@ -28,6 +28,7 @@
 #include <future>
 #include <memory>
 #include "platform/java/jni/glue/MessagePipe.h"
+#include "base/std/container/string.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include <android/asset_manager.h>

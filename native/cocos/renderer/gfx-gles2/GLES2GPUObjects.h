@@ -88,7 +88,7 @@ private:
 
     ccstd::map<size_t, EGLContext> _sharedContexts;
 
-    StringArray _extensions;
+    ccstd::vector<ccstd::string> _extensions;
 };
 
 struct GLES2GPUBuffer {

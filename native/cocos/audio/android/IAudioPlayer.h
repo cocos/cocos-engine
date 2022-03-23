@@ -26,6 +26,7 @@ THE SOFTWARE.
 #pragma once
 
 #include <functional>
+#include "base/std/container/string.h"
 
 namespace cc {
 

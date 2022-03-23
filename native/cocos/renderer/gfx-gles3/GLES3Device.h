@@ -129,7 +129,7 @@ protected:
 
     GLESBindingMapping _bindingMappings;
 
-    StringArray _extensions;
+    ccstd::vector<ccstd::string> _extensions;
 
     std::array<bool, static_cast<size_t>(Format::COUNT)> _textureExclusive;
 };

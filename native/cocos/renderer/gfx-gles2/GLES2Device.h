@@ -133,7 +133,7 @@ protected:
 
     GLESBindingMapping _bindingMappings;
 
-    StringArray _extensions;
+    ccstd::vector<ccstd::string> _extensions;
 };
 
 } // namespace gfx
