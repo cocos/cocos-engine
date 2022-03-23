@@ -426,7 +426,6 @@ SE_DECLARE_FUNC(js_scene_Root_destroyWindows);
 SE_DECLARE_FUNC(js_scene_Root_frameMove);
 SE_DECLARE_FUNC(js_scene_Root_getBatcher2D);
 SE_DECLARE_FUNC(js_scene_Root_getEventProcessor);
-SE_DECLARE_FUNC(js_scene_Root_getPipeline);
 SE_DECLARE_FUNC(js_scene_Root_initialize);
 SE_DECLARE_FUNC(js_scene_Root_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_scene_Root_resetCumulativeTime);
