@@ -4,7 +4,6 @@ import { Batcher2D } from '../2d/renderer/batcher-2d';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
-import { createCustomPipeline } from './pipeline/custom';
 
 declare const nr: any;
 declare const jsb: any;
@@ -44,14 +43,6 @@ Object.defineProperty(rootProto, 'dataPoolManager', {
     },
 });
 
-Object.defineProperty(rootProto, 'pipeline', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._pipeline;
-    }
-});
-
 Object.defineProperty(rootProto, 'pipelineEvent', {
     configurable: true,
     enumerable: true,
@@ -76,10 +67,7 @@ rootProto._ctor = function (device: Device) {
     this._modelPools = new Map();
     this._lightPools = new Map();
     this._batcher = null;
-    this._pipeline = null;
     this._pipelineEvent = new DummyPipelineEvent();
-    this._classicPipeline = null;
-    this._customPipeline = null;
     this._registerListeners();
 };
 
@@ -176,19 +164,14 @@ rootProto.frameMove = function (deltaTime: number) {
 
 const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
-    if (!pipeline) {
-        // pipeline should not be created in C++, ._ctor need to be triggered
-        pipeline = new nr.ForwardPipeline();
-        pipeline.init();
-    }
-
     if (this.usesCustomPipeline()) {
-        this._customPipeline = createCustomPipeline();
-        this._pipeline = this._customPipeline;
+        return oldSetPipeline.call(this, null);
     } else {
-        this._classicPipeline = pipeline;
-        this._pipeline = this._classicPipeline;
+        if (!pipeline) {
+            // pipeline should not be created in C++, ._ctor need to be triggered
+            pipeline = new nr.ForwardPipeline();
+            pipeline.init();
+        }
+        return oldSetPipeline.call(this, pipeline);
     }
-
-    return oldSetPipeline.call(this, pipeline);
 }
