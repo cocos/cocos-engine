@@ -183,14 +183,14 @@ bool Skybox::isRGBE() const {
 
 TextureCube *Skybox::getDiffuseMap() const {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
-    return isHDR ? _diffuseMapHDR.get() : _diffuseMapLDR.get();
+    return isHDR ? _diffuseMapHDR : _diffuseMapLDR;
 }
 void Skybox::setDiffuseMap(TextureCube *val) {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
-        setDiffuseMaps(val, _envmapLDR);
+        setDiffuseMaps(val, _diffuseMapLDR);
     } else {
-        setDiffuseMaps(_envmapHDR, val);
+        setDiffuseMaps(_diffuseMapHDR, val);
     }
 }
 
