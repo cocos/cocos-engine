@@ -130,7 +130,6 @@ private:
             CC_SAFE_DELETE(device);
             return false;
         }
-        device->setDeviceState(DeviceState::STATE_INITIALIZED);
 
         addSurfaceEventListener();
         *pDevice = device;

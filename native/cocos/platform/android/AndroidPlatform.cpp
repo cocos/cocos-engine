@@ -65,7 +65,7 @@ void AndroidPlatform::waitWindowInitialized() {
 int32_t AndroidPlatform::loop() {
     while (_jniNativeGlue->isRunning()) {
         pollEvent();
-        if (cc::gfx::Device::getInstance()->isDeviceAvailable()) {
+        if (cc::gfx::Device::getInstance()->isRendererAvailable()) {
             runTask();
         }
     }

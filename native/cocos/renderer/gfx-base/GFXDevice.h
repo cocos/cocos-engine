@@ -48,13 +48,6 @@
 namespace cc {
 namespace gfx {
 
-enum class DeviceState : char {
-    STATE_UNKNOWN = 0,
-    STATE_INITIALIZED,
-    STATE_RENDER_AVAILABLE,
-    STATE_RENDER_UNAVAILABLE,
-};
-
 class CC_DLL Device : public Object {
 public:
     static Device *getInstance();
@@ -122,9 +115,9 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    inline bool isDeviceAvailable() { return _deviceState == DeviceState::STATE_RENDER_AVAILABLE; }
+    inline bool isRendererAvailable() { return _rendererAvailable; }
 
-    void setDeviceState(const DeviceState &state);
+    inline void setRendererAvailable(bool available) {_rendererAvailable = available;}
 
 protected:
     static Device *instance;
@@ -192,7 +185,7 @@ protected:
 
 private:
     vector<Swapchain *> _swapchains;
-    DeviceState        _deviceState{DeviceState::STATE_UNKNOWN};
+    bool _rendererAvailable{false};
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -221,10 +214,10 @@ Swapchain *Device::createSwapchain(const SwapchainInfo &info) {
     _swapchains.push_back(res);
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     if (res->getWindowHandle()) {
-        setDeviceState(DeviceState::STATE_RENDER_AVAILABLE);
+        setRendererAvailable(true);
     }
 #else
-    setDeviceState(DeviceState::STATE_RENDER_AVAILABLE);
+    setRendererAvailable(true);
 #endif
     return res;
 }

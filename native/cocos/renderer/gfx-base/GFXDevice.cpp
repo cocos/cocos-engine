@@ -79,7 +79,7 @@ void Device::destroy() {
 }
 
 void Device::destroySurface(void *windowHandle) {
-    setDeviceState(DeviceState::STATE_RENDER_UNAVAILABLE);
+    setRendererAvailable(false);
     for (auto *swapchain : _swapchains) {
         if (swapchain->getWindowHandle() == windowHandle) {
             swapchain->destroySurface();
@@ -95,11 +95,7 @@ void Device::createSurface(void *windowHandle) {
             break;
         }
     }
-    setDeviceState(DeviceState::STATE_RENDER_AVAILABLE);
-}
-
-void Device::setDeviceState(const DeviceState &state) {
-    _deviceState = state;
+    setRendererAvailable(true);
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {
