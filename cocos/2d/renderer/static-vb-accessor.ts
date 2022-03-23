@@ -50,23 +50,16 @@ const _entryPool = new Pool<IFreeEntry>(() => ({
  * @internal
  */
 export class StaticVBChunk {
-    // public ib: Uint16Array;
     constructor (
         public vertexAccessor: StaticVBAccessor,
         public bufferId: number,
+        public meshBuffer: MeshBuffer,
         public vertexOffset: number,
         public vb: Float32Array,
         indexCount: number,
     ) {
-        // this.ib = new Uint16Array(indexCount);
+        assertIsTrue(meshBuffer === vertexAccessor.getMeshBuffer(bufferId));
     }
-    // setIndexBuffer (indices: ArrayLike<number>) {
-    //     assertIsTrue(indices.length === this.ib.length);
-    //     for (let i = 0; i < indices.length; ++i) {
-    //         const vid = indices[i];
-    //         this.ib[i] = this.vertexOffset + vid;
-    //     }
-    // }
 }
 
 export class StaticVBAccessor extends BufferAccessor {
@@ -177,7 +170,8 @@ export class StaticVBAccessor extends BufferAccessor {
             assertIsTrue(Number.isInteger(vertexOffset));
             const vb = new Float32Array(buf.vData.buffer, entry.offset, byteLength >> 2).fill(0);
             this._allocateChunkFromEntry(bid, eid, entry, byteLength);
-            return new StaticVBChunk(this, bid, vertexOffset, vb, indexCount);
+
+            return new StaticVBChunk(this, bid, buf, vertexOffset, vb, indexCount);
         } else {
             warnID(9004, byteLength);
             return null;
@@ -192,8 +186,8 @@ export class StaticVBAccessor extends BufferAccessor {
         if (bytes === 0) return;
         let recycled = false;
         let i = 0;
-        let prevEntry: IFreeEntry|null = null;
-        let nextEntry: IFreeEntry|null = freeList[i];
+        let prevEntry: IFreeEntry | null = null;
+        let nextEntry: IFreeEntry | null = freeList[i];
         // Loop entries
         while (nextEntry && nextEntry.offset < offset) {
             prevEntry = nextEntry;
@@ -231,7 +225,7 @@ export class StaticVBAccessor extends BufferAccessor {
                 nextEntry.offset = offset;
                 nextEntry.length += bytes;
             } else {
-            // Can not be merged
+                // Can not be merged
                 const newEntry = _entryPool.alloc();
                 newEntry.offset = offset;
                 newEntry.length = bytes;
