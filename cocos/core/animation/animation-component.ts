@@ -190,6 +190,7 @@ export class Animation extends Eventify(Component) {
     public onDisable () {
         assertIsTrue(typeof this._animationUpdateTaskHandle !== 'undefined');
         getGlobalAnimationManager().removeUpdateTask(this._animationUpdateTaskHandle);
+        this._animationUpdateTaskHandle = undefined;
     }
 
     public onDestroy () {
