@@ -154,8 +154,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     uint32_t swappyRequiredExtensionCount = 0;
     SwappyVk_determineDeviceExtensions(_gpuContext->physicalDevice, availableExtensionCount,
                                        _gpuDevice->extensions.data(), &swappyRequiredExtensionCount, nullptr);
-    std::vector<char*> swappyRequiredExtensions(swappyRequiredExtensionCount);
-    std::vector<char> swappyRequiredExtensionsData(swappyRequiredExtensionCount * (VK_MAX_EXTENSION_NAME_SIZE + 1));
+    std::vector<char *> swappyRequiredExtensions(swappyRequiredExtensionCount);
+    std::vector<char>   swappyRequiredExtensionsData(swappyRequiredExtensionCount * (VK_MAX_EXTENSION_NAME_SIZE + 1));
     for (uint32_t i = 0; i < swappyRequiredExtensionCount; i++) {
         swappyRequiredExtensions[i] = &swappyRequiredExtensionsData[i * (VK_MAX_EXTENSION_NAME_SIZE + 1)];
     }

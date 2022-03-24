@@ -36,8 +36,9 @@ public:
     int32_t run(int argc, const char** argv) override;
     int     getSdkVersion() const override;
     int32_t loop() override;
-    void* getActivity();
-    void* getEnv();
+    void*   getActivity();
+    void*   getEnv();
+
 private:
     void waitWindowInitialized();
 

@@ -64,10 +64,10 @@ void GLES2Swapchain::doInit(const SwapchainInfo& info) {
     }
 
     #if CC_SWAPPY_ENABLED
-    bool enableSwappy = true;
-    auto* platform               = static_cast<AndroidPlatform*>(cc::BasePlatform::getPlatform());
+    bool  enableSwappy = true;
+    auto* platform     = static_cast<AndroidPlatform*>(cc::BasePlatform::getPlatform());
     enableSwappy &= SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
-    int32_t fps                  = cc::BasePlatform::getPlatform()->getFps();
+    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
     if (enableSwappy) {
         if (!fps)
             SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
