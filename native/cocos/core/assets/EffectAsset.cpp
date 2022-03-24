@@ -219,7 +219,7 @@ ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecor
     }
 
     const IPreCompileInfoValueType &values = iter->second;
-    const ccstd::string &             key    = iter->first;
+    const ccstd::string &           key    = iter->first;
 
     ccstd::vector<MacroRecord> records;
     if (cur.empty()) {
@@ -259,7 +259,7 @@ ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key
 }
 
 ccstd::vector<MacroRecord> EffectAsset::insertInfoValue(const ccstd::vector<MacroRecord> &records,
-                                                        const ccstd::string &               key,
+                                                        const ccstd::string &             key,
                                                         const IPreCompileInfoValueType &  value) {
     ccstd::vector<MacroRecord> ret;
     for (const auto &record : records) {

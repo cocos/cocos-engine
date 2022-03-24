@@ -505,8 +505,8 @@ bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*unuse
 
         memcpy(to->m, ptr, length);
     } else {
-        bool        ok = false;
-        se::Value   tmp;
+        bool          ok = false;
+        se::Value     tmp;
         ccstd::string prefix = "m";
         for (uint32_t i = 0; i < 9; ++i) {
             ccstd::string name;
@@ -548,8 +548,8 @@ bool sevalue_to_native(const se::Value &from, cc::Mat4 *to, se::Object * /*unuse
 
         memcpy(to->m, ptr, length);
     } else {
-        bool        ok = false;
-        se::Value   tmp;
+        bool          ok = false;
+        se::Value     tmp;
         ccstd::string prefix = "m";
         for (uint32_t i = 0; i < 16; ++i) {
             ccstd::string name;
@@ -809,7 +809,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<cc::MacroRecord> *to
             if (!ok || !arrElement.isObject()) {
                 continue;
             }
-            cc::MacroRecord            macroRecord;
+            cc::MacroRecord              macroRecord;
             ccstd::vector<ccstd::string> keys;
             ok = arrElement.toObject()->getAllKeys(&keys);
             if (ok) {
@@ -1204,7 +1204,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::m
     se::Object *obj = v.toObject();
 
     ccstd::vector<ccstd::string> allKeys;
-    bool                       ok = obj->getAllKeys(&allKeys);
+    bool                         ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
         return false;
@@ -1287,7 +1287,7 @@ bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) { // NOLINT
     bool             ok = true;
     for (const auto &e : v) {
         const ccstd::string &key   = e.first;
-        const cc::Value &  value = e.second;
+        const cc::Value &    value = e.second;
 
         if (key.empty()) {
             continue;
@@ -1318,7 +1318,7 @@ bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) { //
     for (const auto &e : v) {
         std::stringstream keyss;
         keyss << e.first;
-        ccstd::string      key   = keyss.str();
+        ccstd::string    key   = keyss.str();
         const cc::Value &value = e.second;
 
         if (key.empty()) {

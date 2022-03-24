@@ -34,8 +34,8 @@
 #include <algorithm>
 #include <functional>
 #include <sstream>
-#include "base/std/container/string.h"
 #include "base/Config.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/Data.h"
 #include "cocos/base/DeferredReleasePool.h"
@@ -150,19 +150,19 @@ public:
     void sendString(const ccstd::string &str);
     void sendBinary(const cc::Data &data);
 
-    void        setRequestHeader(const ccstd::string &key, const ccstd::string &value);
+    void          setRequestHeader(const ccstd::string &key, const ccstd::string &value);
     ccstd::string getAllResponseHeaders() const;
     ccstd::string getResponseHeader(const ccstd::string &key) const;
 
-    ReadyState         getReadyState() const { return _readyState; }
-    uint16_t           getStatus() const { return _status; }
+    ReadyState           getReadyState() const { return _readyState; }
+    uint16_t             getStatus() const { return _status; }
     const ccstd::string &getStatusText() const { return _statusText; }
     const ccstd::string &getResponseText() const { return _responseText; }
-    const cc::Data &   getResponseData() const { return _responseData; }
-    ResponseType       getResponseType() const { return _responseType; }
-    void               setResponseType(ResponseType type) { _responseType = type; }
+    const cc::Data &     getResponseData() const { return _responseData; }
+    ResponseType         getResponseType() const { return _responseType; }
+    void                 setResponseType(ResponseType type) { _responseType = type; }
 
-    void        overrideMimeType(const ccstd::string &mimeType);
+    void          overrideMimeType(const ccstd::string &mimeType);
     ccstd::string getMimeType() const;
 
     void     setTimeout(uint32_t timeoutInMilliseconds);
@@ -429,7 +429,7 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     ccstd::string header(headers->begin(), headers->end());
 
     std::istringstream stream(header);
-    ccstd::string        line;
+    ccstd::string      line;
     while (std::getline(stream, line)) {
         getHeader(line);
     }
@@ -509,7 +509,7 @@ void XMLHttpRequest::setHttpRequestData(const char *data, size_t len) {
 void XMLHttpRequest::setRequestHeader(const ccstd::string &key, const ccstd::string &value) {
     std::stringstream header_s; // NOLINT(readability-identifier-naming)
     std::stringstream value_s;  // NOLINT(readability-identifier-naming)
-    ccstd::string       header;
+    ccstd::string     header;
 
     auto iter = _requestHeader.find(key);
 
@@ -525,7 +525,7 @@ void XMLHttpRequest::setRequestHeader(const ccstd::string &key, const ccstd::str
 
 ccstd::string XMLHttpRequest::getAllResponseHeaders() const {
     std::stringstream responseheaders;
-    ccstd::string       responseheader;
+    ccstd::string     responseheader;
 
     for (const auto &it : _httpHeader) {
         responseheaders << it.first << ": " << it.second << "\n";
@@ -647,8 +647,8 @@ static bool XMLHttpRequest_open(se::State &s) { //NOLINT(readability-identifier-
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     if (argc >= 2) {
-        auto *      request = static_cast<XMLHttpRequest *>(s.nativeThisObject());
-        bool        ok      = false;
+        auto *        request = static_cast<XMLHttpRequest *>(s.nativeThisObject());
+        bool          ok      = false;
         ccstd::string method;
         ok = sevalue_to_native(args[0], &method);
         SE_PRECONDITION2(ok, false, "args[0] isn't a string.");
@@ -736,9 +736,9 @@ static bool XMLHttpRequest_setRequestHeader(se::State &s) { //NOLINT(readability
     size_t      argc = args.size();
 
     if (argc >= 2) {
-        auto *      xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());
+        auto *        xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());
         ccstd::string key;
-        bool        ok = sevalue_to_native(args[0], &key);
+        bool          ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "args[0] couldn't be converted to string.");
         ccstd::string value;
         ok = sevalue_to_native(args[1], &value);
@@ -753,7 +753,7 @@ static bool XMLHttpRequest_setRequestHeader(se::State &s) { //NOLINT(readability
 SE_BIND_FUNC(XMLHttpRequest_setRequestHeader)
 
 static bool XMLHttpRequest_getAllResponseHeaders(se::State &s) { //NOLINT(readability-identifier-naming, google-runtime-references)
-    auto *      xhr     = static_cast<XMLHttpRequest *>(s.nativeThisObject());
+    auto *        xhr     = static_cast<XMLHttpRequest *>(s.nativeThisObject());
     ccstd::string headers = xhr->getAllResponseHeaders();
     s.rval().setString(headers);
     return true;
@@ -764,9 +764,9 @@ static bool XMLHttpRequest_getResonpseHeader(se::State &s) { //NOLINT(readabilit
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc > 0) {
-        auto *      xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());
+        auto *        xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());
         ccstd::string key;
-        bool        ok = sevalue_to_native(args[0], &key);
+        bool          ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "args[0] couldn't be converted to string.");
         ccstd::string header = xhr->getResponseHeader(key);
         s.rval().setString(header);
@@ -848,7 +848,7 @@ static bool XMLHttpRequest_getResponse(se::State &s) { //NOLINT(readability-iden
         } else {
             if (xhr->getResponseType() == XMLHttpRequest::ResponseType::JSON) {
                 const ccstd::string &jsonText = xhr->getResponseText();
-                se::HandleObject   seObj(se::Object::createJSONObject(jsonText));
+                se::HandleObject     seObj(se::Object::createJSONObject(jsonText));
                 if (!seObj.isEmpty()) {
                     s.rval().setObject(seObj);
                 } else {
@@ -923,7 +923,7 @@ static bool XMLHttpRequest_setResponseType(se::State &s) { //NOLINT(readability-
 
     if (argc > 0) {
         ccstd::string type;
-        bool        ok = sevalue_to_native(args[0], &type);
+        bool          ok = sevalue_to_native(args[0], &type);
         SE_PRECONDITION2(ok, false, "args[0] couldn't be converted to string!");
 
         auto *xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());

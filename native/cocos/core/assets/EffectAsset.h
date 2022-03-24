@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "base/std/container/string.h"
 #include <tuple>
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 
@@ -338,7 +338,7 @@ struct IPassStates {
     cc::optional<DepthStencilStateInfo>     depthStencilState;
     cc::optional<BlendStateInfo>            blendState;
     cc::optional<gfx::DynamicStateFlags>    dynamicStates;
-    cc::optional<ccstd::string>               phase;
+    cc::optional<ccstd::string>             phase;
 
     IPassStates() = default;
     explicit IPassStates(const IPassInfoFull &o);
@@ -358,12 +358,12 @@ struct IPassInfoFull final { //cjh } : public IPassInfo {
     cc::optional<DepthStencilStateInfo>     depthStencilState;
     cc::optional<BlendStateInfo>            blendState;
     cc::optional<gfx::DynamicStateFlags>    dynamicStates;
-    cc::optional<ccstd::string>               phase;
+    cc::optional<ccstd::string>             phase;
     // IPassInfo
-    ccstd::string                       program; // auto-generated from 'vert' and 'frag'
+    ccstd::string                     program; // auto-generated from 'vert' and 'frag'
     cc::optional<MacroRecord>         embeddedMacros;
     index_t                           propertyIndex{CC_INVALID_INDEX};
-    cc::optional<ccstd::string>         switch_;
+    cc::optional<ccstd::string>       switch_;
     cc::optional<PassPropertyInfoMap> properties;
 
     // IPassInfoFull
@@ -393,19 +393,19 @@ using IPassInfo = IPassInfoFull;
 
 struct ITechniqueInfo {
     ccstd::vector<IPassInfoFull> passes;
-    cc::optional<ccstd::string>    name;
+    cc::optional<ccstd::string>  name;
 };
 
 struct IBlockInfo {
     int32_t                     binding{-1};
-    ccstd::string                 name;
+    ccstd::string               name;
     ccstd::vector<gfx::Uniform> members;
     gfx::ShaderStageFlags       stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct ISamplerTextureInfo {
     int32_t               binding{-1};
-    ccstd::string           name;
+    ccstd::string         name;
     gfx::Type             type{gfx::Type::UNKNOWN};
     uint32_t              count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
@@ -414,7 +414,7 @@ struct ISamplerTextureInfo {
 struct ITextureInfo {
     uint32_t              set{0};
     int32_t               binding{-1};
-    ccstd::string           name;
+    ccstd::string         name;
     gfx::Type             type{gfx::Type::UNKNOWN};
     uint32_t              count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
@@ -423,21 +423,21 @@ struct ITextureInfo {
 struct ISamplerInfo {
     uint32_t              set{0};
     int32_t               binding{-1};
-    ccstd::string           name;
+    ccstd::string         name;
     uint32_t              count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IBufferInfo {
     int32_t               binding{-1};
-    ccstd::string           name;
+    ccstd::string         name;
     gfx::MemoryAccess     memoryAccess{gfx::MemoryAccess::NONE};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IImageInfo {
     int32_t               binding{-1};
-    ccstd::string           name;
+    ccstd::string         name;
     gfx::Type             type{gfx::Type::UNKNOWN};
     uint32_t              count{0};
     gfx::MemoryAccess     memoryAccess{gfx::MemoryAccess::NONE};
@@ -447,18 +447,18 @@ struct IImageInfo {
 struct IInputAttachmentInfo {
     uint32_t              set{0};
     int32_t               binding{-1};
-    ccstd::string           name;
+    ccstd::string         name;
     uint32_t              count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IAttributeInfo {
     ccstd::string name;
-    gfx::Format format{gfx::Format::UNKNOWN};
-    bool        isNormalized{false};
-    uint32_t    stream{0U};
-    bool        isInstanced{false};
-    uint32_t    location{0U};
+    gfx::Format   format{gfx::Format::UNKNOWN};
+    bool          isNormalized{false};
+    uint32_t      stream{0U};
+    bool          isInstanced{false};
+    uint32_t      location{0U};
 
     ccstd::vector<ccstd::string> defines;
 };
@@ -466,7 +466,7 @@ struct IAttributeInfo {
 struct IDefineInfo {
     ccstd::string                              name;
     ccstd::string                              type;
-    cc::optional<ccstd::vector<int32_t>>     range; //cjh number is float?  ?: number[];
+    cc::optional<ccstd::vector<int32_t>>       range; //cjh number is float?  ?: number[];
     cc::optional<ccstd::vector<ccstd::string>> options;
     cc::optional<ccstd::string>                defaultVal;
 };
@@ -497,7 +497,7 @@ struct IShaderSource {
 };
 
 struct IShaderInfo {
-    ccstd::string                         name;
+    ccstd::string                       name;
     uint64_t                            hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
     IShaderSource                       glsl4;
     IShaderSource                       glsl3;
@@ -583,7 +583,7 @@ protected:
     static ccstd::vector<MacroRecord> doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
     static ccstd::vector<MacroRecord> generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value);
     static ccstd::vector<MacroRecord> insertInfoValue(const ccstd::vector<MacroRecord> &records,
-                                                      const ccstd::string &               key,
+                                                      const ccstd::string &             key,
                                                       const IPreCompileInfoValueType &  value);
 
     void precompile();

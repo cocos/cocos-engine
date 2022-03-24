@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "base/std/container/string.h"
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
+#include "base/std/container/string.h"
 #include "cocos/base/Variant.h"
 
 #include "math/Color.h"
@@ -93,7 +93,7 @@ extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer;
  * @param type The type of the uniform
  */
 const ccstd::vector<float> &getDefaultFloatArrayFromType(gfx::Type type);
-const ccstd::string &         getDefaultStringFromType(gfx::Type type);
+const ccstd::string &       getDefaultStringFromType(gfx::Type type);
 
 /**
  * @en Combination of preprocess macros

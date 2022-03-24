@@ -112,7 +112,7 @@ private:
     uint8_t *        _data{nullptr};
     bool             _needFreeData{false}; // Should free data if the data is assigned in C++.
     ArrayBuffer::Ptr _arrayBuffer;         //minggo: hold the data from ImageSource.
-    ccstd::string      _url;
+    ccstd::string    _url;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ImageAsset);
 };

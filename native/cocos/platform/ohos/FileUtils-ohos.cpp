@@ -44,7 +44,7 @@
 namespace cc {
 
 ResourceManager *FileUtilsOHOS::ohosResourceMgr = {};
-ccstd::string      FileUtilsOHOS::ohosAssetPath   = {};
+ccstd::string    FileUtilsOHOS::ohosAssetPath   = {};
 
 namespace {
 
@@ -62,8 +62,8 @@ void printRawfiles(ResourceManager *mgr, const ccstd::string &path) {
         auto fileCnt = GetRawFileCount(dir);
         for (auto i = 0; i < fileCnt; i++) {
             ccstd::string subFile  = GetRawFileName(dir, i);
-            auto        newPath  = path + "/" + subFile; // NOLINT
-            auto        debugPtr = newPath.c_str();
+            auto          newPath  = path + "/" + subFile; // NOLINT
+            auto          debugPtr = newPath.c_str();
             HILOG_ERROR(LOG_APP, " find path %{public}s", newPath.c_str());
             printRawfiles(mgr, newPath);
         }
@@ -127,7 +127,7 @@ FileUtils::Status FileUtilsOHOS::getContents(const ccstd::string &filename, Resi
     }
 
     ccstd::string relativePath;
-    size_t      position = fullPath.find(ASSETS_FOLDER_NAME);
+    size_t        position = fullPath.find(ASSETS_FOLDER_NAME);
     if (0 == position) {
         // "@assets/" is at the beginning of the path and we don't want it
         relativePath = rawfilePrefix + fullPath.substr(strlen(ASSETS_FOLDER_NAME));

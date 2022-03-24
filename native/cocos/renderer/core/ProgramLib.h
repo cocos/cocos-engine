@@ -28,8 +28,8 @@
 #include <functional>
 #include <numeric>
 #include <sstream>
-#include "base/std/container/string.h"
 #include "base/RefVector.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 #include "core/Types.h"
@@ -52,7 +52,7 @@ struct IDefineRecord : public IDefineInfo {
 struct IMacroInfo {
     ccstd::string name;
     ccstd::string value;
-    bool        isDefault{false};
+    bool          isDefault{false};
 };
 
 struct ITemplateInfo {
@@ -61,15 +61,15 @@ struct ITemplateInfo {
     ccstd::vector<int32_t>                         blockSizes;
     RefVector<gfx::DescriptorSetLayout *>          setLayouts;
     IntrusivePtr<gfx::PipelineLayout>              pipelineLayout;
-    Record<ccstd::string, uint32_t>                  handleMap;
+    Record<ccstd::string, uint32_t>                handleMap;
     ccstd::vector<gfx::DescriptorSetLayoutBinding> bindings;
     int32_t                                        samplerStartBinding{-1};
 };
 
 struct IProgramInfo : public IShaderInfo {
-    ccstd::string                  effectName;
+    ccstd::string                effectName;
     ccstd::vector<IDefineRecord> defines;
-    ccstd::string                  constantMacros;
+    ccstd::string                constantMacros;
     bool                         uber{false}; // macro number exceeds default limits, will fallback to string hash
 
     void copyFrom(const IShaderInfo &o);
@@ -160,10 +160,10 @@ private:
     ProgramLib();
     ~ProgramLib();
 
-    static ProgramLib *                            instance;
+    static ProgramLib *                              instance;
     Record<ccstd::string, IProgramInfo>              _templates; // per shader
     Record<ccstd::string, IntrusivePtr<gfx::Shader>> _cache;
-    Record<uint64_t, ITemplateInfo>                _templateInfos;
+    Record<uint64_t, ITemplateInfo>                  _templateInfos;
 };
 
 } // namespace cc

@@ -97,7 +97,7 @@ public:
     float _height = 0.0F;
 
     // Line styles
-    float       _lineWidth = 1.0F;
+    float         _lineWidth = 1.0F;
     ccstd::string _lineJoin  = "miter";
     ccstd::string _lineCap   = "butt";
 

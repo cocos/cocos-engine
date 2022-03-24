@@ -45,7 +45,7 @@ bool                        inited                = false;
 namespace cc {
 
 ccstd::unordered_map<ccstd::string, EventDispatcher::Node *> EventDispatcher::listeners;
-uint32_t                                                   EventDispatcher::hashListenerId = 1;
+uint32_t                                                     EventDispatcher::hashListenerId = 1;
 
 bool EventDispatcher::initialized() {
     return inited && se::ScriptEngine::getInstance()->isValid();

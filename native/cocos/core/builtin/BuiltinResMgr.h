@@ -66,10 +66,10 @@ private:
 
     static BuiltinResMgr *instance;
 
-    gfx::Device *                            _device{nullptr};
+    gfx::Device *                              _device{nullptr};
     Record<ccstd::string, IntrusivePtr<Asset>> _resources;
-    ccstd::vector<IntrusivePtr<Material>>    _materialsToBeCompiled;
-    bool                                     _isInitialized{false};
+    ccstd::vector<IntrusivePtr<Material>>      _materialsToBeCompiled;
+    bool                                       _isInitialized{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BuiltinResMgr);
 };

@@ -103,8 +103,8 @@
     }
 
 #if CC_ENABLE_CACHE_JSB_FUNC_RESULT
-    #define SE_HOLD_RETURN_VALUE(retCXXValue, thisObject, jsValue)                       \
-        if (is_jsb_object_v<typename std::decay<decltype(retCXXValue)>::type>) {         \
+    #define SE_HOLD_RETURN_VALUE(retCXXValue, thisObject, jsValue)                         \
+        if (is_jsb_object_v<typename std::decay<decltype(retCXXValue)>::type>) {           \
             (thisObject)->setProperty(ccstd::string("__cache") + __FUNCTION__, (jsValue)); \
         }
 #else
@@ -302,7 +302,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, T> *r
     se::Object *obj = v.toObject();
 
     ccstd::vector<ccstd::string> allKeys;
-    bool                       ok = obj->getAllKeys(&allKeys);
+    bool                         ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
         return false;
@@ -1108,7 +1108,7 @@ bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Objec
 ////////////// ccstd::unordered_map
 template <typename V>
 bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<ccstd::string, V> *to, se::Object *ctx) { //NOLINT
-    se::Object *               jsmap = from.toObject();
+    se::Object *                 jsmap = from.toObject();
     ccstd::vector<ccstd::string> allKeys;
     jsmap->getAllKeys(&allKeys);
     bool      ret = true;

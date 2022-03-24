@@ -40,9 +40,9 @@ public:
 
     template <typename T>
     static se::Class *findClass(const T *nativeObj) {
-        bool        found    = false;
+        bool          found    = false;
         ccstd::string typeName = typeid(*nativeObj).name();
-        auto        iter     = jsbClassTypeMap.find(typeName);
+        auto          iter     = jsbClassTypeMap.find(typeName);
         if (iter == jsbClassTypeMap.end()) {
             typeName = typeid(T).name();
             iter     = jsbClassTypeMap.find(typeName);

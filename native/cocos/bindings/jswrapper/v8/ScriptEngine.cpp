@@ -52,7 +52,7 @@
 const unsigned int JSB_STACK_FRAME_LIMIT = 20;
 
     #ifdef CC_DEBUG
-unsigned int                      jsbInvocationCount = 0;
+unsigned int                        jsbInvocationCount = 0;
 ccstd::map<ccstd::string, unsigned> jsbFunctionInvokedRecords;
     #endif
 
@@ -85,13 +85,13 @@ ccstd::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
     for (int i = 0, e = stack->GetFrameCount(); i < e; ++i) {
         v8::Local<v8::StackFrame> frame  = stack->GetFrame(v8::Isolate::GetCurrent(), i);
         v8::Local<v8::String>     script = frame->GetScriptName();
-        ccstd::string               scriptName;
+        ccstd::string             scriptName;
         if (!script.IsEmpty()) {
             scriptName = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), script);
         }
 
         v8::Local<v8::String> func = frame->GetFunctionName();
-        ccstd::string           funcName;
+        ccstd::string         funcName;
         if (!func.IsEmpty()) {
             funcName = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), func);
         }
@@ -134,7 +134,7 @@ bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
         SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
     } else if (argc > 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
-        size_t      pos;
+        size_t        pos;
         for (int i = (msgIndex + 1); i < argc; ++i) {
             pos = msg.find('%');
             if (pos != ccstd::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
@@ -805,7 +805,7 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
     // Fix the source url is too long displayed in Chrome debugger.
     ccstd::string              sourceUrl  = fileName;
     static const ccstd::string PREFIX_KEY = "/temp/quick-scripts/";
-    size_t                   prefixPos  = sourceUrl.find(PREFIX_KEY);
+    size_t                     prefixPos  = sourceUrl.find(PREFIX_KEY);
     if (prefixPos != ccstd::string::npos) {
         sourceUrl = sourceUrl.substr(prefixPos + PREFIX_KEY.length());
     }
@@ -813,7 +813,7 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
     // It is needed, or will crash if invoked from non C++ context, such as invoked from objective-c context(for example, handler of UIKit).
     v8::HandleScope handleScope(_isolate);
 
-    ccstd::string                scriptStr(script, length);
+    ccstd::string              scriptStr(script, length);
     v8::MaybeLocal<v8::String> source = v8::String::NewFromUtf8(_isolate, scriptStr.c_str(), v8::NewStringType::kNormal);
     if (source.IsEmpty()) {
         return false;
@@ -902,7 +902,7 @@ bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::st
             return false;
         }
         ccstd::string pathBcDir = pathBc.substr(0, lastSep);
-        success               = fu->createDirectory(pathBcDir);
+        success                 = fu->createDirectory(pathBcDir);
         if (!success) {
             SE_LOGE("ScriptEngine::generateByteCode failed to create bytecode for %s\n", path.c_str());
             return success;
@@ -910,7 +910,7 @@ bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::st
     }
 
     // load script file
-    ccstd::string           scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
+    ccstd::string         scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
     v8::Local<v8::String> code         = v8::String::NewFromUtf8(_isolate, scriptBuffer.c_str(), v8::NewStringType::kNormal, static_cast<int>(scriptBuffer.length())).ToLocalChecked();
     v8::Local<v8::Value>  scriptPath   = v8::String::NewFromUtf8(_isolate, path.data(), v8::NewStringType::kNormal).ToLocalChecked();
     // create unbound script

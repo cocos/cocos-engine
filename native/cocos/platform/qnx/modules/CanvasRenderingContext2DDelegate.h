@@ -92,14 +92,14 @@ public:
     cairo_t *        _cr{nullptr};
 
 private:
-    cc::Data    _imageData;
+    cc::Data      _imageData;
     ccstd::string _curFontPath;
-    int         _savedDC{0};
-    float       _lineWidth{0.0F};
-    float       _bufferWidth{0.0F};
-    float       _bufferHeight{0.0F};
+    int           _savedDC{0};
+    float         _lineWidth{0.0F};
+    float         _bufferWidth{0.0F};
+    float         _bufferHeight{0.0F};
 
-    ccstd::string        _fontName;
+    ccstd::string      _fontName;
     int                _fontSize{0};
     Size               _textSize;
     CanvasTextAlign    _textAlign{CanvasTextAlign::CENTER};

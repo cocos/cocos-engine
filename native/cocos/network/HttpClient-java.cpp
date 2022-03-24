@@ -55,9 +55,9 @@ static HttpClient *gHttpClient = nullptr; // pointer to singleton
 
 struct CookiesInfo {
     ccstd::string domain;
-    bool        tailmatch;
+    bool          tailmatch;
     ccstd::string path;
-    bool        secure;
+    bool          secure;
     ccstd::string key;
     ccstd::string value;
     ccstd::string expires;
@@ -423,7 +423,7 @@ private:
         cookiesVec.clear();
 
         std::stringstream stream(cookiesInfo);
-        ccstd::string       item;
+        ccstd::string     item;
         while (std::getline(stream, item, '\n')) {
             cookiesVec.push_back(item);
         }
@@ -444,8 +444,8 @@ private:
                 continue;
             }
 
-            CookiesInfo                co;
-            std::stringstream          streamInfo(cookies);
+            CookiesInfo                  co;
+            std::stringstream            streamInfo(cookies);
             ccstd::string                item;
             ccstd::vector<ccstd::string> elems;
 
@@ -467,7 +467,7 @@ private:
         }
 
         ccstd::string sendCookiesInfo;
-        int         cookiesCount = 0;
+        int           cookiesCount = 0;
         for (auto &cookieInfo : cookiesInfoVec) {
             if (_url.find(cookieInfo.domain) != ccstd::string::npos) {
                 ccstd::string keyValue = cookieInfo.key;
@@ -544,8 +544,8 @@ private:
             return nullptr;
         }
         ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, jstr);
-        size_t      size     = strValue.size() + 1;
-        char *      retVal   = static_cast<char *>(malloc(size));
+        size_t        size     = strValue.size() + 1;
+        char *        retVal   = static_cast<char *>(malloc(size));
         if (retVal == nullptr) {
             return nullptr;
         }
@@ -572,13 +572,13 @@ private:
     }
 
 private: // NOLINT(readability-redundant-access-specifiers)
-    HttpClient *_client;
-    jobject     _httpURLConnection;
+    HttpClient *  _client;
+    jobject       _httpURLConnection;
     ccstd::string _requestmethod;
     ccstd::string _responseCookies;
     ccstd::string _cookieFileName;
     ccstd::string _url;
-    int         _contentLength;
+    int           _contentLength;
 };
 
 // Process Response

@@ -147,7 +147,7 @@ public:
 
 private:
     ccstd::unordered_map<ccstd::string, IAnimInfo> _pool; // pre node
-    gfx::Device *                                _device{nullptr};
+    gfx::Device *                                  _device{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointAnimationInfo);
 };

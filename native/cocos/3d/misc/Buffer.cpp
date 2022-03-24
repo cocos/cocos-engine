@@ -40,7 +40,7 @@ Record<gfx::FormatType, ccstd::string> typeMap{
 
 ccstd::string getDataViewType(const gfx::FormatInfo &info) {
     ccstd::string type;
-    auto        iter = typeMap.find(info.type);
+    auto          iter = typeMap.find(info.type);
     if (iter != typeMap.end()) {
         type = iter->second;
     } else {

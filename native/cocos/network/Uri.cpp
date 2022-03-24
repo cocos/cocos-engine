@@ -175,7 +175,7 @@ bool Uri::doParse(const ccstd::string &str) {
     }
 
     ccstd::string authorityAndPath(match[2].first, match[2].second);
-    std::smatch authorityAndPathMatch;
+    std::smatch   authorityAndPathMatch;
     if (!std::regex_match(authorityAndPath.cbegin(),
                           authorityAndPath.cend(),
                           authorityAndPathMatch,

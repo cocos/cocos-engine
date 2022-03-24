@@ -46,7 +46,7 @@ public:
 
     void setJavascriptInterfaceScheme(const ccstd::string &scheme);
 
-    void loadData(const cc::Data &   data,
+    void loadData(const cc::Data &     data,
                   const ccstd::string &MIMEType,
                   const ccstd::string &encoding,
                   const ccstd::string &baseURL);

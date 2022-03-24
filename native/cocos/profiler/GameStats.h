@@ -28,9 +28,9 @@
 #include <iostream>
 #include <mutex>
 #include <sstream>
-#include "base/std/container/string.h"
 #include <utility>
 #include "base/StringUtil.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 
 namespace cc {
@@ -158,19 +158,19 @@ struct ObjectCounter {
 
 // assume update in main thread only.
 struct CoreStats {
-    uint32_t    fps{0U};
-    float       frameTime{0.0F};
+    uint32_t      fps{0U};
+    float         frameTime{0.0F};
     ccstd::string gfx;
-    bool        multiThread{true};
-    bool        occlusionQuery{false};
-    bool        shadowMap{false};
-    uint32_t    screenWidth{0U};
-    uint32_t    screenHeight{0U};
+    bool          multiThread{true};
+    bool          occlusionQuery{false};
+    bool          shadowMap{false};
+    uint32_t      screenWidth{0U};
+    uint32_t      screenHeight{0U};
 };
 
 struct MemoryStats {
     // memory stats
-    std::mutex                                       mutex;
+    std::mutex                                         mutex;
     ccstd::unordered_map<ccstd::string, MemoryCounter> memories;
 
     inline void update(const ccstd::string &name, uint64_t value) {

@@ -14476,7 +14476,7 @@ void VmaRecorder::GetBasicParams(CallParams &outParams) {
     std::stringstream thread_id_to_string_converter;
     thread_id_to_string_converter << thread_id;
     ccstd::string thread_id_as_string = thread_id_to_string_converter.str();
-    outParams.threadId              = static_cast<uint32_t>(std::stoi(thread_id_as_string.c_str()));
+    outParams.threadId                = static_cast<uint32_t>(std::stoi(thread_id_as_string.c_str()));
     #endif
 
     auto current_time = std::chrono::high_resolution_clock::now();

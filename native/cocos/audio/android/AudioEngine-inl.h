@@ -27,9 +27,9 @@
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include <functional>
-#include "base/std/container/string.h"
 #include "base/RefCounted.h"
 #include "base/Utils.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 
 #define MAX_AUDIOINSTANCES 13
@@ -82,7 +82,7 @@ private:
     SLObjectItf _outputMixObject;
 
     //audioID,AudioInfo
-    ccstd::unordered_map<int, IAudioPlayer *>                                _audioPlayers;
+    ccstd::unordered_map<int, IAudioPlayer *>                                  _audioPlayers;
     ccstd::unordered_map<int, std::function<void(int, const ccstd::string &)>> _callbackMap;
 
     // UrlAudioPlayers which need to resumed while entering foreground

@@ -266,12 +266,12 @@ struct CCVKGPUShaderStage {
       source(std::move(s)) {
     }
     ShaderStageFlagBit type = ShaderStageFlagBit::NONE;
-    ccstd::string             source;
+    ccstd::string      source;
     VkShaderModule     vkShader = VK_NULL_HANDLE;
 };
 
 struct CCVKGPUShader {
-    ccstd::string                            name;
+    ccstd::string                     name;
     AttributeList                     attributes;
     ccstd::vector<CCVKGPUShaderStage> gpuStages;
 };

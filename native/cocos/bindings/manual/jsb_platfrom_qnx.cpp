@@ -56,7 +56,7 @@ static bool JSB_loadFont(se::State &s) {
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: source");
 
         ccstd::string                                     fontFilePath;
-        std::regex                                      re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
+        std::regex                                        re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
         std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(source.cbegin(), source.cend(), results, re)) {
             fontFilePath = results[1].str();

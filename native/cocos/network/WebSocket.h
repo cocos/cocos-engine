@@ -166,7 +166,7 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate &                  delegate,
+    bool init(const Delegate &                    delegate,
               const ccstd::string &               url,
               const ccstd::vector<ccstd::string> *protocols  = nullptr,
               const ccstd::string &               caFilePath = "");

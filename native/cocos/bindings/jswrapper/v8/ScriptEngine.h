@@ -401,8 +401,8 @@ private:
     VMStringPool _stringPool;
 
     std::thread::id _engineThreadId;
-    ccstd::string     _lastStackTrace;
-    ccstd::string     _debuggerServerAddr;
+    ccstd::string   _lastStackTrace;
+    ccstd::string   _debuggerServerAddr;
     uint32_t        _debuggerServerPort;
     bool            _isWaitForConnect;
 

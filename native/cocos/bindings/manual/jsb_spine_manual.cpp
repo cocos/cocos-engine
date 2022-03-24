@@ -46,9 +46,9 @@
 
 using namespace cc;
 
-static spine::Cocos2dTextureLoader                       textureLoader;
+static spine::Cocos2dTextureLoader                         textureLoader;
 static cc::RefMap<ccstd::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
-static middleware::Texture2D *                           _getPreloadedAtlasTexture(const char *path) {
+static middleware::Texture2D *                             _getPreloadedAtlasTexture(const char *path) {
     assert(_preloadedAtlasTextures);
     auto it = _preloadedAtlasTextures->find(path);
     return it != _preloadedAtlasTextures->end() ? it->second : nullptr;

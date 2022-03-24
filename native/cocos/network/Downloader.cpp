@@ -85,7 +85,7 @@ Downloader::Downloader(const DownloaderHints &hints) {
     _impl->onTaskFinish = [this](const DownloadTask &                task,
                                  int                                 errorCode,
                                  int                                 errorCodeInternal,
-                                 const ccstd::string &                 errorStr,
+                                 const ccstd::string &               errorStr,
                                  const ccstd::vector<unsigned char> &data) {
         if (DownloadTask::ERROR_NO_ERROR != errorCode) {
             if (onTaskError) {
@@ -131,10 +131,10 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadDataTask(const ccs
     return task;
 }
 
-std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const ccstd::string &                         srcUrl,
-                                                                       const ccstd::string &                         storagePath,
+std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const ccstd::string &                           srcUrl,
+                                                                       const ccstd::string &                           storagePath,
                                                                        const ccstd::map<ccstd::string, ccstd::string> &header,
-                                                                       const ccstd::string &                         identifier /* = ""*/) {
+                                                                       const ccstd::string &                           identifier /* = ""*/) {
     auto *                              iTask = new (std::nothrow) DownloadTask();
     std::shared_ptr<const DownloadTask> task(iTask);
     do {

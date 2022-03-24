@@ -165,17 +165,17 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
 }
 
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
-                                                  float              fontSize,
-                                                  bool               bold,
-                                                  bool               italic,
-                                                  bool               oblique,
+                                                  float                fontSize,
+                                                  bool                 bold,
+                                                  bool                 italic,
+                                                  bool                 oblique,
                                                   bool /* smallCaps */) {
     do {
         _fontName = fontName;
         _fontSize = static_cast<int>(fontSize);
         /// TODO(bug):Remove default settings
         ccstd::string fontName   = "helvetica"; // default
-        char        serv[1024] = {0};
+        char          serv[1024] = {0};
         ccstd::string slant      = "";
         if (italic) {
             slant = "*I";

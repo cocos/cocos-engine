@@ -106,7 +106,7 @@ namespace network {
 
     #define DISPATCH_CALLBACK_IN_GAMETHREAD()                        \
         do {                                                         \
-            data->setCallback([callback](const ccstd::string &msg) {   \
+            data->setCallback([callback](const ccstd::string &msg) { \
                 auto wrapper = [callback, msg]() { callback(msg); }; \
                 RUN_IN_GAMETHREAD(wrapper());                        \
             });                                                      \

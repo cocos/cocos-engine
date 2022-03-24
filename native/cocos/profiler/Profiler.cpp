@@ -62,7 +62,7 @@ private:
     ProfilerBlock *              _parent{nullptr};
     std::vector<ProfilerBlock *> _children;
     utils::Timer                 _timer;
-    ccstd::string                  _name;
+    ccstd::string                _name;
     TimeCounter                  _item;
 
     friend class Profiler;

@@ -135,9 +135,9 @@ private:
     static void                  setIsolate(v8::Isolate *isolate);
 
     ccstd::string _name;
-    Object *    _parent;
-    Object *    _parentProto;
-    Object *    _proto;
+    Object *      _parent;
+    Object *      _parentProto;
+    Object *      _proto;
 
     v8::FunctionCallback                       _ctor;
     v8::UniquePersistent<v8::FunctionTemplate> _ctorTemplate;

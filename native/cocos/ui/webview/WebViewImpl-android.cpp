@@ -72,7 +72,7 @@ extern "C" {
 JNIEXPORT jboolean JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_shouldStartLoading(JNIEnv *env, jclass, jint index, //NOLINT
                                                          jstring jurl) {
-    auto        charUrl = env->GetStringUTFChars(jurl, nullptr);
+    auto          charUrl = env->GetStringUTFChars(jurl, nullptr);
     ccstd::string url     = charUrl;
     env->ReleaseStringUTFChars(jurl, charUrl);
     return cc::WebViewImpl::shouldStartLoading(index, url);
@@ -87,7 +87,7 @@ JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_didFinishLoading(JNIEnv *env, jclass, jint index, //NOLINT
                                                        jstring jurl) {
     // LOGD("didFinishLoading");
-    auto        charUrl = env->GetStringUTFChars(jurl, nullptr);
+    auto          charUrl = env->GetStringUTFChars(jurl, nullptr);
     ccstd::string url     = charUrl;
     env->ReleaseStringUTFChars(jurl, charUrl);
     cc::WebViewImpl::didFinishLoading(index, url);
@@ -102,7 +102,7 @@ JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_didFailLoading(JNIEnv *env, jclass, jint index, //NOLINT
                                                      jstring jurl) {
     // LOGD("didFailLoading");
-    auto        charUrl = env->GetStringUTFChars(jurl, nullptr);
+    auto          charUrl = env->GetStringUTFChars(jurl, nullptr);
     ccstd::string url     = charUrl;
     env->ReleaseStringUTFChars(jurl, charUrl);
     cc::WebViewImpl::didFailLoading(index, url);
@@ -117,7 +117,7 @@ JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosWebViewHelper_onJsCallback(JNIEnv *env, jclass, jint index, //NOLINT
                                                    jstring jmessage) {
     // LOGD("jsCallback");
-    auto        charMessage = env->GetStringUTFChars(jmessage, nullptr);
+    auto          charMessage = env->GetStringUTFChars(jmessage, nullptr);
     ccstd::string message     = charMessage;
     env->ReleaseStringUTFChars(jmessage, charMessage);
     cc::WebViewImpl::onJsCallback(index, message);
@@ -173,7 +173,7 @@ WebViewImpl::~WebViewImpl() {
 void WebViewImpl::loadData(const Data &data, const ccstd::string &mimeType,
                            const ccstd::string &encoding, const ccstd::string &baseURL) {
     ccstd::string dataString(reinterpret_cast<char *>(data.getBytes()),
-                           static_cast<unsigned int>(data.getSize()));
+                             static_cast<unsigned int>(data.getSize()));
     JniHelper::callStaticVoidMethod(CLASS_NAME, "setJavascriptInterfaceScheme", _viewTag,
                                     dataString, mimeType, encoding, baseURL);
 }

@@ -86,7 +86,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         // wgpuAttrsVec[0] ∪ wgpuAttrsVec[1] ∪ ... ∪ wgpuAttrsVec[n] == shader.attrs
         for (size_t i = 0; i < attrs.size(); i++) {
             ccstd::string attrName = attrs[i].name;
-            auto   iter     = std::find_if(_inputState.attributes.begin(), _inputState.attributes.end(), [attrName](const Attribute &attr) {
+            auto          iter     = std::find_if(_inputState.attributes.begin(), _inputState.attributes.end(), [attrName](const Attribute &attr) {
                 return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
             });
 
@@ -123,9 +123,9 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
 
         // input state has attr which shader hasnt.
         for (size_t i = 0; i < _inputState.attributes.size(); ++i) {
-            ccstd::string      attrName  = _inputState.attributes[i].name;
-            const auto &attribute = _inputState.attributes[i];
-            auto        iter      = std::find_if(attrs.begin(), attrs.end(), [attrName](const Attribute &attr) {
+            ccstd::string attrName  = _inputState.attributes[i].name;
+            const auto &  attribute = _inputState.attributes[i];
+            auto          iter      = std::find_if(attrs.begin(), attrs.end(), [attrName](const Attribute &attr) {
                 return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
             });
             if (iter == attrs.end()) {

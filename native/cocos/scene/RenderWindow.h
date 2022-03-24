@@ -36,10 +36,10 @@ class Camera;
 
 struct IRenderWindowInfo {
     cc::optional<ccstd::string> title;
-    uint32_t                  width{0};
-    uint32_t                  height{0};
-    gfx::RenderPassInfo       renderPassInfo;
-    gfx::Swapchain *          swapchain{nullptr};
+    uint32_t                    width{0};
+    uint32_t                    height{0};
+    gfx::RenderPassInfo         renderPassInfo;
+    gfx::Swapchain *            swapchain{nullptr};
 };
 
 /**
@@ -120,7 +120,7 @@ private:
     uint32_t                            _width{1};
     uint32_t                            _height{1};
     gfx::Swapchain *                    _swapchain{nullptr};
-    ccstd::string                         _title;
+    ccstd::string                       _title;
     IntrusivePtr<gfx::RenderPass>       _renderPass;
     IntrusivePtr<gfx::Texture>          _depthStencilTexture;
     IntrusivePtr<gfx::Framebuffer>      _frameBuffer;

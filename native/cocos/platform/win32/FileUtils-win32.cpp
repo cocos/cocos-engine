@@ -47,7 +47,7 @@ static ccstd::string s_resourcePath = "";
 // D:\aaa\bbb\ccc\ddd\abc.txt --> D:/aaa/bbb/ccc/ddd/abc.txt
 static inline ccstd::string convertPathFormatToUnixStyle(const ccstd::string &path) {
     ccstd::string ret = path;
-    size_t      len = ret.length();
+    size_t        len = ret.length();
     for (size_t i = 0; i < len; ++i) {
         if (ret[i] == '\\') {
             ret[i] = '/';
@@ -264,7 +264,7 @@ bool FileUtilsWin32::renameFile(const ccstd::string &path, const ccstd::string &
     ccstd::string oldPath = path + oldname;
     ccstd::string newPath = path + name;
 
-    std::regex  pat("\\/");
+    std::regex    pat("\\/");
     ccstd::string _old = std::regex_replace(oldPath, pat, "\\");
     ccstd::string _new = std::regex_replace(newPath, pat, "\\");
 
@@ -320,7 +320,7 @@ bool FileUtilsWin32::createDirectory(const ccstd::string &dirPath) {
 }
 
 bool FileUtilsWin32::removeFile(const ccstd::string &filepath) {
-    std::regex  pat("\\/");
+    std::regex    pat("\\/");
     ccstd::string win32path = std::regex_replace(filepath, pat, "\\");
 
     if (DeleteFile(StringUtf8ToWideChar(win32path).c_str())) {

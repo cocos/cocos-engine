@@ -51,7 +51,7 @@ namespace cc {
 namespace pipeline {
 namespace {
 
-const ccstd::string             STAGE_NAME         = "LightingStage";
+const ccstd::string      STAGE_NAME         = "LightingStage";
 const uint               MAX_REFLECTOR_SIZE = 5;
 framegraph::StringHandle reflectTexHandle   = framegraph::FrameGraph::stringToHandle("reflectionTex");
 framegraph::StringHandle denoiseTexHandle[MAX_REFLECTOR_SIZE];

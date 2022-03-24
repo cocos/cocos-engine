@@ -94,7 +94,7 @@ protected:
     State _state;
 
     std::shared_ptr<bool> _isDestroyed;
-    ccstd::string           _fileFullPath;
+    ccstd::string         _fileFullPath;
     unsigned int          _id;
     bool                  _isLoadingFinished;
     bool                  _isSkipReadDataTask;

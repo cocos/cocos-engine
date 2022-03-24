@@ -169,7 +169,7 @@ static bool SocketIO_send(se::State &s) { // NOLINT(readability-identifier-namin
 
     if (argc == 1) {
         ccstd::string payload;
-        bool        ok = sevalue_to_native(args[0], &payload);
+        bool          ok = sevalue_to_native(args[0], &payload);
         SE_PRECONDITION2(ok, false, "Converting payload failed!");
 
         cobj->send(payload);
@@ -187,7 +187,7 @@ static bool SocketIO_emit(se::State &s) { // NOLINT(readability-identifier-namin
     auto *      cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
 
     if (argc >= 1) {
-        bool        ok = false;
+        bool          ok = false;
         ccstd::string eventName;
         ok = sevalue_to_native(args[0], &eventName);
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
@@ -235,7 +235,7 @@ static bool SocketIO_on(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *      cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
 
     if (argc == 2) {
-        bool        ok = false;
+        bool          ok = false;
         ccstd::string eventName;
         ok = sevalue_to_native(args[0], &eventName);
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
@@ -260,7 +260,7 @@ static bool SocketIO_connect(se::State &s) { // NOLINT(readability-identifier-na
     if (argc >= 1 && argc <= 3) {
         ccstd::string url;
         ccstd::string caFilePath;
-        bool        ok = false;
+        bool          ok = false;
 
         ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "Error processing arguments");

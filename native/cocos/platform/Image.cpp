@@ -29,8 +29,8 @@
 #include <cassert>
 #include <cctype>
 #include <cstring>
-#include "base/std/container/string.h"
 #include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
+#include "base/std/container/string.h"
 
 #if CC_USE_JPEG
     #include "jpeg/jpeglib.h"

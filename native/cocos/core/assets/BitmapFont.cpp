@@ -92,7 +92,7 @@ void BitmapFontFace::doInit(const FontFaceInfo & /*info*/) {
     _textures.resize(pages, nullptr);
 
     ccstd::string path = fontPath;
-    auto        pos  = fontPath.rfind('/');
+    auto          pos  = fontPath.rfind('/');
 
     if (pos == ccstd::string::npos) {
         pos = fontPath.rfind('\\');
@@ -103,9 +103,9 @@ void BitmapFontFace::doInit(const FontFaceInfo & /*info*/) {
     }
 
     while (pageNode) {
-        uint32_t    id   = pageNode->UnsignedAttribute("id");
+        uint32_t      id   = pageNode->UnsignedAttribute("id");
         ccstd::string file = pageNode->Attribute("file");
-        _textures[id]    = loadTexture(path + file);
+        _textures[id]      = loadTexture(path + file);
 
         pageNode = pageNode->NextSiblingElement();
     }
