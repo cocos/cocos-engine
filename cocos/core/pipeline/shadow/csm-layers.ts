@@ -276,7 +276,13 @@ export class CSMLayers {
         return this._specialLayer;
     }
 
-    public update (pipeline: RenderPipeline, camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
+    public update (pipeline: RenderPipeline, camera: Camera) {
+        const scene = camera.scene!;
+        const dirLight = scene.mainLight;
+        if (dirLight === null) { return; }
+
+        const sceneData = pipeline.pipelineSceneData;
+        const shadowInfo = sceneData.shadows;
         const levelCount = dirLight.shadowCSMLevel;
         const shadowDistance = dirLight.shadowDistance;
 

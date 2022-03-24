@@ -42,8 +42,9 @@ class CC_DLL PipelineUBO : public Object {
 public:
     static void    updateGlobalUBOView(const scene::Camera *camera, std::array<float, UBOGlobal::COUNT> *bufferView);
     static void    updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera);
-    static void    updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera);
-    static void    updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView, const scene::Light *light);
+    static void    updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *shadowBufferView,
+                                       std::array<float, UBOCSM::COUNT> *csmBufferView, const scene::Camera *camera);
+    static void    updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *shadowBufferView, const scene::Light *light, uint level);
     static uint8_t getCombineSignY();
 
     PipelineUBO()           = default;
@@ -54,7 +55,7 @@ public:
     void updateCameraUBO(const scene::Camera *camera);
     void updateMultiCameraUBO(const vector<scene::Camera *> &cameras);
     void updateShadowUBO(const scene::Camera *camera);
-    void updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light);
+    void updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light, uint level = 0u);
     void updateShadowUBORange(uint offset, const Mat4 *data);
 
     uint getCurrentCameraUBOOffset() const;
@@ -66,6 +67,7 @@ private:
 
     std::array<float, UBOGlobal::COUNT> _globalUBO;
     std::array<float, UBOShadow::COUNT> _shadowUBO;
+    std::array<float, UBOCSM::COUNT>    _csmUBO;
 
     std::vector<gfx::Buffer *> _ubos;
     void                       initCombineSignY();

@@ -43,11 +43,7 @@ public:
     static void fromPoints(const Vec3 &minPos, const Vec3 &maxPos, AABB *dst);
     static void transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4);
     AABB();
-    AABB(const AABB &) = delete;
-    AABB(AABB &&)      = delete;
-    ~AABB()            = default;
-    AABB &operator=(const AABB &) = delete;
-    AABB &operator=(AABB &&) = delete;
+    ~AABB() = default;
 
     void initWithData(uint8_t *data);
     bool aabbAabb(AABB *aabb) const;

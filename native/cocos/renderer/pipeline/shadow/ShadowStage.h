@@ -45,10 +45,11 @@ public:
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
 
     inline void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
-    inline void setUsage(gfx::DescriptorSet *globalDS, const scene::Light *light, gfx::Framebuffer *framebuffer) {
+    inline void setUsage(gfx::DescriptorSet *globalDS, const scene::Light *light, gfx::Framebuffer *framebuffer, uint level = 0) {
         _globalDS    = globalDS;
         _light       = light;
         _framebuffer = framebuffer;
+        _level       = level;
     }
 
     void clearFramebuffer(scene::Camera *camera);
@@ -60,6 +61,7 @@ private:
     gfx::DescriptorSet *_globalDS    = nullptr;
     const scene::Light *_light       = nullptr;
     gfx::Framebuffer *  _framebuffer = nullptr;
+    uint                _level;
 
     ShadowMapBatchedQueue *_additiveShadowQueue = nullptr;
 };

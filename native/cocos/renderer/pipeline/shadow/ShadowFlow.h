@@ -49,6 +49,8 @@ public:
     void destroy() override;
 
 private:
+    void renderStage(gfx::DescriptorSet *globalDS, scene::Camera *camera, const scene::Light *light, gfx::Framebuffer *framebuffer, uint level = 0);
+
     void lightCollecting();
 
     void clearShadowMap(scene::Camera *camera);
