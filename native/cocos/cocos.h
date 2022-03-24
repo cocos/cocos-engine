@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,44 +21,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
-#include "Game.h"
+****************************************************************************/
 
-#ifndef GAME_NAME
-    #define GAME_NAME "CocosGame";
-#endif
+// public headers for user application
 
-Game::Game() = default;
-
-int Game::init() {
-    windowTitle  = GAME_NAME;
-    windowX      = 0;
-    windowY      = 0;
-    windowWidth  = 800;
-    windowHeight = 600;
-#if CC_DEBUG
-    enableDebugger = true;
-#else
-    enableDebugger = false;
-#endif
-    debugPort          = 6086;
-    debugListenAddress = "0.0.0.0";
-    debugPauseOnStart  = false;
-
-    SimpleCocosApplication::init();
-    return 0;
-}
-
-void Game::onPause() {
-    cc::SimpleCocosApplication::onPause();
-}
-
-void Game::onResume() {
-    cc::SimpleCocosApplication::onResume();
-}
-
-void Game::onClose() {
-    cc::SimpleCocosApplication::onClose();
-}
-
-CC_APPLICATION_MAIN(Game);
+#include "application/ApplicationManager.h"
+#include "application/SimpleCocosApplication.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_classtype.h"
+#include "bindings/manual/jsb_global.h"
+#include "bindings/manual/jsb_module_register.h"
