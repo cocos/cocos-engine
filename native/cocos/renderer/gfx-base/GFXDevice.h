@@ -115,7 +115,7 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    inline bool isRendererAvailable() { return _rendererAvailable; }
+    inline bool isRendererAvailable() const { return _rendererAvailable; }
 
     inline void setRendererAvailable(bool available) {_rendererAvailable = available;}
 
