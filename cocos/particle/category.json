@@ -1,8 +1,6 @@
 {
-    "category": {
-        "title": {
-            "zh": "粒子系统",
-            "en": "Particle System"
-        }
+    "title": {
+        "zh": "粒子系统",
+        "en": "Particle System"
     }
 }
