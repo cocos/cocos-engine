@@ -23,21 +23,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/Config.h"
+#include <atomic>
+#include <cassert>
+#include <iostream>
 
-#if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
+#include "cocos/application/ApplicationManager.h"
+#include "cocos/base/Log.h"
+#include "cocos/base/Scheduler.h"
+#include "cocos/network/WebSocketServer.h"
 
-    #include <atomic>
-    #include <cassert>
-    #include <iostream>
-
-    #include "cocos/application/ApplicationManager.h"
-    #include "cocos/base/Log.h"
-    #include "cocos/base/Scheduler.h"
-    #include "cocos/network/WebSocketServer.h"
-
-    #define MAX_MSG_PAYLOAD 2048
-    #define SEND_BUFF       1024
+#define MAX_MSG_PAYLOAD 2048
+#define SEND_BUFF       1024
 
 namespace {
 
@@ -766,5 +762,3 @@ int WebSocketServer::_websocketServerCallback(struct lws *wsi, enum lws_callback
 
 } // namespace network
 } // namespace cc
-
-#endif

@@ -2559,8 +2559,6 @@ if(ANDROID OR IOS OR OHOS)
     endif()
     if(USE_WEBVIEW)
         cocos_source_files(
-                         cocos/ui/webview/WebViewImpl-java.h
-                         cocos/ui/webview/WebViewImpl-ios.h
                          cocos/ui/webview/WebView-inl.h
                          cocos/ui/webview/WebView.h
         )
@@ -2580,6 +2578,7 @@ if(ANDROID)
     endif()
     if(USE_WEBVIEW)
         cocos_source_files(
+                         cocos/ui/webview/WebViewImpl-java.h
                          cocos/ui/webview/WebViewImpl-android.cpp
         )
     endif()
@@ -2596,6 +2595,7 @@ elseif(OHOS)
     endif()
     if(USE_WEBVIEW)
         cocos_source_files(
+            cocos/ui/webview/WebViewImpl-java.h
             cocos/ui/webview/WebViewImpl-ohos.cpp
         )
     endif()
@@ -2618,7 +2618,9 @@ elseif(IOS)
     endif()
     if(USE_WEBVIEW)
        cocos_source_files(
+                         cocos/ui/webview/WebViewImpl-ios.h
             NO_WERROR   NO_UBUILD   cocos/ui/webview/WebViewImpl-ios.mm
+
        )
    endif()
 elseif(WIN32)
