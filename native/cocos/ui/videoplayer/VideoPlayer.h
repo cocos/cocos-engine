@@ -27,10 +27,10 @@
 #pragma once
 
 #include <functional>
-#include <string>
 #include "base/Macros.h"
 #include "base/RefCounted.h"
 #include "base/std/container/map.h"
+#include "base/std/container/string.h"
 
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
@@ -75,7 +75,7 @@ public:
     /**
      * Sets a URL as a video source for VideoPlayer.
      */
-    virtual void setURL(const std::string &videoURL);
+    virtual void setURL(const ccstd::string &videoURL);
 
     /**
      * Starts playback.
@@ -131,7 +131,7 @@ public:
      *
      * @param callback  The callback that will be run.
      */
-    virtual void addEventListener(const std::string &name, const VideoPlayer::ccVideoPlayerCallback &callback);
+    virtual void addEventListener(const ccstd::string &name, const VideoPlayer::ccVideoPlayerCallback &callback);
 
     /**
      * @brief A function which will be called when video is playing.
@@ -163,11 +163,11 @@ protected:
     bool _fullScreenEnabled;
     bool _keepAspectRatioEnabled;
 
-    std::string _videoURL;
-    Source      _videoSource;
+    ccstd::string _videoURL;
+    Source        _videoSource;
 
-    int                                            _videoPlayerIndex;
-    ccstd::map<std::string, ccVideoPlayerCallback> _eventCallback;
+    int                                              _videoPlayerIndex;
+    ccstd::map<ccstd::string, ccVideoPlayerCallback> _eventCallback;
 
     void *_videoView;
 };

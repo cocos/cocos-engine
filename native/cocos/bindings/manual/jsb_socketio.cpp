@@ -40,7 +40,7 @@ se::Class *__jsb_SocketIO_class = nullptr; // NOLINT
 class JSB_SocketIODelegate : public cc::RefCounted, public cc::network::SocketIO::SIODelegate {
 public:
     //c++11 map to callbacks
-    using JSB_SIOCallbackRegistry = ccstd::unordered_map<std::string /* eventName */, se::ValueArray /* 0:callbackFunc, 1:target */>;
+    using JSB_SIOCallbackRegistry = ccstd::unordered_map<ccstd::string /* eventName */, se::ValueArray /* 0:callbackFunc, 1:target */>;
 
     JSB_SocketIODelegate() = default;
 
@@ -51,7 +51,7 @@ public:
     void onConnect(cc::network::SIOClient * /*client*/) override {
     }
 
-    void onMessage(cc::network::SIOClient * /*client*/, const std::string & /*data*/) override {
+    void onMessage(cc::network::SIOClient * /*client*/, const ccstd::string & /*data*/) override {
     }
 
     void onClose(cc::network::SIOClient *client) override { // NOLINT
@@ -70,7 +70,7 @@ public:
         }
     }
 
-    void onError(cc::network::SIOClient *client, const std::string &data) override { // NOLINT
+    void onError(cc::network::SIOClient *client, const ccstd::string &data) override { // NOLINT
         CC_LOG_DEBUG("JSB SocketIO::SIODelegate->onError method called from native with data: %s", data.c_str());
         this->fireEventToScript(client, "error", data);
 
@@ -80,7 +80,7 @@ public:
         }
     }
 
-    void fireEventToScript(cc::network::SIOClient *client, const std::string &eventName, const std::string &data) override { // NOLINT
+    void fireEventToScript(cc::network::SIOClient *client, const ccstd::string &eventName, const ccstd::string &data) override { // NOLINT
         CC_LOG_DEBUG("JSB SocketIO::SIODelegate->fireEventToScript method called from native with name '%s' data: %s", eventName.c_str(), data.c_str());
 
         se::ScriptEngine::getInstance()->clearException();
@@ -121,7 +121,7 @@ public:
         }
     }
 
-    void addEvent(const std::string &eventName, const se::Value &callback, const se::Value &target) {
+    void addEvent(const ccstd::string &eventName, const se::Value &callback, const se::Value &target) {
         assert(callback.isObject() && callback.toObject()->isFunction());
         assert(target.isObject());
         _eventRegistry[eventName].clear();
@@ -168,8 +168,8 @@ static bool SocketIO_send(se::State &s) { // NOLINT(readability-identifier-namin
     auto *      cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
 
     if (argc == 1) {
-        std::string payload;
-        bool        ok = sevalue_to_native(args[0], &payload);
+        ccstd::string payload;
+        bool          ok = sevalue_to_native(args[0], &payload);
         SE_PRECONDITION2(ok, false, "Converting payload failed!");
 
         cobj->send(payload);
@@ -187,12 +187,12 @@ static bool SocketIO_emit(se::State &s) { // NOLINT(readability-identifier-namin
     auto *      cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
 
     if (argc >= 1) {
-        bool        ok = false;
-        std::string eventName;
+        bool          ok = false;
+        ccstd::string eventName;
         ok = sevalue_to_native(args[0], &eventName);
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
 
-        std::string payload;
+        ccstd::string payload;
         if (argc >= 2) {
             const auto &arg1 = args[1];
             // Add this check to make it compatible with old version.
@@ -235,8 +235,8 @@ static bool SocketIO_on(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *      cobj = static_cast<cc::network::SIOClient *>(s.nativeThisObject());
 
     if (argc == 2) {
-        bool        ok = false;
-        std::string eventName;
+        bool          ok = false;
+        ccstd::string eventName;
         ok = sevalue_to_native(args[0], &eventName);
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
 
@@ -258,9 +258,9 @@ static bool SocketIO_connect(se::State &s) { // NOLINT(readability-identifier-na
     CC_LOG_DEBUG("JSB SocketIO.connect method called");
 
     if (argc >= 1 && argc <= 3) {
-        std::string url;
-        std::string caFilePath;
-        bool        ok = false;
+        ccstd::string url;
+        ccstd::string caFilePath;
+        bool          ok = false;
 
         ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "Error processing arguments");

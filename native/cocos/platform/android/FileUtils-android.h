@@ -27,9 +27,9 @@
 
 #pragma once
 
-#include <string>
 #include "android/asset_manager.h"
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 #include "jni.h"
 #include "platform/FileUtils.h"
 
@@ -60,14 +60,14 @@ public:
 
     /* override functions */
     bool              init() override;
-    FileUtils::Status getContents(const std::string &filename, ResizableBuffer *buffer) override;
+    FileUtils::Status getContents(const ccstd::string &filename, ResizableBuffer *buffer) override;
 
-    std::string getWritablePath() const override;
-    bool        isAbsolutePath(const std::string &strPath) const override;
+    ccstd::string getWritablePath() const override;
+    bool          isAbsolutePath(const ccstd::string &strPath) const override;
 
 private:
-    bool isFileExistInternal(const std::string &strFilePath) const override;
-    bool isDirectoryExistInternal(const std::string &dirPath) const override;
+    bool isFileExistInternal(const ccstd::string &strFilePath) const override;
+    bool isDirectoryExistInternal(const ccstd::string &dirPath) const override;
 
     static AAssetManager *assetmanager;
     static ZipFile *      obbfile;

@@ -139,7 +139,7 @@ void CanvasRenderingContext2DDelegate::fillRect(float x, float y, float w, float
     cairo_fill(_cr);
 }
 
-void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x, float y, float /*maxWidth*/) {
+void CanvasRenderingContext2DDelegate::fillText(const ccstd::string &text, float x, float y, float /*maxWidth*/) {
     if (text.empty() || _bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
@@ -153,13 +153,13 @@ void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x
     cairo_show_text(_cr, text.c_str());
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
     if (text.empty() || _bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
 }
 
-CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const std::string &text) {
+CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
     if (text.empty())
         return std::array<float, 2>{0.0f, 0.0f};
     cairo_text_extents_t extents;
@@ -168,11 +168,11 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
                                 static_cast<float>(extents.height)};
 }
 
-void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
-                                                  float              fontSize,
-                                                  bool               bold,
-                                                  bool               italic,
-                                                  bool               oblique,
+void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
+                                                  float                fontSize,
+                                                  bool                 bold,
+                                                  bool                 italic,
+                                                  bool                 oblique,
                                                   bool /* smallCaps */) {
     do {
         _fontName                      = fontName;
@@ -218,7 +218,7 @@ void CanvasRenderingContext2DDelegate::removeCustomFont() {
 }
 
 // x, y offset value
-int CanvasRenderingContext2DDelegate::drawText(const std::string &text, int x, int y) {
+int CanvasRenderingContext2DDelegate::drawText(const ccstd::string &text, int x, int y) {
     cairo_move_to(_cr, x, y);
     cairo_show_text(_cr, text.c_str());
     return 0;
@@ -237,7 +237,7 @@ void CanvasRenderingContext2DDelegate::deleteBitmap() {
 void CanvasRenderingContext2DDelegate::fillTextureData() {
 }
 
-std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const std::string &text) {
+std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
     int                  font_ascent  = 0;
     int                  font_descent = 0;
     int                  direction    = 0;
@@ -274,10 +274,10 @@ std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point po
 void CanvasRenderingContext2DDelegate::fill() {
 }
 
-void CanvasRenderingContext2DDelegate::setLineCap(const std::string &lineCap) {
+void CanvasRenderingContext2DDelegate::setLineCap(const ccstd::string &lineCap) {
 }
 
-void CanvasRenderingContext2DDelegate::setLineJoin(const std::string &lineJoin) {
+void CanvasRenderingContext2DDelegate::setLineJoin(const ccstd::string &lineJoin) {
 }
 
 void CanvasRenderingContext2DDelegate::fillImageData(const Data & /* imageData */,
@@ -287,7 +287,7 @@ void CanvasRenderingContext2DDelegate::fillImageData(const Data & /* imageData *
                                                      float /* offsetY */) {
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string & /* text */,
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string & /* text */,
                                                   float /* x */,
                                                   float /* y */,
                                                   float /* maxWidth */) {

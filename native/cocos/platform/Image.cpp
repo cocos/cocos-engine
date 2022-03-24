@@ -29,8 +29,8 @@
 #include <cassert>
 #include <cctype>
 #include <cstring>
-#include <string>
 #include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
+#include "base/std/container/string.h"
 
 #if CC_USE_JPEG
     #include "jpeg/jpeglib.h"
@@ -272,7 +272,7 @@ Image::~Image() {
     CC_SAFE_FREE(_data);
 }
 
-bool Image::initWithImageFile(const std::string &path) {
+bool Image::initWithImageFile(const ccstd::string &path) {
     bool ret = false;
     //NOTE: fullPathForFilename isn't threadsafe. we should make sure the parameter is a full path.
     //    _filePath = FileUtils::getInstance()->fullPathForFilename(path);

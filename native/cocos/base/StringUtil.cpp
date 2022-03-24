@@ -28,9 +28,9 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdarg>
-#include <string>
 #include "base/ZipUtils.h"
 #include "base/base64.h"
+#include "base/std/container/string.h"
 #include "memory/Memory.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -84,7 +84,7 @@ int StringUtil::printf(char *buf, const char *last, const char *fmt, ...) {
     return ret;
 }
 
-String StringUtil::format(const char *fmt, ...) {
+ccstd::string StringUtil::format(const char *fmt, ...) {
     char    sz[4096];
     va_list args;
     va_start(args, fmt);
@@ -93,8 +93,8 @@ String StringUtil::format(const char *fmt, ...) {
     return sz;
 }
 
-StringArray StringUtil::split(const String &str, const String &delims, uint maxSplits) {
-    StringArray strs;
+ccstd::vector<ccstd::string> StringUtil::split(const ccstd::string &str, const ccstd::string &delims, uint maxSplits) {
+    ccstd::vector<ccstd::string> strs;
     if (str.empty()) {
         return strs;
     }
@@ -113,7 +113,7 @@ StringArray StringUtil::split(const String &str, const String &delims, uint maxS
         if (pos == start) {
             // Do nothing
             start = pos + 1;
-        } else if (pos == String::npos || (maxSplits && numSplits == maxSplits)) {
+        } else if (pos == ccstd::string::npos || (maxSplits && numSplits == maxSplits)) {
             // Copy the rest of the string
             strs.push_back(str.substr(start));
             break;
@@ -125,51 +125,51 @@ StringArray StringUtil::split(const String &str, const String &delims, uint maxS
         // parse up to next real data
         start = str.find_first_not_of(delims, start);
         ++numSplits;
-    } while (pos != String::npos);
+    } while (pos != ccstd::string::npos);
 
     return strs;
 }
 
-String &StringUtil::replace(String &str, const String &findStr, const String &replaceStr) {
+ccstd::string &StringUtil::replace(ccstd::string &str, const ccstd::string &findStr, const ccstd::string &replaceStr) {
     size_t startPos = str.find(findStr);
-    if (startPos == std::string::npos) {
+    if (startPos == ccstd::string::npos) {
         return str;
     }
     str.replace(startPos, findStr.length(), replaceStr);
     return str;
 }
 
-String &StringUtil::replaceAll(String &str, const String &findStr, const String &replaceStr) {
+ccstd::string &StringUtil::replaceAll(ccstd::string &str, const ccstd::string &findStr, const ccstd::string &replaceStr) {
     if (findStr.empty()) {
         return str;
     }
     size_t startPos = 0;
-    while ((startPos = str.find(findStr, startPos)) != std::string::npos) {
+    while ((startPos = str.find(findStr, startPos)) != ccstd::string::npos) {
         str.replace(startPos, findStr.length(), replaceStr);
         startPos += replaceStr.length();
     }
     return str;
 }
 
-String &StringUtil::tolower(String &str) {
+ccstd::string &StringUtil::tolower(ccstd::string &str) {
     std::transform(str.begin(), str.end(), str.begin(),
                    [](unsigned char c) { return std::tolower(c); });
     return str;
 }
 
-String &StringUtil::toupper(String &str) {
+ccstd::string &StringUtil::toupper(ccstd::string &str) {
     std::transform(str.begin(), str.end(), str.begin(),
                    [](unsigned char c) { return std::toupper(c); });
     return str;
 }
 
-std::string GzipedString::value() const { // NOLINT(readability-convert-member-functions-to-static)
-    uint8_t *   outGzip{nullptr};
-    uint8_t *   outBase64{nullptr};
-    auto *      input       = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
-    auto        lenOfBase64 = base64Decode(input, static_cast<unsigned int>(_str.size()), &outBase64);
-    auto        lenofUnzip  = ZipUtils::inflateMemory(outBase64, static_cast<ssize_t>(lenOfBase64), &outGzip);
-    std::string ret(outGzip, outGzip + lenofUnzip);
+ccstd::string GzipedString::value() const { // NOLINT(readability-convert-member-functions-to-static)
+    uint8_t *     outGzip{nullptr};
+    uint8_t *     outBase64{nullptr};
+    auto *        input       = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
+    auto          lenOfBase64 = base64Decode(input, static_cast<unsigned int>(_str.size()), &outBase64);
+    auto          lenofUnzip  = ZipUtils::inflateMemory(outBase64, static_cast<ssize_t>(lenOfBase64), &outGzip);
+    ccstd::string ret(outGzip, outGzip + lenofUnzip);
     free(outGzip);
     free(outBase64);
     return ret;

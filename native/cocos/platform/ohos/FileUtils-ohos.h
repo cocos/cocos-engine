@@ -40,32 +40,32 @@ public:
     //        FileUtilsOHOS();
     //        virtual ~FileUtilsOHOS();
 
-    static bool initResourceManager(ResourceManager *mgr, const std::string &assetPath, const std::string &moduleName);
+    static bool initResourceManager(ResourceManager *mgr, const ccstd::string &assetPath, const ccstd::string &moduleName);
 
-    static void setRawfilePrefix(const std::string &prefix);
+    static void setRawfilePrefix(const ccstd::string &prefix);
 
     static ResourceManager *getResourceManager();
 
     bool init() override;
 
-    FileUtils::Status getContents(const std::string &filename, ResizableBuffer *buffer) override;
+    FileUtils::Status getContents(const ccstd::string &filename, ResizableBuffer *buffer) override;
 
-    bool isAbsolutePath(const std::string &strPath) const override;
+    bool isAbsolutePath(const ccstd::string &strPath) const override;
 
-    std::string getWritablePath() const override;
+    ccstd::string getWritablePath() const override;
 
-    std::string expandPath(const std::string &input, bool *isRawFile) const;
+    ccstd::string expandPath(const ccstd::string &input, bool *isRawFile) const;
 
-    std::pair<int, std::function<void()>> getFd(const std::string &path) const;
+    std::pair<int, std::function<void()>> getFd(const ccstd::string &path) const;
 
 private:
-    bool isFileExistInternal(const std::string &strFilePath) const override;
+    bool isFileExistInternal(const ccstd::string &strFilePath) const override;
 
-    bool isDirectoryExistInternal(const std::string &dirPath) const override;
+    bool isDirectoryExistInternal(const ccstd::string &dirPath) const override;
 
     /* weak ref, do not need release */
     static ResourceManager *ohosResourceMgr;
-    static std::string      ohosAssetPath;
+    static ccstd::string    ohosAssetPath;
 
     friend class FileUtils;
 };

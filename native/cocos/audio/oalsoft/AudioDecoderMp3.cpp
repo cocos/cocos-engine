@@ -78,7 +78,7 @@ AudioDecoderMp3::~AudioDecoderMp3() {
 }
 
 bool AudioDecoderMp3::open(const char *path) {
-    std::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+    ccstd::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
 
     long rate        = 0; //NOLINT(google-runtime-int)
     int  error       = MPG123_OK;

@@ -47,7 +47,7 @@ typedef std::shared_ptr<WebSocketServerConnection> *WSCONNPTR;
 
 static int __sendIndex = 1;
 
-static std::string gen_send_index() {
+static ccstd::string gen_send_index() {
     char buf[128] = {0};
     snprintf(buf, 127, "__send_[%d]", __sendIndex++);
     return buf;
@@ -93,10 +93,10 @@ static bool WebSocketServer_listen(se::State &s) {
         return false;
     }
 
-    WSSPTR                                   cobj     = (WSSPTR)s.nativeThisObject();
-    int                                      arg_port = 0;
-    std::string                              arg_host = "";
-    std::function<void(const std::string &)> arg_callback;
+    WSSPTR                                     cobj     = (WSSPTR)s.nativeThisObject();
+    int                                        arg_port = 0;
+    ccstd::string                              arg_host = "";
+    std::function<void(const ccstd::string &)> arg_callback;
 
     bool ok;
 
@@ -120,7 +120,7 @@ static bool WebSocketServer_listen(se::State &s) {
         if (funObj) {
             s.thisObject()->setProperty("__onlisten", se::Value(funObj));
             std::weak_ptr<WebSocketServer> serverWeak = *cobj;
-            arg_callback                              = [serverWeak](const std::string &err) {
+            arg_callback                              = [serverWeak](const ccstd::string &err) {
                 se::AutoHandleScope hs;
 
                 auto serverPtr = serverWeak.lock();
@@ -222,12 +222,12 @@ static bool WebSocketServer_onclose(se::State &s) {
         SE_REPORT_ERROR("argument type error, function expected!");
     }
 
-    WSSPTR                                   cobj = (WSSPTR)s.nativeThisObject();
-    std::function<void(const std::string &)> callback;
-    std::weak_ptr<WebSocketServer>           serverWeak = *cobj;
+    WSSPTR                                     cobj = (WSSPTR)s.nativeThisObject();
+    std::function<void(const ccstd::string &)> callback;
+    std::weak_ptr<WebSocketServer>             serverWeak = *cobj;
     s.thisObject()->setProperty("__onclose", args[0]);
 
-    callback = [serverWeak](const std::string &err) {
+    callback = [serverWeak](const ccstd::string &err) {
         se::AutoHandleScope hs;
 
         auto server = serverWeak.lock();
@@ -267,15 +267,15 @@ static bool WebSocketServer_close(se::State &s) {
         return false;
     }
 
-    WSSPTR                                   cobj = (WSSPTR)s.nativeThisObject();
-    std::function<void(const std::string &)> callback;
+    WSSPTR                                     cobj = (WSSPTR)s.nativeThisObject();
+    std::function<void(const ccstd::string &)> callback;
 
     if (argc == 1) {
         if (args[0].isObject() && args[0].toObject()->isFunction()) {
             s.thisObject()->setProperty("__close", args[0]);
             std::weak_ptr<WebSocketServer> serverWeak = *cobj;
 
-            callback = [serverWeak](const std::string &err) {
+            callback = [serverWeak](const ccstd::string &err) {
                 se::AutoHandleScope hs;
 
                 auto server = serverWeak.lock();
@@ -368,13 +368,13 @@ static bool WebSocketServer_Connection_send(se::State &s) {
     }
 
     if (argc >= 1) {
-        std::function<void(const std::string &cb)> callback;
+        std::function<void(const ccstd::string &cb)> callback;
         if (args[argc - 1].isObject() && args[argc - 1].toObject()->isFunction()) {
-            std::string callbackId = gen_send_index();
+            ccstd::string callbackId = gen_send_index();
             s.thisObject()->setProperty(callbackId.c_str(), args[argc - 1]);
             std::weak_ptr<WebSocketServerConnection> connWeak = *cobj;
 
-            callback = [callbackId, connWeak](const std::string &err) {
+            callback = [callbackId, connWeak](const ccstd::string &err) {
                 se::AutoHandleScope hs;
                 auto                conn = connWeak.lock();
                 if (!conn) {
@@ -403,7 +403,7 @@ static bool WebSocketServer_Connection_send(se::State &s) {
 
         bool ok = false;
         if (args[0].isString()) {
-            std::string data;
+            ccstd::string data;
             ok = sevalue_to_native(args[0], &data);
             SE_PRECONDITION2(ok, false, "Convert string failed");
             (*cobj)->sendTextAsync(data, callback);
@@ -448,10 +448,10 @@ static bool WebSocketServer_Connection_close(se::State &s) {
         return false;
     }
 
-    std::function<void(const std::string &)> callback;
-    int                                      arg_code = -1;
-    std::string                              arg_reason;
-    bool                                     ok;
+    std::function<void(const ccstd::string &)> callback;
+    int                                        arg_code = -1;
+    ccstd::string                              arg_reason;
+    bool                                       ok;
 
     if (argc >= 1) {
         ok = sevalue_to_native(args[0], &arg_code);
@@ -535,7 +535,7 @@ static bool WebSocketServer_Connection_onerror(se::State &s) {
     s.thisObject()->setProperty("__onerror", args[0]);
     std::weak_ptr<WebSocketServerConnection> connWeak = *cobj;
 
-    cobj->get()->setOnError([connWeak](const std::string &err) {
+    cobj->get()->setOnError([connWeak](const ccstd::string &err) {
         se::AutoHandleScope hs;
         auto                conn = connWeak.lock();
         if (!conn) {
@@ -581,7 +581,7 @@ static bool WebSocketServer_Connection_onclose(se::State &s) {
     s.thisObject()->setProperty("__onclose", args[0]);
     std::weak_ptr<WebSocketServerConnection> connWeak = *cobj;
 
-    cobj->get()->setOnClose([connWeak](int code, const std::string &err) {
+    cobj->get()->setOnClose([connWeak](int code, const ccstd::string &err) {
         se::AutoHandleScope hs;
 
         auto conn = connWeak.lock();

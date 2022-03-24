@@ -42,11 +42,11 @@ public:
      * @en The path of all bones, the length always equals the length of [[bindposes]]
      * @zh 所有关节的路径。该数组的长度始终与 [[bindposes]] 的长度相同。
      */
-    inline const ccstd::vector<std::string> &getJoints() const {
+    inline const ccstd::vector<ccstd::string> &getJoints() const {
         return _joints;
     }
 
-    inline void setJoints(const ccstd::vector<std::string> &value) {
+    inline void setJoints(const ccstd::vector<ccstd::string> &value) {
         _joints = value;
     }
 
@@ -83,7 +83,7 @@ public:
     bool validate() const override;
 
 private:
-    ccstd::vector<std::string>        _joints;
+    ccstd::vector<ccstd::string>      _joints;
     ccstd::vector<Mat4>               _bindposes;
     cc::optional<ccstd::vector<Mat4>> _invBindposes;
     uint64_t                          _hash{0};

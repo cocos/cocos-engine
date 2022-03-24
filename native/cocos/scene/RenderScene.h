@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include <string>
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"
+#include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 
 namespace cc {
@@ -54,7 +54,7 @@ struct IRaycastResult {
 };
 
 struct IRenderSceneInfo {
-    std::string name;
+    ccstd::string name;
 };
 
 class RenderScene : public RefCounted {
@@ -99,7 +99,7 @@ public:
     void                     setMainLight(DirectionalLight *dl);
 
     inline uint64_t                                        generateModelId() { return _modelId++; }
-    inline const std::string &                             getName() const { return _name; }
+    inline const ccstd::string &                           getName() const { return _name; }
     inline const ccstd::vector<IntrusivePtr<Camera>> &     getCameras() const { return _cameras; }
     inline const ccstd::vector<IntrusivePtr<SphereLight>> &getSphereLights() const { return _sphereLights; }
     inline const ccstd::vector<IntrusivePtr<SpotLight>> &  getSpotLights() const { return _spotLights; }
@@ -111,7 +111,7 @@ public:
     inline const ccstd::vector<DrawBatch2D *> &getDrawBatch2Ds() const { return _batches; }
 
 private:
-    std::string                                   _name;
+    ccstd::string                                 _name;
     uint64_t                                      _modelId{0};
     IntrusivePtr<DirectionalLight>                _mainLight;
     ccstd::vector<IntrusivePtr<Model>>            _models;

@@ -36,8 +36,8 @@
 #include "renderer/core/MaterialInstance.h"
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDevice.h"
-#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Ambient.h"
 #include "scene/Model.h"
 
@@ -241,7 +241,7 @@ void Skybox::activate() {
         auto *        mat = new Material();
         MacroRecord   defines{{"USE_RGBE_CUBEMAP", isRGBE}};
         IMaterialInfo matInfo;
-        matInfo.effectName = std::string{"skybox"};
+        matInfo.effectName = ccstd::string{"skybox"};
         matInfo.defines    = IMaterialInfo::DefinesType{defines};
         mat->initialize({matInfo});
         IMaterialInstanceInfo matInstInfo;
@@ -289,8 +289,8 @@ void Skybox::updatePipeline() const {
         _model->setSubModelMaterial(0, skyboxMaterial);
     }
 
-    Root * root     = Root::getInstance();
-    auto * pipeline = root->getPipeline();
+    Root *root     = Root::getInstance();
+    auto *pipeline = root->getPipeline();
 
     const bool    useRGBE            = isRGBE();
     const int32_t useIBLValue        = isUseIBL() ? (useRGBE ? 2 : 1) : 0;
@@ -298,7 +298,7 @@ void Skybox::updatePipeline() const {
     const bool    useHDRValue        = isUseHDR();
 
     bool valueChanged = false;
-    auto iter = pipeline->getMacros().find("CC_USE_IBL");
+    auto iter         = pipeline->getMacros().find("CC_USE_IBL");
     if (iter != pipeline->getMacros().end()) {
         const MacroValue &macroIBL    = iter->second;
         const int32_t *   macroIBLPtr = cc::get_if<int32_t>(&macroIBL);
@@ -330,7 +330,7 @@ void Skybox::updatePipeline() const {
 
     if (valueChanged) {
         root->onGlobalPipelineStateChanged();
-    }  
+    }
 }
 
 void Skybox::updateGlobalBinding() {

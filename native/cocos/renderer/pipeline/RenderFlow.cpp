@@ -68,7 +68,7 @@ void RenderFlow::destroy() {
     _stages.clear();
 }
 
-RenderStage *RenderFlow::getRenderstageByName(const String &name) const {
+RenderStage *RenderFlow::getRenderstageByName(const ccstd::string &name) const {
     for (auto *node : _stages) {
         if (node->getName() == name) {
             return node;

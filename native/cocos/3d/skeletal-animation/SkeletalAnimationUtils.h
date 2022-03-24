@@ -140,14 +140,14 @@ public:
     explicit JointAnimationInfo(gfx::Device *device);
     ~JointAnimationInfo() override = default;
 
-    IAnimInfo               getData(const std::string &nodeID = "-1");
-    void                    destroy(const std::string &nodeID);
+    IAnimInfo               getData(const ccstd::string &nodeID = "-1");
+    void                    destroy(const ccstd::string &nodeID);
     static const IAnimInfo &switchClip(IAnimInfo &info /*, AnimationClip *clip */);
     void                    clear();
 
 private:
-    ccstd::unordered_map<std::string, IAnimInfo> _pool; // pre node
-    gfx::Device *                                _device{nullptr};
+    ccstd::unordered_map<ccstd::string, IAnimInfo> _pool; // pre node
+    gfx::Device *                                  _device{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(JointAnimationInfo);
 };

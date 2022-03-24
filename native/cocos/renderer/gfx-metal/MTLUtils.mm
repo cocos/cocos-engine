@@ -98,7 +98,7 @@ enum class GPUFamily {
 };
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
-String getIOSFeatureSetToString(MTLFeatureSet featureSet) {
+ccstd::string getIOSFeatureSetToString(MTLFeatureSet featureSet) {
     if (@available(iOS 8.0, *)) {
         switch (featureSet) {
             case MTLFeatureSet_iOS_GPUFamily1_v1:
@@ -230,7 +230,7 @@ GPUFamily getIOSGPUFamily(MTLFeatureSet featureSet) {
     return GPUFamily::Apple1;
 }
 #else
-String getMacFeatureSetToString(MTLFeatureSet featureSet) {
+ccstd::string getMacFeatureSetToString(MTLFeatureSet featureSet) {
     if (@available(macOS 10.11, *)) {
         switch (featureSet) {
             case MTLFeatureSet_macOS_GPUFamily1_v1:
@@ -315,13 +315,13 @@ bool isASTCFormat(Format format) {
 }
 
 gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass* renderPass) {
-    String vs = R"(
+    ccstd::string vs = R"(
             layout(location = 0) in vec2 a_position;
             void main() {
                 gl_Position = vec4(a_position, 1.0, 1.0);
             }
     )";
-//    String fs = R"(
+//    ccstd::string fs = R"(
 //            precision mediump float;
 //            layout(set = 0, binding = 0) uniform Color {
 //                vec4 u_color;
@@ -333,7 +333,7 @@ gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass* renderPass) {
 //            }
 //    )";
     
-    String fs = R"(
+    ccstd::string fs = R"(
             precision mediump float;
             layout(set = 0, binding = 0) uniform Color {
                 vec4 u_color;
@@ -930,7 +930,7 @@ bool mu::isFramebufferFetchSupported() {
 #endif
 }
 
-String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
+ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
                      ShaderStageFlagBit shaderType,
                      CCMTLGPUShader *gpuShader) {
     CCMTLDevice* device = CCMTLDevice::getInstance();
@@ -1084,13 +1084,13 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     }
 
     // Compile to MSL, ready to give to metal driver.
-    String output = msl.compile();
+    ccstd::string output = msl.compile();
     if(executionModel == spv::ExecutionModelFragment) {
         // add custom function constant to achieve delay binding for color attachment.
         auto customCodingPos = output.find("using namespace metal;");
         int32_t maxIndex = static_cast<int32_t>(resources.stage_outputs.size() - 1);
         for(int i = maxIndex; i >=0; --i) {
-            String indexStr = std::to_string(i);
+            ccstd::string indexStr = std::to_string(i);
             output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[function_constant(" + indexStr + ")]];\n");
             output.replace(output.find("color(" + indexStr + ")"), 8, "color(indexOffset" + indexStr + ")");
         }
@@ -1544,7 +1544,7 @@ MTLPixelFormat mu::getSupportedDepthStencilFormat(id<MTLDevice> device, uint fam
 #endif
 }
 
-String mu::featureSetToString(MTLFeatureSet featureSet) {
+ccstd::string mu::featureSetToString(MTLFeatureSet featureSet) {
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
     return getIOSFeatureSetToString(featureSet);
 #else

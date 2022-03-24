@@ -34,7 +34,7 @@ namespace cc {
 
 namespace utils {
 
-String getStacktraceJS();
+ccstd::string getStacktraceJS();
 
 } // namespace utils
 
@@ -131,8 +131,8 @@ public:
 
 private:
     struct ResourceRecord {
-        Resource *resource = nullptr;
-        String    initStack;
+        Resource *    resource = nullptr;
+        ccstd::string initStack;
     };
 
     static ccstd::vector<ResourceRecord> resources;

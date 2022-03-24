@@ -34,6 +34,7 @@
 
 #include "base/RefCounted.h"
 #include "base/std/container/set.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
@@ -79,10 +80,10 @@ public:
     TimerTargetCallback() = default;
 
     // Initializes a timer with a target, a lambda and an interval in seconds, repeat in number of times to repeat, delay in seconds.
-    bool initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const std::string &key, float seconds, unsigned int repeat, float delay);
+    bool initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const ccstd::string &key, float seconds, unsigned int repeat, float delay);
 
     inline const ccSchedulerFunc &getCallback() const { return _callback; };
-    inline const std::string &    getKey() const { return _key; };
+    inline const ccstd::string &  getKey() const { return _key; };
 
     void trigger(float dt) override;
     void cancel() override;
@@ -90,7 +91,7 @@ public:
 private:
     void *          _target   = nullptr;
     ccSchedulerFunc _callback = nullptr;
-    std::string     _key;
+    ccstd::string   _key;
 };
 
 /**
@@ -160,7 +161,7 @@ public:
      @param key The key to identify the callback function, because there is not way to identify a std::function<>.
      @since v3.0
      */
-    void schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const std::string &key);
+    void schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const ccstd::string &key);
 
     /** The scheduled method will be called every 'interval' seconds for ever.
      @param callback The callback function.
@@ -170,7 +171,7 @@ public:
      @param key The key to identify the callback function, because there is not way to identify a std::function<>.
      @since v3.0
      */
-    void schedule(const ccSchedulerFunc &callback, void *target, float interval, bool paused, const std::string &key);
+    void schedule(const ccSchedulerFunc &callback, void *target, float interval, bool paused, const ccstd::string &key);
 
     /////////////////////////////////////
 
@@ -182,7 +183,7 @@ public:
      @param target The target to be unscheduled.
      @since v3.0
      */
-    void unschedule(const std::string &key, void *target);
+    void unschedule(const ccstd::string &key, void *target);
 
     /** Unschedules all selectors for a given target.
      This also includes the "update" selector.
@@ -216,7 +217,7 @@ public:
      @return True if the specified callback is invoked, false if not.
      @since v3.0.0
      */
-    bool isScheduled(const std::string &key, void *target);
+    bool isScheduled(const ccstd::string &key, void *target);
 
     /////////////////////////////////////
 

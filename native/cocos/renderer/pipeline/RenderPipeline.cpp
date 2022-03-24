@@ -312,7 +312,7 @@ void RenderPipeline::generateConstantMacros() {
 
 gfx::DescriptorSetLayout *RenderPipeline::getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
 
-RenderStage *RenderPipeline::getRenderstageByName(const String &name) const {
+RenderStage *RenderPipeline::getRenderstageByName(const ccstd::string &name) const {
     for (auto *flow : _flows) {
         auto *val = flow->getRenderstageByName(name);
         if (val) {

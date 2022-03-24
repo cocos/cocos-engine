@@ -29,8 +29,8 @@
 #include <condition_variable>
 #include <functional>
 #include <mutex>
-#include <string>
 #include <thread>
+#include "base/std/container/string.h"
 #ifdef OPENAL_PLAIN_INCLUDES
     #include <al.h>
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
@@ -66,9 +66,9 @@ protected:
 
     AudioCache *_audioCache;
 
-    float                                         _volume;
-    bool                                          _loop;
-    std::function<void(int, const std::string &)> _finishCallbak;
+    float                                           _volume;
+    bool                                            _loop;
+    std::function<void(int, const ccstd::string &)> _finishCallbak;
 
     bool   _isDestroyed;
     bool   _removeByAudioEngine;

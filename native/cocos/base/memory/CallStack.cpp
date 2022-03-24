@@ -44,8 +44,8 @@
 
 namespace cc {
 
-std::string StackFrame::toString() {
-    static std::string unknown("unknown");
+ccstd::string StackFrame::toString() {
+    static ccstd::string unknown("unknown");
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
     std::stringstream stream;
     stream << "\tmodule: " << (module.empty() ? unknown : module)
@@ -134,10 +134,10 @@ __cyg_profile_func_exit(void *this_fn, void *call_site) {
 
     #endif
 
-std::string CallStack::basename(const std::string &path) {
+ccstd::string CallStack::basename(const ccstd::string &path) {
     size_t found = path.find_last_of("/\\");
 
-    if (std::string::npos != found) {
+    if (ccstd::string::npos != found) {
         return path.substr(found + 1);
     } else {
         return path;

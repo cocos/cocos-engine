@@ -33,7 +33,7 @@
 #include "platform/StdC.h"
 
 #include <algorithm>
-#include <string>
+#include "base/std/container/string.h"
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
         #define OBJC_CLASS(name) @class name
@@ -166,10 +166,10 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate &                  delegate,
-              const std::string &               url,
-              const ccstd::vector<std::string> *protocols  = nullptr,
-              const std::string &               caFilePath = "");
+    bool init(const Delegate &                    delegate,
+              const ccstd::string &               url,
+              const ccstd::vector<ccstd::string> *protocols  = nullptr,
+              const ccstd::string &               caFilePath = "");
 
     /**
      *  @brief Sends string data to websocket server.
@@ -177,7 +177,7 @@ public:
      *  @param message string data.
      *  @lua sendstring
      */
-    void send(const std::string &message);
+    void send(const ccstd::string &message);
 
     /**
      *  @brief Sends binary data to websocket server.
@@ -210,7 +210,7 @@ public:
     *  @param code close reason
     *  @param reason reason text description
     */
-    void closeAsync(int code, const std::string &reason);
+    void closeAsync(int code, const ccstd::string &reason);
 
     /**
      *  @brief Gets current state of connection.
@@ -221,7 +221,7 @@ public:
     /**
      *  @brief Gets the URL of websocket connection.
      */
-    const std::string &getUrl() const;
+    const ccstd::string &getUrl() const;
 
     /**
     * @brief Returns the number of bytes of data that have been queued using calls to send() but not yet transmitted to the network.
@@ -231,12 +231,12 @@ public:
     /**
     * @brief Returns the extensions selected by the server.
     */
-    std::string getExtensions() const;
+    ccstd::string getExtensions() const;
 
     /**
      *  @brief Gets the protocol selected by websocket server.
      */
-    const std::string &getProtocol() const;
+    const ccstd::string &getProtocol() const;
 
     Delegate *getDelegate() const;
 

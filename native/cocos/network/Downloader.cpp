@@ -85,7 +85,7 @@ Downloader::Downloader(const DownloaderHints &hints) {
     _impl->onTaskFinish = [this](const DownloadTask &                task,
                                  int                                 errorCode,
                                  int                                 errorCodeInternal,
-                                 const std::string &                 errorStr,
+                                 const ccstd::string &               errorStr,
                                  const ccstd::vector<unsigned char> &data) {
         if (DownloadTask::ERROR_NO_ERROR != errorCode) {
             if (onTaskError) {
@@ -112,7 +112,7 @@ Downloader::~Downloader() {
     DLLOG("Destruct Downloader %p", this);
 }
 
-std::shared_ptr<const DownloadTask> Downloader::createDownloadDataTask(const std::string &srcUrl, const std::string &identifier /* = ""*/) {
+std::shared_ptr<const DownloadTask> Downloader::createDownloadDataTask(const ccstd::string &srcUrl, const ccstd::string &identifier /* = ""*/) {
     auto *                              iTask = new (std::nothrow) DownloadTask();
     std::shared_ptr<const DownloadTask> task(iTask);
     do {
@@ -131,10 +131,10 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadDataTask(const std
     return task;
 }
 
-std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const std::string &                         srcUrl,
-                                                                       const std::string &                         storagePath,
-                                                                       const ccstd::map<std::string, std::string> &header,
-                                                                       const std::string &                         identifier /* = ""*/) {
+std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const ccstd::string &                           srcUrl,
+                                                                       const ccstd::string &                           storagePath,
+                                                                       const ccstd::map<ccstd::string, ccstd::string> &header,
+                                                                       const ccstd::string &                           identifier /* = ""*/) {
     auto *                              iTask = new (std::nothrow) DownloadTask();
     std::shared_ptr<const DownloadTask> task(iTask);
     do {
@@ -154,22 +154,22 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const std
 
     return task;
 }
-std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const std::string &srcUrl,
-                                                                       const std::string &storagePath,
-                                                                       const std::string &identifier /* = ""*/) {
-    const ccstd::map<std::string, std::string> emptyHeader;
+std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const ccstd::string &srcUrl,
+                                                                       const ccstd::string &storagePath,
+                                                                       const ccstd::string &identifier /* = ""*/) {
+    const ccstd::map<ccstd::string, ccstd::string> emptyHeader;
     return createDownloadFileTask(srcUrl, storagePath, emptyHeader, identifier);
 }
 
 void Downloader::abort(const DownloadTask &task) {
     _impl->abort(task._coTask);
 }
-//std::string Downloader::getFileNameFromUrl(const std::string& srcUrl)
+//ccstd::string Downloader::getFileNameFromUrl(const ccstd::string& srcUrl)
 //{
 //    // Find file name and file extension
-//    std::string filename;
+//    ccstd::string filename;
 //    unsigned long found = srcUrl.find_last_of("/\\");
-//    if (found != std::string::npos)
+//    if (found != ccstd::string::npos)
 //        filename = srcUrl.substr(found+1);
 //    return filename;
 //}

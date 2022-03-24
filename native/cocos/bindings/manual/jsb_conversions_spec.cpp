@@ -70,7 +70,7 @@ auto make_overloaded(Fs... fs) { // NOLINT(readability-identifier-naming)
 
 template <typename A, typename T, typename F>
 typename std::enable_if<std::is_member_function_pointer<F>::value, bool>::type
-set_member_field(se::Object *obj, T *to, const std::string &property, F f, se::Value &tmp) { // NOLINT
+set_member_field(se::Object *obj, T *to, const ccstd::string &property, F f, se::Value &tmp) { // NOLINT
     bool ok = obj->getProperty(property.data(), &tmp, true);
     SE_PRECONDITION2(ok, false, "Property '%s' is not set", property.data());
 
@@ -83,7 +83,7 @@ set_member_field(se::Object *obj, T *to, const std::string &property, F f, se::V
 
 template <typename T, typename F>
 typename std::enable_if<std::is_member_object_pointer<F>::value, bool>::type
-set_member_field(se::Object *obj, T *to, const std::string &property, F f, se::Value &tmp) { // NOLINT
+set_member_field(se::Object *obj, T *to, const ccstd::string &property, F f, se::Value &tmp) { // NOLINT
     bool ok = obj->getProperty(property.data(), &tmp, true);
     SE_PRECONDITION2(ok, false, "Property '%s' is not set", property.data());
 
@@ -92,7 +92,7 @@ set_member_field(se::Object *obj, T *to, const std::string &property, F f, se::V
     return true;
 }
 
-static bool isNumberString(const std::string &str) {
+static bool isNumberString(const ccstd::string &str) {
     for (const auto &c : str) { // NOLINT(readability-use-anyofallof) // remove after using c++20
         if (!isdigit(c)) {
             return false;
@@ -344,7 +344,7 @@ bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) { // NOLINT
 
     cc::ValueMap &dict = *ret;
 
-    ccstd::vector<std::string> allKeys;
+    ccstd::vector<ccstd::string> allKeys;
     SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
     bool      ok = false;
@@ -375,7 +375,7 @@ bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret) {
 
     cc::ValueMapIntKey &dict = *ret;
 
-    ccstd::vector<std::string> allKeys;
+    ccstd::vector<ccstd::string> allKeys;
     SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
     bool      ok = false;
@@ -505,11 +505,11 @@ bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*unuse
 
         memcpy(to->m, ptr, length);
     } else {
-        bool        ok = false;
-        se::Value   tmp;
-        std::string prefix = "m";
+        bool          ok = false;
+        se::Value     tmp;
+        ccstd::string prefix = "m";
         for (uint32_t i = 0; i < 9; ++i) {
-            std::string name;
+            ccstd::string name;
             if (i < 10) {
                 name = prefix + "0" + std::to_string(i);
             } else {
@@ -548,11 +548,11 @@ bool sevalue_to_native(const se::Value &from, cc::Mat4 *to, se::Object * /*unuse
 
         memcpy(to->m, ptr, length);
     } else {
-        bool        ok = false;
-        se::Value   tmp;
-        std::string prefix = "m";
+        bool          ok = false;
+        se::Value     tmp;
+        ccstd::string prefix = "m";
         for (uint32_t i = 0; i < 16; ++i) {
-            std::string name;
+            ccstd::string name;
             if (i < 10) {
                 name = prefix + "0" + std::to_string(i);
             } else {
@@ -775,7 +775,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::SkyboxInfo *to, se::Obj
     return true;
 }
 
-// cc::variant<int32_t, bool, std::string>;
+// cc::variant<int32_t, bool, ccstd::string>;
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::MacroValue *to, se::Object * /*ctx*/) {
     if (from.isBoolean()) {
@@ -809,8 +809,8 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<cc::MacroRecord> *to
             if (!ok || !arrElement.isObject()) {
                 continue;
             }
-            cc::MacroRecord            macroRecord;
-            ccstd::vector<std::string> keys;
+            cc::MacroRecord              macroRecord;
+            ccstd::vector<ccstd::string> keys;
             ok = arrElement.toObject()->getAllKeys(&keys);
             if (ok) {
                 se::Value seMacroVal;
@@ -972,7 +972,7 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
         return true;
     }
     if (firstEle.isString()) {
-        ccstd::vector<std::string> result;
+        ccstd::vector<ccstd::string> result;
         sevalue_to_native(from, &result, ctx);
         return true;
     }
@@ -981,7 +981,7 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, std::string> *to, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &from, cc::variant<ccstd::vector<float>, ccstd::string> *to, se::Object * /*ctx*/) {
     if (from.isObject() && from.toObject()->isArray()) {
         uint32_t             len = 0;
         bool                 ok  = from.toObject()->getArrayLength(&len);
@@ -1198,13 +1198,13 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
 #if USE_MIDDLEWARE
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, cc::middleware::Texture2D *> *ret) {
+bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::middleware::Texture2D *> *ret) {
     assert(ret != nullptr);
     assert(v.isObject());
     se::Object *obj = v.toObject();
 
-    ccstd::vector<std::string> allKeys;
-    bool                       ok = obj->getAllKeys(&allKeys);
+    ccstd::vector<ccstd::string> allKeys;
+    bool                         ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
         return false;
@@ -1213,7 +1213,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, cc::mid
     se::Value tmp;
     for (const auto &key : allKeys) {
         auto pngPos = key.find(".png");
-        if (pngPos == std::string::npos) {
+        if (pngPos == ccstd::string::npos) {
             continue;
         }
 
@@ -1286,8 +1286,8 @@ bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
     bool             ok = true;
     for (const auto &e : v) {
-        const std::string &key   = e.first;
-        const cc::Value &  value = e.second;
+        const ccstd::string &key   = e.first;
+        const cc::Value &    value = e.second;
 
         if (key.empty()) {
             continue;
@@ -1318,7 +1318,7 @@ bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) { //
     for (const auto &e : v) {
         std::stringstream keyss;
         keyss << e.first;
-        std::string      key   = keyss.str();
+        ccstd::string    key   = keyss.str();
         const cc::Value &value = e.second;
 
         if (key.empty()) {
@@ -1448,7 +1448,7 @@ bool nativevalue_to_se(const cc::Value &from, se::Value &to, se::Object * /*unus
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool nativevalue_to_se(const ccstd::unordered_map<std::string, cc::Value> &from, se::Value &to, se::Object * /*unused*/) {
+bool nativevalue_to_se(const ccstd::unordered_map<ccstd::string, cc::Value> &from, se::Value &to, se::Object * /*unused*/) {
     return ccvaluemap_to_seval(from, &to);
 }
 

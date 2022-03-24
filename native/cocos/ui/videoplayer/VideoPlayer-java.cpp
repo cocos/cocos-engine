@@ -29,14 +29,14 @@
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include <jni.h>
     #include <cstdlib>
-    #include <string>
+    #include "base/std/container/string.h"
     #include "base/std/container/unordered_map.h"
     #include "platform/FileUtils.h"
     #include "platform/java/jni/JniHelper.h"
 
 //-----------------------------------------------------------------------------------------------------------
 
-static const std::string VIDEO_HELPER_CLASS_NAME = "com/cocos/lib/CocosVideoHelper";
+static const ccstd::string VIDEO_HELPER_CLASS_NAME = "com/cocos/lib/CocosVideoHelper";
 
 using namespace cc; //NOLINT
 
@@ -86,8 +86,8 @@ VideoPlayer::~VideoPlayer() {
     JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "removeVideoWidget", _videoPlayerIndex);
 }
 
-void VideoPlayer::setURL(const std::string &videoUrl) {
-    if (videoUrl.find("://") == std::string::npos) {
+void VideoPlayer::setURL(const ccstd::string &videoUrl) {
+    if (videoUrl.find("://") == ccstd::string::npos) {
         _videoURL    = FileUtils::getInstance()->fullPathForFilename(videoUrl);
         _videoSource = VideoPlayer::Source::FILENAME;
     } else {
@@ -146,7 +146,7 @@ void VideoPlayer::setVisible(bool visible) {
     JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "setVideoVisible", _videoPlayerIndex, visible);
 }
 
-void VideoPlayer::addEventListener(const std::string &name, const VideoPlayer::ccVideoPlayerCallback &callback) {
+void VideoPlayer::addEventListener(const ccstd::string &name, const VideoPlayer::ccVideoPlayerCallback &callback) {
     _eventCallback[name] = callback;
 }
 

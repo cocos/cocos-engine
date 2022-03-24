@@ -98,16 +98,16 @@ public:
     inline void flushCommands(const ccstd::vector<CommandBuffer *> &cmdBuffs);
     inline void acquire(const ccstd::vector<Swapchain *> &swapchains);
 
-    inline Queue *           getQueue() const { return _queue; }
-    inline QueryPool *       getQueryPool() const { return _queryPool; }
-    inline CommandBuffer *   getCommandBuffer() const { return _cmdBuff; }
-    inline const DeviceCaps &getCapabilities() const { return _caps; }
-    inline API               getGfxAPI() const { return _api; }
-    inline const String &    getDeviceName() const { return _deviceName; }
-    inline const String &    getRenderer() const { return _renderer; }
-    inline const String &    getVendor() const { return _vendor; }
-    inline bool              hasFeature(Feature feature) const { return _features[toNumber(feature)]; }
-    inline FormatFeature     getFormatFeatures(Format format) const { return _formatFeatures[toNumber(format)]; }
+    inline Queue *              getQueue() const { return _queue; }
+    inline QueryPool *          getQueryPool() const { return _queryPool; }
+    inline CommandBuffer *      getCommandBuffer() const { return _cmdBuff; }
+    inline const DeviceCaps &   getCapabilities() const { return _caps; }
+    inline API                  getGfxAPI() const { return _api; }
+    inline const ccstd::string &getDeviceName() const { return _deviceName; }
+    inline const ccstd::string &getRenderer() const { return _renderer; }
+    inline const ccstd::string &getVendor() const { return _vendor; }
+    inline bool                 hasFeature(Feature feature) const { return _features[toNumber(feature)]; }
+    inline FormatFeature        getFormatFeatures(Format format) const { return _formatFeatures[toNumber(format)]; }
 
     inline const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
@@ -116,6 +116,9 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
+    inline bool isRendererAvailable() const { return _rendererAvailable; }
+
+    inline void setRendererAvailable(bool available) {_rendererAvailable = available;}
 protected:
     static Device *instance;
 
@@ -153,10 +156,10 @@ protected:
     // For context switching between threads
     virtual void bindContext(bool bound) {}
 
-    String             _deviceName;
-    String             _renderer;
-    String             _vendor;
-    String             _version;
+    ccstd::string      _deviceName;
+    ccstd::string      _renderer;
+    ccstd::string      _vendor;
+    ccstd::string      _version;
     API                _api{API::UNKNOWN};
     DeviceCaps         _caps;
     BindingMappingInfo _bindingMappingInfo;
@@ -182,6 +185,7 @@ protected:
 
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference
+    bool _rendererAvailable{false};
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -208,6 +212,13 @@ Swapchain *Device::createSwapchain(const SwapchainInfo &info) {
     Swapchain *res = createSwapchain();
     res->initialize(info);
     _swapchains.push_back(res);
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
+    if (res->getWindowHandle()) {
+        setRendererAvailable(true);
+    }
+#else
+    setRendererAvailable(true);
+#endif
     return res;
 }
 

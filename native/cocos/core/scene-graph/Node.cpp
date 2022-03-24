@@ -54,7 +54,7 @@ ccstd::vector<ccstd::vector<Node *>> Node::stacks;
 
 namespace {
 CachedArray<Node *> allNodes{128}; //cjh how to clear ?
-const std::string   EMPTY_NODE_NAME;
+const ccstd::string EMPTY_NODE_NAME;
 IDGenerator         idGenerator("Node");
 
 ccstd::vector<Node *> dirtyNodes;
@@ -80,7 +80,7 @@ CC_FORCE_INLINE Node *getDirtyNode(const index_t idx) {
 Node::Node() : Node(EMPTY_NODE_NAME) {
 }
 
-Node::Node(const std::string &name) {
+Node::Node(const ccstd::string &name) {
     _id = idGenerator.getNewId();
     if (name.empty()) {
         _name.append("New Node");
@@ -425,7 +425,7 @@ bool Node::onPreDestroyBase() {
     return destroyByParent;
 }
 
-Node *Node::getChildByName(const std::string &name) const {
+Node *Node::getChildByName(const ccstd::string &name) const {
     if (name.empty()) {
         CC_LOG_INFO("Invalid name");
         return nullptr;
@@ -458,7 +458,7 @@ index_t Node::getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &child, Node
     return CC_INVALID_INDEX;
 }
 
-Node *Node::getChildByUuid(const std::string &uuid) const {
+Node *Node::getChildByUuid(const ccstd::string &uuid) const {
     if (uuid.empty()) {
         CC_LOG_INFO("Invalid uuid");
         return nullptr;
@@ -518,11 +518,11 @@ void Node::setSiblingIndex(index_t index) {
     }
 }
 
-Node *Node::getChildByPath(const std::string &path) const {
-    size_t                     end      = 0;
-    ccstd::vector<std::string> segments = StringUtil::split(path, "/");
-    auto *                     lastNode = const_cast<Node *>(this);
-    for (const std::string &segment : segments) {
+Node *Node::getChildByPath(const ccstd::string &path) const {
+    size_t                       end      = 0;
+    ccstd::vector<ccstd::string> segments = StringUtil::split(path, "/");
+    auto *                       lastNode = const_cast<Node *>(this);
+    for (const ccstd::string &segment : segments) {
         if (segment.empty()) {
             continue;
         }
@@ -995,7 +995,7 @@ void Node::onHierarchyChanged(Node *oldParent) {
 }
 
 /* static */
-//Node *Node::find(const std::string &path, Node *referenceNode /* = nullptr*/) {
+//Node *Node::find(const ccstd::string &path, Node *referenceNode /* = nullptr*/) {
 //    return cc::find(path, referenceNode);
 //}
 

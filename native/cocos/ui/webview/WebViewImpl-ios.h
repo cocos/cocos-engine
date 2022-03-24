@@ -44,18 +44,18 @@ public:
 
     virtual ~WebViewImpl();
 
-    void setJavascriptInterfaceScheme(const std::string &scheme);
+    void setJavascriptInterfaceScheme(const ccstd::string &scheme);
 
-    void loadData(const cc::Data &   data,
-                  const std::string &MIMEType,
-                  const std::string &encoding,
-                  const std::string &baseURL);
+    void loadData(const cc::Data &     data,
+                  const ccstd::string &MIMEType,
+                  const ccstd::string &encoding,
+                  const ccstd::string &baseURL);
 
-    void loadHTMLString(const std::string &string, const std::string &baseURL);
+    void loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL);
 
-    void loadURL(const std::string &url);
+    void loadURL(const ccstd::string &url);
 
-    void loadFile(const std::string &fileName);
+    void loadFile(const ccstd::string &fileName);
 
     void stopLoading();
 
@@ -69,7 +69,7 @@ public:
 
     void goForward();
 
-    void evaluateJS(const std::string &js);
+    void evaluateJS(const ccstd::string &js);
 
     void setScalesPageToFit(const bool scalesPageToFit);
 

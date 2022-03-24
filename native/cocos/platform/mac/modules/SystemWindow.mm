@@ -57,7 +57,7 @@ bool SystemWindow::createWindow(const char *title,
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
-void SystemWindow::copyTextToClipboard(const std::string &text) {
+void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
     [pasteboard clearContents];
     NSString *tmp = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];

@@ -27,12 +27,12 @@ THE SOFTWARE.
 
 namespace cc {
 namespace debug {
-const std::string CONSOLE_LOG   = "log";
-const std::string CONSOLE_WARN  = "warn";
-const std::string CONSOLE_ERROR = "error";
-const std::string CONSOLE_ASSET = "assert";
+const ccstd::string CONSOLE_LOG   = "log";
+const ccstd::string CONSOLE_WARN  = "warn";
+const ccstd::string CONSOLE_ERROR = "error";
+const ccstd::string CONSOLE_ASSET = "assert";
 
-const std::string &getPrefixTag(DebugMode mode) {
+const ccstd::string &getPrefixTag(DebugMode mode) {
     switch (mode) {
         case DebugMode::VERBOSE:
             return CONSOLE_LOG;
@@ -58,9 +58,9 @@ LogLevel getLogLevel(DebugMode mode) {
     }
 }
 
-std::string getTypedFormatter(DebugMode mode, uint32_t id) {
-    const std::string &tag = getPrefixTag(mode);
-    std::string       msg;
+ccstd::string getTypedFormatter(DebugMode mode, uint32_t id) {
+    const ccstd::string &tag = getPrefixTag(mode);
+    ccstd::string        msg;
 #if CC_DEBUG > 0
     if (debugInfos.find(id) == debugInfos.end()) {
         msg = "unknown id";
@@ -76,28 +76,28 @@ std::string getTypedFormatter(DebugMode mode, uint32_t id) {
     return msg;
 }
 
-void printLog(DebugMode mode, const std::string &fmt, cc::any *arr, int paramsLength) {
-    std::string        msg      = fmt;
-    const std::string &prefix   = getPrefixTag(mode);
-    LogLevel           logLevel = getLogLevel(mode);
+void printLog(DebugMode mode, const ccstd::string &fmt, cc::any *arr, int paramsLength) {
+    ccstd::string        msg      = fmt;
+    const ccstd::string &prefix   = getPrefixTag(mode);
+    LogLevel             logLevel = getLogLevel(mode);
 
     size_t pos;
     for (int i = 1; i <= paramsLength; i++) {
         pos                = msg.find('%');
         bool needToReplace = false;
-        if (pos != std::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
+        if (pos != ccstd::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
             needToReplace = true;
         }
 
-        if (arr[i].type() == typeid(const std::string)) {
-            const std::string s = cc::any_cast<const std::string>(arr[i]);
+        if (arr[i].type() == typeid(const ccstd::string)) {
+            const ccstd::string s = cc::any_cast<const ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
                 msg += " " + s;
             }
-        } else if (arr[i].type() == typeid(std::string)) {
-            std::string s = cc::any_cast<std::string>(arr[i]);
+        } else if (arr[i].type() == typeid(ccstd::string)) {
+            ccstd::string s = cc::any_cast<ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
@@ -118,7 +118,7 @@ void printLog(DebugMode mode, const std::string &fmt, cc::any *arr, int paramsLe
                 msg += " " + std::to_string(value);
             }
         } else if (arr[i].type() == typeid(const char *)) {
-            std::string s = cc::any_cast<const char *>(arr[i]);
+            ccstd::string s = cc::any_cast<const char *>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {

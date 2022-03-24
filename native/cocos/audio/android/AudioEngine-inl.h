@@ -27,9 +27,9 @@
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include <functional>
-#include <string>
 #include "base/RefCounted.h"
 #include "base/Utils.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 
 #define MAX_AUDIOINSTANCES 13
@@ -51,7 +51,7 @@ public:
     ~AudioEngineImpl() override;
 
     bool  init();
-    int   play2d(const std::string &filePath, bool loop, float volume);
+    int   play2d(const ccstd::string &filePath, bool loop, float volume);
     void  setVolume(int audioID, float volume);
     void  setLoop(int audioID, bool loop);
     void  pause(int audioID);
@@ -59,14 +59,14 @@ public:
     void  stop(int audioID);
     void  stopAll();
     float getDuration(int audioID);
-    float getDurationFromFile(const std::string &filePath);
+    float getDurationFromFile(const ccstd::string &filePath);
     float getCurrentTime(int audioID);
     bool  setCurrentTime(int audioID, float time);
-    void  setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback);
+    void  setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
 
-    void uncache(const std::string &filePath);
+    void uncache(const ccstd::string &filePath);
     void uncacheAll();
-    void preload(const std::string &filePath, const std::function<void(bool)> &callback);
+    void preload(const ccstd::string &filePath, const std::function<void(bool)> &callback);
 
     void onResume();
     void onPause();
@@ -82,8 +82,8 @@ private:
     SLObjectItf _outputMixObject;
 
     //audioID,AudioInfo
-    ccstd::unordered_map<int, IAudioPlayer *>                                _audioPlayers;
-    ccstd::unordered_map<int, std::function<void(int, const std::string &)>> _callbackMap;
+    ccstd::unordered_map<int, IAudioPlayer *>                                  _audioPlayers;
+    ccstd::unordered_map<int, std::function<void(int, const ccstd::string &)>> _callbackMap;
 
     // UrlAudioPlayers which need to resumed while entering foreground
     ccstd::unordered_map<int, IAudioPlayer *> _urlAudioPlayersNeedResume;

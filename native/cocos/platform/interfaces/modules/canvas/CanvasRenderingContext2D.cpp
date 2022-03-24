@@ -75,7 +75,7 @@ CanvasGradient::CanvasGradient() = default;
 
 CanvasGradient::~CanvasGradient() = default;
 
-void CanvasGradient::addColorStop(float offset, const std::string &color) {
+void CanvasGradient::addColorStop(float offset, const ccstd::string &color) {
     //SE_LOGD("CanvasGradient::addColorStop: %p\n", this);
 }
 
@@ -101,7 +101,7 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
     _delegate->fillRect(x, y, width, height);
 }
 
-void CanvasRenderingContext2D::fillText(const std::string &text, float x, float y, float maxWidth) {
+void CanvasRenderingContext2D::fillText(const ccstd::string &text, float x, float y, float maxWidth) {
     //SE_LOGD("CanvasRenderingContext2D::fillText: %s, offset: (%f, %f), %f\n", text.c_str(), x, y, maxWidth);
     if (text.empty()) {
         return;
@@ -110,7 +110,7 @@ void CanvasRenderingContext2D::fillText(const std::string &text, float x, float 
     _delegate->fillText(text, x, y, maxWidth);
 }
 
-void CanvasRenderingContext2D::strokeText(const std::string &text, float x, float y, float maxWidth) {
+void CanvasRenderingContext2D::strokeText(const ccstd::string &text, float x, float y, float maxWidth) {
     //SE_LOGD("CanvasRenderingContext2D::strokeText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
     if (text.empty()) {
         return;
@@ -119,7 +119,7 @@ void CanvasRenderingContext2D::strokeText(const std::string &text, float x, floa
     _delegate->strokeText(text, x, y, maxWidth);
 }
 
-cc::Size CanvasRenderingContext2D::measureText(const std::string &text) {
+cc::Size CanvasRenderingContext2D::measureText(const ccstd::string &text) {
     //SE_LOGD("CanvasRenderingContext2D::measureText: %s\n", text.c_str());
     auto s = _delegate->measureText(text);
     return cc::Size(s[0], s[1]);
@@ -197,7 +197,7 @@ void CanvasRenderingContext2D::setLineWidth(float lineWidth) {
     _delegate->setLineWidth(lineWidth);
 }
 
-void CanvasRenderingContext2D::setLineCap(const std::string &lineCap) {
+void CanvasRenderingContext2D::setLineCap(const ccstd::string &lineCap) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
@@ -207,7 +207,7 @@ void CanvasRenderingContext2D::setLineCap(const std::string &lineCap) {
 #endif
 }
 
-void CanvasRenderingContext2D::setLineJoin(const std::string &lineJoin) {
+void CanvasRenderingContext2D::setLineJoin(const ccstd::string &lineJoin) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
     _delegate->setLineJoin(lineJoin);
 }
@@ -230,18 +230,18 @@ void CanvasRenderingContext2D::rect(float x, float y, float w, float h) {
 #endif
 }
 
-void CanvasRenderingContext2D::setFont(const std::string &font) {
+void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     if (_font != font) {
         _font = font;
 
-        std::string boldStr;
-        std::string fontName    = "Arial";
-        std::string fontSizeStr = "30";
+        ccstd::string boldStr;
+        ccstd::string fontName    = "Arial";
+        ccstd::string fontSizeStr = "30";
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex                                      re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
-        std::match_results<std::string::const_iterator> results;
+        std::regex                                        re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
             boldStr     = results[1].str();
             fontSizeStr = results[2].str();
@@ -256,19 +256,19 @@ void CanvasRenderingContext2D::setFont(const std::string &font) {
     if (_font != font) {
         _font = font;
 
-        std::string boldStr;
-        std::string fontName    = "Arial";
-        std::string fontSizeStr = "30";
+        ccstd::string boldStr;
+        ccstd::string fontName    = "Arial";
+        ccstd::string fontSizeStr = "30";
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex                                      re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
-        std::match_results<std::string::const_iterator> results;
+        std::regex                                        re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
             boldStr     = results[1].str();
             fontSizeStr = results[2].str();
             fontName    = results[5].str();
         }
-        bool isItalic = font.find("italic", 0) != std::string::npos;
+        bool isItalic = font.find("italic", 0) != ccstd::string::npos;
         auto fontSize = static_cast<float>(atof(fontSizeStr.c_str()));
         //SE_LOGD("CanvasRenderingContext2D::set_font: %s, Size: %f, isBold: %b\n", fontName.c_str(), fontSize, !boldStr.empty());
         _delegate->updateFont(fontName, fontSize, !boldStr.empty(), isItalic, false, false);
@@ -277,54 +277,54 @@ void CanvasRenderingContext2D::setFont(const std::string &font) {
     if (_font != font) {
         _font = font;
 
-        std::string                                     fontName    = "sans-serif";
-        std::string                                     fontSizeStr = "30";
-        std::regex                                      re(R"(\s*((\d+)([\.]\d+)?)px\s+([^\r\n]*))");
-        std::match_results<std::string::const_iterator> results;
+        ccstd::string                                     fontName    = "sans-serif";
+        ccstd::string                                     fontSizeStr = "30";
+        std::regex                                        re(R"(\s*((\d+)([\.]\d+)?)px\s+([^\r\n]*))");
+        std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
             fontSizeStr = results[2].str();
             // support get font name from `60px American` or `60px "American abc-abc_abc"`
             // support get font name contain space,example `times new roman`
             // if regex rule that does not conform to the rules,such as Chinese,it defaults to sans-serif
-            std::match_results<std::string::const_iterator> fontResults;
-            std::regex                                      fontRe(R"(([\w\s-]+|"[\w\s-]+"$))");
-            std::string                                     tmp(results[4].str());
+            std::match_results<ccstd::string::const_iterator> fontResults;
+            std::regex                                        fontRe(R"(([\w\s-]+|"[\w\s-]+"$))");
+            ccstd::string                                     tmp(results[4].str());
             if (std::regex_match(tmp, fontResults, fontRe)) {
                 //fontName = results[4].str();
             }
         }
 
-        bool  isBold   = font.find("bold", 0) != std::string::npos;
-        bool  isItalic = font.find("italic", 0) != std::string::npos;
+        bool  isBold   = font.find("bold", 0) != ccstd::string::npos;
+        bool  isItalic = font.find("italic", 0) != ccstd::string::npos;
         float fontSize = static_cast<float>(atof(fontSizeStr.c_str()));
         //SE_LOGD("CanvasRenderingContext2D::set_font: %s, Size: %f, isBold: %b\n", fontName.c_str(), fontSize, !boldStr.empty());
         _delegate->updateFont(fontName, fontSize, isBold, isItalic, false, false);
     }
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     if (_font != font) {
-        _font                                                       = font;
-        std::string                                     fontName    = "sans-serif";
-        std::string                                     fontSizeStr = "30";
-        std::regex                                      re(R"(\s*((\d+)([\.]\d+)?)px\s+([^\r\n]*))");
-        std::match_results<std::string::const_iterator> results;
+        _font                                                         = font;
+        ccstd::string                                     fontName    = "sans-serif";
+        ccstd::string                                     fontSizeStr = "30";
+        std::regex                                        re(R"(\s*((\d+)([\.]\d+)?)px\s+([^\r\n]*))");
+        std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
             fontSizeStr = results[2].str();
             // support get font name from `60px American` or `60px "American abc-abc_abc"`
             // support get font name contain space,example `times new roman`
             // if regex rule that does not conform to the rules,such as Chinese,it defaults to sans-serif
-            std::match_results<std::string::const_iterator> fontResults;
-            std::regex                                      fontRe(R"(([\w\s-]+|"[\w\s-]+"$))");
-            std::string                                     tmp(results[4].str());
+            std::match_results<ccstd::string::const_iterator> fontResults;
+            std::regex                                        fontRe(R"(([\w\s-]+|"[\w\s-]+"$))");
+            ccstd::string                                     tmp(results[4].str());
             if (std::regex_match(tmp, fontResults, fontRe)) {
                 fontName = results[4].str();
             }
         }
 
         double fontSize    = atof(fontSizeStr.c_str());
-        bool   isBold      = font.find("bold", 0) != std::string::npos;
-        bool   isItalic    = font.find("italic", 0) != std::string::npos;
-        bool   isSmallCaps = font.find("small-caps", 0) != std::string::npos;
-        bool   isOblique   = font.find("oblique", 0) != std::string::npos;
+        bool   isBold      = font.find("bold", 0) != ccstd::string::npos;
+        bool   isItalic    = font.find("italic", 0) != ccstd::string::npos;
+        bool   isSmallCaps = font.find("small-caps", 0) != ccstd::string::npos;
+        bool   isOblique   = font.find("oblique", 0) != ccstd::string::npos;
         //font-style: italic, oblique, normal
         //font-weight: normal, bold
         //font-variant: normal, small-caps
@@ -334,13 +334,13 @@ void CanvasRenderingContext2D::setFont(const std::string &font) {
     if (_font != font) {
         _font = font;
 
-        std::string boldStr;
-        std::string fontName    = "Arial";
-        std::string fontSizeStr = "30";
+        ccstd::string boldStr;
+        ccstd::string fontName    = "Arial";
+        ccstd::string fontSizeStr = "30";
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex                                      re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
-        std::match_results<std::string::const_iterator> results;
+        std::regex                                        re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
             boldStr     = results[1].str();
             fontSizeStr = results[2].str();
@@ -353,7 +353,7 @@ void CanvasRenderingContext2D::setFont(const std::string &font) {
 #endif
 }
 
-void CanvasRenderingContext2D::setTextAlign(const std::string &textAlign) {
+void CanvasRenderingContext2D::setTextAlign(const ccstd::string &textAlign) {
     //SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
     if (textAlign == "left") {
         _delegate->setTextAlign(CanvasTextAlign::LEFT);
@@ -366,7 +366,7 @@ void CanvasRenderingContext2D::setTextAlign(const std::string &textAlign) {
     }
 }
 
-void CanvasRenderingContext2D::setTextBaseline(const std::string &textBaseline) {
+void CanvasRenderingContext2D::setTextBaseline(const ccstd::string &textBaseline) {
     //SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
     if (textBaseline == "top") {
         _delegate->setTextBaseline(CanvasTextBaseline::TOP);
@@ -382,7 +382,7 @@ void CanvasRenderingContext2D::setTextBaseline(const std::string &textBaseline) 
     }
 }
 
-void CanvasRenderingContext2D::setFillStyle(const std::string &fillStyle) {
+void CanvasRenderingContext2D::setFillStyle(const ccstd::string &fillStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
     _delegate->setFillStyle(static_cast<float>(color.r) / 255.0F,
                             static_cast<float>(color.g) / 255.0F,
@@ -391,7 +391,7 @@ void CanvasRenderingContext2D::setFillStyle(const std::string &fillStyle) {
     //SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
-void CanvasRenderingContext2D::setStrokeStyle(const std::string &strokeStyle) {
+void CanvasRenderingContext2D::setStrokeStyle(const ccstd::string &strokeStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
     _delegate->setStrokeStyle(static_cast<float>(color.r) / 255.0F,
                               static_cast<float>(color.g) / 255.0F,
@@ -399,7 +399,7 @@ void CanvasRenderingContext2D::setStrokeStyle(const std::string &strokeStyle) {
                               color.a);
 }
 
-void CanvasRenderingContext2D::setGlobalCompositeOperation(const std::string &globalCompositeOperation) {
+void CanvasRenderingContext2D::setGlobalCompositeOperation(const ccstd::string &globalCompositeOperation) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 

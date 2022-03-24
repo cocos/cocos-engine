@@ -34,9 +34,9 @@
 
 using namespace cc;
 
-static ccstd::unordered_map<std::string, std::string> _fontFamilyNameMap;
+static ccstd::unordered_map<ccstd::string, ccstd::string> _fontFamilyNameMap;
 
-const ccstd::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
+const ccstd::unordered_map<ccstd::string, ccstd::string> &getFontFamilyNameMap() {
     return _fontFamilyNameMap;
 }
 
@@ -47,17 +47,17 @@ static bool JSB_loadFont(se::State &s) {
     if (argc >= 1) {
         s.rval().setNull();
 
-        std::string originalFamilyName;
+        ccstd::string originalFamilyName;
         ok &= seval_to_std_string(args[0], &originalFamilyName);
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: originalFamilyName");
 
-        std::string source;
+        ccstd::string source;
         ok &= seval_to_std_string(args[1], &source);
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: source");
 
-        std::string                                     fontFilePath;
-        std::regex                                      re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
-        std::match_results<std::string::const_iterator> results;
+        ccstd::string                                     fontFilePath;
+        std::regex                                        re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
+        std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(source.cbegin(), source.cend(), results, re)) {
             fontFilePath = results[1].str();
         }

@@ -63,9 +63,9 @@ inline uint32_t getFontIndex(bool bold, bool italic) {
     return index;
 }
 
-inline std::string getFontPath(uint32_t index) {
+inline ccstd::string getFontPath(uint32_t index) {
     // stanley todo: use readable names later.
-    static const std::string UUIDS[DEBUG_FONT_COUNT] = {
+    static const ccstd::string UUIDS[DEBUG_FONT_COUNT] = {
         "0835f102-5471-47a3-9a76-01c07ac9cdb2", //"OpenSans-Regular",
         "b5475517-23b9-4873-bc1a-968d96616081", //"OpenSans-Bold",
         "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", //"OpenSans-Italic",
@@ -222,7 +222,7 @@ void DebugRenderer::destroyInstance() {
 }
 
 void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info) {
-    _device    = device;
+    _device = device;
 
     static const gfx::AttributeList ATTRIBUTES = {
         {"a_position", gfx::Format::RG32F},
@@ -244,7 +244,7 @@ void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info)
     }
 }
 
-void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData* sceneData) {
+void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData) {
     CC_PROFILE(DebugRendererRender);
     if (!_buffer || _buffer->empty()) {
         return;
@@ -288,7 +288,7 @@ void DebugRenderer::destroy() {
     }
 }
 
-void DebugRenderer::addText(const std::string &text, const Vec2 &screenPos, const DebugTextInfo &info) {
+void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info) {
     uint32_t index    = getFontIndex(info.bold, info.italic);
     auto &   fontInfo = _fonts[index];
     auto *   face     = fontInfo.face;

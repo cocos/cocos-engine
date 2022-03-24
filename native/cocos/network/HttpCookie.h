@@ -28,17 +28,17 @@
 #define HTTP_COOKIE_H
 /// @cond DO_NOT_SHOW
 
-#include <string>
+#include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 
 struct CookiesInfo {
-    std::string domain;
-    bool        tailmatch;
-    std::string path;
-    bool        secure;
-    std::string name;
-    std::string value;
-    std::string expires;
+    ccstd::string domain;
+    bool          tailmatch;
+    ccstd::string path;
+    bool          secure;
+    ccstd::string name;
+    ccstd::string value;
+    ccstd::string expires;
 };
 
 class HttpCookie {
@@ -46,14 +46,14 @@ public:
     void readFile();
 
     void writeFile();
-    void setCookieFileName(const std::string &fileName);
+    void setCookieFileName(const ccstd::string &fileName);
 
     const ccstd::vector<CookiesInfo> *getCookies() const;
-    const CookiesInfo *               getMatchCookie(const std::string &url) const;
+    const CookiesInfo *               getMatchCookie(const ccstd::string &url) const;
     void                              updateOrAddCookie(CookiesInfo *cookie);
 
 private:
-    std::string                _cookieFileName;
+    ccstd::string              _cookieFileName;
     ccstd::vector<CookiesInfo> _cookies;
 };
 

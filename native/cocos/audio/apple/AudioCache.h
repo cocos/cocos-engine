@@ -29,7 +29,7 @@
 #import <OpenAL/al.h>
 
 #include <mutex>
-#include <string>
+#include "base/std/container/string.h"
 
 #include "audio/apple/AudioMacros.h"
 #include "base/Macros.h"
@@ -94,7 +94,7 @@ protected:
     State _state;
 
     std::shared_ptr<bool> _isDestroyed;
-    std::string           _fileFullPath;
+    ccstd::string         _fileFullPath;
     unsigned int          _id;
     bool                  _isLoadingFinished;
     bool                  _isSkipReadDataTask;

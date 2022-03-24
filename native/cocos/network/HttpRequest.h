@@ -32,7 +32,7 @@
 #include "base/RefCounted.h"
 
 #include <functional>
-#include <string>
+#include "base/std/container/string.h"
 
 /**
  * @addtogroup network
@@ -128,7 +128,7 @@ public:
      *
      * @param url the string object.
      */
-    inline void setUrl(const std::string &url) {
+    inline void setUrl(const ccstd::string &url) {
         _url = url;
     }
 
@@ -179,7 +179,7 @@ public:
      *
      * @param tag the string object.
      */
-    inline void setTag(const std::string &tag) {
+    inline void setTag(const ccstd::string &tag) {
         _tag = tag;
     }
 
@@ -238,16 +238,16 @@ public:
      *
      * @param pHeaders the string vector of custom-defined headers.
      */
-    inline void setHeaders(const ccstd::vector<std::string> &headers) {
+    inline void setHeaders(const ccstd::vector<ccstd::string> &headers) {
         _headers = headers;
     }
 
     /**
      * Get custom headers.
      *
-     * @return ccstd::vector<std::string> the string vector of custom-defined headers.
+     * @return ccstd::vector<ccstd::string> the string vector of custom-defined headers.
      */
-    inline ccstd::vector<std::string> getHeaders() const {
+    inline ccstd::vector<ccstd::string> getHeaders() const {
         return _headers;
     }
 
@@ -261,14 +261,14 @@ public:
 
 protected:
     // properties
-    Type                       _requestType{Type::UNKNOWN}; /// kHttpRequestGet, kHttpRequestPost or other enums
-    std::string                _url;                        /// target url that this request is sent to
-    ccstd::vector<char>        _requestData;                /// used for POST
-    std::string                _tag;                        /// user defined tag, to identify different requests in response callback
-    ccHttpRequestCallback      _callback;                   /// C++11 style callbacks
-    void *                     _userData{nullptr};          /// You can add your customed data here
-    ccstd::vector<std::string> _headers;                    /// custom http headers
-    float                      _timeoutInSeconds{10.F};
+    Type                         _requestType{Type::UNKNOWN}; /// kHttpRequestGet, kHttpRequestPost or other enums
+    ccstd::string                _url;                        /// target url that this request is sent to
+    ccstd::vector<char>          _requestData;                /// used for POST
+    ccstd::string                _tag;                        /// user defined tag, to identify different requests in response callback
+    ccHttpRequestCallback        _callback;                   /// C++11 style callbacks
+    void *                       _userData{nullptr};          /// You can add your customed data here
+    ccstd::vector<ccstd::string> _headers;                    /// custom http headers
+    float                        _timeoutInSeconds{10.F};
 };
 
 } // namespace network

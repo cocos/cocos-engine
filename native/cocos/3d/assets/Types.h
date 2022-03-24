@@ -26,7 +26,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
+#include "base/std/container/string.h"
 #include "cocos/base/Optional.h"
 #include "core/TypedArray.h"
 namespace cc {
@@ -76,7 +76,7 @@ struct SubMeshMorph {
     /**
      * Attributes to morph.
      */
-    ccstd::vector<std::string> attributes;
+    ccstd::vector<ccstd::string> attributes;
 
     /**
      * Targets.
@@ -104,7 +104,7 @@ struct Morph {
      * Name of each target of each sub-mesh morph.
      * This field is only meaningful if every sub-mesh has the same number of targets.
      */
-    cc::optional<ccstd::vector<std::string>> targetNames;
+    cc::optional<ccstd::vector<ccstd::string>> targetNames;
 };
 
 } // namespace cc

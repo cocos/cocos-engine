@@ -824,7 +824,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera *camera) {
     pipeline->getFrameGraph().addPass<DataLightCulling>(insertPoint++, fgStrHandleClusterCullingPass, lightCullingSetup, lightCullingExec);
 }
 
-String &ClusterLightCulling::getShaderSource(ShaderStrings &sources) {
+ccstd::string &ClusterLightCulling::getShaderSource(ShaderStrings &sources) {
     switch (_device->getGfxAPI()) {
         case gfx::API::GLES2:
             return sources.glsl1;

@@ -42,7 +42,7 @@ class RenderPipeline;
 class RenderQueue;
 
 struct CC_DLL RenderStageInfo {
-    String              name;
+    ccstd::string       name;
     uint                priority = 0;
     uint                tag      = 0;
     RenderQueueDescList renderQueues;
@@ -59,10 +59,10 @@ public:
     virtual void destroy();
     virtual void render(scene::Camera *camera) = 0;
 
-    inline const String &getName() const { return _name; }
-    inline uint          getPriority() const { return _priority; }
-    inline uint          getTag() const { return _tag; }
-    inline RenderFlow *  getFlow() const { return _flow; }
+    inline const ccstd::string &getName() const { return _name; }
+    inline uint                 getPriority() const { return _priority; }
+    inline uint                 getTag() const { return _tag; }
+    inline RenderFlow *         getFlow() const { return _flow; }
 
 protected:
     gfx::Rect _renderArea;
@@ -73,7 +73,7 @@ protected:
     RenderPipeline *             _pipeline = nullptr;
     RenderFlow *                 _flow     = nullptr;
     gfx::Device *                _device   = nullptr;
-    String                       _name;
+    ccstd::string                _name;
     uint                         _priority    = 0;
     uint                         _tag         = 0;
     gfx::ColorList               _clearColors = {{0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}};

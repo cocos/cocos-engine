@@ -50,11 +50,11 @@
 #include <list>
 #include <memory> // for std::shared_ptr
 #include <mutex>
-#include <string>
 #include <thread>
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "base/std/container/queue.h"
+#include "base/std/container/string.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
 
@@ -208,22 +208,22 @@ public:
     ~WebSocketImpl();
 
     bool init(const cc::network::WebSocket::Delegate &delegate,
-              const std::string &                     url,
-              const ccstd::vector<std::string> *      protocols  = nullptr,
-              const std::string &                     caFilePath = "");
+              const ccstd::string &                   url,
+              const ccstd::vector<ccstd::string> *    protocols  = nullptr,
+              const ccstd::string &                   caFilePath = "");
 
-    void                              send(const std::string &message);
+    void                              send(const ccstd::string &message);
     void                              send(const unsigned char *binaryMsg, unsigned int len);
     void                              close();
     void                              closeAsync();
-    void                              closeAsync(int code, const std::string &reason);
+    void                              closeAsync(int code, const ccstd::string &reason);
     cc::network::WebSocket::State     getReadyState() const;
-    const std::string &               getUrl() const;
-    const std::string &               getProtocol() const;
+    const ccstd::string &             getUrl() const;
+    const ccstd::string &             getProtocol() const;
     cc::network::WebSocket::Delegate *getDelegate() const;
 
-    size_t      getBufferedAmount() const;
-    std::string getExtensions() const;
+    size_t        getBufferedAmount() const;
+    ccstd::string getExtensions() const;
 
 private:
     // The following callback functions are invoked in websocket thread
@@ -241,13 +241,13 @@ private:
     cc::network::WebSocket *      _ws;
     cc::network::WebSocket::State _readyState;
     std::mutex                    _readyStateMutex;
-    std::string                   _url;
+    ccstd::string                 _url;
     ccstd::vector<char>           _receivedData;
 
     struct lws *          _wsInstance;
     struct lws_protocols *_lwsProtocols;
-    std::string           _clientSupportedProtocols;
-    std::string           _selectedProtocol;
+    ccstd::string         _clientSupportedProtocols;
+    ccstd::string         _selectedProtocol;
 
     std::shared_ptr<std::atomic<bool>> _isDestroyed;
     cc::network::WebSocket::Delegate * _delegate;
@@ -255,7 +255,7 @@ private:
     std::mutex              _closeMutex;
     std::condition_variable _closeCondition;
 
-    ccstd::vector<std::string> _enabledExtensions;
+    ccstd::vector<ccstd::string> _enabledExtensions;
 
     enum class CloseState {
         NONE,
@@ -265,7 +265,7 @@ private:
     };
     CloseState _closeState;
 
-    std::string _caFilePath;
+    ccstd::string _caFilePath;
 
     friend class WsThreadHelper;
     friend class WebSocketCallbackWrapper;
@@ -286,10 +286,10 @@ static WsThreadHelper *                wsHelper{nullptr};
 static std::atomic_bool                wsPolling{false};
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
-static std::string getFileNameForPath(const std::string &filePath) {
-    std::string  fileName     = filePath;
-    const size_t lastSlashIdx = fileName.find_last_of("\\/");
-    if (std::string::npos != lastSlashIdx) {
+static ccstd::string getFileNameForPath(const ccstd::string &filePath) {
+    ccstd::string fileName     = filePath;
+    const size_t  lastSlashIdx = fileName.find_last_of("\\/");
+    if (ccstd::string::npos != lastSlashIdx) {
         fileName.erase(0, lastSlashIdx + 1);
     }
     return fileName;
@@ -659,9 +659,9 @@ WebSocketImpl::~WebSocketImpl() {
 }
 
 bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
-                         const std::string &                     url,
-                         const ccstd::vector<std::string> *      protocols /* = nullptr*/,
-                         const std::string &                     caFilePath /* = ""*/) {
+                         const ccstd::string &                   url,
+                         const ccstd::vector<ccstd::string> *    protocols /* = nullptr*/,
+                         const ccstd::string &                   caFilePath /* = ""*/) {
     _delegate   = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
     _url        = url;
     _caFilePath = caFilePath;
@@ -730,16 +730,16 @@ size_t WebSocketImpl::getBufferedAmount() const {
     return wsHelper->countBufferedBytes(this);
 }
 
-std::string WebSocketImpl::getExtensions() const {
+ccstd::string WebSocketImpl::getExtensions() const {
     //join vector with ";"
     if (_enabledExtensions.empty()) return "";
-    std::string ret;
+    ccstd::string ret;
     for (const auto &enabledExtension : _enabledExtensions) ret += (enabledExtension + "; ");
     ret += _enabledExtensions[_enabledExtensions.size() - 1];
     return ret;
 }
 
-void WebSocketImpl::send(const std::string &message) {
+void WebSocketImpl::send(const ccstd::string &message) {
     if (_readyState == cc::network::WebSocket::State::OPEN) {
         // In main thread
         auto *data  = new (std::nothrow) cc::network::WebSocket::Data();
@@ -817,7 +817,7 @@ void WebSocketImpl::close() {
     _delegate->onClose(_ws);
 }
 
-void WebSocketImpl::closeAsync(int code, const std::string &reason) {
+void WebSocketImpl::closeAsync(int code, const ccstd::string &reason) {
     lws_close_reason(_wsInstance, static_cast<lws_close_status>(code), reinterpret_cast<unsigned char *>(const_cast<char *>(reason.c_str())), reason.length());
     closeAsync();
 }
@@ -845,11 +845,11 @@ cc::network::WebSocket::State WebSocketImpl::getReadyState() const {
     return _readyState;
 }
 
-const std::string &WebSocketImpl::getUrl() const {
+const ccstd::string &WebSocketImpl::getUrl() const {
     return _url;
 }
 
-const std::string &WebSocketImpl::getProtocol() const {
+const ccstd::string &WebSocketImpl::getProtocol() const {
     return _selectedProtocol;
 }
 
@@ -871,9 +871,9 @@ struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, in
         if (isCAFileExist) {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
             // if ca file is in the apk, try to extract it to writable path
-            std::string writablePath  = fileUtils->getWritablePath();
-            std::string caFileName    = getFileNameForPath(_caFilePath);
-            std::string newCaFilePath = writablePath + caFileName;
+            ccstd::string writablePath  = fileUtils->getWritablePath();
+            ccstd::string caFileName    = getFileNameForPath(_caFilePath);
+            ccstd::string newCaFilePath = writablePath + caFileName;
 
             if (fileUtils->isFileExist(newCaFilePath)) {
                 LOGD("CA file (%s) in writable path exists!", newCaFilePath.c_str());
@@ -881,7 +881,7 @@ struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, in
                 info.ssl_ca_filepath = _caFilePath.c_str();
             } else {
                 if (fileUtils->isFileExist(_caFilePath)) {
-                    std::string fullPath = fileUtils->fullPathForFilename(_caFilePath);
+                    ccstd::string fullPath = fileUtils->fullPathForFilename(_caFilePath);
                     LOGD("Found CA file: %s", fullPath.c_str());
                     if (fullPath[0] != '/') {
                         LOGD("CA file is in APK");
@@ -961,9 +961,9 @@ void WebSocketImpl::onClientOpenConnectionRequest() {
             port = uri.isSecure() ? 443 : 80;
         }
 
-        const std::string &hostName  = uri.getHostName();
-        std::string        path      = uri.getPathEtc();
-        const std::string &authority = uri.getAuthority();
+        const ccstd::string &hostName  = uri.getHostName();
+        ccstd::string        path      = uri.getPathEtc();
+        const ccstd::string &authority = uri.getAuthority();
         if (path.empty()) {
             path = "/";
         }
@@ -1352,14 +1352,14 @@ WebSocket::~WebSocket() {
     delete _impl;
 }
 
-bool WebSocket::init(const Delegate &                  delegate,
-                     const std::string &               url,
-                     const ccstd::vector<std::string> *protocols /* = nullptr*/,
-                     const std::string &               caFilePath /* = ""*/) {
+bool WebSocket::init(const Delegate &                    delegate,
+                     const ccstd::string &               url,
+                     const ccstd::vector<ccstd::string> *protocols /* = nullptr*/,
+                     const ccstd::string &               caFilePath /* = ""*/) {
     return _impl->init(delegate, url, protocols, caFilePath);
 }
 
-void WebSocket::send(const std::string &message) {
+void WebSocket::send(const ccstd::string &message) {
     _impl->send(message);
 }
 
@@ -1374,7 +1374,7 @@ void WebSocket::close() {
 void WebSocket::closeAsync() {
     _impl->closeAsync();
 }
-void WebSocket::closeAsync(int code, const std::string &reason) {
+void WebSocket::closeAsync(int code, const ccstd::string &reason) {
     _impl->closeAsync(code, reason);
 }
 
@@ -1382,7 +1382,7 @@ WebSocket::State WebSocket::getReadyState() const {
     return _impl->getReadyState();
 }
 
-std::string WebSocket::getExtensions() const {
+ccstd::string WebSocket::getExtensions() const {
     return _impl->getExtensions();
 }
 
@@ -1390,11 +1390,11 @@ size_t WebSocket::getBufferedAmount() const {
     return _impl->getBufferedAmount();
 }
 
-const std::string &WebSocket::getUrl() const {
+const ccstd::string &WebSocket::getUrl() const {
     return _impl->getUrl();
 }
 
-const std::string &WebSocket::getProtocol() const {
+const ccstd::string &WebSocket::getProtocol() const {
     return _impl->getProtocol();
 }
 

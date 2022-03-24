@@ -44,9 +44,9 @@
 #endif
 
 #ifndef COM_AUDIOFOCUS_CLASS_NAME
-#define COM_AUDIOFOCUS_CLASS_NAME com_cocos_lib_CocosAudioFocusManager
+    #define COM_AUDIOFOCUS_CLASS_NAME com_cocos_lib_CocosAudioFocusManager
 #endif
-#define JNI_AUDIO(FUNC) JNI_METHOD1(COM_AUDIOFOCUS_CLASS_NAME,FUNC)
+#define JNI_AUDIO(FUNC) JNI_METHOD1(COM_AUDIOFOCUS_CLASS_NAME, FUNC)
 
 using namespace cc; //NOLINT
 
@@ -54,11 +54,11 @@ using namespace cc; //NOLINT
  * Functions invoke from cpp to Java.
  ***********************************************************/
 
-std::string getObbFilePathJNI() {
+ccstd::string getObbFilePathJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getObbFilePath");
 }
 
-int getObbAssetFileDescriptorJNI(const std::string &path, int64_t *startOffset, int64_t *size) {
+int getObbAssetFileDescriptorJNI(const ccstd::string &path, int64_t *startOffset, int64_t *size) {
     JniMethodInfo methodInfo;
     int           fd = 0;
 
@@ -83,27 +83,27 @@ int getObbAssetFileDescriptorJNI(const std::string &path, int64_t *startOffset, 
     return fd;
 }
 
-std::string getCurrentLanguageJNI() {
+ccstd::string getCurrentLanguageJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguage");
 }
 
-std::string getCurrentLanguageCodeJNI() {
+ccstd::string getCurrentLanguageCodeJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguageCode");
 }
 
-std::string getSystemVersionJNI() {
+ccstd::string getSystemVersionJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getSystemVersion");
 }
 
-bool openURLJNI(const std::string &url) {
+bool openURLJNI(const ccstd::string &url) {
     return JniHelper::callStaticBooleanMethod(JCLS_HELPER, "openURL", url);
 }
 
-void copyTextToClipboardJNI(const std::string &text) {
+void copyTextToClipboardJNI(const ccstd::string &text) {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "copyTextToClipboard", text);
 }
 
-std::string getDeviceModelJNI() {
+ccstd::string getDeviceModelJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getDeviceModel");
 }
 
@@ -153,10 +153,8 @@ float *getDeviceMotionValueJNI() {
     return JniHelper::callStaticFloatArrayMethod(JCLS_SENSOR, "getDeviceMotionValue");
 }
 
-
 extern "C" {
-JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv* /*env*/, jclass/* thiz*/, jfloat volumeFactor)
-{
+JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv * /*env*/, jclass /* thiz*/, jfloat volumeFactor) {
     AudioEngine::setVolumeFactor(volumeFactor);
 }
 }

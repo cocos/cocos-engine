@@ -53,8 +53,8 @@ public:
 
     cc::SAXParser *getParser();
 
-    std::string parse(const std::string &path);
-    std::string parseText(const std::string &text);
+    ccstd::string parse(const ccstd::string &path);
+    ccstd::string parseText(const ccstd::string &text);
 
     // implement pure virtual methods of SAXDelegator
     void startElement(void *ctx, const char *name, const char **atts) override;
@@ -63,9 +63,9 @@ public:
 
 private:
     cc::SAXParser _parser;
-    std::string   _result;
+    ccstd::string _result;
     bool          _isStoringCharacters;
-    std::string   _currentValue;
+    ccstd::string _currentValue;
 };
 
 // cc.PlistParser.getInstance()
@@ -89,11 +89,11 @@ static bool js_PlistParser_parse(se::State &s) { // NOLINT(readability-identifie
 
     bool ok = true;
     if (argc == 1) {
-        std::string arg0;
+        ccstd::string arg0;
         ok &= sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-        std::string parsedStr = delegator->parseText(arg0);
+        ccstd::string parsedStr = delegator->parseText(arg0);
         std::replace(parsedStr.begin(), parsedStr.end(), '\n', ' ');
 
         se::Value strVal;
@@ -112,7 +112,7 @@ cc::SAXParser *JSPlistDelegator::getParser() {
     return &_parser;
 }
 
-std::string JSPlistDelegator::parse(const std::string &path) {
+ccstd::string JSPlistDelegator::parse(const ccstd::string &path) {
     _result.clear();
 
     cc::SAXParser parser;
@@ -128,7 +128,7 @@ JSPlistDelegator::~JSPlistDelegator() {
     CC_LOG_INFO("deallocing __JSSAXDelegator: %p", this);
 }
 
-std::string JSPlistDelegator::parseText(const std::string &text) {
+ccstd::string JSPlistDelegator::parseText(const ccstd::string &text) {
     _result.clear();
 
     cc::SAXParser parser;
@@ -144,7 +144,7 @@ void JSPlistDelegator::startElement(void * /*ctx*/, const char *name, const char
     _isStoringCharacters = true;
     _currentValue.clear();
 
-    std::string elementName{name};
+    ccstd::string elementName{name};
 
     auto end = static_cast<int>(_result.size()) - 1;
     if (end >= 0 && _result[end] != '{' && _result[end] != '[' && _result[end] != ':') {
@@ -160,7 +160,7 @@ void JSPlistDelegator::startElement(void * /*ctx*/, const char *name, const char
 
 void JSPlistDelegator::endElement(void * /*ctx*/, const char *name) {
     _isStoringCharacters = false;
-    std::string elementName{name};
+    ccstd::string elementName{name};
 
     if (elementName == "dict") {
         _result += "}";
@@ -178,7 +178,7 @@ void JSPlistDelegator::endElement(void * /*ctx*/, const char *name) {
 }
 
 void JSPlistDelegator::textHandler(void * /*unused*/, const char *ch, int len) {
-    std::string text(ch, 0, len);
+    ccstd::string text(ch, 0, len);
 
     if (_isStoringCharacters) {
         _currentValue += text;
@@ -204,11 +204,11 @@ static bool JSB_localStorageGetItem(se::State &s) { // NOLINT(readability-identi
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
-        bool        ok = true;
-        std::string key;
+        bool          ok = true;
+        ccstd::string key;
         ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
-        std::string value;
+        ccstd::string value;
         ok = localStorageGetItem(key, &value);
         if (ok) {
             s.rval().setString(value);
@@ -228,8 +228,8 @@ static bool JSB_localStorageRemoveItem(const se::State &s) { // NOLINT(readabili
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
-        bool        ok = true;
-        std::string key;
+        bool          ok = true;
+        ccstd::string key;
         ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         localStorageRemoveItem(key);
@@ -245,12 +245,12 @@ static bool JSB_localStorageSetItem(const se::State &s) { // NOLINT(readability-
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 2) {
-        bool        ok = true;
-        std::string key;
+        bool          ok = true;
+        ccstd::string key;
         ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-        std::string value;
+        ccstd::string value;
         ok = sevalue_to_native(args[1], &value);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         localStorageSetItem(key, value);
@@ -283,7 +283,7 @@ static bool JSB_localStorageKey(se::State &s) { // NOLINT(readability-identifier
         int  nIndex = 0;
         ok          = sevalue_to_native(args[0], &nIndex);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
-        std::string value;
+        ccstd::string value;
         localStorageGetKey(nIndex, &value);
         s.rval().setString(value);
         return true;
@@ -328,7 +328,7 @@ static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-i
     localStorageObj->defineFunction("key", _SE(JSB_localStorageKey));
     localStorageObj->defineProperty("length", _SE(JSB_localStorage_getLength), nullptr);
 
-    std::string strFilePath = cc::FileUtils::getInstance()->getWritablePath();
+    ccstd::string strFilePath = cc::FileUtils::getInstance()->getWritablePath();
 #if defined(__QNX__)
     // In the QNX environment, the execution of this statement will not take effect.
     // Not sure why
@@ -440,7 +440,7 @@ static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) { // NO
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        std::string arg0;
+        ccstd::string arg0;
         ok &= sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_measureText : Error processing arguments");
         SE_PRECONDITION2(args[1].isObject(), false, "js_engine_CanvasRenderingContext2D_fillText : no attributes set.");
@@ -488,10 +488,10 @@ static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { //
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 5) {
-        std::string arg0;
-        float       arg1 = 0;
-        float       arg2 = 0;
-        float       arg3 = 0;
+        ccstd::string arg0;
+        float         arg1 = 0;
+        float         arg2 = 0;
+        float         arg3 = 0;
         ok &= sevalue_to_native(args[0], &arg0);
         ok &= sevalue_to_native(args[1], &arg1);
         ok &= sevalue_to_native(args[2], &arg2);
@@ -519,10 +519,10 @@ static bool js_engine_CanvasRenderingContext2D_strokeText(const se::State &s) { 
     size_t      argc = args.size();
     bool        ok   = true;
     if (argc == 5) {
-        std::string arg0;
-        float       arg1 = 0;
-        float       arg2 = 0;
-        float       arg3 = 0;
+        ccstd::string arg0;
+        float         arg1 = 0;
+        float         arg2 = 0;
+        float         arg3 = 0;
         ok &= sevalue_to_native(args[0], &arg0);
         ok &= sevalue_to_native(args[1], &arg1);
         ok &= sevalue_to_native(args[2], &arg2);
@@ -605,8 +605,8 @@ static bool js_engine_FileUtils_listFilesRecursively(const se::State &s) { // NO
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        std::string                arg0;
-        ccstd::vector<std::string> arg1;
+        ccstd::string                arg0;
+        ccstd::vector<ccstd::string> arg1;
         ok &= sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_listFilesRecursively : Error processing arguments");
         cobj->listFilesRecursively(arg0, &arg1);

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <string>
+#include "base/std/container/string.h"
 
 #include "base/Macros.h"
 #include "base/RefCounted.h"
@@ -119,11 +119,11 @@ public:
 
     //cjh    public declare [editorExtrasTag]: unknown;
 
-    Flags       _objFlags{Flags::ZERO};
-    std::string _name;
+    Flags         _objFlags{Flags::ZERO};
+    ccstd::string _name;
 
 protected:
-    explicit CCObject(std::string name = "");
+    explicit CCObject(ccstd::string name = "");
     ~CCObject() override = default;
 
 public:
@@ -138,8 +138,8 @@ public:
      * obj.name = "New Obj";
      * ```
      */
-    inline const std::string &getName() const { return _name; }
-    inline void               setName(const std::string &value) { _name = value; }
+    inline const ccstd::string &getName() const { return _name; }
+    inline void                 setName(const ccstd::string &value) { _name = value; }
 
     /**
      * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
@@ -221,7 +221,7 @@ public:
 
     void destroyImmediate();
 
-    virtual std::string toString() const { return ""; };
+    virtual ccstd::string toString() const { return ""; };
 
 protected:
     virtual bool onPreDestroy() {

@@ -43,7 +43,7 @@ ccstd::vector<cc::scene::IMacroPatch> myPatches{
     {"CC_USE_SKINNING", true},
     {"CC_USE_BAKED_ANIMATION", true}};
 
-const std::string INST_JOINT_ANIM_INFO = "a_jointAnimInfo";
+const ccstd::string INST_JOINT_ANIM_INFO = "a_jointAnimInfo";
 } // namespace
 namespace cc {
 

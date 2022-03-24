@@ -26,10 +26,10 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"
+#include "base/std/container/string.h"
 #include "core/ArrayBuffer.h"
 #include "core/TypedArray.h"
 #include "core/assets/EffectAsset.h"
@@ -142,14 +142,14 @@ public:
      * pass.setUniform(hThreshold, 0.5); // now, albedoScale.w = 0.5
      * ```
      */
-    uint32_t getHandle(const std::string &name, uint32_t offset = 0, gfx::Type targetType = gfx::Type::UNKNOWN) const;
+    uint32_t getHandle(const ccstd::string &name, uint32_t offset = 0, gfx::Type targetType = gfx::Type::UNKNOWN) const;
 
     /**
      * @en Gets the uniform binding with its name
      * @zh 获取指定 uniform 的 binding。
      * @param name The name of target uniform
      */
-    uint32_t getBinding(const std::string &name) const;
+    uint32_t getBinding(const ccstd::string &name) const;
 
     /**
      * @en Sets a vector type uniform value, if a uniform requires frequent update, please use this method.
@@ -223,13 +223,13 @@ public:
      * This method does not support array type uniform.
      * @zh 重置指定（非数组） Uniform 为 [[EffectAsset]] 默认值。
      */
-    void resetUniform(const std::string &name);
+    void resetUniform(const ccstd::string &name);
 
     /**
      * @en Resets the value of the given texture by name to the default value in [[EffectAsset]].
      * @zh 重置指定贴图为 [[EffectAsset]] 默认值。
      */
-    void resetTexture(const std::string &name, index_t index = CC_INVALID_INDEX);
+    void resetTexture(const ccstd::string &name, index_t index = CC_INVALID_INDEX);
 
     /**
      * @en Resets all uniform buffer objects to the default values in [[EffectAsset]]
@@ -261,16 +261,16 @@ public:
     IPassInfoFull getPassInfoFull() const;
 
     // infos
-    inline Root *                                    getRoot() const { return _root; }
-    inline gfx::Device *                             getDevice() const { return _device; }
-    inline IProgramInfo *                            getShaderInfo() const { return _shaderInfo; }
-    gfx::DescriptorSetLayout *                       getLocalSetLayout() const;
-    inline const std::string &                       getProgram() const { return _programName; }
-    inline const Record<std::string, IPropertyInfo> &getProperties() const { return _properties; }
-    inline const MacroRecord &                       getDefines() const { return _defines; }
-    inline MacroRecord &                             getDefines() { return _defines; }
-    inline index_t                                   getPassIndex() const { return _passIndex; }
-    inline index_t                                   getPropertyIndex() const { return _propertyIndex; }
+    inline Root *                                      getRoot() const { return _root; }
+    inline gfx::Device *                               getDevice() const { return _device; }
+    inline IProgramInfo *                              getShaderInfo() const { return _shaderInfo; }
+    gfx::DescriptorSetLayout *                         getLocalSetLayout() const;
+    inline const ccstd::string &                       getProgram() const { return _programName; }
+    inline const Record<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
+    inline const MacroRecord &                         getDefines() const { return _defines; }
+    inline MacroRecord &                               getDefines() { return _defines; }
+    inline index_t                                     getPassIndex() const { return _passIndex; }
+    inline index_t                                     getPropertyIndex() const { return _propertyIndex; }
     // data
     inline const IPassDynamics &           getDynamics() const { return _dynamics; }
     inline const ccstd::vector<IBlockRef> &getBlocks() const { return _blocks; }
@@ -317,17 +317,17 @@ protected:
     IntrusivePtr<gfx::DescriptorSet>         _descriptorSet;
     IntrusivePtr<gfx::PipelineLayout>        _pipelineLayout;
     // internal data
-    index_t                       _passIndex{0};
-    index_t                       _propertyIndex{0};
-    std::string                   _programName;
-    IPassDynamics                 _dynamics;
-    Record<std::string, uint32_t> _propertyHandleMap;
-    IntrusivePtr<ArrayBuffer>     _rootBlock;
-    ccstd::vector<IBlockRef>      _blocks; // Point to position in _rootBlock
+    index_t                         _passIndex{0};
+    index_t                         _propertyIndex{0};
+    ccstd::string                   _programName;
+    IPassDynamics                   _dynamics;
+    Record<ccstd::string, uint32_t> _propertyHandleMap;
+    IntrusivePtr<ArrayBuffer>       _rootBlock;
+    ccstd::vector<IBlockRef>        _blocks; // Point to position in _rootBlock
 
     IProgramInfo *                                           _shaderInfo; // weakref to template of ProgramLib
     MacroRecord                                              _defines;
-    Record<std::string, IPropertyInfo>                       _properties;
+    Record<ccstd::string, IPropertyInfo>                     _properties;
     IntrusivePtr<gfx::Shader>                                _shader;
     gfx::BlendState                                          _blendState{};
     gfx::DepthStencilState                                   _depthStencilState{};
@@ -335,7 +335,7 @@ protected:
     pipeline::RenderPriority                                 _priority{pipeline::RenderPriority::DEFAULT};
     pipeline::RenderPassStage                                _stage{pipeline::RenderPassStage::DEFAULT};
     uint32_t                                                 _phase{0};
-    std::string                                              _phaseString;
+    ccstd::string                                            _phaseString;
     gfx::PrimitiveMode                                       _primitive{gfx::PrimitiveMode::TRIANGLE_LIST};
     BatchingSchemes                                          _batchingScheme{BatchingSchemes::NONE};
     gfx::DynamicStateFlagBit                                 _dynamicStates{gfx::DynamicStateFlagBit::NONE};

@@ -31,11 +31,11 @@
 namespace cc {
 
 //cjh TODO:
-std::string getAssetUrlWithUuid(const std::string &uuid, bool isNative, const std::string &nativeExt, const std::string &nativeName = "") { //NOLINT
+ccstd::string getAssetUrlWithUuid(const ccstd::string &uuid, bool isNative, const ccstd::string &nativeExt, const ccstd::string &nativeName = "") { //NOLINT
     return "";
 }
 
-std::string Asset::getNativeUrl() const {
+ccstd::string Asset::getNativeUrl() const {
     if (_nativeUrl.empty()) {
         if (_native.empty()) {
             return "";
@@ -57,7 +57,7 @@ std::string Asset::getNativeUrl() const {
     }
     return _nativeUrl;
 }
-Asset::Asset() = default;
+Asset::Asset()  = default;
 Asset::~Asset() = default;
 
 NativeDep Asset::getNativeDep() const {
@@ -67,7 +67,7 @@ NativeDep Asset::getNativeDep() const {
     return NativeDep();
 }
 
-void Asset::setRawAsset(const std::string &filename, bool inLibrary /* = true*/) {
+void Asset::setRawAsset(const ccstd::string &filename, bool inLibrary /* = true*/) {
     if (inLibrary) {
         _native = filename;
     } else {
@@ -89,7 +89,7 @@ void Asset::decAssetRef(bool autoRelease /* = true*/) {
     }
 }
 
-void Asset::initDefault(const cc::optional<std::string> &uuid) {
+void Asset::initDefault(const cc::optional<ccstd::string> &uuid) {
     if (uuid.has_value()) {
         _uuid = uuid.value();
     }

@@ -26,7 +26,7 @@
 #pragma once
 
 #include <functional>
-#include <string>
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
@@ -233,7 +233,7 @@ public:
 class CustomEvent : public OSEvent {
 public:
     CONSTRUCT_EVENT(CustomEvent, OSEventType::CUSTOM_OSEVENT)
-    std::string name;
+    ccstd::string name;
     union {
         void *  ptrVal;
         int32_t longVal;
@@ -286,9 +286,9 @@ public:
     static void dispatchRecreateWindowEvent();
 
     using CustomEventListener = std::function<void(const CustomEvent &)>;
-    static uint32_t addCustomEventListener(const std::string &eventName, const CustomEventListener &listener);
-    static void     removeCustomEventListener(const std::string &eventName, uint32_t listenerID);
-    static void     removeAllCustomEventListeners(const std::string &eventName);
+    static uint32_t addCustomEventListener(const ccstd::string &eventName, const CustomEventListener &listener);
+    static void     removeCustomEventListener(const ccstd::string &eventName, uint32_t listenerID);
+    static void     removeAllCustomEventListeners(const ccstd::string &eventName);
     static void     removeAllEventListeners();
     static void     dispatchCustomEvent(const CustomEvent &event);
 
@@ -300,8 +300,8 @@ private:
         uint32_t            listenerID;
         struct Node *       next = nullptr;
     };
-    static ccstd::unordered_map<std::string, Node *> listeners;
-    static uint32_t                                  hashListenerId; //simple increment hash
+    static ccstd::unordered_map<ccstd::string, Node *> listeners;
+    static uint32_t                                    hashListenerId; //simple increment hash
 };
 
 } // end of namespace cc

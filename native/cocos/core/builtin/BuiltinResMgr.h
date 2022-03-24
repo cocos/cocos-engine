@@ -47,11 +47,11 @@ public:
     bool        initBuiltinRes(gfx::Device *device);
     inline bool isInitialized() const { return _isInitialized; }
 
-    void   addAsset(const std::string &uuid, Asset *asset);
-    Asset *getAsset(const std::string &uuid);
+    void   addAsset(const ccstd::string &uuid, Asset *asset);
+    Asset *getAsset(const ccstd::string &uuid);
 
     template <typename T, typename Enabled = std::enable_if_t<std::is_base_of<Asset, T>::value>>
-    T *get(const std::string &uuid) {
+    T *get(const ccstd::string &uuid) {
         return static_cast<T *>(getAsset(uuid));
     }
 
@@ -61,15 +61,15 @@ private:
 
     void initMaterials();
     void tryCompileAllPasses();
-    void initTexture2DWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
-    void initTextureCubeWithUuid(const std::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
+    void initTexture2DWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
+    void initTextureCubeWithUuid(const ccstd::string &uuid, const uint8_t *data, size_t dataBytes, uint32_t width, uint32_t height);
 
     static BuiltinResMgr *instance;
 
-    gfx::Device *                            _device{nullptr};
-    Record<std::string, IntrusivePtr<Asset>> _resources;
-    ccstd::vector<IntrusivePtr<Material>>    _materialsToBeCompiled;
-    bool                                     _isInitialized{false};
+    gfx::Device *                              _device{nullptr};
+    Record<ccstd::string, IntrusivePtr<Asset>> _resources;
+    ccstd::vector<IntrusivePtr<Material>>      _materialsToBeCompiled;
+    bool                                       _isInitialized{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BuiltinResMgr);
 };

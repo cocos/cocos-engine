@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <string>
 #include "base/Ptr.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 #include "cocos/base/Variant.h"
@@ -57,7 +57,7 @@ struct IMaterialInfo {
      * @zh
      * 这个材质将使用的 EffectAsset，通过 effect 名指定，和 `effectAsset` 至少要指定一个。
      */
-    cc::optional<std::string> effectName;
+    cc::optional<ccstd::string> effectName;
     /**
      * @en
      * The index of the technique to use.
@@ -110,7 +110,7 @@ public:
     void initialize(const IMaterialInfo &info);
     void reset(const IMaterialInfo &info);
 
-    void initDefault(const cc::optional<std::string> &uuid) override;
+    void initDefault(const cc::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
     /**
@@ -173,31 +173,31 @@ public:
      * @param val The target value.
      * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
-    void setProperty(const std::string &name, const MaterialPropertyVariant &val, index_t passIdx = CC_INVALID_INDEX);
+    void setProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx = CC_INVALID_INDEX);
 
-    void setPropertyFloat32(const std::string &name, float val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyInt32(const std::string &name, int32_t val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec2(const std::string &name, const Vec2 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec3(const std::string &name, const Vec3 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec4(const std::string &name, const Vec4 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyColor(const std::string &name, const Color &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyMat3(const std::string &name, const Mat3 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyMat4(const std::string &name, const Mat4 &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyQuaternion(const std::string &name, const Quaternion &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyTextureBase(const std::string &name, TextureBase *val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyGFXTexture(const std::string &name, gfx::Texture *val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyFloat32(const ccstd::string &name, float val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyInt32(const ccstd::string &name, int32_t val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec2(const ccstd::string &name, const Vec2 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec3(const ccstd::string &name, const Vec3 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec4(const ccstd::string &name, const Vec4 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyColor(const ccstd::string &name, const Color &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyMat3(const ccstd::string &name, const Mat3 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyMat4(const ccstd::string &name, const Mat4 &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyQuaternion(const ccstd::string &name, const Quaternion &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyTextureBase(const ccstd::string &name, TextureBase *val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyGFXTexture(const ccstd::string &name, gfx::Texture *val, index_t passIdx = CC_INVALID_INDEX);
 
-    void setPropertyFloat32Array(const std::string &name, const ccstd::vector<float> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyInt32Array(const std::string &name, const ccstd::vector<int32_t> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec2Array(const std::string &name, const ccstd::vector<Vec2> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec3Array(const std::string &name, const ccstd::vector<Vec3> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyVec4Array(const std::string &name, const ccstd::vector<Vec4> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyColorArray(const std::string &name, const ccstd::vector<cc::Color> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyMat3Array(const std::string &name, const ccstd::vector<Mat3> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyMat4Array(const std::string &name, const ccstd::vector<Mat4> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyQuaternionArray(const std::string &name, const ccstd::vector<Quaternion> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyTextureBaseArray(const std::string &name, const ccstd::vector<TextureBase *> &val, index_t passIdx = CC_INVALID_INDEX);
-    void setPropertyGFXTextureArray(const std::string &name, const ccstd::vector<gfx::Texture *> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyFloat32Array(const ccstd::string &name, const ccstd::vector<float> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyInt32Array(const ccstd::string &name, const ccstd::vector<int32_t> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec2Array(const ccstd::string &name, const ccstd::vector<Vec2> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec3Array(const ccstd::string &name, const ccstd::vector<Vec3> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyVec4Array(const ccstd::string &name, const ccstd::vector<Vec4> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyColorArray(const ccstd::string &name, const ccstd::vector<cc::Color> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyMat3Array(const ccstd::string &name, const ccstd::vector<Mat3> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyMat4Array(const ccstd::string &name, const ccstd::vector<Mat4> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyQuaternionArray(const ccstd::string &name, const ccstd::vector<Quaternion> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyTextureBaseArray(const ccstd::string &name, const ccstd::vector<TextureBase *> &val, index_t passIdx = CC_INVALID_INDEX);
+    void setPropertyGFXTextureArray(const ccstd::string &name, const ccstd::vector<gfx::Texture *> &val, index_t passIdx = CC_INVALID_INDEX);
 
     /**
      * @en
@@ -211,7 +211,7 @@ public:
      * @param name The property or uniform name.
      * @param passIdx The target pass index. If not specified, return the first found value in all passes.
      */
-    const MaterialPropertyVariant *getProperty(const std::string &name, index_t passIdx = CC_INVALID_INDEX) const;
+    const MaterialPropertyVariant *getProperty(const ccstd::string &name, index_t passIdx = CC_INVALID_INDEX) const;
 
     /**
      * @en Copy the target material, with optional overrides.
@@ -237,7 +237,7 @@ public:
     ccstd::vector<PassOverrides> _states;
 
     /* @serializable */
-    ccstd::vector<Record<std::string, MaterialPropertyVariant>> _props;
+    ccstd::vector<Record<ccstd::string, MaterialPropertyVariant>> _props;
     //
 
 protected:
@@ -266,7 +266,7 @@ public:
      * @en Name of the current [[EffectAsset]].
      * @zh 当前使用的 [[EffectAsset]] 资源名。
      */
-    inline std::string getEffectName() const {
+    inline ccstd::string getEffectName() const {
         return _effectAsset ? _effectAsset->getName() : "";
     }
 
@@ -316,7 +316,7 @@ public:
 
 protected:
     void update(bool keepProps = true);
-    bool uploadProperty(scene::Pass *pass, const std::string &name, const MaterialPropertyVariant &val);
+    bool uploadProperty(scene::Pass *pass, const ccstd::string &name, const MaterialPropertyVariant &val);
     void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, index_t index = CC_INVALID_INDEX);
 
     template <typename T1, typename T2>

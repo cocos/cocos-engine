@@ -25,15 +25,15 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <string>
 #include "base/Any.h"
 #include "base/Log.h"
+#include "base/std/container/string.h"
 #include "core/builtin/DebugInfos.h"
 
 namespace cc {
 namespace debug {
 
-const std::string  ERROR_MAP_URL{"https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md"};
+const ccstd::string ERROR_MAP_URL{"https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md"};
 
 enum class DebugMode {
 
@@ -141,7 +141,7 @@ void error(cc::any message, Args... optionalParams);
  */
 
 template <typename... Args>
-void _assert(cc::any value, std::string message, Args... optionalParams); // NOLINT //assert is a reserved word
+void _assert(cc::any value, ccstd::string message, Args... optionalParams); // NOLINT //assert is a reserved word
 
 /**
  * @en Outputs a message at the "debug" log level.
@@ -157,7 +157,7 @@ void resetDebugSetting(DebugMode mode);
  * @zh 通过 error id 和必要的参数来获取错误信息。
  */
 template <typename... Args>
-std::string getError(uint32_t errorId, Args... param);
+ccstd::string getError(uint32_t errorId, Args... param);
 
 /**
  * @en Returns whether or not to display the FPS and debug information.
@@ -172,9 +172,9 @@ bool isDisplayStats();
 
 void setDisplayStats(bool displayStats);
 
-std::string getTypedFormatter(DebugMode mode, uint32_t id);
+ccstd::string getTypedFormatter(DebugMode mode, uint32_t id);
 
-const std::string &getPrefixTag(DebugMode mode);
+const ccstd::string &getPrefixTag(DebugMode mode);
 
 LogLevel getLogLevel(DebugMode mode);
 
@@ -183,37 +183,37 @@ T unpackParams(T value) {
     return value;
 }
 
-void printLog(DebugMode mode, const std::string &fmt, cc::any *arr, int paramsLength);
+void printLog(DebugMode mode, const ccstd::string &fmt, cc::any *arr, int paramsLength);
 
 template <typename... Args>
 void logID(uint32_t id, Args... optionalParams) {
-    std::string       msg    = getTypedFormatter(DebugMode::VERBOSE, id);
-    int         size  = sizeof...(optionalParams);
-    cc::any     arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::string msg   = getTypedFormatter(DebugMode::VERBOSE, id);
+    int           size  = sizeof...(optionalParams);
+    cc::any       arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::VERBOSE, msg, arr, size);
 }
 
 template <typename... Args>
 void warnID(uint32_t id, Args... optionalParams) {
-    std::string       msg    = getTypedFormatter(DebugMode::WARN, id);
-    int         size  = sizeof...(optionalParams);
-    cc::any     arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::string msg   = getTypedFormatter(DebugMode::WARN, id);
+    int           size  = sizeof...(optionalParams);
+    cc::any       arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::WARN, msg, arr, size);
 }
 
 template <typename... Args>
 void errorID(uint32_t id, Args... optionalParams) {
-    std::string msg   = getTypedFormatter(DebugMode::ERROR_MODE, id);
-    int         size  = sizeof...(optionalParams);
-    cc::any     arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::string msg   = getTypedFormatter(DebugMode::ERROR_MODE, id);
+    int           size  = sizeof...(optionalParams);
+    cc::any       arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::ERROR_MODE, msg, arr, size);
 }
 
 template <typename... Args>
 void assertID(uint32_t id, Args... optionalParams) {
-    std::string msg   = getTypedFormatter(DebugMode::INFO, id);
-    int         size  = sizeof...(optionalParams);
-    cc::any     arr[] = {0, unpackParams(optionalParams)...};
+    ccstd::string msg   = getTypedFormatter(DebugMode::INFO, id);
+    int           size  = sizeof...(optionalParams);
+    cc::any       arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::INFO, msg, arr, size);
 }
 

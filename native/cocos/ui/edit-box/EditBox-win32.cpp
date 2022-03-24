@@ -84,7 +84,7 @@ void getTextInputCallback() {
     }
 }
 
-void callJSFunc(const std::string &type, const std::string &text) {
+void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
     getTextInputCallback();
 
     se::AutoHandleScope scope;
@@ -94,19 +94,19 @@ void callJSFunc(const std::string &type, const std::string &text) {
     g_textInputCallback.toObject()->call(args, nullptr);
 }
 
-std::string getText(HWND hwnd) {
+ccstd::string getText(HWND hwnd) {
     int    length = GetWindowTextLength(hwnd);
     LPWSTR str    = (LPWSTR)malloc(sizeof(WCHAR) * (length + 1));
     GetWindowText(hwnd, str, length + 1);
 
     std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
-    std::string                                      ret(convert.to_bytes(str));
+    ccstd::string                                    ret(convert.to_bytes(str));
     free(str);
 
     return ret;
 }
 
-std::wstring str2ws(const std::string &text) {
+std::wstring str2ws(const ccstd::string &text) {
     if (text.empty())
         return std::wstring();
 

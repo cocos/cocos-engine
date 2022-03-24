@@ -98,8 +98,8 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     }
     _bindingMappings.flexibleSet = _bindingMappingInfo.setIndices.back();
 
-    String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
-    _extensions   = StringUtil::split(extStr, " ");
+    ccstd::string extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
+    _extensions          = StringUtil::split(extStr, " ");
 
     initFormatFeature();
 
@@ -114,14 +114,14 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         _features[toNumber(Feature::COMPUTE_SHADER)] = true;
     }
 
-    String fbfLevelStr = "NONE";
+    ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
-        String nonCoherent = "framebuffer_fetch_non";
+        ccstd::string nonCoherent = "framebuffer_fetch_non";
 
         auto it = std::find_if(_extensions.begin(), _extensions.end(), [&nonCoherent](auto &ext) {
-            return ext.find(nonCoherent) != String::npos;
+            return ext.find(nonCoherent) != ccstd::string::npos;
         });
 
         if (it != _extensions.end()) {
@@ -152,7 +152,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     }
 #endif
 
-    String compressedFmts;
+    ccstd::string compressedFmts;
 
     if (getFormatFeatures(Format::ETC_RGB8) != FormatFeature::NONE) {
         compressedFmts += "etc1 ";

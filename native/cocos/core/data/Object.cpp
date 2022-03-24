@@ -53,7 +53,7 @@ void CCObject::deferredDestroy() {
     }
 }
 
-CCObject::CCObject(std::string name /* = ""*/)
+CCObject::CCObject(ccstd::string name /* = ""*/)
 : _name(std::move(name)) {
 }
 

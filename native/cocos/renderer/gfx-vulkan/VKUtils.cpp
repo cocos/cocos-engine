@@ -346,7 +346,7 @@ SurfaceTransform mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform) {
     return SurfaceTransform::IDENTITY;
 }
 
-String mapVendorName(uint32_t vendorID) {
+ccstd::string mapVendorName(uint32_t vendorID) {
     switch (vendorID) {
         case 0x1002: return "Advanced Micro Devices, Inc.";
         case 0x1010: return "Imagination Technologies";

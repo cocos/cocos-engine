@@ -28,8 +28,8 @@
 
 #pragma once
 #include <memory>
-#include <string>
 #include "Font.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 
@@ -71,7 +71,7 @@ private:
  */
 class FreeTypeFont : public Font {
 public:
-    explicit FreeTypeFont(const std::string &path);
+    explicit FreeTypeFont(const ccstd::string &path);
     ~FreeTypeFont() override           = default;
     FreeTypeFont(const FreeTypeFont &) = delete;
     FreeTypeFont(FreeTypeFont &&)      = delete;

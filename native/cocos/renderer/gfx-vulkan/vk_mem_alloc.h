@@ -1367,7 +1367,7 @@ to be valid for whole lifetime of the allocation. You can free it after the call
 VkImageCreateInfo imageInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
 // Fill imageInfo...
 
-std::string imageName = "Texture: ";
+ccstd::string imageName = "Texture: ";
 imageName += fileName;
 
 VmaAllocationCreateInfo allocCreateInfo = {};
@@ -3401,9 +3401,9 @@ VMA_CALL_PRE VkBool32 VMA_CALL_POST vmaTouchAllocation(
 
 If the allocation was created with VMA_ALLOCATION_CREATE_USER_DATA_COPY_STRING_BIT,
 pUserData must be either null, or pointer to a null-terminated string. The function
-makes local copy of the string and sets it as allocation's `pUserData`. String
+makes local copy of the string and sets it as allocation's `pUserData`. ccstd::string
 passed as pUserData doesn't need to be valid for whole lifetime of the allocation -
-you can free it after this call. String previously pointed by allocation's
+you can free it after this call. ccstd::string previously pointed by allocation's
 pUserData is freed from memory.
 
 If the flag was not used, the value of pointer `pUserData` is just copied to
@@ -14475,8 +14475,8 @@ void VmaRecorder::GetBasicParams(CallParams &outParams) {
     std::thread::id   thread_id = std::this_thread::get_id();
     std::stringstream thread_id_to_string_converter;
     thread_id_to_string_converter << thread_id;
-    std::string thread_id_as_string = thread_id_to_string_converter.str();
-    outParams.threadId              = static_cast<uint32_t>(std::stoi(thread_id_as_string.c_str()));
+    ccstd::string thread_id_as_string = thread_id_to_string_converter.str();
+    outParams.threadId                = static_cast<uint32_t>(std::stoi(thread_id_as_string.c_str()));
     #endif
 
     auto current_time = std::chrono::high_resolution_clock::now();

@@ -55,7 +55,7 @@ bool SystemWindow::createWindow(const char *title,
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
-void SystemWindow::copyTextToClipboard(const std::string &text) {
+void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
     copyTextToClipboardJNI(text);
 }
 

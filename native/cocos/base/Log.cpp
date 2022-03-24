@@ -27,7 +27,7 @@
 
 #include <cstdarg>
 #include <ctime>
-#include <string>
+#include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -60,10 +60,10 @@ LogLevel Log::slogLevel = LogLevel::LEVEL_DEBUG;
 LogLevel Log::slogLevel = LogLevel::INFO;
 #endif
 
-FILE *                           Log::slogFile = nullptr;
-const ccstd::vector<std::string> LOG_LEVEL_DESCS{"FATAL", "ERROR", "WARN", "INFO", "DEBUG"};
+FILE *                             Log::slogFile = nullptr;
+const ccstd::vector<ccstd::string> LOG_LEVEL_DESCS{"FATAL", "ERROR", "WARN", "INFO", "DEBUG"};
 
-void Log::setLogFile(const std::string &filename) {
+void Log::setLogFile(const ccstd::string &filename) {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     if (slogFile) {
         fclose(slogFile);
@@ -72,7 +72,7 @@ void Log::setLogFile(const std::string &filename) {
     slogFile = fopen(filename.c_str(), "w");
 
     if (slogFile) {
-        std::string msg;
+        ccstd::string msg;
         msg += "------------------------------------------------------\n";
 
         struct tm *tm_time;

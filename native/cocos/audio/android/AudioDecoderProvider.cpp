@@ -26,17 +26,17 @@
 #define LOG_TAG "AudioDecoderProvider"
 
 #include "audio/android/AudioDecoderProvider.h"
-#include "audio/android/AudioDecoderSLES.h"
-#include "audio/android/AudioDecoderOgg.h"
 #include "audio/android/AudioDecoderMp3.h"
+#include "audio/android/AudioDecoderOgg.h"
+#include "audio/android/AudioDecoderSLES.h"
 #include "audio/android/AudioDecoderWav.h"
 #include "platform/FileUtils.h"
 
 namespace cc {
 
-AudioDecoder *AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
-    AudioDecoder *decoder = nullptr;
-    std::string extension = FileUtils::getInstance()->getFileExtension(url);
+AudioDecoder *AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
+    AudioDecoder *decoder   = nullptr;
+    ccstd::string extension = FileUtils::getInstance()->getFileExtension(url);
     ALOGV("url:%s, extension:%s", url.c_str(), extension.c_str());
     if (extension == ".ogg") {
         decoder = new AudioDecoderOgg();

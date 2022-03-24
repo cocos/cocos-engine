@@ -74,11 +74,11 @@ public:
     using Int8Reader    = int8_t (DataView::*)(uint32_t) const;
     using UInt8Reader   = uint8_t (DataView::*)(uint32_t) const;
     using ReaderVariant = cc::variant<Int32Reader, UInt32Reader, Int16Reader, UInt16Reader, Int8Reader, UInt8Reader>;
-    static ccstd::unordered_map<std::string, ReaderVariant> intReaderMap;
-    int32_t                                                 readInt(ReaderVariant &readerVariant, uint32_t offset);
+    static ccstd::unordered_map<ccstd::string, ReaderVariant> intReaderMap;
+    int32_t                                                   readInt(ReaderVariant &readerVariant, uint32_t offset);
 
     using IntWritter = void (DataView::*)(uint32_t, uint32_t);
-    static ccstd::unordered_map<std::string, IntWritter> intWritterMap;
+    static ccstd::unordered_map<ccstd::string, IntWritter> intWritterMap;
 
 private:
     ArrayBuffer::Ptr _buffer;

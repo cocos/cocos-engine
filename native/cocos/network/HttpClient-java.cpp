@@ -46,21 +46,21 @@ namespace cc {
 
 namespace network {
 
-using HttpRequestHeaders     = ccstd::vector<std::string>;
+using HttpRequestHeaders     = ccstd::vector<ccstd::string>;
 using HttpRequestHeadersIter = HttpRequestHeaders::iterator;
-using HttpCookies            = ccstd::vector<std::string>;
+using HttpCookies            = ccstd::vector<ccstd::string>;
 using HttpCookiesIter        = HttpCookies::iterator;
 
 static HttpClient *gHttpClient = nullptr; // pointer to singleton
 
 struct CookiesInfo {
-    std::string domain;
-    bool        tailmatch;
-    std::string path;
-    bool        secure;
-    std::string key;
-    std::string value;
-    std::string expires;
+    ccstd::string domain;
+    bool          tailmatch;
+    ccstd::string path;
+    bool          secure;
+    ccstd::string key;
+    ccstd::string value;
+    ccstd::string expires;
 };
 
 //static size_t writeData(void *ptr, size_t size, size_t nmemb, void *stream)
@@ -126,8 +126,8 @@ public:
                 if (-1 == pos || pos >= len) {
                     continue;
                 }
-                std::string str1 = header.substr(0, pos);
-                std::string str2 = header.substr(pos + 1, len - pos - 1);
+                ccstd::string str1 = header.substr(0, pos);
+                ccstd::string str2 = header.substr(pos + 1, len - pos - 1);
                 addRequestHeader(str1.c_str(), str2.c_str());
             }
         }
@@ -357,11 +357,11 @@ public:
         return header;
     }
 
-    const std::string &getCookieFileName() const {
+    const ccstd::string &getCookieFileName() const {
         return _cookieFileName;
     }
 
-    void setCookieFileName(std::string &filename) { //NOLINT
+    void setCookieFileName(ccstd::string &filename) { //NOLINT
         _cookieFileName = filename;
     }
 
@@ -370,7 +370,7 @@ public:
     }
 
 private:
-    void createHttpURLConnection(const std::string &url) {
+    void createHttpURLConnection(const ccstd::string &url) {
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
@@ -413,7 +413,7 @@ private:
 
         _cookieFileName = FileUtils::getInstance()->fullPathForFilename(_client->getCookieFilename());
 
-        std::string cookiesInfo = FileUtils::getInstance()->getStringFromFile(_cookieFileName);
+        ccstd::string cookiesInfo = FileUtils::getInstance()->getStringFromFile(_cookieFileName);
 
         if (cookiesInfo.empty()) {
             return;
@@ -423,7 +423,7 @@ private:
         cookiesVec.clear();
 
         std::stringstream stream(cookiesInfo);
-        std::string       item;
+        ccstd::string     item;
         while (std::getline(stream, item, '\n')) {
             cookiesVec.push_back(item);
         }
@@ -436,7 +436,7 @@ private:
         cookiesInfoVec.clear();
 
         for (auto &cookies : cookiesVec) {
-            if (cookies.find("#HttpOnly_") != std::string::npos) {
+            if (cookies.find("#HttpOnly_") != ccstd::string::npos) {
                 cookies = cookies.substr(10);
             }
 
@@ -444,10 +444,10 @@ private:
                 continue;
             }
 
-            CookiesInfo                co;
-            std::stringstream          streamInfo(cookies);
-            std::string                item;
-            ccstd::vector<std::string> elems;
+            CookiesInfo                  co;
+            std::stringstream            streamInfo(cookies);
+            ccstd::string                item;
+            ccstd::vector<ccstd::string> elems;
 
             while (std::getline(streamInfo, item, '\t')) {
                 elems.push_back(item);
@@ -466,11 +466,11 @@ private:
             cookiesInfoVec.push_back(co);
         }
 
-        std::string sendCookiesInfo;
-        int         cookiesCount = 0;
+        ccstd::string sendCookiesInfo;
+        int           cookiesCount = 0;
         for (auto &cookieInfo : cookiesInfoVec) {
-            if (_url.find(cookieInfo.domain) != std::string::npos) {
-                std::string keyValue = cookieInfo.key;
+            if (_url.find(cookieInfo.domain) != ccstd::string::npos) {
+                ccstd::string keyValue = cookieInfo.key;
                 keyValue.append("=");
                 keyValue.append(cookieInfo.value);
                 if (cookiesCount != 0) {
@@ -505,7 +505,7 @@ private:
             return;
         }
 
-        std::string fullpath = FileUtils::getInstance()->fullPathForFilename(_client->getSSLVerification());
+        ccstd::string fullpath = FileUtils::getInstance()->fullPathForFilename(_client->getSSLVerification());
 
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
@@ -543,9 +543,9 @@ private:
         if (nullptr == jstr) {
             return nullptr;
         }
-        std::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, jstr);
-        size_t      size     = strValue.size() + 1;
-        char *      retVal   = static_cast<char *>(malloc(size));
+        ccstd::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, jstr);
+        size_t        size     = strValue.size() + 1;
+        char *        retVal   = static_cast<char *>(malloc(size));
         if (retVal == nullptr) {
             return nullptr;
         }
@@ -567,18 +567,18 @@ private:
         return len;
     }
 
-    const std::string &getCookieString() const {
+    const ccstd::string &getCookieString() const {
         return _responseCookies;
     }
 
 private: // NOLINT(readability-redundant-access-specifiers)
-    HttpClient *_client;
-    jobject     _httpURLConnection;
-    std::string _requestmethod;
-    std::string _responseCookies;
-    std::string _cookieFileName;
-    std::string _url;
-    int         _contentLength;
+    HttpClient *  _client;
+    jobject       _httpURLConnection;
+    ccstd::string _requestmethod;
+    ccstd::string _responseCookies;
+    ccstd::string _cookieFileName;
+    ccstd::string _url;
+    int           _contentLength;
 };
 
 // Process Response
@@ -812,13 +812,13 @@ void HttpClient::destroyInstance() {
 void HttpClient::enableCookies(const char *cookieFile) {
     std::lock_guard<std::mutex> lock(_cookieFileMutex);
     if (cookieFile) {
-        _cookieFilename = std::string(cookieFile);
+        _cookieFilename = ccstd::string(cookieFile);
     } else {
         _cookieFilename = (FileUtils::getInstance()->getWritablePath() + "cookieFile.txt");
     }
 }
 
-void HttpClient::setSSLVerification(const std::string &caFile) {
+void HttpClient::setSSLVerification(const ccstd::string &caFile) {
     std::lock_guard<std::mutex> lock(_sslCaFileMutex);
     _sslCaFilename = caFile;
 }
@@ -955,12 +955,12 @@ int HttpClient::getTimeoutForRead() {
     return _timeoutForRead;
 }
 
-const std::string &HttpClient::getCookieFilename() {
+const ccstd::string &HttpClient::getCookieFilename() {
     std::lock_guard<std::mutex> lock(_cookieFileMutex);
     return _cookieFilename;
 }
 
-const std::string &HttpClient::getSSLVerification() {
+const ccstd::string &HttpClient::getSSLVerification() {
     std::lock_guard<std::mutex> lock(_sslCaFileMutex);
     return _sslCaFilename;
 }

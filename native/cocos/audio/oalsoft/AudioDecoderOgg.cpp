@@ -57,7 +57,7 @@ AudioDecoderOgg::~AudioDecoderOgg() {
 }
 
 bool AudioDecoderOgg::open(const char *path) {
-    std::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+    ccstd::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     if (0 == ov_fopen(FileUtils::getInstance()->getSuitableFOpen(fullPath).c_str(), &_vf)) {
 #elif CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX

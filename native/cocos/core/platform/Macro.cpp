@@ -28,7 +28,7 @@
 namespace cc {
 
 namespace macro {
-const ccstd::vector<std::string> SUPPORT_TEXTURE_FORMATS = {
+const ccstd::vector<ccstd::string> SUPPORT_TEXTURE_FORMATS = {
     ".astc", ".pkm", ".pvr", ".webp", ".jpg", ".jpeg", ".bmp", ".png"};
 
 }

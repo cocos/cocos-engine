@@ -68,7 +68,7 @@ public:
 
     void present(const GLES2GPUSwapchain *swapchain);
 
-    inline bool checkExtension(const String &extension) const {
+    inline bool checkExtension(const ccstd::string &extension) const {
         return std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end();
     }
 
@@ -88,7 +88,7 @@ private:
 
     ccstd::map<size_t, EGLContext> _sharedContexts;
 
-    StringArray _extensions;
+    ccstd::vector<ccstd::string> _extensions;
 };
 
 struct GLES2GPUBuffer {
@@ -163,20 +163,20 @@ struct GLES2GPUSampler {
 };
 
 struct GLES2GPUInput {
-    uint32_t binding = 0;
-    String   name;
-    Type     type   = Type::UNKNOWN;
-    uint32_t stride = 0;
-    uint32_t count  = 0;
-    uint32_t size   = 0;
-    GLenum   glType = 0;
-    GLint    glLoc  = -1;
+    uint32_t      binding = 0;
+    ccstd::string name;
+    Type          type   = Type::UNKNOWN;
+    uint32_t      stride = 0;
+    uint32_t      count  = 0;
+    uint32_t      size   = 0;
+    GLenum        glType = 0;
+    GLint         glLoc  = -1;
 };
 using GLES2GPUInputList = ccstd::vector<GLES2GPUInput>;
 
 struct GLES2GPUUniform {
     uint32_t               binding = INVALID_BINDING;
-    String                 name;
+    ccstd::string          name;
     Type                   type   = Type::UNKNOWN;
     uint32_t               stride = 0;
     uint32_t               count  = 0;
@@ -192,7 +192,7 @@ struct GLES2GPUUniformBlock {
     uint32_t                set     = 0;
     uint32_t                binding = 0;
     uint32_t                idx     = 0;
-    String                  name;
+    ccstd::string           name;
     uint32_t                size = 0;
     GLES2GPUUniformList     glUniforms;
     GLES2GPUUniformList     glActiveUniforms;
@@ -201,11 +201,11 @@ struct GLES2GPUUniformBlock {
 using GLES2GPUUniformBlockList = ccstd::vector<GLES2GPUUniformBlock>;
 
 struct GLES2GPUUniformSamplerTexture {
-    uint32_t set     = 0;
-    uint32_t binding = 0;
-    String   name;
-    Type     type  = Type::UNKNOWN;
-    uint32_t count = 0U;
+    uint32_t      set     = 0;
+    uint32_t      binding = 0;
+    ccstd::string name;
+    Type          type  = Type::UNKNOWN;
+    uint32_t      count = 0U;
 
     ccstd::vector<GLint> units;
     GLenum               glType = 0;
@@ -215,13 +215,13 @@ using GLES2GPUUniformSamplerTextureList = ccstd::vector<GLES2GPUUniformSamplerTe
 
 struct GLES2GPUShaderStage {
     ShaderStageFlagBit type = ShaderStageFlagBit::NONE;
-    String             source;
+    ccstd::string      source;
     GLuint             glShader = 0;
 };
 using GLES2GPUShaderStageList = ccstd::vector<GLES2GPUShaderStage>;
 
 struct GLES2GPUShader {
-    String                            name;
+    ccstd::string                     name;
     UniformBlockList                  blocks;
     UniformSamplerTextureList         samplerTextures;
     UniformInputAttachmentList        subpassInputs;
@@ -233,16 +233,16 @@ struct GLES2GPUShader {
 };
 
 struct GLES2GPUAttribute {
-    String   name;
-    GLuint   glBuffer       = 0;
-    GLenum   glType         = 0;
-    uint32_t size           = 0;
-    uint32_t count          = 0;
-    uint32_t stride         = 1;
-    uint32_t componentCount = 1;
-    bool     isNormalized   = false;
-    bool     isInstanced    = false;
-    uint32_t offset         = 0;
+    ccstd::string name;
+    GLuint        glBuffer       = 0;
+    GLenum        glType         = 0;
+    uint32_t      size           = 0;
+    uint32_t      count          = 0;
+    uint32_t      stride         = 1;
+    uint32_t      componentCount = 1;
+    bool          isNormalized   = false;
+    bool          isInstanced    = false;
+    uint32_t      offset         = 0;
 };
 using GLES2GPUAttributeList = ccstd::vector<GLES2GPUAttribute>;
 
@@ -391,27 +391,27 @@ struct GLES2ObjectCache {
 
 class GLES2GPUStateCache {
 public:
-    GLuint                                 glArrayBuffer        = 0;
-    GLuint                                 glElementArrayBuffer = 0;
-    GLuint                                 glUniformBuffer      = 0;
-    GLuint                                 glVAO                = 0;
-    uint32_t                               texUint              = 0;
-    ccstd::vector<GLuint>                  glTextures;
-    GLuint                                 glProgram = 0;
-    ccstd::vector<bool>                    glEnabledAttribLocs;
-    ccstd::vector<bool>                    glCurrentAttribLocs;
-    GLuint                                 glFramebuffer  = 0;
-    GLuint                                 glRenderbuffer = 0;
-    GLuint                                 glReadFBO      = 0;
-    Viewport                               viewport;
-    Rect                                   scissor;
-    RasterizerState                        rs;
-    DepthStencilState                      dss;
-    BlendState                             bs;
-    bool                                   isCullFaceEnabled    = true;
-    bool                                   isStencilTestEnabled = false;
-    ccstd::unordered_map<String, uint32_t> texUnitCacheMap;
-    GLES2ObjectCache                       gfxStateCache;
+    GLuint                                        glArrayBuffer        = 0;
+    GLuint                                        glElementArrayBuffer = 0;
+    GLuint                                        glUniformBuffer      = 0;
+    GLuint                                        glVAO                = 0;
+    uint32_t                                      texUint              = 0;
+    ccstd::vector<GLuint>                         glTextures;
+    GLuint                                        glProgram = 0;
+    ccstd::vector<bool>                           glEnabledAttribLocs;
+    ccstd::vector<bool>                           glCurrentAttribLocs;
+    GLuint                                        glFramebuffer  = 0;
+    GLuint                                        glRenderbuffer = 0;
+    GLuint                                        glReadFBO      = 0;
+    Viewport                                      viewport;
+    Rect                                          scissor;
+    RasterizerState                               rs;
+    DepthStencilState                             dss;
+    BlendState                                    bs;
+    bool                                          isCullFaceEnabled    = true;
+    bool                                          isStencilTestEnabled = false;
+    ccstd::unordered_map<ccstd::string, uint32_t> texUnitCacheMap;
+    GLES2ObjectCache                              gfxStateCache;
 
     void initialize(size_t texUnits, size_t vertexAttributes) {
         glTextures.resize(texUnits, 0U);

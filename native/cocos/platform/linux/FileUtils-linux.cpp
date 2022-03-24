@@ -58,14 +58,14 @@ bool FileUtilsLinux::init() {
         return false;
     }
 
-    fullpath[length]    = '\0';
-    std::string appPath = fullpath;
-    _defaultResRootPath = appPath.substr(0, appPath.find_last_of('/'));
+    fullpath[length]      = '\0';
+    ccstd::string appPath = fullpath;
+    _defaultResRootPath   = appPath.substr(0, appPath.find_last_of('/'));
     _defaultResRootPath.append(CC_RESOURCE_FOLDER_LINUX);
 
     // Set writable path to $XDG_CONFIG_HOME or ~/.config/<app name>/ if $XDG_CONFIG_HOME not exists.
-    const char *xdg_config_path = getenv("XDG_CONFIG_HOME");
-    std::string xdgConfigPath;
+    const char *  xdg_config_path = getenv("XDG_CONFIG_HOME");
+    ccstd::string xdgConfigPath;
     if (xdg_config_path == nullptr) {
         xdgConfigPath = getenv("HOME");
         xdgConfigPath.append("/.config");
@@ -79,12 +79,12 @@ bool FileUtilsLinux::init() {
     return FileUtils::init();
 }
 
-bool FileUtilsLinux::isFileExistInternal(const std::string &filename) const {
+bool FileUtilsLinux::isFileExistInternal(const ccstd::string &filename) const {
     if (filename.empty()) {
         return false;
     }
 
-    std::string strPath = filename;
+    ccstd::string strPath = filename;
     if (!isAbsolutePath(strPath)) { // Not absolute path, add the default root path at the beginning.
         strPath.insert(0, _defaultResRootPath);
     }
@@ -93,7 +93,7 @@ bool FileUtilsLinux::isFileExistInternal(const std::string &filename) const {
     return (stat(strPath.c_str(), &sts) == 0) && S_ISREG(sts.st_mode);
 }
 
-std::string FileUtilsLinux::getWritablePath() const {
+ccstd::string FileUtilsLinux::getWritablePath() const {
     struct stat st;
     stat(_writablePath.c_str(), &st);
     if (!S_ISDIR(st.st_mode)) {

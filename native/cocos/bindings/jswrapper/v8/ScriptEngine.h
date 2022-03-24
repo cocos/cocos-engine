@@ -184,13 +184,13 @@ public:
      *  @param[in] pathBc The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
      *  @return true if succeed, otherwise false.
      */
-    bool saveByteCodeToFile(const std::string &path, const std::string &pathBc);
+    bool saveByteCodeToFile(const ccstd::string &path, const ccstd::string &pathBc);
 
     /**
      * @brief Grab a snapshot of the current JavaScript execution stack.
      * @return current stack trace string
      */
-    std::string getCurrentStackTrace();
+    ccstd::string getCurrentStackTrace();
 
     /**
      *  Delegate class for file operation
@@ -211,13 +211,13 @@ public:
         }
 
         // path, buffer, buffer size
-        std::function<void(const std::string &, const std::function<void(const uint8_t *, size_t)> &)> onGetDataFromFile;
+        std::function<void(const ccstd::string &, const std::function<void(const uint8_t *, size_t)> &)> onGetDataFromFile;
         // path, return file string content.
-        std::function<std::string(const std::string &)> onGetStringFromFile;
+        std::function<ccstd::string(const ccstd::string &)> onGetStringFromFile;
         // path
-        std::function<bool(const std::string &)> onCheckFileExist;
+        std::function<bool(const ccstd::string &)> onCheckFileExist;
         // path, return full path
-        std::function<std::string(const std::string &)> onGetFullPath;
+        std::function<ccstd::string(const ccstd::string &)> onGetFullPath;
     };
 
     /**
@@ -238,7 +238,7 @@ public:
      *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
      *  @return true if succeed, otherwise false.
      */
-    bool runScript(const std::string &path, Value *ret = nullptr);
+    bool runScript(const ccstd::string &path, Value *ret = nullptr);
 
     /**
      *  @brief Tests whether script engine is doing garbage collection.
@@ -266,7 +266,7 @@ public:
     /**
      * @brief Throw JS exception
      */
-    void throwException(const std::string &errorMessage);
+    void throwException(const ccstd::string &errorMessage);
 
     /**
      *  @brief Clears all exceptions.
@@ -298,7 +298,7 @@ public:
      *  @param[in] serverAddr The address of debugger server.
      *  @param[in] isWait Whether wait debugger attach when loading.
      */
-    void enableDebugger(const std::string &serverAddr, uint32_t port, bool isWait = false);
+    void enableDebugger(const ccstd::string &serverAddr, uint32_t port, bool isWait = false);
 
     /**
      *  @brief Tests whether JavaScript debugger is enabled
@@ -335,7 +335,7 @@ public:
         void                       clear();
 
     private:
-        ccstd::unordered_map<std::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
+        ccstd::unordered_map<ccstd::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
     };
 
     inline VMStringPool &  _getStringPool() { return _stringPool; }         // NOLINT(readability-identifier-naming)
@@ -360,14 +360,14 @@ private:
      *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
      *  @return true if succeed, otherwise false.
      */
-    bool runByteCodeFile(const std::string &pathBc, Value *ret /* = nullptr */);
+    bool runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = nullptr */);
     void callExceptionCallback(const char *, const char *, const char *);
     bool callRegisteredCallback();
     bool postInit();
     // Struct to save exception info
     struct PromiseExceptionMsg {
-        std::string event;
-        std::string stackTrace;
+        ccstd::string event;
+        ccstd::string stackTrace;
     };
     // Push promise and exception msg to _promiseArray
     void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace);
@@ -401,8 +401,8 @@ private:
     VMStringPool _stringPool;
 
     std::thread::id _engineThreadId;
-    std::string     _lastStackTrace;
-    std::string     _debuggerServerAddr;
+    ccstd::string   _lastStackTrace;
+    ccstd::string   _debuggerServerAddr;
     uint32_t        _debuggerServerPort;
     bool            _isWaitForConnect;
 

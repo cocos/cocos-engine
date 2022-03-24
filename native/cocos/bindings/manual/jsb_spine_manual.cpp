@@ -46,9 +46,9 @@
 
 using namespace cc;
 
-static spine::Cocos2dTextureLoader                       textureLoader;
-static cc::RefMap<std::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
-static middleware::Texture2D *                           _getPreloadedAtlasTexture(const char *path) {
+static spine::Cocos2dTextureLoader                         textureLoader;
+static cc::RefMap<ccstd::string, middleware::Texture2D *> *_preloadedAtlasTextures = nullptr;
+static middleware::Texture2D *                             _getPreloadedAtlasTexture(const char *path) {
     assert(_preloadedAtlasTextures);
     auto it = _preloadedAtlasTextures->find(path);
     return it != _preloadedAtlasTextures->end() ? it->second : nullptr;
@@ -63,7 +63,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     }
     bool ok = false;
 
-    std::string uuid;
+    ccstd::string uuid;
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
 
@@ -75,15 +75,15 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
         return true;
     }
 
-    std::string skeletonDataFile;
+    ccstd::string skeletonDataFile;
     ok = sevalue_to_native(args[1], &skeletonDataFile);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid json path!");
 
-    std::string atlasText;
+    ccstd::string atlasText;
     ok = sevalue_to_native(args[2], &atlasText);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid atlas content!");
 
-    cc::RefMap<std::string, middleware::Texture2D *> textures;
+    cc::RefMap<ccstd::string, middleware::Texture2D *> textures;
     ok = seval_to_Map_string_key(args[3], &textures);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid textures!");
 
@@ -106,9 +106,9 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
 
     std::size_t length = skeletonDataFile.length();
     auto        binPos = skeletonDataFile.find(".skel", length - 5);
-    if (binPos == std::string::npos) binPos = skeletonDataFile.find(".bin", length - 4);
+    if (binPos == ccstd::string::npos) binPos = skeletonDataFile.find(".bin", length - 4);
 
-    if (binPos != std::string::npos) {
+    if (binPos != ccstd::string::npos) {
         auto fileUtils = cc::FileUtils::getInstance();
         if (fileUtils->isFileExist(skeletonDataFile)) {
             cc::Data   cocos2dData;
@@ -157,7 +157,7 @@ static bool js_register_spine_disposeSkeletonData(se::State &s) {
     }
     bool ok = false;
 
-    std::string uuid;
+    ccstd::string uuid;
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_disposeSkeletonData: Invalid uuid content!");
 
@@ -183,7 +183,7 @@ static bool js_register_spine_initSkeletonRenderer(se::State &s) {
     ok                            = seval_to_native_ptr(args[0], &node);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Converting SpineRenderer failed!");
 
-    std::string uuid;
+    ccstd::string uuid;
     ok = sevalue_to_native(args[1], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
 
@@ -205,7 +205,7 @@ static bool js_register_spine_retainSkeletonData(se::State &s) {
     }
     bool ok = false;
 
-    std::string uuid;
+    ccstd::string uuid;
     ok = sevalue_to_native(args[0], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_hasSkeletonData: Invalid uuid content!");
 

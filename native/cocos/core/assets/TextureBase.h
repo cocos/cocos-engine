@@ -99,7 +99,7 @@ public:
      * @zh 获取标识符。
      * @returns The id
      */
-    inline const std::string &getId() const {
+    inline const ccstd::string &getId() const {
         return _id;
     }
 
@@ -248,7 +248,7 @@ public:
     uint32_t _height{1};
 
 protected:
-    std::string      _id;
+    ccstd::string    _id;
     gfx::SamplerInfo _samplerInfo;
     gfx::Sampler *   _gfxSampler{nullptr};
     gfx::Device *    _gfxDevice{nullptr};

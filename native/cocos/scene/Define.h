@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include <string>
+#include "base/std/container/string.h"
 #include "renderer/core/PassUtils.h"
 
 namespace cc {
 namespace scene {
 
 struct IMacroPatch {
-    std::string name;
-    MacroValue  value;
+    ccstd::string name;
+    MacroValue    value;
 };
 
 } // namespace scene

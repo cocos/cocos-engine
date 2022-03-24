@@ -32,9 +32,9 @@
 #include <cerrno>
 #include <climits>
 #include <limits>
-#include <string>
 #include "base/Macros.h"
 #include "base/TypeDef.h"
+#include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 /** @file ccUtils.h
 Misc free functions
@@ -43,7 +43,7 @@ Misc free functions
 namespace cc {
 namespace utils {
 
-CC_DLL std::string getStacktrace(uint skip = 0, uint maxDepth = UINT_MAX);
+CC_DLL ccstd::string getStacktrace(uint skip = 0, uint maxDepth = UINT_MAX);
 
 /**
  * Returns the Next Power of Two value.

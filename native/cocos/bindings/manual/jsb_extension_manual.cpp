@@ -41,8 +41,8 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State &s) {
     int         argc = (int)args.size();
 
     if (argc == 2) {
-        bool        ok = false;
-        std::string url;
+        bool          ok = false;
+        ccstd::string url;
         ok = seval_to_std_string(args[0], &url);
         SE_PRECONDITION2(ok, false, "Converting 'url' failed!");
 
@@ -109,7 +109,7 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State &s) {
                 });
             };
 
-            downloader->onTaskError = [downloader, onError](const cc::network::DownloadTask &task, int errorCode, int errorCodeInternal, const std::string &errorStr) {
+            downloader->onTaskError = [downloader, onError](const cc::network::DownloadTask &task, int errorCode, int errorCodeInternal, const ccstd::string &errorStr) {
                 onError();
 
                 // Downloader may use its member variables after this callback,
@@ -144,7 +144,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State &s) {
     SE_PRECONDITION2(ok, false, "Converting 'texture' failed!");
 
     // get url
-    std::string url;
+    ccstd::string url;
     ok = seval_to_std_string(args[1], &url);
     SE_PRECONDITION2(ok, false, "Converting 'url' failed!");
 
@@ -184,7 +184,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State &s) {
         });
     };
 
-    downloader->onTaskError = [=](const cc::network::DownloadTask &task, int errorCode, int errorCodeInternal, const std::string &errorStr) {
+    downloader->onTaskError = [=](const cc::network::DownloadTask &task, int errorCode, int errorCodeInternal, const ccstd::string &errorStr) {
         onCallback(false);
         Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader]() {
             delete downloader;

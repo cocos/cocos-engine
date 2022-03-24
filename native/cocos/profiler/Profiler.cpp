@@ -47,13 +47,13 @@ namespace cc {
  */
 class ProfilerBlock {
 public:
-    ProfilerBlock(ProfilerBlock *parent, std::string name)
+    ProfilerBlock(ProfilerBlock *parent, ccstd::string name)
     : _parent(parent), _name(std::move(name)) {}
     ~ProfilerBlock();
 
     inline void    begin() { _timer.reset(); }
     inline void    end() { _item += _timer.getMicroseconds(); }
-    ProfilerBlock *getOrCreateChild(const std::string &name);
+    ProfilerBlock *getOrCreateChild(const ccstd::string &name);
     void           onFrameBegin();
     void           onFrameEnd();
     void           doIntervalUpdate();
@@ -62,7 +62,7 @@ private:
     ProfilerBlock *              _parent{nullptr};
     std::vector<ProfilerBlock *> _children;
     utils::Timer                 _timer;
-    std::string                  _name;
+    ccstd::string                _name;
     TimeCounter                  _item;
 
     friend class Profiler;
@@ -76,7 +76,7 @@ ProfilerBlock::~ProfilerBlock() {
     _children.clear();
 }
 
-ProfilerBlock *ProfilerBlock::getOrCreateChild(const std::string &name) {
+ProfilerBlock *ProfilerBlock::getOrCreateChild(const ccstd::string &name) {
     for (auto *child : _children) {
         if (child->_name == name) {
             return child;
@@ -319,7 +319,7 @@ void Profiler::printStats() {
         renderer->addText("TotalMax", {totalMaxOffset, yOffset}, titleInfo);
         rightLines++;
 
-        ccstd::unordered_map<std::string, MemoryCounter> memories;
+        ccstd::unordered_map<ccstd::string, MemoryCounter> memories;
         {
             std::lock_guard<std::mutex> lock(_memoryStats.mutex);
             memories = _memoryStats.memories;
@@ -393,7 +393,7 @@ void Profiler::printStats() {
     }
 }
 
-void Profiler::beginBlock(const std::string &name) {
+void Profiler::beginBlock(const ccstd::string &name) {
     if (isMainThread()) {
         _current = _current->getOrCreateChild(name);
         _current->begin();

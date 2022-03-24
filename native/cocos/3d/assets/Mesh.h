@@ -422,7 +422,7 @@ private:
 
     gfx::BufferList createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *data);
 
-    void initDefault(const cc::optional<std::string> &uuid) override;
+    void initDefault(const cc::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
     static TypedArray createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count);

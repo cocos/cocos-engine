@@ -96,14 +96,14 @@ public:
      * @zh 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
      * @deprecated Please use [[nativeUrl]]
      */
-    std::string getUrl() const;
+    ccstd::string getUrl() const;
 
     // Functions for TS.
     inline void setWidth(uint32_t width) { _width = width; }
     inline void setHeight(uint32_t height) { _height = height; }
     inline void setFormat(PixelFormat format) { _format = format; }
     inline void setData(uint8_t *data) { _data = data; }
-    inline void setUrl(const std::string &url) { _url = url; }
+    inline void setUrl(const ccstd::string &url) { _url = url; }
 
 private:
     uint32_t         _width{0};
@@ -112,7 +112,7 @@ private:
     uint8_t *        _data{nullptr};
     bool             _needFreeData{false}; // Should free data if the data is assigned in C++.
     ArrayBuffer::Ptr _arrayBuffer;         //minggo: hold the data from ImageSource.
-    std::string      _url;
+    ccstd::string    _url;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ImageAsset);
 };

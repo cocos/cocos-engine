@@ -52,8 +52,8 @@
 const unsigned int JSB_STACK_FRAME_LIMIT = 20;
 
     #ifdef CC_DEBUG
-unsigned int                      jsbInvocationCount = 0;
-ccstd::map<std::string, unsigned> jsbFunctionInvokedRecords;
+unsigned int                        jsbInvocationCount = 0;
+ccstd::map<ccstd::string, unsigned> jsbFunctionInvokedRecords;
     #endif
 
     #define RETRUN_VAL_IF_FAIL(cond, val) \
@@ -75,8 +75,8 @@ void seForceGC(const v8::FunctionCallbackInfo<v8::Value> & /*info*/) {
     ScriptEngine::getInstance()->garbageCollect();
 }
 
-std::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
-    std::string stackStr;
+ccstd::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
+    ccstd::string stackStr;
     if (stack.IsEmpty()) {
         return stackStr;
     }
@@ -85,13 +85,13 @@ std::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
     for (int i = 0, e = stack->GetFrameCount(); i < e; ++i) {
         v8::Local<v8::StackFrame> frame  = stack->GetFrame(v8::Isolate::GetCurrent(), i);
         v8::Local<v8::String>     script = frame->GetScriptName();
-        std::string               scriptName;
+        ccstd::string             scriptName;
         if (!script.IsEmpty()) {
             scriptName = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), script);
         }
 
         v8::Local<v8::String> func = frame->GetFunctionName();
-        std::string           funcName;
+        ccstd::string         funcName;
         if (!func.IsEmpty()) {
             funcName = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), func);
         }
@@ -130,14 +130,14 @@ bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
     const auto &args = state.args();
     int         argc = static_cast<int>(args.size());
     if ((argc - msgIndex) == 1) {
-        std::string msg = args[msgIndex].toStringForce();
+        ccstd::string msg = args[msgIndex].toStringForce();
         SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
     } else if (argc > 1) {
-        std::string msg = args[msgIndex].toStringForce();
-        size_t      pos;
+        ccstd::string msg = args[msgIndex].toStringForce();
+        size_t        pos;
         for (int i = (msgIndex + 1); i < argc; ++i) {
             pos = msg.find('%');
-            if (pos != std::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
+            if (pos != ccstd::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
                 msg.replace(pos, 2, args[i].toStringForce());
             } else {
                 msg += " " + args[i].toStringForce();
@@ -206,7 +206,7 @@ public:
     ScriptEngineV8Context() {
         platform = v8::platform::NewDefaultPlatform().release();
         v8::V8::InitializePlatform(platform);
-        std::string flags;
+        ccstd::string flags;
         //NOTICE: spaces are required between flags
         flags.append(" --expose-gc-as=" EXPOSE_GC);
         flags.append(" --no-flush-bytecode --no-lazy"); // for bytecode support
@@ -244,7 +244,7 @@ void ScriptEngine::callExceptionCallback(const char *location, const char *messa
 }
 
 void ScriptEngine::onFatalErrorCallback(const char *location, const char *message) {
-    std::string errorStr = "[FATAL ERROR] location: ";
+    ccstd::string errorStr = "[FATAL ERROR] location: ";
     errorStr += location;
     errorStr += ", message: ";
     errorStr += message;
@@ -255,9 +255,9 @@ void ScriptEngine::onFatalErrorCallback(const char *location, const char *messag
 }
 
 void ScriptEngine::onOOMErrorCallback(const char *location, bool isHeapOom) {
-    std::string errorStr = "[OOM ERROR] location: ";
+    ccstd::string errorStr = "[OOM ERROR] location: ";
     errorStr += location;
-    std::string message;
+    ccstd::string message;
     message = "is heap out of memory: ";
     if (isHeapOom) {
         message += "true";
@@ -282,10 +282,10 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
     Value line(origin.LineOffset());
     Value column(origin.ColumnOffset());
 
-    std::string location = resouceNameVal.toStringForce() + ":" + line.toStringForce() + ":" + column.toStringForce();
+    ccstd::string location = resouceNameVal.toStringForce() + ":" + line.toStringForce() + ":" + column.toStringForce();
 
-    std::string errorStr = msgVal.toString() + ", location: " + location;
-    std::string stackStr = stackTraceToString(message->GetStackTrace());
+    ccstd::string errorStr = msgVal.toString() + ", location: " + location;
+    ccstd::string stackStr = stackTraceToString(message->GetStackTrace());
     if (!stackStr.empty()) {
         if (line.toInt32() == 0) {
             location = "(see stack)";
@@ -803,17 +803,17 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
     }
 
     // Fix the source url is too long displayed in Chrome debugger.
-    std::string              sourceUrl  = fileName;
-    static const std::string PREFIX_KEY = "/temp/quick-scripts/";
-    size_t                   prefixPos  = sourceUrl.find(PREFIX_KEY);
-    if (prefixPos != std::string::npos) {
+    ccstd::string              sourceUrl  = fileName;
+    static const ccstd::string PREFIX_KEY = "/temp/quick-scripts/";
+    size_t                     prefixPos  = sourceUrl.find(PREFIX_KEY);
+    if (prefixPos != ccstd::string::npos) {
         sourceUrl = sourceUrl.substr(prefixPos + PREFIX_KEY.length());
     }
 
     // It is needed, or will crash if invoked from non C++ context, such as invoked from objective-c context(for example, handler of UIKit).
     v8::HandleScope handleScope(_isolate);
 
-    std::string                scriptStr(script, length);
+    ccstd::string              scriptStr(script, length);
     v8::MaybeLocal<v8::String> source = v8::String::NewFromUtf8(_isolate, scriptStr.c_str(), v8::NewStringType::kNormal);
     if (source.IsEmpty()) {
         return false;
@@ -858,9 +858,9 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
     return success;
 }
 
-std::string ScriptEngine::getCurrentStackTrace() {
+ccstd::string ScriptEngine::getCurrentStackTrace() {
     if (!_isValid) {
-        return std::string();
+        return ccstd::string();
     }
 
     v8::HandleScope           hs(_isolate);
@@ -876,7 +876,7 @@ const ScriptEngine::FileOperationDelegate &ScriptEngine::getFileOperationDelegat
     return _fileOperationDelegate;
 }
 
-bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string &pathBc) {
+bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::string &pathBc) {
     bool  success = false;
     auto *fu      = cc::FileUtils::getInstance();
 
@@ -901,8 +901,8 @@ bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string
             SE_LOGE("ScriptEngine::generateByteCode no directory component found in path %s\n", path.c_str());
             return false;
         }
-        std::string pathBcDir = pathBc.substr(0, lastSep);
-        success               = fu->createDirectory(pathBcDir);
+        ccstd::string pathBcDir = pathBc.substr(0, lastSep);
+        success                 = fu->createDirectory(pathBcDir);
         if (!success) {
             SE_LOGE("ScriptEngine::generateByteCode failed to create bytecode for %s\n", path.c_str());
             return success;
@@ -910,7 +910,7 @@ bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string
     }
 
     // load script file
-    std::string           scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
+    ccstd::string         scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
     v8::Local<v8::String> code         = v8::String::NewFromUtf8(_isolate, scriptBuffer.c_str(), v8::NewStringType::kNormal, static_cast<int>(scriptBuffer.length())).ToLocalChecked();
     v8::Local<v8::Value>  scriptPath   = v8::String::NewFromUtf8(_isolate, path.data(), v8::NewStringType::kNormal).ToLocalChecked();
     // create unbound script
@@ -933,7 +933,7 @@ bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string
     return success;
 }
 
-bool ScriptEngine::runByteCodeFile(const std::string &pathBc, Value *ret /* = nullptr */) {
+bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = nullptr */) {
     auto *fu = cc::FileUtils::getInstance();
 
     cc::Data cachedData;
@@ -1013,7 +1013,7 @@ bool ScriptEngine::runByteCodeFile(const std::string &pathBc, Value *ret /* = nu
     return true;
 }
 
-bool ScriptEngine::runScript(const std::string &path, Value *ret /* = nullptr */) {
+bool ScriptEngine::runScript(const ccstd::string &path, Value *ret /* = nullptr */) {
     assert(!path.empty());
     assert(_fileOperationDelegate.isValid());
 
@@ -1029,7 +1029,7 @@ bool ScriptEngine::runScript(const std::string &path, Value *ret /* = nullptr */
         return runByteCodeFile(path, ret);
     }
 
-    std::string scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
+    ccstd::string scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
 
     if (!scriptBuffer.empty()) {
         return evalString(scriptBuffer.c_str(), static_cast<ssize_t>(scriptBuffer.length()), ret, path.c_str());
@@ -1043,7 +1043,7 @@ void ScriptEngine::clearException() {
     //IDEA:
 }
 
-void ScriptEngine::throwException(const std::string &errorMessage) {
+void ScriptEngine::throwException(const ccstd::string &errorMessage) {
     v8::HandleScope       scope(_isolate);
     v8::Local<v8::String> message = v8::String::NewFromUtf8(_isolate, errorMessage.data()).ToLocalChecked();
     v8::Local<v8::Value>  error   = v8::Exception::Error(message);
@@ -1062,7 +1062,7 @@ v8::Local<v8::Context> ScriptEngine::_getContext() const { //NOLINT(readability-
     return _context.Get(_isolate);
 }
 
-void ScriptEngine::enableDebugger(const std::string &serverAddr, uint32_t port, bool isWait) {
+void ScriptEngine::enableDebugger(const ccstd::string &serverAddr, uint32_t port, bool isWait) {
     _debuggerServerAddr = serverAddr;
     _debuggerServerPort = port;
     _isWaitForConnect   = isWait;

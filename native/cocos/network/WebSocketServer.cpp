@@ -106,7 +106,7 @@ namespace network {
 
     #define DISPATCH_CALLBACK_IN_GAMETHREAD()                        \
         do {                                                         \
-            data->setCallback([callback](const std::string &msg) {   \
+            data->setCallback([callback](const ccstd::string &msg) { \
                 auto wrapper = [callback, msg]() { callback(msg); }; \
                 RUN_IN_GAMETHREAD(wrapper());                        \
             });                                                      \
@@ -122,7 +122,7 @@ namespace network {
     //#define LOGE() CCLOG("WSS: %s", __FUNCTION__)
     #define LOGE()
 
-DataFrame::DataFrame(const std::string &data) : _isBinary(false) {
+DataFrame::DataFrame(const ccstd::string &data) : _isBinary(false) {
     _underlyingData.resize(data.size() + LWS_PRE);
     memcpy(getData(), data.c_str(), data.length());
 }
@@ -156,8 +156,8 @@ int DataFrame::remain() const {
     return size() - _consumed;
 }
 
-std::string DataFrame::toString() {
-    return std::string((char *)getData(), size());
+ccstd::string DataFrame::toString() {
+    return ccstd::string((char *)getData(), size());
 }
 
 WebSocketServer::WebSocketServer() {
@@ -169,7 +169,7 @@ WebSocketServer::~WebSocketServer() {
     destroyContext();
 }
 
-bool WebSocketServer::close(std::function<void(const std::string &errorMsg)> callback) {
+bool WebSocketServer::close(std::function<void(const ccstd::string &errorMsg)> callback) {
     if (_serverState.load() != ServerThreadState::RUNNING) {
         return false;
     }
@@ -180,14 +180,14 @@ bool WebSocketServer::close(std::function<void(const std::string &errorMsg)> cal
     return true;
 }
 
-void WebSocketServer::closeAsync(std::function<void(const std::string &errorMsg)> callback) {
+void WebSocketServer::closeAsync(std::function<void(const ccstd::string &errorMsg)> callback) {
     if (_serverState.load() != ServerThreadState::RUNNING) {
         return;
     }
     RUN_IN_SERVERTHREAD(this->close(callback));
 }
 
-void WebSocketServer::listen(std::shared_ptr<WebSocketServer> server, int port, const std::string &host, std::function<void(const std::string &errorMsg)> callback) {
+void WebSocketServer::listen(std::shared_ptr<WebSocketServer> server, int port, const ccstd::string &host, std::function<void(const ccstd::string &errorMsg)> callback) {
     auto tryLock = server->_serverLock.try_lock();
     if (!tryLock) {
         CC_LOG_WARNING("websocketserver is already running!");
@@ -267,7 +267,7 @@ void WebSocketServer::listen(std::shared_ptr<WebSocketServer> server, int port, 
     return;
 }
 
-void WebSocketServer::listenAsync(std::shared_ptr<WebSocketServer> &server, int port, const std::string &host, std::function<void(const std::string &errorMsg)> callback) {
+void WebSocketServer::listenAsync(std::shared_ptr<WebSocketServer> &server, int port, const ccstd::string &host, std::function<void(const ccstd::string &errorMsg)> callback) {
     std::thread([=]() {
         WebSocketServer::listen(server, port, host, callback);
     }).detach();
@@ -322,7 +322,7 @@ void WebSocketServer::onCloseClientInit(struct lws *wsi, void *in, int len) {
     if (conn && len > 2) {
         code = ntohs(*(int16_t *)in);
         msg  = (char *)in + sizeof(code);
-        std::string cp(msg, len - sizeof(code));
+        ccstd::string cp(msg, len - sizeof(code));
         conn->onClientCloseInit(code, cp);
     } else {
         conn->onClientCloseInit(LWS_CLOSE_STATUS_NORMAL, "Normal");
@@ -396,7 +396,7 @@ bool WebSocketServerConnection::send(std::shared_ptr<DataFrame> data) {
     return true;
 }
 
-void WebSocketServerConnection::sendTextAsync(const std::string &text, std::function<void(const std::string &)> callback) {
+void WebSocketServerConnection::sendTextAsync(const ccstd::string &text, std::function<void(const ccstd::string &)> callback) {
     LOGE();
     std::shared_ptr<DataFrame> data = std::make_shared<DataFrame>(text);
     if (callback) {
@@ -405,7 +405,7 @@ void WebSocketServerConnection::sendTextAsync(const std::string &text, std::func
     RUN_IN_SERVERTHREAD(this->send(data));
 }
 
-void WebSocketServerConnection::sendBinaryAsync(const void *in, size_t len, std::function<void(const std::string &)> callback) {
+void WebSocketServerConnection::sendBinaryAsync(const void *in, size_t len, std::function<void(const ccstd::string &)> callback) {
     LOGE();
     std::shared_ptr<DataFrame> data = std::make_shared<DataFrame>(in, len);
     if (callback) {
@@ -414,7 +414,7 @@ void WebSocketServerConnection::sendBinaryAsync(const void *in, size_t len, std:
     RUN_IN_SERVERTHREAD(this->send(data));
 }
 
-bool WebSocketServerConnection::close(int code, std::string message) {
+bool WebSocketServerConnection::close(int code, ccstd::string message) {
     if (!_wsi) return false;
     _readyState  = ReadyState::CLOSING;
     _closeReason = message;
@@ -425,7 +425,7 @@ bool WebSocketServerConnection::close(int code, std::string message) {
     return true;
 }
 
-void WebSocketServerConnection::closeAsync(int code, std::string message) {
+void WebSocketServerConnection::closeAsync(int code, ccstd::string message) {
     RUN_IN_SERVERTHREAD(this->close(code, message));
 }
 
@@ -544,12 +544,12 @@ void WebSocketServerConnection::onHTTP() {
         }
         lws_hdr_copy(_wsi, buf.data(), buf.size(), idx);
         buf[len] = '\0';
-        _headers.emplace(std::string(c), std::string(buf.data()));
+        _headers.emplace(ccstd::string(c), ccstd::string(buf.data()));
         n++;
     } while (c);
 }
 
-void WebSocketServerConnection::onClientCloseInit(int code, const std::string &msg) {
+void WebSocketServerConnection::onClientCloseInit(int code, const ccstd::string &msg) {
     _closeCode   = code;
     _closeReason = msg;
 }
@@ -570,8 +570,8 @@ void WebSocketServerConnection::onDestroyClient() {
     }
 }
 
-ccstd::vector<std::string> WebSocketServerConnection::getProtocols() {
-    ccstd::vector<std::string> ret;
+ccstd::vector<ccstd::string> WebSocketServerConnection::getProtocols() {
+    ccstd::vector<ccstd::string> ret;
     if (_wsi) {
         //TODO cause abort
         //const struct lws_protocols* protos = lws_get_protocol(_wsi);
@@ -584,7 +584,7 @@ ccstd::vector<std::string> WebSocketServerConnection::getProtocols() {
     return ret;
 }
 
-ccstd::map<std::string, std::string> WebSocketServerConnection::getHeaders() {
+ccstd::map<ccstd::string, ccstd::string> WebSocketServerConnection::getHeaders() {
     if (!_wsi) return {};
     return _headers;
 }

@@ -50,16 +50,16 @@ struct ITextureCubeMipmap {
 };
 
 struct ITextureCubeSerializeMipmapData {
-    std::string front;
-    std::string back;
-    std::string left;
-    std::string right;
-    std::string top;
-    std::string bottom;
+    ccstd::string front;
+    ccstd::string back;
+    ccstd::string left;
+    ccstd::string right;
+    ccstd::string top;
+    ccstd::string bottom;
 };
 
 struct ITextureCubeSerializeData {
-    std::string                                    base;
+    ccstd::string                                  base;
     bool                                           rgbe{false};
     ccstd::vector<ITextureCubeSerializeMipmapData> mipmaps;
 };
@@ -170,7 +170,7 @@ public:
 
     gfx::TextureInfo getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) override;
 
-    void initDefault(const cc::optional<std::string> &uuid) override;
+    void initDefault(const cc::optional<ccstd::string> &uuid) override;
 
     bool validate() const override;
     //

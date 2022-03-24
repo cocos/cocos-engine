@@ -46,7 +46,7 @@ namespace scene {
 
 namespace {
 
-std::string serializeBlendState(const gfx::BlendState &bs) {
+ccstd::string serializeBlendState(const gfx::BlendState &bs) {
     std::stringstream res;
     res << ",bs," << bs.isA2C;
     for (const auto &t : bs.targets) {
@@ -56,13 +56,13 @@ std::string serializeBlendState(const gfx::BlendState &bs) {
     return res.str();
 }
 
-std::string serializeRasterizerState(const gfx::RasterizerState &rs) {
+ccstd::string serializeRasterizerState(const gfx::RasterizerState &rs) {
     std::stringstream res;
     res << ",rs," << static_cast<uint32_t>(rs.cullMode) << "," << static_cast<uint32_t>(rs.depthBias) << "," << static_cast<uint32_t>(rs.isFrontFaceCCW);
     return res.str();
 }
 
-std::string serializeDepthStencilState(const gfx::DepthStencilState &dss) {
+ccstd::string serializeDepthStencilState(const gfx::DepthStencilState &dss) {
     std::stringstream res;
     res << ",dss," << static_cast<uint32_t>(dss.depthTest) << "," << static_cast<uint32_t>(dss.depthWrite) << "," << static_cast<uint32_t>(dss.depthFunc);
     res << "," << static_cast<uint32_t>(dss.stencilTestFront) << "," << static_cast<uint32_t>(dss.stencilFuncFront) << "," << static_cast<uint32_t>(dss.stencilRefFront) << "," << static_cast<uint32_t>(dss.stencilReadMaskFront);
@@ -108,15 +108,15 @@ void Pass::fillPipelineInfo(Pass *pass, const IPassInfoFull &info) {
 
 /* static */
 uint64_t Pass::getPassHash(Pass *pass) {
-    const std::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
-    std::stringstream  res;
+    const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
+    std::stringstream    res;
     res << shaderKey << "," << static_cast<uint32_t>(pass->_primitive) << "," << static_cast<uint32_t>(pass->_dynamicStates);
     res << serializeBlendState(pass->_blendState);
     res << serializeDepthStencilState(pass->_depthStencilState);
     res << serializeRasterizerState(pass->_rs);
 
-    std::string str{res.str()};
-    std::size_t seed = 666;
+    ccstd::string str{res.str()};
+    std::size_t   seed = 666;
     boost::hash_range(seed, str.begin(), str.end());
     return static_cast<uint32_t>(seed);
 }
@@ -137,7 +137,7 @@ void Pass::initialize(const IPassInfoFull &info) {
     tryCompile();
 }
 
-uint32_t Pass::getHandle(const std::string &name, uint32_t offset /* = 0 */, gfx::Type targetType /* = gfx::Type::UNKNOWN */) const {
+uint32_t Pass::getHandle(const ccstd::string &name, uint32_t offset /* = 0 */, gfx::Type targetType /* = gfx::Type::UNKNOWN */) const {
     uint32_t handle = 0;
     auto     iter   = _propertyHandleMap.find(name); // handle = _propertyHandleMap[name];
     if (iter == _propertyHandleMap.end()) {
@@ -154,7 +154,7 @@ uint32_t Pass::getHandle(const std::string &name, uint32_t offset /* = 0 */, gfx
     return handle + offset;
 }
 
-uint32_t Pass::getBinding(const std::string &name) const {
+uint32_t Pass::getBinding(const ccstd::string &name) const {
     uint32_t handle = getHandle(name);
     if (0 == handle) {
         return -1;
@@ -285,7 +285,7 @@ void Pass::destroy() {
     _descriptorSet->destroy();
 }
 
-void Pass::resetUniform(const std::string &name) {
+void Pass::resetUniform(const ccstd::string &name) {
     const uint32_t handle = getHandle(name);
     if (0 == handle) {
         return;
@@ -315,20 +315,20 @@ void Pass::resetUniform(const std::string &name) {
     _rootBufferDirty = true;
 }
 
-void Pass::resetTexture(const std::string &name, index_t index /* = CC_INVALID_INDEX */) {
+void Pass::resetTexture(const ccstd::string &name, index_t index /* = CC_INVALID_INDEX */) {
     const uint32_t handle = getHandle(name);
     if (0 == handle) {
         return;
     }
     const gfx::Type type    = Pass::getTypeFromHandle(handle);
     const uint32_t  binding = Pass::getBindingFromHandle(handle);
-    std::string     texName;
+    ccstd::string   texName;
     IPropertyInfo * info = nullptr;
     auto            iter = _properties.find(name);
     if (iter != _properties.end()) {
         if (iter->second.value.has_value()) {
-            info                 = &iter->second;
-            std::string *pStrVal = cc::get_if<std::string>(&iter->second.value.value());
+            info                   = &iter->second;
+            ccstd::string *pStrVal = cc::get_if<ccstd::string>(&iter->second.value.value());
             if (pStrVal != nullptr) {
                 texName = (*pStrVal) + "-texture";
             }
@@ -562,9 +562,9 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
         _descriptorSet->bindBuffer(binding, bufferView);
     }
     // store handles
-    _propertyHandleMap                            = handleMap;
-    auto &                        directHandleMap = _propertyHandleMap;
-    Record<std::string, uint32_t> indirectHandleMap;
+    _propertyHandleMap                              = handleMap;
+    auto &                          directHandleMap = _propertyHandleMap;
+    Record<ccstd::string, uint32_t> indirectHandleMap;
     for (const auto &properties : _properties) {
         if (!properties.second.handleInfo.has_value()) {
             continue;

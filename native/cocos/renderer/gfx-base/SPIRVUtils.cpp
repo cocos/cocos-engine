@@ -99,7 +99,7 @@ void SPIRVUtils::destroy() {
     _output.clear();
 }
 
-void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const String &source) {
+void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &source) {
     EShLanguage stage  = getShaderStage(type);
     const char *string = source.c_str();
 

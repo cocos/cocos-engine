@@ -84,7 +84,7 @@ void EffectAsset::registerAsset(EffectAsset *asset) {
 }
 
 /* static */
-void EffectAsset::remove(const std::string &name) {
+void EffectAsset::remove(const ccstd::string &name) {
     auto iter = EffectAsset::effects.find(name);
     if (iter != EffectAsset::effects.end() && iter->second->getName() == name) {
         EffectAsset::effects.erase(iter);
@@ -116,7 +116,7 @@ void EffectAsset::remove(EffectAsset *asset) {
 }
 
 /* static */
-EffectAsset *EffectAsset::get(const std::string &name) {
+EffectAsset *EffectAsset::get(const ccstd::string &name) {
     auto iter = EffectAsset::effects.find(name);
     if (iter != EffectAsset::effects.end()) {
         return iter->second;
@@ -144,7 +144,7 @@ bool EffectAsset::destroy() {
     return Super::destroy();
 }
 
-void EffectAsset::initDefault(const cc::optional<std::string> &uuid) {
+void EffectAsset::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     const auto *effect = EffectAsset::get("unlit");
     _name              = "unlit";
@@ -219,7 +219,7 @@ ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecor
     }
 
     const IPreCompileInfoValueType &values = iter->second;
-    const std::string &             key    = iter->first;
+    const ccstd::string &           key    = iter->first;
 
     ccstd::vector<MacroRecord> records;
     if (cur.empty()) {
@@ -231,7 +231,7 @@ ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecor
     return EffectAsset::doCombine(records, info, ++iter);
 }
 
-ccstd::vector<MacroRecord> EffectAsset::generateRecords(const std::string &key, const IPreCompileInfoValueType &value) {
+ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value) {
     ccstd::vector<MacroRecord> ret;
     if (const auto *boolValues = cc::get_if<ccstd::vector<bool>>(&value)) {
         for (const bool value : *boolValues) {
@@ -245,8 +245,8 @@ ccstd::vector<MacroRecord> EffectAsset::generateRecords(const std::string &key, 
             record[key] = value;
             ret.emplace_back(record);
         }
-    } else if (const auto *stringValues = cc::get_if<ccstd::vector<std::string>>(&value)) {
-        for (const std::string &value : *stringValues) {
+    } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&value)) {
+        for (const ccstd::string &value : *stringValues) {
             MacroRecord record;
             record[key] = value;
             ret.emplace_back(record);
@@ -259,7 +259,7 @@ ccstd::vector<MacroRecord> EffectAsset::generateRecords(const std::string &key, 
 }
 
 ccstd::vector<MacroRecord> EffectAsset::insertInfoValue(const ccstd::vector<MacroRecord> &records,
-                                                        const std::string &               key,
+                                                        const ccstd::string &             key,
                                                         const IPreCompileInfoValueType &  value) {
     ccstd::vector<MacroRecord> ret;
     for (const auto &record : records) {
@@ -275,8 +275,8 @@ ccstd::vector<MacroRecord> EffectAsset::insertInfoValue(const ccstd::vector<Macr
                 tmpRecord[key]        = value;
                 ret.emplace_back(tmpRecord);
             }
-        } else if (const auto *stringValues = cc::get_if<ccstd::vector<std::string>>(&value)) {
-            for (const std::string &value : *stringValues) {
+        } else if (const auto *stringValues = cc::get_if<ccstd::vector<ccstd::string>>(&value)) {
+            for (const ccstd::string &value : *stringValues) {
                 MacroRecord tmpRecord = record;
                 tmpRecord[key]        = value;
                 ret.emplace_back(tmpRecord);

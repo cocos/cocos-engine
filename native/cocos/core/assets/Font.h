@@ -131,7 +131,7 @@ protected:
  */
 class Font : public Asset {
 public:
-    Font(FontType type, const std::string &path);
+    Font(FontType type, const ccstd::string &path);
     ~Font() override;
     Font(const Font &) = delete;
     Font(Font &&)      = delete;
@@ -141,16 +141,16 @@ public:
     virtual FontFace *createFace(const FontFaceInfo &info) = 0;
 
     inline FontType                      getType() const { return _type; }
-    inline const std::string &           getPath() const { return _path; }
+    inline const ccstd::string &         getPath() const { return _path; }
     inline const ccstd::vector<uint8_t> &getData() const { return _data; }
     inline FontFace *                    getFace(uint32_t fontSize) { return _faces[fontSize]; }
     void                                 releaseFaces();
 
 protected:
-    void load(const std::string &path);
+    void load(const ccstd::string &path);
 
     FontType                                   _type{FontType::INVALID};
-    std::string                                _path;
+    ccstd::string                              _path;
     ccstd::vector<uint8_t>                     _data;
     ccstd::unordered_map<uint32_t, FontFace *> _faces;
 };

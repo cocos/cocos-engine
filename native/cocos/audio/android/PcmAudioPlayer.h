@@ -36,14 +36,14 @@ class AudioMixerController;
 
 class PcmAudioPlayer : public IAudioPlayer {
 public:
-    bool prepare(const std::string &url, const PcmData &decResult);
+    bool prepare(const ccstd::string &url, const PcmData &decResult);
 
     // Override Functions Begin
     virtual int getId() const override { return _id; };
 
     virtual void setId(int id) override { _id = id; };
 
-    virtual std::string getUrl() const override { return _url; };
+    virtual ccstd::string getUrl() const override { return _url; };
 
     virtual State getState() const override;
 
@@ -82,13 +82,13 @@ private:
     virtual ~PcmAudioPlayer();
 
 private:
-    int _id;
-    std::string _url;
-    PcmData _decResult;
-    Track *_track;
-    PlayEventCallback _playEventCallback;
+    int                   _id;
+    ccstd::string         _url;
+    PcmData               _decResult;
+    Track *               _track;
+    PlayEventCallback     _playEventCallback;
     AudioMixerController *_controller;
-    ICallerThreadUtils *_callerThreadUtils;
+    ICallerThreadUtils *  _callerThreadUtils;
 
     friend class AudioPlayerProvider;
 };

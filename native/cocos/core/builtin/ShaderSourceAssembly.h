@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include <string>
 #include "base/StringUtil.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 namespace cc {
 
-using ShaderInfo      = ccstd::unordered_map<std::string, GzipedString>;
+using ShaderInfo      = ccstd::unordered_map<ccstd::string, GzipedString>;
 using ShaderSource    = ccstd::vector<ccstd::vector<ShaderInfo>>;
-using ShaderSourceMap = ccstd::unordered_map<std::string, const ShaderSource *>;
+using ShaderSourceMap = ccstd::unordered_map<ccstd::string, const ShaderSource *>;
 
 class ShaderSourceAssembly final {
 public:

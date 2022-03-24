@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <string>
 #include <tuple>
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 
@@ -40,9 +40,9 @@
 
 namespace cc {
 
-using IPropertyHandleInfo = std::tuple<std::string, uint32_t, gfx::Type>;
+using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
 
-using IPropertyValue = cc::optional<cc::variant<ccstd::vector<float>, std::string>>;
+using IPropertyValue = cc::optional<cc::variant<ccstd::vector<float>, ccstd::string>>;
 
 struct IPropertyInfo {
     int32_t                           type;        // auto-extracted from shader
@@ -338,7 +338,7 @@ struct IPassStates {
     cc::optional<DepthStencilStateInfo>     depthStencilState;
     cc::optional<BlendStateInfo>            blendState;
     cc::optional<gfx::DynamicStateFlags>    dynamicStates;
-    cc::optional<std::string>               phase;
+    cc::optional<ccstd::string>             phase;
 
     IPassStates() = default;
     explicit IPassStates(const IPassInfoFull &o);
@@ -347,7 +347,7 @@ struct IPassStates {
 };
 using PassOverrides = IPassStates;
 
-using PassPropertyInfoMap = ccstd::unordered_map<std::string, IPropertyInfo>;
+using PassPropertyInfoMap = ccstd::unordered_map<ccstd::string, IPropertyInfo>;
 
 struct IPassInfoFull final { //cjh } : public IPassInfo {
     // IPassStates
@@ -358,12 +358,12 @@ struct IPassInfoFull final { //cjh } : public IPassInfo {
     cc::optional<DepthStencilStateInfo>     depthStencilState;
     cc::optional<BlendStateInfo>            blendState;
     cc::optional<gfx::DynamicStateFlags>    dynamicStates;
-    cc::optional<std::string>               phase;
+    cc::optional<ccstd::string>             phase;
     // IPassInfo
-    std::string                       program; // auto-generated from 'vert' and 'frag'
+    ccstd::string                     program; // auto-generated from 'vert' and 'frag'
     cc::optional<MacroRecord>         embeddedMacros;
     index_t                           propertyIndex{CC_INVALID_INDEX};
-    cc::optional<std::string>         switch_;
+    cc::optional<ccstd::string>       switch_;
     cc::optional<PassPropertyInfoMap> properties;
 
     // IPassInfoFull
@@ -393,19 +393,19 @@ using IPassInfo = IPassInfoFull;
 
 struct ITechniqueInfo {
     ccstd::vector<IPassInfoFull> passes;
-    cc::optional<std::string>    name;
+    cc::optional<ccstd::string>  name;
 };
 
 struct IBlockInfo {
     int32_t                     binding{-1};
-    std::string                 name;
+    ccstd::string               name;
     ccstd::vector<gfx::Uniform> members;
     gfx::ShaderStageFlags       stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct ISamplerTextureInfo {
     int32_t               binding{-1};
-    std::string           name;
+    ccstd::string         name;
     gfx::Type             type{gfx::Type::UNKNOWN};
     uint32_t              count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
@@ -414,7 +414,7 @@ struct ISamplerTextureInfo {
 struct ITextureInfo {
     uint32_t              set{0};
     int32_t               binding{-1};
-    std::string           name;
+    ccstd::string         name;
     gfx::Type             type{gfx::Type::UNKNOWN};
     uint32_t              count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
@@ -423,21 +423,21 @@ struct ITextureInfo {
 struct ISamplerInfo {
     uint32_t              set{0};
     int32_t               binding{-1};
-    std::string           name;
+    ccstd::string         name;
     uint32_t              count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IBufferInfo {
     int32_t               binding{-1};
-    std::string           name;
+    ccstd::string         name;
     gfx::MemoryAccess     memoryAccess{gfx::MemoryAccess::NONE};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IImageInfo {
     int32_t               binding{-1};
-    std::string           name;
+    ccstd::string         name;
     gfx::Type             type{gfx::Type::UNKNOWN};
     uint32_t              count{0};
     gfx::MemoryAccess     memoryAccess{gfx::MemoryAccess::NONE};
@@ -447,33 +447,33 @@ struct IImageInfo {
 struct IInputAttachmentInfo {
     uint32_t              set{0};
     int32_t               binding{-1};
-    std::string           name;
+    ccstd::string         name;
     uint32_t              count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
 };
 
 struct IAttributeInfo {
-    std::string name;
-    gfx::Format format{gfx::Format::UNKNOWN};
-    bool        isNormalized{false};
-    uint32_t    stream{0U};
-    bool        isInstanced{false};
-    uint32_t    location{0U};
+    ccstd::string name;
+    gfx::Format   format{gfx::Format::UNKNOWN};
+    bool          isNormalized{false};
+    uint32_t      stream{0U};
+    bool          isInstanced{false};
+    uint32_t      location{0U};
 
-    ccstd::vector<std::string> defines;
+    ccstd::vector<ccstd::string> defines;
 };
 
 struct IDefineInfo {
-    std::string                              name;
-    std::string                              type;
-    cc::optional<ccstd::vector<int32_t>>     range; //cjh number is float?  ?: number[];
-    cc::optional<ccstd::vector<std::string>> options;
-    cc::optional<std::string>                defaultVal;
+    ccstd::string                              name;
+    ccstd::string                              type;
+    cc::optional<ccstd::vector<int32_t>>       range; //cjh number is float?  ?: number[];
+    cc::optional<ccstd::vector<ccstd::string>> options;
+    cc::optional<ccstd::string>                defaultVal;
 };
 
 struct IBuiltin {
-    std::string                name;
-    ccstd::vector<std::string> defines;
+    ccstd::string                name;
+    ccstd::vector<ccstd::string> defines;
 };
 
 struct IBuiltinInfo {
@@ -483,7 +483,7 @@ struct IBuiltinInfo {
     ccstd::vector<IBuiltin> images;
 };
 
-using BuiltinsStatisticsType = ccstd::unordered_map<std::string, int32_t>;
+using BuiltinsStatisticsType = ccstd::unordered_map<ccstd::string, int32_t>;
 
 struct IBuiltins {
     IBuiltinInfo           globals;
@@ -492,12 +492,12 @@ struct IBuiltins {
 };
 
 struct IShaderSource {
-    std::string vert;
-    std::string frag;
+    ccstd::string vert;
+    ccstd::string frag;
 };
 
 struct IShaderInfo {
-    std::string                         name;
+    ccstd::string                       name;
     uint64_t                            hash{0xFFFFFFFFFFFFFFFFULL}; //cjh hash is 64 bit?
     IShaderSource                       glsl4;
     IShaderSource                       glsl3;
@@ -513,7 +513,7 @@ struct IShaderInfo {
     ccstd::vector<IImageInfo>           images;
     ccstd::vector<IInputAttachmentInfo> subpassInputs;
 
-    const IShaderSource *getSource(const std::string &version) const {
+    const IShaderSource *getSource(const ccstd::string &version) const {
         if (version == "glsl1") return &glsl1;
         if (version == "glsl3") return &glsl3;
         if (version == "glsl4") return &glsl4;
@@ -521,8 +521,8 @@ struct IShaderInfo {
     }
 };
 
-using IPreCompileInfoValueType = cc::variant<ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<std::string>>;
-using IPreCompileInfo          = ccstd::unordered_map<std::string, IPreCompileInfoValueType>;
+using IPreCompileInfoValueType = cc::variant<ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<ccstd::string>>;
+using IPreCompileInfo          = ccstd::unordered_map<ccstd::string, IPreCompileInfoValueType>;
 
 class EffectAsset final : public Asset {
 public:
@@ -540,16 +540,16 @@ public:
      * @en Unregister the effect asset from the static map
      * @zh 将指定 effect 从全局管理器移除。
      */
-    static void remove(const std::string &name);
+    static void remove(const ccstd::string &name);
     static void remove(EffectAsset *asset);
 
     /**
      * @en Get the effect asset by the given name.
      * @zh 获取指定名字的 effect 资源。
      */
-    static EffectAsset *get(const std::string &name);
+    static EffectAsset *get(const ccstd::string &name);
 
-    using RegisteredEffectAssetMap = ccstd::unordered_map<std::string, IntrusivePtr<EffectAsset>>;
+    using RegisteredEffectAssetMap = ccstd::unordered_map<ccstd::string, IntrusivePtr<EffectAsset>>;
     /**
      * @en Get all registered effect assets.
      * @zh 获取所有已注册的 effect 资源。
@@ -576,14 +576,14 @@ public:
      */
     void onLoaded() override;
     bool destroy() override;
-    void initDefault(const cc::optional<std::string> &uuid) override;
+    void initDefault(const cc::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
 protected:
     static ccstd::vector<MacroRecord> doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
-    static ccstd::vector<MacroRecord> generateRecords(const std::string &key, const IPreCompileInfoValueType &value);
+    static ccstd::vector<MacroRecord> generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value);
     static ccstd::vector<MacroRecord> insertInfoValue(const ccstd::vector<MacroRecord> &records,
-                                                      const std::string &               key,
+                                                      const ccstd::string &             key,
                                                       const IPreCompileInfoValueType &  value);
 
     void precompile();

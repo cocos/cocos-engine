@@ -59,7 +59,7 @@ class DownloadTaskCURL : public IDownloadTask {
 
     // if more than one task write to one file, cause file broken
     // so use a set to check this situation
-    static ccstd::set<std::string> _sStoragePathSet;
+    static ccstd::set<ccstd::string> _sStoragePathSet;
 
 public:
     int serialId;
@@ -84,7 +84,7 @@ public:
         DLLOG("Destruct DownloadTaskCURL %p", this);
     }
 
-    bool init(const std::string &filename, const std::string &tempSuffix) {
+    bool init(const ccstd::string &filename, const ccstd::string &tempSuffix) {
         if (0 == filename.length()) {
             // data task
             _buf.reserve(CURL_MAX_WRITE_SIZE);
@@ -109,9 +109,9 @@ public:
         // open temp file handle for write
         bool ret = false;
         do {
-            std::string dir;
-            size_t      found = _tempFileName.find_last_of("/\\");
-            if (found == std::string::npos) {
+            ccstd::string dir;
+            size_t        found = _tempFileName.find_last_of("/\\");
+            if (found == ccstd::string::npos) {
                 _errCode         = DownloadTask::ERROR_INVALID_PARAMS;
                 _errCodeInternal = 0;
                 _errDescription  = "Can't find dirname in storagePath.";
@@ -189,20 +189,20 @@ private:
     bool    _headerAchieved;
     int64_t _totalBytesExpected;
 
-    std::string _header; // temp buffer for receive header string, only used in thread proc
+    ccstd::string _header; // temp buffer for receive header string, only used in thread proc
 
     // progress
     int64_t _bytesReceived;
     int64_t _totalBytesReceived;
 
     // error
-    int         _errCode;
-    int         _errCodeInternal;
-    std::string _errDescription;
+    int           _errCode;
+    int           _errCodeInternal;
+    ccstd::string _errDescription;
 
     // for saving data
-    std::string                  _fileName;
-    std::string                  _tempFileName;
+    ccstd::string                _fileName;
+    ccstd::string                _tempFileName;
     ccstd::vector<unsigned char> _buf;
     FILE *                       _fp;
 
@@ -218,8 +218,8 @@ private:
         _header.reserve(384); // pre alloc header string buffer
     }
 };
-int                     DownloadTaskCURL::_sSerialId;
-ccstd::set<std::string> DownloadTaskCURL::_sStoragePathSet;
+int                       DownloadTaskCURL::_sSerialId;
+ccstd::set<ccstd::string> DownloadTaskCURL::_sStoragePathSet;
 
 typedef std::pair<std::shared_ptr<const DownloadTask>, DownloadTaskCURL *> TaskWrapper;
 
@@ -383,7 +383,7 @@ private:
                 break;
             }
 
-            bool acceptRanges = (std::string::npos != coTask._header.find("Accept-Ranges")) ? true : false;
+            bool acceptRanges = (ccstd::string::npos != coTask._header.find("Accept-Ranges")) ? true : false;
 
             // get current file size
             int64_t fileSize = 0;

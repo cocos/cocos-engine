@@ -30,11 +30,11 @@ namespace cc {
 class FileUtilsLinux : public FileUtils {
 public:
     friend class FileUtils;
-    bool        isFileExistInternal(const std::string &filename) const override;
-    std::string getWritablePath() const override;
-    bool        init() override;
+    bool          isFileExistInternal(const ccstd::string &filename) const override;
+    ccstd::string getWritablePath() const override;
+    bool          init() override;
 
 private:
-    std::string _writablePath;
+    ccstd::string _writablePath;
 };
 } // namespace cc

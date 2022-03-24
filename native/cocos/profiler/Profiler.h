@@ -75,7 +75,7 @@ private:
     static void doFrameUpdate();
     void        printStats();
 
-    void beginBlock(const std::string &name);
+    void beginBlock(const ccstd::string &name);
     void endBlock();
     void gatherBlocks(ProfilerBlock *parent, uint32_t depth, std::vector<ProfilerBlockDepth> &outBlocks);
 
@@ -97,7 +97,7 @@ private:
  */
 class AutoProfiler {
 public:
-    AutoProfiler(Profiler *profiler, const std::string &name)
+    AutoProfiler(Profiler *profiler, const ccstd::string &name)
     : _profiler(profiler) {
         _profiler->beginBlock(name);
     }

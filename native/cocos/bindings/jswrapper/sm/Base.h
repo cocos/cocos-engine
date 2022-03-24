@@ -33,22 +33,22 @@
 #include "jsapi.h"
 #include "jsfriendapi.h"
 
-#include "js/Initialization.h"
-#include "js/Conversions.h"
-#include "js/ArrayBuffer.h"
-#include "js/JSON.h"
-#include "js/Equality.h"
-#include "js/Warnings.h"
-#include "js/LocaleSensitive.h"
-#include "js/ContextOptions.h"
-#include "js/CompilationAndEvaluation.h"
-#include "js/SourceText.h"
-#include "js/GCAPI.h"
-#include "js/BuildId.h"
-#include "js/MemoryMetrics.h"
 #include "js/Array.h"
-#include "js/experimental/TypedData.h"
+#include "js/ArrayBuffer.h"
 #include "js/BigInt.h"
+#include "js/BuildId.h"
+#include "js/CompilationAndEvaluation.h"
+#include "js/ContextOptions.h"
+#include "js/Conversions.h"
+#include "js/Equality.h"
+#include "js/GCAPI.h"
+#include "js/Initialization.h"
+#include "js/JSON.h"
+#include "js/LocaleSensitive.h"
+#include "js/MemoryMetrics.h"
+#include "js/SourceText.h"
+#include "js/Warnings.h"
+#include "js/experimental/TypedData.h"
 
 #include "mozilla/Unused.h"
 
@@ -58,7 +58,7 @@
 #include <assert.h>
 #include <chrono>
 #include <functional>
-#include <string>
+#include <initializer_list>
 #include <unordered_map>
 #include <vector>
-#include <initializer_list>
+#include "base/std/container/string.h"

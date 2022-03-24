@@ -95,7 +95,7 @@ public:
      * @param path The path of the target node
      * @param referenceNode If given, the search will be limited in the sub node tree of the reference node
      */
-    //    static Node *find(const std::string &path, Node *referenceNode = nullptr);
+    //    static Node *find(const ccstd::string &path, Node *referenceNode = nullptr);
 
     /**
      * @en Determine whether the given object is a normal Node. Will return false if [[Scene]] given.
@@ -108,7 +108,7 @@ public:
     static void clearNodeArray();
 
     Node();
-    explicit Node(const std::string &name);
+    explicit Node(const ccstd::string &name);
     ~Node() override;
 
     void setParent(Node *parent, bool isKeepWorld = false);
@@ -250,7 +250,7 @@ public:
         val ? _objFlags |= Flags::DONT_DESTROY : _objFlags &= ~Flags::DONT_DESTROY;
     }
 
-    inline const std::string &getUuid() const {
+    inline const ccstd::string &getUuid() const {
         return _id;
     }
 
@@ -265,9 +265,9 @@ public:
     inline Node *                                   getParent() const { return _parent; }
     inline NodeEventProcessor *                     getEventProcessor() const { return _eventProcessor; }
 
-    Node *           getChildByUuid(const std::string &) const;
-    Node *           getChildByName(const std::string &) const;
-    Node *           getChildByPath(const std::string &) const;
+    Node *           getChildByUuid(const ccstd::string &) const;
+    Node *           getChildByName(const ccstd::string &) const;
+    Node *           getChildByPath(const ccstd::string &) const;
     inline index_t   getSiblingIndex() const { return _siblingIndex; }
     inline UserData *getUserData() { return _userData.get(); }
     inline void      setUserData(UserData *data) { _userData = data; }
@@ -681,7 +681,7 @@ public:
     std::function<void(index_t)> onSiblingIndexChanged{nullptr};
     index_t                      _siblingIndex{0};
     // For deserialization
-    std::string                       _id;
+    ccstd::string                     _id;
     ccstd::vector<IntrusivePtr<Node>> _children;
     Node *                            _parent{nullptr};
     bool                              _active{true};

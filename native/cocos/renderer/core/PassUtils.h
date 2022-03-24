@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <string>
 #include "base/Ptr.h"
 #include "base/TypeDef.h"
+#include "base/std/container/string.h"
 #include "cocos/base/Variant.h"
 
 #include "math/Color.h"
@@ -64,13 +64,13 @@ constexpr uint32_t  customizeType(uint32_t handle, gfx::Type type) {
     return (handle & ~TYPE_MASK) | ((static_cast<uint32_t>(type) << 26) & TYPE_MASK);
 }
 
-using MacroValue = cc::variant<int32_t, bool, std::string>;
+using MacroValue = cc::variant<int32_t, bool, ccstd::string>;
 
 /**
  * @en Combination of preprocess macros
  * @zh 预处理宏组合
  */
-using MacroRecord = Record<std::string, MacroValue>;
+using MacroRecord = Record<ccstd::string, MacroValue>;
 
 using MaterialProperty = cc::variant<cc::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, IntrusivePtr<TextureBase> /*10*/, IntrusivePtr<gfx::Texture> /*11*/>;
 
@@ -93,7 +93,7 @@ extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer;
  * @param type The type of the uniform
  */
 const ccstd::vector<float> &getDefaultFloatArrayFromType(gfx::Type type);
-const std::string &         getDefaultStringFromType(gfx::Type type);
+const ccstd::string &       getDefaultStringFromType(gfx::Type type);
 
 /**
  * @en Combination of preprocess macros

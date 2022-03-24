@@ -61,10 +61,10 @@ public:
     void            restoreContext() override;
     void            clearRect(float /*x*/, float /*y*/, float w, float h) override;
     void            fillRect(float x, float y, float w, float h) override;
-    void            fillText(const std::string &text, float x, float y, float /*maxWidth*/) override;
-    void            strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const;
-    Size            measureText(const std::string &text) override;
-    void            updateFont(const std::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
+    void            fillText(const ccstd::string &text, float x, float y, float /*maxWidth*/) override;
+    void            strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const;
+    Size            measureText(const ccstd::string &text) override;
+    void            updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
     void            setTextAlign(CanvasTextAlign align) override;
     void            setTextBaseline(CanvasTextBaseline baseline) override;
     void            setFillStyle(float r, float g, float b, float a) override;
@@ -72,22 +72,22 @@ public:
     void            setLineWidth(float lineWidth) override;
     const cc::Data &getDataRef() const override;
     void            fill() override;
-    void            setLineCap(const std::string &lineCap) override;
-    void            setLineJoin(const std::string &lineCap) override;
+    void            setLineCap(const ccstd::string &lineCap) override;
+    void            setLineJoin(const ccstd::string &lineCap) override;
     void            fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
-    void            strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
+    void            strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     void            rect(float x, float y, float w, float h) override;
     void            updateData() override {}
 
 private:
-    static wchar_t *     utf8ToUtf16(const std::string &str, int *pRetLen = nullptr);
+    static wchar_t *     utf8ToUtf16(const ccstd::string &str, int *pRetLen = nullptr);
     void                 removeCustomFont();
-    int                  drawText(const std::string &text, int x, int y);
+    int                  drawText(const ccstd::string &text, int x, int y);
     Size                 sizeWithText(const wchar_t *pszText, int nLen);
     void                 prepareBitmap(int nWidth, int nHeight);
     void                 deleteBitmap();
     void                 fillTextureData();
-    std::array<float, 2> convertDrawPoint(Point point, const std::string &text);
+    std::array<float, 2> convertDrawPoint(Point point, const ccstd::string &text);
 
 public:
     Display *    _dis{nullptr};
@@ -104,14 +104,14 @@ private:
     int32_t _lineJoin{0};
 
 private:
-    cc::Data    _imageData;
-    std::string _curFontPath;
-    int         _savedDC{0};
-    float       _lineWidth{0.0F};
-    float       _bufferWidth{0.0F};
-    float       _bufferHeight{0.0F};
+    cc::Data      _imageData;
+    ccstd::string _curFontPath;
+    int           _savedDC{0};
+    float         _lineWidth{0.0F};
+    float         _bufferWidth{0.0F};
+    float         _bufferHeight{0.0F};
 
-    std::string        _fontName;
+    ccstd::string      _fontName;
     int                _fontSize{0};
     Size               _textSize;
     CanvasTextAlign    _textAlign{CanvasTextAlign::CENTER};

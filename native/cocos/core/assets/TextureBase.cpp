@@ -25,9 +25,9 @@
 
 #include "core/assets/TextureBase.h"
 #include "base/StringUtil.h"
+#include "cocos/core/platform/Debug.h"
 #include "core/event/EventTypesToJS.h"
 #include "core/utils/IDGenerator.h"
-#include "cocos/core/platform/Debug.h"
 
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
@@ -120,7 +120,7 @@ gfx::Sampler *TextureBase::getGFXSampler() const {
         if (_gfxDevice != nullptr) {
             const_cast<TextureBase *>(this)->_gfxSampler = _gfxDevice->getSampler(_samplerInfo);
         } else {
-           debug::errorID(9302);
+            debug::errorID(9302);
         }
     }
     return _gfxSampler;
@@ -132,16 +132,16 @@ cc::any TextureBase::serialize(const cc::any & /*ctxForExporting*/) {
     //            this._wrapS},${this._wrapT},${
     //            this._mipFilter},${this._anisotropy}`;
     //    }
-    return std::string("");
+    return ccstd::string("");
 }
 
 void TextureBase::deserialize(const cc::any &serializedData, const cc::any & /*handle*/) {
-    const auto *pData = cc::any_cast<const std::string>(&serializedData);
+    const auto *pData = cc::any_cast<const ccstd::string>(&serializedData);
     if (pData == nullptr) {
         return;
     }
-    const std::string &data   = *pData;
-    auto               fields = StringUtil::split(data, ",");
+    const ccstd::string &data   = *pData;
+    auto                 fields = StringUtil::split(data, ",");
     fields.insert(fields.begin(), "");
 
     if (fields.size() >= 5) {

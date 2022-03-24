@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include <string>
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 #include "platform/FileUtils.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
@@ -219,7 +219,7 @@ public:
         *
         * @since v2.0.5
         */
-    explicit ZipFile(const std::string &zipFile, const std::string &filter = std::string());
+    explicit ZipFile(const ccstd::string &zipFile, const ccstd::string &filter = ccstd::string());
     virtual ~ZipFile();
 
     /**
@@ -231,7 +231,7 @@ public:
         *
         * @since v2.0.5
         */
-    bool setFilter(const std::string &filter);
+    bool setFilter(const ccstd::string &filter);
 
     /**
         * Check does a file exists or not in zip file
@@ -241,7 +241,7 @@ public:
         *
         * @since v2.0.5
         */
-    bool fileExists(const std::string &fileName) const;
+    bool fileExists(const ccstd::string &fileName) const;
 
     /**
         * Get resource file data from a zip file.
@@ -252,7 +252,7 @@ public:
         *
         * @since v2.0.5
         */
-    unsigned char *getFileData(const std::string &fileName, ssize_t *size);
+    unsigned char *getFileData(const ccstd::string &fileName, ssize_t *size);
 
     /**
         * Get resource file data from a zip file.
@@ -260,10 +260,10 @@ public:
         * @param[out] buffer If the file read operation succeeds, if will contain the file data.
         * @return True if successful.
         */
-    bool getFileData(const std::string &fileName, ResizableBuffer *buffer);
+    bool getFileData(const ccstd::string &fileName, ResizableBuffer *buffer);
 
-    std::string getFirstFilename();
-    std::string getNextFilename();
+    ccstd::string getFirstFilename();
+    ccstd::string getNextFilename();
 
     static ZipFile *createWithBuffer(const void *buffer, uint32_t size);
 
@@ -272,7 +272,7 @@ private:
     ZipFile();
 
     bool initWithBuffer(const void *buffer, uint32_t size);
-    int  getCurrentFileInfo(std::string *filename, unz_file_info *info);
+    int  getCurrentFileInfo(ccstd::string *filename, unz_file_info *info);
 
     /** Internal data like zip file pointer / file list array and so on */
     ZipFilePrivate *_data{nullptr};

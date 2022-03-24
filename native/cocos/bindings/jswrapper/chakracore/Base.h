@@ -32,8 +32,8 @@
 #include <assert.h>
 #include <chrono>
 #include <functional>
-#include <string>
 #include <unordered_map>
 #include <vector>
+#include "base/std/container/string.h"
 
 #include "HelperMacros.h"

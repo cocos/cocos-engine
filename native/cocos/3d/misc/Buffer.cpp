@@ -29,7 +29,7 @@
 namespace cc {
 
 namespace {
-Record<gfx::FormatType, std::string> typeMap{
+Record<gfx::FormatType, ccstd::string> typeMap{
     {gfx::FormatType::UNORM, "Uint"},
     {gfx::FormatType::SNORM, "Int"},
     {gfx::FormatType::UINT, "Uint"},
@@ -38,9 +38,9 @@ Record<gfx::FormatType, std::string> typeMap{
     {gfx::FormatType::FLOAT, "Float"},
 };
 
-std::string getDataViewType(const gfx::FormatInfo &info) {
-    std::string type;
-    auto        iter = typeMap.find(info.type);
+ccstd::string getDataViewType(const gfx::FormatInfo &info) {
+    ccstd::string type;
+    auto          iter = typeMap.find(info.type);
     if (iter != typeMap.end()) {
         type = iter->second;
     } else {
@@ -79,8 +79,8 @@ DataView mapBuffer(DataView &                target,
         stride = info.size;
     }
 
-    static const std::string SET_PREFIX{"set"};
-    static const std::string GET_PREFIX{"get"};
+    static const ccstd::string SET_PREFIX{"set"};
+    static const ccstd::string GET_PREFIX{"get"};
 
     bool                 isFloat    = info.type == gfx::FormatType::FLOAT || info.type == gfx::FormatType::UFLOAT;
     DataView::IntWritter intWritter = nullptr;

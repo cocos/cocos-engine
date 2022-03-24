@@ -160,7 +160,7 @@ private:
 };
 
 struct GpuMorphAttribute {
-    std::string                attributeName;
+    ccstd::string              attributeName;
     IntrusivePtr<MorphTexture> morphTexture;
 };
 
@@ -171,7 +171,7 @@ struct CpuMorphAttributeTarget {
 using CpuMorphAttributeTargetList = ccstd::vector<CpuMorphAttributeTarget>;
 
 struct CpuMorphAttribute {
-    std::string                 name;
+    ccstd::string               name;
     CpuMorphAttributeTargetList targets;
 };
 

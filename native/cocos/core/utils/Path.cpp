@@ -30,9 +30,9 @@
 namespace cc {
 
 namespace {
-const std::string EMPTY_STRING;
+const ccstd::string EMPTY_STRING;
 
-std::string &removeLastSlash(std::string &path) {
+ccstd::string &removeLastSlash(ccstd::string &path) {
     if (!path.empty()) {
         if (path[path.length() - 1] == '/' || path[path.length() - 1] == '\\') {
             path = path.substr(0, path.length() - 1);
@@ -45,8 +45,8 @@ std::string &removeLastSlash(std::string &path) {
 
 } // namespace
 
-std::string join(const ccstd::vector<std::string> &segments) {
-    std::string result;
+ccstd::string join(const ccstd::vector<ccstd::string> &segments) {
+    ccstd::string result;
 
     for (const auto &segment : segments) {
         if (!result.empty()) {
@@ -59,29 +59,29 @@ std::string join(const ccstd::vector<std::string> &segments) {
     return result;
 }
 
-std::string extname(const std::string &path) {
+ccstd::string extname(const ccstd::string &path) {
     if (path.empty()) {
         return EMPTY_STRING;
     }
 
-    std::string newPath = path;
-    size_t      index   = path.find_first_of('?');
-    if (index != std::string::npos && index > 0) {
+    ccstd::string newPath = path;
+    size_t        index   = path.find_first_of('?');
+    if (index != ccstd::string::npos && index > 0) {
         newPath = newPath.substr(0, index);
     }
 
     index = newPath.find_last_of('.');
-    if (index == std::string::npos) {
+    if (index == ccstd::string::npos) {
         return EMPTY_STRING;
     }
 
     return newPath.substr(index);
 }
 
-std::string mainFileName(const std::string &fileName) {
+ccstd::string mainFileName(const ccstd::string &fileName) {
     if (!fileName.empty()) {
         size_t idx = fileName.find_last_of('.');
-        if (idx != std::string::npos) {
+        if (idx != ccstd::string::npos) {
             return fileName.substr(0, idx);
         }
     }
@@ -89,25 +89,25 @@ std::string mainFileName(const std::string &fileName) {
     return fileName;
 }
 
-std::string basename(const std::string &path, const std::string &extName /* = ""*/) {
-    std::string newPath = path;
-    size_t      index   = path.find_first_of('?');
-    if (index != std::string::npos && index > 0) {
+ccstd::string basename(const ccstd::string &path, const ccstd::string &extName /* = ""*/) {
+    ccstd::string newPath = path;
+    size_t        index   = path.find_first_of('?');
+    if (index != ccstd::string::npos && index > 0) {
         newPath = newPath.substr(0, index);
     }
 
     removeLastSlash(newPath);
 
     index = newPath.find_last_of("/\\");
-    if (index == std::string::npos) {
+    if (index == ccstd::string::npos) {
         return newPath;
     }
 
-    std::string baseName = newPath.substr(index + 1);
+    ccstd::string baseName = newPath.substr(index + 1);
 
     if (!extName.empty() && extName.length() < newPath.length()) {
-        std::string extInPath       = newPath.substr(newPath.length() - extName.length());
-        std::string expectedExtName = extName;
+        ccstd::string extInPath       = newPath.substr(newPath.length() - extName.length());
+        ccstd::string expectedExtName = extName;
         if (StringUtil::tolower(extInPath) == StringUtil::tolower(expectedExtName)) {
             baseName = baseName.substr(0, baseName.length() - extName.length());
         }
@@ -116,50 +116,50 @@ std::string basename(const std::string &path, const std::string &extName /* = ""
     return baseName;
 }
 
-std::string dirname(const std::string &path) {
+ccstd::string dirname(const ccstd::string &path) {
     size_t index = path.find_last_of("/\\");
-    if (index == std::string::npos) {
+    if (index == ccstd::string::npos) {
         return "";
     }
 
-    std::string dir = path.substr(0, index);
+    ccstd::string dir = path.substr(0, index);
     removeLastSlash(dir);
     return dir;
 }
 
-std::string changeExtname(const std::string &path, const std::string &extName /* = ""*/) {
-    size_t      index   = path.find_first_of('?');
-    std::string newPath = path;
-    std::string tempStr;
-    if (index != std::string::npos && index > 0) {
+ccstd::string changeExtname(const ccstd::string &path, const ccstd::string &extName /* = ""*/) {
+    size_t        index   = path.find_first_of('?');
+    ccstd::string newPath = path;
+    ccstd::string tempStr;
+    if (index != ccstd::string::npos && index > 0) {
         tempStr = path.substr(index);
         newPath = path.substr(0, index);
     }
 
     index = newPath.find_last_of('.');
-    if (index == std::string::npos) {
+    if (index == ccstd::string::npos) {
         return newPath + extName + tempStr;
     }
 
     return newPath.substr(0, index) + extName + tempStr;
 }
 
-std::string changeBasename(const std::string &path, const std::string &baseName, bool isSameExt /* = false*/) {
+ccstd::string changeBasename(const ccstd::string &path, const ccstd::string &baseName, bool isSameExt /* = false*/) {
     if (baseName.find_last_of('.') == 0) {
         return changeExtname(path, baseName);
     }
 
-    size_t            index = path.find_last_of('?');
-    std::string       tempStr;
-    std::string       newPath = path;
-    const std::string ext     = isSameExt ? extname(path) : "";
-    if (index != std::string::npos && index > 0) {
+    size_t              index = path.find_last_of('?');
+    ccstd::string       tempStr;
+    ccstd::string       newPath = path;
+    const ccstd::string ext     = isSameExt ? extname(path) : "";
+    if (index != ccstd::string::npos && index > 0) {
         tempStr = path.substr(index);
         newPath = path.substr(0, index);
     }
 
     index = newPath.find_last_of("/\\");
-    if (index == std::string::npos) {
+    if (index == ccstd::string::npos) {
         index = 0;
     } else if (index > 0) {
         ++index;
@@ -168,31 +168,31 @@ std::string changeBasename(const std::string &path, const std::string &baseName,
     return newPath.substr(0, index) + baseName + ext + tempStr;
 }
 
-std::string normalize(const std::string &url) {
-    std::string oldUrl = url;
-    std::string newUrl = url;
+ccstd::string normalize(const ccstd::string &url) {
+    ccstd::string oldUrl = url;
+    ccstd::string newUrl = url;
 
     // remove all ../
     do {
         oldUrl       = newUrl;
         size_t index = newUrl.find("../");
-        if (index == std::string::npos) {
+        if (index == ccstd::string::npos) {
             index = newUrl.find("..\\");
         }
-        size_t previousSlashIndex      = std::string::npos;
-        size_t previousTwiceSlashIndex = std::string::npos;
-        if (index != std::string::npos && index > 0) {
+        size_t previousSlashIndex      = ccstd::string::npos;
+        size_t previousTwiceSlashIndex = ccstd::string::npos;
+        if (index != ccstd::string::npos && index > 0) {
             previousSlashIndex = newUrl.find_last_of("/\\", index - 1);
-            if (previousSlashIndex != std::string::npos) {
+            if (previousSlashIndex != ccstd::string::npos) {
                 previousTwiceSlashIndex = newUrl.find_last_of("/\\", previousSlashIndex - 1);
             }
         }
 
-        if (previousTwiceSlashIndex == std::string::npos) {
-            if (previousSlashIndex != std::string::npos) {
+        if (previousTwiceSlashIndex == ccstd::string::npos) {
+            if (previousSlashIndex != ccstd::string::npos) {
                 newUrl = newUrl.substr(index + strlen("../"));
             }
-        } else if (previousSlashIndex != std::string::npos) {
+        } else if (previousSlashIndex != ccstd::string::npos) {
             newUrl = newUrl.substr(0, previousTwiceSlashIndex) + '/' + newUrl.substr(index + strlen("../"));
         }
     } while (oldUrl.length() != newUrl.length());
@@ -200,8 +200,8 @@ std::string normalize(const std::string &url) {
     return newUrl;
 }
 
-std::string stripSep(const std::string &path) {
-    std::string result = path;
+ccstd::string stripSep(const ccstd::string &path) {
+    ccstd::string result = path;
     removeLastSlash(result);
     return result;
 }

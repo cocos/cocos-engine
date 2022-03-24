@@ -28,9 +28,9 @@
 #include <iostream>
 #include <mutex>
 #include <sstream>
-#include <string>
 #include <utility>
 #include "base/StringUtil.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 
 namespace cc {
@@ -158,32 +158,32 @@ struct ObjectCounter {
 
 // assume update in main thread only.
 struct CoreStats {
-    uint32_t    fps{0U};
-    float       frameTime{0.0F};
-    std::string gfx;
-    bool        multiThread{true};
-    bool        occlusionQuery{false};
-    bool        shadowMap{false};
-    uint32_t    screenWidth{0U};
-    uint32_t    screenHeight{0U};
+    uint32_t      fps{0U};
+    float         frameTime{0.0F};
+    ccstd::string gfx;
+    bool          multiThread{true};
+    bool          occlusionQuery{false};
+    bool          shadowMap{false};
+    uint32_t      screenWidth{0U};
+    uint32_t      screenHeight{0U};
 };
 
 struct MemoryStats {
     // memory stats
-    std::mutex                                       mutex;
-    ccstd::unordered_map<std::string, MemoryCounter> memories;
+    std::mutex                                         mutex;
+    ccstd::unordered_map<ccstd::string, MemoryCounter> memories;
 
-    inline void update(const std::string &name, uint64_t value) {
+    inline void update(const ccstd::string &name, uint64_t value) {
         std::lock_guard<std::mutex> lock(mutex);
         memories[name] = value;
     }
 
-    inline void inc(const std::string &name, uint64_t value) {
+    inline void inc(const ccstd::string &name, uint64_t value) {
         std::lock_guard<std::mutex> lock(mutex);
         memories[name] += value;
     }
 
-    inline void dec(const std::string &name, uint64_t value) {
+    inline void dec(const ccstd::string &name, uint64_t value) {
         std::lock_guard<std::mutex> lock(mutex);
         memories[name] -= value;
     }
@@ -192,9 +192,9 @@ struct MemoryStats {
 // assume update in main thread only.
 struct ObjectStats {
     // render stats: drawcalls, instances, triangles, etc
-    ccstd::unordered_map<std::string, ObjectCounter> renders;
+    ccstd::unordered_map<ccstd::string, ObjectCounter> renders;
     // object stats
-    ccstd::unordered_map<std::string, ObjectCounter> objects;
+    ccstd::unordered_map<ccstd::string, ObjectCounter> objects;
 
     inline void onFrameBegin() {
         for (auto &item : renders) {
@@ -219,7 +219,7 @@ struct ObjectStats {
 
 class StatsUtil {
 public:
-    static inline std::string formatBytes(uint64_t bytes) {
+    static inline ccstd::string formatBytes(uint64_t bytes) {
         if (bytes >= 1024 * 1024 * 1024) {
             return StringUtil::format("%.3fG", bytes / (1024.0F * 1024.0F * 1024.0F));
         } else if (bytes >= 1024 * 1024) {
@@ -231,7 +231,7 @@ public:
         }
     }
 
-    static inline std::string formatTime(uint64_t time) {
+    static inline ccstd::string formatTime(uint64_t time) {
         if (time >= 1000000) {
             return StringUtil::format("%.3fs", time / 1000000.0F);
         } else {
@@ -239,7 +239,7 @@ public:
         }
     }
 
-    static inline std::string formatName(uint32_t depth, const std::string &name) {
+    static inline ccstd::string formatName(uint32_t depth, const ccstd::string &name) {
         if (depth > 0U) {
             return StringUtil::format("%*s%s", depth * 2, " ", name.c_str());
         }

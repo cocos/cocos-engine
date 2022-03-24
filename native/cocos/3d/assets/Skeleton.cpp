@@ -53,8 +53,8 @@ uint64_t Skeleton::getHash() {
                  << ibm.m[8] << " " << ibm.m[9] << " " << ibm.m[10] << " " << ibm.m[11] << " "
                  << ibm.m[12] << " " << ibm.m[13] << " " << ibm.m[14] << " " << ibm.m[15] << "\n";
         }
-        std::string str{sstr.str()};
-        std::size_t seed = 666;
+        ccstd::string str{sstr.str()};
+        std::size_t   seed = 666;
         boost::hash_range(seed, str.begin(), str.end());
         _hash = static_cast<uint32_t>(seed);
     }

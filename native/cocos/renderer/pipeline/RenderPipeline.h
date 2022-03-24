@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <string>
 #include "Define.h"
 #include "base/CoreStd.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "core/assets/Asset.h"
 #include "frame-graph/FrameGraph.h"
@@ -75,27 +75,27 @@ public:
     virtual void render(const ccstd::vector<scene::Camera *> &cameras);
     virtual void onGlobalPipelineStateChanged();
 
-    inline const RenderFlowList &                         getFlows() const { return _flows; }
-    inline uint                                           getTag() const { return _tag; }
-    inline const ccstd::map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
-    inline const MacroRecord &                            getMacros() const { return _macros; }
-    inline void                                           setValue(const String &name, int32_t value) { _macros[name] = value; }
-    inline void                                           setValue(const String &name, bool value) { _macros[name] = value; }
-    inline void                                           setValue(const String &name, const std::string &value) { _macros[name] = value; }
-    inline GlobalDSManager *                              getGlobalDSManager() const { return _globalDSManager; }
-    inline gfx::DescriptorSet *                           getDescriptorSet() const { return _descriptorSet; }
-    gfx::DescriptorSetLayout *                            getDescriptorSetLayout() const;
-    inline PipelineSceneData *                            getPipelineSceneData() const { return _pipelineSceneData; }
-    inline const gfx::CommandBufferList &                 getCommandBuffers() const { return _commandBuffers; }
-    inline const gfx::QueryPoolList &                     getQueryPools() const { return _queryPools; }
-    inline PipelineUBO *                                  getPipelineUBO() const { return _pipelineUBO; }
-    inline const String &                                 getConstantMacros() const { return _constantMacros; }
-    inline gfx::Device *                                  getDevice() const { return _device; }
-    RenderStage *                                         getRenderstageByName(const String &name) const;
-    bool                                                  isOccluded(const scene::Camera *camera, const scene::SubModel *subModel);
-    bool                                                  isOcclusionQueryEnabled() const { return _occlusionQueryEnabled && _device->getCapabilities().supportQuery; }
-    void                                                  setOcclusionQueryEnabled(bool enable) { _occlusionQueryEnabled = enable; }
-    bool                                                  isEnvmapEnabled() const;
+    inline const RenderFlowList &                                getFlows() const { return _flows; }
+    inline uint                                                  getTag() const { return _tag; }
+    inline const ccstd::map<ccstd::string, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
+    inline const MacroRecord &                                   getMacros() const { return _macros; }
+    inline void                                                  setValue(const ccstd::string &name, int32_t value) { _macros[name] = value; }
+    inline void                                                  setValue(const ccstd::string &name, bool value) { _macros[name] = value; }
+    inline void                                                  setValue(const ccstd::string &name, const ccstd::string &value) { _macros[name] = value; }
+    inline GlobalDSManager *                                     getGlobalDSManager() const { return _globalDSManager; }
+    inline gfx::DescriptorSet *                                  getDescriptorSet() const { return _descriptorSet; }
+    gfx::DescriptorSetLayout *                                   getDescriptorSetLayout() const;
+    inline PipelineSceneData *                                   getPipelineSceneData() const { return _pipelineSceneData; }
+    inline const gfx::CommandBufferList &                        getCommandBuffers() const { return _commandBuffers; }
+    inline const gfx::QueryPoolList &                            getQueryPools() const { return _queryPools; }
+    inline PipelineUBO *                                         getPipelineUBO() const { return _pipelineUBO; }
+    inline const ccstd::string &                                 getConstantMacros() const { return _constantMacros; }
+    inline gfx::Device *                                         getDevice() const { return _device; }
+    RenderStage *                                                getRenderstageByName(const ccstd::string &name) const;
+    bool                                                         isOccluded(const scene::Camera *camera, const scene::SubModel *subModel);
+    bool                                                         isOcclusionQueryEnabled() const { return _occlusionQueryEnabled && _device->getCapabilities().supportQuery; }
+    void                                                         setOcclusionQueryEnabled(bool enable) { _occlusionQueryEnabled = enable; }
+    bool                                                         isEnvmapEnabled() const;
 
     gfx::Viewport           getViewport(scene::Camera *camera);
     gfx::Rect               getScissor(scene::Camera *camera);
@@ -129,13 +129,13 @@ protected:
 
     static void framegraphGC();
 
-    gfx::CommandBufferList                  _commandBuffers;
-    gfx::QueryPoolList                      _queryPools;
-    RenderFlowList                          _flows;
-    ccstd::map<String, InternalBindingInst> _globalBindings;
-    MacroRecord                             _macros;
-    uint                                    _tag = 0;
-    String                                  _constantMacros;
+    gfx::CommandBufferList                         _commandBuffers;
+    gfx::QueryPoolList                             _queryPools;
+    RenderFlowList                                 _flows;
+    ccstd::map<ccstd::string, InternalBindingInst> _globalBindings;
+    MacroRecord                                    _macros;
+    uint                                           _tag = 0;
+    ccstd::string                                  _constantMacros;
 
     gfx::Device *                   _device{nullptr};
     GlobalDSManager *               _globalDSManager{nullptr};

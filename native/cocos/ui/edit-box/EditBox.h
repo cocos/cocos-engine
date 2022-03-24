@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <string>
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 
@@ -38,16 +38,16 @@ public:
         RIGHT
     };
     struct ShowInfo {
-        std::string defaultValue;
-        std::string confirmType;
-        std::string inputType;
-        int         maxLength   = 0;
-        int         x           = 0;
-        int         y           = 0;
-        int         width       = 0;
-        int         height      = 0;
-        bool        confirmHold = false;
-        bool        isMultiline = false;
+        ccstd::string defaultValue;
+        ccstd::string confirmType;
+        ccstd::string inputType;
+        int           maxLength   = 0;
+        int           x           = 0;
+        int           y           = 0;
+        int           width       = 0;
+        int           height      = 0;
+        bool          confirmHold = false;
+        bool          isMultiline = false;
         //NEW PROPERTIES
         uint32_t fontSize        = 20;
         uint32_t fontColor       = 0x00000000;

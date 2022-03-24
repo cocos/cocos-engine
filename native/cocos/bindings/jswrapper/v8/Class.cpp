@@ -40,7 +40,7 @@ namespace se {
 // ------------------------------------------------------- Object
 
 namespace {
-//        ccstd::unordered_map<std::string, Class *> __clsMap;
+//        ccstd::unordered_map<ccstd::string, Class *> __clsMap;
 v8::Isolate *          __isolate = nullptr; // NOLINT
 ccstd::vector<Class *> __allClasses;        // NOLINT
 
@@ -66,7 +66,7 @@ Class::Class()
 Class::~Class() = default;
 
 /* static */
-Class *Class::create(const std::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor) {
+Class *Class::create(const ccstd::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor) {
     auto *cls = new Class();
     if (cls != nullptr && !cls->init(clsName, parent, parentProto, ctor)) {
         delete cls;
@@ -87,7 +87,7 @@ Class *Class::create(const std::initializer_list<const char *> &classPath, se::O
     return create(*(classPath.end() - 1), currentParent, parentProto, ctor);
 }
 
-bool Class::init(const std::string &clsName, Object *parent, Object *parentProto, v8::FunctionCallback ctor) {
+bool Class::init(const ccstd::string &clsName, Object *parent, Object *parentProto, v8::FunctionCallback ctor) {
     _name = clsName;
 
     _parent = parent;
@@ -234,7 +234,7 @@ bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
     return true;
 }
 
-//    v8::Local<v8::Object> Class::_createJSObject(const std::string &clsName, Class** outCls)
+//    v8::Local<v8::Object> Class::_createJSObject(const ccstd::string &clsName, Class** outCls)
 //    {
 //        auto iter = __clsMap.find(clsName);
 //        if (iter == __clsMap.end())

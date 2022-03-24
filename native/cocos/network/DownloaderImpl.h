@@ -28,8 +28,8 @@
 
 #include <functional>
 #include <memory>
-#include <string>
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 
@@ -65,7 +65,7 @@ public:
     std::function<void(const DownloadTask &                task,
                        int                                 errorCode,
                        int                                 errorCodeInternal,
-                       const std::string &                 errorStr,
+                       const ccstd::string &               errorStr,
                        const ccstd::vector<unsigned char> &data)>
         onTaskFinish;
 

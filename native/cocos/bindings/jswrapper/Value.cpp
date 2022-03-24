@@ -160,7 +160,7 @@ Value::Value(const char *v)
     setString(v);
 }
 
-Value::Value(const std::string &v)
+Value::Value(const ccstd::string &v)
 : _type(Type::Undefined),
   _autoRootUnroot(false) {
     setString(v);
@@ -270,7 +270,7 @@ Value &Value::operator=(Value &&v) noexcept {
 //        return *this;
 //    }
 //
-//    Value& Value::operator=(const std::string& v)
+//    Value& Value::operator=(const ccstd::string& v)
 //    {
 //        setString(v);
 //        return *this;
@@ -360,7 +360,7 @@ void Value::setString(const char *v) {
     }
 }
 
-void Value::setString(const std::string &v) {
+void Value::setString(const ccstd::string &v) {
     reset(Type::String);
     *_u._string = v;
 }
@@ -464,12 +464,12 @@ bool Value::toBoolean() const {
     return _u._boolean;
 }
 
-const std::string &Value::toString() const {
+const ccstd::string &Value::toString() const {
     assert(_type == Type::String);
     return *_u._string;
 }
 
-std::string Value::toStringForce() const {
+ccstd::string Value::toStringForce() const {
     std::stringstream ss;
     if (_type == Type::String) {
         ss << *_u._string;
@@ -525,7 +525,7 @@ void Value::reset(Type type) {
 
         switch (type) {
             case Type::String:
-                _u._string = new std::string();
+                _u._string = new ccstd::string();
                 break;
             default:
                 break;

@@ -223,7 +223,7 @@ gfx::TextureInfo TextureCube::getGfxTextureCreateInfo(gfx::TextureUsageBit usage
     return texInfo;
 }
 
-void TextureCube::initDefault(const cc::optional<std::string> &uuid) {
+void TextureCube::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
 
     auto *imageAsset = new ImageAsset();

@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <string>
 #include <utility>
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 
@@ -39,7 +39,7 @@
 namespace cc {
 
 struct Error {
-    cc::optional<std::string> msg;
+    cc::optional<ccstd::string> msg;
 };
 
 using HTMLElement = void *;
@@ -55,13 +55,13 @@ struct VertexIdChannel {
 };
 
 struct NativeDep {
-    std::string uuid;
-    std::string ext;
-    bool        __isNative__{false}; // NOLINT(bugprone-reserved-identifier)
+    ccstd::string uuid;
+    ccstd::string ext;
+    bool          __isNative__{false}; // NOLINT(bugprone-reserved-identifier)
 
     explicit NativeDep() = default;
 
-    explicit NativeDep(bool isNative, std::string uuid, std::string ext)
+    explicit NativeDep(bool isNative, ccstd::string uuid, ccstd::string ext)
     : uuid(std::move(uuid)), ext(std::move(ext)), __isNative__(isNative), _isValid(true) {}
 
     inline bool isValid() const { return _isValid; }

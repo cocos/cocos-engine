@@ -36,14 +36,14 @@
 
 using namespace cc;
 
-static ccstd::unordered_map<std::string, std::string> _fontFamilyNameMap;
+static ccstd::unordered_map<ccstd::string, ccstd::string> _fontFamilyNameMap;
 
-const ccstd::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
+const ccstd::unordered_map<ccstd::string, ccstd::string> &getFontFamilyNameMap() {
     return _fontFamilyNameMap;
 }
 
-static ccstd::vector<std::string> getAvailableFontFamilyNames() {
-    ccstd::vector<std::string> ret;
+static ccstd::vector<ccstd::string> getAvailableFontFamilyNames() {
+    ccstd::vector<ccstd::string> ret;
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     CFArrayRef allFamilyNames = CTFontManagerCopyAvailableFontFamilyNames();
@@ -63,8 +63,8 @@ static ccstd::vector<std::string> getAvailableFontFamilyNames() {
     return ret;
 }
 
-static std::string getFontFamilyByCompareAvailableFontFamilyNames(const ccstd::vector<std::string> &before, const ccstd::vector<std::string> &after) {
-    std::string ret;
+static ccstd::string getFontFamilyByCompareAvailableFontFamilyNames(const ccstd::vector<ccstd::string> &before, const ccstd::vector<ccstd::string> &after) {
+    ccstd::string ret;
     size_t beforeLen = before.size();
     size_t afterLen = after.size();
     if (afterLen > beforeLen) {
@@ -96,7 +96,7 @@ static bool JSB_loadFont(se::State &s) {
     if (argc >= 1) {
         s.rval().setNull();
 
-        std::string originalFamilyName;
+        ccstd::string originalFamilyName;
         ok &= sevalue_to_native(args[0], &originalFamilyName);
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: originalFamilyName");
 
@@ -106,13 +106,13 @@ static bool JSB_loadFont(se::State &s) {
             return true;
         }
 
-        std::string source;
+        ccstd::string source;
         ok &= sevalue_to_native(args[1], &source);
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: source");
 
-        std::string fontFilePath;
+        ccstd::string fontFilePath;
         std::regex re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
-        std::match_results<std::string::const_iterator> results;
+        std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(source.cbegin(), source.cend(), results, re)) {
             fontFilePath = results[1].str();
         }
@@ -146,7 +146,7 @@ static bool JSB_loadFont(se::State &s) {
 
         if (succeed) {
             const auto &familyNamesAfterRegister = getAvailableFontFamilyNames();
-            std::string familyName = getFontFamilyByCompareAvailableFontFamilyNames(familyNamesBeforeRegister, familyNamesAfterRegister);
+            ccstd::string familyName = getFontFamilyByCompareAvailableFontFamilyNames(familyNamesBeforeRegister, familyNamesAfterRegister);
             if (!familyName.empty()) {
                 _fontFamilyNameMap.emplace(originalFamilyName, familyName);
                 s.rval().setString(familyName);

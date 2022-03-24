@@ -226,22 +226,22 @@ float clampCssFloat(T f) { // Clamp to float 0.0 .. 1.0.
                              : float(f);
 }
 
-float parseFloat(const std::string &str) {
+float parseFloat(const ccstd::string &str) {
     return strtof(str.c_str(), nullptr);
 }
 
-int64_t parseInt(const std::string &str, uint8_t base = 10) {
+int64_t parseInt(const ccstd::string &str, uint8_t base = 10) {
     return strtoll(str.c_str(), nullptr, base);
 }
 
-uint8_t parseCssInt(const std::string &str) { // int or percentage.
+uint8_t parseCssInt(const ccstd::string &str) { // int or percentage.
     if (str.length() && str.back() == '%') {
         return clampCssByte(parseFloat(str) / 100.0f * 255.0f);
     }
     return clampCssByte(parseInt(str));
 }
 
-float parseCssFloat(const std::string &str) { // float or percentage.
+float parseCssFloat(const ccstd::string &str) { // float or percentage.
     if (str.length() && str.back() == '%') {
         return clampCssFloat(parseFloat(str) / 100.0f);
     }
@@ -267,18 +267,18 @@ float cssHueToRgb(float m1, float m2, float h) {
     return m1;
 }
 
-ccstd::vector<std::string> split(const std::string &s, char delim) {
-    ccstd::vector<std::string> elems;
-    std::stringstream          ss(s);
-    std::string                item;
+ccstd::vector<ccstd::string> split(const ccstd::string &s, char delim) {
+    ccstd::vector<ccstd::string> elems;
+    std::stringstream            ss(s);
+    ccstd::string                item;
     while (std::getline(ss, item, delim)) {
         elems.push_back(item);
     }
     return elems;
 }
 
-Color parse(const std::string &cssStr) {
-    std::string str = cssStr;
+Color parse(const ccstd::string &cssStr) {
+    ccstd::string str = cssStr;
 
     // Remove all whitespace, not compliant, but should just be more accepting.
     str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
@@ -323,9 +323,9 @@ Color parse(const std::string &cssStr) {
 
     size_t op = str.find_first_of('(');
     size_t ep = str.find_first_of(')');
-    if (op != std::string::npos && ep + 1 == str.length()) {
-        const std::string                fname = str.substr(0, op);
-        const ccstd::vector<std::string> params =
+    if (op != ccstd::string::npos && ep + 1 == str.length()) {
+        const ccstd::string                fname = str.substr(0, op);
+        const ccstd::vector<ccstd::string> params =
             split(str.substr(op + 1, ep - (op + 1)), ',');
 
         float alpha = 1.0f;

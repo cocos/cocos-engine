@@ -130,7 +130,7 @@ void Material::resetUniforms(bool clearPasses /* = true */) {
     }
 }
 
-void Material::setProperty(const std::string &name, const MaterialPropertyVariant &val, index_t passIdx /* = CC_INVALID_INDEX */) {
+void Material::setProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx /* = CC_INVALID_INDEX */) {
     const auto &passes  = *_passes;
     bool        success = false;
     if (passIdx == CC_INVALID_INDEX) { // try set property for all applicable passes
@@ -160,9 +160,9 @@ void Material::setProperty(const std::string &name, const MaterialPropertyVarian
     }
 }
 
-#define CC_MATERIAL_SETPROPERTY_IMPL(funcNameSuffix, type)                                                                   \
-    void Material::setProperty##funcNameSuffix(const std::string &name, type val, index_t passIdx /* = CC_INVALID_INDEX*/) { \
-        setProperty(name, val, passIdx);                                                                                     \
+#define CC_MATERIAL_SETPROPERTY_IMPL(funcNameSuffix, type)                                                                     \
+    void Material::setProperty##funcNameSuffix(const ccstd::string &name, type val, index_t passIdx /* = CC_INVALID_INDEX*/) { \
+        setProperty(name, val, passIdx);                                                                                       \
     }
 
 CC_MATERIAL_SETPROPERTY_IMPL(Float32, float)
@@ -179,14 +179,14 @@ CC_MATERIAL_SETPROPERTY_IMPL(GFXTexture, gfx::Texture *)
 
 #undef CC_MATERIAL_SETPROPERTY_IMPL
 
-#define CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(funcNameSuffix, type)                                                                                         \
-    void Material::setProperty##funcNameSuffix##Array(const std::string &name, const ccstd::vector<type> &val, index_t /*passIdx = CC_INVALID_INDEX*/) { \
-        MaterialPropertyList propertyArr;                                                                                                                \
-        propertyArr.reserve(val.size());                                                                                                                 \
-        for (const auto &e : val) {                                                                                                                      \
-            propertyArr.emplace_back(e);                                                                                                                 \
-        }                                                                                                                                                \
-        setProperty(name, propertyArr);                                                                                                                  \
+#define CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(funcNameSuffix, type)                                                                                           \
+    void Material::setProperty##funcNameSuffix##Array(const ccstd::string &name, const ccstd::vector<type> &val, index_t /*passIdx = CC_INVALID_INDEX*/) { \
+        MaterialPropertyList propertyArr;                                                                                                                  \
+        propertyArr.reserve(val.size());                                                                                                                   \
+        for (const auto &e : val) {                                                                                                                        \
+            propertyArr.emplace_back(e);                                                                                                                   \
+        }                                                                                                                                                  \
+        setProperty(name, propertyArr);                                                                                                                    \
     }
 
 CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(Float32, float)
@@ -203,7 +203,7 @@ CC_MATERIAL_SETPROPERTY_ARRAY_IMPL(GFXTexture, gfx::Texture *)
 
 #undef CC_MATERIAL_SETPROPERTY_ARRAY_IMPL
 
-const MaterialPropertyVariant *Material::getProperty(const std::string &name, index_t passIdx) const {
+const MaterialPropertyVariant *Material::getProperty(const ccstd::string &name, index_t passIdx) const {
     if (passIdx == CC_INVALID_INDEX) { // try get property in all possible passes
         const auto &propsArray = _props;
         size_t      len        = propsArray.size();
@@ -355,7 +355,7 @@ ccstd::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
     return passes;
 }
 
-bool Material::uploadProperty(scene::Pass *pass, const std::string &name, const MaterialPropertyVariant &val) {
+bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, const MaterialPropertyVariant &val) {
     uint32_t handle = pass->getHandle(name);
     if (!handle) {
         return false;
@@ -432,11 +432,11 @@ void Material::bindTexture(scene::Pass *pass, uint32_t handle, const MaterialPro
     }
 }
 
-void Material::initDefault(const cc::optional<std::string> &uuid) {
+void Material::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     MacroRecord   defines{{"USE_COLOR", true}};
     IMaterialInfo info;
-    info.effectName = std::string{"unlit"};
+    info.effectName = ccstd::string{"unlit"};
     info.defines    = IMaterialInfo::DefinesType{defines};
     initialize(info);
     setProperty("mainColor", Color{0xFF, 0x00, 0xFF, 0xFF});

@@ -39,8 +39,8 @@
     #include <list>
     #include <memory>
     #include <mutex>
-    #include <string>
     #include <thread>
+    #include "base/std/container/string.h"
     #include "base/std/container/unordered_map.h"
 
     #if CC_PLATFORM == CC_PLATFORM_OHOS
@@ -62,7 +62,7 @@ class WebSocketServerConnection;
         */
 class DataFrame {
 public:
-    DataFrame(const std::string &data);
+    DataFrame(const ccstd::string &data);
 
     DataFrame(const void *data, int len, bool isBinary = true);
 
@@ -80,11 +80,11 @@ public:
     inline bool isString() const { return !_isBinary; }
     inline bool isFront() const { return _consumed == 0; }
 
-    void setCallback(std::function<void(const std::string &)> callback) {
+    void setCallback(std::function<void(const ccstd::string &)> callback) {
         _callback = callback;
     }
 
-    void onFinish(const std::string &message) {
+    void onFinish(const ccstd::string &message) {
         if (_callback) {
             _callback(message);
         }
@@ -92,15 +92,15 @@ public:
 
     inline int size() const { return _underlyingData.size() - LWS_PRE; }
 
-    std::string toString();
+    ccstd::string toString();
 
     unsigned char *getData() { return _underlyingData.data() + LWS_PRE; }
 
 private:
-    ccstd::vector<unsigned char>             _underlyingData;
-    int                                      _consumed = 0;
-    bool                                     _isBinary = false;
-    std::function<void(const std::string &)> _callback;
+    ccstd::vector<unsigned char>               _underlyingData;
+    int                                        _consumed = 0;
+    bool                                       _isBinary = false;
+    std::function<void(const ccstd::string &)> _callback;
 };
 
 class CC_DLL WebSocketServerConnection {
@@ -115,36 +115,36 @@ public:
         CLOSED     = 4
     };
 
-    void sendTextAsync(const std::string &, std::function<void(const std::string &)> callback);
+    void sendTextAsync(const ccstd::string &, std::function<void(const ccstd::string &)> callback);
 
-    void sendBinaryAsync(const void *, size_t len, std::function<void(const std::string &)> callback);
+    void sendBinaryAsync(const void *, size_t len, std::function<void(const ccstd::string &)> callback);
 
-    void closeAsync(int code, std::string reasson);
+    void closeAsync(int code, ccstd::string reasson);
 
     /** stream is not implemented*/
     //bool beginBinary();
 
     /** should implement in JS */
     // bool send();
-    // bool sendPing(std::string)
+    // bool sendPing(ccstd::string)
 
     //int getSocket();
     //std::shared_ptr<WebSocketServer>& getServer();
-    //std::string& getPath();
+    //ccstd::string& getPath();
 
     inline int getReadyState() const {
         return (int)_readyState;
     }
 
-    ccstd::map<std::string, std::string> getHeaders();
+    ccstd::map<ccstd::string, ccstd::string> getHeaders();
 
-    ccstd::vector<std::string> getProtocols();
+    ccstd::vector<ccstd::string> getProtocols();
 
-    inline void setOnClose(std::function<void(int, const std::string &)> cb) {
+    inline void setOnClose(std::function<void(int, const ccstd::string &)> cb) {
         _onclose = cb;
     }
 
-    inline void setOnError(std::function<void(const std::string &)> cb) {
+    inline void setOnError(std::function<void(const ccstd::string &)> cb) {
         _onerror = cb;
     }
 
@@ -175,7 +175,7 @@ public:
 
 private:
     bool send(std::shared_ptr<DataFrame> data);
-    bool close(int code, std::string reasson);
+    bool close(int code, ccstd::string reasson);
 
     inline void scheduleSend() {
         if (_wsi)
@@ -186,22 +186,22 @@ private:
     void onDataReceive(void *in, int len);
     int  onDrainData();
     void onHTTP();
-    void onClientCloseInit(int code, const std::string &msg);
+    void onClientCloseInit(int code, const ccstd::string &msg);
 
     void onDestroyClient();
 
-    struct lws *                          _wsi = nullptr;
-    ccstd::map<std::string, std::string>  _headers;
-    std::list<std::shared_ptr<DataFrame>> _sendQueue;
-    std::shared_ptr<DataFrame>            _prevPkg;
-    bool                                  _closed      = false;
-    std::string                           _closeReason = "close connection";
-    int                                   _closeCode   = 1000;
-    std::atomic<ReadyState>               _readyState{ReadyState::CLOSED};
+    struct lws *                             _wsi = nullptr;
+    ccstd::map<ccstd::string, ccstd::string> _headers;
+    std::list<std::shared_ptr<DataFrame>>    _sendQueue;
+    std::shared_ptr<DataFrame>               _prevPkg;
+    bool                                     _closed      = false;
+    ccstd::string                            _closeReason = "close connection";
+    int                                      _closeCode   = 1000;
+    std::atomic<ReadyState>                  _readyState{ReadyState::CLOSED};
 
     // Attention: do not reference **this** in callbacks
-    std::function<void(int, const std::string &)>   _onclose;
-    std::function<void(const std::string &)>        _onerror;
+    std::function<void(int, const ccstd::string &)> _onclose;
+    std::function<void(const ccstd::string &)>      _onerror;
     std::function<void(std::shared_ptr<DataFrame>)> _ontext;
     std::function<void(std::shared_ptr<DataFrame>)> _onbinary;
     std::function<void(std::shared_ptr<DataFrame>)> _ondata;
@@ -218,20 +218,20 @@ public:
     WebSocketServer();
     virtual ~WebSocketServer();
 
-    static void listenAsync(std::shared_ptr<WebSocketServer> &server, int port, const std::string &host, std::function<void(const std::string &errorMsg)> callback);
-    void        closeAsync(std::function<void(const std::string &errorMsg)> callback = nullptr);
+    static void listenAsync(std::shared_ptr<WebSocketServer> &server, int port, const ccstd::string &host, std::function<void(const ccstd::string &errorMsg)> callback);
+    void        closeAsync(std::function<void(const ccstd::string &errorMsg)> callback = nullptr);
 
     ccstd::vector<std::shared_ptr<WebSocketServerConnection>> getConnections() const;
 
-    void setOnListening(std::function<void(const std::string &)> cb) {
+    void setOnListening(std::function<void(const ccstd::string &)> cb) {
         _onlistening = cb;
     }
 
-    void setOnError(std::function<void(const std::string &)> cb) {
+    void setOnError(std::function<void(const ccstd::string &)> cb) {
         _onerror = cb;
     }
 
-    void setOnClose(std::function<void(const std::string &)> cb) {
+    void setOnClose(std::function<void(const ccstd::string &)> cb) {
         _onclose = cb;
     }
 
@@ -251,8 +251,8 @@ public:
     inline void *getData() const { return _data; }
 
 protected:
-    static void listen(std::shared_ptr<WebSocketServer> server, int port, const std::string &host, std::function<void(const std::string &errorMsg)> callback);
-    bool        close(std::function<void(const std::string &errorMsg)> callback = nullptr);
+    static void listen(std::shared_ptr<WebSocketServer> server, int port, const ccstd::string &host, std::function<void(const ccstd::string &errorMsg)> callback);
+    bool        close(std::function<void(const ccstd::string &errorMsg)> callback = nullptr);
 
     void onCreateClient(struct lws *wsi);
     void onDestroyClient(struct lws *wsi);
@@ -266,18 +266,18 @@ private:
     std::shared_ptr<WebSocketServerConnection> findConnection(struct lws *wsi);
     void                                       destroyContext();
 
-    std::string  _host;
-    lws_context *_ctx   = nullptr;
-    uv_async_t   _async = {0};
+    ccstd::string _host;
+    lws_context * _ctx   = nullptr;
+    uv_async_t    _async = {0};
 
     mutable std::mutex                                                             _connsMtx;
     ccstd::unordered_map<struct lws *, std::shared_ptr<WebSocketServerConnection>> _conns;
 
     // Attention: do not reference **this** in callbacks
-    std::function<void(const std::string &)>                        _onlistening;
-    std::function<void(const std::string &)>                        _onerror;
-    std::function<void(const std::string &)>                        _onclose;
-    std::function<void(const std::string &)>                        _onclose_cb;
+    std::function<void(const ccstd::string &)>                      _onlistening;
+    std::function<void(const ccstd::string &)>                      _onerror;
+    std::function<void(const ccstd::string &)>                      _onclose;
+    std::function<void(const ccstd::string &)>                      _onclose_cb;
     std::function<void()>                                           _onend;
     std::function<void()>                                           _onbegin;
     std::function<void(std::shared_ptr<WebSocketServerConnection>)> _onconnection;

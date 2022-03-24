@@ -64,8 +64,8 @@ class Value;
 
 bool jsb_register_global_variables(se::Object *global); //NOLINT(readability-identifier-naming)
 
-bool jsb_set_extend_property(const char *ns, const char *clsName);                  //NOLINT(readability-identifier-naming)
-bool jsb_run_script(const std::string &filePath, se::Value *rval = nullptr);        //NOLINT(readability-identifier-naming)
-bool jsb_run_script_module(const std::string &filePath, se::Value *rval = nullptr); //NOLINT(readability-identifier-naming)
+bool jsb_set_extend_property(const char *ns, const char *clsName);                    //NOLINT(readability-identifier-naming)
+bool jsb_run_script(const ccstd::string &filePath, se::Value *rval = nullptr);        //NOLINT(readability-identifier-naming)
+bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval = nullptr); //NOLINT(readability-identifier-naming)
 
-bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal); //NOLINT(readability-identifier-naming)
+bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackVal); //NOLINT(readability-identifier-naming)

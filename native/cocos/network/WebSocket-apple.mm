@@ -45,12 +45,12 @@ static ccstd::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
     cc::network::WebSocket *          _ccws;
     cc::network::WebSocket::Delegate *_delegate;
 
-    std::string _url;
-    std::string _selectedProtocol;
+    ccstd::string _url;
+    ccstd::string _selectedProtocol;
     bool        _isDestroyed;
 }
 
-- (id)initWithURL:(const std::string &)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates ws:(cc::network::WebSocket *)ccws delegate:(const cc::network::WebSocket::Delegate &)delegate {
+- (id)initWithURL:(const ccstd::string &)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates ws:(cc::network::WebSocket *)ccws delegate:(const cc::network::WebSocket::Delegate &)delegate {
     if (self = [super init]) {
         _ccws        = ccws;
         _delegate    = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
@@ -108,11 +108,11 @@ static ccstd::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
     return ret;
 }
 
-- (const std::string &)getUrl {
+- (const ccstd::string &)getUrl {
     return _url;
 }
 
-- (const std::string &)getProtocol {
+- (const ccstd::string &)getProtocol {
     return _selectedProtocol;
 }
 
@@ -224,9 +224,9 @@ WebSocket::~WebSocket() {
 }
 
 bool WebSocket::init(const Delegate &                delegate,
-                     const std::string &             url,
-                     const ccstd::vector<std::string> *protocols /* = nullptr*/,
-                     const std::string &             caFilePath /* = ""*/) {
+                     const ccstd::string &             url,
+                     const ccstd::vector<ccstd::string> *protocols /* = nullptr*/,
+                     const ccstd::string &             caFilePath /* = ""*/) {
     if (url.empty())
         return false;
 
@@ -241,7 +241,7 @@ bool WebSocket::init(const Delegate &                delegate,
     return _impl != nil;
 }
 
-void WebSocket::send(const std::string &message) {
+void WebSocket::send(const ccstd::string &message) {
     if ([_impl getReadyState] == State::OPEN) {
         NSString *str = [[NSString alloc] initWithBytes:message.data() length:message.length() encoding:NSUTF8StringEncoding];
         [_impl sendString:str];
@@ -277,12 +277,12 @@ void WebSocket::closeAsync() {
     [_impl closeAsync];
 }
 
-void WebSocket::closeAsync(int code, const std::string &reason) {
+void WebSocket::closeAsync(int code, const ccstd::string &reason) {
     //lws_close_reason() replacement required
     closeAsync();
 }
 
-std::string WebSocket::getExtensions() const {
+ccstd::string WebSocket::getExtensions() const {
     //TODO websocket extensions
     return "";
 }
@@ -296,11 +296,11 @@ WebSocket::State WebSocket::getReadyState() const {
     return [_impl getReadyState];
 }
 
-const std::string &WebSocket::getUrl() const {
+const ccstd::string &WebSocket::getUrl() const {
     return [_impl getUrl];
 }
 
-const std::string &WebSocket::getProtocol() const {
+const ccstd::string &WebSocket::getProtocol() const {
     return [_impl getProtocol];
 }
 

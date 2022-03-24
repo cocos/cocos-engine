@@ -89,8 +89,8 @@ void Texture2D::create(uint32_t width, uint32_t height, PixelFormat format /* = 
     });
 }
 
-std::string Texture2D::toString() const {
-    std::string ret;
+ccstd::string Texture2D::toString() const {
+    ccstd::string ret;
     if (!_mipmaps.empty()) {
         ret = _mipmaps[0]->getUrl();
     }
@@ -121,9 +121,9 @@ bool Texture2D::destroy() {
     return Super::destroy();
 }
 
-std::string Texture2D::description() const {
+ccstd::string Texture2D::description() const {
     std::stringstream ret;
-    std::string       url;
+    ccstd::string     url;
     if (!_mipmaps.empty()) {
         url = _mipmaps[0]->getUrl();
     }
@@ -169,7 +169,7 @@ void Texture2D::deserialize(const cc::any &serializedData, const cc::any &handle
         if (data->mipmaps[i].empty()) {
             continue;
         }
-        std::string mipmapUUID = data->mipmaps[i];
+        ccstd::string mipmapUUID = data->mipmaps[i];
         //cjh TODO:        handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js._getClassId(ImageAsset));
     }
 }
@@ -186,7 +186,7 @@ gfx::TextureInfo Texture2D::getGfxTextureCreateInfo(gfx::TextureUsageBit usage, 
     return texInfo;
 }
 
-void Texture2D::initDefault(const cc::optional<std::string> &uuid) {
+void Texture2D::initDefault(const cc::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     auto *imageAsset = new ImageAsset();
     imageAsset->initDefault(cc::nullopt);

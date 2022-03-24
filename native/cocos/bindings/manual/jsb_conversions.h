@@ -103,9 +103,9 @@
     }
 
 #if CC_ENABLE_CACHE_JSB_FUNC_RESULT
-    #define SE_HOLD_RETURN_VALUE(retCXXValue, thisObject, jsValue)                       \
-        if (is_jsb_object_v<typename std::decay<decltype(retCXXValue)>::type>) {         \
-            (thisObject)->setProperty(std::string("__cache") + __FUNCTION__, (jsValue)); \
+    #define SE_HOLD_RETURN_VALUE(retCXXValue, thisObject, jsValue)                         \
+        if (is_jsb_object_v<typename std::decay<decltype(retCXXValue)>::type>) {           \
+            (thisObject)->setProperty(ccstd::string("__cache") + __FUNCTION__, (jsValue)); \
         }
 #else
     #define SE_HOLD_RETURN_VALUE(...)
@@ -166,7 +166,7 @@ bool seval_to_native_ptr(const se::Value &v, T *ret) { // NOLINT(readability-ide
 }
 
 template <typename T>
-typename std::enable_if<std::is_class<T>::value && !std::is_same<T, std::string>::value, T>::type
+typename std::enable_if<std::is_class<T>::value && !std::is_same<T, ccstd::string>::value, T>::type
 seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-naming)
     if (!v.isObject()) {
         ok = false;
@@ -211,7 +211,7 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
 }
 
 template <typename T>
-typename std::enable_if<std::is_same<T, std::string>::value, T>::type
+typename std::enable_if<std::is_same<T, ccstd::string>::value, T>::type
 seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-naming)
     if (!v.isString()) {
         ok = false;
@@ -296,13 +296,13 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 }
 
 template <typename T>
-bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<std::string, T> *ret) { // NOLINT(readability-identifier-naming)
+bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, T> *ret) { // NOLINT(readability-identifier-naming)
     assert(ret != nullptr);
     assert(v.isObject());
     se::Object *obj = v.toObject();
 
-    ccstd::vector<std::string> allKeys;
-    bool                       ok = obj->getAllKeys(&allKeys);
+    ccstd::vector<ccstd::string> allKeys;
+    bool                         ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
         return false;
@@ -593,7 +593,7 @@ struct HolderType {
 template <>
 struct HolderType<char *, false> {
     using type       = const char *;
-    using local_type = std::string;
+    using local_type = ccstd::string;
     local_type                 data;
     std::remove_const_t<type> *ptr = nullptr;
     inline type                value() const { return data.c_str(); }
@@ -602,7 +602,7 @@ struct HolderType<char *, false> {
 template <>
 struct HolderType<const char *, false> {
     using type       = const char *;
-    using local_type = std::string;
+    using local_type = ccstd::string;
     local_type                 data;
     std::remove_const_t<type> *ptr = nullptr;
     inline type                value() const { return data.c_str(); }
@@ -705,9 +705,9 @@ bool sevalue_to_native(const se::Value &from, cc::variant<Args...> *to, se::Obje
 
 template <typename T>
 bool sevalue_to_native(const se::Value &from, cc::optional<T> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
-/// ccstd::unordered_map<std::string, V>
+/// ccstd::unordered_map<ccstd::string, V>
 template <typename V>
-bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<std::string, V> *to, se::Object *ctx); //NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<ccstd::string, V> *to, se::Object *ctx); //NOLINT(readability-identifier-naming)
 // std::tuple
 template <typename... Args>
 bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
@@ -808,7 +808,7 @@ template <typename T>
 typename std::enable_if_t<!std::is_pointer<T>::value && is_jsb_object_v<T>, bool>
 sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     if (from.isNullOrUndefined()) {
-        //const std::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+        //const ccstd::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
         //SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
         *to = nullptr;
         return true;
@@ -838,7 +838,7 @@ template <typename T>
 typename std::enable_if_t<!std::is_pointer<T>::value && is_jsb_object_v<T>, bool>
 sevalue_to_native(const se::Value &from, T ***to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     if (from.isNullOrUndefined()) {
-        //const std::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+        //const ccstd::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
         //SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
         *to = nullptr;
         return true;
@@ -1107,9 +1107,9 @@ bool sevalue_to_native(const se::Value &from, std::tuple<Args...> *to, se::Objec
 
 ////////////// ccstd::unordered_map
 template <typename V>
-bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<std::string, V> *to, se::Object *ctx) { //NOLINT
-    se::Object *               jsmap = from.toObject();
-    ccstd::vector<std::string> allKeys;
+bool sevalue_to_native(const se::Value &from, ccstd::unordered_map<ccstd::string, V> *to, se::Object *ctx) { //NOLINT
+    se::Object *                 jsmap = from.toObject();
+    ccstd::vector<ccstd::string> allKeys;
     jsmap->getAllKeys(&allKeys);
     bool      ret = true;
     se::Value property;
@@ -1274,11 +1274,11 @@ inline bool nativevalue_to_se(const ccstd::vector<bool> &from, se::Value &to, se
 }
 
 template <typename T>
-typename std::enable_if<std::is_convertible<T, std::string>::value, void>::type cc_tmp_set_property(se::Object *obj, T &key, se::Value &value) { // NOLINT(readability-identifier-naming)
+typename std::enable_if<std::is_convertible<T, ccstd::string>::value, void>::type cc_tmp_set_property(se::Object *obj, T &key, se::Value &value) { // NOLINT(readability-identifier-naming)
     obj->setProperty(key, value);
 }
 template <typename T>
-typename std::enable_if<!std::is_convertible<T, std::string>::value, void>::type cc_tmp_set_property(se::Object *obj, T &str, se::Value &value) { // NOLINT(readability-identifier-naming)
+typename std::enable_if<!std::is_convertible<T, ccstd::string>::value, void>::type cc_tmp_set_property(se::Object *obj, T &str, se::Value &value) { // NOLINT(readability-identifier-naming)
     obj->setProperty(std::to_string(str), value);
 }
 

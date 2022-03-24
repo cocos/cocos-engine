@@ -133,10 +133,10 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
         } else {
             se::Value dataVal;
             if (strlen(data.bytes) == 0 && data.len > 0) { // String with 0x00 prefix
-                std::string str(data.bytes, data.len);
+                ccstd::string str(data.bytes, data.len);
                 dataVal.setString(str);
             } else { // Normal string
-                dataVal.setString(std::string(data.bytes, data.len));
+                dataVal.setString(ccstd::string(data.bytes, data.len));
             }
 
             if (dataVal.isNullOrUndefined()) {
@@ -255,7 +255,7 @@ static bool webSocketConstructor(se::State &s) {
     int         argc = static_cast<int>(args.size());
 
     if (argc == 1 || argc == 2 || argc == 3) {
-        std::string url;
+        ccstd::string url;
 
         bool ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "Error processing url argument");
@@ -263,11 +263,11 @@ static bool webSocketConstructor(se::State &s) {
         se::Object *            obj  = s.thisObject();
         cc::network::WebSocket *cobj = nullptr;
         if (argc >= 2) {
-            std::string                caFilePath;
-            ccstd::vector<std::string> protocols;
+            ccstd::string                caFilePath;
+            ccstd::vector<ccstd::string> protocols;
 
             if (args[1].isString()) {
-                std::string protocol;
+                ccstd::string protocol;
                 ok = sevalue_to_native(args[1], &protocol);
                 SE_PRECONDITION2(ok, false, "Error processing protocol string");
                 protocols.push_back(protocol);
@@ -283,7 +283,7 @@ static bool webSocketConstructor(se::State &s) {
                         continue;
                     }
 
-                    std::string protocol;
+                    ccstd::string protocol;
                     ok = sevalue_to_native(tmp, &protocol);
                     SE_PRECONDITION2(ok, false, "Error processing protocol object");
                     protocols.push_back(protocol);
@@ -352,7 +352,7 @@ static bool webSocketSend(const se::State &s) {
         auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
         bool  ok   = false;
         if (args[0].isString()) {
-            std::string data;
+            ccstd::string data;
             ok = sevalue_to_native(args[0], &data);
             SE_PRECONDITION2(ok, false, "Convert string failed");
             //IDEA: We didn't find a way to get the JS string length in JSB2.0.
@@ -404,7 +404,7 @@ static bool webSocketClose(se::State &s) {
             sevalue_to_native(args[0], &reason);
             cobj->closeAsync(reason, "no_reason");
         } else if (args[0].isString()) {
-            std::string reason;
+            ccstd::string reason;
             sevalue_to_native(args[0], &reason);
             cobj->closeAsync(1005, reason);
         } else {
@@ -413,8 +413,8 @@ static bool webSocketClose(se::State &s) {
     } else if (argc == 2) {
         assert(args[0].isNumber());
         assert(args[1].isString());
-        int         reasonCode{0};
-        std::string reasonString;
+        int           reasonCode{0};
+        ccstd::string reasonString;
         sevalue_to_native(args[0], &reasonCode);
         sevalue_to_native(args[1], &reasonString);
         cobj->closeAsync(reasonCode, reasonString);

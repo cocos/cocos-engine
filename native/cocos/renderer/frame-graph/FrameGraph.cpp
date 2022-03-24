@@ -472,7 +472,7 @@ void FrameGraph::generateDevicePasses() {
 }
 
 // https://dreampuf.github.io/GraphvizOnline/
-void FrameGraph::exportGraphViz(const std::string &path) {
+void FrameGraph::exportGraphViz(const ccstd::string &path) {
     std::ofstream out(path, std::ios::out | std::ios::binary);
     //out.imbue(std::locale("chs", std::locale::ctype));
 

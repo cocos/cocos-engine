@@ -240,7 +240,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     initFormatFeature();
 
-    String compressedFmts;
+    ccstd::string compressedFmts;
 
     if (getFormatFeatures(Format::BC1_SRGB_ALPHA) != FormatFeature::NONE) {
         compressedFmts += "dxt ";
@@ -421,21 +421,21 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     ///////////////////// Print Debug Info /////////////////////
 
-    String instanceLayers;
-    String instanceExtensions;
-    String deviceLayers;
-    String deviceExtensions;
+    ccstd::string instanceLayers;
+    ccstd::string instanceExtensions;
+    ccstd::string deviceLayers;
+    ccstd::string deviceExtensions;
     for (const char *layer : _gpuContext->layers) {
-        instanceLayers += layer + String(" ");
+        instanceLayers += layer + ccstd::string(" ");
     }
     for (const char *extension : _gpuContext->extensions) {
-        instanceExtensions += extension + String(" ");
+        instanceExtensions += extension + ccstd::string(" ");
     }
     for (const char *layer : _layers) {
-        deviceLayers += layer + String(" ");
+        deviceLayers += layer + ccstd::string(" ");
     }
     for (const char *extension : _extensions) {
-        deviceExtensions += extension + String(" ");
+        deviceExtensions += extension + ccstd::string(" ");
     }
 
     uint32_t apiVersion = _gpuContext->physicalDeviceProperties.apiVersion;

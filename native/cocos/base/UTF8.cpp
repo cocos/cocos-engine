@@ -37,10 +37,10 @@ namespace cc {
 
 namespace StringUtils { //NOLINT
 
-std::string format(const char *format, ...) {
+ccstd::string format(const char *format, ...) {
 #define CC_MAX_STRING_LENGTH (1024 * 100)
 
-    std::string ret;
+    ccstd::string ret;
 
     va_list ap;
     va_start(ap, format);
@@ -194,7 +194,7 @@ bool utfConvert(
     return true;
 };
 
-CC_DLL void UTF8LooseFix(const std::string &in, std::string &out) { //NOLINT
+CC_DLL void UTF8LooseFix(const ccstd::string &in, ccstd::string &out) { //NOLINT
     const auto *p        = reinterpret_cast<const UTF8 *>(in.c_str());
     const auto *end      = reinterpret_cast<const UTF8 *>(in.c_str() + in.size());
     unsigned    ucharLen = 0;
@@ -211,15 +211,15 @@ CC_DLL void UTF8LooseFix(const std::string &in, std::string &out) { //NOLINT
     }
 }
 
-bool UTF8ToUTF16(const std::string &utf8, std::u16string &outUtf16) { //NOLINT
+bool UTF8ToUTF16(const ccstd::string &utf8, std::u16string &outUtf16) { //NOLINT
     return utfConvert(utf8, outUtf16, ConvertUTF8toUTF16);
 }
 
-bool UTF8ToUTF32(const std::string &utf8, std::u32string &outUtf32) { //NOLINT
+bool UTF8ToUTF32(const ccstd::string &utf8, std::u32string &outUtf32) { //NOLINT
     return utfConvert(utf8, outUtf32, ConvertUTF8toUTF32);
 }
 
-bool UTF16ToUTF8(const std::u16string &utf16, std::string &outUtf8) { //NOLINT
+bool UTF16ToUTF8(const std::u16string &utf16, ccstd::string &outUtf8) { //NOLINT
     return utfConvert(utf16, outUtf8, ConvertUTF16toUTF8);
 }
 
@@ -227,7 +227,7 @@ bool UTF16ToUTF32(const std::u16string &utf16, std::u32string &outUtf32) { //NOL
     return utfConvert(utf16, outUtf32, ConvertUTF16toUTF32);
 }
 
-bool UTF32ToUTF8(const std::u32string &utf32, std::string &outUtf8) { //NOLINT
+bool UTF32ToUTF8(const std::u32string &utf32, ccstd::string &outUtf8) { //NOLINT
     return utfConvert(utf32, outUtf8, ConvertUTF32toUTF8);
 }
 
@@ -236,8 +236,8 @@ bool UTF32ToUTF16(const std::u32string &utf32, std::u16string &outUtf16) { //NOL
 }
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
-std::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
-    std::string          utf8Str;
+ccstd::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
+    ccstd::string        utf8Str;
     auto *               unicodeChar       = static_cast<const uint16_t *>(env->GetStringChars(srcjStr, nullptr));
     size_t               unicodeCharLength = env->GetStringLength(srcjStr);
     const std::u16string unicodeStr(reinterpret_cast<const char16_t *>(unicodeChar), unicodeCharLength);
@@ -254,7 +254,7 @@ std::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
     return utf8Str;
 }
 
-jstring newStringUTFJNI(JNIEnv *env, const std::string &utf8Str, bool *ret) {
+jstring newStringUTFJNI(JNIEnv *env, const ccstd::string &utf8Str, bool *ret) {
     std::u16string utf16Str;
     bool           flag = cc::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
 
@@ -274,11 +274,11 @@ ccstd::vector<char16_t> getChar16VectorFromUTF16String(const std::u16string &utf
     return ccstd::vector<char16_t>(utf16.begin(), utf16.end());
 }
 
-long getCharacterCountInUTF8String(const std::string &utf8) { //NOLINT
+long getCharacterCountInUTF8String(const ccstd::string &utf8) { //NOLINT
     return getUTF8StringLength(reinterpret_cast<const UTF8 *>(utf8.c_str()));
 }
 
-StringUTF8::StringUTF8(const std::string &newStr) {
+StringUTF8::StringUTF8(const ccstd::string &newStr) {
     replace(newStr);
 }
 
@@ -286,7 +286,7 @@ std::size_t StringUTF8::length() const {
     return _str.size();
 }
 
-void StringUTF8::replace(const std::string &newStr) {
+void StringUTF8::replace(const ccstd::string &newStr) {
     _str.clear();
     if (!newStr.empty()) {
         const auto *sequenceUtf8 = reinterpret_cast<const UTF8 *>(newStr.c_str());
@@ -310,8 +310,8 @@ void StringUTF8::replace(const std::string &newStr) {
     }
 }
 
-std::string StringUTF8::getAsCharSequence() const {
-    std::string charSequence;
+ccstd::string StringUTF8::getAsCharSequence() const {
+    ccstd::string charSequence;
 
     for (auto &charUtf8 : _str) {
         charSequence.append(charUtf8._char);
@@ -328,7 +328,7 @@ bool StringUTF8::deleteChar(std::size_t pos) {
     return false;
 }
 
-bool StringUTF8::insert(std::size_t pos, const std::string &insertStr) {
+bool StringUTF8::insert(std::size_t pos, const ccstd::string &insertStr) {
     StringUTF8 utf8(insertStr);
 
     return insert(pos, utf8);

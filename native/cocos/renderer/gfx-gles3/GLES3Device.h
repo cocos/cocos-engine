@@ -76,9 +76,9 @@ public:
     inline GLES3GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
-    inline bool checkExtension(const String &extension) const {
+    inline bool checkExtension(const ccstd::string &extension) const {
         return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
-            return ext.find(extension) != String::npos;
+            return ext.find(extension) != ccstd::string::npos;
         });
     }
 
@@ -129,7 +129,7 @@ protected:
 
     GLESBindingMapping _bindingMappings;
 
-    StringArray _extensions;
+    ccstd::vector<ccstd::string> _extensions;
 
     std::array<bool, static_cast<size_t>(Format::COUNT)> _textureExclusive;
 };

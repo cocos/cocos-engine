@@ -28,8 +28,8 @@
 #include <functional>
 #include <numeric>
 #include <sstream>
-#include <string>
 #include "base/RefVector.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/Optional.h"
 #include "core/Types.h"
@@ -50,9 +50,9 @@ struct IDefineRecord : public IDefineInfo {
     int32_t                                    offset{0};
 };
 struct IMacroInfo {
-    std::string name;
-    std::string value;
-    bool        isDefault{false};
+    ccstd::string name;
+    ccstd::string value;
+    bool          isDefault{false};
 };
 
 struct ITemplateInfo {
@@ -61,15 +61,15 @@ struct ITemplateInfo {
     ccstd::vector<int32_t>                         blockSizes;
     RefVector<gfx::DescriptorSetLayout *>          setLayouts;
     IntrusivePtr<gfx::PipelineLayout>              pipelineLayout;
-    Record<std::string, uint32_t>                  handleMap;
+    Record<ccstd::string, uint32_t>                handleMap;
     ccstd::vector<gfx::DescriptorSetLayoutBinding> bindings;
     int32_t                                        samplerStartBinding{-1};
 };
 
 struct IProgramInfo : public IShaderInfo {
-    std::string                  effectName;
+    ccstd::string                effectName;
     ccstd::vector<IDefineRecord> defines;
-    std::string                  constantMacros;
+    ccstd::string                constantMacros;
     bool                         uber{false}; // macro number exceeds default limits, will fallback to string hash
 
     void copyFrom(const IShaderInfo &o);
@@ -100,7 +100,7 @@ public:
      * @param name Target shader name
      */
 
-    IProgramInfo *getTemplate(const std::string &name);
+    IProgramInfo *getTemplate(const ccstd::string &name);
 
     /**
      * @en Gets the shader template info with its name
@@ -108,14 +108,14 @@ public:
      * @param name Target shader name
      */
 
-    ITemplateInfo *getTemplateInfo(const std::string &name);
+    ITemplateInfo *getTemplateInfo(const ccstd::string &name);
 
     /**
      * @en Gets the pipeline layout of the shader template given its name
      * @zh 通过名字获取 Shader 模板相关联的管线布局
      * @param name Target shader name
      */
-    gfx::DescriptorSetLayout *getDescriptorSetLayout(gfx::Device *device, const std::string &name, bool isLocal = false);
+    gfx::DescriptorSetLayout *getDescriptorSetLayout(gfx::Device *device, const ccstd::string &name, bool isLocal = false);
 
     /**
      * @en
@@ -124,7 +124,7 @@ public:
      * 当前是否有已注册的指定名字的 shader
      * @param name Target shader name
      */
-    inline bool hasProgram(const std::string &name) const {
+    inline bool hasProgram(const ccstd::string &name) const {
         return _templates.count(name) > 0;
     }
 
@@ -134,7 +134,7 @@ public:
      * @param name Target shader name
      * @param defines The combination of preprocess macros
      */
-    std::string getKey(const std::string &name, const MacroRecord &defines);
+    ccstd::string getKey(const ccstd::string &name, const MacroRecord &defines);
 
     /**
      * @en Destroy all shader instance match the preprocess macros
@@ -152,18 +152,18 @@ public:
      * @param pipeline The [[RenderPipeline]] which owns the render command
      * @param key The shader cache key, if already known
      */
-    gfx::Shader *getGFXShader(gfx::Device *device, const std::string &name, MacroRecord &defines,
-                              render::PipelineRuntime *pipeline, std::string *key = nullptr);
+    gfx::Shader *getGFXShader(gfx::Device *device, const ccstd::string &name, MacroRecord &defines,
+                              render::PipelineRuntime *pipeline, ccstd::string *key = nullptr);
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);
     ProgramLib();
     ~ProgramLib();
 
-    static ProgramLib *                            instance;
-    Record<std::string, IProgramInfo>              _templates; // per shader
-    Record<std::string, IntrusivePtr<gfx::Shader>> _cache;
-    Record<uint64_t, ITemplateInfo>                _templateInfos;
+    static ProgramLib *                              instance;
+    Record<ccstd::string, IProgramInfo>              _templates; // per shader
+    Record<ccstd::string, IntrusivePtr<gfx::Shader>> _cache;
+    Record<uint64_t, ITemplateInfo>                  _templateInfos;
 };
 
 } // namespace cc

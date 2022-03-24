@@ -82,7 +82,7 @@ struct CCWGPUSwapchainObject {
 
 struct CCWGPURenderPassObject {
     RenderPassInfo            info;
-    String                    label;
+    ccstd::string             label;
     uint8_t                   sampleCount        = 1;
     WGPURenderPassDescriptor *wgpuRenderPassDesc = wgpuDefaultHandle;
 };
@@ -173,7 +173,7 @@ struct CCWGPUPipelineStateObject {
 };
 
 struct CCWGPUShaderObject {
-    String           name;
+    ccstd::string    name;
     WGPUShaderModule wgpuShaderVertexModule   = wgpuDefaultHandle;
     WGPUShaderModule wgpuShaderFragmentModule = wgpuDefaultHandle;
     WGPUShaderModule wgpuShaderComputeModule  = wgpuDefaultHandle;

@@ -50,7 +50,7 @@ public:
          *  @return A class instance used for creating relevant native binding objects.
          *  @note Don't need to delete the pointer return by this method, it's managed internally.
          */
-    static Class *create(const std::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor);
+    static Class *create(const ccstd::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor);
 
     static Class *create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor);
 
@@ -126,18 +126,18 @@ private:
 
     void setCreateProto(bool createProto);
 
-    bool init(const std::string &clsName, Object *parent, Object *parentProto, v8::FunctionCallback ctor);
+    bool init(const ccstd::string &clsName, Object *parent, Object *parentProto, v8::FunctionCallback ctor);
     void destroy();
 
     static void cleanup();
-    //        static v8::Local<v8::Object> _createJSObject(const std::string &clsName, Class** outCls);
+    //        static v8::Local<v8::Object> _createJSObject(const ccstd::string &clsName, Class** outCls);
     static v8::Local<v8::Object> _createJSObjectWithClass(Class *cls); // NOLINT(readability-identifier-naming)
     static void                  setIsolate(v8::Isolate *isolate);
 
-    std::string _name;
-    Object *    _parent;
-    Object *    _parentProto;
-    Object *    _proto;
+    ccstd::string _name;
+    Object *      _parent;
+    Object *      _parentProto;
+    Object *      _proto;
 
     v8::FunctionCallback                       _ctor;
     v8::UniquePersistent<v8::FunctionTemplate> _ctorTemplate;

@@ -168,7 +168,7 @@ public:
     virtual void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
     virtual void updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
 
-    int32_t getInstancedAttributeIndex(const std::string &name) const;
+    int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
 
     // For JS
     inline void              setCalledFromJS(bool v) { _isCalledFromJS = v; }

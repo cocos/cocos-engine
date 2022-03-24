@@ -56,7 +56,7 @@ protected:
 
     // scheduler for update processing and finished task in main schedule
     void                     _onSchedule(float);
-    std::string              _schedulerKey;
+    ccstd::string            _schedulerKey;
     std::weak_ptr<Scheduler> _scheduler;
 };
 

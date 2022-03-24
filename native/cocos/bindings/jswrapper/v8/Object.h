@@ -140,7 +140,7 @@ public:
          *  @return A JavaScript Object containing the parsed value, or nullptr if the input is invalid.
          *  @note The return value (non-null) has to be released manually.
          */
-    static Object *createJSONObject(const std::string &jsonStr);
+    static Object *createJSONObject(const ccstd::string &jsonStr);
 
     /**
          *  @brief Creates a JavaScript Native Binding Object from an existing se::Class instance.
@@ -170,7 +170,7 @@ public:
 
     bool getProperty(const char *name, Value *data, bool cachePropertyName);
 
-    inline bool getProperty(const std::string &name, Value *value) {
+    inline bool getProperty(const ccstd::string &name, Value *value) {
         return getProperty(name.c_str(), value);
     }
 
@@ -182,7 +182,7 @@ public:
          */
     bool setProperty(const char *name, const Value &data);
 
-    inline bool setProperty(const std::string &name, const Value &value) {
+    inline bool setProperty(const ccstd::string &name, const Value &value) {
         return setProperty(name.c_str(), value);
     }
 
@@ -294,7 +294,7 @@ public:
          *  @param[out] allKeys A string vector to store all property names.
          *  @return true if succeed, otherwise false.
          */
-    bool getAllKeys(ccstd::vector<std::string> *allKeys) const;
+    bool getAllKeys(ccstd::vector<ccstd::string> *allKeys) const;
 
     void               setPrivateObject(PrivateObjectBase *data);
     PrivateObjectBase *getPrivateObject() const;
@@ -425,9 +425,9 @@ public:
          *  @brief Returns the string for describing current object.
          *  @return The string for describing current object.
          */
-    std::string toString() const;
+    ccstd::string toString() const;
 
-    std::string toStringExt() const;
+    ccstd::string toStringExt() const;
 
     // Private API used in wrapper
     static Object *       _createJSObject(Class *cls, v8::Local<v8::Object> obj); // NOLINT(readability-identifier-naming)
@@ -467,7 +467,7 @@ private:
     uint32_t _objectId = 0;
     #endif
     #if JSB_TRACK_OBJECT_CREATION
-    std::string _objectCreationStackFrame;
+    ccstd::string _objectCreationStackFrame;
     #endif
     friend class ScriptEngine;
 };

@@ -29,7 +29,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <string>
+#include "base/std/container/string.h"
 #if defined(OPENAL_PLAIN_INCLUDES)
     #include <al.h>
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
@@ -102,7 +102,7 @@ protected:
     State _state;
 
     std::shared_ptr<bool> _isDestroyed;
-    std::string           _fileFullPath;
+    ccstd::string         _fileFullPath;
     unsigned int          _id;
     bool                  _isLoadingFinished;
     bool                  _isSkipReadDataTask;

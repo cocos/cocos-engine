@@ -74,20 +74,20 @@ void CanvasRenderingContext2DDelegate::clearRect(float x, float y, float w, floa
 void CanvasRenderingContext2DDelegate::fillRect(float x, float y, float w, float h) {
 }
 
-void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x, float y, float /*maxWidth*/) {
+void CanvasRenderingContext2DDelegate::fillText(const ccstd::string &text, float x, float y, float /*maxWidth*/) {
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
 }
 
-CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const std::string &text) {
+CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
 }
 
-void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
-                                                  float              fontSize,
-                                                  bool               bold,
-                                                  bool               italic,
-                                                  bool               oblique,
+void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
+                                                  float                fontSize,
+                                                  bool                 bold,
+                                                  bool                 italic,
+                                                  bool                 oblique,
                                                   bool /* smallCaps */) {
 }
 
@@ -117,10 +117,10 @@ const cc::Data &CanvasRenderingContext2DDelegate::getDataRef() const {
 void CanvasRenderingContext2DDelegate::fill() {
 }
 
-void CanvasRenderingContext2DDelegate::setLineCap(const std::string &lineCap) {
+void CanvasRenderingContext2DDelegate::setLineCap(const ccstd::string &lineCap) {
 }
 
-void CanvasRenderingContext2DDelegate::setLineJoin(const std::string &lineJoin) {
+void CanvasRenderingContext2DDelegate::setLineJoin(const ccstd::string &lineJoin) {
 }
 
 void CanvasRenderingContext2DDelegate::fillImageData(const Data & /* imageData */,
@@ -132,7 +132,7 @@ void CanvasRenderingContext2DDelegate::fillImageData(const Data & /* imageData *
     //XPutImage(dpy, w, gc, image, 0, 0, 50, 60, 40, 30);
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string & /* text */,
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string & /* text */,
                                                   float /* x */,
                                                   float /* y */,
                                                   float /* maxWidth */) {

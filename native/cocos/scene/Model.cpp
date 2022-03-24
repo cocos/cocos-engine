@@ -106,7 +106,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 };
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
-const std::string                           INST_MAT_WORLD = "a_matWorld0";
+const ccstd::string                         INST_MAT_WORLD = "a_matWorld0";
 } // namespace
 
 namespace cc {
@@ -341,7 +341,7 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     _lightmapUVParam  = uvParam;
 
     if (texture == nullptr) {
-        texture = BuiltinResMgr::getInstance()->get<Texture2D>(std::string("empty-texture"));
+        texture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"));
     }
     gfx::Texture *gfxTexture = texture->getGFXTexture();
     if (gfxTexture) {
@@ -390,7 +390,7 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     updateInstancedAttributes(shader->getAttributes(), subModel->getPasses()[0]);
 }
 
-index_t Model::getInstancedAttributeIndex(const std::string &name) const {
+index_t Model::getInstancedAttributeIndex(const ccstd::string &name) const {
     const auto &attributes = _instanceAttributeBlock.attributes;
     for (index_t i = 0; i < attributes.size(); ++i) {
         if (attributes[i].name == name) {

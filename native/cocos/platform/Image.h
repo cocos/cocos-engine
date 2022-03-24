@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include <string>
 #include "base/RefCounted.h"
+#include "base/std/container/string.h"
 #include "gfx-base/GFXDef.h"
 
 namespace cc {
@@ -60,7 +60,7 @@ public:
         UNKNOWN
     };
 
-    bool initWithImageFile(const std::string &path);
+    bool initWithImageFile(const ccstd::string &path);
     bool initWithImageData(const unsigned char *data, ssize_t dataLen);
 
     // @warning kFmtRawData only support RGBA8888
@@ -79,7 +79,7 @@ public:
     inline gfx::Format    getRenderFormat() const { return _renderFormat; }
     inline int            getWidth() const { return _width; }
     inline int            getHeight() const { return _height; }
-    inline std::string    getFilePath() const { return _filePath; }
+    inline ccstd::string  getFilePath() const { return _filePath; }
 
     inline bool isCompressed() const { return _isCompressed; }
 
@@ -100,7 +100,7 @@ protected:
     int            _height   = 0;
     Format         _fileType = Format::UNKNOWN;
     gfx::Format    _renderFormat;
-    std::string    _filePath;
+    ccstd::string  _filePath;
     bool           _isCompressed = false;
 
     static Format detectFormat(const unsigned char *data, ssize_t dataLen);

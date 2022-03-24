@@ -327,7 +327,7 @@ Object *Object::createUint8TypedArray(uint8_t *bytes, size_t byteLength) {
     return createTypedArray(TypedArrayType::UINT8, bytes, byteLength);
 }
 
-Object *Object::createJSONObject(const std::string &jsonStr) {
+Object *Object::createJSONObject(const ccstd::string &jsonStr) {
     v8::Local<v8::Context> context = __isolate->GetCurrentContext();
     Value                  strVal(jsonStr);
     v8::Local<v8::Value>   jsStr;
@@ -492,8 +492,8 @@ bool Object::isFunction() const {
 
 bool Object::_isNativeFunction() const { // NOLINT(readability-identifier-naming)
     if (isFunction()) {
-        std::string info = toString();
-        if (info.find("[native code]") != std::string::npos) {
+        ccstd::string info = toString();
+        if (info.find("[native code]") != ccstd::string::npos) {
             return true;
         }
     }
@@ -747,7 +747,7 @@ bool Object::setArrayElement(uint32_t index, const Value &data) {
     return ret.IsJust() && ret.FromJust();
 }
 
-bool Object::getAllKeys(ccstd::vector<std::string> *allKeys) const {
+bool Object::getAllKeys(ccstd::vector<ccstd::string> *allKeys) const {
     assert(allKeys != nullptr);
     auto *                    thiz    = const_cast<Object *>(this);
     v8::Local<v8::Context>    context = __isolate->GetCurrentContext();
@@ -858,8 +858,8 @@ bool Object::detachObject(Object *obj) {
     return true;
 }
 
-std::string Object::toString() const {
-    std::string ret;
+ccstd::string Object::toString() const {
+    ccstd::string ret;
     if (isFunction() || isArray() || isTypedArray()) {
         v8::String::Utf8Value utf8(__isolate, const_cast<Object *>(this)->_obj.handle(__isolate));
         ret = *utf8;
@@ -871,13 +871,13 @@ std::string Object::toString() const {
     return ret;
 }
 
-std::string Object::toStringExt() const {
+ccstd::string Object::toStringExt() const {
     if (isFunction()) return "[function]";
     if (isArray()) return "[array]";
     if (isArrayBuffer()) return "[arraybuffer]";
     if (isTypedArray()) return "[typedarray]";
 
-    ccstd::vector<std::string> keys;
+    ccstd::vector<ccstd::string> keys;
     getAllKeys(&keys);
     std::stringstream ss;
     ss << "{";

@@ -51,7 +51,7 @@ namespace cc {
 namespace pipeline {
 namespace {
 
-const String             STAGE_NAME         = "LightingStage";
+const ccstd::string      STAGE_NAME         = "LightingStage";
 const uint               MAX_REFLECTOR_SIZE = 5;
 framegraph::StringHandle reflectTexHandle   = framegraph::FrameGraph::stringToHandle("reflectionTex");
 framegraph::StringHandle denoiseTexHandle[MAX_REFLECTOR_SIZE];
@@ -65,21 +65,21 @@ framegraph::StringHandle fgStrHandleClusterLightIndexBuffer = framegraph::FrameG
 framegraph::StringHandle fgStrHandleClusterLightGridBuffer  = framegraph::FrameGraph::stringToHandle("lightGridBuffer");
 
 void initStrHandle() {
-    std::string tmp;
+    ccstd::string tmp;
     for (int i = 0; i < MAX_REFLECTOR_SIZE; ++i) {
-        tmp                 = std::string("denoiseTexureHandle") + std::to_string(i);
+        tmp                 = ccstd::string("denoiseTexureHandle") + std::to_string(i);
         denoiseTexHandle[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
 
-        tmp              = std::string("ssprClearPss") + std::to_string(i);
+        tmp              = ccstd::string("ssprClearPss") + std::to_string(i);
         ssprClearPass[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
 
-        tmp                    = std::string("ssprReflectPass") + std::to_string(i);
+        tmp                    = ccstd::string("ssprReflectPass") + std::to_string(i);
         ssprCompReflectPass[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
 
-        tmp                    = std::string("ssprDenoisePass") + std::to_string(i);
+        tmp                    = ccstd::string("ssprDenoisePass") + std::to_string(i);
         ssprCompDenoisePass[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
 
-        tmp               = std::string("ssprRenderPass") + std::to_string(i);
+        tmp               = ccstd::string("ssprRenderPass") + std::to_string(i);
         ssprRenderPass[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
     }
 }

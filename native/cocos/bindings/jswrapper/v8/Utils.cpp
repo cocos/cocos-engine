@@ -113,7 +113,7 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
         }
     } else if (jsval->IsString()) {
         v8::String::Utf8Value utf8(isolate, jsval);
-        v->setString(std::string(*utf8));
+        v->setString(ccstd::string(*utf8));
     } else if (jsval->IsBoolean()) {
         v8::MaybeLocal<v8::Boolean> jsBoolean = jsval->ToBoolean(isolate);
         if (!jsBoolean.IsEmpty()) {

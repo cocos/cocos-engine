@@ -26,7 +26,6 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 #include "Blackboard.h"
 #include "CallbackPass.h"
 #include "DevicePass.h"
@@ -34,6 +33,7 @@
 #include "PassNodeBuilder.h"
 #include "ResourceEntry.h"
 #include "ResourceNode.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 namespace framegraph {
@@ -73,7 +73,7 @@ public:
     inline const ResourceNode &      getResourceNode(const Handle handle) const noexcept { return _resourceNodes[handle]; }
     inline ResourceHandleBlackboard &getBlackboard() noexcept { return _blackboard; }
 
-    void        exportGraphViz(const std::string &path);
+    void        exportGraphViz(const ccstd::string &path);
     inline void enableMerge(bool enable) noexcept;
     bool        hasPass(StringHandle handle);
 

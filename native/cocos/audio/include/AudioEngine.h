@@ -35,7 +35,7 @@
 #include <chrono>
 #include <functional>
 #include <list>
-#include <string>
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 
 #ifdef ERROR
@@ -57,7 +57,7 @@ namespace cc {
 class EXPORT_DLL AudioProfile {
 public:
     //Profile name can't be empty.
-    std::string name;
+    ccstd::string name;
     //The maximum number of simultaneous audio instance.
     unsigned int maxInstances{};
 
@@ -125,7 +125,7 @@ public:
      *
      * @see `AudioProfile`
      */
-    static int play2d(const std::string &filePath, bool loop = false, float volume = 1.0F, const AudioProfile *profile = nullptr);
+    static int play2d(const ccstd::string &filePath, bool loop = false, float volume = 1.0F, const AudioProfile *profile = nullptr);
 
     /** 
      * Sets whether an audio instance loop or not.
@@ -226,7 +226,7 @@ public:
     * @param filePath The path of an audio file.
     * @return The duration of an audio file.
     */
-    static float getDurationFromFile(const std::string &filePath);
+    static float getDurationFromFile(const ccstd::string &filePath);
 
     /** 
      * Returns the state of an audio instance.
@@ -242,7 +242,7 @@ public:
      * @param audioID An audioID returned by the play2d function.
      * @param callback
      */
-    static void setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback);
+    static void setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
 
     /**
      * Gets the maximum number of simultaneous audio instance of AudioEngine.
@@ -263,7 +263,7 @@ public:
      * @warning This can lead to stop related audio first.
      * @param filePath Audio file path.
      */
-    static void uncache(const std::string &filePath);
+    static void uncache(const ccstd::string &filePath);
 
     /** 
      * Uncache all audio data from internal buffer.
@@ -286,20 +286,20 @@ public:
      * @param profileName A name of audio profile.
      * @return The audio profile.
      */
-    static AudioProfile *getProfile(const std::string &profileName);
+    static AudioProfile *getProfile(const ccstd::string &profileName);
 
     /**
      * Preload audio file.
      * @param filePath The file path of an audio.
      */
-    static void preload(const std::string &filePath) { preload(filePath, nullptr); }
+    static void preload(const ccstd::string &filePath) { preload(filePath, nullptr); }
 
     /**
      * Preload audio file.
      * @param filePath The file path of an audio.
      * @param callback A callback which will be called after loading is finished.
      */
-    static void preload(const std::string &filePath, const std::function<void(bool isSuccess)> &callback);
+    static void preload(const ccstd::string &filePath, const std::function<void(bool isSuccess)> &callback);
 
     /**
      * Gets playing audio count.
@@ -334,8 +334,8 @@ protected:
     };
 
     struct AudioInfo {
-        const std::string *filePath;
-        ProfileHelper *    profileHelper;
+        const ccstd::string *filePath;
+        ProfileHelper *      profileHelper;
 
         float      volume;
         bool       loop;
@@ -356,10 +356,10 @@ protected:
     static ccstd::unordered_map<int, AudioInfo> sAudioIDInfoMap;
 
     //audio file path,audio IDs
-    static ccstd::unordered_map<std::string, std::list<int>> sAudioPathIDMap;
+    static ccstd::unordered_map<ccstd::string, std::list<int>> sAudioPathIDMap;
 
     //profileName,ProfileHelper
-    static ccstd::unordered_map<std::string, ProfileHelper> sAudioPathProfileHelperMap;
+    static ccstd::unordered_map<ccstd::string, ProfileHelper> sAudioPathProfileHelperMap;
 
     static unsigned int sMaxInstances;
 

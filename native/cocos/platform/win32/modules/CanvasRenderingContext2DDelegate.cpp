@@ -153,7 +153,7 @@ void CanvasRenderingContext2DDelegate::fillRect(float x, float y, float w, float
     }
 }
 
-void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x, float y, float /*maxWidth*/) {
+void CanvasRenderingContext2DDelegate::fillText(const ccstd::string &text, float x, float y, float /*maxWidth*/) {
     if (text.empty() || _bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
@@ -165,13 +165,13 @@ void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x
     fillTextureData();
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
     if (text.empty() || _bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
 }
 
-CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const std::string &text) {
+CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
     if (text.empty())
         return std::array<float, 2>{0.0f, 0.0f};
 
@@ -183,27 +183,27 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
     return size;
 }
 
-void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
-                                                  float              fontSize,
-                                                  bool               bold,
+void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
+                                                  float                fontSize,
+                                                  bool                 bold,
                                                   bool /* italic */,
                                                   bool /* oblique */,
                                                   bool /* smallCaps */) {
     do {
         _fontName = fontName;
         _fontSize = static_cast<int>(fontSize);
-        std::string fontPath;
-        LOGFONTA    tFont = {0};
+        ccstd::string fontPath;
+        LOGFONTA      tFont = {0};
         if (!_fontName.empty()) {
             // firstly, try to create font from ttf file
             const auto &fontInfoMap = getFontFamilyNameMap();
             auto        iter        = fontInfoMap.find(_fontName);
             if (iter != fontInfoMap.end()) {
-                fontPath                = iter->second;
-                std::string tmpFontPath = fontPath;
-                size_t      nFindPos    = tmpFontPath.rfind("/");
-                tmpFontPath             = &tmpFontPath[nFindPos + 1];
-                nFindPos                = tmpFontPath.rfind(".");
+                fontPath                  = iter->second;
+                ccstd::string tmpFontPath = fontPath;
+                size_t        nFindPos    = tmpFontPath.rfind("/");
+                tmpFontPath               = &tmpFontPath[nFindPos + 1];
+                nFindPos                  = tmpFontPath.rfind(".");
                 // IDEA: draw ttf failed if font file name not equal font face name
                 // for example: "DejaVuSansMono-Oblique" not equal "DejaVu Sans Mono"  when using DejaVuSansMono-Oblique.ttf
                 _fontName = tmpFontPath.substr(0, nFindPos);
@@ -285,7 +285,7 @@ const cc::Data &CanvasRenderingContext2DDelegate::getDataRef() const {
 }
 
 // change utf-8 string to utf-16, pRetLen is the string length after changing
-wchar_t *CanvasRenderingContext2DDelegate::utf8ToUtf16(const std::string &str, int *pRetLen /* = nullptr*/) {
+wchar_t *CanvasRenderingContext2DDelegate::utf8ToUtf16(const ccstd::string &str, int *pRetLen /* = nullptr*/) {
     wchar_t *pwszBuffer = nullptr;
     do {
         if (str.empty()) {
@@ -325,7 +325,7 @@ void CanvasRenderingContext2DDelegate::removeCustomFont() {
 }
 
 // x, y offset value
-int CanvasRenderingContext2DDelegate::drawText(const std::string &text, int x, int y) {
+int CanvasRenderingContext2DDelegate::drawText(const ccstd::string &text, int x, int y) {
     int      nRet       = 0;
     wchar_t *pwszBuffer = nullptr;
     do {
@@ -450,7 +450,7 @@ void CanvasRenderingContext2DDelegate::fillTextureData() {
     } while (false);
 }
 
-std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const std::string &text) {
+std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
     Size textSize = measureText(text);
     if (_textAlign == CanvasTextAlign::CENTER) {
         point[0] -= textSize[0] / 2.0f;
@@ -477,10 +477,10 @@ std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point po
 void CanvasRenderingContext2DDelegate::fill() {
 }
 
-void CanvasRenderingContext2DDelegate::setLineCap(const std::string & /* lineCap */) {
+void CanvasRenderingContext2DDelegate::setLineCap(const ccstd::string & /* lineCap */) {
 }
 
-void CanvasRenderingContext2DDelegate::setLineJoin(const std::string & /* lineCap */) {
+void CanvasRenderingContext2DDelegate::setLineJoin(const ccstd::string & /* lineCap */) {
 }
 
 void CanvasRenderingContext2DDelegate::fillImageData(const Data & /* imageData */,
@@ -490,7 +490,7 @@ void CanvasRenderingContext2DDelegate::fillImageData(const Data & /* imageData *
                                                      float /* offsetY */) {
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string & /* text */,
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string & /* text */,
                                                   float /* x */,
                                                   float /* y */,
                                                   float /* maxWidth */) {

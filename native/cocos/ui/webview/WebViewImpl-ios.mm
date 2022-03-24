@@ -35,10 +35,10 @@
     #include "platform/FileUtils.h"
 
 @interface UIWebViewWrapper : NSObject
-@property (nonatomic) std::function<bool(std::string url)> shouldStartLoading;
-@property (nonatomic) std::function<void(std::string url)> didFinishLoading;
-@property (nonatomic) std::function<void(std::string url)> didFailLoading;
-@property (nonatomic) std::function<void(std::string url)> onJsCallback;
+@property (nonatomic) std::function<bool(ccstd::string url)> shouldStartLoading;
+@property (nonatomic) std::function<void(ccstd::string url)> didFinishLoading;
+@property (nonatomic) std::function<void(ccstd::string url)> didFailLoading;
+@property (nonatomic) std::function<void(ccstd::string url)> onJsCallback;
 
 @property (nonatomic, readonly, getter=canGoBack) BOOL canGoBack;
 @property (nonatomic, readonly, getter=canGoForward) BOOL canGoForward;
@@ -51,21 +51,21 @@
 
 - (void)setFrameWithX:(float)x y:(float)y width:(float)width height:(float)height;
 
-- (void)setJavascriptInterfaceScheme:(const std::string &)scheme;
+- (void)setJavascriptInterfaceScheme:(const ccstd::string &)scheme;
 
-- (void)loadData:(const std::string &)data MIMEType:(const std::string &)MIMEType textEncodingName:(const std::string &)encodingName baseURL:(const std::string &)baseURL;
+- (void)loadData:(const ccstd::string &)data MIMEType:(const ccstd::string &)MIMEType textEncodingName:(const ccstd::string &)encodingName baseURL:(const ccstd::string &)baseURL;
 
-- (void)loadHTMLString:(const std::string &)string baseURL:(const std::string &)baseURL;
+- (void)loadHTMLString:(const ccstd::string &)string baseURL:(const ccstd::string &)baseURL;
 
-- (void)loadUrl:(const std::string &)urlString;
+- (void)loadUrl:(const ccstd::string &)urlString;
 
-- (void)loadFile:(const std::string &)filePath;
+- (void)loadFile:(const ccstd::string &)filePath;
 
 - (void)stopLoading;
 
 - (void)reload;
 
-- (void)evaluateJS:(const std::string &)js;
+- (void)evaluateJS:(const ccstd::string &)js;
 
 - (void)goBack;
 
@@ -137,11 +137,11 @@
     }
 }
 
-- (void)setJavascriptInterfaceScheme:(const std::string &)scheme {
+- (void)setJavascriptInterfaceScheme:(const ccstd::string &)scheme {
     self.jsScheme = @(scheme.c_str());
 }
 
-- (void)loadData:(const std::string &)data MIMEType:(const std::string &)MIMEType textEncodingName:(const std::string &)encodingName baseURL:(const std::string &)baseURL {
+- (void)loadData:(const ccstd::string &)data MIMEType:(const ccstd::string &)MIMEType textEncodingName:(const ccstd::string &)encodingName baseURL:(const ccstd::string &)baseURL {
     auto path = [[NSBundle mainBundle] resourcePath];
     path = [path stringByAppendingPathComponent:@(baseURL.c_str())];
     auto url = [NSURL fileURLWithPath:path];
@@ -152,7 +152,7 @@
                       baseURL:url];
 }
 
-- (void)loadHTMLString:(const std::string &)string baseURL:(const std::string &)baseURL {
+- (void)loadHTMLString:(const ccstd::string &)string baseURL:(const ccstd::string &)baseURL {
     if (!self.uiWebView) {
         [self setupWebView];
     }
@@ -162,7 +162,7 @@
     [self.uiWebView loadHTMLString:@(string.c_str()) baseURL:url];
 }
 
-- (void)loadUrl:(const std::string &)urlString {
+- (void)loadUrl:(const ccstd::string &)urlString {
     if (!self.uiWebView) {
         [self setupWebView];
     }
@@ -171,7 +171,7 @@
     [self.uiWebView loadRequest:request];
 }
 
-- (void)loadFile:(const std::string &)filePath {
+- (void)loadFile:(const ccstd::string &)filePath {
     if (!self.uiWebView) {
         [self setupWebView];
     }
@@ -204,7 +204,7 @@
     [self.uiWebView goForward];
 }
 
-- (void)evaluateJS:(const std::string &)js {
+- (void)evaluateJS:(const ccstd::string &)js {
     if (!self.uiWebView) {
         [self setupWebView];
     }
@@ -291,23 +291,23 @@ WebViewImpl::WebViewImpl(WebView *webView)
   _webView(webView) {
     [_uiWebViewWrapper retain];
 
-    _uiWebViewWrapper.shouldStartLoading = [this](std::string url) {
+    _uiWebViewWrapper.shouldStartLoading = [this](ccstd::string url) {
         if (this->_webView->_onShouldStartLoading) {
             return this->_webView->_onShouldStartLoading(this->_webView, url);
         }
         return true;
     };
-    _uiWebViewWrapper.didFinishLoading = [this](std::string url) {
+    _uiWebViewWrapper.didFinishLoading = [this](ccstd::string url) {
         if (this->_webView->_onDidFinishLoading) {
             this->_webView->_onDidFinishLoading(this->_webView, url);
         }
     };
-    _uiWebViewWrapper.didFailLoading = [this](std::string url) {
+    _uiWebViewWrapper.didFailLoading = [this](ccstd::string url) {
         if (this->_webView->_onDidFailLoading) {
             this->_webView->_onDidFailLoading(this->_webView, url);
         }
     };
-    _uiWebViewWrapper.onJsCallback = [this](std::string url) {
+    _uiWebViewWrapper.onJsCallback = [this](ccstd::string url) {
         if (this->_webView->_onJSCallback) {
             this->_webView->_onJSCallback(this->_webView, url);
         }
@@ -319,28 +319,28 @@ WebViewImpl::~WebViewImpl() {
     _uiWebViewWrapper = nullptr;
 }
 
-void WebViewImpl::setJavascriptInterfaceScheme(const std::string &scheme) {
+void WebViewImpl::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
     [_uiWebViewWrapper setJavascriptInterfaceScheme:scheme];
 }
 
 void WebViewImpl::loadData(const Data &data,
-                           const std::string &MIMEType,
-                           const std::string &encoding,
-                           const std::string &baseURL) {
+                           const ccstd::string &MIMEType,
+                           const ccstd::string &encoding,
+                           const ccstd::string &baseURL) {
 
-    std::string dataString(reinterpret_cast<char *>(data.getBytes()), static_cast<unsigned int>(data.getSize()));
+    ccstd::string dataString(reinterpret_cast<char *>(data.getBytes()), static_cast<unsigned int>(data.getSize()));
     [_uiWebViewWrapper loadData:dataString MIMEType:MIMEType textEncodingName:encoding baseURL:baseURL];
 }
 
-void WebViewImpl::loadHTMLString(const std::string &string, const std::string &baseURL) {
+void WebViewImpl::loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL) {
     [_uiWebViewWrapper loadHTMLString:string baseURL:baseURL];
 }
 
-void WebViewImpl::loadURL(const std::string &url) {
+void WebViewImpl::loadURL(const ccstd::string &url) {
     [_uiWebViewWrapper loadUrl:url];
 }
 
-void WebViewImpl::loadFile(const std::string &fileName) {
+void WebViewImpl::loadFile(const ccstd::string &fileName) {
     auto fullPath = cc::FileUtils::getInstance()->fullPathForFilename(fileName);
     [_uiWebViewWrapper loadFile:fullPath];
 }
@@ -369,7 +369,7 @@ void WebViewImpl::goForward() {
     [_uiWebViewWrapper goForward];
 }
 
-void WebViewImpl::evaluateJS(const std::string &js) {
+void WebViewImpl::evaluateJS(const ccstd::string &js) {
     [_uiWebViewWrapper evaluateJS:js];
 }
 

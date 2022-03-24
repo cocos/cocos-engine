@@ -145,12 +145,12 @@ IDownloadTask *DownloaderJava::createCoTask(std::shared_ptr<const DownloadTask> 
                                        JCLS_DOWNLOADER,
                                        "createTask",
                                        "(" JARG_DOWNLOADER "I" JARG_STR JARG_STR "[" JARG_STR ")V")) {
-        jclass                                      jclassString = methodInfo.env->FindClass("java/lang/String");
-        jstring                                     jstrURL      = methodInfo.env->NewStringUTF(task->requestURL.c_str());
-        jstring                                     jstrPath     = methodInfo.env->NewStringUTF(task->storagePath.c_str());
-        jobjectArray                                jarrayHeader = methodInfo.env->NewObjectArray(task->header.size() * 2, jclassString, nullptr);
-        const ccstd::map<std::string, std::string> &headMap      = task->header;
-        int                                         index        = 0;
+        jclass                                          jclassString = methodInfo.env->FindClass("java/lang/String");
+        jstring                                         jstrURL      = methodInfo.env->NewStringUTF(task->requestURL.c_str());
+        jstring                                         jstrPath     = methodInfo.env->NewStringUTF(task->storagePath.c_str());
+        jobjectArray                                    jarrayHeader = methodInfo.env->NewObjectArray(task->header.size() * 2, jclassString, nullptr);
+        const ccstd::map<ccstd::string, ccstd::string> &headMap      = task->header;
+        int                                             index        = 0;
         for (const auto &it : headMap) {
             methodInfo.env->SetObjectArrayElement(jarrayHeader, index++, methodInfo.env->NewStringUTF(it.first.c_str()));
             methodInfo.env->SetObjectArrayElement(jarrayHeader, index++, methodInfo.env->NewStringUTF(it.second.c_str()));
@@ -226,7 +226,7 @@ void DownloaderJava::onFinishImpl(int taskId, int errCode, const char *errStr, c
         return;
     }
     DownloadTaskAndroid *coTask = iter->second;
-    std::string          str    = (errStr ? errStr : "");
+    ccstd::string        str    = (errStr ? errStr : "");
     _taskMap.erase(iter);
     onTaskFinish(*coTask->task,
                  errStr ? DownloadTask::ERROR_IMPL_INTERNAL : DownloadTask::ERROR_NO_ERROR,
@@ -255,7 +255,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jclass
 }
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*clazz*/, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data) {
-    std::string            errStrTmp;
+    ccstd::string          errStrTmp;
     ccstd::vector<uint8_t> dataTmp;
     if (errStr) {
         const char *nativeErrStr = env->GetStringUTFChars(errStr, JNI_FALSE);

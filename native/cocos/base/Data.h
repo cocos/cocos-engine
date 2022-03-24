@@ -28,8 +28,8 @@
 #pragma once
 
 #include <cstdint> // for ssize_t on android
-#include <string>  // for ssize_t on linux
 #include "base/Macros.h"
+#include "base/std/container/string.h" // for ssize_t on linux
 
 /**
  * @addtogroup base

@@ -82,15 +82,15 @@ Value::Value(bool v)
 
 Value::Value(const char *v)
 : _type(Type::STRING) {
-    _field.strVal = new (std::nothrow) std::string();
+    _field.strVal = new (std::nothrow) ccstd::string();
     if (v) {
         *_field.strVal = v;
     }
 }
 
-Value::Value(const std::string &v)
+Value::Value(const ccstd::string &v)
 : _type(Type::STRING) {
-    _field.strVal  = new (std::nothrow) std::string();
+    _field.strVal  = new (std::nothrow) ccstd::string();
     *_field.strVal = v;
 }
 
@@ -169,7 +169,7 @@ Value &Value::operator=(const Value &other) { //NOLINT(misc-no-recursion)
                 break;
             case Type::STRING:
                 if (_field.strVal == nullptr) {
-                    _field.strVal = new std::string();
+                    _field.strVal = new ccstd::string();
                 }
                 *_field.strVal = *other._field.strVal;
                 break;
@@ -286,7 +286,7 @@ Value &Value::operator=(const char *v) {
     return *this;
 }
 
-Value &Value::operator=(const std::string &v) {
+Value &Value::operator=(const ccstd::string &v) {
     reset(Type::STRING);
     *_field.strVal = v;
     return *this;
@@ -606,7 +606,7 @@ bool Value::asBool() const {
     return false;
 }
 
-std::string Value::asString() const {
+ccstd::string Value::asString() const {
     CCASSERT(_type != Type::VECTOR && _type != Type::MAP && _type != Type::INT_KEY_MAP, "Only base type (bool, string, float, double, int) could be converted");
 
     if (_type == Type::STRING) {
@@ -670,8 +670,8 @@ const ValueMapIntKey &Value::asIntKeyMap() const {
     return *_field.intKeyMapVal;
 }
 
-static std::string getTabs(int depth) {
-    std::string tabWidth;
+static ccstd::string getTabs(int depth) {
+    ccstd::string tabWidth;
 
     for (int i = 0; i < depth; ++i) {
         tabWidth += "\t";
@@ -680,9 +680,9 @@ static std::string getTabs(int depth) {
     return tabWidth;
 }
 
-static std::string visit(const Value &v, int depth);
+static ccstd::string visit(const Value &v, int depth);
 
-static std::string visitVector(const ValueVector &v, int depth) { //NOLINT[misc-no-recursion]
+static ccstd::string visitVector(const ValueVector &v, int depth) { //NOLINT[misc-no-recursion]
     std::stringstream ret;
 
     if (depth > 0) {
@@ -703,7 +703,7 @@ static std::string visitVector(const ValueVector &v, int depth) { //NOLINT[misc-
 }
 
 template <class T>
-static std::string visitMap(const T &v, int depth) { //NOLINT[misc-no-recursion]
+static ccstd::string visitMap(const T &v, int depth) { //NOLINT[misc-no-recursion]
     std::stringstream ret;
 
     if (depth > 0) {
@@ -722,7 +722,7 @@ static std::string visitMap(const T &v, int depth) { //NOLINT[misc-no-recursion]
     return ret.str();
 }
 
-static std::string visit(const Value &v, int depth) { //NOLINT[misc-no-recursion]
+static ccstd::string visit(const Value &v, int depth) { //NOLINT[misc-no-recursion]
     std::stringstream ret;
 
     switch (v.getType()) {
@@ -753,8 +753,8 @@ static std::string visit(const Value &v, int depth) { //NOLINT[misc-no-recursion
     return ret.str();
 }
 
-std::string Value::getDescription() const {
-    std::string ret("\n");
+ccstd::string Value::getDescription() const {
+    ccstd::string ret("\n");
     ret += visit(*this, 0);
     return ret;
 }
@@ -809,7 +809,7 @@ void Value::reset(Type type) {
     // Allocate memory for the new value
     switch (type) {
         case Type::STRING:
-            _field.strVal = new (std::nothrow) std::string();
+            _field.strVal = new (std::nothrow) ccstd::string();
             break;
         case Type::VECTOR:
             _field.vectorVal = new (std::nothrow) ValueVector();

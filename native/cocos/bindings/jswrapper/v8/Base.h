@@ -39,8 +39,8 @@
 #include <algorithm> // for std::find
 #include <chrono>
 #include <functional>
-#include <string>
 #include "../PrivateObject.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 
 #include "HelperMacros.h"

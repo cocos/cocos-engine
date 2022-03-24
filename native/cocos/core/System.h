@@ -24,16 +24,16 @@
 ****************************************************************************/
 #pragma once
 
-#include <string>
 #include "base/Macros.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 
 namespace core {
 
 struct ISchedulable {
-    std::string id;
-    std::string uuid;
+    ccstd::string id;
+    ccstd::string uuid;
 };
 
 enum struct Priority : uint32_t {
@@ -66,8 +66,8 @@ public:
     System()          = default;
     virtual ~System() = default;
 
-    inline const std::string &getId() { return id; }
-    inline void               setId(std::string &s) { id = s; }
+    inline const ccstd::string &getId() { return id; }
+    inline void                 setId(ccstd::string &s) { id = s; }
 
     inline Priority getPriority() const { return _priority; }
     inline void     setPriority(Priority i) { _priority = i; }

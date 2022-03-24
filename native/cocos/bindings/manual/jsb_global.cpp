@@ -52,9 +52,9 @@ using namespace cc; //NOLINT
 
 static LegacyThreadPool *gThreadPool = nullptr;
 
-static std::shared_ptr<cc::network::Downloader>                                                 gLocalDownloader = nullptr;
-static ccstd::map<std::string, std::function<void(const std::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
-static uint64_t                                                                                 gLocalDownloaderTaskId = 1000000;
+static std::shared_ptr<cc::network::Downloader>                                                     gLocalDownloader = nullptr;
+static ccstd::map<ccstd::string, std::function<void(const ccstd::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
+static uint64_t                                                                                     gLocalDownloaderTaskId = 1000000;
 
 static cc::network::Downloader *localDownloader() {
     if (!gLocalDownloader) {
@@ -82,7 +82,7 @@ static cc::network::Downloader *localDownloader() {
         gLocalDownloader->onTaskError = [=](const cc::network::DownloadTask &task,
                                             int                              errorCode,         //NOLINT
                                             int                              errorCodeInternal, //NOLINT
-                                            const std::string &              errorStr) {                      //NOLINT
+                                            const ccstd::string &            errorStr) {                    //NOLINT
             SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
             gLocalDownloaderHandlers.erase(task.identifier);
         };
@@ -90,11 +90,11 @@ static cc::network::Downloader *localDownloader() {
     return gLocalDownloader.get();
 }
 
-static void localDownloaderCreateTask(const std::string &url, const std::function<void(const std::string &, unsigned char *, int)> &callback) {
+static void localDownloaderCreateTask(const ccstd::string &url, const std::function<void(const ccstd::string &, unsigned char *, int)> &callback) {
     std::stringstream ss;
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
-    std::string key  = ss.str();
-    auto        task = localDownloader()->createDownloadDataTask(url, key);
+    ccstd::string key  = ss.str();
+    auto          task = localDownloader()->createDownloadDataTask(url, key);
     gLocalDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
 }
 
@@ -121,7 +121,7 @@ bool jsb_set_extend_property(const char *ns, const char *clsName) { //NOLINT
 
 namespace {
 
-ccstd::unordered_map<std::string, se::Value> gModuleCache;
+ccstd::unordered_map<ccstd::string, se::Value> gModuleCache;
 
 static bool require(se::State &s) { //NOLINT
     const auto &args = s.args();
@@ -133,23 +133,23 @@ static bool require(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(require)
 
-static bool doModuleRequire(const std::string &path, se::Value *ret, const std::string &prevScriptFileDir) { //NOLINT
+static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccstd::string &prevScriptFileDir) { //NOLINT
     se::AutoHandleScope hs;
     assert(!path.empty());
 
     const auto &fileOperationDelegate = se::ScriptEngine::getInstance()->getFileOperationDelegate();
     assert(fileOperationDelegate.isValid());
 
-    std::string fullPath;
+    ccstd::string fullPath;
 
-    std::string pathWithSuffix = path;
+    ccstd::string pathWithSuffix = path;
     if (pathWithSuffix.rfind(".js") != (pathWithSuffix.length() - 3)) {
         pathWithSuffix += ".js";
     }
-    std::string scriptBuffer = fileOperationDelegate.onGetStringFromFile(pathWithSuffix);
+    ccstd::string scriptBuffer = fileOperationDelegate.onGetStringFromFile(pathWithSuffix);
 
     if (scriptBuffer.empty() && !prevScriptFileDir.empty()) {
-        std::string secondPath = prevScriptFileDir;
+        ccstd::string secondPath = prevScriptFileDir;
         if (secondPath[secondPath.length() - 1] != '/') {
             secondPath += "/";
         }
@@ -180,7 +180,7 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
             //                printf("Found cache: %s, value: %d\n", fullPath.c_str(), (int)ret->getType());
             return true;
         }
-        std::string currentScriptFileDir = FileUtils::getInstance()->getFileDir(fullPath);
+        ccstd::string currentScriptFileDir = FileUtils::getInstance()->getFileDir(fullPath);
 
         // Add closure for evalutate the script
         char prefix[]    = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";
@@ -195,19 +195,19 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
         //            fclose(fp);
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS
-        std::string reletivePath = fullPath;
+        ccstd::string reletivePath = fullPath;
     #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-        const std::string reletivePathKey = "/Contents/Resources";
+        const ccstd::string reletivePathKey = "/Contents/Resources";
     #else
-        const std::string reletivePathKey = ".app";
+        const ccstd::string reletivePathKey = ".app";
     #endif
 
         size_t pos = reletivePath.find(reletivePathKey);
-        if (pos != std::string::npos) {
+        if (pos != ccstd::string::npos) {
             reletivePath = reletivePath.substr(pos + reletivePathKey.length() + 1);
         }
 #else
-        const std::string &reletivePath = fullPath;
+        const ccstd::string &reletivePath = fullPath;
 #endif
 
         auto      se      = se::ScriptEngine::getInstance();
@@ -249,12 +249,12 @@ static bool moduleRequire(se::State &s) { //NOLINT
 SE_BIND_FUNC(moduleRequire)
 } // namespace
 
-bool jsb_run_script(const std::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
+bool jsb_run_script(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
     se::AutoHandleScope hs;
     return se::ScriptEngine::getInstance()->runScript(filePath, rval);
 }
 
-bool jsb_run_script_module(const std::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
+bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
     return doModuleRequire(filePath, rval, "");
 }
 
@@ -284,9 +284,9 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
     }
 
     std::sort(namePtrArray.begin(), namePtrArray.end(), [](const NamePtrStruct &a, const NamePtrStruct &b) -> bool {
-        std::string left  = a.name;
-        std::string right = b.name;
-        for (std::string::const_iterator lit = left.begin(), rit = right.begin(); lit != left.end() && rit != right.end(); ++lit, ++rit) {
+        ccstd::string left  = a.name;
+        ccstd::string right = b.name;
+        for (ccstd::string::const_iterator lit = left.begin(), rit = right.begin(); lit != left.end() && rit != right.end(); ++lit, ++rit) {
             if (::tolower(*lit) < ::tolower(*rit)) {
                 return true;
             }
@@ -348,7 +348,7 @@ SE_BIND_FUNC(JSBCore_os)
 static bool JSBCore_getCurrentLanguage(se::State &s) { //NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CCASSERT(systemIntf != nullptr, "System interface does not exist");
-    std::string languageStr = systemIntf->getCurrentLanguageToString();
+    ccstd::string languageStr = systemIntf->getCurrentLanguageToString();
     s.rval().setString(languageStr);
     return true;
 }
@@ -357,7 +357,7 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 static bool JSBCore_getCurrentLanguageCode(se::State &s) { //NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CCASSERT(systemIntf != nullptr, "System interface does not exist");
-    std::string language = systemIntf->getCurrentLanguageCode();
+    ccstd::string language = systemIntf->getCurrentLanguageCode();
     s.rval().setString(language);
     return true;
 }
@@ -366,7 +366,7 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
 static bool JSB_getOSVersion(se::State &s) { //NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CCASSERT(systemIntf != nullptr, "System interface does not exist");
-    std::string systemVersion = systemIntf->getSystemVersion();
+    ccstd::string systemVersion = systemIntf->getSystemVersion();
     s.rval().setString(systemVersion);
     return true;
 }
@@ -420,9 +420,9 @@ static bool JSB_saveByteCode(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments");
-    bool        ok = true;
-    std::string srcfile;
-    std::string dstfile;
+    bool          ok = true;
+    ccstd::string srcfile;
+    ccstd::string dstfile;
     ok &= sevalue_to_native(args[0], &srcfile);
     ok &= sevalue_to_native(args[1], &dstfile);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -546,7 +546,7 @@ struct ImageInfo *createImageInfo(Image *img) {
 }
 } // namespace
 
-bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal) { //NOLINT(readability-identifier-naming)
+bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackVal) { //NOLINT(readability-identifier-naming)
     if (path.empty()) {
         se::ValueArray seArgs;
         callbackVal.toObject()->call(seArgs, nullptr);
@@ -555,7 +555,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 
     std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
 
-    auto initImageFunc = [path, callbackPtr](const std::string &fullPath, unsigned char *imageData, int imageBytes) {
+    auto initImageFunc = [path, callbackPtr](const ccstd::string &fullPath, unsigned char *imageData, int imageBytes) {
         auto *img = new (std::nothrow) Image();
 
         gThreadPool->pushTask([=](int /*tid*/) {
@@ -600,11 +600,11 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
             });
         });
     };
-    size_t pos = std::string::npos;
+    size_t pos = ccstd::string::npos;
     if (path.find("http://") == 0 || path.find("https://") == 0) {
         localDownloaderCreateTask(path, initImageFunc);
 
-    } else if (path.find("data:") == 0 && (pos = path.find("base64,")) != std::string::npos) {
+    } else if (path.find("data:") == 0 && (pos = path.find("base64,")) != ccstd::string::npos) {
         int            imageBytes   = 0;
         unsigned char *imageData    = nullptr;
         size_t         dataStartPos = pos + strlen("base64,");
@@ -617,7 +617,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
         }
         initImageFunc("", imageData, imageBytes);
     } else {
-        std::string fullPath(FileUtils::getInstance()->fullPathForFilename(path));
+        ccstd::string fullPath(FileUtils::getInstance()->fullPathForFilename(path));
         if (0 == path.find("file://")) {
             fullPath = FileUtils::getInstance()->fullPathForFilename(path.substr(strlen("file://")));
         }
@@ -636,7 +636,7 @@ static bool js_loadImage(se::State &s) { //NOLINT
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 2) {
-        std::string path;
+        ccstd::string path;
         ok &= sevalue_to_native(args[0], &path);
         SE_PRECONDITION2(ok, false, "js_loadImage : Error processing arguments");
 
@@ -671,7 +671,7 @@ static bool JSB_openURL(se::State &s) { //NOLINT
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc > 0) {
-        std::string url;
+        ccstd::string url;
         ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "url is invalid!");
         ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
@@ -690,7 +690,7 @@ static bool JSB_copyTextToClipboard(se::State &s) { //NOLINT
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc > 0) {
-        std::string text;
+        ccstd::string text;
         ok = sevalue_to_native(args[0], &text);
         SE_PRECONDITION2(ok, false, "text is invalid!");
         ISystemWindow *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
@@ -904,9 +904,9 @@ static bool JSB_zipUtils_inflateMemory(se::State &s) { //NOLINT
         unsigned char *arg0 = nullptr;
         size_t         arg1 = 0;
         if (args[0].isString()) {
-            const std::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            const ccstd::string &str = args[0].toString();
+            arg0                     = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                     = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -958,7 +958,7 @@ static bool JSB_zipUtils_inflateGZipFile(se::State &s) { //NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
-        std::string      arg0 = args[0].toString();
+        ccstd::string    arg0 = args[0].toString();
         unsigned char *  arg1 = nullptr;
         int32_t          len  = ZipUtils::inflateGZipFile(arg0.c_str(), &arg1);
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg1, len));
@@ -980,8 +980,8 @@ static bool JSB_zipUtils_isGZipFile(se::State &s) { //NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
-        std::string arg0 = args[0].toString();
-        bool        flag = ZipUtils::isGZipFile(arg0.c_str());
+        ccstd::string arg0 = args[0].toString();
+        bool          flag = ZipUtils::isGZipFile(arg0.c_str());
         s.rval().setBoolean(flag);
         return true;
     }
@@ -998,9 +998,9 @@ static bool JSB_zipUtils_isGZipBuffer(se::State &s) { //NOLINT
         unsigned char *arg0 = nullptr;
         size_t         arg1 = 0;
         if (args[0].isString()) {
-            const std::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            const ccstd::string &str = args[0].toString();
+            arg0                     = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                     = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -1030,7 +1030,7 @@ static bool JSB_zipUtils_inflateCCZFile(se::State &s) { //NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
-        std::string      arg0 = args[0].toString();
+        ccstd::string    arg0 = args[0].toString();
         unsigned char *  arg1 = nullptr;
         int32_t          len  = ZipUtils::inflateCCZFile(arg0.c_str(), &arg1);
         se::HandleObject seObj(se::Object::createArrayBufferObject(arg1, len));
@@ -1055,9 +1055,9 @@ static bool JSB_zipUtils_inflateCCZBuffer(se::State &s) { //NOLINT
         unsigned char *arg0 = nullptr;
         size_t         arg1 = 0;
         if (args[0].isString()) {
-            const std::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            const ccstd::string &str = args[0].toString();
+            arg0                     = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                     = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {
@@ -1093,7 +1093,7 @@ static bool JSB_zipUtils_isCCZFile(se::State &s) { //NOLINT
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
-        std::string arg0;
+        ccstd::string arg0;
         SE_PRECONDITION2(args[0].isString(), false, "path is invalid!");
         arg0      = args[0].toString();
         bool flag = ZipUtils::isCCZFile(arg0.c_str());
@@ -1113,9 +1113,9 @@ static bool JSB_zipUtils_isCCZBuffer(se::State &s) { //NOLINT
         unsigned char *arg0 = nullptr;
         size_t         arg1 = 0;
         if (args[0].isString()) {
-            const std::string &str = args[0].toString();
-            arg0                   = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
-            arg1                   = str.size();
+            const ccstd::string &str = args[0].toString();
+            arg0                     = const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(str.c_str()));
+            arg1                     = str.size();
         } else if (args[0].isObject()) {
             se::Object *obj = args[0].toObject();
             if (obj->isArrayBuffer()) {

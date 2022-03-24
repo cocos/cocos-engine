@@ -63,7 +63,7 @@ public:
     ccstd::vector<const char *> layers;
     ccstd::vector<const char *> extensions;
 
-    inline bool checkExtension(const String &extension) const {
+    inline bool checkExtension(const ccstd::string &extension) const {
         return std::any_of(extensions.begin(), extensions.end(), [&extension](auto &ext) {
             return std::strcmp(ext, extension.c_str()) == 0;
         });
@@ -261,17 +261,17 @@ struct CCVKGPUQueryPool {
 };
 
 struct CCVKGPUShaderStage {
-    CCVKGPUShaderStage(ShaderStageFlagBit t, String s)
+    CCVKGPUShaderStage(ShaderStageFlagBit t, ccstd::string s)
     : type(t),
       source(std::move(s)) {
     }
     ShaderStageFlagBit type = ShaderStageFlagBit::NONE;
-    String             source;
+    ccstd::string      source;
     VkShaderModule     vkShader = VK_NULL_HANDLE;
 };
 
 struct CCVKGPUShader {
-    String                            name;
+    ccstd::string                     name;
     AttributeList                     attributes;
     ccstd::vector<CCVKGPUShaderStage> gpuStages;
 };

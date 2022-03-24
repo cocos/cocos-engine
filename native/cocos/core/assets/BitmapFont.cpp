@@ -91,21 +91,21 @@ void BitmapFontFace::doInit(const FontFaceInfo & /*info*/) {
     auto *pageNode  = pagesNode->FirstChildElement("page");
     _textures.resize(pages, nullptr);
 
-    std::string path = fontPath;
-    auto        pos  = fontPath.rfind('/');
+    ccstd::string path = fontPath;
+    auto          pos  = fontPath.rfind('/');
 
-    if (pos == std::string::npos) {
+    if (pos == ccstd::string::npos) {
         pos = fontPath.rfind('\\');
     }
 
-    if (pos != std::string::npos) {
+    if (pos != ccstd::string::npos) {
         path = fontPath.substr(0, pos + 1);
     }
 
     while (pageNode) {
-        uint32_t    id   = pageNode->UnsignedAttribute("id");
-        std::string file = pageNode->Attribute("file");
-        _textures[id]    = loadTexture(path + file);
+        uint32_t      id   = pageNode->UnsignedAttribute("id");
+        ccstd::string file = pageNode->Attribute("file");
+        _textures[id]      = loadTexture(path + file);
 
         pageNode = pageNode->NextSiblingElement();
     }
@@ -147,7 +147,7 @@ float BitmapFontFace::getKerning(uint32_t prevCode, uint32_t nextCode) {
     return 0.0F;
 }
 
-gfx::Texture *BitmapFontFace::loadTexture(const std::string &path) {
+gfx::Texture *BitmapFontFace::loadTexture(const ccstd::string &path) {
     auto *image   = new Image();
     bool  success = image->initWithImageFile(path);
     if (!success) {
@@ -188,7 +188,7 @@ gfx::Texture *BitmapFontFace::loadTexture(const std::string &path) {
 /**
  * BitmapFont
  */
-BitmapFont::BitmapFont(const std::string &path)
+BitmapFont::BitmapFont(const ccstd::string &path)
 : Font(FontType::BITMAP, path) {
 }
 

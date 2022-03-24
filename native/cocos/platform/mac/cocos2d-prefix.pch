@@ -20,7 +20,7 @@
 #endif
 
 #ifdef __cplusplus
-    #include <string>
+    #include "base/std/container/strig.h"
     #include <memory>
     #include <functional>
     #include <thread>

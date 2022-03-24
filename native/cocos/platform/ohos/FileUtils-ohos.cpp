@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 #include <cstdio>
 #include <regex>
-#include <string>
+#include "base/std/container/string.h"
 #include "cocos/base/Log.h"
 #include "cocos/platform/java/jni/JniHelper.h"
 
@@ -44,13 +44,13 @@
 namespace cc {
 
 ResourceManager *FileUtilsOHOS::ohosResourceMgr = {};
-std::string      FileUtilsOHOS::ohosAssetPath   = {};
+ccstd::string    FileUtilsOHOS::ohosAssetPath   = {};
 
 namespace {
 
-std::string rawfilePrefix = "entry/resources/rawfile/";
+ccstd::string rawfilePrefix = "entry/resources/rawfile/";
 
-void printRawfiles(ResourceManager *mgr, const std::string &path) {
+void printRawfiles(ResourceManager *mgr, const ccstd::string &path) {
     auto *file = OpenRawFile(mgr, path.c_str());
     if (file) {
         HILOG_DEBUG(LOG_APP, "PrintRawfile %{public}s", path.c_str());
@@ -61,9 +61,9 @@ void printRawfiles(ResourceManager *mgr, const std::string &path) {
     if (dir) {
         auto fileCnt = GetRawFileCount(dir);
         for (auto i = 0; i < fileCnt; i++) {
-            std::string subFile  = GetRawFileName(dir, i);
-            auto        newPath  = path + "/" + subFile; // NOLINT
-            auto        debugPtr = newPath.c_str();
+            ccstd::string subFile  = GetRawFileName(dir, i);
+            auto          newPath  = path + "/" + subFile; // NOLINT
+            auto          debugPtr = newPath.c_str();
             HILOG_ERROR(LOG_APP, " find path %{public}s", newPath.c_str());
             printRawfiles(mgr, newPath);
         }
@@ -73,7 +73,7 @@ void printRawfiles(ResourceManager *mgr, const std::string &path) {
 }
 } // namespace
 
-bool FileUtilsOHOS::initResourceManager(ResourceManager *mgr, const std::string &assetPath, const std::string &moduleName) {
+bool FileUtilsOHOS::initResourceManager(ResourceManager *mgr, const ccstd::string &assetPath, const ccstd::string &moduleName) {
     CCASSERT(mgr, "ResourceManager should not be empty!");
     ohosResourceMgr = mgr;
     if (!assetPath.empty() && assetPath[assetPath.length() - 1] != '/') {
@@ -87,7 +87,7 @@ bool FileUtilsOHOS::initResourceManager(ResourceManager *mgr, const std::string 
     return true;
 }
 
-void FileUtilsOHOS::setRawfilePrefix(const std::string &prefix) {
+void FileUtilsOHOS::setRawfilePrefix(const ccstd::string &prefix) {
     rawfilePrefix = prefix;
 }
 
@@ -112,12 +112,12 @@ bool FileUtilsOHOS::init() {
     return FileUtils::init();
 }
 
-FileUtils::Status FileUtilsOHOS::getContents(const std::string &filename, ResizableBuffer *buffer) {
+FileUtils::Status FileUtilsOHOS::getContents(const ccstd::string &filename, ResizableBuffer *buffer) {
     if (filename.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
 
-    std::string fullPath = fullPathForFilename(filename);
+    ccstd::string fullPath = fullPathForFilename(filename);
     if (fullPath.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
@@ -126,8 +126,8 @@ FileUtils::Status FileUtilsOHOS::getContents(const std::string &filename, Resiza
         return FileUtils::getContents(fullPath, buffer);
     }
 
-    std::string relativePath;
-    size_t      position = fullPath.find(ASSETS_FOLDER_NAME);
+    ccstd::string relativePath;
+    size_t        position = fullPath.find(ASSETS_FOLDER_NAME);
     if (0 == position) {
         // "@assets/" is at the beginning of the path and we don't want it
         relativePath = rawfilePrefix + fullPath.substr(strlen(ASSETS_FOLDER_NAME));
@@ -165,11 +165,11 @@ FileUtils::Status FileUtilsOHOS::getContents(const std::string &filename, Resiza
     return FileUtils::Status::OK;
 }
 
-bool FileUtilsOHOS::isAbsolutePath(const std::string &strPath) const {
+bool FileUtilsOHOS::isAbsolutePath(const ccstd::string &strPath) const {
     return !strPath.empty() && (strPath[0] == '/' || strPath.find(ASSETS_FOLDER_NAME) == 0);
 }
 
-std::string FileUtilsOHOS::getWritablePath() const {
+ccstd::string FileUtilsOHOS::getWritablePath() const {
     auto tmp = cc::JniHelper::callStaticStringMethod(JCLS_HELPER, "getWritablePath");
     if (tmp.empty()) {
         return "./";
@@ -177,7 +177,7 @@ std::string FileUtilsOHOS::getWritablePath() const {
     return tmp.append("/");
 }
 
-bool FileUtilsOHOS::isFileExistInternal(const std::string &strFilePath) const {
+bool FileUtilsOHOS::isFileExistInternal(const ccstd::string &strFilePath) const {
     if (strFilePath.empty()) return false;
     auto filePath  = strFilePath;
     auto fileFound = false;
@@ -200,9 +200,9 @@ bool FileUtilsOHOS::isFileExistInternal(const std::string &strFilePath) const {
     return false;
 }
 
-bool FileUtilsOHOS::isDirectoryExistInternal(const std::string &dirPath) const {
+bool FileUtilsOHOS::isDirectoryExistInternal(const ccstd::string &dirPath) const {
     if (dirPath.empty()) return false;
-    std::string dirPathMf = dirPath[dirPath.length() - 1] == '/' ? dirPath.substr(0, dirPath.length() - 1) : dirPath;
+    ccstd::string dirPathMf = dirPath[dirPath.length() - 1] == '/' ? dirPath.substr(0, dirPath.length() - 1) : dirPath;
 
     if (dirPathMf[0] == '/') {
         struct stat st;
@@ -221,7 +221,7 @@ bool FileUtilsOHOS::isDirectoryExistInternal(const std::string &dirPath) const {
     return false;
 }
 
-std::string FileUtilsOHOS::expandPath(const std::string &input, bool *isRawFile) const {
+ccstd::string FileUtilsOHOS::expandPath(const ccstd::string &input, bool *isRawFile) const {
     if (!input.empty() && input[0] == '/') {
         if (isRawFile) *isRawFile = false;
         return input;
@@ -238,7 +238,7 @@ std::string FileUtilsOHOS::expandPath(const std::string &input, bool *isRawFile)
     return fullpath;
 }
 
-std::pair<int, std::function<void()>> FileUtilsOHOS::getFd(const std::string &path) const {
+std::pair<int, std::function<void()>> FileUtilsOHOS::getFd(const ccstd::string &path) const {
     bool       isRawFile = false;
     const auto fullpath  = expandPath(path, &isRawFile);
     if (isRawFile) {

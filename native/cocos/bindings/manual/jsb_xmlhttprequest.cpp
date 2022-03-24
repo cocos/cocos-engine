@@ -34,8 +34,8 @@
 #include <algorithm>
 #include <functional>
 #include <sstream>
-#include <string>
 #include "base/Config.h"
+#include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/Data.h"
 #include "cocos/base/DeferredReleasePool.h"
@@ -50,7 +50,7 @@ using namespace cc::network; //NOLINT
 
 namespace {
 // NOLINTNEXTLINE(readability-identifier-naming)
-ccstd::unordered_map<int, std::string> _httpStatusCodeMap = {
+ccstd::unordered_map<int, ccstd::string> _httpStatusCodeMap = {
     {100, "Continue"},
     {101, "Switching Protocols"},
     {102, "Processing"},
@@ -145,25 +145,25 @@ public:
 
     XMLHttpRequest();
 
-    bool open(const std::string &method, const std::string &url);
+    bool open(const ccstd::string &method, const ccstd::string &url);
     void send();
-    void sendString(const std::string &str);
+    void sendString(const ccstd::string &str);
     void sendBinary(const cc::Data &data);
 
-    void        setRequestHeader(const std::string &key, const std::string &value);
-    std::string getAllResponseHeaders() const;
-    std::string getResponseHeader(const std::string &key) const;
+    void          setRequestHeader(const ccstd::string &key, const ccstd::string &value);
+    ccstd::string getAllResponseHeaders() const;
+    ccstd::string getResponseHeader(const ccstd::string &key) const;
 
-    ReadyState         getReadyState() const { return _readyState; }
-    uint16_t           getStatus() const { return _status; }
-    const std::string &getStatusText() const { return _statusText; }
-    const std::string &getResponseText() const { return _responseText; }
-    const cc::Data &   getResponseData() const { return _responseData; }
-    ResponseType       getResponseType() const { return _responseType; }
-    void               setResponseType(ResponseType type) { _responseType = type; }
+    ReadyState           getReadyState() const { return _readyState; }
+    uint16_t             getStatus() const { return _status; }
+    const ccstd::string &getStatusText() const { return _statusText; }
+    const ccstd::string &getResponseText() const { return _responseText; }
+    const cc::Data &     getResponseData() const { return _responseData; }
+    ResponseType         getResponseType() const { return _responseType; }
+    void                 setResponseType(ResponseType type) { _responseType = type; }
 
-    void        overrideMimeType(const std::string &mimeType);
-    std::string getMimeType() const;
+    void          overrideMimeType(const ccstd::string &mimeType);
+    ccstd::string getMimeType() const;
 
     void     setTimeout(uint32_t timeoutInMilliseconds);
     uint32_t getTimeout() const;
@@ -176,22 +176,22 @@ private:
     ~XMLHttpRequest() override;
 
     void setReadyState(ReadyState readyState);
-    void getHeader(const std::string &header);
+    void getHeader(const ccstd::string &header);
     void onResponse(cc::network::HttpClient *client, cc::network::HttpResponse *response);
 
     void setHttpRequestData(const char *data, size_t len);
     void sendRequest();
     void setHttpRequestHeader();
 
-    ccstd::unordered_map<std::string, std::string> _httpHeader;
-    ccstd::unordered_map<std::string, std::string> _requestHeader;
+    ccstd::unordered_map<ccstd::string, ccstd::string> _httpHeader;
+    ccstd::unordered_map<ccstd::string, ccstd::string> _requestHeader;
 
-    std::string _url;
-    std::string _method;
-    std::string _responseText;
-    std::string _responseXML;
-    std::string _statusText;
-    std::string _overrideMimeType;
+    ccstd::string _url;
+    ccstd::string _method;
+    ccstd::string _responseText;
+    ccstd::string _responseXML;
+    ccstd::string _statusText;
+    ccstd::string _overrideMimeType;
 
     cc::Data _responseData;
 
@@ -234,7 +234,7 @@ XMLHttpRequest::~XMLHttpRequest() {
     CC_SAFE_RELEASE(_httpRequest);
 }
 
-bool XMLHttpRequest::open(const std::string &method, const std::string &url) {
+bool XMLHttpRequest::open(const ccstd::string &method, const ccstd::string &url) {
     if (_readyState != ReadyState::UNSENT) {
         return false;
     }
@@ -256,7 +256,7 @@ bool XMLHttpRequest::open(const std::string &method, const std::string &url) {
         requestType = HttpRequest::Type::DELETE;
     }
 
-    CCASSERT(requestType != HttpRequest::Type::UNKNOWN, (std::string("XMLHttpRequest.open: Unknown method: ") + method).c_str());
+    CCASSERT(requestType != HttpRequest::Type::UNKNOWN, (ccstd::string("XMLHttpRequest.open: Unknown method: ") + method).c_str());
 
     _httpRequest->setRequestType(requestType);
     _httpRequest->setUrl(_url);
@@ -274,7 +274,7 @@ void XMLHttpRequest::send() {
     sendRequest();
 }
 
-void XMLHttpRequest::sendString(const std::string &str) {
+void XMLHttpRequest::sendString(const ccstd::string &str) {
     setHttpRequestData(str.c_str(), str.length());
     sendRequest();
 }
@@ -327,14 +327,14 @@ void XMLHttpRequest::setReadyState(ReadyState readyState) {
     }
 }
 
-void XMLHttpRequest::getHeader(const std::string &header) {
+void XMLHttpRequest::getHeader(const ccstd::string &header) {
     // check for colon.
     size_t found_header_field = header.find_first_of(':'); // NOLINT(readability-identifier-naming)
 
-    if (found_header_field != std::string::npos) {
+    if (found_header_field != ccstd::string::npos) {
         // Found a header field.
-        std::string http_field; // NOLINT(readability-identifier-naming)
-        std::string http_value; // NOLINT(readability-identifier-naming)
+        ccstd::string http_field; // NOLINT(readability-identifier-naming)
+        ccstd::string http_value; // NOLINT(readability-identifier-naming)
 
         http_field = header.substr(0, found_header_field);
         http_value = header.substr(found_header_field + 1, header.length());
@@ -392,7 +392,7 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
         return;
     }
 
-    std::string tag = response->getHttpRequest()->getTag();
+    ccstd::string tag = response->getHttpRequest()->getTag();
     if (!tag.empty()) {
         SE_LOGD("XMLHttpRequest::onResponse, %s completed\n", tag.c_str());
     }
@@ -405,7 +405,7 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     _responseData.clear();
 
     if (!response->isSucceed()) {
-        std::string errorBuffer = response->getErrorBuffer();
+        ccstd::string errorBuffer = response->getErrorBuffer();
         SE_LOGD("Response failed, error buffer: %s\n", errorBuffer.c_str());
         if (statusCode == 0 || statusCode == -1) {
             _errorFlag = true;
@@ -426,10 +426,10 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     // set header
     ccstd::vector<char> *headers = response->getResponseHeader();
 
-    std::string header(headers->begin(), headers->end());
+    ccstd::string header(headers->begin(), headers->end());
 
     std::istringstream stream(header);
-    std::string        line;
+    ccstd::string      line;
     while (std::getline(stream, line)) {
         getHeader(line);
     }
@@ -457,11 +457,11 @@ void XMLHttpRequest::onResponse(HttpClient * /*client*/, HttpResponse *response)
     }
 }
 
-void XMLHttpRequest::overrideMimeType(const std::string &mimeType) {
+void XMLHttpRequest::overrideMimeType(const ccstd::string &mimeType) {
     _overrideMimeType = mimeType;
 }
 
-std::string XMLHttpRequest::getMimeType() const {
+ccstd::string XMLHttpRequest::getMimeType() const {
     if (!_overrideMimeType.empty()) {
         return _overrideMimeType;
     }
@@ -506,10 +506,10 @@ void XMLHttpRequest::setHttpRequestData(const char *data, size_t len) {
     }
 }
 
-void XMLHttpRequest::setRequestHeader(const std::string &key, const std::string &value) {
+void XMLHttpRequest::setRequestHeader(const ccstd::string &key, const ccstd::string &value) {
     std::stringstream header_s; // NOLINT(readability-identifier-naming)
     std::stringstream value_s;  // NOLINT(readability-identifier-naming)
-    std::string       header;
+    ccstd::string     header;
 
     auto iter = _requestHeader.find(key);
 
@@ -523,9 +523,9 @@ void XMLHttpRequest::setRequestHeader(const std::string &key, const std::string 
     _requestHeader[key] = value_s.str();
 }
 
-std::string XMLHttpRequest::getAllResponseHeaders() const {
+ccstd::string XMLHttpRequest::getAllResponseHeaders() const {
     std::stringstream responseheaders;
-    std::string       responseheader;
+    ccstd::string     responseheader;
 
     for (const auto &it : _httpHeader) {
         responseheaders << it.first << ": " << it.second << "\n";
@@ -535,9 +535,9 @@ std::string XMLHttpRequest::getAllResponseHeaders() const {
     return responseheader;
 }
 
-std::string XMLHttpRequest::getResponseHeader(const std::string &key) const {
-    std::string ret;
-    std::string value = key;
+ccstd::string XMLHttpRequest::getResponseHeader(const ccstd::string &key) const {
+    ccstd::string ret;
+    ccstd::string value = key;
     std::transform(value.begin(), value.end(), value.begin(), ::tolower);
 
     auto iter = _httpHeader.find(value);
@@ -548,7 +548,7 @@ std::string XMLHttpRequest::getResponseHeader(const std::string &key) const {
 }
 
 void XMLHttpRequest::setHttpRequestHeader() {
-    ccstd::vector<std::string> header;
+    ccstd::vector<ccstd::string> header;
 
     for (auto &it : _requestHeader) {
         const char *first  = it.first.c_str();
@@ -647,12 +647,12 @@ static bool XMLHttpRequest_open(se::State &s) { //NOLINT(readability-identifier-
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     if (argc >= 2) {
-        auto *      request = static_cast<XMLHttpRequest *>(s.nativeThisObject());
-        bool        ok      = false;
-        std::string method;
+        auto *        request = static_cast<XMLHttpRequest *>(s.nativeThisObject());
+        bool          ok      = false;
+        ccstd::string method;
         ok = sevalue_to_native(args[0], &method);
         SE_PRECONDITION2(ok, false, "args[0] isn't a string.");
-        std::string url;
+        ccstd::string url;
         ok = sevalue_to_native(args[1], &url);
         SE_PRECONDITION2(ok, false, "args[1] isn't a string.");
         bool ret = request->open(method, url);
@@ -736,11 +736,11 @@ static bool XMLHttpRequest_setRequestHeader(se::State &s) { //NOLINT(readability
     size_t      argc = args.size();
 
     if (argc >= 2) {
-        auto *      xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());
-        std::string key;
-        bool        ok = sevalue_to_native(args[0], &key);
+        auto *        xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());
+        ccstd::string key;
+        bool          ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "args[0] couldn't be converted to string.");
-        std::string value;
+        ccstd::string value;
         ok = sevalue_to_native(args[1], &value);
         SE_PRECONDITION2(ok, false, "args[1] couldn't be converted to string.");
         xhr->setRequestHeader(key, value);
@@ -753,8 +753,8 @@ static bool XMLHttpRequest_setRequestHeader(se::State &s) { //NOLINT(readability
 SE_BIND_FUNC(XMLHttpRequest_setRequestHeader)
 
 static bool XMLHttpRequest_getAllResponseHeaders(se::State &s) { //NOLINT(readability-identifier-naming, google-runtime-references)
-    auto *      xhr     = static_cast<XMLHttpRequest *>(s.nativeThisObject());
-    std::string headers = xhr->getAllResponseHeaders();
+    auto *        xhr     = static_cast<XMLHttpRequest *>(s.nativeThisObject());
+    ccstd::string headers = xhr->getAllResponseHeaders();
     s.rval().setString(headers);
     return true;
 }
@@ -764,11 +764,11 @@ static bool XMLHttpRequest_getResonpseHeader(se::State &s) { //NOLINT(readabilit
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc > 0) {
-        auto *      xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());
-        std::string key;
-        bool        ok = sevalue_to_native(args[0], &key);
+        auto *        xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());
+        ccstd::string key;
+        bool          ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "args[0] couldn't be converted to string.");
-        std::string header = xhr->getResponseHeader(key);
+        ccstd::string header = xhr->getResponseHeader(key);
         s.rval().setString(header);
         return true;
     }
@@ -782,7 +782,7 @@ static bool XMLHttpRequest_overrideMimeType(se::State &s) { //NOLINT(readability
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     if (argc > 0 && args[0].isString()) {
-        std::string mimeType;
+        ccstd::string mimeType;
         sevalue_to_native(args[0], &mimeType);
         auto *xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());
         xhr->overrideMimeType(mimeType);
@@ -847,8 +847,8 @@ static bool XMLHttpRequest_getResponse(se::State &s) { //NOLINT(readability-iden
             s.rval().setNull();
         } else {
             if (xhr->getResponseType() == XMLHttpRequest::ResponseType::JSON) {
-                const std::string &jsonText = xhr->getResponseText();
-                se::HandleObject   seObj(se::Object::createJSONObject(jsonText));
+                const ccstd::string &jsonText = xhr->getResponseText();
+                se::HandleObject     seObj(se::Object::createJSONObject(jsonText));
                 if (!seObj.isEmpty()) {
                     s.rval().setObject(seObj);
                 } else {
@@ -922,8 +922,8 @@ static bool XMLHttpRequest_setResponseType(se::State &s) { //NOLINT(readability-
     size_t      argc = args.size();
 
     if (argc > 0) {
-        std::string type;
-        bool        ok = sevalue_to_native(args[0], &type);
+        ccstd::string type;
+        bool          ok = sevalue_to_native(args[0], &type);
         SE_PRECONDITION2(ok, false, "args[0] couldn't be converted to string!");
 
         auto *xhr = static_cast<XMLHttpRequest *>(s.nativeThisObject());

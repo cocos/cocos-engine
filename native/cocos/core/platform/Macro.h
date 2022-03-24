@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <string>
+#include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 #include "math/Math.h"
 
@@ -39,7 +39,7 @@ namespace macro {
     * 引擎默认支持的图片格式，支持的格式可能在不同的构建平台和设备类型上有所差别。
     * 目前所有平台和设备支持的格式有 ['.webp', '.jpg', '.jpeg', '.bmp', '.png']. The iOS mobile platform also supports the PVR format。
     */
-extern const ccstd::vector<std::string> SUPPORT_TEXTURE_FORMATS;
+extern const ccstd::vector<ccstd::string> SUPPORT_TEXTURE_FORMATS;
 /**
     * @en Key map for keyboard event
     * @zh 键盘事件的按键值。

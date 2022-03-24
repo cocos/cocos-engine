@@ -26,10 +26,10 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
+#include "base/std/container/string.h"
 #include "cocos/base/Optional.h"
 #include "cocos/math/Utils.h"
 #include "core/geometry/Frustum.h"
@@ -115,13 +115,13 @@ enum class CameraShutter {
 };
 
 struct ICameraInfo {
-    std::string               name;
-    Node *                    node{nullptr};
-    CameraProjection          projection;
-    cc::optional<uint32_t>    targetDisplay;
-    RenderWindow *            window{nullptr};
-    uint32_t                  priority{0};
-    cc::optional<std::string> pipeline;
+    ccstd::string               name;
+    Node *                      node{nullptr};
+    CameraProjection            projection;
+    cc::optional<uint32_t>      targetDisplay;
+    RenderWindow *              window{nullptr};
+    uint32_t                    priority{0};
+    cc::optional<ccstd::string> pipeline;
 };
 
 class Camera : public RefCounted {
@@ -232,16 +232,16 @@ public:
     void               setViewport(const Vec4 &val);
     void               setViewportInOrientedSpace(const Vec4 &val);
 
-    inline RenderScene *      getScene() const { return _scene; }
-    inline const std::string &getName() const { return _name; }
-    inline uint32_t           getWidth() const { return _width; }
-    inline uint32_t           getHeight() const { return _height; }
-    inline float              getAspect() const { return _aspect; }
-    inline const Mat4 &       getMatView() const { return _matView; }
-    inline const Mat4 &       getMatProj() const { return _matProj; }
-    inline const Mat4 &       getMatProjInv() const { return _matProjInv; }
-    inline const Mat4 &       getMatViewProj() const { return _matViewProj; }
-    inline const Mat4 &       getMatViewProjInv() const { return _matViewProjInv; }
+    inline RenderScene *        getScene() const { return _scene; }
+    inline const ccstd::string &getName() const { return _name; }
+    inline uint32_t             getWidth() const { return _width; }
+    inline uint32_t             getHeight() const { return _height; }
+    inline float                getAspect() const { return _aspect; }
+    inline const Mat4 &         getMatView() const { return _matView; }
+    inline const Mat4 &         getMatProj() const { return _matProj; }
+    inline const Mat4 &         getMatProjInv() const { return _matProjInv; }
+    inline const Mat4 &         getMatViewProj() const { return _matViewProj; }
+    inline const Mat4 &         getMatViewProjInv() const { return _matViewProjInv; }
 
     inline void setFrustum(const geometry::Frustum &val) {
         *_frustum = val;
@@ -326,7 +326,7 @@ private:
     gfx::Device *         _device{nullptr};
     RenderScene *         _scene{nullptr};
     IntrusivePtr<Node>    _node;
-    std::string           _name;
+    ccstd::string         _name;
     bool                  _enabled{false};
     CameraProjection      _proj{CameraProjection::UNKNOWN};
     float                 _aspect{0.F};
@@ -363,7 +363,7 @@ private:
     float                 _clearDepth{1.0F};
 
     IntrusivePtr<pipeline::GeometryRenderer> _geometryRenderer;
-	
+
     static const ccstd::vector<float> FSTOPS;
     static const ccstd::vector<float> SHUTTERS;
     static const ccstd::vector<float> ISOS;
